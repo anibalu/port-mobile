@@ -1,0 +1,1 @@
+export const JOIN_SCREEN_INPUT_LIMIT = 30;

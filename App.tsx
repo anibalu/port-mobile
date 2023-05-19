@@ -15,6 +15,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // Screens in the app
 import Welcome from './src/screens/Welcome/Welcome';
 import Placeholder from './src/screens/Placeholder/Placeholder';
+import Onboarding from './src/screens/Onboarding/Onboarding';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,7 @@ function App(): JSX.Element {
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Welcome" component={Welcome} />
+        <Stack.Screen name="Onboarding" component={Onboarding} />
         <Stack.Screen name="Placeholder" component={Placeholder} />
       </Stack.Navigator>
     </NavigationContainer>

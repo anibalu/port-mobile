@@ -18,14 +18,12 @@ function Welcome({ navigation }) {
                 <Name width={255} height={95} />
             </View>
             <TouchableOpacity style={styles.button} 
-                onPress={() => navigation.navigate('Placeholder')}
+                onPress={() => navigation.navigate('Onboarding')}
             >
                 <Text style={styles.buttonText}>Get started</Text>
             </TouchableOpacity>
         </View>
     );
-
-    
 }
 
 const styles = StyleSheet.create({

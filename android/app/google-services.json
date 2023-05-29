@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "206413479249",
+    "project_id": "numberless-chat",
+    "storage_bucket": "numberless-chat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206413479249:android:bdd1677ecf4f33f1b42770",
+        "android_client_info": {
+          "package_name": "com.numberless"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206413479249-6rl7t68tb0khqsae0flcok02mcglk31d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASchyqOwt8pnk9Wd814yaTaTN2TyQKu9k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "206413479249-6rl7t68tb0khqsae0flcok02mcglk31d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

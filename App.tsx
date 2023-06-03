@@ -15,6 +15,7 @@ import {StatusBar} from 'react-native';
 import Welcome from './src/screens/Welcome/Welcome';
 import Placeholder from './src/screens/Placeholder/Placeholder';
 import Onboarding from './src/screens/Onboarding/Onboarding';
+import Home from './src/screens/Home/Home';
 import SetupUser from './src/screens/SetupUser/SetupUser';
 import RequestPermissions from './src/screens/RequestPermissions/RequestPermissions';
 
@@ -38,8 +39,9 @@ function App(): JSX.Element {
             name="RequestPermissions"
             component={RequestPermissions}
           />
-          <Stack.Screen name="SetupUser" component={SetupUser} />
           <Stack.Screen name="Onboarding" component={Onboarding} />
+          <Stack.Screen name="SetupUser" component={SetupUser} />
+          <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Placeholder" component={Placeholder} />
         </Stack.Navigator>
       </NavigationContainer>

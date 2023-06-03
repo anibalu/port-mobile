@@ -10,16 +10,16 @@ import {
   StatusBar,
 } from 'react-native';
 import {joinApp} from '../../actions/JoinApp';
-import {JOIN_SCREEN_INPUT_LIMIT} from '../../configs/constants';
+import {NICKNAME_LENGTH_LIMIT} from '../../configs/constants';
 import {BackButton} from '../../components/BackButton';
 import {NextButton} from '../../components/NextButton';
+import {SafeAreaView} from '../../components/SafeAreaView';
 import {
   NumberlessClickableText,
   NumberlessRegularText,
   NumberlessBoldText,
 } from '../../components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
-import {SafeAreaView} from '../../components/SafeAreaView';
 
 function Onboarding() {
   //setup navigation props
@@ -54,7 +54,7 @@ function Onboarding() {
           <View style={styles.nicknameBox}>
             <TextInput
               style={styles.inputText}
-              maxLength={JOIN_SCREEN_INPUT_LIMIT}
+              maxLength={NICKNAME_LENGTH_LIMIT}
               placeholder="Name "
               placeholderTextColor="#BABABA"
               onChangeText={onChangeName}
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
-    height: 83,
+    height: 60,
     alignItems: 'flex-start',
     paddingLeft: '3%',
   },

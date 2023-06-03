@@ -1,61 +1,67 @@
-/**
+/*
  * The welcome screen that greets users when they first download the app
  */
 
 import React from 'react';
-import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, StatusBar} from 'react-native';
+import {NumberlessBoldText} from '../../components/NumberlessText';
 import {getFCMToken, registerBackgroundMessaging} from '../../utils/messaging';
-
+import {useNavigation} from '@react-navigation/native';
+import {SafeAreaView} from '../../components/SafeAreaView';
 import Logo from '../../../assets/miscellaneous/appLogo.svg';
 import Name from '../../../assets/miscellaneous/appName.svg';
 
-function Welcome({navigation}) {
+function Welcome() {
+  // Get navigation props
+  const navigation = useNavigation();
   // For development
   getFCMToken();
   // Setup the capability to handle messages in the background
   registerBackgroundMessaging();
-
   return (
-    <View style={styles.background}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#547CEF" />
       <View style={styles.greeting}>
-        <Logo width={108} height={108} style={styles.logo} />
-        <Name width={255} height={95} />
+        <Logo width={95} height={95} style={styles.logo} />
+        <Name width={226} height={84} style={styles.name} />
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('Onboarding')}>
-        <Text style={styles.buttonText}>Get started</Text>
+        onPress={() => navigation.navigate('RequestPermissions')}>
+        <NumberlessBoldText style={styles.buttonText}>
+          Get started
+        </NumberlessBoldText>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    display: 'flex',
-    backgroundColor: '#547CEF',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'space-between',
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+    backgroundColor: '#547CEF',
+    height: '100%',
+    width: '100%',
   },
   greeting: {
-    marginTop: '25%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+    position: 'absolute',
     alignItems: 'center',
-    height: '30%',
+    justifyContent: 'center',
+    height: '100%',
+    width: '100%',
   },
   logo: {
-    flex: 0,
+    marginBottom: '5%',
   },
   name: {
-    flex: 1,
+    marginBottom: '15%',
   },
   button: {
-    backgroundColor: '#FFFFFF',
     marginBottom: '10%',
+    backgroundColor: '#FFFFFF',
     width: '85%',
     height: 70,
     borderRadius: 16,
@@ -64,7 +70,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#547CEF',
-    fontSize: 17,
   },
 });
 

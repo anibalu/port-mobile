@@ -1,1 +1,3 @@
 export const JOIN_SCREEN_INPUT_LIMIT = 30;
+export const ARTIFICIAL_LOADER_INTERVAL = 300;
+export const TOKEN_VALIDITY_INTERVAL = 4 * 60 * 1000;

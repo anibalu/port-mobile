@@ -1,14 +1,10 @@
-import * as Nickname from '../utils/Nickname';
+import {updateProfile, profile} from '../utils/Profile';
 
-export interface profile {
-  nickname?: string;
-}
-
-export const joinApp = async (input: profile) => {
-  //adds nickname
+//adds nickname
+export async function joinApp(input: profile): Promise<void> {
   if (input.nickname) {
-    const response = await Nickname.saveNickname(input.nickname);
-    return response;
+    await updateProfile(input);
+  } else {
+    throw new Error('NoNicknameError');
   }
-  return 1;
-};
+}

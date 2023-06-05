@@ -12,7 +12,7 @@ import {
 } from '../../components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import Notification from '../../../assets/permissions/notifications.svg';
-import {checkPermission} from '../../utils/OSpermissions';
+import {checkNotificationPermission} from '../../utils/OSpermissions';
 
 function RequestPermissions() {
   const navigation = useNavigation();
@@ -53,7 +53,7 @@ function RequestPermissions() {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              checkPermission();
+              checkNotificationPermission();
               navigation.navigate('Onboarding');
             }}>
             <NumberlessBoldText style={styles.buttonText}>

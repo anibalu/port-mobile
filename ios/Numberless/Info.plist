@@ -70,5 +70,7 @@
 	</array>
 	<key>NSUserNotificationUsageDescription</key>
 	<string>We would like to send you notifications</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We would like to access your camera to enable scanner</string>
 </dict>
 </plist>

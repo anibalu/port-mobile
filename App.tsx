@@ -18,6 +18,8 @@ import Onboarding from './src/screens/Onboarding/Onboarding';
 import Home from './src/screens/Home/Home';
 import SetupUser from './src/screens/SetupUser/SetupUser';
 import RequestPermissions from './src/screens/RequestPermissions/RequestPermissions';
+import ConnectionCentre from './src/screens/ConnectionCentre/ConnectionCentre';
+import Scanner from './src/screens/Scanner/Scanner';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,7 +34,7 @@ function App(): JSX.Element {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Welcome"
+          initialRouteName="Home"
           screenOptions={{headerShown: false}}>
           <Stack.Screen name="Welcome" component={Welcome} />
           <Stack.Screen
@@ -42,6 +44,8 @@ function App(): JSX.Element {
           <Stack.Screen name="Onboarding" component={Onboarding} />
           <Stack.Screen name="SetupUser" component={SetupUser} />
           <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="ConnectionCentre" component={ConnectionCentre} />
+          <Stack.Screen name="Scanner" component={Scanner} />
           <Stack.Screen name="Placeholder" component={Placeholder} />
         </Stack.Navigator>
       </NavigationContainer>

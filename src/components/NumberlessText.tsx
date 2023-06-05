@@ -16,7 +16,12 @@ export const NumberlessBoldText = ({children, style, ...rest}) => (
   </Text>
 );
 
-export const NumberlessClickableText = ({children, style, onPress, ...rest}) => (
+export const NumberlessClickableText = ({
+  children,
+  style,
+  onPress,
+  ...rest
+}) => (
   <TouchableOpacity onPress={onPress}>
     <Text style={StyleSheet.compose(styles.clickable, style)} {...rest}>
       {children}

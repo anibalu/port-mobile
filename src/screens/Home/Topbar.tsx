@@ -1,6 +1,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import {View, Text, Image} from 'react-native';
+import {View, Image} from 'react-native';
+import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 
 type TopbarProps = {
   filter: String | undefined;
@@ -14,7 +15,9 @@ function Topbar(props: TopbarProps) {
   return (
     <View style={styles.bar}>
       <View style={styles.sidebarIcon} />
-      <Text style={styles.title}>{title}</Text>
+      <NumberlessSemiBoldText style={styles.title}>
+        {title}
+      </NumberlessSemiBoldText>
       <Image
         style={styles.image}
         source={require('../../../assets/avatars/avatar1.png')}
@@ -45,7 +48,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 21,
     lineHeight: 28,
-    fontWeight: '600',
     color: 'black',
     marginTop: 10,
   },

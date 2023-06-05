@@ -8,6 +8,7 @@ import BottomNavNewActive from '../../../assets/icons/BottomNavNewActive.svg';
 import BottomNavHomeInactive from '../../../assets/icons/BottomNavHomeInactive.svg';
 import BottomNavScanInactive from '../../../assets/icons/BottomNavScanInactive.svg';
 import BottomNavNewInactive from '../../../assets/icons/BottomNavNewInactive.svg';
+import {useNavigation} from '@react-navigation/native';
 
 export enum Page {
   home = 'home',
@@ -21,9 +22,12 @@ type BottomNavProps = {
 };
 
 export function Button(props: BottomNavProps) {
+  const navigation = useNavigation();
   if (props.page === Page.home) {
     return (
-      <Pressable style={styles.button}>
+      <Pressable
+        style={styles.button}
+        onPress={() => navigation.navigate('Home')}>
         {props.active ? (
           <BottomNavHomeActive style={styles.homeIcon} />
         ) : (
@@ -42,7 +46,9 @@ export function Button(props: BottomNavProps) {
   }
   if (props.page === Page.connectionCentre) {
     return (
-      <Pressable style={styles.button}>
+      <Pressable
+        style={styles.button}
+        onPress={() => navigation.navigate('ConnectionCentre')}>
         {props.active ? (
           <BottomNavNewActive style={styles.newIcon} />
         ) : (
@@ -61,7 +67,9 @@ export function Button(props: BottomNavProps) {
   }
 
   return (
-    <Pressable style={styles.button}>
+    <Pressable
+      style={styles.button}
+      onPress={() => navigation.navigate('Scanner')}>
       {props.active ? (
         <BottomNavScanActive style={styles.scanIcon} />
       ) : (

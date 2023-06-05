@@ -50,9 +50,6 @@ function SetupUser() {
         navigation.navigate('Onboarding');
       }
     });
-    return () => {
-      console.log('component unmounted');
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

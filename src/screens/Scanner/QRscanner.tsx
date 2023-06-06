@@ -5,7 +5,7 @@ import {NumberlessRegularText} from '../../components/NumberlessText';
 import Area from '../../../assets/miscellaneous/scanArea.svg';
 import TorchOn from '../../../assets/icons/TorchOn.svg';
 import TorchOff from '../../../assets/icons/TorchOff.svg';
-import { checkCameraPermission } from '../../utils/OSpermissions';
+import {checkCameraPermission} from '../../utils/OSpermissions';
 
 export default function QRScanner({onCodeScanned}) {
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
@@ -13,12 +13,11 @@ export default function QRScanner({onCodeScanned}) {
 
   useEffect(() => {
     checkCameraPermission(setIsCameraPermissionGranted);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [viewWidth, setViewWidth] = useState(0);
 
-  const onLayout = (event) => {
+  const onLayout = event => {
     const {width} = event.nativeEvent.layout;
     setViewWidth(width);
   };

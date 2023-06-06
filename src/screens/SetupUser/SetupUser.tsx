@@ -9,6 +9,7 @@ import {wait} from '../../utils/wait';
 import {initialiseUserCrypto} from '../../actions/InitialiseUserCrypto';
 import {initialiseTokenAuth} from '../../actions/initialiseTokenAuth';
 import {initialiseLineLinks} from '../../actions/InitialiseLineLinks';
+import {initialiseFCM} from '../../actions/InitialiseFCM';
 
 function SetupUser() {
   // Get navigation props
@@ -28,6 +29,9 @@ function SetupUser() {
     async () => {
       return await initialiseLineLinks(setloaderText);
     },
+    async () => {
+      return await initialiseFCM(setloaderText);
+    },
   ];
   const runActions = async () => {
     for (let i = 0; i < setupActions.length; i++) {
@@ -38,6 +42,7 @@ function SetupUser() {
       }
       setProgress(prevProgress => prevProgress + 90 / setupActions.length);
     }
+    setProgress(100);
     //artificial wait time at the end of load
     await wait(1000);
     return true;

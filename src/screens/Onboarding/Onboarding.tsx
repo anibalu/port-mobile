@@ -26,6 +26,7 @@ function Onboarding() {
   const navigation = useNavigation();
   //setting initial state of nickname string to ""
   const [name, setName] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   const onChangeName = (newName: string) => {
     setName(newName);
   };
@@ -55,10 +56,13 @@ function Onboarding() {
             <TextInput
               style={styles.inputText}
               maxLength={NICKNAME_LENGTH_LIMIT}
-              placeholder="Name "
+              placeholder={isFocused ? '' : 'Name'}
+              textAlign="center"
               placeholderTextColor="#BABABA"
               onChangeText={onChangeName}
               value={name}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
             />
           </View>
         </View>
@@ -104,9 +108,9 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
-    height: 60,
+    height: 51,
     alignItems: 'flex-start',
-    paddingLeft: '3%',
+    paddingLeft: '6%',
   },
   titleText: {
     fontSize: 24,
@@ -136,7 +140,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Rubik-Bold',
     backgroundColor: '#F9F9F9',
     borderRadius: 16,
-    paddingLeft: 30,
   },
   nextButtonContainer: {
     width: '100%',

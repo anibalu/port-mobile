@@ -92,9 +92,9 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
-    height: 60,
+    height: 51,
     alignItems: 'flex-start',
-    paddingLeft: '3%',
+    paddingLeft: '6%',
   },
   titleText: {
     fontSize: 24,

@@ -50,7 +50,7 @@ function SetupUser() {
   useEffect(() => {
     runActions().then(ret => {
       if (ret) {
-        navigation.navigate('Placeholder');
+        navigation.navigate('Home');
       } else {
         navigation.navigate('Onboarding');
       }

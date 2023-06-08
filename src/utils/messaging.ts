@@ -37,7 +37,7 @@ export const patchFCMToken = async (tokenFCM: string) => {
       return response.data;
     }
   } catch (error) {
-    console.log('put FCM token failed with error: ', error);
+    console.log('patch FCM token failed with error: ', error);
     return null;
   }
 };

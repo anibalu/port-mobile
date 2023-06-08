@@ -20,6 +20,7 @@ import SetupUser from './src/screens/SetupUser/SetupUser';
 import RequestPermissions from './src/screens/RequestPermissions/RequestPermissions';
 import ConnectionCentre from './src/screens/ConnectionCentre/ConnectionCentre';
 import Scanner from './src/screens/Scanner/Scanner';
+import NewContact from './src/screens/NewContact/NewContact';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +46,7 @@ function App(): JSX.Element {
           <Stack.Screen name="SetupUser" component={SetupUser} />
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="ConnectionCentre" component={ConnectionCentre} />
+          <Stack.Screen name="NewContact" component={NewContact} />
           <Stack.Screen name="Scanner" component={Scanner} />
           <Stack.Screen name="Placeholder" component={Placeholder} />
         </Stack.Navigator>

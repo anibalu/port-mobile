@@ -5,6 +5,7 @@ import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator'
 import {Page} from '../../components/BottomNavigator/Button';
 import QRScanner from './QRscanner';
 import {useNavigation} from '@react-navigation/native';
+import { createLine } from '../../utils/line';
 
 function Scanner() {
   const navigation = useNavigation();
@@ -17,6 +18,10 @@ function Scanner() {
         navigation.navigate('Home');
         //do stuff here
         //check whether QR code is a numberless QR code
+        const lineLink = bundle['link'];
+        console.log(lineLink)
+        const line = createLine(lineLink)
+        console.log(line)
       } catch (error) {
         Alert.alert('QR code not a numberless QR code');
         navigation.navigate('Home');

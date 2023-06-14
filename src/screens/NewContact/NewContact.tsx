@@ -4,8 +4,10 @@ import {ScrollView, StatusBar, StyleSheet, View, Dimensions, Text} from 'react-n
 import Topbar from './TopBar';
 import ConnectionDisplay from './ConnectionDisplay';
 import { NumberlessMediumText, NumberlessRegularText } from '../../components/NumberlessText';
+import { useNavigation } from '@react-navigation/native';
 
 function NewContact() {
+    const navigation = useNavigation();
     const [label, setLabel] = useState<string>("");
     const [qrCodeData, setQRCodeData] = useState("");
     const [linkData, setLinkData] = useState("");
@@ -26,7 +28,7 @@ function NewContact() {
                 </View>
             </ScrollView>
             <View style={styles.topBox}>
-                <Topbar onPress={() => {console.log(label + qrCodeData + linkData)}}/>
+                <Topbar onPress={() => {navigation.navigate('ConnectionCentre')}}/>
             </View>
         </SafeAreaView >
     );

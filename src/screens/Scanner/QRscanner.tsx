@@ -1,28 +1,54 @@
 import {Camera} from 'react-native-camera-kit';
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Pressable} from 'react-native';
+import {View, StyleSheet, Pressable, Alert} from 'react-native';
 import {NumberlessRegularText} from '../../components/NumberlessText';
 import Area from '../../../assets/miscellaneous/scanArea.svg';
 import TorchOn from '../../../assets/icons/TorchOn.svg';
 import TorchOff from '../../../assets/icons/TorchOff.svg';
 import {checkCameraPermission} from '../../utils/OSpermissions';
+import { useNavigation } from '@react-navigation/native';
 
 export default function QRScanner({onCodeScanned}) {
+  const navigation = useNavigation();
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
     useState(false);
 
   useEffect(() => {
     checkCameraPermission(setIsCameraPermissionGranted);
   }, []);
-
   const [viewWidth, setViewWidth] = useState(0);
+  const [qrData, setQrData] = useState("");
+  const showAlertAndWait = () => {
+    Alert.alert(
+      'Incorrect OR',
+      'QR code not a numberless QR code',
+      [
+        {
+          text: 'OK',
+          onPress: () => {setQrData("");
+          setScanCode(true);},
+        },
+      ],
+      { cancelable: false }
+    );
+};
+  useEffect(() => {
+    if (qrData !== "") {
+      //this makes scan happen only once
+      onCodeScanned(qrData).then((ret) => {if(ret) {
+        navigation.navigate('Home');
+      } else {
+        showAlertAndWait();
+      }})
+    } 
+  }, [qrData]);
 
   const onLayout = event => {
     const {width} = event.nativeEvent.layout;
     setViewWidth(width);
   };
   const [torchState, setTorchState] = useState('off');
-
+  const [scanCode, setScanCode] = useState(true);
   return (
     <View style={styles.container} onLayout={onLayout}>
       {isCameraPermissionGranted ? (
@@ -34,8 +60,9 @@ export default function QRScanner({onCodeScanned}) {
           torchMode={torchState}
           saveToCameraRoll={false}
           style={styles.camera}
-          scanBarcode={true}
-          onReadCode={onCodeScanned}
+          scanBarcode={scanCode}
+          onReadCode={(event) => {setScanCode(false);
+            setQrData(event.nativeEvent.codeStringValue);}}
         />
       ) : (
         <View style={styles.permissionDenied}>

@@ -10,10 +10,13 @@ import QRCode from "react-native-qrcode-svg";
 import { NumberlessClickableText, NumberlessMediumText } from "../../components/NumberlessText";
 import OptionToggle from "./OptionToggle";
 import { convertQRtoLink } from "../../actions/ConvertQRtoLink";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { foregroundMessageHandler, screenForegroundMessageHandler } from "../../utils/messaging";
 
 type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
 
 function ConnectionDisplay({label, setLabel, qrCodeData, setQRCodeData, linkData, setLinkData}) {
+    const navigation = useNavigation();
     const [isQR, setIsQR] = useState<boolean>(true);
     const [loading, setLoading] = useState(true);
     const [viewWidth, setViewWidth] = useState(0);
@@ -59,6 +62,23 @@ function ConnectionDisplay({label, setLabel, qrCodeData, setQRCodeData, linkData
             fetchLinkData();
         }
     }, [isQR, loading])
+    //TODO: configure foreground message handler
+    const triggerHandler = (message) => {
+        if (qrCodeData !== "") {
+            console.log("linelinkid: ", message.data);
+            console.log("linkid: ", JSON.parse(qrCodeData));
+            if (message.data.lineLinkId === JSON.parse(qrCodeData).bundles.data.linkId) {
+                navigation.navigate('Home');
+            }
+        }
+      }
+      //TODO: configure foreground message handler
+      useFocusEffect(
+        React.useCallback(() => {
+          const unsub = screenForegroundMessageHandler(triggerHandler);
+          return unsub;
+        }, [])
+      );
     return(
         <View style={styles.container}>
             <OptionToggle isQR={isQR} setIsQR={setIsQR}/>
@@ -103,7 +123,7 @@ function ConnectionDisplay({label, setLabel, qrCodeData, setQRCodeData, linkData
                         </Pressable>
                     </View>
                     <View style={styles.buttonBoxRight}>
-                        <Pressable style={styles.button} onPress={() => console.log("Scan Pressed")}>
+                        <Pressable style={styles.button} onPress={() => navigation.navigate("Scanner")}>
                             <Scan width={30} height={30} />
                         </Pressable>
                     </View>

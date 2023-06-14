@@ -8,7 +8,7 @@ import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {foregroundMessageHandler} from './src/utils/messaging';
+import {defaultForegroundMessageHandler} from './src/utils/messaging';
 import {StatusBar} from 'react-native';
 
 // Screens in the app
@@ -25,11 +25,9 @@ import NewContact from './src/screens/NewContact/NewContact';
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
-  // handle new messages in the foreground
-  useEffect(() => {
-    foregroundMessageHandler();
-  }, []);
-
+  // default way to handle new messages in the foreground
+  defaultForegroundMessageHandler();
+  //set up background message handler here
   return (
     <SafeAreaProvider>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />

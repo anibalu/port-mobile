@@ -1,4 +1,4 @@
-import {getNewLineLinks} from '../utils/linelinks';
+import {getNewLineLinks, saveLineLinks} from '../utils/linelinks';
 
 type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -13,5 +13,6 @@ export async function initialiseLineLinks(
     return false;
   }
   console.log('5. line links: ', lineLinks);
+  await saveLineLinks(lineLinks);
   return true;
 }

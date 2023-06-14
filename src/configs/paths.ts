@@ -5,3 +5,7 @@ export const connectionsPath = 'connections.json';
 export const tokenPath = 'token.json';
 //path to line links
 export const lineLinksPath = 'lineLinks.json';
+//path to generated bundles
+export const generatedBundlesPath = 'generatedBundles.json';
+//path to read bundles
+export const readBundlesPath = 'readBundles.json';

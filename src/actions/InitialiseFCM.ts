@@ -1,4 +1,4 @@
-import {getFCMToken, patchFCMToken} from '../utils/messaging';
+import {getFCMToken, patchFCMToken} from '../utils/messagingFCM';
 
 type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
 

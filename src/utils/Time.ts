@@ -1,5 +1,5 @@
-export default function getTimeStamp(ISOTime: string | undefined) {
-  if (!getTimeStamp) {
+export function getTimeStamp(ISOTime: string | undefined) {
+  if (!ISOTime) {
     return '';
   }
   const datetime = new Date(ISOTime);
@@ -13,5 +13,22 @@ export default function getTimeStamp(ISOTime: string | undefined) {
       hour: '2-digit',
       minute: '2-digit',
     });
+  }
+}
+
+export function getTime(ISOTime: string | undefined) {
+  if (!ISOTime) {
+    return '';
+  }
+
+  const datetime = new Date(ISOTime);
+  try {
+    return datetime.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    console.log('invbalid datetime: ', ISOTime);
+    return '';
   }
 }

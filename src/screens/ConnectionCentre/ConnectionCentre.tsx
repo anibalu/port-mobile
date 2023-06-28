@@ -6,7 +6,6 @@ import {Page} from '../../components/BottomNavigator/Button';
 import NewContactCard from './NewContactCard';
 import NewGroupCard from './NewGroupCard';
 import NewGatewayCard from './NewGatewayCard';
-
 export type instrument = {
   id: string;
 };
@@ -15,12 +14,12 @@ const options: instrument[] = [
   {
     id: 'contact',
   },
-  {
-    id: 'group',
-  },
-  {
-    id: 'gateway',
-  },
+  // {
+  //   id: 'group',
+  // },
+  // {
+  //   id: 'gateway',
+  // },
 ];
 
 function ConnectionCentre() {

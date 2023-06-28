@@ -4,6 +4,7 @@ import {nicknameTruncate} from './Nickname';
 import axios from 'axios';
 import * as API from '../configs/api';
 import {parsePEMPublicKey, publicKeyPEMencode} from '../utils/pem';
+import {connectionFsSync} from './syncronization';
 
 export interface profile {
   //nickname chosen by user
@@ -27,6 +28,13 @@ export interface serverResponse {
 
 //updates a user's profile.json file. creates file if none exists.
 export async function updateProfile(data: profile): Promise<void> {
+  const synced = async () => {
+    await updateProfileAsync(data);
+  };
+  await connectionFsSync(synced);
+}
+
+export async function updateProfileAsync(data: profile): Promise<void> {
   const dataNew: profile = data;
   //check size of nickname. If size > JOIN_SCREEN_INPUT_LIMIT, truncate.
   if (data.nickname) {
@@ -44,7 +52,7 @@ export async function updateProfile(data: profile): Promise<void> {
   }
 }
 
-export async function readProfile(): Promise<profile> {
+export async function readProfileAsync(): Promise<profile> {
   try {
     const pathToFile = `${RNFS.DocumentDirectoryPath}/${profilePath}`;
     const profileDataJSON = await RNFS.readFile(pathToFile, 'utf8');
@@ -56,16 +64,26 @@ export async function readProfile(): Promise<profile> {
   }
 }
 
+export async function readProfile(): Promise<profile> {
+  const synced = async () => {
+    return await readProfileAsync();
+  };
+  return await connectionFsSync(synced);
+}
+
 export async function readProfileNickname(): Promise<string> {
-  const profileData: profile = await readProfile();
-  if (profileData.nickname) {
-    return profileData.nickname;
-  }
-  throw new Error('NoProfileNicknameError');
+  const synced = async () => {
+    const profileData: profile = await readProfileAsync();
+    if (profileData.nickname) {
+      return profileData.nickname;
+    }
+    throw new Error('NoProfileNicknameError');
+  };
+  return await connectionFsSync(synced);
 }
 
 export async function postUserPubKey(pubKey: string) {
-  const response = await axios.post(API.INITIAL_POST_MANAGEMENT_API, {
+  const response = await axios.post(API.INITIAL_POST_MANAGEMENT_RESOURCE, {
     authPubKey: publicKeyPEMencode(pubKey),
   });
   return response.data;
@@ -74,24 +92,27 @@ export async function postUserPubKey(pubKey: string) {
 export async function getUserIdAndServerKey(
   pubKey: string,
 ): Promise<serverResponse | null> {
-  const profileData: profile = await readProfile();
-  if (profileData.userId && profileData.serverKey) {
-    const response: serverResponse = {
-      serverKey: profileData.serverKey,
-      userId: profileData.userId,
-    };
-    return response;
-  }
-  try {
-    const response = await postUserPubKey(pubKey);
-    const successfulResponse: serverResponse = {
-      serverKey: parsePEMPublicKey(response.peerPubKey),
-      userId: response.userId,
-    };
-    await updateProfile(successfulResponse);
-    return successfulResponse;
-  } catch (error) {
-    console.log('error in getting user Id: ', error);
-    return null;
-  }
+  const synced = async () => {
+    const profileData: profile = await readProfileAsync();
+    if (profileData.userId && profileData.serverKey) {
+      const response: serverResponse = {
+        serverKey: profileData.serverKey,
+        userId: profileData.userId,
+      };
+      return response;
+    }
+    try {
+      const response = await postUserPubKey(pubKey);
+      const successfulResponse: serverResponse = {
+        serverKey: parsePEMPublicKey(response.peerPubKey),
+        userId: response.userId,
+      };
+      await updateProfileAsync(successfulResponse);
+      return successfulResponse;
+    } catch (error) {
+      console.log('error in getting user Id: ', error);
+      return null;
+    }
+  };
+  return await connectionFsSync(synced);
 }

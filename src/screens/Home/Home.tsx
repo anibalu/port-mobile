@@ -3,22 +3,21 @@
  * a few other neat features
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import ChatTile from '../../components/ChatTile/ChatTile';
 import {SafeAreaView} from '../../components/SafeAreaView';
 import {
   Connection,
   ConnectionType,
-  deleteAllConnections,
-  getConnections,
+  getConnectionsOrdered,
 } from '../../utils/Connection';
 import {FlatList, StatusBar, StyleSheet} from 'react-native';
 import Topbar from './Topbar';
 import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator';
 import {Page} from '../../components/BottomNavigator/Button';
-import { useFocusEffect } from '@react-navigation/native';
-import { deleteAllGeneratedBundles, deleteAllReadBundles } from '../../utils/bundles';
-import { screenForegroundMessageHandler } from '../../utils/messaging';
+import {useFocusEffect} from '@react-navigation/native';
+import store from '../../store/appStore';
+import {cancelAllNotifications} from '../../utils/notifications';
 
 function renderChatTile(connection: Connection) {
   return (
@@ -29,6 +28,7 @@ function renderChatTile(connection: Connection) {
       text={connection.text}
       timeStamp={connection.timeStamp}
       newMessageCount={connection.newMessageCount}
+      readStatus={connection.readStatus}
     />
   );
 }
@@ -36,30 +36,36 @@ function renderChatTile(connection: Connection) {
 function Home() {
   const [connections, setConnections] = useState<Array<Connection>>([]);
   const [totalUnread, setTotalUnread] = useState<number>(0);
-  const [renderCount, setRenderCount] = useState<number>(0);
+  const [latestMessage, setLatestMessage] = useState<Object>({});
   useFocusEffect(
     React.useCallback(() => {
-      (async () => {
-        setConnections(await getConnections());
-        // Sum over all the newMessagteCounts
-        const unread = connections.reduce(
-          (runningSum, connection) =>
-            runningSum + ((connection.newMessageCount || 0) > 0 ? 1 : 0),
-          0,
-        );
-        setTotalUnread(unread);
-      })();
-    }, [renderCount])
+      const countNewConnections = async () => {
+        setConnections(await getConnectionsOrdered());
+        let count = 0;
+        for (const connection of connections) {
+          if (connection.readStatus === 'new') {
+            count++;
+          }
+        }
+        setTotalUnread(count);
+      }
+      countNewConnections();
+      // Cancel all notifications when I land on the home screen
+      cancelAllNotifications();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [latestMessage]),
   );
   useFocusEffect(
     React.useCallback(() => {
-      const unsub = screenForegroundMessageHandler(upRenderCount);
-      return unsub;
-    }, [])
+      const unsubscribe = store.subscribe(() => {
+        setLatestMessage(store.getState().latestMessage);
+      });
+      // Clean up the subscription when the screen loses focus
+      return () => {
+        unsubscribe();
+      };
+    }, []),
   );
-  const upRenderCount = (message) => {
-    setRenderCount(renderCount + 1);
-  }
 
   return (
     <SafeAreaView style={styles.screen}>

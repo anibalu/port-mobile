@@ -1,16 +1,23 @@
 import React from 'react';
 import {View, StyleSheet, Image, Pressable} from 'react-native';
-import getTimeStamp from '../../utils/Time';
-import {Connection} from '../../utils/Connection';
+import {getTimeStamp} from '../../utils/Time';
+import {UpdateConnectionProps, toggleRead} from '../../utils/Connection';
 import {
   NumberlessRegularText,
   NumberlessSemiBoldText,
   NumberlessMediumText,
 } from '../NumberlessText';
+import {useNavigation} from '@react-navigation/native';
 
-type ChatTileProps = Connection;
+type ChatTileProps = UpdateConnectionProps;
 
 function ChatTile(props: ChatTileProps) {
+  const navigation = useNavigation();
+  const handleNavigate = () => {
+    const lineId = props.id;
+    toggleRead(lineId);
+    navigation.navigate('DirectChat', {lineId});
+  };
   let status: string;
   if (props.readStatus && props.readStatus in ['read', 'sent', 'seen', 'new']) {
     status = props.readStatus;
@@ -20,14 +27,18 @@ function ChatTile(props: ChatTileProps) {
   if (props.newMessageCount) {
     status = 'new';
   }
+  if (props.newMessageCount === undefined) {
+    status = 'new';
+  }
+  console.log(status);
   return (
     <Pressable
       style={
-        props.newMessageCount
+        props.readStatus === 'new'
           ? StyleSheet.compose(styles.tile, styles.newMessage)
           : styles.tile
       }
-      onPress={() => console.log(`clicked on ${props.nickname}`)}>
+      onPress={handleNavigate}>
       <View style={styles.text}>
         <NumberlessSemiBoldText
           style={styles.nickname}
@@ -37,7 +48,7 @@ function ChatTile(props: ChatTileProps) {
         </NumberlessSemiBoldText>
         <NumberlessRegularText
           style={
-            props.newMessageCount
+            props.readStatus === 'new'
               ? styles.content
               : StyleSheet.compose(styles.content, styles.newMessageContent)
           }
@@ -56,12 +67,22 @@ function ChatTile(props: ChatTileProps) {
             {getTimeStamp(props.timeStamp)}
           </NumberlessMediumText>
           <NumberlessSemiBoldText style={styles[status]}>
-            {props.newMessageCount > 999 ? '999+' : props.newMessageCount}
+            {displayNumber(props.newMessageCount)}
           </NumberlessSemiBoldText>
         </View>
       </View>
     </Pressable>
   );
+}
+function displayNumber(newMsgCount) {
+  if (newMsgCount === undefined) {
+    return 'New';
+  } else {
+    if (newMsgCount > 999) {
+      return '999+';
+    }
+    return newMsgCount;
+  }
 }
 
 const styles = StyleSheet.create({

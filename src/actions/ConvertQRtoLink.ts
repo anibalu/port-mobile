@@ -1,6 +1,10 @@
-import { wait } from "../utils/wait";
+import {postBundle} from '../utils/bundles';
 
-export async function convertQRtoLink(qrData:string) {
-    await wait(200);
-    return qrData;
+export async function convertQRtoLink(bundleData: string) {
+  const bundleId = await postBundle(bundleData);
+  if (bundleId) {
+    const url = 'https://it.numberless.tech/connect?bundleId=' + bundleId;
+    return url;
+  }
+  return '';
 }

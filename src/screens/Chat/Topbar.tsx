@@ -1,28 +1,22 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {View} from 'react-native';
-import {
-  NumberlessSemiBoldText
-} from '../../components/NumberlessText';
+import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {BackButton} from '../../components/BackButton';
+import {useNavigation} from '@react-navigation/native';
 
-function Topbar({onPress}) {
-  //update generated bundle on back button navigate.
+function Topbar({nickname}) {
+  const navigation = useNavigation();
   return (
     <View style={styles.bar}>
-      <BackButton style={styles.backIcon} onPress={onPress} />
+      <BackButton
+        style={styles.backIcon}
+        onPress={() => navigation.navigate('Home')}
+      />
       <NumberlessSemiBoldText style={styles.title}>
-        New Contact
+        {nickname}
       </NumberlessSemiBoldText>
-      <View style={styles.faqBox}>
-        {/* <NumberlessClickableText
-          style={styles.faqText}
-          onPress={() => {
-            console.log("FAQ button clicked");
-          }}>
-          FAQs
-        </NumberlessClickableText> */}
-      </View>
+      <View style={styles.settingsBox} />
     </View>
   );
 }
@@ -53,7 +47,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 51,
   },
-  faqBox: {
+  settingsBox: {
     width: 50,
     alignItems: 'flex-end',
   },

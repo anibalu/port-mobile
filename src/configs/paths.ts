@@ -9,3 +9,5 @@ export const lineLinksPath = 'lineLinks.json';
 export const generatedBundlesPath = 'generatedBundles.json';
 //path to read bundles
 export const readBundlesPath = 'readBundles.json';
+//path to messages dir
+export const messagesDir = 'messages';

@@ -1,1 +1,0 @@
-export const NEW_CONTACT_FAQ_URL = 'new contact faq clicked';

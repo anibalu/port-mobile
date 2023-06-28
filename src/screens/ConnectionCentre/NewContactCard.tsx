@@ -7,7 +7,7 @@ import {
 import Icon from '../../../assets/icons/ConnectionCenterNewContact.svg';
 import {Button} from './Button';
 import {instrument} from './ConnectionCentre';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
 
 function NewContactCard(props: {
@@ -41,7 +41,7 @@ function NewContactCard(props: {
             </NumberlessRegularText>
           </View>
           <Button
-            onPress={() => navigation.navigate("NewContact")}
+            onPress={() => navigation.navigate('NewContact')}
             style={{width: '80%'}}>
             Initiate
           </Button>

@@ -6,7 +6,7 @@ import Area from '../../../assets/miscellaneous/scanArea.svg';
 import TorchOn from '../../../assets/icons/TorchOn.svg';
 import TorchOff from '../../../assets/icons/TorchOff.svg';
 import {checkCameraPermission} from '../../utils/OSpermissions';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 export default function QRScanner({onCodeScanned}) {
   const navigation = useNavigation();
@@ -17,7 +17,7 @@ export default function QRScanner({onCodeScanned}) {
     checkCameraPermission(setIsCameraPermissionGranted);
   }, []);
   const [viewWidth, setViewWidth] = useState(0);
-  const [qrData, setQrData] = useState("");
+  const [qrData, setQrData] = useState('');
   const showAlertAndWait = () => {
     Alert.alert(
       'Incorrect OR',
@@ -25,22 +25,27 @@ export default function QRScanner({onCodeScanned}) {
       [
         {
           text: 'OK',
-          onPress: () => {setQrData("");
-          setScanCode(true);},
+          onPress: () => {
+            setQrData('');
+            setScanCode(true);
+          },
         },
       ],
-      { cancelable: false }
+      {cancelable: false},
     );
-};
+  };
   useEffect(() => {
-    if (qrData !== "") {
+    if (qrData !== '') {
       //this makes scan happen only once
-      onCodeScanned(qrData).then((ret) => {if(ret) {
-        navigation.navigate('Home');
-      } else {
-        showAlertAndWait();
-      }})
-    } 
+      onCodeScanned(qrData).then(ret => {
+        if (ret) {
+          navigation.navigate('Home');
+        } else {
+          showAlertAndWait();
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qrData]);
 
   const onLayout = event => {
@@ -61,8 +66,10 @@ export default function QRScanner({onCodeScanned}) {
           saveToCameraRoll={false}
           style={styles.camera}
           scanBarcode={scanCode}
-          onReadCode={(event) => {setScanCode(false);
-            setQrData(event.nativeEvent.codeStringValue);}}
+          onReadCode={event => {
+            setScanCode(false);
+            setQrData(event.nativeEvent.codeStringValue);
+          }}
         />
       ) : (
         <View style={styles.permissionDenied}>

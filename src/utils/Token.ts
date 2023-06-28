@@ -3,9 +3,10 @@ import {tokenPath} from '../configs/paths';
 import RNFS from 'react-native-fs';
 import {symmetricEncrypt} from '@numberless/react-native-numberless-crypto';
 import axios from 'axios';
-import {AUTH_SERVER_CHALLENGE_API} from '../configs/api';
+import {AUTH_SERVER_CHALLENGE_RESOURCE} from '../configs/api';
 import {cipher} from '../utils/Crypto';
-import {profile, readProfile} from '../utils/Profile';
+import {profile, readProfileAsync} from '../utils/Profile';
+import {connectionFsSync} from './syncronization';
 
 export interface challenge {
   challenge: string;
@@ -35,15 +36,15 @@ export function checkTimeout(
   }
 }
 
-export async function checkSavedToken(): Promise<boolean> {
+async function checkSavedTokenAsync(): Promise<boolean> {
   const pathToFile = `${RNFS.DocumentDirectoryPath}/${tokenPath}`;
   const isFile = await RNFS.exists(pathToFile);
   return isFile;
 }
 
-export async function readToken(): Promise<savedToken> {
+async function readTokenAsync(): Promise<savedToken> {
   const pathToFile = `${RNFS.DocumentDirectoryPath}/${tokenPath}`;
-  const isToken = await checkSavedToken();
+  const isToken = await checkSavedTokenAsync();
   if (isToken) {
     const savedTokenJSON: string = await RNFS.readFile(pathToFile, 'utf8');
     const savedToken: savedToken = JSON.parse(savedTokenJSON);
@@ -52,7 +53,7 @@ export async function readToken(): Promise<savedToken> {
   throw new Error('TokenNotFoundError');
 }
 
-export async function saveToken(token: token): Promise<void> {
+export async function saveTokenAsync(token: token): Promise<void> {
   const pathToFile = `${RNFS.DocumentDirectoryPath}/${tokenPath}`;
   const now: Date = new Date();
   const newSavedToken: savedToken = {
@@ -63,20 +64,20 @@ export async function saveToken(token: token): Promise<void> {
 }
 
 async function getNewChallenge(userId: string) {
-  const response = await axios.get(`${AUTH_SERVER_CHALLENGE_API}/${userId}`);
+  const response = await axios.get(`${AUTH_SERVER_CHALLENGE_RESOURCE}/${userId}`);
   return response.data;
 }
 
 async function postEncryptedChallenge(userId: string, cipher: cipher) {
   const response = await axios.post(
-    `${AUTH_SERVER_CHALLENGE_API}/${userId}`,
+    `${AUTH_SERVER_CHALLENGE_RESOURCE}/${userId}`,
     cipher,
   );
   return response.data;
 }
 
-async function generateNewToken(): Promise<token> {
-  const profile: profile = await readProfile();
+async function generateNewTokenAsync(): Promise<token> {
+  const profile: profile = await readProfileAsync();
   if (profile.userId && profile.sharedSecret) {
     const challenge = await getNewChallenge(profile.userId);
     const encChallenge: string = await symmetricEncrypt(
@@ -93,21 +94,48 @@ async function generateNewToken(): Promise<token> {
 }
 
 export async function getToken(): Promise<token | null> {
+  const synced = async () => {
+    try {
+      const isSavedToken = await checkSavedTokenAsync();
+      if (isSavedToken) {
+        const savedToken = await readTokenAsync();
+        const isValid = checkTimeout(savedToken.timestamp);
+        if (isValid) {
+          return savedToken.token;
+        } else {
+          const token = await generateNewTokenAsync();
+          await saveTokenAsync(token);
+          return token;
+        }
+      } else {
+        const token = await generateNewTokenAsync();
+        await saveTokenAsync(token);
+        return token;
+      }
+    } catch (error) {
+      console.log('Error getting token: ', error);
+      return null;
+    }
+  };
+  return await connectionFsSync(synced);
+}
+
+export async function getTokenAsync(): Promise<token | null> {
   try {
-    const isSavedToken = await checkSavedToken();
+    const isSavedToken = await checkSavedTokenAsync();
     if (isSavedToken) {
-      const savedToken = await readToken();
+      const savedToken = await readTokenAsync();
       const isValid = checkTimeout(savedToken.timestamp);
       if (isValid) {
         return savedToken.token;
       } else {
-        const token = await generateNewToken();
-        await saveToken(token);
+        const token = await generateNewTokenAsync();
+        await saveTokenAsync(token);
         return token;
       }
     } else {
-      const token = await generateNewToken();
-      await saveToken(token);
+      const token = await generateNewTokenAsync();
+      await saveTokenAsync(token);
       return token;
     }
   } catch (error) {

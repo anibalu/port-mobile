@@ -5,7 +5,6 @@
 import React from 'react';
 import {View, StyleSheet, TouchableOpacity, StatusBar} from 'react-native';
 import {NumberlessBoldText} from '../../components/NumberlessText';
-import {getFCMToken, registerBackgroundMessaging} from '../../utils/messaging';
 import {useNavigation} from '@react-navigation/native';
 import {SafeAreaView} from '../../components/SafeAreaView';
 import Logo from '../../../assets/miscellaneous/appLogo.svg';
@@ -14,10 +13,6 @@ import Name from '../../../assets/miscellaneous/appName.svg';
 function Welcome() {
   // Get navigation props
   const navigation = useNavigation();
-  // For development
-  getFCMToken();
-  // Setup the capability to handle messages in the background
-  registerBackgroundMessaging();
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#547CEF" />

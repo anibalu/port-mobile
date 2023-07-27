@@ -1,3 +1,4 @@
+//wiki added
 import RNFS from 'react-native-fs';
 import {profilePath} from '../configs/paths';
 import {nicknameTruncate} from './Nickname';

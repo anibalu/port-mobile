@@ -134,6 +134,7 @@ export class DirectMessaging {
     } catch (error) {
       console.log('error sending message: ', error);
       //handle failure
+      //handle failure for regular message (messageId is not 'nan' for regular message)
       if (messageContent.messageId !== 'nan') {
         const now = new Date();
         await saveNewDirectMessage(this.id, {
@@ -146,6 +147,7 @@ export class DirectMessaging {
           },
         });
       }
+      //handle failure for bundle handshake message (messageId is 'nan' for bundle handshake message)
     }
   }
   public generateMessageId() {

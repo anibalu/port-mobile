@@ -10,6 +10,12 @@ export const NumberlessRegularText = ({children, style, ...rest}) => (
   </Text>
 );
 
+export const NumberlessItalicText = ({children, style, ...rest}) => (
+  <Text style={StyleSheet.compose(styles.italic, style)} {...rest}>
+    {children}
+  </Text>
+);
+
 export const NumberlessBoldText = ({children, style, ...rest}) => (
   <Text style={StyleSheet.compose(styles.bold, style)} {...rest}>
     {children}
@@ -68,4 +74,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textDecorationLine: 'underline',
   },
+  italic: {
+    color: '#000000',
+    fontFamily: 'Rubik-LightItalic',
+    fontSize: 17,
+  }
 });

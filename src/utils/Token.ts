@@ -65,7 +65,9 @@ export async function saveTokenAsync(token: token): Promise<void> {
 }
 
 async function getNewChallenge(userId: string) {
-  const response = await axios.get(`${AUTH_SERVER_CHALLENGE_RESOURCE}/${userId}`);
+  const response = await axios.get(
+    `${AUTH_SERVER_CHALLENGE_RESOURCE}/${userId}`,
+  );
   return response.data;
 }
 

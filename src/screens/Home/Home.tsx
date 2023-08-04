@@ -11,14 +11,13 @@ import {
   ConnectionType,
   getConnectionsOrdered,
 } from '../../utils/Connection';
-import {FlatList, StatusBar, StyleSheet, ImageBackground, View, Pressable} from 'react-native';
+import {FlatList, StatusBar, StyleSheet, ImageBackground} from 'react-native';
 import Topbar from './Topbar';
 import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator';
 import {Page} from '../../components/BottomNavigator/Button';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import store from '../../store/appStore';
 import {cancelAllNotifications} from '../../utils/notifications';
-import { NumberlessItalicText } from '../../components/NumberlessText';
 import DefaultChatTile from './DefaultChatTile';
 
 function renderChatTile(connection: Connection) {
@@ -35,15 +34,11 @@ function renderChatTile(connection: Connection) {
   );
 }
 
-function renderDefaultTile(defaultTile: {id: string}) {
-  return (
-    <DefaultChatTile id={defaultTile.id}/>
-    );
+function renderDefaultTile() {
+  return <DefaultChatTile />;
 }
 
-const defaultConnectionList = [
-  {id: 'default'},
-];
+const defaultConnectionList = [{id: 'default'}];
 
 function Home() {
   const [connections, setConnections] = useState<Array<Connection>>([]);
@@ -61,7 +56,7 @@ function Home() {
         }
         setConnections(connections);
         setTotalUnread(count);
-      }
+      };
       countNewConnections();
       // Cancel all notifications when I land on the home screen
       cancelAllNotifications();
@@ -86,22 +81,23 @@ function Home() {
       <ImageBackground
         source={require('../../../assets/backgrounds/puzzle.png')}
         style={styles.background}
-      >
-      </ImageBackground>
+      />
       <Topbar unread={totalUnread} filter="All" />
-        {connections.length < 1 ? 
-        (<FlatList
+      {connections.length < 1 ? (
+        <FlatList
           data={defaultConnectionList}
-          renderItem={element => renderDefaultTile(element.item)}
+          renderItem={() => renderDefaultTile()}
           style={styles.chats}
           keyExtractor={item => item.id}
-        />) : 
-        (<FlatList
+        />
+      ) : (
+        <FlatList
           data={connections}
           renderItem={element => renderChatTile(element.item)}
           style={styles.chats}
           keyExtractor={connection => connection.id}
-        />)}
+        />
+      )}
       <BottomNavigator active={Page.home} />
     </SafeAreaView>
   );

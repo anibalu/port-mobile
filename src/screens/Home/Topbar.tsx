@@ -1,7 +1,8 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
 import {View, Image} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
+import {useNavigation} from '@react-navigation/native';
 
 type TopbarProps = {
   filter: String | undefined;
@@ -12,16 +13,20 @@ function Topbar(props: TopbarProps) {
   const title = props.unread
     ? `${props.filter || 'All'} (${props.unread})`
     : `${props.filter || 'All'}`;
+
+  const navigation = useNavigation();
   return (
     <View style={styles.bar}>
       <View style={styles.sidebarIcon} />
       <NumberlessSemiBoldText style={styles.title}>
         {title}
       </NumberlessSemiBoldText>
-      <Image
-        style={styles.image}
-        source={require('../../../assets/avatars/avatar1.png')}
-      />
+      <Pressable onPress={() => navigation.navigate('MyProfile')}>
+        <Image
+          style={styles.image}
+          source={require('../../../assets/avatars/avatar1.png')}
+        />
+      </Pressable>
     </View>
   ); // TODO: Add sidebar icon when decided
 }
@@ -39,6 +44,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
     height: 51,
+  },
+  imageNavigation: {
+    width: 42,
+    height: 42,
   },
   image: {
     width: 42,

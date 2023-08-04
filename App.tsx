@@ -30,6 +30,7 @@ import {Provider} from 'react-redux';
 import {readProfile} from './src/utils/Profile';
 import DirectChat from './src/screens/Chat/DirectChat';
 import {handleDeepLink} from './src/utils/deepLinking';
+import MyProfile from './src/screens/MyProfile/MyProfile';
 
 const Stack = createNativeStackNavigator();
 
@@ -81,6 +82,7 @@ function App(): JSX.Element {
               name="ConnectionCentre"
               component={ConnectionCentre}
             />
+            <Stack.Screen name="MyProfile" component={MyProfile} />
             <Stack.Screen name="NewContact" component={NewContact} />
             <Stack.Screen name="Scanner" component={Scanner} />
             <Stack.Screen name="DirectChat" component={DirectChat} />

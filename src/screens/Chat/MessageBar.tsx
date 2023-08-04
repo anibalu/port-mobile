@@ -8,10 +8,9 @@ import {
   Dimensions,
 } from 'react-native';
 import Send from '../../../assets/icons/NewSend.svg';
-import Plus from '../../../assets/icons/plus.svg';
 import {DirectMessaging} from '../../utils/DirectMessaging';
 import {wait} from '../../utils/wait';
-import { trimWhiteSpace } from '../../utils/text';
+import {trimWhiteSpace} from '../../utils/text';
 
 export function MessageBar({
   flatlistRef,

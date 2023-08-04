@@ -1,11 +1,12 @@
 //wiki added
-import RNFS from 'react-native-fs';
+import RNFS, {DocumentDirectoryPath} from 'react-native-fs';
 import {profilePath} from '../configs/paths';
 import {nicknameTruncate} from './Nickname';
 import axios from 'axios';
 import * as API from '../configs/api';
 import {parsePEMPublicKey, publicKeyPEMencode} from '../utils/pem';
 import {connectionFsSync} from './syncronization';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 export interface profile {
   //nickname chosen by user
@@ -116,4 +117,36 @@ export async function getUserIdAndServerKey(
     }
   };
   return await connectionFsSync(synced);
+}
+
+export async function setNewProfilePicture() {
+  const selectedAssets = await launchImageLibrary({
+    mediaType: 'photo',
+    maxHeight: 1080,
+    maxWidth: 1920,
+    includeBase64: true,
+  });
+  let selectedImage;
+  if (selectedAssets.assets) {
+    selectedImage = selectedAssets.assets[0];
+  } else {
+    return false;
+  }
+  if (selectedImage.base64) {
+    await RNFS.writeFile(
+      DocumentDirectoryPath + 'profilePicture',
+      selectedImage.base64,
+      'base64',
+    );
+  }
+  // console.log(await getProfilePictureURI())
+
+  return selectedImage.uri;
+}
+
+export async function getProfilePictureURI() {
+  const imageURI =
+    'data:image/png;base64,' +
+    (await RNFS.readFile(DocumentDirectoryPath + 'profilePicture', 'base64'));
+  return imageURI;
 }

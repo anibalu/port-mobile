@@ -1,9 +1,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {View} from 'react-native';
-import {
-  NumberlessSemiBoldText
-} from '../../components/NumberlessText';
+import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {BackButton} from '../../components/BackButton';
 
 function Topbar({onPress}) {

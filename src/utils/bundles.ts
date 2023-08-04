@@ -158,7 +158,7 @@ export async function deleteAllReadBundles() {
   await connectionFsSync(synced);
 }
 
-export async function postBundle(bundleString: string): Promise<string|null> {
+export async function postBundle(bundleString: string): Promise<string | null> {
   try {
     const token = await getToken();
     if (token) {

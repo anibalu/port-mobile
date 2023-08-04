@@ -153,7 +153,7 @@ export class DirectMessaging {
   public generateMessageId() {
     //for now, message id is based on time sent. We prepend with '0001_' while saving message to ensure uniqueness of id.
     const date = new Date();
-    return date.getTime().toString()
+    return date.getTime().toString();
   }
   private async getKeyFile() {
     //get the crypto file associated with the contact

@@ -1,6 +1,6 @@
-import { DEFAULT_NICKNAME } from '../configs/constants';
+import {DEFAULT_NICKNAME} from '../configs/constants';
 import {updateProfile, profile} from '../utils/Profile';
-import { trimWhiteSpace } from '../utils/text';
+import {trimWhiteSpace} from '../utils/text';
 
 //adds nickname
 export async function joinApp(input: profile): Promise<void> {

@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   StyleSheet,
   TextInput,
@@ -85,7 +84,7 @@ function ConnectionDisplay({
     };
     if (!isQR && !isLoadingBundle) {
       if (isLoadingLink) {
-        fetchLinkData(); 
+        fetchLinkData();
       } else {
         if (linkData === '') {
           fetchLinkData();
@@ -156,25 +155,30 @@ function ConnectionDisplay({
             </View>
           ) : (
             <View style={styles.linkBox}>
+              <View style={styles.fillContainer}>
+                {isLoadingLink ? (
+                  <ActivityIndicator size={'large'} color={'#000000'} />
+                ) : (
                   <View style={styles.fillContainer}>
-                    {isLoadingLink ? (
-                      <ActivityIndicator size={'large'} color={'#000000'} />
-                    ) : (
-                      <View style={styles.fillContainer}>
-                        <View style={styles.softAlertParent}>
-                          <SoftAlert setShowCopiedAlert={setShowCopiedAlert} showCopiedAlert={showCopiedAlert}/>
-                        </View>
-                        <NumberlessClickableText
-                          style={styles.linkText}
-                          onPress={() => {
-                            Clipboard.setString(linkData);
-                            setShowCopiedAlert(true);
-                          }}>
-                          {linkData === '' ? "Error getting link. Please make sure you have an active internet connection" : linkData}
-                        </NumberlessClickableText>
-                      </View>
-                    )}
+                    <View style={styles.softAlertParent}>
+                      <SoftAlert
+                        setShowCopiedAlert={setShowCopiedAlert}
+                        showCopiedAlert={showCopiedAlert}
+                      />
+                    </View>
+                    <NumberlessClickableText
+                      style={styles.linkText}
+                      onPress={() => {
+                        Clipboard.setString(linkData);
+                        setShowCopiedAlert(true);
+                      }}>
+                      {linkData === ''
+                        ? 'Error getting link. Please make sure you have an active internet connection'
+                        : linkData}
+                    </NumberlessClickableText>
                   </View>
+                )}
+              </View>
             </View>
           )}
         </View>
@@ -214,7 +218,11 @@ function SoftAlert({showCopiedAlert, setShowCopiedAlert}) {
   }, SOFT_ALERT_DURATION);
   return (
     <View style={styles.softAlertContainer}>
-      {showCopiedAlert && <NumberlessRegularText style={styles.softAlertMessage}>Copied to Clipboard</NumberlessRegularText>}
+      {showCopiedAlert && (
+        <NumberlessRegularText style={styles.softAlertMessage}>
+          Copied to Clipboard
+        </NumberlessRegularText>
+      )}
     </View>
   );
 }

@@ -1,3 +1,3 @@
 export function trimWhiteSpace(inputString: string) {
-    return inputString.trim();
+  return inputString.trim();
 }

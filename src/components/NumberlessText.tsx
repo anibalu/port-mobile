@@ -78,5 +78,5 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontFamily: 'Rubik-LightItalic',
     fontSize: 17,
-  }
+  },
 });

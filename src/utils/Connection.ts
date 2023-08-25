@@ -20,7 +20,8 @@ export type Connection = {
   pathToImage?: string; // the path to the profile picture/group picture
   timeStamp?: string; // ISO string format
   newMessageCount?: number;
-  readStatus?: string; // read, sent, seen, new.
+  //TO DO: support sending status
+  readStatus?: string; // read, sent, seen, new
   authenticated?: boolean;
 };
 
@@ -106,32 +107,37 @@ export async function getConnection(id: string): Promise<Connection> {
 }
 
 //update connection
+export async function updateConnectionAsync(data: UpdateConnectionProps) {
+  let newData: UpdateConnectionProps = data;
+  const now = new Date();
+  if (data.nickname) {
+    newData.nickname = nicknameTruncate(data.nickname);
+  }
+  newData.timeStamp = now.toISOString();
+  const connections = await getConnectionsAsync();
+  const updatedConnections = connections.map(connection => {
+    if (connection.id === data.id) {
+      const final: Connection = {...connection, ...newData};
+      if (newData.text && newData.readStatus === 'new') {
+        final.newMessageCount = connection.newMessageCount
+          ? connection.newMessageCount + 1
+          : 1;
+      }
+      return final;
+    }
+    return connection;
+  });
+  await RNFS.writeFile(
+    pathToConnections,
+    JSON.stringify(updatedConnections),
+    ENCODING,
+  );
+}
+
+//update connection
 export async function updateConnection(data: UpdateConnectionProps) {
   const synced = async () => {
-    let newData: UpdateConnectionProps = data;
-    const now = new Date();
-    if (data.nickname) {
-      newData.nickname = nicknameTruncate(data.nickname);
-    }
-    newData.timeStamp = now.toISOString();
-    const connections = await getConnectionsAsync();
-    const updatedConnections = connections.map(connection => {
-      if (connection.id === data.id) {
-        const final: Connection = {...connection, ...newData};
-        if (newData.text && newData.readStatus === 'new') {
-          final.newMessageCount = connection.newMessageCount
-            ? connection.newMessageCount + 1
-            : 1;
-        }
-        return final;
-      }
-      return connection;
-    });
-    await RNFS.writeFile(
-      pathToConnections,
-      JSON.stringify(updatedConnections),
-      ENCODING,
-    );
+    await updateConnectionAsync(data);
   };
   await connectionFsSync(synced);
 }

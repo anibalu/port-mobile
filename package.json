@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@notifee/react-native": "^7.8.0",
-    "@numberless/react-native-numberless-crypto": "^0.0.2",
+    "@numberless/react-native-numberless-crypto": "^0.0.0",
     "@react-native-clipboard/clipboard": "^1.11.2",
     "@react-native-firebase/app": "^17.5.0",
     "@react-native-firebase/messaging": "^17.5.0",

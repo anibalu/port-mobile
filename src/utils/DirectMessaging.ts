@@ -1,11 +1,9 @@
 import {Store} from '@reduxjs/toolkit';
-import {getToken} from './Token';
-import axios from 'axios';
-import {LINE_MESSAGING_RESOURCE} from '../configs/api';
 import {saveNewDirectMessage} from './messagefs';
 import {ConnectionType, updateConnection, getConnection} from './Connection';
 import {bundleShownHandshake} from '../actions/BundleShownHandshake';
 import {displaySimpleNotification} from './notifications';
+import {trySending} from './MessageJournal';
 
 export interface directMessageContent {
   messageType: string;
@@ -22,6 +20,11 @@ export interface messageContent {
   data: any;
 }
 
+export interface preparedMessage {
+  message: messageContent;
+  line: string;
+}
+
 //class that does direct messaging.
 //takes as input the line id.
 /*functions
@@ -34,6 +37,7 @@ export class DirectMessaging {
   constructor(lineId: string) {
     this.id = lineId;
   }
+  //TO DO: check if message has already been received after multifile support has been added for chat messages.
   async recieveMessage(messageFCM: any, store: Store) {
     const sentTime = new Date(messageFCM.sentTime);
     const messageData = messageFCM.data;
@@ -106,49 +110,24 @@ export class DirectMessaging {
     }
   }
   async sendMessage(messageContent: messageContent) {
-    const token = await getToken();
-    try {
-      await axios.post(LINE_MESSAGING_RESOURCE, {
-        token: token,
-        message: JSON.stringify(messageContent),
-        line: this.id,
+    const preparedMessage: preparedMessage = {
+      message: messageContent,
+      line: this.id,
+    };
+    if (messageContent.messageId !== 'nan') {
+      const now = new Date();
+      await saveNewDirectMessage(this.id, {
+        ...messageContent,
+        ...{
+          messageId: '0001_' + messageContent.messageId,
+          sender: true,
+          sent: false,
+          timestamp: now.toISOString(),
+        },
       });
-      //if successful
-      if (messageContent.messageId !== 'nan') {
-        const now = new Date();
-        await saveNewDirectMessage(this.id, {
-          ...messageContent,
-          ...{
-            messageId: '0001_' + messageContent.messageId,
-            sender: true,
-            sent: true,
-            timestamp: now.toISOString(),
-          },
-        });
-        await updateConnection({
-          id: this.id,
-          text: messageContent.data.text,
-          readStatus: 'sent',
-        });
-      }
-    } catch (error) {
-      console.log('error sending message: ', error);
-      //handle failure
-      //handle failure for regular message (messageId is not 'nan' for regular message)
-      if (messageContent.messageId !== 'nan') {
-        const now = new Date();
-        await saveNewDirectMessage(this.id, {
-          ...messageContent,
-          ...{
-            messageId: '0001_' + messageContent.messageId,
-            sender: true,
-            sent: false,
-            timestamp: now.toISOString(),
-          },
-        });
-      }
-      //handle failure for bundle handshake message (messageId is 'nan' for bundle handshake message)
+      //TO DO: support 'sending' readStatus and update connection to reflect 'sending' status
     }
+    await trySending(preparedMessage);
   }
   public generateMessageId() {
     //for now, message id is based on time sent. We prepend with '0001_' while saving message to ensure uniqueness of id.

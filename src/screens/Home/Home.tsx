@@ -19,6 +19,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import store from '../../store/appStore';
 import {cancelAllNotifications} from '../../utils/notifications';
 import DefaultChatTile from './DefaultChatTile';
+import {emptySendQueue} from '../../utils/MessageJournal';
 
 function renderChatTile(connection: Connection) {
   return (
@@ -47,6 +48,8 @@ function Home() {
   useFocusEffect(
     React.useCallback(() => {
       const countNewConnections = async () => {
+        //temporary addition to test emptying of send queue
+        await emptySendQueue();
         const connections = await getConnectionsOrdered();
         let count = 0;
         for (const connection of connections) {

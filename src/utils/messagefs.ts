@@ -7,7 +7,7 @@ const path = RNFS.DocumentDirectoryPath + '/' + messagesDir;
 const ENCODING = 'utf8';
 
 //initialise folder
-async function initialiseMessagesDirAsync() {
+export async function initialiseMessagesDirAsync() {
   const folderExists = await RNFS.exists(path);
   if (folderExists) {
     return;
@@ -60,4 +60,19 @@ export async function readDirectMessages(
     }
   };
   return await connectionFsSync(synced);
+}
+
+//successfully sent message 'sent' attribute is toggled to true.
+// TO DO: after multifile support has been implemented.
+export async function toggleSentDirectMessage(
+  lineId: string,
+  messageId: string,
+) {
+  return lineId + messageId;
+}
+
+//checks for a message with the corresponding message ID in the most recent message file.
+// TO DO: after multifile support has been implemented.
+export async function checkMessageReceived(lineId: string, messageId: string) {
+  return lineId + messageId;
 }

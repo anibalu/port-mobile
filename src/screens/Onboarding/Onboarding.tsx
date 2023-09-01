@@ -18,6 +18,7 @@ import {
   NumberlessClickableText,
   NumberlessRegularText,
   NumberlessBoldText,
+  NumberlessMediumText,
 } from '../../components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 
@@ -42,9 +43,14 @@ function Onboarding() {
           <NumberlessBoldText style={styles.titleText}>
             Enter a name... or don't
           </NumberlessBoldText>
+          <NumberlessMediumText style={styles.topBodyText}>
+            We like to stay simple. We don't require any personal data to get
+            you setup.
+          </NumberlessMediumText>
           <NumberlessRegularText style={styles.bodyText}>
-            Lorem ipsum dolor sit amet consectetur. Magna eget faucibus
-            pellentesque sit fusce fames vel. Neque placerat.
+            If you add a name below, it can be seen only by your Port
+            connections in an end-to-end encrypted way. Port never gets to see
+            your name.
           </NumberlessRegularText>
           <NumberlessClickableText
             onPress={() =>
@@ -115,12 +121,18 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 24,
     marginBottom: 30,
-    marginTop: 10,
+    marginTop: 20,
     paddingRight: '8%',
     paddingLeft: '8%',
   },
-  bodyText: {
+  topBodyText: {
     marginBottom: 20,
+    paddingRight: '8%',
+    paddingLeft: '8%',
+    fontSize: 15,
+  },
+  bodyText: {
+    marginBottom: 10,
     paddingRight: '8%',
     paddingLeft: '8%',
   },
@@ -128,7 +140,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 76,
     justifyContent: 'center',
-    marginTop: 40,
+    marginTop: 30,
     paddingLeft: '8%',
     paddingRight: '8%',
   },
@@ -148,6 +160,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingRight: '8%',
     paddingBottom: '8%',
+    marginTop: 10,
   },
 });
 

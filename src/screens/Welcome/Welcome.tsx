@@ -7,8 +7,7 @@ import {View, StyleSheet, TouchableOpacity, StatusBar} from 'react-native';
 import {NumberlessBoldText} from '../../components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import {SafeAreaView} from '../../components/SafeAreaView';
-import Logo from '../../../assets/miscellaneous/appLogo.svg';
-import Name from '../../../assets/miscellaneous/appName.svg';
+import Logo from '../../../assets/miscellaneous/portBranding.svg';
 
 function Welcome() {
   // Get navigation props
@@ -17,8 +16,7 @@ function Welcome() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#547CEF" />
       <View style={styles.greeting}>
-        <Logo width={95} height={95} style={styles.logo} />
-        <Name width={226} height={84} style={styles.name} />
+        <Logo height={175} style={styles.logo} />
       </View>
       <TouchableOpacity
         style={styles.button}
@@ -47,6 +45,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: '100%',
     width: '100%',
+    paddingBottom: 50,
   },
   logo: {
     marginBottom: '5%',

@@ -6,7 +6,7 @@
  * We need to change this to a better way.
  * @module MessageJournal
  */
-import {preparedMessage} from './DirectMessaging';
+import {preparedMessage} from './MessageInterface';
 import {getTokenAsync, token} from './Token';
 import axios from 'axios';
 import {LINE_MESSAGING_RESOURCE} from '../configs/api';
@@ -137,15 +137,17 @@ async function readSendQueueAsync(): Promise<Array<preparedMessage>> {
  * @param {preparedMessage} message - The prepared message object to send.
  * @returns {Promise<void>} A Promise that resolves once the message is sent or added to the queue.
  */
-export async function trySending(message: preparedMessage): Promise<void> {
+export async function trySending(message: preparedMessage): Promise<boolean> {
   const synced = async () => {
     try {
       await trySendingAsync(message);
+      return true;
     } catch (error) {
       await addToSendQueueAsync(message);
+      return false;
     }
   };
-  await connectionFsSync(synced);
+  return await connectionFsSync(synced);
 }
 /**
  * Empties the send queue by attempting to send queued messages and clearing the queue afterward,

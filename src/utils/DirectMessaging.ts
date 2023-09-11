@@ -1,29 +1,21 @@
 import {Store} from '@reduxjs/toolkit';
 import {saveNewDirectMessage} from './messagefs';
-import {ConnectionType, updateConnection, getConnection} from './Connection';
+import {updateConnection, getConnection} from './Connection';
 import {bundleShownHandshake} from '../actions/BundleShownHandshake';
 import {displaySimpleNotification} from './notifications';
 import {trySending} from './MessageJournal';
-
-export interface directMessageContent {
-  messageType: string;
-  messageId: string;
-  data: any;
-  sender: boolean; //am i the sender?
-  sent: boolean; //message successfully sent?
-  timestamp: string; //iso string
-}
-
-export interface messageContent {
-  messageType: string; //nickname, multimedia, text, key, keyReply, etc
-  messageId: string; //assigned by client
-  data: any;
-}
-
-export interface preparedMessage {
-  message: messageContent;
-  line: string;
-}
+import {
+  ContentType,
+  MediaContent,
+  directMessageContent,
+  preparedMessage,
+} from './MessageInterface';
+import {
+  convertedFileResponse,
+  downloadLargeFile,
+  tempFileToLocalFile,
+  toLocalFile,
+} from './LargeFiles';
 
 //class that does direct messaging.
 //takes as input the line id.
@@ -32,16 +24,33 @@ export interface preparedMessage {
 2. send message
 3. get associated crypto key file
 */
+/**
+ * Class that facilitates direct messaging with a connection.
+ * Provides functions for receiving and sending messages.
+ */
 export class DirectMessaging {
   private id: string; //line id
+  /**
+   * Creates an instance of DirectMessaging with the provided Line ID.
+   * @param {string} lineId - The Line ID of the connection.
+   */
   constructor(lineId: string) {
     this.id = lineId;
   }
-  //TO DO: check if message has already been received after multifile support has been added for chat messages.
-  async recieveMessage(messageFCM: any, store: Store) {
+
+  /**
+   * Receives and processes a message from the contact.
+   *
+   * @param {any} messageFCM - The received message object from FCM.
+   * @param {Store} store - The Redux store for managing application state.
+   *
+   * @todo Check if message has already been received after multifile support has been added for chat messages.
+   */
+  async receiveMessage(messageFCM: any, store: Store) {
     const sentTime = new Date(messageFCM.sentTime);
     const messageData = messageFCM.data;
     let notificationData;
+    //if the received message is a handshake message
     if (!messageData.messageContent && messageData.lineLinkId) {
       //crypto handshake action
       await bundleShownHandshake(messageData.lineLinkId, this.id);
@@ -54,48 +63,134 @@ export class DirectMessaging {
         },
       });
     }
+    //if the received message is a non-handshake message
     if (messageData.messageContent) {
-      const content: messageContent = JSON.parse(messageData.messageContent);
+      const content: directMessageContent = JSON.parse(
+        messageData.messageContent,
+      );
+      const savedMessageData = content.data;
+      const connection = await getConnection(this.id);
       switch (content.messageType) {
-        case 'nickname':
-          if (content.data.nickname) {
+        //nickname message
+        case ContentType.NICKNAME:
+          if (!connection.userChoiceNickname) {
             await updateConnection({
               id: this.id,
+              newMessageType: content.messageType,
               nickname: content.data.nickname,
               readStatus: 'new',
             });
+            if (connection.nickname === '') {
+              notificationData = {
+                title: 'New connection',
+                body: content.data.nickname + ' has connected with you.',
+              };
+            }
           }
+          savedMessageData.sender = false;
+          savedMessageData.timestamp = sentTime.toISOString();
+          await saveNewDirectMessage(this.id, {
+            messageType: content.messageType,
+            messageId: '0002_' + content.messageId,
+            data: savedMessageData,
+          });
+          break;
+        //generic text message
+        case ContentType.TEXT:
+          await updateConnection({
+            id: this.id,
+            newMessageType: content.messageType,
+            text: content.data.text,
+            readStatus: 'new',
+          });
+          savedMessageData.sender = false;
+          savedMessageData.timestamp = sentTime.toISOString();
+          await saveNewDirectMessage(this.id, {
+            messageType: content.messageType,
+            messageId: '0002_' + content.messageId,
+            data: savedMessageData,
+          });
           notificationData = {
-            title: 'New connection',
-            body: content.data.nickname + ' has connected with you.',
+            title: connection.nickname,
+            body: content.data.text,
           };
           break;
-        case 'text':
-          if (content.data.text) {
+        //image shared
+        case ContentType.IMAGE:
+          {
+            const fileObj = await downloadLargeFile(savedMessageData.mediaId);
+            if (fileObj === null) {
+              throw new Error('download failed');
+            }
+            const fileParams: convertedFileResponse = await toLocalFile(
+              this.id,
+              fileObj,
+              ContentType.IMAGE,
+            );
+            console.log('local file created: ', fileParams);
             await updateConnection({
               id: this.id,
-              text: content.data.text,
+              newMessageType: content.messageType,
+              text: content.data.text || 'image',
               readStatus: 'new',
             });
+            savedMessageData.filePath = fileParams.filePath;
+            savedMessageData.mediaType = fileParams.type;
+            savedMessageData.sender = false;
+            savedMessageData.timestamp = sentTime.toISOString();
+            console.log('data: ', savedMessageData);
             await saveNewDirectMessage(this.id, {
-              messageType: ConnectionType.line,
+              messageType: content.messageType,
               messageId: '0002_' + content.messageId,
-              sender: false,
-              sent: false,
-              data: content.data,
-              timestamp: sentTime.toISOString(),
+              data: savedMessageData,
             });
-            const connection = await getConnection(this.id);
+            /**
+             * @todo attempt to download media only if media autodownload is ON.
+             */
             notificationData = {
               title: connection.nickname,
-              body: content.data.text,
+              body: content.data.text || 'image',
             };
           }
           break;
-        case 'key':
-          //for when authentication is added
+        case ContentType.OTHER_FILE:
+          {
+            const fileObj = await downloadLargeFile(savedMessageData.mediaId);
+            if (fileObj === null) {
+              throw new Error('download failed');
+            }
+            const fileParams: convertedFileResponse = await toLocalFile(
+              this.id,
+              fileObj,
+              ContentType.OTHER_FILE,
+            );
+            console.log('local file created: ', fileParams);
+            await updateConnection({
+              id: this.id,
+              newMessageType: content.messageType,
+              text: content.data.text || 'file',
+              readStatus: 'new',
+            });
+            savedMessageData.filePath = fileParams.filePath;
+            savedMessageData.mediaType = fileParams.type;
+            savedMessageData.sender = false;
+            savedMessageData.timestamp = sentTime.toISOString();
+            console.log('data: ', savedMessageData);
+            await saveNewDirectMessage(this.id, {
+              messageType: content.messageType,
+              messageId: '0002_' + content.messageId,
+              data: savedMessageData,
+            });
+            /**
+             * @todo attempt to download media only if media autodownload is ON.
+             */
+            notificationData = {
+              title: connection.nickname,
+              body: content.data.text || 'image',
+            };
+          }
           break;
-        case 'keyReply':
+        case ContentType.HANDSHAKE:
           //for when authentication is added
           break;
         default:
@@ -109,28 +204,137 @@ export class DirectMessaging {
       displaySimpleNotification(notificationData.title, notificationData.body);
     }
   }
-  async sendMessage(messageContent: messageContent) {
-    const preparedMessage: preparedMessage = {
-      message: messageContent,
-      line: this.id,
-    };
-    if (messageContent.messageId !== 'nan') {
-      const now = new Date();
+  /**
+   * Saves message to FS and attempts to send message to contact
+   *
+   * @param {directMessageContent} messageContent - The content of the message to send.
+   */
+  async sendMessage(messageContent: directMessageContent) {
+    if (messageContent.messageType === ContentType.NICKNAME) {
+      const now: Date = new Date();
+      const savedMessageData = messageContent.data;
+      savedMessageData.sender = true;
+      savedMessageData.timestamp = now.toISOString();
+      const preparedMessage: preparedMessage = {
+        message: {...messageContent},
+        line: this.id,
+      };
+      const isSent = await trySending(preparedMessage);
+      console.log('message send invoked');
       await saveNewDirectMessage(this.id, {
-        ...messageContent,
-        ...{
-          messageId: '0001_' + messageContent.messageId,
-          sender: true,
-          sent: false,
-          timestamp: now.toISOString(),
-        },
+        messageType: messageContent.messageType,
+        messageId: '0001_' + messageContent.messageId,
+        isSent: isSent,
+        data: savedMessageData,
       });
-      //TO DO: support 'sending' readStatus and update connection to reflect 'sending' status
+      return isSent;
+      /**
+       * @todo support letting users know if message has been successfully sent.
+       * This can be done using the MessageJournal module.
+       * Better to do this after multiple messages file support has been added.
+       */
     }
-    await trySending(preparedMessage);
+    if (messageContent.messageType === ContentType.TEXT) {
+      const savedMessageData = messageContent.data;
+      const preparedMessage: preparedMessage = {
+        message: {...messageContent},
+        line: this.id,
+      };
+      const isSent = await trySending(preparedMessage);
+      console.log('message send invoked');
+      await saveNewDirectMessage(this.id, {
+        messageType: messageContent.messageType,
+        messageId: '0001_' + messageContent.messageId,
+        isSent: isSent,
+        data: savedMessageData,
+      });
+      return isSent;
+      /**
+       * @todo support letting users know if message has been successfully sent.
+       * This can be done using the MessageJournal module.
+       * Better to do this after multiple messages file support has been added.
+       */
+    }
+    if (messageContent.messageType === ContentType.IMAGE) {
+      const fileParams: convertedFileResponse = await tempFileToLocalFile(
+        this.id,
+        messageContent.data.filePath,
+        ContentType.IMAGE,
+      );
+      const savedMessageData: MediaContent = {
+        mediaId: messageContent.data.mediaId,
+        sender: true,
+        timestamp: messageContent.data.timestamp,
+        fileName: messageContent.data.fileName,
+      };
+      const preparedMessage: preparedMessage = {
+        message: {
+          ...messageContent,
+          ...{data: savedMessageData},
+        },
+        line: this.id,
+      };
+      savedMessageData.filePath = fileParams.filePath;
+      savedMessageData.mediaType = fileParams.type;
+      const isSent = await trySending(preparedMessage);
+      console.log('message send invoked');
+      await saveNewDirectMessage(this.id, {
+        messageType: messageContent.messageType,
+        messageId: '0001_' + messageContent.messageId,
+        isSent: isSent,
+        data: savedMessageData,
+      });
+      return isSent;
+      /**
+       * @todo support letting users know if message has been successfully sent.
+       * This can be done using the MessageJournal module.
+       * Better to do this after multiple messages file support has been added.
+       */
+    }
+    if (messageContent.messageType === ContentType.OTHER_FILE) {
+      const fileParams: convertedFileResponse = await tempFileToLocalFile(
+        this.id,
+        messageContent.data.filePath,
+        ContentType.OTHER_FILE,
+      );
+      const savedMessageData: MediaContent = {
+        mediaId: messageContent.data.mediaId,
+        sender: true,
+        timestamp: messageContent.data.timestamp,
+        fileName: messageContent.data.fileName,
+      };
+      const preparedMessage: preparedMessage = {
+        message: {
+          ...messageContent,
+          ...{data: savedMessageData},
+        },
+        line: this.id,
+      };
+      savedMessageData.filePath = fileParams.filePath;
+      savedMessageData.mediaType = fileParams.type;
+      const isSent = await trySending(preparedMessage);
+      console.log('message send invoked');
+      await saveNewDirectMessage(this.id, {
+        messageType: messageContent.messageType,
+        messageId: '0001_' + messageContent.messageId,
+        isSent: isSent,
+        data: savedMessageData,
+      });
+      return isSent;
+      /**
+       * @todo support letting users know if message has been successfully sent.
+       * This can be done using the MessageJournal module.
+       * Better to do this after multiple messages file support has been added.
+       */
+    }
+    return false;
   }
+  /**
+   * Generates unique message ID based on the current time.
+   *
+   * @returns {string} A unique message ID.
+   */
   public generateMessageId() {
-    //for now, message id is based on time sent. We prepend with '0001_' while saving message to ensure uniqueness of id.
     const date = new Date();
     return date.getTime().toString();
   }

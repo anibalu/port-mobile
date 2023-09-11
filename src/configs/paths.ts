@@ -11,3 +11,5 @@ export const generatedBundlesPath = 'generatedBundles.json';
 export const readBundlesPath = 'readBundles.json';
 //path to messages dir
 export const messagesDir = 'messages';
+//path to temporary dir
+export const tempDir = 'temp';

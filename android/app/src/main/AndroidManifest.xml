@@ -31,4 +31,13 @@
         </intent-filter>
       </activity>
     </application>
+    <queries>
+      <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <!-- Setting the mime type to */* as below simply allows the app to open any
+          type of media with react-native-file-viewer. Change this when restrictions are
+          implemented -->
+        <data android:mimeType="*/*" />
+      </intent>
+    </queries>
 </manifest>

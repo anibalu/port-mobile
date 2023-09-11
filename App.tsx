@@ -24,6 +24,7 @@ import RequestPermissions from './src/screens/RequestPermissions/RequestPermissi
 import ConnectionCentre from './src/screens/ConnectionCentre/ConnectionCentre';
 import Scanner from './src/screens/Scanner/Scanner';
 import NewContact from './src/screens/NewContact/NewContact';
+import ImageView from './src/screens/MediaView/ImageView';
 
 import store from './src/store/appStore';
 import {Provider} from 'react-redux';
@@ -87,6 +88,7 @@ function App(): JSX.Element {
             <Stack.Screen name="Scanner" component={Scanner} />
             <Stack.Screen name="DirectChat" component={DirectChat} />
             <Stack.Screen name="Placeholder" component={Placeholder} />
+            <Stack.Screen name="ImageView" component={ImageView} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

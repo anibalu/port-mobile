@@ -1,6 +1,6 @@
 import RNFS from 'react-native-fs';
 import {messagesDir} from '../configs/paths';
-import {directMessageContent} from './DirectMessaging';
+import {directMessageContent} from './MessageInterface';
 import {connectionFsSync} from './syncronization';
 
 const path = RNFS.DocumentDirectoryPath + '/' + messagesDir;
@@ -36,6 +36,7 @@ export async function saveNewDirectMessage(
 ) {
   const synced = async () => {
     const messagesPath = await initialiseDirectMessagesFileAsync(lineId);
+    message.inFile = true;
     await RNFS.appendFile(messagesPath, JSON.stringify(message) + '\n');
   };
   await connectionFsSync(synced);
@@ -55,7 +56,6 @@ export async function readDirectMessages(
       const parsedArray = messagesArray
         .slice(0, -1)
         .map(element => JSON.parse(element));
-      console.log(parsedArray);
       return parsedArray;
     }
   };

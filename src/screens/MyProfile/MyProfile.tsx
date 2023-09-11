@@ -14,6 +14,7 @@ import defaultImage from '../../../assets/avatars/avatar1.png';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import EditIcon from '../../../assets/icons/Pencil.svg';
 import NicknamePopup from './UpdateNicknamePopup';
+import {useNavigation} from '@react-navigation/native';
 
 function MyProfile() {
   const [profileURI, setProfileURI] = useState(
@@ -37,12 +38,22 @@ function MyProfile() {
     setEditingNickname(false);
   }
 
+  const navigation = useNavigation();
+
   return (
     <View style={styles.profileScreen}>
       <View style={styles.profile}>
         <Pressable
           style={styles.profilePictureHitbox}
-          onPress={() => setNewProfilePicture()}>
+          onPress={() => {
+            navigation.navigate('ImageView', {
+              imageURI: profileURI,
+              sender: nickname,
+              timestamp: new Date(),
+              caption: 'My profile picture',
+            });
+          }}
+          onLongPress={() => setNewProfilePicture()}>
           <Image source={{uri: profileURI}} style={styles.profilePic} />
         </Pressable>
         <View style={styles.nicknameArea}>

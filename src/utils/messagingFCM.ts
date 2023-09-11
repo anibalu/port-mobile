@@ -18,7 +18,7 @@ export const registerBackgroundMessaging = (store: Store) => {
     console.log('handling message: (fmh)', remoteMessage);
     const lineId: string = remoteMessage.data.lineId;
     const messaging = new DirectMessaging(lineId);
-    await messaging.recieveMessage(remoteMessage, store);
+    await messaging.receiveMessage(remoteMessage, store);
   });
 };
 
@@ -28,7 +28,7 @@ export const foregroundMessageHandler = (store: Store) => {
     console.log('handling message: (fmh)', remoteMessage);
     const lineId: string = remoteMessage.data.lineId;
     const messaging = new DirectMessaging(lineId);
-    await messaging.recieveMessage(remoteMessage, store);
+    await messaging.receiveMessage(remoteMessage, store);
   });
 };
 

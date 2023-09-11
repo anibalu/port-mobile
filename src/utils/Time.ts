@@ -32,3 +32,13 @@ export function getTime(ISOTime: string | undefined) {
     return '';
   }
 }
+
+export function generateId() {
+  const date = new Date();
+  return date.getTime().toString();
+}
+
+export function createTimeStamp() {
+  const now = new Date();
+  return now.toISOString();
+}

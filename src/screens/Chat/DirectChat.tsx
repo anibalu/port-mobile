@@ -1,12 +1,5 @@
 import React, {useState} from 'react';
-import {
-  StyleSheet,
-  StatusBar,
-  FlatList,
-  Animated,
-  PanResponder,
-  Dimensions,
-} from 'react-native';
+import {StyleSheet, StatusBar, FlatList, ImageBackground} from 'react-native';
 import {SafeAreaView} from '../../components/SafeAreaView';
 import {readDirectMessages} from '../../utils/messagefs';
 import {useFocusEffect, useRoute} from '@react-navigation/native';
@@ -14,25 +7,23 @@ import {DirectMessageBubble} from './DirectMessageBubble';
 import Topbar from './Topbar';
 import {getConnectionAsync, toggleRead} from '../../utils/Connection';
 import {MessageBar} from './MessageBar';
-import {directMessageContent} from '../../utils/DirectMessaging';
+import {directMessageContent} from '../../utils/MessageInterface';
 import store from '../../store/appStore';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-
-//render function for the flatlist
-function renderMessage(message: directMessageContent) {
-  return (
-    <DirectMessageBubble
-      messageId={message.messageId}
-      messageType={message.messageType}
-      data={message.data}
-      sender={message.sender}
-      sent={message.sent}
-      timestamp={message.timestamp}
-    />
-  );
+/**
+ * Render function for flatlist, displays message bubbles.
+ * @param {directMessageContent} message Message content to be displayed.
+ * @param {string} lineId lineId of chat
+ * @returns {JSX.Element} The message bubble, rendered according to message data.
+ */
+function renderMessage(message: directMessageContent, lineId: string) {
+  return <DirectMessageBubble message={message} lineId={lineId} />;
 }
 
+/**
+ * Renders a chat screen.
+ * @returns Component for rendered chat window
+ */
 function DirectChat() {
   const route = useRoute();
   //gets lineId of chat
@@ -40,6 +31,9 @@ function DirectChat() {
 
   //messages to be displayed
   const [messages, setMessages] = useState<Array<directMessageContent>>([]);
+  const addMessage = (newMessage: directMessageContent) => {
+    setMessages([...messages, newMessage]);
+  };
   //nickname to be displayed in topbar
   const [nickname, setNickname] = useState('');
   //counter to initiate redraw when a message is sent
@@ -47,34 +41,6 @@ function DirectChat() {
   //state changer to initiate redraw when a new message is recieved
   const [latestMessage, setLatestMessage] = useState({});
 
-  //Animation to support partial side swipe
-  const pan = React.useRef(new Animated.ValueXY()).current;
-  const panResponder = React.useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onPanResponderMove: Animated.event([null, {dx: pan.x}], {
-          useNativeDriver: false,
-        }),
-        onPanResponderRelease: (_, gestureState) => {
-          if (gestureState.dx < -50) {
-            Animated.timing(pan, {
-              toValue: {x: -65, y: 0},
-              duration: 200,
-              useNativeDriver: false,
-            }).start();
-          } else {
-            Animated.timing(pan, {
-              toValue: {x: 0, y: 0},
-              duration: 200,
-              useNativeDriver: false,
-            }).start();
-          }
-        },
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
   //effect runs every time a new message is sent or recieved or when screen is focused
   //reads messages from corresponding messages file.
   //toggles messages as read.
@@ -116,30 +82,33 @@ function DirectChat() {
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <ImageBackground
+        source={require('../../../assets/backgrounds/puzzle.png')}
+        style={styles.background}
+      />
       <Topbar nickname={nickname} />
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            transform: [{translateX: pan.x}],
-          },
-        ]}
-        {...panResponder.panHandlers}>
-        <FlatList
-          data={messages}
-          renderItem={element => renderMessage(element.item)}
-          keyExtractor={message => message.messageId}
-          ref={flatList}
-          onContentSizeChange={() => {
-            //initiates a scroll to the end when a new message is sent or recieved
-            if (messages.length > 1) {
-              flatList.current.scrollToEnd({animated: false});
-            }
-          }}
-        />
-      </Animated.View>
+      {/* TODO: Refactor this to follow the correct structure when directMessageContent is refactored */}
+      <FlatList
+        data={messages.sort((a, b) =>
+          a.data.timestamp < b.data.timestamp
+            ? -1
+            : a.data.timestamp > b.data.timestamp
+            ? 1
+            : 0,
+        )}
+        renderItem={element => renderMessage(element.item, lineId)}
+        keyExtractor={message => message.messageId}
+        ref={flatList}
+        onContentSizeChange={() => {
+          //initiates a scroll to the end when a new message is sent or recieved
+          if (messages.length > 1) {
+            flatList.current.scrollToEnd({animated: false});
+          }
+        }}
+      />
       <MessageBar
         flatlistRef={flatList}
+        addMessage={addMessage}
         renderCount={renderCount}
         setRenderCount={setRenderCount}
         lineId={lineId}
@@ -156,10 +125,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEE',
     flexDirection: 'column',
   },
-  container: {
-    flex: 1,
-    width: SCREEN_WIDTH + 65,
-    paddingLeft: 15,
+  background: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    resizeMode: 'cover',
+    backgroundColor: '#EEE',
+    opacity: 0.5,
+    overflow: 'hidden',
   },
 });
 

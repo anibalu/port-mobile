@@ -86,7 +86,7 @@ function DirectChat() {
         source={require('../../../assets/backgrounds/puzzle.png')}
         style={styles.background}
       />
-      <Topbar nickname={nickname} />
+      <Topbar nickname={nickname} lineId={lineId}/>
       {/* TODO: Refactor this to follow the correct structure when directMessageContent is refactored */}
       <FlatList
         data={messages.sort((a, b) =>

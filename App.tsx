@@ -25,6 +25,7 @@ import ConnectionCentre from './src/screens/ConnectionCentre/ConnectionCentre';
 import Scanner from './src/screens/Scanner/Scanner';
 import NewContact from './src/screens/NewContact/NewContact';
 import ImageView from './src/screens/MediaView/ImageView';
+import ContactProfile from './src/screens/ContactProfile/ContactProfile';
 
 import store from './src/store/appStore';
 import {Provider} from 'react-redux';
@@ -87,6 +88,7 @@ function App(): JSX.Element {
             <Stack.Screen name="NewContact" component={NewContact} />
             <Stack.Screen name="Scanner" component={Scanner} />
             <Stack.Screen name="DirectChat" component={DirectChat} />
+            <Stack.Screen name="ContactProfile" component={ContactProfile} />
             <Stack.Screen name="Placeholder" component={Placeholder} />
             <Stack.Screen name="ImageView" component={ImageView} />
           </Stack.Navigator>

@@ -1,11 +1,12 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {BackButton} from '../../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
+import SettingsIcon from '../../../assets/icons/contact-settings.svg';
 
-function Topbar({nickname}) {
+function Topbar({nickname, lineId}) {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>
@@ -16,7 +17,13 @@ function Topbar({nickname}) {
       <NumberlessSemiBoldText style={styles.title}>
         {nickname}
       </NumberlessSemiBoldText>
-      <View style={styles.settingsBox} />
+      <Pressable
+        style={styles.settingsBox}
+        onPress={() => {
+          navigation.navigate('ContactProfile', {lineId});
+        }}>
+        <SettingsIcon />
+      </Pressable>
     </View>
   );
 }
@@ -50,6 +57,7 @@ const styles = StyleSheet.create({
   settingsBox: {
     width: 50,
     alignItems: 'flex-end',
+    paddingTop: 10,
   },
   faqText: {
     marginTop: 10,

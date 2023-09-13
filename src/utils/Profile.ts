@@ -144,9 +144,20 @@ export async function setNewProfilePicture() {
   return selectedImage.uri;
 }
 
-export async function getProfilePictureURI() {
+/**
+ * 
+ * @param pathToProfilePicture if not specified, returns the user's own picture
+ * @returns 
+ */
+export async function getProfilePictureURI(pathToProfilePicture?: string) {
+  const pathToPic =
+    DocumentDirectoryPath + '/profilePicture' ||
+    DocumentDirectoryPath + '/' + pathToProfilePicture;
+  if (!(await RNFS.exists(pathToPic))) {
+    console.log("profile does not exist")
+    return false;
+  }
   const imageURI =
-    'data:image/png;base64,' +
-    (await RNFS.readFile(DocumentDirectoryPath + 'profilePicture', 'base64'));
+    'data:image/png;base64,' + (await RNFS.readFile(pathToPic, 'base64'));
   return imageURI;
 }

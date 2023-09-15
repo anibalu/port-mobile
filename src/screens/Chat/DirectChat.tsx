@@ -9,6 +9,7 @@ import {getConnectionAsync, toggleRead} from '../../utils/Connection';
 import {MessageBar} from './MessageBar';
 import {directMessageContent} from '../../utils/MessageInterface';
 import store from '../../store/appStore';
+import {checkDateBoundary} from '../../utils/Time';
 
 /**
  * Render function for flatlist, displays message bubbles.
@@ -31,13 +32,33 @@ function DirectChat() {
 
   //messages to be displayed
   const [messages, setMessages] = useState<Array<directMessageContent>>([]);
+  //adds a new message to the messages list. flatlist automatically renders added message.
   const addMessage = (newMessage: directMessageContent) => {
-    setMessages([...messages, newMessage]);
+    const isDateBoundary = checkDateBoundary(
+      messages[messages.length - 1].data.timestamp,
+      newMessage.data.timestamp,
+    );
+    setMessages([...messages, {...newMessage, isDateBoundary: isDateBoundary}]);
+  };
+  //function that returns a date boundary added array when a fs array is passed in.
+  const dateParse = (messageArray: Array<directMessageContent>) => {
+    return messageArray.map((element, index, array) => {
+      if (index === 0) {
+        const newItem = array[0];
+        newItem.isDateBoundary = true;
+        return newItem;
+      } else {
+        const newItem = array[index];
+        newItem.isDateBoundary = checkDateBoundary(
+          array[index].data.timestamp,
+          array[index - 1].data.timestamp,
+        );
+        return newItem;
+      }
+    });
   };
   //nickname to be displayed in topbar
   const [nickname, setNickname] = useState('');
-  //counter to initiate redraw when a message is sent
-  const [renderCount, setRenderCount] = useState(0);
   //state changer to initiate redraw when a new message is recieved
   const [latestMessage, setLatestMessage] = useState({});
 
@@ -47,11 +68,16 @@ function DirectChat() {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        setMessages(await readDirectMessages(lineId));
+        setMessages(dateParse(await readDirectMessages(lineId)));
+        //do a date parse
         await toggleRead(lineId);
       })();
+      return () => {
+        //to toggle read when screen is unfocused.
+        toggleRead(lineId);
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [latestMessage, renderCount]),
+    }, [latestMessage]),
   );
   //effect runs when screen is focused
   //retrieves nickname from profile file
@@ -109,9 +135,6 @@ function DirectChat() {
       <MessageBar
         flatlistRef={flatList}
         addMessage={addMessage}
-        renderCount={renderCount}
-        setRenderCount={setRenderCount}
-        lineId={lineId}
         listLen={messages.length}
       />
     </SafeAreaView>
@@ -122,7 +145,6 @@ const styles = StyleSheet.create({
   screen: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#EEE',
     flexDirection: 'column',
   },
   background: {
@@ -130,7 +152,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     resizeMode: 'cover',
-    backgroundColor: '#EEE',
+    backgroundColor: '#F9F9F9',
     opacity: 0.5,
     overflow: 'hidden',
   },

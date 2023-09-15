@@ -8,6 +8,7 @@ import FileBubble from './BubbleTypes/FileBubble';
 import {directMessageContent, ContentType} from '../../utils/MessageInterface';
 import TextBubble from './BubbleTypes/TextBubble';
 import {NumberlessRegularText} from '../../components/NumberlessText';
+import {formatISODate} from '../../utils/Time';
 
 /**
  * Selects and renders the appropriate chat bubble's content based on type.
@@ -98,15 +99,48 @@ export function DirectMessageBubble(props: {
     [container, blobStyle] = stylePicker(props.message.data.sender);
   }
   return (
-    <View style={container}>
-      <Pressable onLongPress={longPress} style={blobStyle}>
-        {renderBubbleType(props)}
-      </Pressable>
+    <View style={styles.parentContainer}>
+      <View>
+        {props.message.isDateBoundary ? (
+          <View style={styles.dateContainer}>
+            <NumberlessRegularText style={styles.dateStamp}>
+              {formatISODate(props.message.data.timestamp)}
+            </NumberlessRegularText>
+          </View>
+        ) : (
+          <View />
+        )}
+      </View>
+      <View style={container}>
+        <Pressable onLongPress={longPress} style={blobStyle}>
+          {renderBubbleType(props)}
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  parentContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  dateContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    padding: 8,
+  },
+  dateStamp: {
+    fontSize: 12,
+    color: '#83868E',
+    backgroundColor: '#EDEDED',
+    padding: 8,
+    borderRadius: 32,
+  },
   SenderContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',

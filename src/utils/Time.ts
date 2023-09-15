@@ -28,9 +28,44 @@ export function getTime(ISOTime: string | undefined) {
       minute: '2-digit',
     });
   } catch {
-    console.log('invbalid datetime: ', ISOTime);
+    console.log('invalid datetime: ', ISOTime);
     return '';
   }
+}
+
+export function checkDateBoundary(
+  ISOTimeString1: string | undefined,
+  ISOTimeString2: string | undefined,
+) {
+  if (!ISOTimeString1 || !ISOTimeString1) {
+    return false;
+  } else {
+    const date1 = new Date(ISOTimeString1);
+    const date2 = new Date(ISOTimeString2);
+
+    // Compare the year, month, and day components of the dates.
+    return (
+      date1.getFullYear() !== date2.getFullYear() ||
+      date1.getMonth() !== date2.getMonth() ||
+      date1.getDate() !== date2.getDate()
+    );
+  }
+}
+export function formatISODate(isoString: string | undefined): string {
+  if (isoString === undefined) {
+    return '';
+  }
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long', // Full weekday name
+    day: 'numeric', // Day of the month
+    month: 'long', // Full month name
+    year: 'numeric', // Four-digit year
+  };
+
+  const date = new Date(isoString);
+  const formattedDate = date.toLocaleDateString('en-US', options);
+
+  return formattedDate;
 }
 
 export function generateId() {

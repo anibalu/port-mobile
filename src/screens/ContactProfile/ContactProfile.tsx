@@ -33,6 +33,7 @@ function MyProfile() {
         setProfileURI(`file://${connection.pathToImage}`);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updatedCounter]);
 
   function setUpdated(updated: boolean) {

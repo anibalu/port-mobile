@@ -11,6 +11,7 @@ import Send from '../../../assets/icons/NewSend.svg';
 import Plus from '../../../assets/icons/plus.svg';
 import Cross from '../../../assets/icons/cross.svg';
 import ImageIcon from '../../../assets/icons/image.svg';
+import VideoIcon from '../../../assets/icons/image.svg';
 import FileIcon from '../../../assets/icons/File.svg';
 import {wait} from '../../utils/wait';
 import {trimWhiteSpace} from '../../utils/text';
@@ -78,6 +79,31 @@ export function MessageBar({flatlistRef, addMessage, listLen}) {
       console.log('Nothing selected', error);
     }
   };
+  const onVideoPressed = async () => {
+    try {
+      const response = await launchImageLibrary({
+        mediaType: 'video',
+        includeBase64: false,
+      });
+      //images are selected
+      const selected: Asset[] = response.assets || [];
+      for (let index = 0; index < selected.length; index++) {
+        const file: largeFile = {
+          uri: selected[index].uri || '',
+          type: selected[index].type || '',
+          name: selected[index].fileName || '',
+        };
+        addMessage({
+          messageId: generateId(),
+          messageType: ContentType.VIDEO,
+          data: {file: file, sender: true, timestamp: createTimeStamp()},
+        });
+      }
+      setPopUpVisible(false);
+    } catch (error) {
+      console.log('Nothing selected', error);
+    }
+  };
   const onFilePressed = async () => {
     try {
       const selected: DocumentPickerResponse[] = await DocumentPicker.pick({
@@ -112,6 +138,14 @@ export function MessageBar({flatlistRef, addMessage, listLen}) {
               </Pressable>
               <NumberlessMediumText style={styles.optionText}>
                 Photos
+              </NumberlessMediumText>
+            </View>
+            <View style={styles.optionContainer}>
+              <Pressable style={styles.optionBox} onPress={onVideoPressed}>
+                <VideoIcon />
+              </Pressable>
+              <NumberlessMediumText style={styles.optionText}>
+                Videos
               </NumberlessMediumText>
             </View>
             <View style={styles.optionContainer}>

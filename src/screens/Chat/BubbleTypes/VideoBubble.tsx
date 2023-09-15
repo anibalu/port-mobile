@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from 'react';
+
 import {View, StyleSheet, Pressable, Dimensions} from 'react-native';
 
 import {
   NumberlessItalicText,
-  NumberlessMediumText,
   NumberlessRegularText,
 } from '../../../components/NumberlessText';
 import {getTime} from '../../../utils/Time';
 import Sending from '../../../../assets/icons/sending.svg';
-import File from '../../../../assets/icons/FileClip.svg';
+
 import {
   ContentType,
   directMessageContent,
@@ -16,28 +16,26 @@ import {
 import {createTempFileUpload, uploadLargeFile} from '../../../utils/LargeFiles';
 import {DirectMessaging} from '../../../utils/DirectMessaging';
 import FileViewer from 'react-native-file-viewer';
-
+import VideoPlay from '../../../../assets/miscellaneous/VideoPlay.svg';
 /**
- * Renders file container to be inserted into chat bubbles.
+ * Renders image container to be inserted into chat bubbles.
  * @param props MediaContent object containing text and timestamp to render.
  * @returns Rendered text content
  */
-export default function FileBubble(props: {
+export default function VideoBubble(props: {
   message: directMessageContent;
   lineId: string;
 }) {
   // TODO: Error handling - in the event that the file path points to an invalid
   //       path, the program should handle this gracefully. It currently will try
   //       and load whatever string is already there.
-  // const viewWidth = Dimensions.get('window').width;
   const [isSent, setIsSent] = useState<boolean>(false);
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
   const [uploadFailed, setUploadFailed] = useState<boolean>(false);
-  const fileDataUri =
-    props.message.data.file?.uri || `${props.message.data.filePath}` || '';
-  const fileTitle =
-    props.message.data.file?.name || props.message.data.fileName || '';
-
+  const videoUri =
+    props.message.data.file?.uri ||
+    `file://${props.message.data.filePath}` ||
+    '';
   useEffect(() => {
     if (props.message.data.mediaId === undefined) {
       const uploadFunc = async () => {
@@ -51,7 +49,7 @@ export default function FileBubble(props: {
           const messaging = new DirectMessaging(props.lineId);
           const ret = await messaging.sendMessage({
             messageId: messaging.generateMessageId(),
-            messageType: ContentType.OTHER_FILE,
+            messageType: ContentType.VIDEO,
             data: {
               mediaId: mediaId,
               filePath: fileUri,
@@ -71,12 +69,12 @@ export default function FileBubble(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <View style={styles.fileBubbleContainer}>
+    <View style={styles.imageBubbleContainer}>
       <View>
         {uploadFailed ? (
           <View>
             <NumberlessItalicText style={styles.text}>
-              File upload failed.
+              Video upload failed.
             </NumberlessItalicText>
           </View>
         ) : (
@@ -86,24 +84,15 @@ export default function FileBubble(props: {
                 {isSent ? (
                   <Pressable
                     onPress={() => {
-                      FileViewer.open(fileDataUri, {showOpenWithDialog: true});
-                    }}>
-                    <View style={styles.fileBox}>
-                      <View style={styles.fileClip}>
-                        <File />
-                      </View>
-                      <NumberlessMediumText
-                        style={styles.fileName}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}>
-                        {fileTitle}
-                      </NumberlessMediumText>
-                    </View>
+                      FileViewer.open(videoUri, {showOpenWithDialog: true});
+                    }}
+                    style={styles.videoPreview}>
+                    <VideoPlay />
                   </Pressable>
                 ) : (
                   <View>
                     <NumberlessItalicText style={styles.text}>
-                      sending file...
+                      sending video...
                     </NumberlessItalicText>
                   </View>
                 )}
@@ -111,7 +100,7 @@ export default function FileBubble(props: {
             ) : (
               <View>
                 <NumberlessItalicText style={styles.text}>
-                  preparing file...
+                  preparing video...
                 </NumberlessItalicText>
               </View>
             )}
@@ -134,11 +123,10 @@ export default function FileBubble(props: {
     </View>
   );
 }
-
 const viewWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
-  fileBubbleContainer: {
+  imageBubbleContainer: {
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'center',
@@ -158,24 +146,17 @@ const styles = StyleSheet.create({
   text: {
     color: '#000000',
   },
-  fileBox: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  fileClip: {
-    height: 60,
-    width: 60,
+  image: {
+    height: 0.7 * viewWidth - 40,
+    width: 0.7 * viewWidth - 40,
     borderRadius: 16,
-    backgroundColor: '#FEB95A',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  fileName: {
-    color: 'black',
-    overflow: 'hidden',
-    width: 0.7 * viewWidth - 100,
-    marginLeft: 10,
-    fontSize: 12,
+  videoPreview: {
+    height: 0.7 * viewWidth - 40,
+    width: 0.7 * viewWidth - 40,
+    backgroundColor: '#000000',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

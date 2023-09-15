@@ -15,8 +15,7 @@ import {
 } from '../../../utils/MessageInterface';
 import {createTempFileUpload, uploadLargeFile} from '../../../utils/LargeFiles';
 import {DirectMessaging} from '../../../utils/DirectMessaging';
-import {useNavigation} from '@react-navigation/native';
-
+import FileViewer from 'react-native-file-viewer';
 /**
  * Renders image container to be inserted into chat bubbles.
  * @param props MediaContent object containing text and timestamp to render.
@@ -29,7 +28,6 @@ export default function ImageBubble(props: {
   // TODO: Error handling - in the event that the file path points to an invalid
   //       path, the program should handle this gracefully. It currently will try
   //       and load whatever string is already there.
-  const navigation = useNavigation();
   const [isSent, setIsSent] = useState<boolean>(false);
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
   const [uploadFailed, setUploadFailed] = useState<boolean>(false);
@@ -37,9 +35,6 @@ export default function ImageBubble(props: {
     props.message.data.file?.uri ||
     `file://${props.message.data.filePath}` ||
     '';
-  const fileTitle =
-    props.message.data.file?.name || props.message.data.fileName || '';
-
   useEffect(() => {
     if (props.message.data.mediaId === undefined) {
       const uploadFunc = async () => {
@@ -88,10 +83,7 @@ export default function ImageBubble(props: {
                 {isSent ? (
                   <Pressable
                     onPress={() => {
-                      navigation.navigate('ImageView', {
-                        imageURI: imageUri,
-                        title: fileTitle,
-                      });
+                      FileViewer.open(imageUri, {showOpenWithDialog: true});
                     }}>
                     <Image
                       source={{uri: imageUri}} // Replace with your image source

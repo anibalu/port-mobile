@@ -153,6 +153,43 @@ export class DirectMessaging {
             };
           }
           break;
+        case ContentType.VIDEO:
+          {
+            const fileObj = await downloadLargeFile(savedMessageData.mediaId);
+            if (fileObj === null) {
+              throw new Error('download failed');
+            }
+            const fileParams: convertedFileResponse = await toLocalFile(
+              this.id,
+              fileObj,
+              ContentType.VIDEO,
+            );
+            console.log('local file created: ', fileParams);
+            await updateConnection({
+              id: this.id,
+              newMessageType: content.messageType,
+              text: content.data.text || 'video',
+              readStatus: 'new',
+            });
+            savedMessageData.filePath = fileParams.filePath;
+            savedMessageData.mediaType = fileParams.type;
+            savedMessageData.sender = false;
+            savedMessageData.timestamp = sentTime.toISOString();
+            console.log('data: ', savedMessageData);
+            await saveNewDirectMessage(this.id, {
+              messageType: content.messageType,
+              messageId: '0002_' + content.messageId,
+              data: savedMessageData,
+            });
+            /**
+             * @todo attempt to download media only if media autodownload is ON.
+             */
+            notificationData = {
+              title: connection.nickname,
+              body: content.data.text || 'video',
+            };
+          }
+          break;
         case ContentType.OTHER_FILE:
           {
             const fileObj = await downloadLargeFile(savedMessageData.mediaId);
@@ -260,6 +297,42 @@ export class DirectMessaging {
         this.id,
         messageContent.data.filePath,
         ContentType.IMAGE,
+      );
+      const savedMessageData: MediaContent = {
+        mediaId: messageContent.data.mediaId,
+        sender: true,
+        timestamp: messageContent.data.timestamp,
+        fileName: messageContent.data.fileName,
+      };
+      const preparedMessage: preparedMessage = {
+        message: {
+          ...messageContent,
+          ...{data: savedMessageData},
+        },
+        line: this.id,
+      };
+      savedMessageData.filePath = fileParams.filePath;
+      savedMessageData.mediaType = fileParams.type;
+      const isSent = await trySending(preparedMessage);
+      console.log('message send invoked');
+      await saveNewDirectMessage(this.id, {
+        messageType: messageContent.messageType,
+        messageId: '0001_' + messageContent.messageId,
+        isSent: isSent,
+        data: savedMessageData,
+      });
+      return isSent;
+      /**
+       * @todo support letting users know if message has been successfully sent.
+       * This can be done using the MessageJournal module.
+       * Better to do this after multiple messages file support has been added.
+       */
+    }
+    if (messageContent.messageType === ContentType.VIDEO) {
+      const fileParams: convertedFileResponse = await tempFileToLocalFile(
+        this.id,
+        messageContent.data.filePath,
+        ContentType.VIDEO,
       );
       const savedMessageData: MediaContent = {
         mediaId: messageContent.data.mediaId,

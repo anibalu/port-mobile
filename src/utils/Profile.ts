@@ -145,16 +145,16 @@ export async function setNewProfilePicture() {
 }
 
 /**
- * 
+ *
  * @param pathToProfilePicture if not specified, returns the user's own picture
- * @returns 
+ * @returns
  */
 export async function getProfilePictureURI(pathToProfilePicture?: string) {
   const pathToPic =
     DocumentDirectoryPath + '/profilePicture' ||
     DocumentDirectoryPath + '/' + pathToProfilePicture;
   if (!(await RNFS.exists(pathToPic))) {
-    console.log("profile does not exist")
+    console.log('profile does not exist');
     return false;
   }
   const imageURI =

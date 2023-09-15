@@ -204,6 +204,21 @@ export async function tempFileToLocalFile(
     await RNFS.writeFile(filePath, fileObj.data, 'base64');
     const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
     return ret;
+  }
+  if (type === ContentType.VIDEO) {
+    const fileData: string = await RNFS.readFile(fileUri.substring(7));
+    const fileObj: largeFileData = JSON.parse(fileData);
+    const filePath =
+      RNFS.DocumentDirectoryPath +
+      '/' +
+      'largeFiles' +
+      '/' +
+      lineId +
+      '/media/' +
+      fileObj.name;
+    await RNFS.writeFile(filePath, fileObj.data, 'base64');
+    const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
+    return ret;
   } else {
     const fileObj: largeFileData = JSON.parse(
       await RNFS.readFile(fileUri.substring(7), WRITE_ENCODING),
@@ -241,6 +256,19 @@ export async function toLocalFile(
     return ret;
   }
   if (type === ContentType.IMAGE) {
+    const filePath =
+      RNFS.DocumentDirectoryPath +
+      '/' +
+      'largeFiles' +
+      '/' +
+      lineId +
+      '/media/' +
+      fileObj.name;
+    await RNFS.writeFile(filePath, fileObj.data, 'base64');
+    const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
+    return ret;
+  }
+  if (type === ContentType.VIDEO) {
     const filePath =
       RNFS.DocumentDirectoryPath +
       '/' +
@@ -335,7 +363,6 @@ export async function downloadLargeFile(
   try {
     console.log('download starting...');
     const downloadUrl: string = await getDownloadPresignedUrl(mediaId);
-    console.log('download: ', downloadUrl);
     const response = await axios.get(downloadUrl);
     console.log('download successful');
     return response.data;

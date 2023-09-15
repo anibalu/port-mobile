@@ -7,7 +7,7 @@
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, TextInput, View} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import { getConnection, updateConnection } from '../../utils/Connection';
+import {getConnection, updateConnection} from '../../utils/Connection';
 
 export interface updateNicknameProps {
   setUpdated: Function;
@@ -21,6 +21,7 @@ export default function NicknamePopup(props: updateNicknameProps) {
   useEffect(() => {
     (async () =>
       setNewNickname((await getConnection(props.lineId)).nickname))();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -46,7 +47,11 @@ export default function NicknamePopup(props: updateNicknameProps) {
           style={styles.save}
           onPress={() => {
             (async () => {
-              await updateConnection({id: props.lineId, nickname: newNickname, userChoiceNickname:true});
+              await updateConnection({
+                id: props.lineId,
+                nickname: newNickname,
+                userChoiceNickname: true,
+              });
               props.setUpdated(true);
             })();
           }}>

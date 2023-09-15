@@ -9,6 +9,7 @@ import {directMessageContent, ContentType} from '../../utils/MessageInterface';
 import TextBubble from './BubbleTypes/TextBubble';
 import {NumberlessRegularText} from '../../components/NumberlessText';
 import {formatISODate} from '../../utils/Time';
+import VideoBubble from './BubbleTypes/VideoBubble';
 
 /**
  * Selects and renders the appropriate chat bubble's content based on type.
@@ -26,18 +27,20 @@ function renderBubbleType(props: {
       return <TextBubble {...props} />;
     case ContentType.IMAGE:
       return <ImageBubble {...props} />;
+    case ContentType.VIDEO:
+      return <VideoBubble {...props} />;
     case ContentType.OTHER_FILE:
       return <FileBubble {...props} />;
     case ContentType.NICKNAME:
       if (props.message.data.sender) {
         return (
-          <NumberlessRegularText>
+          <NumberlessRegularText style={styles.text}>
             Your Nickname securely sent
           </NumberlessRegularText>
         );
       } else {
         return (
-          <NumberlessRegularText>
+          <NumberlessRegularText style={styles.text}>
             Contact Nickname securely received
           </NumberlessRegularText>
         );
@@ -47,7 +50,7 @@ function renderBubbleType(props: {
        * @todo add styling properly
        */
       return (
-        <NumberlessRegularText>
+        <NumberlessRegularText style={styles.text}>
           Unrecognizable message type
         </NumberlessRegularText>
       );
@@ -93,6 +96,9 @@ export function DirectMessageBubble(props: {
     [container, blobStyle] = stylePicker(props.message.data.sender);
   }
   if (props.message.messageType === ContentType.IMAGE) {
+    [container, blobStyle] = stylePicker(props.message.data.sender);
+  }
+  if (props.message.messageType === ContentType.VIDEO) {
     [container, blobStyle] = stylePicker(props.message.data.sender);
   }
   if (props.message.messageType === ContentType.OTHER_FILE) {
@@ -218,5 +224,8 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: '#E5E5E5',
     maxWidth: '70%',
+  },
+  text: {
+    color: '#000000',
   },
 });

@@ -2,9 +2,33 @@ import {LINE_LINKS_MANAGEMENT_RESOURCE} from '../configs/api';
 import {getTokenAsync} from './Token';
 import axios from 'axios';
 import RNFS from 'react-native-fs';
-import {lineLinksPath} from '../configs/paths';
+import {lineLinksPath, linksDir} from '../configs/paths';
 import {IDEAL_LINE_LINKS_NUMBER} from '../configs/constants';
 import {connectionFsSync} from './syncronization';
+
+/**
+ * Creates a links directory if it doesn't exist and returns the path to it.
+ * @returns {Promise<string>} The path to the links directory.
+ */
+async function makeLinksDir(): Promise<string> {
+  const linksDirPath = RNFS.DocumentDirectoryPath + `${linksDir}`;
+  const folderExists = await RNFS.exists(linksDirPath);
+  if (folderExists) {
+    return linksDirPath;
+  } else {
+    await RNFS.mkdir(linksDirPath);
+    return linksDirPath;
+  }
+}
+/**
+ * Retrieves the path to the line connection links data file inside the links directory.
+ * This function ensures the links directory exists.
+ * @returns {Promise<string>} The path to the line links data file.
+ */
+async function getLineLinksPath(): Promise<string> {
+  const linksDirPath = await makeLinksDir();
+  return linksDirPath + lineLinksPath;
+}
 
 export async function getNewLineLinksAsync(): Promise<string[] | null> {
   try {
@@ -25,7 +49,7 @@ export async function getNewLineLinksAsync(): Promise<string[] | null> {
 
 //saves line links to file
 export async function saveLineLinksAsync(links: Array<string>) {
-  const pathToFile = `${RNFS.DocumentDirectoryPath}/${lineLinksPath}`;
+  const pathToFile = await getLineLinksPath();
   const isFile = await RNFS.exists(pathToFile);
   if (isFile) {
     const linksDataJSON = await RNFS.readFile(pathToFile, 'utf8');
@@ -40,7 +64,7 @@ export async function saveLineLinksAsync(links: Array<string>) {
 //gets an unused line link.
 export async function getLineLink() {
   const synced = async () => {
-    const pathToFile = `${RNFS.DocumentDirectoryPath}/${lineLinksPath}`;
+    const pathToFile = await getLineLinksPath();
     const isFile = await RNFS.exists(pathToFile);
     if (isFile) {
       const linksDataJSON = await RNFS.readFile(pathToFile, 'utf8');

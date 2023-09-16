@@ -49,7 +49,7 @@ export function checkBundleData(qrData: string) {
 //save read bundle
 export async function saveReadBundle(readBundle: bundle) {
   const synced = async () => {
-    const pathToFile = `${RNFS.DocumentDirectoryPath}/${readBundlesPath}`;
+    const pathToFile = RNFS.DocumentDirectoryPath + `${readBundlesPath}`;
     const isFile = await RNFS.exists(pathToFile);
     if (isFile) {
       const bundlesDataJSON = await RNFS.readFile(pathToFile, 'utf8');
@@ -66,7 +66,7 @@ export async function saveReadBundle(readBundle: bundle) {
 //read saved bundles
 export async function readSavedReadBundles() {
   const synced = async () => {
-    const pathToFile = `${RNFS.DocumentDirectoryPath}/${readBundlesPath}`;
+    const pathToFile = RNFS.DocumentDirectoryPath + `${readBundlesPath}`;
     const isFile = await RNFS.exists(pathToFile);
     if (isFile) {
       const bundlesData: Array<bundle> = JSON.parse(
@@ -100,7 +100,7 @@ export async function generateLineBundle() {
 //save generated bundle
 export async function saveGeneratedBundle(generatedBundle: bundle) {
   const synced = async () => {
-    const pathToFile = `${RNFS.DocumentDirectoryPath}/${generatedBundlesPath}`;
+    const pathToFile = RNFS.DocumentDirectoryPath + `${generatedBundlesPath}`;
     const isFile = await RNFS.exists(pathToFile);
     if (isFile) {
       const bundlesDataJSON = await RNFS.readFile(pathToFile, 'utf8');
@@ -121,7 +121,7 @@ export async function saveGeneratedBundle(generatedBundle: bundle) {
 //read generated bundles
 export async function readSavedGeneratedBundles() {
   const synced = async () => {
-    const pathToFile = `${RNFS.DocumentDirectoryPath}/${generatedBundlesPath}`;
+    const pathToFile = RNFS.DocumentDirectoryPath + `${generatedBundlesPath}`;
     const isFile = await RNFS.exists(pathToFile);
     if (isFile) {
       const bundlesData: Array<bundle> = JSON.parse(
@@ -144,7 +144,7 @@ export async function readSavedGeneratedBundles() {
 //delete all generated bundles
 export async function deleteAllGeneratedBundles() {
   const synced = async () => {
-    const pathToFile = `${RNFS.DocumentDirectoryPath}/${generatedBundlesPath}`;
+    const pathToFile = RNFS.DocumentDirectoryPath + `${generatedBundlesPath}`;
     await RNFS.writeFile(pathToFile, JSON.stringify([]), 'utf8');
   };
   await connectionFsSync(synced);
@@ -152,7 +152,7 @@ export async function deleteAllGeneratedBundles() {
 //delete all read bundles
 export async function deleteAllReadBundles() {
   const synced = async () => {
-    const pathToFile = `${RNFS.DocumentDirectoryPath}/${readBundlesPath}`;
+    const pathToFile = RNFS.DocumentDirectoryPath + `${readBundlesPath}`;
     await RNFS.writeFile(pathToFile, JSON.stringify([]), 'utf8');
   };
   await connectionFsSync(synced);

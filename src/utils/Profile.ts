@@ -1,6 +1,6 @@
 //wiki added
-import RNFS, {DocumentDirectoryPath} from 'react-native-fs';
-import {profilePath} from '../configs/paths';
+import RNFS from 'react-native-fs';
+import {profileDir, profileDataPath, profilePicPath} from '../configs/paths';
 import {nicknameTruncate} from './Nickname';
 import axios from 'axios';
 import * as API from '../configs/api';
@@ -27,6 +27,38 @@ export interface serverResponse {
   serverKey: string;
   userId: string;
 }
+/**
+ * Creates a profile directory if it doesn't exist and returns the path to it.
+ * @returns {Promise<string>} The path to the profile directory.
+ */
+async function makeProfileDir(): Promise<string> {
+  const profileDirPath = RNFS.DocumentDirectoryPath + `${profileDir}`;
+  const folderExists = await RNFS.exists(profileDirPath);
+  if (folderExists) {
+    return profileDirPath;
+  } else {
+    await RNFS.mkdir(profileDirPath);
+    return profileDirPath;
+  }
+}
+/**
+ * Retrieves the path to the profile data file inside the profile directory.
+ * This function ensures the profile directory exists.
+ * @returns {Promise<string>} The path to the profile data file.
+ */
+async function getProfileDataPath(): Promise<string> {
+  const profileDirPath = await makeProfileDir();
+  return profileDirPath + profileDataPath;
+}
+/**
+ * Retrieves the path to the profile picture file inside the profile directory.
+ * This function ensures the profile directory exists.
+ * @returns {Promise<string>} The path to the profile picture file.
+ */
+async function getProfilePicPath(): Promise<string> {
+  const profileDirPath = await makeProfileDir();
+  return profileDirPath + profilePicPath;
+}
 
 //updates a user's profile.json file. creates file if none exists.
 export async function updateProfile(data: profile): Promise<void> {
@@ -42,7 +74,7 @@ export async function updateProfileAsync(data: profile): Promise<void> {
   if (data.nickname) {
     dataNew.nickname = nicknameTruncate(data.nickname);
   }
-  const pathToFile = `${RNFS.DocumentDirectoryPath}/${profilePath}`;
+  const pathToFile = await getProfileDataPath();
   const isFile = await RNFS.exists(pathToFile);
   if (isFile) {
     const profileDataJSON = await RNFS.readFile(pathToFile, 'utf8');
@@ -56,7 +88,7 @@ export async function updateProfileAsync(data: profile): Promise<void> {
 
 export async function readProfileAsync(): Promise<profile> {
   try {
-    const pathToFile = `${RNFS.DocumentDirectoryPath}/${profilePath}`;
+    const pathToFile = await getProfileDataPath();
     const profileDataJSON = await RNFS.readFile(pathToFile, 'utf8');
     const profileData: profile = JSON.parse(profileDataJSON);
     return profileData;
@@ -134,25 +166,23 @@ export async function setNewProfilePicture() {
   }
   if (selectedImage.base64) {
     await RNFS.writeFile(
-      DocumentDirectoryPath + 'profilePicture',
+      await getProfilePicPath(),
       selectedImage.base64,
       'base64',
     );
   }
-  // console.log(await getProfilePictureURI())
-
   return selectedImage.uri;
 }
 
 /**
- *
+ * @todo return just the file uri. image viewer can read it directly.
  * @param pathToProfilePicture if not specified, returns the user's own picture
  * @returns
  */
 export async function getProfilePictureURI(pathToProfilePicture?: string) {
   const pathToPic =
-    DocumentDirectoryPath + '/profilePicture' ||
-    DocumentDirectoryPath + '/' + pathToProfilePicture;
+    RNFS.DocumentDirectoryPath + '/' + pathToProfilePicture ||
+    (await getProfilePicPath());
   if (!(await RNFS.exists(pathToPic))) {
     console.log('profile does not exist');
     return false;

@@ -1,26 +1,67 @@
 import RNFS from 'react-native-fs';
-import {messagesDir} from '../configs/paths';
+import {conversationsDir, messagesDir} from '../configs/paths';
 import {directMessageContent} from './MessageInterface';
 import {connectionFsSync} from './syncronization';
 
-const path = RNFS.DocumentDirectoryPath + '/' + messagesDir;
 const ENCODING = 'utf8';
 
-//initialise folder
-export async function initialiseMessagesDirAsync() {
+/**
+ * Creates a conversations directory if it doesn't exist and returns the path to it.
+ * @returns {Promise<string>} The path to the conversations directory.
+ */
+export async function makeConversationsDir(): Promise<string> {
+  const conversationsDirPath =
+    RNFS.DocumentDirectoryPath + `${conversationsDir}`;
+  const folderExists = await RNFS.exists(conversationsDirPath);
+  if (folderExists) {
+    return conversationsDirPath;
+  } else {
+    await RNFS.mkdir(conversationsDirPath);
+    return conversationsDirPath;
+  }
+}
+
+/**
+ * Creates a lineId directory if it doesn't exist and returns the path to it.
+ * @returns {Promise<string>} The path to the lineId directory.
+ */
+export async function initialiseLineIdDirAsync(
+  lineId: string,
+): Promise<string> {
+  const conversationsDirPath = await makeConversationsDir();
+  const path = conversationsDirPath + '/' + lineId;
   const folderExists = await RNFS.exists(path);
   if (folderExists) {
-    return;
+    return path;
   } else {
     await RNFS.mkdir(path);
+    return path;
+  }
+}
+
+/**
+ * Creates a messages directory if it doesn't exist and returns the path to it.
+ * @returns {Promise<string>} The path to the messages directory.
+ */
+export async function initialiseMessagesDirAsync(
+  lineId: string,
+): Promise<string> {
+  const lineIdDirPath = await initialiseLineIdDirAsync(lineId);
+  const path = lineIdDirPath + messagesDir;
+  const folderExists = await RNFS.exists(path);
+  if (folderExists) {
+    return path;
+  } else {
+    await RNFS.mkdir(path);
+    return path;
   }
 }
 
 //initialise messages file
 //eventually multiple message files will exist per direct chat
 async function initialiseDirectMessagesFileAsync(lineId: string) {
-  const messagesPath = path + '/' + '00001_' + lineId + '.msgs';
-  await initialiseMessagesDirAsync();
+  const messagesPath = (await initialiseMessagesDirAsync(lineId)) + '/1.txt';
+  console.log('messages path: ', messagesPath);
   if (await RNFS.exists(messagesPath)) {
     return messagesPath;
   }

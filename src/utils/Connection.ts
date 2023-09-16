@@ -4,7 +4,7 @@ import {nicknameTruncate} from './Nickname';
 import {connectionFsSync} from './syncronization';
 import {ContentType} from './MessageInterface';
 
-const pathToConnections = RNFS.DocumentDirectoryPath + connectionsPath;
+const pathToConnections = RNFS.DocumentDirectoryPath + `${connectionsPath}`;
 const ENCODING = 'utf8';
 
 export enum ConnectionType {

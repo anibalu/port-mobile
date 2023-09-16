@@ -12,15 +12,27 @@ import axios from 'axios';
 import {LINE_MESSAGING_RESOURCE} from '../configs/api';
 import {updateConnectionAsync} from './Connection';
 import RNFS from 'react-native-fs';
-import {messagesDir} from '../configs/paths';
-import {initialiseMessagesDirAsync} from './messagefs';
+import {messageJournalDir, messageJournalPath} from '../configs/paths';
+import {makeConversationsDir} from './messagefs';
 import {connectionFsSync} from './syncronization';
 
-/**
- * Unsent messages queue is stored in the messages directory in a single file called "journaled.txt"
- */
-const path = RNFS.DocumentDirectoryPath + '/' + messagesDir;
 const ENCODING = 'utf8';
+
+/**
+ * Creates a journal directory if it doesn't exist and returns the path to it.
+ * @returns {Promise<string>} The path to the journal directory.
+ */
+async function makeJournalDir(): Promise<string> {
+  const conversationsDirPath = await makeConversationsDir();
+  const path = conversationsDirPath + messageJournalDir;
+  const folderExists = await RNFS.exists(path);
+  if (folderExists) {
+    return path;
+  } else {
+    await RNFS.mkdir(path);
+    return path;
+  }
+}
 
 /**
  * Initializes the journalled messages file asynchronously.
@@ -30,8 +42,8 @@ const ENCODING = 'utf8';
  * @returns {Promise<string>} A Promise that resolves to the path of the journalled messages file.
  */
 async function initialiseJounaledMessagesFileAsync(): Promise<string> {
-  const journalPath: string = path + '/journaled.txt';
-  await initialiseMessagesDirAsync();
+  const journalPath: string =
+    (await makeJournalDir()) + `${messageJournalPath}`;
   if (await RNFS.exists(journalPath)) {
     return journalPath;
   }

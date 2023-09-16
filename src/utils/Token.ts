@@ -36,15 +36,14 @@ export function checkTimeout(
     return false;
   }
 }
+const pathToFile = RNFS.DocumentDirectoryPath + `${tokenPath}`;
 
 async function checkSavedTokenAsync(): Promise<boolean> {
-  const pathToFile = `${RNFS.DocumentDirectoryPath}/${tokenPath}`;
   const isFile = await RNFS.exists(pathToFile);
   return isFile;
 }
 
 async function readTokenAsync(): Promise<savedToken> {
-  const pathToFile = `${RNFS.DocumentDirectoryPath}/${tokenPath}`;
   const isToken = await checkSavedTokenAsync();
   if (isToken) {
     const savedTokenJSON: string = await RNFS.readFile(pathToFile, 'utf8');
@@ -55,7 +54,6 @@ async function readTokenAsync(): Promise<savedToken> {
 }
 
 export async function saveTokenAsync(token: token): Promise<void> {
-  const pathToFile = `${RNFS.DocumentDirectoryPath}/${tokenPath}`;
   const now: Date = new Date();
   const newSavedToken: savedToken = {
     timestamp: now.toISOString(),

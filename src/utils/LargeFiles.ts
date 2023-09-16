@@ -5,14 +5,15 @@
 import axios from 'axios';
 import {LARGE_FILE_PRESIGNED_URL_RESOURE} from '../configs/api';
 import RNFS from 'react-native-fs';
-import {tempDir} from '../configs/paths';
+import {filesDir, mediaDir, tempDir} from '../configs/paths';
 import {ContentType} from './MessageInterface';
+import {initialiseLineIdDirAsync} from './messagefs';
 
 /**
  * The path to the temporary directory within the Document Directory of the app.
  * @type {string}
  */
-const path = RNFS.DocumentDirectoryPath + '/' + tempDir;
+const path = RNFS.DocumentDirectoryPath + `${tempDir}`;
 
 /**
  * The encoding to be used when reading data, specified as 'base64'.
@@ -153,56 +154,54 @@ export async function createTempFileUpload(file: largeFile) {
    */
 }
 export async function initialiseLargeFileDirAsync(lineId: string) {
-  const largeFileDir = RNFS.DocumentDirectoryPath + '/' + 'largeFiles';
+  const largeFileDir = await initialiseLineIdDirAsync(lineId);
   const folderExists = await RNFS.exists(largeFileDir);
   if (!folderExists) {
     await RNFS.mkdir(largeFileDir);
   }
-  const mediaDir = largeFileDir + '/' + lineId + '/' + 'media';
-  const mediaDirExists = await RNFS.exists(mediaDir);
+  const mediaFilesDir = largeFileDir + mediaDir;
+  const mediaDirExists = await RNFS.exists(mediaFilesDir);
   if (!mediaDirExists) {
-    await RNFS.mkdir(mediaDir);
+    await RNFS.mkdir(mediaFilesDir);
   }
-  const fileDir = largeFileDir + '/' + lineId + '/' + 'files';
+  const fileDir = largeFileDir + filesDir;
   const fileDirExists = await RNFS.exists(fileDir);
   if (!fileDirExists) {
     await RNFS.mkdir(fileDir);
   }
+  return largeFileDir;
 }
 export async function tempFileToLocalFile(
   lineId: string,
   fileUri: string,
   type: ContentType | string,
 ) {
-  await initialiseLargeFileDirAsync(lineId);
+  const largeFileDir = await initialiseLargeFileDirAsync(lineId);
   if (type === ContentType.OTHER_FILE) {
     const fileData: string = await RNFS.readFile(fileUri.substring(7));
     const fileObj: largeFileData = JSON.parse(fileData);
-    const filePath =
-      RNFS.DocumentDirectoryPath +
-      '/' +
-      'largeFiles' +
-      '/' +
-      lineId +
-      '/media/' +
-      fileObj.name;
+    const filePath = largeFileDir + filesDir + '/' + fileObj.name;
     await RNFS.writeFile(filePath, fileObj.data, 'base64');
     const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
+    await RNFS.unlink(fileUri.substring(7));
     return ret;
   }
   if (type === ContentType.IMAGE) {
     const fileData: string = await RNFS.readFile(fileUri.substring(7));
     const fileObj: largeFileData = JSON.parse(fileData);
-    const filePath =
-      RNFS.DocumentDirectoryPath +
-      '/' +
-      'largeFiles' +
-      '/' +
-      lineId +
-      '/media/' +
-      fileObj.name;
+    const filePath = largeFileDir + mediaDir + '/' + fileObj.name;
     await RNFS.writeFile(filePath, fileObj.data, 'base64');
     const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
+    await RNFS.unlink(fileUri.substring(7));
+    return ret;
+  }
+  if (type === ContentType.VIDEO) {
+    const fileData: string = await RNFS.readFile(fileUri.substring(7));
+    const fileObj: largeFileData = JSON.parse(fileData);
+    const filePath = largeFileDir + mediaDir + '/' + fileObj.name;
+    await RNFS.writeFile(filePath, fileObj.data, 'base64');
+    const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
+    await RNFS.unlink(fileUri.substring(7));
     return ret;
   }
   if (type === ContentType.VIDEO) {
@@ -223,16 +222,10 @@ export async function tempFileToLocalFile(
     const fileObj: largeFileData = JSON.parse(
       await RNFS.readFile(fileUri.substring(7), WRITE_ENCODING),
     );
-    const filePath =
-      RNFS.DocumentDirectoryPath +
-      '/' +
-      'largeFiles' +
-      '/' +
-      lineId +
-      '/files/' +
-      fileObj.name;
-    await RNFS.writeFile(filePath, fileObj.data);
+    const filePath = largeFileDir + filesDir + '/' + fileObj.name;
+    await RNFS.writeFile(filePath, fileObj.data, 'base64');
     const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
+    await RNFS.unlink(fileUri.substring(7));
     return ret;
   }
 }
@@ -241,29 +234,21 @@ export async function toLocalFile(
   fileObj: largeFileData,
   type: ContentType | string,
 ) {
-  await initialiseLargeFileDirAsync(lineId);
+  const largeFileDir = await initialiseLargeFileDirAsync(lineId);
   if (type === ContentType.OTHER_FILE) {
-    const filePath =
-      RNFS.DocumentDirectoryPath +
-      '/' +
-      'largeFiles' +
-      '/' +
-      lineId +
-      '/media/' +
-      fileObj.name;
+    const filePath = largeFileDir + filesDir + '/' + fileObj.name;
     await RNFS.writeFile(filePath, fileObj.data, 'base64');
     const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
     return ret;
   }
   if (type === ContentType.IMAGE) {
-    const filePath =
-      RNFS.DocumentDirectoryPath +
-      '/' +
-      'largeFiles' +
-      '/' +
-      lineId +
-      '/media/' +
-      fileObj.name;
+    const filePath = largeFileDir + mediaDir + '/' + fileObj.name;
+    await RNFS.writeFile(filePath, fileObj.data, 'base64');
+    const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
+    return ret;
+  }
+  if (type === ContentType.VIDEO) {
+    const filePath = largeFileDir + mediaDir + '/' + fileObj.name;
     await RNFS.writeFile(filePath, fileObj.data, 'base64');
     const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
     return ret;
@@ -281,15 +266,8 @@ export async function toLocalFile(
     const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
     return ret;
   } else {
-    const filePath =
-      RNFS.DocumentDirectoryPath +
-      '/' +
-      'largeFiles' +
-      '/' +
-      lineId +
-      '/files/' +
-      fileObj.name;
-    await RNFS.writeFile(filePath, fileObj.data);
+    const filePath = largeFileDir + filesDir + '/' + fileObj.name;
+    await RNFS.writeFile(filePath, fileObj.data, 'base64');
     const ret: convertedFileResponse = {filePath: filePath, type: fileObj.type};
     return ret;
   }

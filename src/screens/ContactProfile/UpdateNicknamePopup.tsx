@@ -5,36 +5,36 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {Pressable, StyleSheet, TextInput, View} from 'react-native';
+import {Dimensions, Pressable, StyleSheet, TextInput, View} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {getConnection, updateConnection} from '../../utils/Connection';
+import { processNickname } from '../../utils/Nickname';
+import { NICKNAME_LENGTH_LIMIT } from '../../configs/constants';
 
-export interface updateNicknameProps {
+interface updateNicknameProps {
   setUpdated: Function;
   initialNickname: string;
   lineId: string;
 }
 
 export default function NicknamePopup(props: updateNicknameProps) {
-  const [newNickname, setNewNickname] = useState(props.initialNickname || '');
-
-  useEffect(() => {
-    (async () =>
-      setNewNickname((await getConnection(props.lineId)).nickname))();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  const viewWidth = Dimensions.get('window').width;
+  const inputTextBarWidth = viewWidth;
+  const [newNickname, setNewNickname] = useState(props.initialNickname);
   return (
     <View style={styles.editRegion}>
       <NumberlessSemiBoldText style={styles.titleText}>
-        Update this contact's nickname
+        Update this contact's name
       </NumberlessSemiBoldText>
-      <TextInput
-        style={styles.nicknameInput}
-        onChangeText={setNewNickname}
-        value={newNickname}
-        placeholder={'Enter a new nickname'}
-      />
+      <View style={{width: inputTextBarWidth, padding: 20}}>
+        <TextInput
+          style={styles.nicknameInput}
+          onChangeText={setNewNickname}
+          value={newNickname}
+          placeholder={'Enter a new name'}
+          maxLength={NICKNAME_LENGTH_LIMIT}
+        />
+      </View>
       <View style={styles.options}>
         <Pressable
           style={styles.cancel}
@@ -49,7 +49,7 @@ export default function NicknamePopup(props: updateNicknameProps) {
             (async () => {
               await updateConnection({
                 id: props.lineId,
-                nickname: newNickname,
+                nickname: processNickname(newNickname),
                 userChoiceNickname: true,
               });
               props.setUpdated(true);
@@ -67,25 +67,27 @@ export default function NicknamePopup(props: updateNicknameProps) {
 const styles = StyleSheet.create({
   editRegion: {
     width: '100%',
-    height: 200,
     backgroundColor: 'white',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    padding: 20,
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
+    paddingTop: 20,
   },
   titleText: {
     fontSize: 17,
     color: 'black',
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   nicknameInput: {
     width: '100%',
-    height: 48,
     backgroundColor: '#F0F0F0',
-    color: 'black',
-    fontWeight: '500',
     fontSize: 15,
-    padding: 7,
+    fontFamily: 'Rubik-Regular',
+    paddingLeft: 10,
+    paddingRight: 10,
   },
   options: {
     width: '100%',

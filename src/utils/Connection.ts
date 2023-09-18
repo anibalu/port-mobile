@@ -3,6 +3,7 @@ import RNFS from 'react-native-fs';
 import {nicknameTruncate} from './Nickname';
 import {connectionFsSync} from './syncronization';
 import {ContentType} from './MessageInterface';
+import { permission, permissions, defaultPermissions } from './permissionsInterface';
 
 const pathToConnections = RNFS.DocumentDirectoryPath + `${connectionsPath}`;
 const ENCODING = 'utf8';
@@ -18,6 +19,7 @@ export type Connection = {
   memberId: string; //0001 and 0002 for lines (0001 is the scanner)
   nickname: string; // capped at NICKNAME_LENGTH_LIMIT
   userChoiceNickname: boolean; //whether user wants to assign his own nickname to the connection
+  permissions: permissions;
   text?: string;
   newMessageType?: string | ContentType;
   pathToImage?: string; // the path to the profile picture/group picture
@@ -34,6 +36,7 @@ export type UpdateConnectionProps = {
   memberId?: string;
   nickname?: string; // capped at NICKNAME_LENGTH_LIMIT
   userChoiceNickname?: boolean; //whether user wants to assign his own nickname to the connection
+  permissions?: permissions;
   text?: string;
   newMessageType?: string | ContentType;
   pathToImage?: string; // the path to the profile picture/group picture

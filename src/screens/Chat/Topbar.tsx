@@ -6,23 +6,23 @@ import {BackButton} from '../../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
 import SettingsIcon from '../../../assets/icons/contact-settings.svg';
 
-function Topbar({nickname, lineId}) {
+function Topbar({ nickname, lineId }) {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>
-      <BackButton
-        style={styles.backIcon}
-        onPress={() => navigation.navigate('Home')}
-      />
-      <NumberlessSemiBoldText style={styles.title}>
+      <BackButton style={styles.backIcon} onPress={() => navigation.goBack()} />
+      <NumberlessSemiBoldText
+        style={styles.title}
+        ellipsizeMode="tail"
+        numberOfLines={1}>
         {nickname}
       </NumberlessSemiBoldText>
       <Pressable
         style={styles.settingsBox}
         onPress={() => {
-          navigation.navigate('ContactProfile', {lineId});
+          navigation.navigate('ContactProfile', { lineId });
         }}>
-        <SettingsIcon />
+        <SettingsIcon width={20}/>
       </Pressable>
     </View>
   );
@@ -47,6 +47,9 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     color: 'black',
     marginTop: 10,
+    overflow: 'hidden',
+    width: '60%',
+    textAlign: 'center',
   },
   backIcon: {
     paddingTop: 16,
@@ -57,12 +60,7 @@ const styles = StyleSheet.create({
   settingsBox: {
     width: 50,
     alignItems: 'flex-end',
-    paddingTop: 10,
-  },
-  faqText: {
-    marginTop: 10,
-    lineHeight: 28,
-    fontSize: 15,
+    paddingTop: 12,
   },
 });
 

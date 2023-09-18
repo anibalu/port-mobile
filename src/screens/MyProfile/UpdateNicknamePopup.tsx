@@ -5,31 +5,35 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {Pressable, StyleSheet, TextInput, View} from 'react-native';
+import {Dimensions, Pressable, StyleSheet, TextInput, View} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {readProfileNickname, updateProfile} from '../../utils/Profile';
+import { NICKNAME_LENGTH_LIMIT } from '../../configs/constants';
+import { processNickname } from '../../utils/Nickname';
 
-export interface updateNicknameProps {
+interface updateNicknameProps {
   setUpdated: Function;
+  initialNickname: string;
 }
 
 export default function NicknamePopup(props: updateNicknameProps) {
-  const [newNickname, setNewNickname] = useState('Nickname');
-
-  useEffect(() => {
-    (async () => setNewNickname(await readProfileNickname()))();
-  }, []);
-
+  const viewWidth = Dimensions.get('window').width;
+  const inputTextBarWidth = viewWidth;
+  const [newNickname, setNewNickname] = useState(props.initialNickname);
   return (
     <View style={styles.editRegion}>
       <NumberlessSemiBoldText style={styles.titleText}>
-        Enter your new nickname
+        Update your name
       </NumberlessSemiBoldText>
-      <TextInput
-        style={styles.nicknameInput}
-        onChangeText={setNewNickname}
-        value={newNickname}
-      />
+      <View style={{width: inputTextBarWidth, padding: 20}}>
+        <TextInput
+          style={styles.nicknameInput}
+          onChangeText={setNewNickname}
+          value={newNickname}
+          placeholder={'Enter a new name'}
+          maxLength={NICKNAME_LENGTH_LIMIT}
+        />
+      </View>
       <View style={styles.options}>
         <Pressable
           style={styles.cancel}
@@ -42,7 +46,9 @@ export default function NicknamePopup(props: updateNicknameProps) {
           style={styles.save}
           onPress={() => {
             (async () => {
-              await updateProfile({nickname: newNickname});
+              await updateProfile({
+                nickname: processNickname(newNickname),
+              });
               props.setUpdated(true);
             })();
           }}>
@@ -58,25 +64,27 @@ export default function NicknamePopup(props: updateNicknameProps) {
 const styles = StyleSheet.create({
   editRegion: {
     width: '100%',
-    height: 200,
     backgroundColor: 'white',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    padding: 20,
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
+    paddingTop: 20,
   },
   titleText: {
     fontSize: 17,
-    fontColor: 'black',
+    color: 'black',
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   nicknameInput: {
     width: '100%',
-    height: 48,
     backgroundColor: '#F0F0F0',
-    color: 'black',
-    fontWeight: '500',
     fontSize: 15,
-    padding: 7,
+    fontFamily: 'Rubik-Regular',
+    paddingLeft: 10,
+    paddingRight: 10,
   },
   options: {
     width: '100%',

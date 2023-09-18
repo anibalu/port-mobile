@@ -9,6 +9,7 @@ import {readProfileNickname} from '../utils/Profile';
 import {saveReadBundle} from '../utils/bundles';
 import {DirectMessaging} from '../utils/DirectMessaging';
 import {ContentType} from '../utils/MessageInterface';
+import { defaultPermissions } from '../utils/permissionsInterface';
 
 /**
  * Function to create a connection given a bundle.
@@ -29,6 +30,7 @@ export async function bundleReadHandshake(bundle: bundle): Promise<void> {
         memberId: '0001',
         nickname: '',
         userChoiceNickname: false,
+        permissions: defaultPermissions,
         readStatus: 'new',
         timeStamp: now.toISOString(),
         authenticated: false,

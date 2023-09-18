@@ -50,6 +50,7 @@ export class DirectMessaging {
     const sentTime = new Date(messageFCM.sentTime);
     const messageData = messageFCM.data;
     let notificationData;
+    let showNotification = true;
     //if the received message is a handshake message
     if (!messageData.messageContent && messageData.lineLinkId) {
       //crypto handshake action
@@ -70,6 +71,7 @@ export class DirectMessaging {
       );
       const savedMessageData = content.data;
       const connection = await getConnection(this.id);
+      showNotification = connection.permissions.notifications.toggled;
       switch (content.messageType) {
         //nickname message
         case ContentType.NICKNAME:
@@ -236,7 +238,7 @@ export class DirectMessaging {
     }
     store.dispatch({type: 'NEW_MESSAGE', payload: messageFCM});
     // Display the notification
-    if (notificationData) {
+    if (showNotification && notificationData) {
       console.log(notificationData);
       displaySimpleNotification(notificationData.title, notificationData.body);
     }

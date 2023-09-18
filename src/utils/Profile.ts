@@ -191,3 +191,11 @@ export async function getProfilePictureURI(pathToProfilePicture?: string) {
     'data:image/png;base64,' + (await RNFS.readFile(pathToPic, 'base64'));
   return imageURI;
 }
+
+export async function checkProfilePicture() {
+  const pathToPic = await getProfilePicPath();
+  if (await RNFS.exists(pathToPic)) {
+    return `file://${pathToPic}`;
+  }
+  return false;
+}

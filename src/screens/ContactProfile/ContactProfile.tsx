@@ -3,25 +3,28 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {Modal, Pressable, View} from 'react-native';
+import {ImageBackground, Modal, Pressable, StatusBar, View} from 'react-native';
 import {Image, StyleSheet} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import NicknamePopup from './UpdateNicknamePopup';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {getConnection} from '../../utils/Connection';
+import BackTopbar from '../../components/BackTopBar';
 
 import defaultImage from '../../../assets/avatars/avatar1.png';
 import EditIcon from '../../../assets/icons/Pencil.svg';
-import BackButton from '../../../assets/navigation/backButton.svg';
+import PermissionsDropdown from '../../components/PermissionsDropdown/PermissionsDropdown';
+import { DEFAULT_NICKNAME } from '../../configs/constants';
+import { SafeAreaView } from '../../components/SafeAreaView';
 
-function MyProfile() {
+function ContactProfile() {
   const route = useRoute();
   const {lineId} = route.params;
 
   const [profileURI, setProfileURI] = useState(
     Image.resolveAssetSource(defaultImage).uri,
   );
-  const [nickname, setNickname] = useState('');
+  const [nickname, setNickname] = useState(DEFAULT_NICKNAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
   const [editingNickname, setEditingNickname] = useState(false);
 
@@ -46,29 +49,42 @@ function MyProfile() {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.profileScreen}>
+    <SafeAreaView style={styles.profileScreen}>
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <ImageBackground
+        source={require('../../../assets/backgrounds/puzzle.png')}
+        style={styles.background}
+      />
+      <BackTopbar/>
       <View style={styles.profile}>
-        <View style={styles.topbar}>
-          <Pressable
-            style={styles.backHitbox}
-            onPress={() => navigation.goBack()}>
-            <BackButton />
-          </Pressable>
-        </View>
-        <Image source={{uri: profileURI}} style={styles.profilePic} />
+        <Pressable
+          style={styles.profilePictureHitbox}
+          onPress={() => {
+            navigation.navigate('ImageView', {
+              imageURI: profileURI,
+              title: nickname,
+            });
+          }}>
+          <Image source={{ uri: profileURI }} style={styles.profilePic} />
+        </Pressable>
         <View style={styles.nicknameArea}>
-          <View style={styles.empty} />
-          <NumberlessSemiBoldText style={styles.nickname}>
+          <NumberlessSemiBoldText
+            style={styles.nickname}
+            ellipsizeMode="tail"
+            numberOfLines={1}>
             {nickname}
           </NumberlessSemiBoldText>
-          <Pressable
-            style={styles.nicknameEditHitbox}
-            onPress={() => setEditingNickname(true)}>
-            <EditIcon />
-          </Pressable>
+          <View style={styles.nicknameEditBox}>
+            <Pressable
+              style={styles.nicknameEditHitbox}
+              onPress={() => setEditingNickname(true)}>
+              <EditIcon />
+            </Pressable>
+          </View>
         </View>
       </View>
-      <Modal animationType="slide" visible={editingNickname} transparent={true}>
+      <PermissionsDropdown lineId={lineId} />
+      <Modal animationType="none" visible={editingNickname} transparent={true}>
         <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
           <Pressable style={styles.popupPosition}>
             <NicknamePopup
@@ -79,7 +95,7 @@ function MyProfile() {
           </Pressable>
         </Pressable>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -87,27 +103,29 @@ const styles = StyleSheet.create({
   profileScreen: {
     width: '100%',
     height: '100%',
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-  topbar: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'flex-start',
+    alignItems: 'center',
   },
-  backHitbox: {
-    width: 30,
-    height: 30,
+  background: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    resizeMode: 'cover',
+    backgroundColor: '#F9F9F9',
+    opacity: 0.5,
+    overflow: 'hidden',
   },
   profile: {
     width: '100%',
-    height: 230,
     backgroundColor: 'white',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
+    justifyContent: 'flex-start',
+    paddingBottom: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   profilePictureHitbox: {
     width: 132,
@@ -120,20 +138,30 @@ const styles = StyleSheet.create({
   },
   nicknameArea: {
     width: '100%',
-    height: 40,
     display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 20,
   },
   nickname: {
     fontSize: 19,
     color: 'black',
     overflow: 'hidden',
+    width: '60%',
+    textAlign: 'center',
+  },
+  nicknameEditBox: {
+    width: '100%',
+    position: 'absolute',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   nicknameEditHitbox: {
-    width: 40,
-    height: 40,
+    width: 24,
+    height: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -146,7 +174,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   popUpArea: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#0005',
     width: '100%',
     height: '100%',
   },
@@ -156,4 +184,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyProfile;
+export default ContactProfile;

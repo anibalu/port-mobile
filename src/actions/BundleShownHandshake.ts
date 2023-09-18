@@ -13,6 +13,7 @@ import {addConnection, ConnectionType} from '../utils/Connection';
 import {readProfileNickname} from '../utils/Profile';
 import {DirectMessaging} from '../utils/DirectMessaging';
 import {ContentType} from '../utils/MessageInterface';
+import { defaultPermissions } from '../utils/permissionsInterface';
 /**
  * Handles the handshake when a connection bundle is shown by adding a connection and sending the user's nickname.
  *
@@ -31,6 +32,7 @@ export async function bundleShownHandshake(
     memberId: '0001',
     nickname: '',
     userChoiceNickname: false,
+    permissions: defaultPermissions,
     readStatus: 'new',
     timeStamp: now.toISOString(),
     authenticated: false,

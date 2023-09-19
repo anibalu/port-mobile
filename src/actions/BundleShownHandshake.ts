@@ -10,10 +10,21 @@
  * 4. add new connection that's not yet authenticated.
  */
 import {addConnection, ConnectionType} from '../utils/Connection';
-import {readProfileNickname} from '../utils/Profile';
+import {
+  checkProfilePicture,
+  getProfilePicName,
+  readProfileNickname,
+} from '../utils/Profile';
 import {DirectMessaging} from '../utils/DirectMessaging';
 import {ContentType} from '../utils/MessageInterface';
-import { defaultPermissions } from '../utils/permissionsInterface';
+import {defaultPermissions} from '../utils/permissionsInterface';
+import {
+  createTempFileUpload,
+  largeFile,
+  uploadLargeFile,
+} from '../utils/LargeFiles';
+import RNFS from 'react-native-fs';
+
 /**
  * Handles the handshake when a connection bundle is shown by adding a connection and sending the user's nickname.
  *
@@ -38,11 +49,51 @@ export async function bundleShownHandshake(
     authenticated: false,
   });
   const name = await readProfileNickname();
-  //send nickname
-  const messaging = new DirectMessaging(lineId);
-  await messaging.sendMessage({
-    messageId: messaging.generateMessageId(),
-    messageType: ContentType.NICKNAME,
-    data: {nickname: name},
-  });
+  const fileUri = await checkProfilePicture();
+  if (fileUri) {
+    //send nickname with display picture
+    const file: largeFile = {
+      uri: fileUri,
+      name: await getProfilePicName(),
+      type: 'image/jpeg',
+    };
+    await uploadFunc(file, lineId, name);
+  } else {
+    //send just nickname
+    const messaging = new DirectMessaging(lineId);
+    await messaging.sendMessage({
+      messageId: messaging.generateMessageId(),
+      messageType: ContentType.NICKNAME,
+      data: {nickname: name},
+    });
+  }
 }
+
+const uploadFunc = async (file: largeFile, lineId: string, name: string) => {
+  const fileUri = await createTempFileUpload(file);
+  const mediaId = (await uploadLargeFile(fileUri))?.mediaId;
+  await RNFS.unlink(fileUri.substring(7));
+  if (mediaId === undefined) {
+    const messaging = new DirectMessaging(lineId);
+    await messaging.sendMessage({
+      messageId: messaging.generateMessageId(),
+      messageType: ContentType.NICKNAME,
+      data: {nickname: name},
+    });
+  } else {
+    const now: Date = new Date();
+    const messaging = new DirectMessaging(lineId);
+    await messaging.sendMessage({
+      messageId: messaging.generateMessageId(),
+      messageType: ContentType.NICKNAME,
+      data: {
+        nickname: name,
+        mediaId: mediaId,
+        filePath: fileUri,
+        timestamp: now.toISOString(),
+        sender: true,
+        fileName: file.name,
+      },
+    });
+  }
+};

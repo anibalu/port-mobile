@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {SafeAreaView} from '../../components/SafeAreaView';
-import {StatusBar, FlatList, StyleSheet} from 'react-native';
+import {StatusBar, FlatList, StyleSheet, ImageBackground} from 'react-native';
 import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator';
 import {Page} from '../../components/BottomNavigator/Button';
 import NewContactCard from './NewContactCard';
@@ -14,12 +14,12 @@ const options: instrument[] = [
   {
     id: 'contact',
   },
-  // {
-  //   id: 'group',
-  // },
-  // {
-  //   id: 'gateway',
-  // },
+  {
+    id: 'group',
+  },
+  {
+    id: 'gateway',
+  },
 ];
 
 function ConnectionCentre() {
@@ -54,6 +54,10 @@ function ConnectionCentre() {
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar barStyle="dark-content" backgroundColor="#EEE" />
+      <ImageBackground
+        source={require('../../../assets/backgrounds/puzzle.png')}
+        style={styles.background}
+      />
       <FlatList
         data={options}
         renderItem={renderInstruments}
@@ -71,6 +75,15 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#EEE',
+  },
+  background: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    resizeMode: 'cover',
+    backgroundColor: '#FFF',
+    opacity: 0.5,
+    overflow: 'hidden',
   },
   options: {
     paddingLeft: '3%',

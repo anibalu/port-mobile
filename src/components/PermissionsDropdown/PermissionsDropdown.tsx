@@ -7,14 +7,18 @@ import SingleDown from '../../../assets/icons/single-down.svg';
 import SingleUp from '../../../assets/icons/BlueSingleUp.svg';
 import {getConnection} from '../../utils/Connection';
 import PermissionTile from './PermissionTile';
-import { defaultPermissions, permissions } from '../../utils/permissionsInterface';
+import {
+  defaultPermissions,
+  permissions,
+} from '../../utils/permissionsInterface';
 
 export default function PermissionsDropdown(props: {
   lineId: string; // The line id to manage permissions for
 }) {
   const line = props.lineId;
   const [showPermissions, setShowPermissions] = useState(false);
-  const [permissionsObj, setPermissionsObj] = useState<permissions>(defaultPermissions);
+  const [permissionsObj, setPermissionsObj] =
+    useState<permissions>(defaultPermissions);
   const togglePermission = () => {
     setShowPermissions(!showPermissions);
   };
@@ -58,10 +62,11 @@ function ShowPermissionTiles(props: {
   lineId: string;
 }) {
   const permissionsWithKeys = Object.keys(props.permissions);
-  return permissionsWithKeys.map((value) => (
+  return permissionsWithKeys.map(value => (
     <PermissionTile
-      key={props.permissions[value].name}
+      key={value}
       currentState={props.permissions[value].toggled}
+      permissionValue={value}
       permissionName={props.permissions[value].name}
       lineId={props.lineId}
     />

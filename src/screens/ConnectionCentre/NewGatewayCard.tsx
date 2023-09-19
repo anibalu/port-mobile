@@ -25,7 +25,7 @@ function NewGatewayCard(props: {
           </View>
           <View style={style.textBox}>
             <NumberlessMediumText style={style.titleText}>
-              New Gateway
+              New Superport
             </NumberlessMediumText>
             <NumberlessRegularText style={style.descriptionText}>
               Set up long-lasting gateways to yourself and your groups and
@@ -35,14 +35,14 @@ function NewGatewayCard(props: {
         </View>
         <View style={style.educationBox}>
           <View>
-            <NumberlessRegularText style={style.educationText}>
+            {/* <NumberlessRegularText style={style.educationText}>
               Add education below
-            </NumberlessRegularText>
+            </NumberlessRegularText> */}
           </View>
           <Button
             onPress={() => console.log('create pressed')}
-            style={{width: '80%'}}>
-            Create
+            style={{width: '80%', backgroundColor: '#A3A3A3'}}>
+            Coming Soon
           </Button>
         </View>
       </View>
@@ -132,7 +132,7 @@ const style = StyleSheet.create({
   iconBox: {
     width: 76,
     height: 76,
-    backgroundColor: '#547CEF',
+    backgroundColor: '#A3A3A3',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 16,

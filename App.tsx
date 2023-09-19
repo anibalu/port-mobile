@@ -23,7 +23,7 @@ import SetupUser from './src/screens/SetupUser/SetupUser';
 import RequestPermissions from './src/screens/RequestPermissions/RequestPermissions';
 import ConnectionCentre from './src/screens/ConnectionCentre/ConnectionCentre';
 import Scanner from './src/screens/Scanner/Scanner';
-import NewContact from './src/screens/NewContact/NewContact';
+import NewContact from './src/screens/NewContactImproved/NewContact';
 import ImageView from './src/screens/MediaView/ImageView';
 import ContactProfile from './src/screens/ContactProfile/ContactProfile';
 

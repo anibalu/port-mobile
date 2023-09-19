@@ -3,7 +3,7 @@ import RNFS from 'react-native-fs';
 import {nicknameTruncate} from './Nickname';
 import {connectionFsSync} from './syncronization';
 import {ContentType} from './MessageInterface';
-import { permission, permissions, defaultPermissions } from './permissionsInterface';
+import {permissions} from './permissionsInterface';
 
 const pathToConnections = RNFS.DocumentDirectoryPath + `${connectionsPath}`;
 const ENCODING = 'utf8';

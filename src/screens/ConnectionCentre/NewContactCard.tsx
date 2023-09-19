@@ -27,7 +27,7 @@ function NewContactCard(props: {
           </View>
           <View style={style.textBox}>
             <NumberlessMediumText style={style.titleText}>
-              New Contact
+              New Port
             </NumberlessMediumText>
             <NumberlessRegularText style={style.descriptionText}>
               Establish a one-to-one encrypted connection with someone new.
@@ -36,9 +36,9 @@ function NewContactCard(props: {
         </View>
         <View style={style.educationBox}>
           <View>
-            <NumberlessRegularText style={style.educationText}>
+            {/* <NumberlessRegularText style={style.educationText}>
               Add education below
-            </NumberlessRegularText>
+            </NumberlessRegularText> */}
           </View>
           <Button
             onPress={() => navigation.navigate('NewContact')}

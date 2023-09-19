@@ -3,9 +3,9 @@ import {StyleSheet, View} from 'react-native';
 import {NumberlessRegularText} from '../NumberlessText';
 import ToggleSwitch from 'toggle-switch-react-native';
 import {getConnection, updateConnection} from '../../utils/Connection';
-import { permission } from '../../utils/permissionsInterface';
 
 export default function PermissionTile(props: {
+  permissionValue: string;
   permissionName: string;
   currentState: boolean;
   lineId: string;
@@ -24,7 +24,7 @@ export default function PermissionTile(props: {
         onColor={'#547CEF'}
         offColor={'#B7B6B6'}
         onToggle={newState => {
-          updatePermission(props.lineId, props.permissionName, newState);
+          updatePermission(props.lineId, props.permissionValue, newState);
           setCurrentState(newState);
         }}
       />
@@ -34,11 +34,11 @@ export default function PermissionTile(props: {
 
 async function updatePermission(
   lineId: string,
-  permissionName: string,
+  permissionValue: string,
   newState: boolean,
 ) {
   let permissionsObject = (await getConnection(lineId)).permissions;
-  permissionsObject[permissionName] = {name:permissionName, toggled:newState};
+  permissionsObject[permissionValue].toggled = newState;
   await updateConnection({
     id: lineId,
     permissions: permissionsObject,

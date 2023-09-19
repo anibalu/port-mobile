@@ -1,18 +1,35 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Image, Pressable} from 'react-native';
 import {getTimeStamp} from '../../utils/Time';
-import {UpdateConnectionProps, toggleRead} from '../../utils/Connection';
+import {
+  UpdateConnectionProps,
+  getConnection,
+  toggleRead,
+} from '../../utils/Connection';
 import {
   NumberlessRegularText,
   NumberlessSemiBoldText,
   NumberlessMediumText,
 } from '../NumberlessText';
 import {useNavigation} from '@react-navigation/native';
+import defaultImage from '../../../assets/avatars/avatar1.png';
 
 type ChatTileProps = UpdateConnectionProps;
 
 function ChatTile(props: ChatTileProps) {
+  const [profileURI, setProfileURI] = useState(
+    Image.resolveAssetSource(defaultImage).uri,
+  );
   const navigation = useNavigation();
+  useEffect(() => {
+    console.log('running effect');
+    (async () => {
+      const connectionData = await getConnection(props.id);
+      if (connectionData.pathToImage) {
+        setProfileURI(`file://${connectionData.pathToImage}`);
+      }
+    })();
+  }, [props]);
   const handleNavigate = () => {
     const lineId = props.id;
     toggleRead(lineId);
@@ -58,10 +75,7 @@ function ChatTile(props: ChatTileProps) {
         </NumberlessRegularText>
       </View>
       <View style={styles.messageBox}>
-        <Image
-          style={styles.picture}
-          source={require('../../../assets/avatars/avatar1.png')}
-        />
+        <Image source={{uri: profileURI}} style={styles.picture} />
         <View style={styles.metadata}>
           <NumberlessMediumText style={styles.timestamp}>
             {getTimeStamp(props.timeStamp)}
@@ -149,7 +163,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    width: 68,
+    width: 80,
     paddingBottom: 3,
     paddingTop: 3,
   },

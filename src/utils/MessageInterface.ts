@@ -53,7 +53,7 @@ export interface MediaContent extends Content {
  * Extension of content for nickname exchanges
  * @param {string} nickname
  */
-export interface NicknameContent extends Content {
+export interface NicknameContent extends MediaContent {
   nickname: string;
 }
 

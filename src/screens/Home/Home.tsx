@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     resizeMode: 'cover',
-    backgroundColor: '#EEE',
+    backgroundColor: '#FFF',
     opacity: 0.5,
     overflow: 'hidden',
   },

@@ -2,11 +2,9 @@
  * Paths to profile info
  * @param profileDir - path to directory where profile information is stored
  * @param profileDataPath - path to where general profile info is store
- * @param profilePicPath - path to profile picture
  */
 export const profileDir = '/profile';
 export const profileDataPath = '/data.json';
-export const profilePicPath = '/picture';
 
 /**
  * Paths to connections info

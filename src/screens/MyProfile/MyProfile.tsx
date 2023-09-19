@@ -7,16 +7,18 @@ import {ImageBackground, Modal, Pressable, StatusBar, View} from 'react-native';
 import {
   checkProfilePicture,
   readProfileNickname,
+  setNewProfilePicture,
 } from '../../utils/Profile';
 import {Image, StyleSheet} from 'react-native';
 import defaultImage from '../../../assets/avatars/avatar1.png';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import EditIcon from '../../../assets/icons/Pencil.svg';
+import EditCameraIcon from '../../../assets/icons/EditCamera.svg';
 import NicknamePopup from './UpdateNicknamePopup';
 import {useNavigation} from '@react-navigation/native';
-import { DEFAULT_NICKNAME } from '../../configs/constants';
+import {DEFAULT_NICKNAME} from '../../configs/constants';
 import BackTopbar from '../../components/BackTopBar';
-import { SafeAreaView } from '../../components/SafeAreaView';
+import {SafeAreaView} from '../../components/SafeAreaView';
 
 function MyProfile() {
   const [profileURI, setProfileURI] = useState(
@@ -25,6 +27,12 @@ function MyProfile() {
   const [nickname, setNickname] = useState(DEFAULT_NICKNAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
   const [editingNickname, setEditingNickname] = useState(false);
+  async function setPicture() {
+    const uri = await setNewProfilePicture();
+    if (uri) {
+      setProfileURI(uri);
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -34,7 +42,6 @@ function MyProfile() {
         setProfileURI(profilePictureURI);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updatedCounter]);
 
   function setUpdated(updated: boolean) {
@@ -53,7 +60,7 @@ function MyProfile() {
         source={require('../../../assets/backgrounds/puzzle.png')}
         style={styles.background}
       />
-      <BackTopbar/>
+      <BackTopbar />
       <View style={styles.profile}>
         <Pressable
           style={styles.profilePictureHitbox}
@@ -63,7 +70,14 @@ function MyProfile() {
               title: nickname,
             });
           }}>
-          <Image source={{ uri: profileURI }} style={styles.profilePic} />
+          <Image source={{uri: profileURI}} style={styles.profilePic} />
+          <Pressable
+            style={styles.updatePicture}
+            onPress={() => {
+              setPicture();
+            }}>
+            <EditCameraIcon />
+          </Pressable>
         </Pressable>
         <View style={styles.nicknameArea}>
           <NumberlessSemiBoldText
@@ -84,10 +98,7 @@ function MyProfile() {
       <Modal animationType="none" visible={editingNickname} transparent={true}>
         <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
           <Pressable style={styles.popupPosition}>
-            <NicknamePopup
-              setUpdated={setUpdated}
-              initialNickname={nickname}
-            />
+            <NicknamePopup setUpdated={setUpdated} initialNickname={nickname} />
           </Pressable>
         </Pressable>
       </Modal>
@@ -124,13 +135,18 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   profilePictureHitbox: {
-    width: 132,
-    height: 132,
+    width: 152,
+    height: 152,
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
   },
   profilePic: {
     width: 132,
     height: 132,
-    borderRadius: 24,
+    borderRadius: 44,
+    marginBottom: 10,
+    marginRight: 10,
   },
   nicknameArea: {
     width: '100%',
@@ -178,7 +194,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
   },
+  updatePicture: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#547CEF',
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+  },
 });
-
 
 export default MyProfile;

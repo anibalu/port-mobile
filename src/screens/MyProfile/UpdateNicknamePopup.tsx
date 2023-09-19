@@ -4,12 +4,12 @@
  * profile
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Dimensions, Pressable, StyleSheet, TextInput, View} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import {readProfileNickname, updateProfile} from '../../utils/Profile';
-import { NICKNAME_LENGTH_LIMIT } from '../../configs/constants';
-import { processNickname } from '../../utils/Nickname';
+import {updateProfile} from '../../utils/Profile';
+import {NICKNAME_LENGTH_LIMIT} from '../../configs/constants';
+import {processNickname} from '../../utils/Nickname';
 
 interface updateNicknameProps {
   setUpdated: Function;

@@ -1,12 +1,12 @@
 //wiki added
 import RNFS from 'react-native-fs';
-import {profileDir, profileDataPath, profilePicPath} from '../configs/paths';
+import {profileDir, profileDataPath} from '../configs/paths';
 import {nicknameTruncate} from './Nickname';
 import axios from 'axios';
 import * as API from '../configs/api';
 import {parsePEMPublicKey, publicKeyPEMencode} from '../utils/pem';
 import {connectionFsSync} from './syncronization';
-import {launchImageLibrary} from 'react-native-image-picker';
+import {Asset, launchImageLibrary} from 'react-native-image-picker';
 
 export interface profile {
   //nickname chosen by user
@@ -55,9 +55,23 @@ async function getProfileDataPath(): Promise<string> {
  * This function ensures the profile directory exists.
  * @returns {Promise<string>} The path to the profile picture file.
  */
-async function getProfilePicPath(): Promise<string> {
+async function getProfilePicPath() {
   const profileDirPath = await makeProfileDir();
-  return profileDirPath + profilePicPath;
+  const files = await RNFS.readDir(profileDirPath);
+  const filteredFiles = files.filter(file => file.name !== 'data.json');
+  if (filteredFiles.length >= 1) {
+    return filteredFiles[0].path;
+  }
+  return null;
+}
+export async function getProfilePicName() {
+  const profileDirPath = await makeProfileDir();
+  const files = await RNFS.readDir(profileDirPath);
+  const filteredFiles = files.filter(file => file.name !== 'data.json');
+  if (filteredFiles.length >= 1) {
+    return filteredFiles[0].name;
+  }
+  return '';
 }
 
 //updates a user's profile.json file. creates file if none exists.
@@ -83,6 +97,7 @@ export async function updateProfileAsync(data: profile): Promise<void> {
     await RNFS.writeFile(pathToFile, JSON.stringify(newProfileData), 'utf8');
   } else {
     await RNFS.writeFile(pathToFile, JSON.stringify(dataNew), 'utf8');
+    console.log('profile file created: ', pathToFile);
   }
 }
 
@@ -152,49 +167,34 @@ export async function getUserIdAndServerKey(
 }
 
 export async function setNewProfilePicture() {
-  const selectedAssets = await launchImageLibrary({
-    mediaType: 'photo',
-    maxHeight: 1080,
-    maxWidth: 1920,
-    includeBase64: true,
-  });
-  let selectedImage;
-  if (selectedAssets.assets) {
-    selectedImage = selectedAssets.assets[0];
-  } else {
+  try {
+    const selectedAssets = await launchImageLibrary({
+      mediaType: 'photo',
+      includeBase64: true,
+    });
+    //images are selected
+    const selected: Asset[] = selectedAssets.assets || [];
+    if (selected.length >= 1) {
+      const selectedImage = selected[0];
+      const pathToCurrentPic = await getProfilePicPath();
+      if (pathToCurrentPic !== null) {
+        await RNFS.unlink(pathToCurrentPic);
+      }
+      const pathToPic = (await makeProfileDir()) + '/' + selectedImage.fileName;
+      await RNFS.copyFile(selectedImage.uri, pathToPic);
+      return `file://${pathToPic}`;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.log('Nothing selected', error);
     return false;
   }
-  if (selectedImage.base64) {
-    await RNFS.writeFile(
-      await getProfilePicPath(),
-      selectedImage.base64,
-      'base64',
-    );
-  }
-  return selectedImage.uri;
-}
-
-/**
- * @todo return just the file uri. image viewer can read it directly.
- * @param pathToProfilePicture if not specified, returns the user's own picture
- * @returns
- */
-export async function getProfilePictureURI(pathToProfilePicture?: string) {
-  const pathToPic =
-    RNFS.DocumentDirectoryPath + '/' + pathToProfilePicture ||
-    (await getProfilePicPath());
-  if (!(await RNFS.exists(pathToPic))) {
-    console.log('profile does not exist');
-    return false;
-  }
-  const imageURI =
-    'data:image/png;base64,' + (await RNFS.readFile(pathToPic, 'base64'));
-  return imageURI;
 }
 
 export async function checkProfilePicture() {
   const pathToPic = await getProfilePicPath();
-  if (await RNFS.exists(pathToPic)) {
+  if (pathToPic !== null) {
     return `file://${pathToPic}`;
   }
   return false;

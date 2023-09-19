@@ -14,8 +14,8 @@ import BackTopbar from '../../components/BackTopBar';
 import defaultImage from '../../../assets/avatars/avatar1.png';
 import EditIcon from '../../../assets/icons/Pencil.svg';
 import PermissionsDropdown from '../../components/PermissionsDropdown/PermissionsDropdown';
-import { DEFAULT_NICKNAME } from '../../configs/constants';
-import { SafeAreaView } from '../../components/SafeAreaView';
+import {DEFAULT_NICKNAME} from '../../configs/constants';
+import {SafeAreaView} from '../../components/SafeAreaView';
 
 function ContactProfile() {
   const route = useRoute();
@@ -55,7 +55,7 @@ function ContactProfile() {
         source={require('../../../assets/backgrounds/puzzle.png')}
         style={styles.background}
       />
-      <BackTopbar/>
+      <BackTopbar />
       <View style={styles.profile}>
         <Pressable
           style={styles.profilePictureHitbox}
@@ -65,7 +65,7 @@ function ContactProfile() {
               title: nickname,
             });
           }}>
-          <Image source={{ uri: profileURI }} style={styles.profilePic} />
+          <Image source={{uri: profileURI}} style={styles.profilePic} />
         </Pressable>
         <View style={styles.nicknameArea}>
           <NumberlessSemiBoldText
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   profilePic: {
     width: 132,
     height: 132,
-    borderRadius: 24,
+    borderRadius: 44,
   },
   nicknameArea: {
     width: '100%',

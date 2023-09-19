@@ -6,7 +6,7 @@ import {BackButton} from '../../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
 import SettingsIcon from '../../../assets/icons/contact-settings.svg';
 
-function Topbar({ nickname, lineId }) {
+function Topbar({nickname, lineId}) {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>
@@ -20,9 +20,9 @@ function Topbar({ nickname, lineId }) {
       <Pressable
         style={styles.settingsBox}
         onPress={() => {
-          navigation.navigate('ContactProfile', { lineId });
+          navigation.navigate('ContactProfile', {lineId});
         }}>
-        <SettingsIcon width={20}/>
+        <SettingsIcon width={20} />
       </Pressable>
     </View>
   );

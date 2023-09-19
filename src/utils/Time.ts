@@ -2,17 +2,20 @@ export function getTimeStamp(ISOTime: string | undefined) {
   if (!ISOTime) {
     return '';
   }
-  const datetime = new Date(ISOTime);
-  const midnight = new Date();
-  midnight.setHours(0, 0, 0, 0);
-  if (datetime < midnight) {
-    // This happened before today in current timezone
-    return datetime.toLocaleDateString();
-  } else {
-    return datetime.toLocaleTimeString([], {
-      hour: '2-digit',
+  try {
+    // Format the time in 12-hour format with AM/PM
+    const date = new Date(ISOTime);
+    let formattedTime = date.toLocaleTimeString([], {
+      hour: 'numeric',
       minute: '2-digit',
+      hour12: true,
     });
+    formattedTime = formattedTime
+      .replace(/\bam\b/i, 'AM')
+      .replace(/\bpm\b/i, 'PM');
+    return formattedTime;
+  } catch (error) {
+    return '';
   }
 }
 

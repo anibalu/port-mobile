@@ -1,7 +1,6 @@
 import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {View} from 'react-native';
-import {NumberlessSemiBoldText} from './NumberlessText';
 import {BackButton} from './BackButton';
 import {useNavigation} from '@react-navigation/native';
 
@@ -9,10 +8,7 @@ function BackTopbar() {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>
-      <BackButton
-        style={styles.backIcon}
-        onPress={() => navigation.goBack()}
-      />
+      <BackButton style={styles.backIcon} onPress={() => navigation.goBack()} />
     </View>
   );
 }

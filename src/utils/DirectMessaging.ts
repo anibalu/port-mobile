@@ -75,6 +75,39 @@ export class DirectMessaging {
       switch (content.messageType) {
         //nickname message
         case ContentType.NICKNAME:
+          if (savedMessageData.mediaId) {
+            const fileObj = await downloadLargeFile(savedMessageData.mediaId);
+            if (fileObj === null) {
+              throw new Error('download failed');
+            }
+            const fileParams: convertedFileResponse = await toLocalFile(
+              this.id,
+              fileObj,
+              ContentType.IMAGE,
+            );
+            console.log('local file created: ', fileParams);
+            await updateConnection({
+              id: this.id,
+              pathToImage: fileParams.filePath,
+            });
+            savedMessageData.filePath = fileParams.filePath;
+            savedMessageData.mediaType = fileParams.type;
+            savedMessageData.sender = false;
+            savedMessageData.timestamp = sentTime.toISOString();
+            await saveNewDirectMessage(this.id, {
+              messageType: content.messageType,
+              messageId: '0002_' + content.messageId,
+              data: savedMessageData,
+            });
+          } else {
+            savedMessageData.sender = false;
+            savedMessageData.timestamp = sentTime.toISOString();
+            await saveNewDirectMessage(this.id, {
+              messageType: content.messageType,
+              messageId: '0002_' + content.messageId,
+              data: savedMessageData,
+            });
+          }
           if (!connection.userChoiceNickname) {
             await updateConnection({
               id: this.id,
@@ -89,13 +122,6 @@ export class DirectMessaging {
               };
             }
           }
-          savedMessageData.sender = false;
-          savedMessageData.timestamp = sentTime.toISOString();
-          await saveNewDirectMessage(this.id, {
-            messageType: content.messageType,
-            messageId: '0002_' + content.messageId,
-            data: savedMessageData,
-          });
           break;
         //generic text message
         case ContentType.TEXT:

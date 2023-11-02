@@ -1,25 +1,23 @@
 import React, {useState} from 'react';
-import {StyleSheet, StatusBar, FlatList, ImageBackground} from 'react-native';
+import {
+  StyleSheet,
+  StatusBar,
+  FlatList,
+  ImageBackground,
+  View,
+} from 'react-native';
 import {SafeAreaView} from '../../components/SafeAreaView';
-import {readDirectMessages} from '../../utils/messagefs';
 import {useFocusEffect, useRoute} from '@react-navigation/native';
-import {DirectMessageBubble} from './DirectMessageBubble';
+import DirectMessageBubble from './DirectMessageBubble';
 import Topbar from './Topbar';
-import {getConnectionAsync, toggleRead} from '../../utils/Connection';
 import {MessageBar} from './MessageBar';
-import {directMessageContent} from '../../utils/MessageInterface';
 import store from '../../store/appStore';
 import {checkDateBoundary} from '../../utils/Time';
-
-/**
- * Render function for flatlist, displays message bubbles.
- * @param {directMessageContent} message Message content to be displayed.
- * @param {string} lineId lineId of chat
- * @returns {JSX.Element} The message bubble, rendered according to message data.
- */
-function renderMessage(message: directMessageContent, lineId: string) {
-  return <DirectMessageBubble message={message} lineId={lineId} />;
-}
+import {SavedMessageParams} from '../../utils/Messaging/interfaces';
+import {getConnection, toggleRead} from '../../utils/Connections';
+import {readMessages} from '../../utils/Storage/messages';
+import {MessageActionsBar} from './MessageActionsBar';
+import DeleteChatButton from '../../components/DeleteChatButton';
 
 /**
  * Renders a chat screen.
@@ -28,79 +26,101 @@ function renderMessage(message: directMessageContent, lineId: string) {
 function DirectChat() {
   const route = useRoute();
   //gets lineId of chat
-  const {lineId} = route.params;
+  const {chatId} = route.params;
 
-  //messages to be displayed
-  const [messages, setMessages] = useState<Array<directMessageContent>>([]);
-  //adds a new message to the messages list. flatlist automatically renders added message.
-  const addMessage = (newMessage: directMessageContent) => {
-    const isDateBoundary = checkDateBoundary(
-      messages[messages.length - 1].data.timestamp,
-      newMessage.data.timestamp,
+  //render function to display message bubbles
+  function renderMessage(message: SavedMessageParams) {
+    return (
+      <DirectMessageBubble
+        message={message}
+        selected={selectedMessages}
+        handlePress={handleMessageBubbleShortPress}
+        handleLongPress={handleMessageBubbleLongPress}
+      />
     );
-    setMessages([...messages, {...newMessage, isDateBoundary: isDateBoundary}]);
+  }
+  //Name to be displayed in topbar
+  const [name, setName] = useState('');
+  const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
+  //selected messages
+  const [selectedMessages, setSelectedMessages] = useState<Array<string>>([]);
+  // Track whether the connection is disconnected
+  const [connectionConnected, setConnectionConnected] = useState(true);
+  //handles selecting messages
+  const handleMessageBubbleLongPress = (messageId: string) => {
+    //adds messageId to selected messages on long press
+    if (!selectedMessages.includes(messageId)) {
+      setSelectedMessages([...selectedMessages, messageId]);
+    }
   };
-  //function that returns a date boundary added array when a fs array is passed in.
-  const dateParse = (messageArray: Array<directMessageContent>) => {
+  const handleMessageBubbleShortPress = (messageId: string) => {
+    // removes messageId from selected messages on short press
+    if (selectedMessages.includes(messageId)) {
+      setSelectedMessages(
+        selectedMessages.filter(
+          selectedMessageId => selectedMessageId !== messageId,
+        ),
+      );
+    } else {
+      //makes short press select a message if atleast one message is already selected.
+      if (selectedMessages.length >= 1) {
+        setSelectedMessages([...selectedMessages, messageId]);
+      }
+    }
+  };
+  //function that returns a date boundary added array.
+  const dateParse = (messageArray: Array<SavedMessageParams>) => {
     return messageArray.map((element, index, array) => {
       if (index === 0) {
-        const newItem = array[0];
+        let newItem = element;
         newItem.isDateBoundary = true;
         return newItem;
       } else {
-        const newItem = array[index];
+        let newItem = element;
         newItem.isDateBoundary = checkDateBoundary(
-          array[index].data.timestamp,
-          array[index - 1].data.timestamp,
+          element.timestamp,
+          array[index - 1].timestamp,
         );
         return newItem;
       }
     });
   };
-  //nickname to be displayed in topbar
-  const [nickname, setNickname] = useState('');
-  //state changer to initiate redraw when a new message is recieved
-  const [latestMessage, setLatestMessage] = useState({});
-
-  //effect runs every time a new message is sent or recieved or when screen is focused
-  //reads messages from corresponding messages file.
-  //toggles messages as read.
-  useFocusEffect(
-    React.useCallback(() => {
-      (async () => {
-        setMessages(dateParse(await readDirectMessages(lineId)));
-        //do a date parse
-        await toggleRead(lineId);
-      })();
-      return () => {
-        //to toggle read when screen is unfocused.
-        toggleRead(lineId);
-      };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [latestMessage]),
-  );
   //effect runs when screen is focused
-  //retrieves nickname from profile file
+  //retrieves name of connection
+  //toggles messages as read
+  //reads intial messages from messages storage.
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        const connection = await getConnectionAsync(lineId);
-        setNickname(connection.nickname);
+        const connection = await getConnection(chatId);
+        //set connection name
+        setName(connection.name);
+        //sets connection connected state
+        setConnectionConnected(!connection.disconnected);
+        //toggle chat as read
+        await toggleRead(chatId);
+        //set saved messages and do a date parse
+        setMessages(dateParse(await readMessages(chatId)));
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
   //sets up a subscriber to the message store when screen is focused.
-  //updates latest message to initiate redraw whenever new message is recieved.
+  //subscriber runs every time a new message is sent or recieved.
+  //chat is automatically toggled as read.
   useFocusEffect(
     React.useCallback(() => {
-      const unsubscribe = store.subscribe(() => {
-        setLatestMessage(store.getState().latestMessage);
+      const unsubscribe = store.subscribe(async () => {
+        //set latest messages
+        setMessages(dateParse(await readMessages(chatId)));
+        //toggle chat as read
+        await toggleRead(chatId);
       });
       // Clean up the subscription when the screen loses focus
       return () => {
         unsubscribe();
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
   //A reference to the flatlist that displays messages
@@ -112,17 +132,16 @@ function DirectChat() {
         source={require('../../../assets/backgrounds/puzzle.png')}
         style={styles.background}
       />
-      <Topbar nickname={nickname} lineId={lineId} />
+      <Topbar
+        name={name}
+        chatId={chatId}
+        selectedMessages={selectedMessages}
+        setSelectedMessages={setSelectedMessages}
+      />
       {/* TODO: Refactor this to follow the correct structure when directMessageContent is refactored */}
       <FlatList
-        data={messages.sort((a, b) =>
-          a.data.timestamp < b.data.timestamp
-            ? -1
-            : a.data.timestamp > b.data.timestamp
-            ? 1
-            : 0,
-        )}
-        renderItem={element => renderMessage(element.item, lineId)}
+        data={messages}
+        renderItem={element => renderMessage(element.item)}
         keyExtractor={message => message.messageId}
         ref={flatList}
         onContentSizeChange={() => {
@@ -132,11 +151,24 @@ function DirectChat() {
           }
         }}
       />
-      <MessageBar
-        flatlistRef={flatList}
-        addMessage={addMessage}
-        listLen={messages.length}
-      />
+      {connectionConnected ? (
+        <View style={styles.bottomBar}>
+          {selectedMessages.length > 0 ? (
+            <MessageActionsBar
+              chatId={chatId}
+              selectedMessages={selectedMessages}
+            />
+          ) : (
+            <MessageBar
+              chatId={chatId}
+              flatlistRef={flatList}
+              listLen={messages.length}
+            />
+          )}
+        </View>
+      ) : (
+        <DeleteChatButton chatId={chatId} />
+      )}
     </SafeAreaView>
   );
 }
@@ -155,6 +187,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     opacity: 0.5,
     overflow: 'hidden',
+  },
+  chatBubble: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  bottomBar: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
 });
 

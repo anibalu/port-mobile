@@ -1,6 +1,12 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {SafeAreaView} from '../../components/SafeAreaView';
-import {ScrollView, StatusBar, StyleSheet, View} from 'react-native';
+import {
+  ImageBackground,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 import Topbar from './TopBar';
 import ConnectionDisplay from './ConnectionDisplay';
 import {
@@ -11,25 +17,19 @@ import {useNavigation} from '@react-navigation/native';
 
 function NewContact() {
   const navigation = useNavigation();
-  const [label, setLabel] = useState<string>('');
-  const [qrCodeData, setQRCodeData] = useState('{}');
-  const [linkData, setLinkData] = useState('');
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <ImageBackground
+        source={require('../../../assets/backgrounds/puzzle.png')}
+        style={styles.background}
+      />
       <ScrollView style={styles.scrollView}>
         <View style={styles.mainBox}>
-          <ConnectionDisplay
-            label={label}
-            setLabel={setLabel}
-            qrCodeData={qrCodeData}
-            setQRCodeData={setQRCodeData}
-            linkData={linkData}
-            setLinkData={setLinkData}
-          />
+          <ConnectionDisplay />
           <View style={styles.educationBox}>
             <NumberlessMediumText style={styles.titleText}>
-              Add Education Here.
+              Frequently Asked Questions
             </NumberlessMediumText>
             <NumberlessRegularText style={styles.educationText}>
               Lorem ipsum dolor sit amet consectetur. Magna eget faucibus
@@ -40,7 +40,7 @@ function NewContact() {
       </ScrollView>
       <View style={styles.topBox}>
         <Topbar
-          onPress={() => {
+          onBackPress={() => {
             navigation.navigate('ConnectionCentre');
           }}
         />
@@ -56,6 +56,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEE',
     flexDirection: 'column',
     justifyContent: 'flex-start',
+  },
+  background: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    resizeMode: 'cover',
+    backgroundColor: '#FFF',
+    opacity: 0.5,
+    overflow: 'hidden',
   },
   topBox: {
     position: 'absolute',
@@ -75,14 +84,18 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    padding: 30,
+    paddingLeft: 40,
+    paddingRight: 40,
+    marginTop: 30,
   },
   titleText: {
-    fontSize: 15,
+    fontSize: 13,
     marginBottom: 20,
+    width: '100%',
   },
   educationText: {
-    fontSize: 15,
+    fontSize: 13,
+    width: '100%',
   },
 });
 

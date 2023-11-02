@@ -5,25 +5,65 @@ import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {BackButton} from '../../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
 import SettingsIcon from '../../../assets/icons/contact-settings.svg';
+import Cross from '../../../assets/icons/cross.svg';
 
-function Topbar({nickname, lineId}) {
+function Topbar({
+  name,
+  chatId,
+  selectedMessages,
+  setSelectedMessages,
+}: {
+  name: string;
+  chatId: string;
+  selectedMessages: string[];
+  setSelectedMessages: any;
+}) {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>
-      <BackButton style={styles.backIcon} onPress={() => navigation.goBack()} />
-      <NumberlessSemiBoldText
-        style={styles.title}
-        ellipsizeMode="tail"
-        numberOfLines={1}>
-        {nickname}
-      </NumberlessSemiBoldText>
-      <Pressable
-        style={styles.settingsBox}
+      <BackButton
+        style={styles.backIcon}
         onPress={() => {
-          navigation.navigate('ContactProfile', {lineId});
-        }}>
-        <SettingsIcon width={20} />
-      </Pressable>
+          setSelectedMessages([]);
+          navigation.goBack();
+        }}
+      />
+      <View style={styles.titleBar}>
+        {selectedMessages.length >= 1 ? (
+          <NumberlessSemiBoldText
+            style={styles.selectedCount}
+            ellipsizeMode="tail"
+            numberOfLines={1}>
+            {selectedMessages.length.toString() + '  selected'}
+          </NumberlessSemiBoldText>
+        ) : (
+          <NumberlessSemiBoldText
+            style={styles.title}
+            ellipsizeMode="tail"
+            numberOfLines={1}>
+            {name}
+          </NumberlessSemiBoldText>
+        )}
+      </View>
+      <View>
+        {selectedMessages.length >= 1 ? (
+          <Pressable
+            style={styles.crossBox}
+            onPress={() => {
+              setSelectedMessages([]);
+            }}>
+            <Cross />
+          </Pressable>
+        ) : (
+          <Pressable
+            style={styles.settingsBox}
+            onPress={() => {
+              navigation.navigate('ContactProfile', {chatId});
+            }}>
+            <SettingsIcon width={20} />
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 }
@@ -42,13 +82,25 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     height: 51,
   },
+  titleBar: {
+    width: '60%',
+  },
+  selectedCount: {
+    fontSize: 17,
+    lineHeight: 28,
+    color: 'black',
+    marginTop: 10,
+    overflow: 'hidden',
+    width: '100%',
+    textAlign: 'center',
+  },
   title: {
     fontSize: 21,
     lineHeight: 28,
     color: 'black',
     marginTop: 10,
     overflow: 'hidden',
-    width: '60%',
+    width: '100%',
     textAlign: 'center',
   },
   backIcon: {
@@ -61,6 +113,11 @@ const styles = StyleSheet.create({
     width: 50,
     alignItems: 'flex-end',
     paddingTop: 12,
+  },
+  crossBox: {
+    width: 50,
+    alignItems: 'flex-end',
+    paddingTop: 8,
   },
 });
 

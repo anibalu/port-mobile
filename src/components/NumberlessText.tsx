@@ -1,28 +1,40 @@
-/*
-custom text bar for Numberless that uses Rubik font
-*/
+/**
+ * custom text bar for Numberless that uses Rubik font
+ */
 import React from 'react';
-import {Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {Text, StyleSheet, TouchableOpacity, TextProps} from 'react-native';
 
-export const NumberlessRegularText = ({children, style, ...rest}) => (
+export const NumberlessRegularText: React.FC<TextProps> = ({
+  children,
+  style,
+  ...rest
+}) => (
   <Text style={StyleSheet.compose(styles.regular, style)} {...rest}>
     {children}
   </Text>
 );
 
-export const NumberlessItalicText = ({children, style, ...rest}) => (
+export const NumberlessItalicText: React.FC<TextProps> = ({
+  children,
+  style,
+  ...rest
+}) => (
   <Text style={StyleSheet.compose(styles.italic, style)} {...rest}>
     {children}
   </Text>
 );
 
-export const NumberlessBoldText = ({children, style, ...rest}) => (
+export const NumberlessBoldText: React.FC<TextProps> = ({
+  children,
+  style,
+  ...rest
+}) => (
   <Text style={StyleSheet.compose(styles.bold, style)} {...rest}>
     {children}
   </Text>
 );
 
-export const NumberlessClickableText = ({
+export const NumberlessClickableText: React.FC<TextProps> = ({
   children,
   style,
   onPress,
@@ -35,13 +47,21 @@ export const NumberlessClickableText = ({
   </TouchableOpacity>
 );
 
-export const NumberlessMediumText = ({children, style, ...rest}) => (
+export const NumberlessMediumText: React.FC<TextProps> = ({
+  children,
+  style,
+  ...rest
+}) => (
   <Text style={StyleSheet.compose(styles.medium, style)} {...rest}>
     {children}
   </Text>
 );
 
-export const NumberlessSemiBoldText = ({children, style, ...rest}) => (
+export const NumberlessSemiBoldText: React.FC<TextProps> = ({
+  children,
+  style,
+  ...rest
+}) => (
   <Text style={StyleSheet.compose(styles.semibold, style)} {...rest}>
     {children}
   </Text>

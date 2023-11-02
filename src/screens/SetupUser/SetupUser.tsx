@@ -1,36 +1,50 @@
+/**
+ * This screen sets up a user account
+ * screen id: 4
+ */
 import React, {useState, useEffect} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {SafeAreaView} from '../../components/SafeAreaView';
 import {StyleSheet, StatusBar, View} from 'react-native';
 import ProgressBar from '../../components/ProgressBar';
 import {NumberlessRegularText} from '../../components/NumberlessText';
 import Avatar from '../../../assets/avatars/avatar1.svg';
-import {wait} from '../../utils/wait';
-import {initialiseUserCrypto} from '../../actions/InitialiseUserCrypto';
-import {initialiseTokenAuth} from '../../actions/initialiseTokenAuth';
-import {initialiseLineLinks} from '../../actions/InitialiseLineLinks';
-import {initialiseFCM} from '../../actions/InitialiseFCM';
+import {DEFAULT_NAME} from '../../configs/constants';
+import {setupNewProfile} from '../../utils/Profile';
+import {ProfileStatus} from '../../utils/Profile/interfaces';
+import {getInitialDirectConnectionLinks} from '../../utils/ConnectionLinks';
+import {initialiseFCM} from '../../utils/Messaging/fcm';
 
 function SetupUser() {
   // Get navigation props
   const navigation = useNavigation();
+  const route = useRoute();
+  const {name} = route.params;
+  const processedName: string = name || DEFAULT_NAME;
   //state of progress
   const [progress, setProgress] = useState(10);
-  const [loaderText, setloaderText] = useState('Initializing...');
+  const [loaderText, setLoaderText] = useState('Initializing...');
   //actions attached to progress
   type ThunkAction = () => Promise<boolean>;
   const setupActions: ThunkAction[] = [
     async () => {
-      return await initialiseUserCrypto(setloaderText);
+      //setup profile
+      setLoaderText('Setting up crypto');
+      const response = await setupNewProfile(processedName);
+      if (response === ProfileStatus.created) {
+        return true;
+      }
+      return false;
     },
     async () => {
-      return await initialiseTokenAuth(setloaderText);
+      //get initial set of connection links
+      setLoaderText('Retrieving connection links');
+      return await getInitialDirectConnectionLinks();
     },
     async () => {
-      return await initialiseLineLinks(setloaderText);
-    },
-    async () => {
-      return await initialiseFCM(setloaderText);
+      //initialise FCM
+      setLoaderText('Initialising FCM');
+      return await initialiseFCM();
     },
   ];
   const runActions = async () => {
@@ -43,8 +57,6 @@ function SetupUser() {
       setProgress(prevProgress => prevProgress + 90 / setupActions.length);
     }
     setProgress(100);
-    //artificial wait time at the end of load
-    await wait(1000);
     return true;
   };
   useEffect(() => {

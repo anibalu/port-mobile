@@ -1,22 +1,22 @@
-/*
-custom SafeAreaView for Numberless that uses safe insets.
-*/
+/**
+ * custom SafeAreaView for Port that uses safe insets.
+ */
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, ViewStyle, ViewProps} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-export function SafeAreaView({children, style, ...rest}) {
+export function SafeAreaView({children, style, ...rest}: ViewProps) {
   const insets = useSafeAreaInsets();
 
+  const safeAreaStyle: ViewStyle = {
+    paddingTop: insets.top,
+    paddingLeft: insets.left,
+    paddingRight: insets.right,
+    paddingBottom: insets.bottom,
+  };
+
   return (
-    <View
-      style={StyleSheet.compose(style, {
-        paddingTop: insets.top,
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
-        paddingBottom: insets.bottom,
-      })}
-      {...rest}>
+    <View style={StyleSheet.compose(style, safeAreaStyle)} {...rest}>
       {children}
     </View>
   );

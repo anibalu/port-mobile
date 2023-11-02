@@ -2,9 +2,11 @@
  * Paths to profile info
  * @param profileDir - path to directory where profile information is stored
  * @param profileDataPath - path to where general profile info is store
+ * @param profilePicAttributesPath - path to where attributes associated with profile picture are stored.
  */
 export const profileDir = '/profile';
 export const profileDataPath = '/data.json';
+export const profilePicAttributesPath = '/profilePictureAttributes.json';
 
 /**
  * Paths to connections info
@@ -17,8 +19,8 @@ export const connectionsPath = '/connections.json';
  * @param linksDir - path to directory where connections links are stored
  * @param lineLinkspath - path to where the line connections links are stored.
  */
-export const linksDir = '/links';
-export const lineLinksPath = '/line.json';
+export const connnectionLinksDir = '/links';
+export const connectionLinksPath = '/direct.json';
 
 /**
  * Paths to token
@@ -28,8 +30,10 @@ export const tokenPath = '/token.json';
 
 /**
  * Paths to generated bundles
+ * @param bundlesDir - path to where the read and generated bundles get stored
  * @param generatedBundlesPath - path to where the generated bundles get stored
  */
+export const bundlesDir = '/bundles';
 export const generatedBundlesPath = '/generatedBundles.json';
 
 /**
@@ -63,3 +67,9 @@ export const filesDir = '/files';
 
 //path to temporary dir
 export const tempDir = '/temp';
+
+/**
+ * Path to crypto info
+ * @param cryptoDir - path to directory where cryptographic information of chats is stored.
+ */
+export const cryptoDir = '/crypto';

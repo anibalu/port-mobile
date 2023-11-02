@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     zIndex: 1,
-    //paddingTop: 51,
   },
   image: {
     width: '100%',

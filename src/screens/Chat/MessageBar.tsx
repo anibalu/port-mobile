@@ -13,18 +13,17 @@ import Cross from '../../../assets/icons/cross.svg';
 import ImageIcon from '../../../assets/icons/image.svg';
 import VideoIcon from '../../../assets/icons/image.svg';
 import FileIcon from '../../../assets/icons/File.svg';
-import {wait} from '../../utils/wait';
-import {trimWhiteSpace} from '../../utils/text';
-import {ContentType} from '../../utils/MessageInterface';
+import {wait} from '../../utils/Time';
 import {NumberlessMediumText} from '../../components/NumberlessText';
 import DocumentPicker, {
   DocumentPickerResponse,
 } from 'react-native-document-picker';
-import {largeFile} from '../../utils/LargeFiles';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
-import {createTimeStamp, generateId} from '../../utils/Time';
+import {FileAttributes} from '../../utils/Storage/sharedFile';
+import {sendDirectMessage} from '../../utils/Messaging/sendDirectMessage';
+import {ContentType, MessageType} from '../../utils/Messaging/interfaces';
 
-export function MessageBar({flatlistRef, addMessage, listLen}) {
+export function MessageBar({chatId, flatlistRef, listLen}) {
   const viewWidth = Dimensions.get('window').width;
   const inputTextBarWidth = viewWidth - 126;
   const [text, setText] = useState('');
@@ -44,13 +43,14 @@ export function MessageBar({flatlistRef, addMessage, listLen}) {
     }
   };
   const sendText = async () => {
-    const processedText = trimWhiteSpace(text);
+    const processedText = text.trim();
     if (processedText !== '') {
       setText('');
-      addMessage({
-        messageId: generateId(),
-        messageType: ContentType.TEXT,
-        data: {text: processedText, sender: true, timestamp: createTimeStamp()},
+      //send text message
+      await sendDirectMessage(chatId, {
+        contentType: ContentType.text,
+        messageType: MessageType.new,
+        data: {text: processedText},
       });
     }
   };
@@ -63,18 +63,20 @@ export function MessageBar({flatlistRef, addMessage, listLen}) {
       //images are selected
       const selected: Asset[] = response.assets || [];
       for (let index = 0; index < selected.length; index++) {
-        const file: largeFile = {
-          uri: selected[index].uri || '',
-          type: selected[index].type || '',
-          name: selected[index].fileName || '',
+        const file: FileAttributes = {
+          fileUri: selected[index].uri || '',
+          fileType: selected[index].type || '',
+          fileName: selected[index].fileName || '',
         };
-        addMessage({
-          messageId: generateId(),
-          messageType: ContentType.IMAGE,
-          data: {file: file, sender: true, timestamp: createTimeStamp()},
+        console.log('file selected', file);
+        //image is sent
+        setPopUpVisible(false);
+        await sendDirectMessage(chatId, {
+          contentType: ContentType.image,
+          messageType: MessageType.new,
+          data: {...file},
         });
       }
-      setPopUpVisible(false);
     } catch (error) {
       console.log('Nothing selected', error);
     }
@@ -85,21 +87,24 @@ export function MessageBar({flatlistRef, addMessage, listLen}) {
         mediaType: 'video',
         includeBase64: false,
       });
-      //images are selected
+      //videos are selected
       const selected: Asset[] = response.assets || [];
       for (let index = 0; index < selected.length; index++) {
-        const file: largeFile = {
-          uri: selected[index].uri || '',
-          type: selected[index].type || '',
-          name: selected[index].fileName || '',
+        const file: FileAttributes = {
+          fileUri: selected[index].uri || '',
+          fileType: selected[index].type || '',
+          fileName: selected[index].fileName || '',
         };
-        addMessage({
-          messageId: generateId(),
-          messageType: ContentType.VIDEO,
-          data: {file: file, sender: true, timestamp: createTimeStamp()},
+        console.log('file selected', file);
+        //video is sent
+        setPopUpVisible(false);
+        await sendDirectMessage(chatId, {
+          contentType: ContentType.video,
+          messageType: MessageType.new,
+          data: {...file},
         });
       }
-      setPopUpVisible(false);
+      //send media message
     } catch (error) {
       console.log('Nothing selected', error);
     }
@@ -110,19 +115,21 @@ export function MessageBar({flatlistRef, addMessage, listLen}) {
         type: [DocumentPicker.types.allFiles],
       });
       for (let index = 0; index < selected.length; index++) {
-        const file: largeFile = {
-          uri: selected[index].uri,
-          type: selected[index].type || '',
-          name: selected[index].name || '',
+        const file: FileAttributes = {
+          fileUri: selected[index].uri,
+          fileType: selected[index].type || '',
+          fileName: selected[index].name || '',
         };
-        console.log('type: ', file.type);
-        addMessage({
-          messageId: generateId(),
-          messageType: ContentType.OTHER_FILE,
-          data: {file: file, sender: true, timestamp: createTimeStamp()},
+        console.log('file selected', file);
+        //file is sent
+        setPopUpVisible(false);
+        await sendDirectMessage(chatId, {
+          contentType: ContentType.file,
+          messageType: MessageType.new,
+          data: {...file},
         });
       }
-      setPopUpVisible(false);
+      //send file message
     } catch (error) {
       console.log('Nothing selected', error);
     }

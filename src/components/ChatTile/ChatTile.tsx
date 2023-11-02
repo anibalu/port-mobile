@@ -1,57 +1,34 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {View, StyleSheet, Image, Pressable} from 'react-native';
 import {getTimeStamp} from '../../utils/Time';
-import {
-  UpdateConnectionProps,
-  getConnection,
-  toggleRead,
-} from '../../utils/Connection';
 import {
   NumberlessRegularText,
   NumberlessSemiBoldText,
   NumberlessMediumText,
 } from '../NumberlessText';
 import {useNavigation} from '@react-navigation/native';
-import defaultImage from '../../../assets/avatars/avatar1.png';
+import DefaultImage from '../../../assets/avatars/avatar.png';
+import {ConnectionInfo, ReadStatus} from '../../utils/Connections/interfaces';
 
-type ChatTileProps = UpdateConnectionProps;
-
-function ChatTile(props: ChatTileProps) {
-  const [profileURI, setProfileURI] = useState(
-    Image.resolveAssetSource(defaultImage).uri,
-  );
+function ChatTile(props: ConnectionInfo) {
   const navigation = useNavigation();
-  useEffect(() => {
-    console.log('running effect');
-    (async () => {
-      const connectionData = await getConnection(props.id);
-      if (connectionData.pathToImage) {
-        setProfileURI(`file://${connectionData.pathToImage}`);
-      }
-    })();
-  }, [props]);
-  const handleNavigate = () => {
-    const lineId = props.id;
-    toggleRead(lineId);
-    navigation.navigate('DirectChat', {lineId});
+  //sets profile picture URI
+  function chooseProfileURI() {
+    if (props.pathToDisplayPic === undefined || props.pathToDisplayPic === '') {
+      return Image.resolveAssetSource(DefaultImage).uri;
+    }
+    return `file://${props.pathToDisplayPic}`;
+  }
+
+  //handles navigation to a chat screen and toggles chat to read.
+  const handleNavigate = async () => {
+    navigation.navigate('DirectChat', {chatId: props.chatId});
   };
-  let status: string;
-  if (props.readStatus && props.readStatus in ['read', 'sent', 'seen', 'new']) {
-    status = props.readStatus;
-  } else {
-    status = 'read';
-  }
-  if (props.newMessageCount) {
-    status = 'new';
-  }
-  if (props.newMessageCount === undefined) {
-    status = 'new';
-  }
-  console.log(status);
+  let status: string = props.readStatus;
   return (
     <Pressable
       style={
-        props.readStatus === 'new'
+        props.readStatus === ReadStatus.new
           ? StyleSheet.compose(styles.tile, styles.newMessage)
           : styles.tile
       }
@@ -61,11 +38,11 @@ function ChatTile(props: ChatTileProps) {
           style={styles.nickname}
           ellipsizeMode="tail"
           numberOfLines={1}>
-          {props.nickname}
+          {props.name}
         </NumberlessSemiBoldText>
         <NumberlessRegularText
           style={
-            props.readStatus === 'new'
+            props.readStatus === ReadStatus.new
               ? styles.content
               : StyleSheet.compose(styles.content, styles.newMessageContent)
           }
@@ -75,27 +52,34 @@ function ChatTile(props: ChatTileProps) {
         </NumberlessRegularText>
       </View>
       <View style={styles.messageBox}>
-        <Image source={{uri: profileURI}} style={styles.picture} />
+        <Image source={{uri: chooseProfileURI()}} style={styles.picture} />
         <View style={styles.metadata}>
           <NumberlessMediumText style={styles.timestamp}>
-            {getTimeStamp(props.timeStamp)}
+            {getTimeStamp(props.timestamp)}
           </NumberlessMediumText>
           <NumberlessSemiBoldText style={styles[status]}>
-            {displayNumber(props.newMessageCount)}
+            {displayNumber(props.newMessageCount, status)}
           </NumberlessSemiBoldText>
         </View>
       </View>
     </Pressable>
   );
 }
-function displayNumber(newMsgCount) {
-  if (newMsgCount === undefined) {
-    return 'New';
-  } else {
-    if (newMsgCount > 999) {
-      return '999+';
-    }
-    return newMsgCount;
+
+//returns display string based on new message count
+function displayNumber(newMsgCount: undefined | number, status: string) {
+  switch (status) {
+    case 'sent':
+      return '';
+    default:
+      if (newMsgCount === undefined || newMsgCount === 0) {
+        return 'New';
+      } else {
+        if (newMsgCount > 999) {
+          return '999+';
+        }
+        return newMsgCount;
+      }
   }
 }
 
@@ -103,7 +87,6 @@ const styles = StyleSheet.create({
   tile: {
     flex: 1,
     marginTop: 7,
-    // padding: 10,
     borderRadius: 14,
     shadowOpacity: 13,
     shadowOffset: {
@@ -146,7 +129,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     paddingRight: 64,
     paddingLeft: 78,
-    // backgroundColor: 'green'
   },
   nickname: {
     fontSize: 16,
@@ -170,7 +152,6 @@ const styles = StyleSheet.create({
   timestamp: {
     fontSize: 12,
     color: '#B7B6B6',
-    // paddingBottom: 7,
   },
   read: {
     width: 9,

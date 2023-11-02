@@ -1,3 +1,6 @@
+/**
+ * Default chat tile displayed when there are no connections
+ */
 import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {Pressable, StyleSheet, View} from 'react-native';

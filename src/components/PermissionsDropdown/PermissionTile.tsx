@@ -2,13 +2,13 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {NumberlessRegularText} from '../NumberlessText';
 import ToggleSwitch from 'toggle-switch-react-native';
-import {getConnection, updateConnection} from '../../utils/Connection';
+import {getConnection, updateConnection} from '../../utils/Connections';
 
 export default function PermissionTile(props: {
   permissionValue: string;
   permissionName: string;
   currentState: boolean;
-  lineId: string;
+  chatId: string;
 }) {
   const [currentState, setCurrentState] = useState(false);
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function PermissionTile(props: {
         onColor={'#547CEF'}
         offColor={'#B7B6B6'}
         onToggle={newState => {
-          updatePermission(props.lineId, props.permissionValue, newState);
+          updatePermission(props.chatId, props.permissionValue, newState);
           setCurrentState(newState);
         }}
       />
@@ -33,14 +33,14 @@ export default function PermissionTile(props: {
 }
 
 async function updatePermission(
-  lineId: string,
+  chatId: string,
   permissionValue: string,
   newState: boolean,
 ) {
-  let permissionsObject = (await getConnection(lineId)).permissions;
+  let permissionsObject = (await getConnection(chatId)).permissions;
   permissionsObject[permissionValue].toggled = newState;
   await updateConnection({
-    id: lineId,
+    chatId: chatId,
     permissions: permissionsObject,
   });
 }

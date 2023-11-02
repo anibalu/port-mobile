@@ -1,36 +1,41 @@
+/**
+ * Connections centre screen to choose from ports, groups, superports, etc.
+ * screen Id: 7
+ */
 import React, {useState} from 'react';
 import {SafeAreaView} from '../../components/SafeAreaView';
 import {StatusBar, FlatList, StyleSheet, ImageBackground} from 'react-native';
 import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator';
 import {Page} from '../../components/BottomNavigator/Button';
-import NewContactCard from './NewContactCard';
+import NewPortCard from './NewPortCard';
 import NewGroupCard from './NewGroupCard';
-import NewGatewayCard from './NewGatewayCard';
+import NewSuperPortCard from './NewSuperPortCard';
+
 export type instrument = {
   id: string;
 };
 
 const options: instrument[] = [
   {
-    id: 'contact',
+    id: 'port',
   },
   {
     id: 'group',
   },
   {
-    id: 'gateway',
+    id: 'superport',
   },
 ];
 
 function ConnectionCentre() {
   const [selectedInstrument, setSelectedInstrument] = useState<instrument>({
-    id: 'contact',
+    id: 'port',
   });
   const renderInstruments = ({item}: {item: instrument}) => {
     switch (item.id) {
-      case 'contact':
+      case 'port':
         return (
-          <NewContactCard
+          <NewPortCard
             isClicked={selectedInstrument.id === item.id}
             setSelected={setSelectedInstrument}
           />
@@ -42,9 +47,9 @@ function ConnectionCentre() {
             setSelected={setSelectedInstrument}
           />
         );
-      case 'gateway':
+      case 'superport':
         return (
-          <NewGatewayCard
+          <NewSuperPortCard
             isClicked={selectedInstrument.id === item.id}
             setSelected={setSelectedInstrument}
           />

@@ -1,51 +1,62 @@
-import React, {useEffect, useState} from 'react';
-
-import {View, StyleSheet} from 'react-native';
-
+import React from 'react';
+import {View, StyleSheet, Pressable} from 'react-native';
 import {NumberlessRegularText} from '../../../components/NumberlessText';
-import {getTime} from '../../../utils/Time';
+import {getTimeStamp} from '../../../utils/Time';
+import {
+  SavedMessageParams,
+  SendStatus,
+} from '../../../utils/Messaging/interfaces';
 import Sending from '../../../../assets/icons/sending.svg';
-import {directMessageContent} from '../../../utils/MessageInterface';
-import {DirectMessaging} from '../../../utils/DirectMessaging';
 
-/**
- * Renders text message container to be inserted into chat bubbles.
- * @param props TextContent object containing text and timestamp to render.
- * @returns Rendered text content
- */
-export default function TextBubble(props: {
-  message: directMessageContent;
-  lineId: string;
+export default function TextBubble({
+  message,
+  handlePress,
+  handleLongPress,
+}: {
+  message: SavedMessageParams;
+  handlePress: any;
+  handleLongPress: any;
 }) {
-  const [isSent, setIsSent] = useState<boolean>(false);
-  useEffect(() => {
-    if (!props.message.inFile) {
-      const messaging = new DirectMessaging(props.lineId);
-      messaging.sendMessage(props.message).then(x => setIsSent(x));
-    } else {
-      setIsSent(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   return (
-    <View style={styles.textBubbleContainer}>
+    <Pressable
+      style={styles.textBubbleContainer}
+      onPress={() => handlePress(message.messageId)}
+      onLongPress={() => handleLongPress(message.messageId)}>
       <NumberlessRegularText style={styles.text}>
-        {props.message.data.text}
+        {message.data.text || ''}
       </NumberlessRegularText>
       <View style={styles.timeStampContainer}>
-        {isSent ? (
+        {message.sendStatus === SendStatus.success || !message.sender ? (
           <View>
             <NumberlessRegularText style={styles.timeStamp}>
-              {getTime(props.message.data.timestamp)}
+              {getTimeStamp(message.timestamp)}
             </NumberlessRegularText>
           </View>
         ) : (
           <View>
-            <Sending />
+            {message.sendStatus === SendStatus.journaled ? (
+              <View>
+                <Sending />
+              </View>
+            ) : (
+              <View>
+                {true ? (
+                  <View>
+                    <Sending />
+                  </View>
+                ) : (
+                  <View>
+                    <NumberlessRegularText style={styles.failedStamp}>
+                      {'failed'}
+                    </NumberlessRegularText>
+                  </View>
+                )}
+              </View>
+            )}
           </View>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -66,6 +77,10 @@ const styles = StyleSheet.create({
   timeStamp: {
     fontSize: 10,
     color: '#B7B6B6',
+  },
+  failedStamp: {
+    fontSize: 10,
+    color: '#CCCCCC',
   },
   text: {
     color: '#000000',

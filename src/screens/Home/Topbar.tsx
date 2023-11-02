@@ -1,10 +1,13 @@
-import React, {useEffect, useState} from 'react';
+/**
+ * Top Bar of the home screen containing profile picture and unread count
+ */
+import React, {useState} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 import {View, Image} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import {useNavigation} from '@react-navigation/native';
-import defaultImage from '../../../assets/avatars/avatar1.png';
-import {checkProfilePicture} from '../../utils/Profile';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import DefaultImage from '../../../assets/avatars/avatar.png';
+import {getProfilePicture} from '../../utils/Profile';
 import ProfileBackground from '../../../assets/backgrounds/profileBackground.svg';
 
 type TopbarProps = {
@@ -14,20 +17,22 @@ type TopbarProps = {
 
 function Topbar(props: TopbarProps) {
   const [profileURI, setProfileURI] = useState(
-    Image.resolveAssetSource(defaultImage).uri,
+    Image.resolveAssetSource(DefaultImage).uri,
   );
   const title = props.unread
     ? `${props.filter || 'All'} (${props.unread})`
     : `${props.filter || 'All'}`;
-
-  useEffect(() => {
-    (async () => {
-      const profilePictureURI = await checkProfilePicture();
-      if (profilePictureURI) {
-        setProfileURI(profilePictureURI);
-      }
-    })();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      //updates profile picture with user set profile picture
+      (async () => {
+        const profilePictureURI = await getProfilePicture();
+        if (profilePictureURI) {
+          setProfileURI(profilePictureURI);
+        }
+      })();
+    }, []),
+  );
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>

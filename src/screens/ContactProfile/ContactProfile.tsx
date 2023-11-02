@@ -6,35 +6,39 @@ import React, {useEffect, useState} from 'react';
 import {ImageBackground, Modal, Pressable, StatusBar, View} from 'react-native';
 import {Image, StyleSheet} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import NicknamePopup from './UpdateNicknamePopup';
+import NamePopup from './UpdateNamePopup';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {getConnection} from '../../utils/Connection';
 import BackTopbar from '../../components/BackTopBar';
 
-import defaultImage from '../../../assets/avatars/avatar1.png';
+import defaultImage from '../../../assets/avatars/avatar.png';
 import EditIcon from '../../../assets/icons/Pencil.svg';
 import PermissionsDropdown from '../../components/PermissionsDropdown/PermissionsDropdown';
-import {DEFAULT_NICKNAME} from '../../configs/constants';
+import {DEFAULT_NAME} from '../../configs/constants';
 import {SafeAreaView} from '../../components/SafeAreaView';
+import {getConnection} from '../../utils/Connections';
+import DisconnectButton from './DisconnectButton';
+import DeleteChatButton from '../../components/DeleteChatButton';
 
 function ContactProfile() {
   const route = useRoute();
-  const {lineId} = route.params;
+  const {chatId} = route.params;
 
   const [profileURI, setProfileURI] = useState(
     Image.resolveAssetSource(defaultImage).uri,
   );
-  const [nickname, setNickname] = useState(DEFAULT_NICKNAME);
+  const [name, setName] = useState(DEFAULT_NAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
-  const [editingNickname, setEditingNickname] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [connected, setConnected] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const connection = await getConnection(lineId);
-      setNickname(connection.nickname);
-      if (connection.pathToImage) {
-        setProfileURI(`file://${connection.pathToImage}`);
+      const connection = await getConnection(chatId);
+      setName(connection.name);
+      if (connection.pathToDisplayPic) {
+        setProfileURI(`file://${connection.pathToDisplayPic}`);
       }
+      setConnected(!connection.disconnected);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updatedCounter]);
@@ -43,7 +47,7 @@ function ContactProfile() {
     if (updated) {
       setUpdatedCounter(updatedCounter + 1);
     }
-    setEditingNickname(false);
+    setEditingName(false);
   }
 
   const navigation = useNavigation();
@@ -72,25 +76,30 @@ function ContactProfile() {
             style={styles.nickname}
             ellipsizeMode="tail"
             numberOfLines={1}>
-            {nickname}
+            {name}
           </NumberlessSemiBoldText>
           <View style={styles.nicknameEditBox}>
             <Pressable
               style={styles.nicknameEditHitbox}
-              onPress={() => setEditingNickname(true)}>
+              onPress={() => setEditingName(true)}>
               <EditIcon />
             </Pressable>
           </View>
         </View>
       </View>
-      <PermissionsDropdown lineId={lineId} />
-      <Modal animationType="none" visible={editingNickname} transparent={true}>
+      <PermissionsDropdown chatId={chatId} />
+      {connected ? (
+        <DisconnectButton chatId={chatId} />
+      ) : (
+        <DeleteChatButton chatId={chatId} stripMargin={true} />
+      )}
+      <Modal animationType="none" visible={editingName} transparent={true}>
         <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
           <Pressable style={styles.popupPosition}>
-            <NicknamePopup
+            <NamePopup
               setUpdated={setUpdated}
-              initialNickname={nickname}
-              lineId={lineId}
+              initialName={name}
+              chatId={chatId}
             />
           </Pressable>
         </Pressable>

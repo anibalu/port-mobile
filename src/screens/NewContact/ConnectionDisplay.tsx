@@ -1,228 +1,278 @@
 import React, {useState, useEffect} from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   Pressable,
   StyleSheet,
   TextInput,
+  ToastAndroid,
   View,
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
-import Clipboard from '@react-native-clipboard/clipboard';
 import QRCode from 'react-native-qrcode-svg';
 //svg imports
 import Scan from '../../../assets/icons/Scan.svg';
-import Share from '../../../assets/icons/Share.svg';
+import ShareIcon from '../../../assets/icons/Share.svg';
 import Logo from '../../../assets/icons/Logo.svg';
 import Refresh from '../../../assets/icons/Refresh.svg';
+import Nfc from '../../../assets/icons/nfc.svg';
 //config imports
-import {LABEL_INPUT_LIMIT, SOFT_ALERT_DURATION} from '../../configs/constants';
+import {NAME_LENGTH_LIMIT} from '../../configs/constants';
 //store import
 import store from '../../store/appStore';
-//action imports
-import {getQRData} from '../../actions/GetQRData';
-import {convertQRtoLink} from '../../actions/ConvertQRtoLink';
 //component imports
 import {
-  NumberlessClickableText,
+  NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
 } from '../../components/NumberlessText';
-import OptionToggle from './OptionToggle';
+import Share from 'react-native-share';
+import {
+  generateDirectConnectionBundle,
+  updateGeneratedDirectConnectionBundleLabel,
+} from '../../utils/Bundles';
+import {convertBundleToLink} from '../../utils/Handshake/deepLinking';
 
-function ConnectionDisplay({
-  label,
-  setLabel,
-  qrCodeData,
-  setQRCodeData,
-  linkData,
-  setLinkData,
-}) {
+function ConnectionDisplay() {
   const navigation = useNavigation();
-  const [isQR, setIsQR] = useState<boolean>(true);
   const [isLoadingBundle, setIsLoadingBundle] = useState(true);
-  const [viewWidth, setViewWidth] = useState(0);
   const [generate, setGenerate] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
-  const [isLoadingLink, setIsLoadingLink] = useState(true);
-  const [showCopiedAlert, setShowCopiedAlert] = useState(false);
+  const [bundleGenError, setBundleGenError] = useState(false);
+  const [linkData, setLinkData] = useState<string>('');
+  const [label, setLabel] = useState<string>('');
+  const [lastSaveLabel, setLastSaveLabel] = useState<string>('');
+  const [saveVisible, setSaveVisible] = useState(false);
+  const [qrCodeData, setQRCodeData] = useState<string>('');
+  const [storeChange, setStoreChange] = useState(0);
+  const viewWidth = Dimensions.get('window').width;
 
-  const onLayout = event => {
-    const {width} = event.nativeEvent.layout;
-    setViewWidth(width);
-  };
-
+  //initial effect that generates initial connection bundle and displays it.
   useEffect(() => {
-    setLabel('');
-    setIsLoadingBundle(true);
-    setIsLoadingLink(true);
     const fetchQRCodeData = async () => {
       try {
+        setBundleGenError(false);
+        setLabel('');
+        setIsLoadingBundle(true);
         //use this function to generate and fetch QR code data.
-        const data = await getQRData();
-        setQRCodeData(data);
+        const bundle = await generateDirectConnectionBundle();
+        setQRCodeData(JSON.stringify(bundle));
       } catch (error) {
-        console.error('Error fetching QR code data:', error);
+        //set bundle generated error
+        setBundleGenError(true);
       } finally {
         setIsLoadingBundle(false);
       }
     };
     fetchQRCodeData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generate]);
-  //alert to show if link doesn't get generated because of network issues
-  useEffect(() => {
-    const fetchLinkData = async () => {
-      try {
-        //use this function to convert qr data to clickable link.
-        const link = await convertQRtoLink(qrCodeData);
+
+  //converts qr bundle into link.
+  const fetchLinkData = async () => {
+    try {
+      if (!isLoadingBundle && !bundleGenError) {
+        const link = await convertBundleToLink(qrCodeData);
         setLinkData(link);
-      } catch (error) {
-        console.error('Error fetching Link:', error);
-      } finally {
-        setIsLoadingLink(false);
+        return true;
       }
-    };
-    if (!isQR && !isLoadingBundle) {
-      if (isLoadingLink) {
-        fetchLinkData();
-      } else {
-        if (linkData === '') {
-          fetchLinkData();
-        }
-      }
+      return false;
+    } catch (error) {
+      console.error('Error fetching Link:', error);
+      return false;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isQR, isLoadingBundle]);
+  };
+
+  //handles sharing in link form
+  const handleShare = async () => {
+    try {
+      const canShare = await fetchLinkData();
+      if (canShare) {
+        const shareContent = {
+          title: 'Create a new Port',
+          message: linkData,
+        };
+        await Share.open(shareContent);
+      } else {
+        ToastAndroid.show(
+          'Link could not be created. Check your internet connection.',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      ToastAndroid.show(
+        'Error sharing content. Check your internet connection.',
+        ToastAndroid.SHORT,
+      );
+      console.log('Error sharing content: ', error);
+    }
+  };
+
+  //updates the label of the current generated bundle
+  async function labelUpdate() {
+    try {
+      setSaveVisible(false);
+      if (!isLoadingBundle) {
+        await updateGeneratedDirectConnectionBundleLabel(
+          JSON.parse(qrCodeData).data.linkId,
+          label.trim().substring(0, NAME_LENGTH_LIMIT),
+        );
+      }
+      setLastSaveLabel(label);
+    } catch (error) {
+      console.error('Error editing bundle data:', error);
+    }
+  }
+
+  //shows save button if label changes to anything useable.
+  const showSaveButton = (newLabel: string) => {
+    setLabel(newLabel);
+    if (newLabel.trim().substring(0, NAME_LENGTH_LIMIT) === lastSaveLabel) {
+      setSaveVisible(false);
+    } else {
+      setSaveVisible(true);
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
-      const displayData = JSON.parse(qrCodeData);
       const unsubscribe = store.subscribe(() => {
-        const state = store.getState();
-        console.log(state);
-        if (state && state.latestNewConnection) {
-          const latestUsedLineLinkId = state.latestNewConnection.lineLinkId;
-          // Use the latestState as needed
-          console.log(
-            'Checking if navigation is needed',
-            displayData,
-            latestUsedLineLinkId,
-          );
-          if (qrCodeData !== '') {
-            if (displayData.bundles.data.linkId === latestUsedLineLinkId) {
-              navigation.navigate('Home');
-            }
-          }
-        }
+        setStoreChange(storeChange + 1);
       });
       // Clean up the subscription when the screen loses focus
       return () => {
         unsubscribe();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [qrCodeData]),
+    }, []),
+  );
+  //navigates to home if a qr is scanned while on new connection screen and device is connected to the internet.
+  useFocusEffect(
+    React.useCallback(() => {
+      const state = store.getState();
+      if (state && state.latestNewConnection) {
+        const latestUsedConnectionLinkId =
+          state.latestNewConnection.connectionLinkId;
+        if (qrCodeData !== '') {
+          const displayData = JSON.parse(qrCodeData);
+          if (displayData.data.linkId === latestUsedConnectionLinkId) {
+            navigation.navigate('Home');
+          }
+        }
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [storeChange]),
   );
 
   return (
     <View style={styles.container}>
-      <OptionToggle isQR={isQR} setIsQR={setIsQR} />
-      <View style={styles.mainBox} onLayout={onLayout}>
-        <TextInput
-          style={styles.labelInput}
-          maxLength={LABEL_INPUT_LIMIT}
-          placeholder={isFocused ? '' : 'Label (Optional)'}
-          placeholderTextColor="#A3A3A3"
-          onChangeText={(newLabel: string) => setLabel(newLabel)}
-          value={label}
-          textAlign="center"
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-        />
-        <View
-          style={{
-            height: viewWidth * 0.9,
-            width: viewWidth * 0.9,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          {isLoadingBundle ? (
+      <NumberlessMediumText style={styles.cardTitleText}>
+        Create a new Port
+      </NumberlessMediumText>
+      <View
+        style={{
+          flexDirection: 'column',
+          width: viewWidth * 0.5,
+          height: viewWidth * 0.5,
+        }}>
+        {isLoadingBundle ? (
+          <View style={styles.qrBox}>
             <ActivityIndicator size={'large'} color={'#000000'} />
-          ) : isQR ? (
-            <View style={styles.qrBox}>
-              <QRCode value={qrCodeData} size={viewWidth * 0.65} />
-              <View style={styles.logoBox}>
-                <Logo width={viewWidth * 0.12} height={viewWidth * 0.12} />
+          </View>
+        ) : (
+          <View style={styles.qrBox}>
+            {bundleGenError ? (
+              <NumberlessItalicText style={styles.errorMessage}>
+                Error generating new Port connection instrument. Pre-generated
+                instruments list empty. Connect to the internet again to
+                generate more.
+              </NumberlessItalicText>
+            ) : (
+              <View style={styles.qrBox}>
+                <QRCode value={qrCodeData} size={viewWidth * 0.5} />
+                <View style={styles.logoBox}>
+                  <Logo width={viewWidth * 0.08} height={viewWidth * 0.08} />
+                </View>
               </View>
+            )}
+          </View>
+        )}
+      </View>
+      <View>
+        {bundleGenError ? (
+          <View />
+        ) : (
+          <View
+            style={{
+              flexDirection: 'column',
+              width: viewWidth * 0.6,
+              marginTop: 20,
+            }}>
+            <TextInput
+              style={styles.labelInput}
+              maxLength={NAME_LENGTH_LIMIT}
+              placeholder={isFocused ? '' : 'Contact Name (Optional)'}
+              placeholderTextColor="#BABABA"
+              onChangeText={showSaveButton}
+              value={label}
+              textAlign="center"
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+            <View style={styles.saveButtonBox}>
+              {saveVisible ? (
+                <Pressable style={styles.saveButton} onPress={labelUpdate}>
+                  <NumberlessMediumText style={styles.saveButtonText}>
+                    Save
+                  </NumberlessMediumText>
+                </Pressable>
+              ) : (
+                <View />
+              )}
             </View>
-          ) : (
-            <View style={styles.linkBox}>
-              <View style={styles.fillContainer}>
-                {isLoadingLink ? (
-                  <ActivityIndicator size={'large'} color={'#000000'} />
-                ) : (
-                  <View style={styles.fillContainer}>
-                    <View style={styles.softAlertParent}>
-                      <SoftAlert
-                        setShowCopiedAlert={setShowCopiedAlert}
-                        showCopiedAlert={showCopiedAlert}
-                      />
-                    </View>
-                    <NumberlessClickableText
-                      style={styles.linkText}
-                      onPress={() => {
-                        Clipboard.setString(linkData);
-                        setShowCopiedAlert(true);
-                      }}>
-                      {linkData === ''
-                        ? 'Error getting link. Please make sure you have an active internet connection'
-                        : linkData}
-                    </NumberlessClickableText>
-                  </View>
-                )}
-              </View>
-            </View>
-          )}
+          </View>
+        )}
+      </View>
+      <NumberlessRegularText style={styles.generalText}>
+        This QR is only good for one scan and can't be used again.
+      </NumberlessRegularText>
+      <View style={styles.buttonsBoxContainer}>
+        <View style={styles.buttonBox}>
+          <Pressable
+            style={styles.button}
+            onPress={() => setGenerate(generate + 1)}>
+            <Refresh height={24} width={24} />
+            <NumberlessRegularText style={styles.buttonText}>
+              New
+            </NumberlessRegularText>
+          </Pressable>
         </View>
-        <View style={styles.buttonsBox}>
-          <View style={styles.buttonBoxLeft}>
-            <Pressable
-              style={styles.button}
-              onPress={() => console.log('Share Pressed')}>
-              <Share width={30} height={30} />
-            </Pressable>
-          </View>
-          <View style={styles.buttonBoxRight}>
-            <Pressable
-              style={styles.button}
-              onPress={() => navigation.navigate('Scanner')}>
-              <Scan width={30} height={30} />
-            </Pressable>
-          </View>
+        <View style={styles.buttonBox}>
+          <Pressable
+            style={styles.button}
+            onPress={() => {
+              navigation.navigate('Scanner');
+            }}>
+            <Scan width={24} height={24} />
+            <NumberlessRegularText style={styles.buttonText}>
+              Scan
+            </NumberlessRegularText>
+          </Pressable>
         </View>
       </View>
-      <Pressable
-        style={styles.generateButton}
-        onPress={() => setGenerate(generate + 1)}>
-        <Refresh height={24} width={24} />
+      <View style={styles.nfcEducation}>
+        <Nfc width={24} height={24} />
+        <NumberlessRegularText style={styles.nfcText}>
+          {' '}
+          If NFC is enabled, tap your device against theirs to instantly
+          connect.
+        </NumberlessRegularText>
+      </View>
+      <Pressable style={styles.generateButton} onPress={handleShare}>
+        <ShareIcon width={24} height={24} />
         <NumberlessMediumText style={styles.generateText}>
-          Generate New
+          Share as a link
         </NumberlessMediumText>
       </Pressable>
-    </View>
-  );
-}
-
-//soft alert to indicate link has been copied
-function SoftAlert({showCopiedAlert, setShowCopiedAlert}) {
-  setTimeout(() => {
-    setShowCopiedAlert(false);
-  }, SOFT_ALERT_DURATION);
-  return (
-    <View style={styles.softAlertContainer}>
-      {showCopiedAlert && (
-        <NumberlessRegularText style={styles.softAlertMessage}>
-          Copied to Clipboard
-        </NumberlessRegularText>
-      )}
     </View>
   );
 }
@@ -230,56 +280,50 @@ function SoftAlert({showCopiedAlert, setShowCopiedAlert}) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
-    width: '100%',
+    width: '85%',
     alignItems: 'center',
-  },
-  mainBox: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFF',
+    padding: 20,
     borderRadius: 24,
-    width: '74%',
-    marginTop: 30,
+    marginTop: 20,
   },
   labelInput: {
     width: '100%',
     height: 60,
-    fontSize: 17,
+    fontSize: 15,
     fontFamily: 'Rubik-Medium',
-    color: '#A3A3A3',
+    color: '#000000',
     borderRadius: 16,
-    backgroundColor: '#EFEFEF',
+    backgroundColor: '#F6F6F6',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingLeft: 10,
+    paddingRight: 10,
   },
-  buttonsBox: {
+  buttonsBoxContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   button: {
     height: 60,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#547CEF',
+    backgroundColor: '#F6F6F6',
     borderRadius: 16,
-    width: '100%',
+    width: 100,
   },
-  buttonBoxLeft: {
-    height: 60,
-    paddingRight: 5,
-    width: '50%',
+  buttonText: {
+    marginLeft: 5,
+    color: '#547CEF',
   },
-  buttonBoxRight: {
-    height: 60,
-    paddingLeft: 5,
-    width: '50%',
+  buttonBox: {
+    padding: 10,
   },
   qrBox: {
-    height: '100%',
     width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -296,48 +340,71 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   generateButton: {
-    width: '84%',
+    width: '100%',
     height: 60,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#547CEF',
     borderRadius: 16,
-    marginTop: 30,
+    marginTop: 20,
   },
   generateText: {
-    fontSize: 17,
-    color: '#000000',
-    marginLeft: 20,
-  },
-  linkText: {
     fontSize: 15,
-    color: '#000000',
+    color: '#FFF',
+    marginLeft: 10,
+  },
+  cardTitleText: {
+    fontSize: 17,
+    color: '#547CEF',
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20,
+    paddingTop: 10,
     textAlign: 'center',
   },
-  softAlertParent: {
-    position: 'absolute',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    width: '100%',
-    height: '100%',
-    paddingBottom: 30,
+  generalText: {
+    fontSize: 13,
+    marginTop: 20,
+    marginBottom: 10,
+    textAlign: 'center',
   },
-  fillContainer: {
-    height: '100%',
+  nfcEducation: {
+    flexDirection: 'row',
     width: '100%',
+    marginTop: 5,
+    padding: 5,
+    alignItems: 'center',
+  },
+  nfcText: {
+    fontSize: 13,
+    paddingLeft: 10,
+    paddingRight: 10,
+    color: '#547CEF',
+  },
+  saveButtonBox: {
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
   },
-  softAlertContainer: {
-    backgroundColor: '#E5E5E5',
-    opacity: 0.5,
+  saveButton: {
+    height: 50,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#547CEF',
     borderRadius: 16,
+    width: 80,
+    marginTop: 10,
   },
-  softAlertMessage: {
-    padding: 10,
-    color: '#000000',
+  saveButtonText: {
+    fontSize: 15,
+    color: '#FFF',
+  },
+  errorMessage: {
+    fontSize: 14,
+    color: '#E02C2C',
   },
 });
 

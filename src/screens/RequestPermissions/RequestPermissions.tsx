@@ -1,5 +1,6 @@
-/*
- * This screens requests permissions
+/**
+ * This screens informs a user of the permissions the App requires.
+ * screen id: 2
  */
 import React from 'react';
 import {SafeAreaView} from '../../components/SafeAreaView';
@@ -12,7 +13,6 @@ import {
 } from '../../components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import Notification from '../../../assets/permissions/notifications.svg';
-import {checkNotificationPermission} from '../../utils/OSpermissions';
 
 function RequestPermissions() {
   const navigation = useNavigation();
@@ -53,7 +53,6 @@ function RequestPermissions() {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              checkNotificationPermission();
               navigation.navigate('Onboarding');
             }}>
             <NumberlessBoldText style={styles.buttonText}>

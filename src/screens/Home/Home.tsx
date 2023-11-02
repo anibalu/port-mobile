@@ -1,40 +1,28 @@
 /**
  * The Home screen is where your all your connections are displayed, along with
- * a few other neat features
+ * a few other neat features.
+ * screen id: 5
  */
-
 import React, {useState} from 'react';
 import ChatTile from '../../components/ChatTile/ChatTile';
 import {SafeAreaView} from '../../components/SafeAreaView';
-import {
-  Connection,
-  ConnectionType,
-  getConnectionsOrdered,
-} from '../../utils/Connection';
 import {FlatList, StatusBar, StyleSheet, ImageBackground} from 'react-native';
 import Topbar from './Topbar';
 import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator';
 import {Page} from '../../components/BottomNavigator/Button';
 import {useFocusEffect} from '@react-navigation/native';
 import store from '../../store/appStore';
-import {cancelAllNotifications} from '../../utils/notifications';
+import {cancelAllNotifications} from '../../utils/Notifications';
 import DefaultChatTile from './DefaultChatTile';
-import {sendMessageBacklog} from '../../utils/MessageJournal';
+import {ConnectionInfo, ReadStatus} from '../../utils/Connections/interfaces';
+import {getConnections} from '../../utils/Connections';
 
-function renderChatTile(connection: Connection) {
-  return (
-    <ChatTile
-      nickname={connection.nickname}
-      connectionType={connection.connectionType || ConnectionType.line}
-      id={connection.id}
-      text={connection.text}
-      timeStamp={connection.timeStamp}
-      newMessageCount={connection.newMessageCount}
-      readStatus={connection.readStatus}
-    />
-  );
+//rendered chat tile of a connection
+function renderChatTile(connection: ConnectionInfo) {
+  return <ChatTile {...connection} />;
 }
 
+//renders default chat tile when there are no connections to display
 function renderDefaultTile() {
   return <DefaultChatTile />;
 }
@@ -42,34 +30,32 @@ function renderDefaultTile() {
 const defaultConnectionList = [{id: 'default'}];
 
 function Home() {
-  const [connections, setConnections] = useState<Array<Connection>>([]);
+  const [connections, setConnections] = useState<Array<ConnectionInfo>>(
+    fetchStoreConnections(),
+  );
   const [totalUnread, setTotalUnread] = useState<number>(0);
-  const [latestMessage, setLatestMessage] = useState<Object>({});
+  function fetchStoreConnections() {
+    const entireState = store.getState();
+    const storeConnections: ConnectionInfo[] =
+      entireState.connections.connections;
+    return storeConnections;
+  }
+  //focus effect to initial load connections and cancel all notifications when on home screen
   useFocusEffect(
     React.useCallback(() => {
-      const countNewConnections = async () => {
-        //temporary addition to test emptying of send queue
-        await sendMessageBacklog();
-        const connections = await getConnectionsOrdered();
-        let count = 0;
-        for (const connection of connections) {
-          if (connection.readStatus === 'new') {
-            count++;
-          }
-        }
-        setConnections(connections);
-        setTotalUnread(count);
-      };
-      countNewConnections();
+      (async () => setConnections(await getConnections()))();
       // Cancel all notifications when I land on the home screen
       cancelAllNotifications();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [latestMessage]),
+    }, []),
   );
+
+  //focus effect to reload connection whenever store changes
   useFocusEffect(
     React.useCallback(() => {
-      const unsubscribe = store.subscribe(() => {
-        setLatestMessage(store.getState().latestMessage);
+      const unsubscribe = store.subscribe(async () => {
+        //sets new connections
+        const newConnections = await getConnections();
+        setConnections(newConnections);
       });
       // Clean up the subscription when the screen loses focus
       return () => {
@@ -78,6 +64,22 @@ function Home() {
     }, []),
   );
 
+  //focus effect to load connections from store and count unread connections when home screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      (async () => {
+        //sets new unread count when store experiences a change.
+        console.log('unread count processed again');
+        let count = 0;
+        for (const connection of connections) {
+          if (connection.readStatus === ReadStatus.new) {
+            count++;
+          }
+        }
+        setTotalUnread(count);
+      })();
+    }, [connections]),
+  );
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
@@ -98,7 +100,7 @@ function Home() {
           data={connections}
           renderItem={element => renderChatTile(element.item)}
           style={styles.chats}
-          keyExtractor={connection => connection.id}
+          keyExtractor={connection => connection.chatId}
         />
       )}
       <BottomNavigator active={Page.home} />

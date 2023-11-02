@@ -1,46 +1,72 @@
 /**
  * The screen to view one's own profile
+ * screen Id: 8
  */
-
 import React, {useEffect, useState} from 'react';
 import {ImageBackground, Modal, Pressable, StatusBar, View} from 'react-native';
-import {
-  checkProfilePicture,
-  readProfileNickname,
-  setNewProfilePicture,
-} from '../../utils/Profile';
 import {Image, StyleSheet} from 'react-native';
-import defaultImage from '../../../assets/avatars/avatar1.png';
+import DefaultImage from '../../../assets/avatars/avatar.png';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import EditIcon from '../../../assets/icons/Pencil.svg';
 import EditCameraIcon from '../../../assets/icons/EditCamera.svg';
-import NicknamePopup from './UpdateNicknamePopup';
+import NamePopup from './UpdateNamePopup';
 import {useNavigation} from '@react-navigation/native';
-import {DEFAULT_NICKNAME} from '../../configs/constants';
+import {DEFAULT_NAME} from '../../configs/constants';
 import BackTopbar from '../../components/BackTopBar';
 import {SafeAreaView} from '../../components/SafeAreaView';
+import {
+  getProfileName,
+  getProfilePicture,
+  setNewProfilePicture,
+} from '../../utils/Profile';
+import {Asset, launchImageLibrary} from 'react-native-image-picker';
 
 function MyProfile() {
   const [profileURI, setProfileURI] = useState(
-    Image.resolveAssetSource(defaultImage).uri,
+    Image.resolveAssetSource(DefaultImage).uri,
   );
-  const [nickname, setNickname] = useState(DEFAULT_NICKNAME);
+  const [name, setName] = useState(DEFAULT_NAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
-  const [editingNickname, setEditingNickname] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+
+  //updates profile picture with user set profile picture
   async function setPicture() {
-    const uri = await setNewProfilePicture();
-    if (uri) {
+    const uri = await getProfilePicture();
+    if (uri && uri !== '') {
       setProfileURI(uri);
     }
+  }
+  //lets user set new profile picture
+  async function setNewPicture() {
+    try {
+      const selectedAssets = await launchImageLibrary({
+        mediaType: 'photo',
+        includeBase64: true,
+        selectionLimit: 1,
+      });
+      //images are selected
+      const selected: Asset[] = selectedAssets.assets || [];
+      if (selected.length >= 1) {
+        await setNewProfilePicture({
+          fileUri: selected[0].uri || '',
+          fileType: selected[0].type || '',
+          fileName: selected[0].fileName || '',
+        });
+        await setPicture();
+      }
+    } catch (error) {
+      console.log('Nothing selected', error);
+    }
+  }
+  //updates name with user set name
+  async function setUserName() {
+    setName(await getProfileName());
   }
 
   useEffect(() => {
     (async () => {
-      const profilePictureURI = await checkProfilePicture();
-      setNickname(await readProfileNickname());
-      if (profilePictureURI) {
-        setProfileURI(profilePictureURI);
-      }
+      setPicture();
+      setUserName();
     })();
   }, [updatedCounter]);
 
@@ -48,7 +74,7 @@ function MyProfile() {
     if (updated) {
       setUpdatedCounter(updatedCounter + 1);
     }
-    setEditingNickname(false);
+    setEditingName(false);
   }
 
   const navigation = useNavigation();
@@ -67,14 +93,14 @@ function MyProfile() {
           onPress={() => {
             navigation.navigate('ImageView', {
               imageURI: profileURI,
-              title: nickname,
+              title: name,
             });
           }}>
           <Image source={{uri: profileURI}} style={styles.profilePic} />
           <Pressable
             style={styles.updatePicture}
             onPress={() => {
-              setPicture();
+              setNewPicture();
             }}>
             <EditCameraIcon />
           </Pressable>
@@ -84,21 +110,21 @@ function MyProfile() {
             style={styles.nickname}
             ellipsizeMode="tail"
             numberOfLines={1}>
-            {nickname}
+            {name}
           </NumberlessSemiBoldText>
           <View style={styles.nicknameEditBox}>
             <Pressable
               style={styles.nicknameEditHitbox}
-              onPress={() => setEditingNickname(true)}>
+              onPress={() => setEditingName(true)}>
               <EditIcon />
             </Pressable>
           </View>
         </View>
       </View>
-      <Modal animationType="none" visible={editingNickname} transparent={true}>
+      <Modal animationType="none" visible={editingName} transparent={true}>
         <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
           <Pressable style={styles.popupPosition}>
-            <NicknamePopup setUpdated={setUpdated} initialNickname={nickname} />
+            <NamePopup setUpdated={setUpdated} initialName={name} />
           </Pressable>
         </Pressable>
       </Modal>

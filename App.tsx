@@ -1,17 +1,10 @@
 /**
- * Numberless Inc's messaging client app known as Bridge as of April 2023
- *
- * @format
+ * Numberless Inc's messaging client app Port
  */
 
 import React, {useState, useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {
-  foregroundMessageHandler,
-  registerBackgroundMessaging,
-} from './src/utils/messagingFCM';
 import {Linking, StatusBar} from 'react-native';
 
 // Screens in the app
@@ -23,45 +16,61 @@ import SetupUser from './src/screens/SetupUser/SetupUser';
 import RequestPermissions from './src/screens/RequestPermissions/RequestPermissions';
 import ConnectionCentre from './src/screens/ConnectionCentre/ConnectionCentre';
 import Scanner from './src/screens/Scanner/Scanner';
-import NewContact from './src/screens/NewContactImproved/NewContact';
+import NewContact from './src/screens/NewContact/NewContact';
 import ImageView from './src/screens/MediaView/ImageView';
 import ContactProfile from './src/screens/ContactProfile/ContactProfile';
+import DirectChat from './src/screens/Chat/DirectChat';
+import MyProfile from './src/screens/MyProfile/MyProfile';
 
 import store from './src/store/appStore';
 import {Provider} from 'react-redux';
-import {readProfile} from './src/utils/Profile';
-import DirectChat from './src/screens/Chat/DirectChat';
-import {handleDeepLink} from './src/utils/deepLinking';
-import MyProfile from './src/screens/MyProfile/MyProfile';
+import {handleDeepLink} from './src/utils/Handshake/deepLinking';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {checkProfile} from './src/utils/Profile';
+import {ProfileStatus} from './src/utils/Profile/interfaces';
+import {loadConnectionsToStore} from './src/utils/Connections';
+import {loadReadDirectConnectionBundlesToStore} from './src/utils/Bundles';
+import {
+  foregroundMessageHandler,
+  registerBackgroundMessaging,
+} from './src/utils/Messaging/fcm';
+import {loadJournalToStore} from './src/utils/Messaging/journal';
 
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
   //check if initial setup is done
-  const [hasSharedSecret, setHasSharedSecret] = useState(false);
+  const [profileExists, setProfileExists] = useState(false);
   useEffect(() => {
-    const checkSharedSecret = async () => {
+    const checkProfileCreated = async () => {
       try {
-        const result = await readProfile();
-        if (result.sharedSecret) {
-          setHasSharedSecret(true);
+        const result = await checkProfile();
+        if (result === ProfileStatus.created) {
+          setProfileExists(true);
+          //load up to store
+          //load connections to store
+          await loadConnectionsToStore();
+          //load read bundles to store
+          await loadReadDirectConnectionBundlesToStore();
+          //load journaled messages to store
+          await loadJournalToStore();
         }
       } catch (error) {
-        console.error('Error checking profile file:', error);
+        console.error('Error checking profile:', error);
       }
     };
-    checkSharedSecret();
+    checkProfileCreated();
     // default way to handle new messages in the foreground
-    foregroundMessageHandler(store);
+    foregroundMessageHandler();
     // handle any potential inital deep links
     (async () => {
       handleDeepLink({url: await Linking.getInitialURL()});
     })();
   }, []);
 
-  const initialRouteName = hasSharedSecret ? 'Home' : 'Welcome';
+  const initialRouteName = profileExists ? 'Home' : 'Welcome';
   //set up background message handler here
-  registerBackgroundMessaging(store);
+  registerBackgroundMessaging();
   // Handle any potential deeplinks while foregrounded/backgrounded
   Linking.addEventListener('url', handleDeepLink);
   return (

@@ -4,13 +4,12 @@ import {View} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {BackButton} from '../../components/BackButton';
 
-function Topbar({onPress}) {
-  //update generated bundle on back button navigate.
+function Topbar({onBackPress}) {
   return (
     <View style={styles.bar}>
-      <BackButton style={styles.backIcon} onPress={onPress} />
+      <BackButton style={styles.backIcon} onPress={onBackPress} />
       <NumberlessSemiBoldText style={styles.title}>
-        New Contact
+        New Port
       </NumberlessSemiBoldText>
       <View style={styles.faqBox}>
         {/* <NumberlessClickableText

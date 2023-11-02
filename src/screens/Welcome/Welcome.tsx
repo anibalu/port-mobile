@@ -1,7 +1,7 @@
-/*
- * The welcome screen that greets users when they first download the app
+/**
+ * This welcome screen shows Port branding and greets the user the first time they open the app.
+ * screen id: 1
  */
-
 import React from 'react';
 import {View, StyleSheet, TouchableOpacity, StatusBar} from 'react-native';
 import {NumberlessBoldText} from '../../components/NumberlessText';

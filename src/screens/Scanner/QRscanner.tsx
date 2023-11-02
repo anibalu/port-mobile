@@ -1,3 +1,6 @@
+/**
+ * QR scanner used in the App.
+ */
 import {Camera} from 'react-native-camera-kit';
 import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, Pressable, Alert} from 'react-native';
@@ -5,43 +8,65 @@ import {NumberlessRegularText} from '../../components/NumberlessText';
 import Area from '../../../assets/miscellaneous/scanArea.svg';
 import TorchOn from '../../../assets/icons/TorchOn.svg';
 import TorchOff from '../../../assets/icons/TorchOff.svg';
-import {checkCameraPermission} from '../../utils/OSpermissions';
+import {checkCameraPermission} from '../../utils/AppPermissions';
 import {useNavigation} from '@react-navigation/native';
+import {BundleReadResponse} from '../../utils/Bundles/interfaces';
+import {handshakeActionsB1} from '../../utils/Handshake';
 
-export default function QRScanner({onCodeScanned}) {
+export default function QRScanner() {
   const navigation = useNavigation();
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
     useState(false);
-
   useEffect(() => {
     checkCameraPermission(setIsCameraPermissionGranted);
   }, []);
   const [viewWidth, setViewWidth] = useState(0);
   const [qrData, setQrData] = useState('');
-  const showAlertAndWait = () => {
-    Alert.alert(
-      'Incorrect OR',
-      'QR code not a numberless QR code',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            setQrData('');
-            setScanCode(true);
+
+  //shows an alert if there is an issue creating a new Port after scanning a QR code.
+  const showAlertAndWait = (bundleReadResponse: BundleReadResponse) => {
+    if (bundleReadResponse === BundleReadResponse.networkError) {
+      Alert.alert(
+        'Network Error in creating new Port.',
+        'QR code data has been saved and a connection will be attempted again when network improves.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setQrData('');
+              navigation.navigate('Home');
+            },
           },
-        },
-      ],
-      {cancelable: false},
-    );
+        ],
+        {cancelable: false},
+      );
+    } else {
+      Alert.alert(
+        'Incorrect OR data format',
+        'QR code not a numberless QR code',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setQrData('');
+              setScanCode(true);
+            },
+          },
+        ],
+        {cancelable: false},
+      );
+    }
   };
+  //navigate to back to home screen is scan succeeds and an unauthenticated port is created.
   useEffect(() => {
     if (qrData !== '') {
       //this makes scan happen only once
-      onCodeScanned(qrData).then(ret => {
-        if (ret) {
+      console.log('qr code scanned');
+      handshakeActionsB1(qrData).then(ret => {
+        if (ret === BundleReadResponse.success) {
           navigation.navigate('Home');
         } else {
-          showAlertAndWait();
+          showAlertAndWait(ret);
         }
       });
     }
@@ -91,7 +116,7 @@ export default function QRScanner({onCodeScanned}) {
     </View>
   );
 }
-
+//Phone light toggle switch
 function Torch({state, setState}) {
   if (state === 'on') {
     return (

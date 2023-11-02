@@ -5,30 +5,27 @@ import PermissionIconInactive from '../../../assets/permissions/permissions-inac
 import {NumberlessBoldText} from '../NumberlessText';
 import SingleDown from '../../../assets/icons/single-down.svg';
 import SingleUp from '../../../assets/icons/BlueSingleUp.svg';
-import {getConnection} from '../../utils/Connection';
 import PermissionTile from './PermissionTile';
-import {
-  defaultPermissions,
-  permissions,
-} from '../../utils/permissionsInterface';
+import {Permissions} from '../../utils/ChatPermissions/interfaces';
+import {defaultPermissions} from '../../utils/ChatPermissions/default';
+import {getConnection} from '../../utils/Connections';
 
 export default function PermissionsDropdown(props: {
-  lineId: string; // The line id to manage permissions for
+  chatId: string; // The line id to manage permissions for
 }) {
-  const line = props.lineId;
+  const chatId = props.chatId;
   const [showPermissions, setShowPermissions] = useState(false);
   const [permissionsObj, setPermissionsObj] =
-    useState<permissions>(defaultPermissions);
+    useState<Permissions>(defaultPermissions);
   const togglePermission = () => {
     setShowPermissions(!showPermissions);
   };
   useEffect(() => {
     (async () => {
-      const permissionList = (await getConnection(line)).permissions;
+      const permissionList = (await getConnection(chatId)).permissions;
       setPermissionsObj(permissionList);
     })();
-  }, [line]);
-
+  }, [chatId]);
   return (
     <View style={styles.permissionDropDown}>
       <Pressable
@@ -49,7 +46,7 @@ export default function PermissionsDropdown(props: {
         {showPermissions ? <SingleUp /> : <SingleDown />}
       </Pressable>
       {showPermissions ? (
-        <ShowPermissionTiles permissions={permissionsObj} lineId={line} />
+        <ShowPermissionTiles permissions={permissionsObj} chatId={chatId} />
       ) : (
         <></>
       )}
@@ -58,8 +55,8 @@ export default function PermissionsDropdown(props: {
 }
 
 function ShowPermissionTiles(props: {
-  permissions: permissions;
-  lineId: string;
+  permissions: Permissions;
+  chatId: string;
 }) {
   const permissionsWithKeys = Object.keys(props.permissions);
   return permissionsWithKeys.map(value => (
@@ -68,7 +65,7 @@ function ShowPermissionTiles(props: {
       currentState={props.permissions[value].toggled}
       permissionValue={value}
       permissionName={props.permissions[value].name}
-      lineId={props.lineId}
+      chatId={props.chatId}
     />
   ));
 }
@@ -79,6 +76,7 @@ const styles = StyleSheet.create({
     width: '90%',
     backgroundColor: 'white',
     borderRadius: 16,
+    marginBottom: 15,
   },
   dropdownHitbox: {
     width: '100%',

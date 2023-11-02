@@ -20,7 +20,6 @@ export function BottomNavigator(props: TopbarProps) {
     </View>
   );
 }
-// TODO Add navigation
 
 const styles = StyleSheet.create({
   bar: {

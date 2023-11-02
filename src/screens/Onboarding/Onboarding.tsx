@@ -1,5 +1,6 @@
-/*
+/**
  * This screen allows a user to add a nickname.
+ * screen id: 3
  */
 import React, {useState} from 'react';
 import {
@@ -9,8 +10,7 @@ import {
   KeyboardAvoidingView,
   StatusBar,
 } from 'react-native';
-import {joinApp} from '../../actions/JoinApp';
-import {NICKNAME_LENGTH_LIMIT} from '../../configs/constants';
+import {NAME_LENGTH_LIMIT} from '../../configs/constants';
 import {BackButton} from '../../components/BackButton';
 import {NextButton} from '../../components/NextButton';
 import {SafeAreaView} from '../../components/SafeAreaView';
@@ -21,6 +21,7 @@ import {
   NumberlessMediumText,
 } from '../../components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
+import {processName} from '../../utils/Profile';
 
 function Onboarding() {
   //setup navigation props
@@ -61,7 +62,7 @@ function Onboarding() {
           <View style={styles.nicknameBox}>
             <TextInput
               style={styles.inputText}
-              maxLength={NICKNAME_LENGTH_LIMIT}
+              maxLength={NAME_LENGTH_LIMIT}
               placeholder={isFocused ? '' : 'Name'}
               textAlign="center"
               placeholderTextColor="#BABABA"
@@ -74,15 +75,9 @@ function Onboarding() {
         </View>
         <View style={styles.nextButtonContainer}>
           <NextButton
-            onPress={async () => {
-              if (name) {
-                await joinApp({nickname: name});
-                navigation.navigate('SetupUser');
-              } else {
-                await joinApp({nickname: ' '});
-                navigation.navigate('SetupUser');
-              }
-            }}
+            onPress={() =>
+              navigation.navigate('SetupUser', {name: processName(name)})
+            }
           />
         </View>
       </KeyboardAvoidingView>

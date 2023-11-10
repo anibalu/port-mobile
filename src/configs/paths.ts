@@ -60,10 +60,15 @@ export const messageJournalPath = '/journaled.txt';
  * @param messagesDir - path to directory where the messages are stored (this directory is inside conversations directory within the respective lineId directory)
  * @param mediaDir - path to directory where the media are stored (this directory is inside conversations directory within the respective lineId directory)
  * @param filesDir - path to directory where the files are stored (this directory is inside conversations directory within the respective lineId directory)
+ * @param groupsDir - path to directory where group data is stored (this directory is inside conversations directory within the respective groupId directory)
  */
 export const messagesDir = '/messages';
 export const mediaDir = '/media';
 export const filesDir = '/files';
+export const groupsInfoDirPath = '/info';
+export const groupsDataPath = '/data.json';
+export const groupDisplayPicAttributesPath = '/displayPictureAttributes.json';
+export const groupConnectionLinksPath = '/groupLinks.json';
 
 //path to temporary dir
 export const tempDir = '/temp';

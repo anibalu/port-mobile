@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-import {StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, View} from 'react-native';
 import TextBubble from './BubbleTypes/TextBubble';
 import {NumberlessRegularText} from '../../components/NumberlessText';
 import {createDateBoundaryStamp} from '../../utils/Time';
@@ -9,21 +9,31 @@ import {
   SavedMessageParams,
 } from '../../utils/Messaging/interfaces';
 import DataBubble from './BubbleTypes/DataBubble';
-import MediaBubble from './BubbleTypes/MediaBubble';
+import VideoBubble from './BubbleTypes/VideoBubble';
 import FileBubble from './BubbleTypes/FileBubble';
+import DefaultImage from '../../../assets/avatars/avatar.png';
+import {extractMemberInfo} from '../../utils/Groups';
+import {DEFAULT_NAME} from '../../configs/constants';
+import ImageBubble from './BubbleTypes/ImageBubble';
 
-interface DirectMessageBubbleProps {
+interface MessageBubbleProps {
   message: SavedMessageParams;
+  isDateBoundary: boolean;
   selected: string[];
   handlePress: any;
   handleLongPress: any;
+  isGroupChat: boolean;
+  groupInfo: any;
 }
 
-const DirectMessageBubble: React.FC<DirectMessageBubbleProps> = ({
+const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
+  isDateBoundary,
   selected,
   handlePress,
   handleLongPress,
+  isGroupChat,
+  groupInfo,
 }) => {
   const [intitialContainerType, initialBlobType] = initialStylePicker(
     message.contentType,
@@ -31,6 +41,7 @@ const DirectMessageBubble: React.FC<DirectMessageBubbleProps> = ({
   );
   const [containerType] = useState(intitialContainerType);
   const [blobType, setBlobType] = useState(initialBlobType);
+  const [memberInfo, setMemberInfo] = useState({});
   useEffect(() => {
     if (selected.includes(message.messageId)) {
       setBlobType(
@@ -47,12 +58,15 @@ const DirectMessageBubble: React.FC<DirectMessageBubbleProps> = ({
         ),
       );
     }
+    if (isGroupChat && !message.sender) {
+      setMemberInfo(extractMemberInfo(groupInfo, message.memberId));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
   return (
     <View style={styles.parentContainer}>
       <View>
-        {message.isDateBoundary ? (
+        {isDateBoundary ? (
           <View style={styles.dateContainer}>
             <NumberlessRegularText style={styles.dateStamp}>
               {createDateBoundaryStamp(message.timestamp)}
@@ -63,14 +77,28 @@ const DirectMessageBubble: React.FC<DirectMessageBubbleProps> = ({
         )}
       </View>
       <View style={containerType}>
+        <View>
+          {!isDataMessage(message.contentType) &&
+            isGroupChat &&
+            !message.sender && (
+              <Image
+                source={{uri: chooseProfileURI()}}
+                style={styles.displayPicContainer}
+              />
+            )}
+        </View>
         <View style={blobType}>
-          {renderBubbleType(message, handlePress, handleLongPress)}
+          {renderBubbleType(
+            message,
+            handlePress,
+            handleLongPress,
+            findMemberName(memberInfo),
+          )}
         </View>
       </View>
     </View>
   );
 };
-
 /**
  * Decides the styling of the container - data, sender or receiver container and blobs
  * @param contentType - message content type
@@ -88,6 +116,12 @@ function initialStylePicker(contentType: ContentType, sender: boolean) {
         return [styles.RecieverContainer, styles.ReceiverBlob];
     }
   }
+}
+function findMemberName(memberInfo: any) {
+  if (memberInfo.memberId) {
+    return memberInfo.name || DEFAULT_NAME;
+  }
+  return '';
 }
 function selectedMessageBackgroundStylePicker(
   contentType: ContentType,
@@ -134,6 +168,7 @@ function renderBubbleType(
   message: SavedMessageParams,
   handlePress: any,
   handleLongPress: any,
+  memberName: string = '',
 ) {
   /**
    * @todo add styling properly
@@ -143,22 +178,25 @@ function renderBubbleType(
       return (
         <TextBubble
           message={message}
+          memberName={memberName}
           handlePress={handlePress}
           handleLongPress={handleLongPress}
         />
       );
     case ContentType.image:
       return (
-        <MediaBubble
+        <ImageBubble
           message={message}
+          memberName={memberName}
           handlePress={handlePress}
           handleLongPress={handleLongPress}
         />
       );
     case ContentType.video:
       return (
-        <MediaBubble
+        <VideoBubble
           message={message}
+          memberName={memberName}
           handlePress={handlePress}
           handleLongPress={handleLongPress}
         />
@@ -167,12 +205,20 @@ function renderBubbleType(
       return (
         <FileBubble
           message={message}
+          memberName={memberName}
           handlePress={handlePress}
           handleLongPress={handleLongPress}
         />
       );
     default:
       return <DataBubble {...message} />;
+  }
+}
+function chooseProfileURI(imageUri: string = '') {
+  if (imageUri !== undefined && imageUri !== '') {
+    return `file://${imageUri}`;
+  } else {
+    return Image.resolveAssetSource(DefaultImage).uri;
   }
 }
 
@@ -208,7 +254,7 @@ const styles = StyleSheet.create({
   },
   RecieverContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     justifyContent: 'flex-start',
     width: '100%',
     paddingLeft: 5,
@@ -275,7 +321,7 @@ const styles = StyleSheet.create({
     maxWidth: '70%',
   },
   SenderSelectedBlob: {
-    backgroundColor: '#A3A3A3',
+    backgroundColor: '#81C2FF',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 16,
@@ -287,13 +333,13 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 5,
     paddingRight: 20,
-    borderWidth: 0.5,
+    borderWidth: 2,
     marginRight: 5,
-    borderColor: '#E5E5E5',
+    borderColor: '#547CEF',
     maxWidth: '70%',
   },
   ReceiverSelectedBlob: {
-    backgroundColor: '#A3A3A3',
+    backgroundColor: '#81C2FF',
     borderTopLeftRadius: 0,
     borderTopRightRadius: 16,
     borderBottomLeftRadius: 16,
@@ -305,14 +351,24 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 5,
     paddingRight: 20,
-    borderWidth: 0.5,
+    borderWidth: 2,
     marginLeft: 5,
-    borderColor: '#E5E5E5',
+    borderColor: '#547CEF',
     maxWidth: '70%',
   },
   text: {
     color: '#000000',
   },
+  displayPicContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+  },
+  displayPicParent: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+  },
 });
 
-export default DirectMessageBubble;
+export default MessageBubble;

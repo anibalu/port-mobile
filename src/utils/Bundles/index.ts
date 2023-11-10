@@ -1,58 +1,24 @@
-import store from '../../store/appStore';
-import {
-  DirectConnectionBundle,
-  GeneratedDirectConnectionBundle,
-} from './interfaces';
-import * as storage from '../../utils/Storage/bundles';
-import {getDirectConnectionLink} from '../ConnectionLinks';
-import {generateKeyPair, generateRandomNonce} from '../Crypto/x25519';
-import {sha256} from '../Crypto/sha';
-import {generateISOTimeStamp} from '../Time';
-import {BUNDLE_VALIDITY_INTERVAL} from '../../configs/constants';
-import {connectionFsSync} from '../Synchronization';
-
-/**
- * Checks if a bundle is still valid.
- * @param {string} timestamp - timestamp of when the bundle was created
- * @param {number} acceptedDuration - how long the bundle is valid
- * @returns {boolean} - true if token is still valid
- */
-function checkBundleValidity(
-  timestamp: string,
-  acceptedDuration: number = BUNDLE_VALIDITY_INTERVAL,
-): boolean {
-  try {
-    const timeStamp: Date = new Date(timestamp);
-    const now: Date = new Date();
-    const timeDiff = now.getTime() - timeStamp.getTime();
-    if (timeDiff <= acceptedDuration) {
-      return true;
-    } else {
-      return false;
-    }
-  } catch (error) {
-    return false;
-  }
-}
+import {ConnectionType} from '../Connections/interfaces';
+import {handshakeActionsB1} from '../DirectChats/handshake';
+import {handshakeActionsG1} from '../Groups/handshake';
+import {BundleReadResponse, ConnectionBundle} from './interfaces';
 
 /**
  * Check if bundle data string is of correct format and return parsed Direct connection bundle object.
  * @param {string} rawData - bundle data string that needs to be parsed and checked.
  * @throws {Error} - If bundle data format is incorrect.
- * @returns {DirectConnectionBundle} - successfully parsed bundle data.
+ * @returns {ConnectionBundle} - successfully parsed bundle data.
  */
-export function checkDirectConnectionBundleDataFormat(
-  rawData: string,
-): DirectConnectionBundle {
-  const bundle: DirectConnectionBundle = JSON.parse(rawData);
+function checkConnectionBundleDataFormat(rawData: string) {
+  const bundle: ConnectionBundle = JSON.parse(rawData);
   if (bundle.org !== 'numberless.tech') {
     throw new Error('Organisation data incorrect');
   }
   if (
     !(
-      bundle.type === 'port' ||
-      bundle.type === 'group' ||
-      bundle.type === 'superport'
+      bundle.connectionType === ConnectionType.direct ||
+      bundle.connectionType === ConnectionType.group ||
+      bundle.connectionType === ConnectionType.superport
     )
   ) {
     throw new Error('Bundle type not supported');
@@ -63,190 +29,25 @@ export function checkDirectConnectionBundleDataFormat(
   return bundle;
 }
 
-/**
- * Loads read bundles to store
- */
-export async function loadReadDirectConnectionBundlesToStore() {
+export async function ReadConnectionBundle(
+  rawData: string,
+): Promise<BundleReadResponse> {
   try {
-    await getReadDirectConnectionBundles();
+    const bundle = checkConnectionBundleDataFormat(rawData);
+    switch (bundle.connectionType) {
+      case ConnectionType.direct:
+        return await handshakeActionsB1(bundle);
+      case ConnectionType.group:
+        // add group handshake action
+        return await handshakeActionsG1(bundle);
+      case ConnectionType.superport:
+        // add superport handshake action
+        return BundleReadResponse.formatError;
+      default:
+        throw new Error('Bundle connection type error');
+    }
   } catch (error) {
-    console.log(
-      'Error loading bundles from storage and loading to store: ',
-      error,
-    );
-  }
-}
-
-/**
- * Saves read bundle.
- * @param {DirectConnectionBundle} bundle - bundle to be saved.
- */
-export async function saveReadDirectConnectionBundle(
-  bundle: DirectConnectionBundle,
-) {
-  //add to cache
-  store.dispatch({
-    type: 'ADD_TO_READ_BUNDLES',
-    payload: bundle,
-  });
-  //add to storage
-  const entireState = store.getState();
-  const bundles: DirectConnectionBundle[] = entireState.readBundles.bundles;
-  await storage.saveReadDirectConnectionBundles([...bundles, bundle]);
-}
-
-/**
- * saves generated bundle to storage.
- * @param {GeneratedDirectConnectionBundle} bundle - generated bundle to save
- */
-export async function saveGeneratedDirectConnectionBundle(
-  bundle: GeneratedDirectConnectionBundle,
-) {
-  const generatedBundles = await getGeneratedDirectConnectionBundles();
-  await storage.saveGeneratedDirectConnectionBundles([
-    ...generatedBundles,
-    bundle,
-  ]);
-}
-
-export async function deleteGeneratedDirectConnectionBundle(linkId: string) {
-  const synced = async () => {
-    const generatedBundles = await getGeneratedDirectConnectionBundles();
-    await storage.saveGeneratedDirectConnectionBundles(
-      generatedBundles.filter(bundle => bundle.data.linkId !== linkId),
-    );
-  };
-  await connectionFsSync(synced);
-}
-
-/**
- * Gets the read direct connection bundles. cleans up and automatically removes timed out bundles
- * @returns {Promise<DirectConnectionBundle[]>} - A promise that resolves to the read direct connection bundles.
- */
-export async function getReadDirectConnectionBundles(): Promise<
-  DirectConnectionBundle[]
-> {
-  const entireState = store.getState();
-  const bundles: DirectConnectionBundle[] = entireState.readBundles.bundles;
-  if (bundles.length === 0) {
-    const readBundles = await storage.getReadDirectConnectionBundles();
-    if (readBundles.length === 0) {
-      return readBundles;
-    }
-    const validReadBundles = readBundles.filter(bundle =>
-      checkBundleValidity(bundle.timestamp),
-    );
-    if (validReadBundles.length !== readBundles.length) {
-      await storage.saveReadDirectConnectionBundles(validReadBundles);
-    }
-    if (validReadBundles.length >= 1) {
-      store.dispatch({
-        type: 'UPDATE_READ_BUNDLES',
-        payload: validReadBundles,
-      });
-    }
-    return validReadBundles;
-  } else {
-    const validReadBundles = bundles.filter(bundle =>
-      checkBundleValidity(bundle.timestamp),
-    );
-    if (validReadBundles.length !== bundles.length) {
-      if (validReadBundles.length >= 1) {
-        store.dispatch({
-          type: 'UPDATE_READ_BUNDLES',
-          payload: validReadBundles,
-        });
-      }
-    }
-    return validReadBundles;
-  }
-}
-
-/**
- * Gets the generated direct connection bundles. cleans up and automatically removes timed out bundles
- * @returns {Promise<GeneratedDirectConnectionBundle[]>} - A promise that resolves to the generated direct connection bundles.
- */
-export async function getGeneratedDirectConnectionBundles(): Promise<
-  GeneratedDirectConnectionBundle[]
-> {
-  const generatedBundles = await storage.getGeneratedDirectConnectionBundles();
-  const validGeneratedBundles = generatedBundles.filter(bundle =>
-    checkBundleValidity(bundle.timestamp),
-  );
-  if (validGeneratedBundles.length !== generatedBundles.length) {
-    await storage.saveGeneratedDirectConnectionBundles(validGeneratedBundles);
-  }
-  return validGeneratedBundles;
-}
-
-/**
- * Gets a generated direct connection bundle.
- * @param {string} linkId - linkId of the generated bundle
- * @returns {Promise<GeneratedDirectConnectionBundle>} - A promise that resolves to the generated direct connection bundle.
- */
-export async function getGeneratedDirectConnectionBundle(
-  linkId: string,
-): Promise<GeneratedDirectConnectionBundle> {
-  const generatedBundles = await getGeneratedDirectConnectionBundles();
-  let index: number = generatedBundles.findIndex(
-    obj => obj.data.linkId === linkId,
-  );
-  if (index === -1) {
-    throw new Error('No such generated direct connection bundle');
-  }
-  return generatedBundles[index];
-}
-
-/**
- * generates a valid bundle and returns it. return null incase of failure.
- * @returns {Promise<DirectConnectionBundle | null>} - depending on whether the generate was successful
- */
-export async function generateDirectConnectionBundle(): Promise<DirectConnectionBundle> {
-  const linkId = await getDirectConnectionLink();
-  if (linkId === null) {
-    throw new Error('out of links');
-  } else {
-    const keys = await generateKeyPair();
-    const nonce = await generateRandomNonce();
-    const hash = await sha256(keys.pubKey);
-    const bundle: DirectConnectionBundle = {
-      org: 'numberless.tech',
-      timestamp: generateISOTimeStamp(),
-      type: 'port',
-      version: '1.0.0',
-      data: {
-        linkId: linkId,
-        nonce: nonce,
-        pubkeyHash: hash,
-      },
-    };
-    const generatedBundle: GeneratedDirectConnectionBundle = {
-      ...bundle,
-      keys: keys,
-      timestamp: generateISOTimeStamp(),
-    };
-    await saveGeneratedDirectConnectionBundle(generatedBundle);
-    return bundle;
-  }
-}
-
-/**
- * Updates the generated connection bundle label
- * @param {string} linkId  - linkId to find the generated bundle
- * @param {string} newLabel - new label to update with
- */
-export async function updateGeneratedDirectConnectionBundleLabel(
-  linkId: string,
-  newLabel: string,
-) {
-  let generatedBundles = await getGeneratedDirectConnectionBundles();
-  let index: number = generatedBundles.findIndex(
-    obj => obj.data.linkId === linkId,
-  );
-  if (index !== -1) {
-    generatedBundles[index].label = newLabel;
-    await storage.saveGeneratedDirectConnectionBundles(generatedBundles);
-  } else {
-    throw new Error('No such generated direct connection bundle');
+    console.log('Error reading bundle: ', error);
+    return BundleReadResponse.formatError;
   }
 }

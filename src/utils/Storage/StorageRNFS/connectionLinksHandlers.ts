@@ -1,6 +1,11 @@
 import RNFS from 'react-native-fs';
-import {connectionLinksPath, connnectionLinksDir} from '../../../configs/paths';
+import {
+  connectionLinksPath,
+  connnectionLinksDir,
+  groupConnectionLinksPath,
+} from '../../../configs/paths';
 import {connectionFsSync} from '../../Synchronization';
+import {initialiseChatIdDirAsync} from './messagesHandlers';
 
 const DEFAULT_ENCODING = 'utf8';
 
@@ -30,6 +35,16 @@ async function getDirectConnectionLinksPath(): Promise<string> {
 }
 
 /**
+ * Retrieves the path to the group connection links data file inside the group chat directory.
+ * @param {string} groupId - groupId of group.
+ * @returns {Promise<string>} The path to the direct connection links data file.
+ */
+async function getGroupConnectionLinksPath(groupId: string): Promise<string> {
+  const groupsDataPath = await initialiseChatIdDirAsync(groupId);
+  return groupsDataPath + groupConnectionLinksPath;
+}
+
+/**
  * adds new direct connection links to file
  * @param {string[]} links - new direct connection links to add to file
  * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
@@ -40,6 +55,40 @@ export async function writeNewDirectConnectionLinksRNFS(
 ) {
   const synced = async () => {
     const pathToFile = await getDirectConnectionLinksPath();
+    const isFile = await RNFS.exists(pathToFile);
+    if (isFile) {
+      const linksDataJSON = await RNFS.readFile(pathToFile, DEFAULT_ENCODING);
+      const linksData: Array<string> = JSON.parse(linksDataJSON);
+      const newLinks: Array<string> = [...links, ...linksData];
+      await RNFS.writeFile(
+        pathToFile,
+        JSON.stringify(newLinks),
+        DEFAULT_ENCODING,
+      );
+    } else {
+      await RNFS.writeFile(pathToFile, JSON.stringify(links), DEFAULT_ENCODING);
+    }
+  };
+  if (blocking) {
+    await connectionFsSync(synced);
+  } else {
+    await synced();
+  }
+}
+
+/**
+ * adds new group connection links to file
+ * @param {string} groupId - groupId of group.
+ * @param {string[]} links - new group connection links to add to file
+ * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
+ */
+export async function writeNewGroupConnectionLinksRNFS(
+  groupId: string,
+  links: Array<string>,
+  blocking: boolean = false,
+) {
+  const synced = async () => {
+    const pathToFile = await getGroupConnectionLinksPath(groupId);
     const isFile = await RNFS.exists(pathToFile);
     if (isFile) {
       const linksDataJSON = await RNFS.readFile(pathToFile, DEFAULT_ENCODING);
@@ -82,6 +131,28 @@ export async function writeDirectConnectionLinksRNFS(
 }
 
 /**
+ * overwrites file with new group connection links
+ * @param {string} groupId - groupId of group.
+ * @param {string[]} links - new group connection links
+ * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
+ */
+export async function writeGroupConnectionLinksRNFS(
+  groupId: string,
+  links: Array<string>,
+  blocking: boolean = false,
+) {
+  const synced = async () => {
+    const pathToFile = await getGroupConnectionLinksPath(groupId);
+    await RNFS.writeFile(pathToFile, JSON.stringify(links), DEFAULT_ENCODING);
+  };
+  if (blocking) {
+    await connectionFsSync(synced);
+  } else {
+    await synced();
+  }
+}
+
+/**
  * returns unused direct connection links in file
  * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
  * @returns {string[]} - unused direct connection links.
@@ -91,6 +162,34 @@ export async function readDirectConnectionLinksRNFS(
 ): Promise<string[]> {
   const synced = async () => {
     const pathToFile = await getDirectConnectionLinksPath();
+    const isFile = await RNFS.exists(pathToFile);
+    if (isFile) {
+      const linksDataJSON = await RNFS.readFile(pathToFile, DEFAULT_ENCODING);
+      const linksData: Array<string> = JSON.parse(linksDataJSON);
+      return linksData;
+    } else {
+      return [];
+    }
+  };
+  if (blocking) {
+    return await connectionFsSync(synced);
+  } else {
+    return await synced();
+  }
+}
+
+/**
+ * returns unused group connection links in file
+ * @param {string} groupId - groupId of group.
+ * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
+ * @returns {string[]} - unused group connection links.
+ */
+export async function readGroupConnectionLinksRNFS(
+  groupId: string,
+  blocking: boolean = false,
+): Promise<string[]> {
+  const synced = async () => {
+    const pathToFile = await getGroupConnectionLinksPath(groupId);
     const isFile = await RNFS.exists(pathToFile);
     if (isFile) {
       const linksDataJSON = await RNFS.readFile(pathToFile, DEFAULT_ENCODING);

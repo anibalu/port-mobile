@@ -2,50 +2,46 @@ import React, {useState} from 'react';
 import {
   StyleSheet,
   StatusBar,
-  FlatList,
   ImageBackground,
   View,
+  Image,
 } from 'react-native';
 import {SafeAreaView} from '../../components/SafeAreaView';
 import {useFocusEffect, useRoute} from '@react-navigation/native';
-import DirectMessageBubble from './DirectMessageBubble';
 import Topbar from './Topbar';
 import {MessageBar} from './MessageBar';
 import store from '../../store/appStore';
-import {checkDateBoundary} from '../../utils/Time';
 import {SavedMessageParams} from '../../utils/Messaging/interfaces';
 import {getConnection, toggleRead} from '../../utils/Connections';
 import {readMessages} from '../../utils/Storage/messages';
 import {MessageActionsBar} from './MessageActionsBar';
 import DeleteChatButton from '../../components/DeleteChatButton';
+import {ConnectionType} from '../../utils/Connections/interfaces';
+import {getGroupInfo} from '../../utils/Storage/group';
+import ChatList from './ChatList';
+import DefaultImage from '../../../assets/avatars/avatar.png';
 
 /**
  * Renders a chat screen.
  * @returns Component for rendered chat window
  */
-function DirectChat() {
+function Chat() {
   const route = useRoute();
   //gets lineId of chat
   const {chatId} = route.params;
-
-  //render function to display message bubbles
-  function renderMessage(message: SavedMessageParams) {
-    return (
-      <DirectMessageBubble
-        message={message}
-        selected={selectedMessages}
-        handlePress={handleMessageBubbleShortPress}
-        handleLongPress={handleMessageBubbleLongPress}
-      />
-    );
-  }
   //Name to be displayed in topbar
   const [name, setName] = useState('');
+  const [isGroupChat, setIsGroupChat] = useState<boolean>(false);
+  const [groupInfo, setGroupInfo] = useState({});
   const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
   //selected messages
   const [selectedMessages, setSelectedMessages] = useState<Array<string>>([]);
   // Track whether the connection is disconnected
   const [connectionConnected, setConnectionConnected] = useState(true);
+  const [profileURI, setProfileURI] = useState(
+    Image.resolveAssetSource(DefaultImage).uri,
+  );
+
   //handles selecting messages
   const handleMessageBubbleLongPress = (messageId: string) => {
     //adds messageId to selected messages on long press
@@ -68,23 +64,6 @@ function DirectChat() {
       }
     }
   };
-  //function that returns a date boundary added array.
-  const dateParse = (messageArray: Array<SavedMessageParams>) => {
-    return messageArray.map((element, index, array) => {
-      if (index === 0) {
-        let newItem = element;
-        newItem.isDateBoundary = true;
-        return newItem;
-      } else {
-        let newItem = element;
-        newItem.isDateBoundary = checkDateBoundary(
-          element.timestamp,
-          array[index - 1].timestamp,
-        );
-        return newItem;
-      }
-    });
-  };
   //effect runs when screen is focused
   //retrieves name of connection
   //toggles messages as read
@@ -93,14 +72,21 @@ function DirectChat() {
     React.useCallback(() => {
       (async () => {
         const connection = await getConnection(chatId);
+        if (connection.pathToDisplayPic && connection.pathToDisplayPic !== '') {
+          setProfileURI(`file://${connection.pathToDisplayPic}`);
+        }
         //set connection name
         setName(connection.name);
+        if (connection.connectionType === ConnectionType.group) {
+          setIsGroupChat(true);
+          setGroupInfo(await getGroupInfo(chatId));
+        }
         //sets connection connected state
         setConnectionConnected(!connection.disconnected);
         //toggle chat as read
         await toggleRead(chatId);
-        //set saved messages and do a date parse
-        setMessages(dateParse(await readMessages(chatId)));
+        //set saved messages
+        setMessages(await readMessages(chatId));
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
@@ -112,7 +98,10 @@ function DirectChat() {
     React.useCallback(() => {
       const unsubscribe = store.subscribe(async () => {
         //set latest messages
-        setMessages(dateParse(await readMessages(chatId)));
+        if (isGroupChat) {
+          setGroupInfo(await getGroupInfo(chatId));
+        }
+        setMessages(await readMessages(chatId));
         //toggle chat as read
         await toggleRead(chatId);
       });
@@ -135,21 +124,19 @@ function DirectChat() {
       <Topbar
         name={name}
         chatId={chatId}
+        profileURI={profileURI}
         selectedMessages={selectedMessages}
         setSelectedMessages={setSelectedMessages}
+        isGroupChat={isGroupChat}
       />
-      {/* TODO: Refactor this to follow the correct structure when directMessageContent is refactored */}
-      <FlatList
-        data={messages}
-        renderItem={element => renderMessage(element.item)}
-        keyExtractor={message => message.messageId}
-        ref={flatList}
-        onContentSizeChange={() => {
-          //initiates a scroll to the end when a new message is sent or recieved
-          if (messages.length > 1) {
-            flatList.current.scrollToEnd({animated: false});
-          }
-        }}
+      <ChatList
+        messages={messages}
+        flatList={flatList}
+        selectedMessages={selectedMessages}
+        handlePress={handleMessageBubbleShortPress}
+        handleLongPress={handleMessageBubbleLongPress}
+        isGroupChat={isGroupChat}
+        groupInfo={groupInfo}
       />
       {connectionConnected ? (
         <View style={styles.bottomBar}>
@@ -163,6 +150,7 @@ function DirectChat() {
               chatId={chatId}
               flatlistRef={flatList}
               listLen={messages.length}
+              isGroupChat={isGroupChat}
             />
           )}
         </View>
@@ -202,4 +190,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DirectChat;
+export default Chat;

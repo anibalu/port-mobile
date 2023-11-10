@@ -1,9 +1,10 @@
 import axios from 'axios';
 import {BUNDLE_MANAGEMENT_RESOURCE} from '../../configs/api';
 import {connectionFsSync} from '../Synchronization';
-import {handshakeActionsB1} from '.';
+import {handshakeActionsB1} from '../DirectChats/handshake';
 import {getToken} from '../ServerAuth';
-import {DirectConnectionBundle} from '../Bundles/interfaces';
+import {ConnectionType} from '../Connections/interfaces';
+import {handshakeActionsG1} from '../Groups/handshake';
 
 interface urlObject {
   url: string | null;
@@ -12,7 +13,6 @@ export async function handleDeepLink(urlObj: urlObject) {
   const synced = async () => {
     const url = urlObj.url;
     if (url) {
-      console.log(url);
       let regex = /[?&]([^=#]+)=([^&#]*)/g,
         params = {},
         match;
@@ -25,18 +25,23 @@ export async function handleDeepLink(urlObj: urlObject) {
     }
     return null;
   };
-  const bundle = await connectionFsSync(synced);
-  if (bundle) {
-    await handshakeActionsB1(bundle);
+  try {
+    const bundle = JSON.parse(await connectionFsSync(synced));
+    if (bundle.connectionType === ConnectionType.direct) {
+      await handshakeActionsB1(bundle);
+    }
+    if (bundle.connectionType === ConnectionType.group) {
+      await handshakeActionsG1(bundle);
+    }
+  } catch (error) {
+    console.log('Error with deep linking: ', error);
   }
 }
 
-export async function getBundle(
-  bundleId: string,
-): Promise<DirectConnectionBundle | null> {
+export async function getBundle(bundleId: string): Promise<string | null> {
   try {
     const response = await axios.get(
-      BUNDLE_MANAGEMENT_RESOURCE + '?bundleId=' + bundleId,
+      `${BUNDLE_MANAGEMENT_RESOURCE}?bundleId=${encodeURIComponent(bundleId)}`,
     );
     return response.data.bundle;
   } catch (error) {
@@ -47,23 +52,16 @@ export async function getBundle(
 
 export async function convertBundleToLink(bundleData: string) {
   const bundleId = await postBundle(bundleData);
-  if (bundleId) {
-    const url = 'https://it.numberless.tech/connect?bundleId=' + bundleId;
-    return url;
-  }
-  return '';
+  const url = 'https://it.numberless.tech/connect?bundleId=' + bundleId;
+  console.log('url: ', url);
+  return url;
 }
 
 export async function postBundle(bundleString: string): Promise<string | null> {
-  try {
-    const token = await getToken();
-    const response = await axios.post(BUNDLE_MANAGEMENT_RESOURCE, {
-      token: token,
-      bundle: bundleString,
-    });
-    return response.data.bundleId;
-  } catch (error) {
-    console.log('Error in posting bundle: ', error);
-    return null;
-  }
+  const token = await getToken();
+  const response = await axios.post(BUNDLE_MANAGEMENT_RESOURCE, {
+    token: token,
+    bundle: bundleString,
+  });
+  return response.data.bundleId;
 }

@@ -27,21 +27,26 @@ export function getTimeStamp(ISOTime: string | undefined): string {
 }
 
 export function checkDateBoundary(
-  ISOTimeString1: string | undefined,
-  ISOTimeString2: string | undefined,
+  ISOTimeString1: string | null,
+  ISOTimeString2: string | null,
 ) {
-  if (!ISOTimeString1 || !ISOTimeString2) {
-    return false;
-  } else {
-    const date1 = new Date(ISOTimeString1);
-    const date2 = new Date(ISOTimeString2);
+  try {
+    if (!ISOTimeString1 || !ISOTimeString2) {
+      return false;
+    } else {
+      const date1 = new Date(ISOTimeString1);
+      const date2 = new Date(ISOTimeString2);
 
-    // Compare the year, month, and day components of the dates.
-    return (
-      date1.getFullYear() !== date2.getFullYear() ||
-      date1.getMonth() !== date2.getMonth() ||
-      date1.getDate() !== date2.getDate()
-    );
+      // Compare the year, month, and day components of the dates.
+      return (
+        date1.getFullYear() !== date2.getFullYear() ||
+        date1.getMonth() !== date2.getMonth() ||
+        date1.getDate() !== date2.getDate()
+      );
+    }
+  } catch (error) {
+    console.log('Check date boundary error: ', error);
+    return false;
   }
 }
 
@@ -90,3 +95,57 @@ export function timeStringToObject(timestamp: string) {
 export const wait = async (delay: number = ARTIFICIAL_LOADER_INTERVAL) => {
   return new Promise(resolve => setTimeout(resolve, delay));
 };
+
+//create a function to take in an ISO timestamp string like the first function in this module and return a date string to display in your component.
+export function getTimeAndDateStamp(isoString: string | undefined): string {
+  if (!isoString) {
+    return '';
+  }
+  const inputDate = new Date(isoString);
+  const currentDate = new Date();
+
+  // Format options for the date and time
+  const options = {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  };
+  if (inputDate.toDateString() === currentDate.toDateString()) {
+    // Format time only for today
+    return `Today, ${inputDate.toLocaleTimeString('en-US', options)}`;
+  } else if (
+    inputDate.toDateString() ===
+    currentDate.setDate(currentDate.getDate() - 1).toDateString()
+  ) {
+    // Format time only for yesterday
+    return `Yesterday, ${inputDate.toLocaleTimeString('en-US', options)}`;
+  } else {
+    // Format date and time for other dates
+    const formattedDate = inputDate.toLocaleDateString('en-US');
+    const formattedTime = inputDate.toLocaleTimeString('en-US', options);
+    return `${formattedTime}, ${formattedDate}`;
+  }
+}
+
+export function getDateStamp(isoString: string | undefined): string {
+  if (!isoString) {
+    return '';
+  }
+  const inputDate = new Date(isoString);
+  const currentDate = new Date();
+
+  if (inputDate.toDateString() === currentDate.toDateString()) {
+    // Format time only for today
+    return 'Today';
+  } else if (
+    inputDate.toDateString() ===
+    currentDate.setDate(currentDate.getDate() - 1).toDateString()
+  ) {
+    // Format time only for yesterday
+    return 'Yesterday';
+  } else {
+    // Format date
+    const formattedDate = inputDate.toLocaleDateString('en-US');
+    return `${formattedDate}`;
+  }
+}

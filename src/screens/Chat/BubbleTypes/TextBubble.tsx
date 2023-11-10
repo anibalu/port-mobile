@@ -1,27 +1,39 @@
 import React from 'react';
 import {View, StyleSheet, Pressable} from 'react-native';
-import {NumberlessRegularText} from '../../../components/NumberlessText';
+import {
+  NumberlessMediumText,
+  NumberlessRegularText,
+} from '../../../components/NumberlessText';
 import {getTimeStamp} from '../../../utils/Time';
 import {
   SavedMessageParams,
   SendStatus,
 } from '../../../utils/Messaging/interfaces';
 import Sending from '../../../../assets/icons/sending.svg';
+import {DEFAULT_NAME} from '../../../configs/constants';
 
 export default function TextBubble({
   message,
   handlePress,
   handleLongPress,
+  memberName,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
+  memberName: string;
 }) {
   return (
     <Pressable
       style={styles.textBubbleContainer}
       onPress={() => handlePress(message.messageId)}
       onLongPress={() => handleLongPress(message.messageId)}>
+      <View>
+        {renderProfileName(
+          shouldRenderProfileName(message, memberName),
+          memberName,
+        )}
+      </View>
       <NumberlessRegularText style={styles.text}>
         {message.data.text || ''}
       </NumberlessRegularText>
@@ -60,6 +72,29 @@ export default function TextBubble({
   );
 }
 
+function shouldRenderProfileName(
+  message: SavedMessageParams,
+  memberName: string,
+) {
+  if (memberName === '') {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function renderProfileName(shouldRender: boolean, name: string = DEFAULT_NAME) {
+  return (
+    <View>
+      {shouldRender ? (
+        <NumberlessMediumText>{name}</NumberlessMediumText>
+      ) : (
+        <View />
+      )}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
@@ -76,7 +111,7 @@ const styles = StyleSheet.create({
   },
   timeStamp: {
     fontSize: 10,
-    color: '#B7B6B6',
+    color: '#868686',
   },
   failedStamp: {
     fontSize: 10,

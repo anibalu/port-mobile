@@ -5,12 +5,15 @@
 import React, {useEffect, useState} from 'react';
 import {ImageBackground, Modal, Pressable, StatusBar, View} from 'react-native';
 import {Image, StyleSheet} from 'react-native';
-import {NumberlessSemiBoldText} from '../../components/NumberlessText';
+import {
+  NumberlessRegularText,
+  NumberlessSemiBoldText,
+} from '../../components/NumberlessText';
 import NamePopup from './UpdateNamePopup';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import BackTopbar from '../../components/BackTopBar';
 
-import defaultImage from '../../../assets/avatars/avatar.png';
+import DefaultImage from '../../../assets/avatars/avatar.png';
 import EditIcon from '../../../assets/icons/Pencil.svg';
 import PermissionsDropdown from '../../components/PermissionsDropdown/PermissionsDropdown';
 import {DEFAULT_NAME} from '../../configs/constants';
@@ -18,13 +21,16 @@ import {SafeAreaView} from '../../components/SafeAreaView';
 import {getConnection} from '../../utils/Connections';
 import DisconnectButton from './DisconnectButton';
 import DeleteChatButton from '../../components/DeleteChatButton';
+import GreyArrowRight from '../../../assets/icons/GreyArrowRight.svg';
+import Gallery from '../../../assets/icons/Gallery.svg';
+import Files from '../../../assets/icons/Files.svg';
 
 function ContactProfile() {
   const route = useRoute();
   const {chatId} = route.params;
 
   const [profileURI, setProfileURI] = useState(
-    Image.resolveAssetSource(defaultImage).uri,
+    Image.resolveAssetSource(DefaultImage).uri,
   );
   const [name, setName] = useState(DEFAULT_NAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
@@ -66,7 +72,7 @@ function ContactProfile() {
           onPress={() => {
             navigation.navigate('ImageView', {
               imageURI: profileURI,
-              title: nickname,
+              title: name,
             });
           }}>
           <Image source={{uri: profileURI}} style={styles.profilePic} />
@@ -87,7 +93,30 @@ function ContactProfile() {
           </View>
         </View>
       </View>
-      <PermissionsDropdown chatId={chatId} />
+      <PermissionsDropdown bold={true} chatId={chatId} />
+      <View style={styles.content}>
+        <NumberlessSemiBoldText style={styles.contentTitle}>
+          Content
+        </NumberlessSemiBoldText>
+        <Pressable
+          style={styles.galleryButton}
+          onPress={() => navigation.navigate('ViewPhotosVideos', {chatId})}>
+          <Gallery />
+          <NumberlessRegularText style={styles.galleryText}>
+            Gallery
+          </NumberlessRegularText>
+          <GreyArrowRight />
+        </Pressable>
+        <Pressable
+          style={styles.galleryButton}
+          onPress={() => navigation.navigate('ViewFiles', {chatId})}>
+          <Files />
+          <NumberlessRegularText style={styles.galleryText}>
+            Files
+          </NumberlessRegularText>
+          <GreyArrowRight />
+        </Pressable>
+      </View>
       {connected ? (
         <DisconnectButton chatId={chatId} />
       ) : (
@@ -190,6 +219,33 @@ const styles = StyleSheet.create({
   popupPosition: {
     position: 'absolute',
     bottom: 0,
+  },
+  content: {
+    width: '90%',
+    alignSelf: 'center',
+  },
+  contentTitle: {
+    fontSize: 15,
+    color: 'black',
+    overflow: 'hidden',
+    marginBottom: 10,
+  },
+  galleryText: {
+    fontSize: 17,
+    color: 'black',
+    overflow: 'hidden',
+    width: '75%',
+    marginLeft: 20,
+  },
+  galleryButton: {
+    width: '100%',
+    height: 70,
+    padding: 10,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
 });
 

@@ -1,5 +1,8 @@
 import axios from 'axios';
-import {MESSAGING_RESOURCE} from '../../configs/api';
+import {
+  DIRECT_MESSAGING_RESOURCE,
+  GROUP_MESSAGING_RESOURCE,
+} from '../../configs/api';
 import {
   ContentType,
   SavedMessageParams,
@@ -29,7 +32,7 @@ import {ReadStatus} from '../Connections/interfaces';
 import store from '../../store/appStore';
 
 /**
- * The function used to send direct messages. The send operation has the following flow:
+ * The function used to send messages. The send operation has the following flow:
  * If the message being sent is a new message (not an old message being resent from journal):
  * 1. MessageId is added to "sending" queue on store and message is saved to storage with an "undefined" send status
  * 2. Send is attempted.
@@ -54,13 +57,13 @@ import store from '../../store/appStore';
  * @param {} journal
  * @returns
  */
-export async function sendDirectMessage(
+export async function sendMessage(
   chatId: string,
   message: SendMessageParams,
   journal: boolean = true,
+  isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //ensure message has a valid message Id
-  console.log('send message invoked');
   const tempMessageId = message.messageId || generateTempMessageId();
   const newMessage: SendMessageParamsStrict = {
     ...message,
@@ -69,20 +72,20 @@ export async function sendDirectMessage(
   //handle message differently for content types.
   switch (message.contentType) {
     case ContentType.text: {
-      return await sendTextDirectMessage(chatId, newMessage, journal);
+      return await sendTextMessage(chatId, newMessage, journal, isGroup);
     }
     case ContentType.name: {
-      return await sendNameDirectMessage(chatId, newMessage, journal);
+      return await sendNameMessage(chatId, newMessage, journal, isGroup);
     }
     case ContentType.displayImage:
-      return await sendMediaDirectMessage(chatId, newMessage, journal);
+      return await sendMediaMessage(chatId, newMessage, journal, isGroup);
     case ContentType.video:
-      return await sendMediaDirectMessage(chatId, newMessage, journal);
+      return await sendMediaMessage(chatId, newMessage, journal, isGroup);
     case ContentType.image: {
-      return await sendMediaDirectMessage(chatId, newMessage, journal);
+      return await sendMediaMessage(chatId, newMessage, journal, isGroup);
     }
     case ContentType.file: {
-      return await sendFileDirectMessage(chatId, newMessage, journal);
+      return await sendFileMessage(chatId, newMessage, journal, isGroup);
     }
     case ContentType.handshakeA1: {
       return await sendHandshakeDirectMessage(chatId, newMessage, journal);
@@ -117,10 +120,11 @@ async function journalingFailedActions(
   return {sendStatus: SendStatus.failed, message: message};
 }
 
-async function sendTextDirectMessage(
+async function sendTextMessage(
   chatId: string,
   message: SendMessageParamsStrict,
   journal: boolean = true,
+  isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //add messageId (with sender prefix) to sending queue on store
   store.dispatch({
@@ -146,7 +150,7 @@ async function sendTextDirectMessage(
   );
   //try sending
   try {
-    await trySendingMessage(chatId, ciphertext);
+    await trySendingMessage(chatId, ciphertext, isGroup);
     //if succeeds:
     //update message send status in storage
     await updateMessageSendStatus(
@@ -315,10 +319,11 @@ async function sendHandshakeDirectMessage(
   }
 }
 
-async function sendNameDirectMessage(
+async function sendNameMessage(
   chatId: string,
   message: SendMessageParamsStrict,
   journal: boolean = true,
+  isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //add messageId (with sender prefix) to sending queue on store
   store.dispatch({
@@ -344,7 +349,7 @@ async function sendNameDirectMessage(
   );
   //try sending
   try {
-    await trySendingMessage(chatId, ciphertext);
+    await trySendingMessage(chatId, ciphertext, isGroup);
     //if succeeds:
     //update message send status in storage
     await updateMessageSendStatus(
@@ -407,10 +412,11 @@ async function sendNameDirectMessage(
   }
 }
 
-async function sendMediaDirectMessage(
+async function sendMediaMessage(
   chatId: string,
   message: SendMessageParamsStrict,
   journal: boolean = true,
+  isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //add messageId (with sender prefix) to sending queue on store
   store.dispatch({
@@ -421,7 +427,7 @@ async function sendMediaDirectMessage(
   //1. mediaId created
   if (message.data.mediaId !== null && message.data.mediaId !== undefined) {
     //sending is routine
-    return await mediaIdExistsActions(chatId, message, journal);
+    return await mediaIdExistsActions(chatId, message, journal, isGroup);
   }
   //2. mediaId not yet created
   else {
@@ -461,6 +467,7 @@ async function sendMediaDirectMessage(
         chatId,
         {...message, data: newData},
         journal,
+        isGroup,
       );
     } catch (error) {
       console.log('Error fetching mediaId and key: ', error);
@@ -469,10 +476,11 @@ async function sendMediaDirectMessage(
   }
 }
 
-async function sendFileDirectMessage(
+async function sendFileMessage(
   chatId: string,
   message: SendMessageParamsStrict,
   journal: boolean = true,
+  isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //add messageId (with sender prefix) to sending queue on store
   store.dispatch({
@@ -483,7 +491,7 @@ async function sendFileDirectMessage(
   //1. mediaId created
   if (message.data.mediaId !== null && message.data.mediaId !== undefined) {
     //sending is routine
-    return await mediaIdExistsActions(chatId, message, journal);
+    return await mediaIdExistsActions(chatId, message, journal, isGroup);
   }
   //2. mediaId not yet created
   else {
@@ -520,6 +528,7 @@ async function sendFileDirectMessage(
         chatId,
         {...message, data: newData},
         journal,
+        isGroup,
       );
     } catch (error) {
       console.log('Error fetching mediaId and key: ', error);
@@ -532,6 +541,7 @@ async function mediaIdExistsActions(
   chatId: string,
   message: SendMessageParamsStrict,
   journal: boolean = true,
+  isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   const newMessage = {
     ...message,
@@ -561,7 +571,7 @@ async function mediaIdExistsActions(
   );
   //try sending
   try {
-    await trySendingMessage(chatId, ciphertext);
+    await trySendingMessage(chatId, ciphertext, isGroup);
     //if succeeds:
     //update message send status in storage
     await updateMessageSendStatus(
@@ -650,13 +660,23 @@ async function mediaIdExistsActions(
 async function trySendingMessage(
   chatId: string,
   message: string,
+  isGroup: boolean = false,
 ): Promise<void> {
   const token: ServerAuthToken = await getToken();
-  await axios.post(MESSAGING_RESOURCE, {
-    token: token,
-    message: message,
-    line: chatId,
-  });
+  if (isGroup) {
+    await axios.post(GROUP_MESSAGING_RESOURCE, {
+      token: token,
+      type: 'group',
+      message: message,
+      chat: chatId,
+    });
+  } else {
+    await axios.post(DIRECT_MESSAGING_RESOURCE, {
+      token: token,
+      message: message,
+      line: chatId,
+    });
+  }
   console.log('messages sent: ', JSON.parse(message));
 }
 
@@ -683,7 +703,7 @@ export async function tryToSendJournaled() {
   while (journaledMessages.length > 0) {
     const {contentType, messageType, data, replyId, messageId, chatId} =
       journaledMessages[0];
-    const sendOutput = await sendDirectMessage(
+    const sendOutput = await sendMessage(
       chatId,
       {
         messageType,

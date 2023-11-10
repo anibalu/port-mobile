@@ -10,8 +10,8 @@ import {disconnectConnection} from '../../utils/Connections';
  */
 export default function DisconnectButton(props: {chatId: string}) {
   const navigation = useNavigation();
-  const invokeConnectionDisconnect = () => {
-    disconnectConnection(props.chatId);
+  const invokeConnectionDisconnect = async () => {
+    await disconnectConnection(props.chatId);
     navigation.navigate('Home');
   };
 

@@ -2,7 +2,7 @@ import messaging from '@react-native-firebase/messaging';
 import axios from 'axios';
 import store from '../../store/appStore';
 import {INITIAL_POST_MANAGEMENT_RESOURCE} from '../../configs/api';
-import {receiveDirectMessage} from './receiveDirectMessage';
+import {receiveMessage} from './receiveMessage';
 import {getToken} from '../ServerAuth';
 
 export const getFCMToken = async () => {
@@ -13,21 +13,17 @@ export const getFCMToken = async () => {
 export const registerBackgroundMessaging = () => {
   messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log('background triggered', remoteMessage.data);
-    //update latest message to store
-    const chatId: string = remoteMessage.data.lineId;
     //recieve message
-    await receiveDirectMessage(chatId, remoteMessage);
+    await receiveMessage(remoteMessage);
     store.dispatch({type: 'NEW_MESSAGE', payload: remoteMessage});
   });
 };
 
 export const foregroundMessageHandler = () => {
   messaging().onMessage(async remoteMessage => {
-    console.log('foreground triggered', remoteMessage.data);
-    //update latest message to store
-    const chatId: string = remoteMessage.data.lineId;
+    console.log('background triggered', remoteMessage);
     //recieve message
-    await receiveDirectMessage(chatId, remoteMessage);
+    await receiveMessage(remoteMessage);
     store.dispatch({type: 'NEW_MESSAGE', payload: remoteMessage});
   });
 };

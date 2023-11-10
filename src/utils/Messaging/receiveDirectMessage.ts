@@ -10,7 +10,7 @@ import {
   handshakeActionsA1,
   handshakeActionsA2,
   handshakeActionsB2,
-} from '../Handshake';
+} from '../DirectChats/handshake';
 import {displaySimpleNotification} from '../Notifications';
 import {
   saveToFilesDir,
@@ -30,11 +30,10 @@ import {
 } from './largeData';
 
 export async function receiveDirectMessage(
-  chatId: string,
   messageFCM: any,
 ): Promise<ReceiveStatus> {
   try {
-    console.log('receive message invoked');
+    const chatId: string = messageFCM.data.lineId;
     const messageData = messageFCM.data;
     const sentTime = new Date(messageFCM.sentTime);
     const timestamp = sentTime.toISOString();
@@ -44,14 +43,12 @@ export async function receiveDirectMessage(
       await handshakeActionsA1(chatId, messageData.lineLinkId);
       return ReceiveStatus.success;
     }
-
     //if received message has message content, receive the message based on content type of the message.
     if (messageData.messageContent) {
       //messageContent is ciphertext. we decrypt it
       const message: SendMessageParamsStrict = JSON.parse(
         await decryptMessage(chatId, messageData.messageContent),
       );
-      console.log('received message: ', message);
       switch (message.contentType) {
         case ContentType.text: {
           return await receiveTextDirectMessage(chatId, message, timestamp);

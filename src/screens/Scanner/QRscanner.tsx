@@ -11,7 +11,7 @@ import TorchOff from '../../../assets/icons/TorchOff.svg';
 import {checkCameraPermission} from '../../utils/AppPermissions';
 import {useNavigation} from '@react-navigation/native';
 import {BundleReadResponse} from '../../utils/Bundles/interfaces';
-import {handshakeActionsB1} from '../../utils/Handshake';
+import {ReadConnectionBundle} from '../../utils/Bundles';
 
 export default function QRScanner() {
   const navigation = useNavigation();
@@ -61,8 +61,7 @@ export default function QRScanner() {
   useEffect(() => {
     if (qrData !== '') {
       //this makes scan happen only once
-      console.log('qr code scanned');
-      handshakeActionsB1(qrData).then(ret => {
+      ReadConnectionBundle(qrData).then(ret => {
         if (ret === BundleReadResponse.success) {
           navigation.navigate('Home');
         } else {

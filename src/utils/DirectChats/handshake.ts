@@ -2,75 +2,69 @@
  * handshake protocols for direct connections.
  * For the purposes of this module, we call bundle generator Alice(A) and the bundle reader Bob(B).
  */
-import {BundleReadResponse} from '../Bundles/interfaces';
 import {
-  AttemptNewDirectConnection,
+  BundleReadResponse,
+  DirectConnectionBundle,
+} from '../Bundles/interfaces';
+import {
   addConnection,
   deleteConnection,
+  getConnection,
   toggleAuthenticated,
 } from '../Connections';
+import {AttemptNewDirectChat} from '.';
 import {
-  checkDirectConnectionBundleDataFormat,
   deleteGeneratedDirectConnectionBundle,
   getGeneratedDirectConnectionBundle,
   saveReadDirectConnectionBundle,
-} from '../Bundles';
+} from '../Bundles/direct';
 import {ConnectionType, ReadStatus} from '../Connections/interfaces';
-import {defaultPermissions} from '../ChatPermissions/default';
+import {defaultDirectPermissions} from '../ChatPermissions/default';
 import {ContentType, MessageType} from '../Messaging/interfaces';
 import {generateISOTimeStamp} from '../Time';
 import {getChatCrypto, saveChatCrypto} from '../Storage/crypto';
-import {sendDirectMessage} from '../Messaging/sendDirectMessage';
+import {sendMessage} from '../Messaging/sendMessage';
 import {sha256} from '../Crypto/sha';
 import {generateKeyPair, generateSharedKey} from '../Crypto/x25519';
 import {decryptMessage, encryptMessage} from '../Crypto/aes';
-import {getProfileName} from '../Profile';
+import {getProfileName, getProfilePictureAttributes} from '../Profile';
 import store from '../../store/appStore';
 
 /**
  * Actions performed when a connection bundle is read by Bob.
- * @param {string} rawBundle - stringified connection bundle that is read.
+ * @param {DirectConnectionBundle} bundle - direct connection bundle that is read.
  * @returns {Promise<BundleReadResponse>} - based on whether actions succeeded or failed or encountered a format error. If failed becuase of network reasons, actions need to be triggered again.
  */
 export async function handshakeActionsB1(
-  rawBundle: string,
+  bundle: DirectConnectionBundle,
 ): Promise<BundleReadResponse> {
   try {
-    //check if the bundle data is of the right format
-    const bundle = checkDirectConnectionBundleDataFormat(rawBundle);
-    try {
-      //try creating a chatId by posting the direct connection link id.
-      const chatId: string = await AttemptNewDirectConnection(
-        bundle.data.linkId,
-      );
-      //if chatId received, add an unauthenticated connection.
-      await addConnection({
-        chatId: chatId,
-        connectionType: ConnectionType.direct,
-        name: '',
-        permissions: defaultPermissions,
-        recentMessageType: ContentType.newChat,
-        readStatus: ReadStatus.new,
-        authenticated: false,
-        timestamp: generateISOTimeStamp(),
-        newMessageCount: 0,
-      });
-      //save the nonce and pubkey hash from bundle into crypto storage.
-      await saveChatCrypto(
-        chatId,
-        {nonce: bundle.data.nonce, pubKeyHash: bundle.data.pubkeyHash},
-        true,
-      );
-      return BundleReadResponse.success;
-    } catch (error) {
-      console.log('Network issue in creating chatId', error);
-      //if network issue, save the read bundle to bundle storage and try again later.
-      await saveReadDirectConnectionBundle(bundle);
-      return BundleReadResponse.networkError;
-    }
+    //try creating a chatId by posting the direct connection link id.
+    const chatId: string = await AttemptNewDirectChat(bundle.data.linkId);
+    //if chatId received, add an unauthenticated connection.
+    await addConnection({
+      chatId: chatId,
+      connectionType: ConnectionType.direct,
+      name: '',
+      permissions: defaultDirectPermissions,
+      recentMessageType: ContentType.newChat,
+      readStatus: ReadStatus.new,
+      authenticated: false,
+      timestamp: generateISOTimeStamp(),
+      newMessageCount: 0,
+    });
+    //save the nonce and pubkey hash from bundle into crypto storage.
+    await saveChatCrypto(
+      chatId,
+      {nonce: bundle.data.nonce, pubKeyHash: bundle.data.pubkeyHash},
+      true,
+    );
+    return BundleReadResponse.success;
   } catch (error) {
-    console.log('Bundle format is incorrect, Handshake B1 error', error);
-    return BundleReadResponse.formatError;
+    console.log('Network issue in creating chatId', error);
+    //if network issue, save the read bundle to bundle storage and try again later.
+    await saveReadDirectConnectionBundle(bundle);
+    return BundleReadResponse.networkError;
   }
 }
 
@@ -92,19 +86,19 @@ export async function handshakeActionsA1(
         connectionLinkId: connectionLinkId,
       },
     });
-    //load up corresponding generated bundle, add label as name and delete it.
-    const bundle = await getGeneratedDirectConnectionBundle(connectionLinkId);
     await addConnection({
       chatId: chatId,
       connectionType: ConnectionType.direct,
-      name: bundle.label || '',
-      permissions: defaultPermissions,
+      name: '',
+      permissions: defaultDirectPermissions,
       recentMessageType: ContentType.newChat,
       readStatus: ReadStatus.new,
       authenticated: false,
       timestamp: generateISOTimeStamp(),
       newMessageCount: 0,
     });
+    //load up corresponding generated bundle and delete it.
+    const bundle = await getGeneratedDirectConnectionBundle(connectionLinkId);
     await deleteGeneratedDirectConnectionBundle(connectionLinkId);
     //save nonce and keys from generated bundle to crypto storage
     await saveChatCrypto(
@@ -118,7 +112,7 @@ export async function handshakeActionsA1(
       true,
     );
     //send public key.
-    await sendDirectMessage(chatId, {
+    await sendMessage(chatId, {
       contentType: ContentType.handshakeA1,
       messageType: MessageType.new,
       data: {pubKey: bundle.keys.pubKey},
@@ -166,18 +160,29 @@ export async function handshakeActionsB2(chatId: string, peerPubKey: string) {
     //encrypt saved nonce
     const encryptedNonce = await encryptMessage(chatId, cryptoData.nonce || '');
     //send a message with your pubkey and encrypted nonce
-    await sendDirectMessage(chatId, {
+    await sendMessage(chatId, {
       contentType: ContentType.handshakeB2,
       messageType: MessageType.new,
       data: {pubKey: keys.pubKey, encryptedNonce: encryptedNonce},
     });
     //send a message with your name.
-    await sendDirectMessage(chatId, {
+    await sendMessage(chatId, {
       contentType: ContentType.name,
       messageType: MessageType.new,
       data: {name: await getProfileName()},
     });
-    //todo: add send your profile picture if that permission is given
+    //send your profile picture if that permission is given
+    const connection = await getConnection(chatId);
+    if (connection.permissions.displayPicture?.toggled) {
+      const file = await getProfilePictureAttributes();
+      if (file) {
+        await sendMessage(chatId, {
+          contentType: ContentType.displayImage,
+          messageType: MessageType.new,
+          data: {...file},
+        });
+      }
+    }
   } catch (error) {
     console.log('Handshake B2 error', error);
   }
@@ -224,12 +229,23 @@ export async function handshakeActionsA2(
       throw new Error('Encrypted Nonce Authentication Failed');
     }
     //send a message with your name.
-    await sendDirectMessage(chatId, {
+    await sendMessage(chatId, {
       contentType: ContentType.name,
       messageType: MessageType.new,
       data: {name: await getProfileName()},
     });
-    //todo: add send your profile picture if that permission is given
+    //send your profile picture if that permission is given
+    const connection = await getConnection(chatId);
+    if (connection.permissions.displayPicture?.toggled) {
+      const file = await getProfilePictureAttributes();
+      if (file) {
+        await sendMessage(chatId, {
+          contentType: ContentType.displayImage,
+          messageType: MessageType.new,
+          data: {...file},
+        });
+      }
+    }
   } catch (error) {
     console.log('Handshake A2 error', error);
   }

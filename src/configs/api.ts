@@ -6,7 +6,11 @@ export const AUTH_SERVER_CHALLENGE_RESOURCE =
 export const LINE_LINKS_MANAGEMENT_RESOURCE =
   MANAGEMENT_BASE_URL + 'line-links';
 export const LINE_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + 'line';
-export const MESSAGING_RESOURCE = MESSAGING_BASE_URL + 'line';
+export const DIRECT_MESSAGING_RESOURCE = MESSAGING_BASE_URL + 'line';
 export const BUNDLE_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + 'bundle';
 export const LARGE_FILE_PRESIGNED_URL_RESOURE =
   'https://un386pb1xc.execute-api.ap-south-1.amazonaws.com/default/multimedia';
+export const GROUP_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + 'group';
+export const GROUP_LINKS_MANAGEMENT_RESOURCE =
+  MANAGEMENT_BASE_URL + 'group-links';
+export const GROUP_MESSAGING_RESOURCE = MESSAGING_BASE_URL + 'message';

@@ -5,6 +5,6 @@ export interface Permission {
 
 export interface Permissions {
   notifications: Permission;
-  displayPicture: Permission;
   autoDownload: Permission;
+  displayPicture?: Permission;
 }

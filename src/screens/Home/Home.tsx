@@ -27,8 +27,6 @@ function renderDefaultTile() {
   return <DefaultChatTile />;
 }
 
-const defaultConnectionList = [{id: 'default'}];
-
 function Home() {
   const [connections, setConnections] = useState<Array<ConnectionInfo>>(
     fetchStoreConnections(),
@@ -88,21 +86,13 @@ function Home() {
         style={styles.background}
       />
       <Topbar unread={totalUnread} filter="All" />
-      {connections.length < 1 ? (
-        <FlatList
-          data={defaultConnectionList}
-          renderItem={() => renderDefaultTile()}
-          style={styles.chats}
-          keyExtractor={item => item.id}
-        />
-      ) : (
-        <FlatList
-          data={connections}
-          renderItem={element => renderChatTile(element.item)}
-          style={styles.chats}
-          keyExtractor={connection => connection.chatId}
-        />
-      )}
+      <FlatList
+        data={connections}
+        renderItem={element => renderChatTile(element.item)}
+        style={styles.chats}
+        keyExtractor={connection => connection.chatId}
+        ListEmptyComponent={renderDefaultTile}
+      />
       <BottomNavigator active={Page.home} />
     </SafeAreaView>
   );

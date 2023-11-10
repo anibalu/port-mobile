@@ -20,6 +20,7 @@ import {
   setNewProfilePicture,
 } from '../../utils/Profile';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import PendingContacts from './PendingContacts';
 
 function MyProfile() {
   const [profileURI, setProfileURI] = useState(
@@ -120,6 +121,9 @@ function MyProfile() {
             </Pressable>
           </View>
         </View>
+      </View>
+      <View style={styles.cards}>
+        <PendingContacts />
       </View>
       <Modal animationType="none" visible={editingName} transparent={true}>
         <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
@@ -228,6 +232,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
+  },
+  cards: {
+    paddingLeft: 10,
+    paddingRight: 10,
   },
 });
 

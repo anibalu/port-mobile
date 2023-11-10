@@ -147,6 +147,15 @@ export async function getProfilePicture(): Promise<string | null> {
   }
 }
 
+export async function getProfilePictureAttributes(): Promise<FileAttributes | null> {
+  try {
+    const file: FileAttributes = await storage.getProfilePicAttributes(true);
+    return file;
+  } catch (error) {
+    return null;
+  }
+}
+
 /**
  * Sets new profile picture with new file attributes
  * @param {FileAttributes} file - new profile picture file attributes

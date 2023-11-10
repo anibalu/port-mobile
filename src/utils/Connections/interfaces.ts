@@ -2,8 +2,9 @@ import {Permissions} from '../ChatPermissions/interfaces';
 import {ContentType} from '../Messaging/interfaces';
 
 export enum ConnectionType {
-  direct,
-  group,
+  'direct',
+  'group',
+  'superport',
 }
 
 export enum ReadStatus {

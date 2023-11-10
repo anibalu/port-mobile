@@ -137,7 +137,7 @@ export async function updateConnectionOnNewMessage(
 }
 
 /**
- * updates a connection as with new info.
+ * updates a connection as with new info. Updated connection doesn't move to the top of the array.
  * @param {ConnectionInfoUpdate} update - connection info to update with
  */
 export async function updateConnection(update: ConnectionInfoUpdate) {
@@ -260,27 +260,6 @@ export async function deleteAllConnections() {
 }
 
 /**
- * Attempts to initiate a new direct chat using a lineLink Id.
- * @param {string} connectionLink - lineLink Id used to initiate a new direct chat
- * @throws {Error} - If there is an error generating chat Id.
- * @returns {Promise<string | null>} - based on whether direct chat creation succeeds on the server.
- */
-export async function AttemptNewDirectConnection(
-  connectionLink: string,
-): Promise<string> {
-  const token = await getToken();
-  const response = await axios.post(LINE_MANAGEMENT_RESOURCE, {
-    token: token,
-    lineLinkId: connectionLink,
-  });
-  if (response.data.newLine !== undefined) {
-    const chatId: string = response.data.newLine;
-    return chatId;
-  }
-  throw new Error('APIError');
-}
-
-/**
  * Please try to link to store to get list of connections, or get a specific connection info.
  * Only if that's not appropriate, use these helpers.
  */
@@ -331,7 +310,14 @@ export async function getConnectionPermissions(
 }
 
 export async function disconnectConnection(chatId: string) {
-  const token = await getToken();
-  await updateConnection({chatId: chatId, disconnected: true});
-  await axios.patch(LINE_MANAGEMENT_RESOURCE, {chatId, token});
+  try {
+    const token = await getToken();
+    await axios.patch(LINE_MANAGEMENT_RESOURCE, {
+      lineId: chatId,
+      token: token,
+    });
+    await updateConnection({chatId: chatId, disconnected: true});
+  } catch (error) {
+    console.log('failed to disconnect: ', error);
+  }
 }

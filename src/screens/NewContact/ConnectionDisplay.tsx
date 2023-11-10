@@ -30,8 +30,8 @@ import Share from 'react-native-share';
 import {
   generateDirectConnectionBundle,
   updateGeneratedDirectConnectionBundleLabel,
-} from '../../utils/Bundles';
-import {convertBundleToLink} from '../../utils/Handshake/deepLinking';
+} from '../../utils/Bundles/direct';
+import {convertBundleToLink} from '../../utils/DeepLinking';
 
 function ConnectionDisplay() {
   const navigation = useNavigation();
@@ -39,7 +39,6 @@ function ConnectionDisplay() {
   const [generate, setGenerate] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
   const [bundleGenError, setBundleGenError] = useState(false);
-  const [linkData, setLinkData] = useState<string>('');
   const [label, setLabel] = useState<string>('');
   const [lastSaveLabel, setLastSaveLabel] = useState<string>('');
   const [saveVisible, setSaveVisible] = useState(false);
@@ -69,38 +68,25 @@ function ConnectionDisplay() {
 
   //converts qr bundle into link.
   const fetchLinkData = async () => {
-    try {
-      if (!isLoadingBundle && !bundleGenError) {
-        const link = await convertBundleToLink(qrCodeData);
-        setLinkData(link);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Error fetching Link:', error);
-      return false;
+    if (!isLoadingBundle && !bundleGenError) {
+      const link = await convertBundleToLink(qrCodeData);
+      return link;
     }
+    throw new Error('Bundle incomplete');
   };
 
   //handles sharing in link form
   const handleShare = async () => {
     try {
-      const canShare = await fetchLinkData();
-      if (canShare) {
-        const shareContent = {
-          title: 'Create a new Port',
-          message: linkData,
-        };
-        await Share.open(shareContent);
-      } else {
-        ToastAndroid.show(
-          'Link could not be created. Check your internet connection.',
-          ToastAndroid.SHORT,
-        );
-      }
+      const linkData = await fetchLinkData();
+      const shareContent = {
+        title: 'Create a new Port',
+        message: linkData,
+      };
+      await Share.open(shareContent);
     } catch (error) {
       ToastAndroid.show(
-        'Error sharing content. Check your internet connection.',
+        'Error sharing content. Error fetching link',
         ToastAndroid.SHORT,
       );
       console.log('Error sharing content: ', error);

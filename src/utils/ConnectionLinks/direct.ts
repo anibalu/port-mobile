@@ -18,14 +18,11 @@ export async function getNewDirectConnectionLinks(
 ): Promise<string[] | null> {
   try {
     const token = await getToken(blocking);
-    if (token) {
-      const response = await axios.post(LINE_LINKS_MANAGEMENT_RESOURCE, {
-        token: token,
-      });
-      const connectionLinks: string[] = response.data;
-      return connectionLinks;
-    }
-    throw new Error('TokenError');
+    const response = await axios.post(LINE_LINKS_MANAGEMENT_RESOURCE, {
+      token: token,
+    });
+    const connectionLinks: string[] = response.data;
+    return connectionLinks;
   } catch (error) {
     console.log('Error getting direct connection links:', error);
     return null;
@@ -39,7 +36,7 @@ export async function getNewDirectConnectionLinks(
 export async function getInitialDirectConnectionLinks(): Promise<boolean> {
   const newLinks = await getNewDirectConnectionLinks(true);
   if (newLinks !== null) {
-    await saveNewDirectConnectionLinks(newLinks);
+    await saveNewDirectConnectionLinks(newLinks, true);
     return true;
   }
   return false;

@@ -125,3 +125,17 @@ async function getTempFileId() {
   const date = new Date();
   return date.getTime().toString();
 }
+
+//use this function to fetch media files of a particular chat
+export async function fetchFilesInMediaDir(chatId: string) {
+  const chatIdDir = await initialiseLargeFileDirAsync(chatId);
+  const pathToMediaDir = chatIdDir + mediaDir;
+  const files = await RNFS.readDir(pathToMediaDir);
+  return files;
+}
+export async function fetchFilesInFileDir(chatId: string) {
+  const chatIdDir = await initialiseLargeFileDirAsync(chatId);
+  const pathToFileDir = chatIdDir + filesDir;
+  const files = await RNFS.readDir(pathToFileDir);
+  return files;
+}

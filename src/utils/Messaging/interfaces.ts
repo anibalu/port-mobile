@@ -102,9 +102,9 @@ export interface JournaledMessageParams extends SendMessageParamsStrict {
  */
 export interface SavedMessageParams extends JournaledMessageParams {
   sender: boolean;
+  memberId?: string;
   timestamp: string;
   sendStatus?: SendStatus;
-  isDateBoundary?: boolean;
 }
 
 export interface SendingMessageParams {

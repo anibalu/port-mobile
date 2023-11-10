@@ -1,6 +1,21 @@
 import {Permissions} from './interfaces';
 
-export const defaultPermissions: Permissions = {
+export const defaultDirectPermissions: Permissions = {
+  notifications: {
+    name: 'Notifications',
+    toggled: true,
+  },
+  displayPicture: {
+    name: 'Display Picture',
+    toggled: true,
+  },
+  autoDownload: {
+    name: 'Media AutoDownload',
+    toggled: true,
+  },
+};
+
+export const defaultGroupPermissions: Permissions = {
   notifications: {
     name: 'Notifications',
     toggled: true,

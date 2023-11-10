@@ -2,6 +2,9 @@ import {
   readDirectConnectionLinksRNFS,
   writeDirectConnectionLinksRNFS,
   writeNewDirectConnectionLinksRNFS,
+  writeNewGroupConnectionLinksRNFS,
+  readGroupConnectionLinksRNFS,
+  writeGroupConnectionLinksRNFS,
 } from './StorageRNFS/connectionLinksHandlers';
 
 /**
@@ -37,4 +40,45 @@ export async function saveDirectConnectionLinks(
   blocking: boolean = false,
 ) {
   await writeDirectConnectionLinksRNFS(links, blocking);
+}
+
+/**
+ * adds new group connection links to storage
+ * @param {string} groupId - groupId of group.
+ * @param {string[]} links - new group connection links to add to storage
+ * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
+ */
+export async function saveNewGroupConnectionLinks(
+  groupId: string,
+  links: Array<string>,
+  blocking: boolean = false,
+) {
+  await writeNewGroupConnectionLinksRNFS(groupId, links, blocking);
+}
+
+/**
+ * returns unused group connection links in storage
+ * @param {string} groupId - groupId of group.
+ * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
+ * @returns {string[]} - unused direct connection links.
+ */
+export async function getUnusedGroupConnectionLinks(
+  groupId: string,
+  blocking: boolean = false,
+) {
+  return await readGroupConnectionLinksRNFS(groupId, blocking);
+}
+
+/**
+ * overwrites storage with new group connection links
+ * @param {string} groupId - groupId of group.
+ * @param {string[]} links - new group connection links
+ * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
+ */
+export async function saveGroupConnectionLinks(
+  groupId: string,
+  links: Array<string>,
+  blocking: boolean = false,
+) {
+  await writeGroupConnectionLinksRNFS(groupId, links, blocking);
 }

@@ -1,13 +1,18 @@
+import {ConnectionType} from '../Connections/interfaces';
 import {KeyPair} from '../Crypto/interfaces';
+
+export interface ConnectionBundle {
+  org: string;
+  timestamp: string;
+  connectionType: ConnectionType;
+  version: string;
+  data: any;
+}
 
 /**
  * Format of data shared over a direct connection mechanism (like QR)
  */
-export interface DirectConnectionBundle {
-  org: string;
-  timestamp: string;
-  type: string; //port, superport or group
-  version: string;
+export interface DirectConnectionBundle extends ConnectionBundle {
   data: {
     linkId: string;
     nonce?: string;
@@ -35,4 +40,15 @@ export enum BundleReadResponse {
 
 export interface DirectConnectionBundles {
   bundles: DirectConnectionBundle[];
+}
+
+/**
+ * Format of data shared over a group connection mechanism (like QR)
+ */
+export interface GroupConnectionBundle extends ConnectionBundle {
+  data: {
+    linkId: string;
+    name: string;
+    description?: string;
+  };
 }

@@ -1,33 +1,57 @@
-import React from 'react';
-import {View, StyleSheet, Pressable} from 'react-native';
-import {NumberlessRegularText} from '../../../components/NumberlessText';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, Pressable, Image, Dimensions} from 'react-native';
+import {
+  NumberlessMediumText,
+  NumberlessRegularText,
+} from '../../../components/NumberlessText';
 import {getTimeStamp} from '../../../utils/Time';
 import {
   SavedMessageParams,
   SendStatus,
 } from '../../../utils/Messaging/interfaces';
 import Sending from '../../../../assets/icons/sending.svg';
+import {DEFAULT_NAME} from '../../../configs/constants';
+import FileViewer from 'react-native-file-viewer';
+import DefaultImage from '../../../../assets/avatars/avatar.png';
 
-export default function MediaBubble({
+export default function VideoBubble({
   message,
   handlePress,
   handleLongPress,
+  memberName,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
+  memberName: string;
 }) {
+  const [profileURI, setProfileURI] = useState(
+    Image.resolveAssetSource(DefaultImage).uri,
+  );
+  useEffect(() => {
+    if (message.data.fileUri) {
+      setProfileURI('file://' + message.data.fileUri);
+    }
+  }, [message]);
   return (
     <Pressable
       style={styles.textBubbleContainer}
       onPress={() => handlePress(message.messageId)}
       onLongPress={() => handleLongPress(message.messageId)}>
-      <NumberlessRegularText style={styles.text}>
-        {'data message: ' + message.contentType.toString()}
-      </NumberlessRegularText>
-      <NumberlessRegularText style={styles.text}>
-        {JSON.stringify(message.data)}
-      </NumberlessRegularText>
+      <View>
+        {renderProfileName(
+          shouldRenderProfileName(message, memberName),
+          memberName,
+        )}
+      </View>
+      <Pressable
+        onPress={() => {
+          FileViewer.open(profileURI, {
+            showOpenWithDialog: true,
+          });
+        }}>
+        <Image source={{uri: profileURI}} style={styles.image} />
+      </Pressable>
       <View style={styles.timeStampContainer}>
         {message.sendStatus === SendStatus.success || !message.sender ? (
           <View>
@@ -63,6 +87,29 @@ export default function MediaBubble({
   );
 }
 
+function shouldRenderProfileName(
+  message: SavedMessageParams,
+  memberName: string,
+) {
+  if (memberName === '') {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function renderProfileName(shouldRender: boolean, name: string = DEFAULT_NAME) {
+  return (
+    <View>
+      {shouldRender ? (
+        <NumberlessMediumText>{name}</NumberlessMediumText>
+      ) : (
+        <View />
+      )}
+    </View>
+  );
+}
+const viewWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
@@ -79,7 +126,7 @@ const styles = StyleSheet.create({
   },
   timeStamp: {
     fontSize: 10,
-    color: '#B7B6B6',
+    color: '#868686',
   },
   failedStamp: {
     fontSize: 10,
@@ -87,5 +134,10 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#000000',
+  },
+  image: {
+    height: 0.7 * viewWidth - 40, // Set the maximum height you desire
+    width: 0.7 * viewWidth - 40, // Set the maximum width you desire
+    borderRadius: 16,
   },
 });

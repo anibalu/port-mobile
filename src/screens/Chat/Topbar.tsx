@@ -1,5 +1,5 @@
 import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
+import {Image, Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {BackButton} from '../../components/BackButton';
@@ -10,40 +10,51 @@ import Cross from '../../../assets/icons/cross.svg';
 function Topbar({
   name,
   chatId,
+  //profile Uri
   selectedMessages,
   setSelectedMessages,
+  isGroupChat,
+  profileURI,
 }: {
   name: string;
   chatId: string;
+  //type string
   selectedMessages: string[];
   setSelectedMessages: any;
+  isGroupChat: boolean;
+  profileURI?: string;
 }) {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>
-      <BackButton
-        style={styles.backIcon}
-        onPress={() => {
-          setSelectedMessages([]);
-          navigation.goBack();
-        }}
-      />
-      <View style={styles.titleBar}>
-        {selectedMessages.length >= 1 ? (
-          <NumberlessSemiBoldText
-            style={styles.selectedCount}
-            ellipsizeMode="tail"
-            numberOfLines={1}>
-            {selectedMessages.length.toString() + '  selected'}
-          </NumberlessSemiBoldText>
-        ) : (
-          <NumberlessSemiBoldText
-            style={styles.title}
-            ellipsizeMode="tail"
-            numberOfLines={1}>
-            {name}
-          </NumberlessSemiBoldText>
+      <View style={styles.backAndProfile}>
+        <BackButton
+          style={styles.backIcon}
+          onPress={() => {
+            setSelectedMessages([]);
+            navigation.goBack();
+          }}
+        />
+        {profileURI && (
+          <Image source={{uri: profileURI}} style={styles.profile} />
         )}
+        <View style={styles.titleBar}>
+          {selectedMessages.length >= 1 ? (
+            <NumberlessSemiBoldText
+              style={styles.selectedCount}
+              ellipsizeMode="tail"
+              numberOfLines={1}>
+              {selectedMessages.length.toString() + '  selected'}
+            </NumberlessSemiBoldText>
+          ) : (
+            <NumberlessSemiBoldText
+              style={styles.title}
+              ellipsizeMode="tail"
+              numberOfLines={1}>
+              {name}
+            </NumberlessSemiBoldText>
+          )}
+        </View>
       </View>
       <View>
         {selectedMessages.length >= 1 ? (
@@ -58,7 +69,11 @@ function Topbar({
           <Pressable
             style={styles.settingsBox}
             onPress={() => {
-              navigation.navigate('ContactProfile', {chatId});
+              if (isGroupChat) {
+                navigation.navigate('GroupProfile', {groupId: chatId});
+              } else {
+                navigation.navigate('ContactProfile', {chatId});
+              }
             }}>
             <SettingsIcon width={20} />
           </Pressable>
@@ -74,22 +89,22 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     paddingRight: '6%',
     paddingLeft: '6%',
     backgroundColor: '#FFF',
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
-    height: 51,
+    height: 70,
   },
   titleBar: {
-    width: '60%',
+    marginLeft: 10,
+    maxWidth: '60%',
   },
   selectedCount: {
     fontSize: 17,
     lineHeight: 28,
     color: 'black',
-    marginTop: 10,
     overflow: 'hidden',
     width: '100%',
     textAlign: 'center',
@@ -98,26 +113,31 @@ const styles = StyleSheet.create({
     fontSize: 21,
     lineHeight: 28,
     color: 'black',
-    marginTop: 10,
     overflow: 'hidden',
     width: '100%',
     textAlign: 'center',
   },
   backIcon: {
-    paddingTop: 16,
     alignItems: 'flex-start',
-    width: 50,
-    height: 51,
   },
   settingsBox: {
     width: 50,
     alignItems: 'flex-end',
-    paddingTop: 12,
   },
   crossBox: {
     width: 50,
     alignItems: 'flex-end',
-    paddingTop: 8,
+  },
+  profile: {
+    height: 50,
+    width: 50,
+    borderRadius: 20,
+    marginLeft: -20,
+  },
+  backAndProfile: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
 });
 

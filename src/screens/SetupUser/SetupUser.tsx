@@ -12,7 +12,7 @@ import Avatar from '../../../assets/avatars/avatar1.svg';
 import {DEFAULT_NAME} from '../../configs/constants';
 import {setupNewProfile} from '../../utils/Profile';
 import {ProfileStatus} from '../../utils/Profile/interfaces';
-import {getInitialDirectConnectionLinks} from '../../utils/ConnectionLinks';
+import {getInitialDirectConnectionLinks} from '../../utils/ConnectionLinks/direct';
 import {initialiseFCM} from '../../utils/Messaging/fcm';
 
 function SetupUser() {

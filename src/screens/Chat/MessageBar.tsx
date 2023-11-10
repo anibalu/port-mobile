@@ -20,10 +20,20 @@ import DocumentPicker, {
 } from 'react-native-document-picker';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import {FileAttributes} from '../../utils/Storage/sharedFile';
-import {sendDirectMessage} from '../../utils/Messaging/sendDirectMessage';
+import {sendMessage} from '../../utils/Messaging/sendMessage';
 import {ContentType, MessageType} from '../../utils/Messaging/interfaces';
 
-export function MessageBar({chatId, flatlistRef, listLen}) {
+export function MessageBar({
+  chatId,
+  flatlistRef,
+  listLen,
+  isGroupChat,
+}: {
+  chatId: string;
+  flatlistRef: any;
+  listLen: number;
+  isGroupChat: boolean;
+}) {
   const viewWidth = Dimensions.get('window').width;
   const inputTextBarWidth = viewWidth - 126;
   const [text, setText] = useState('');
@@ -47,11 +57,16 @@ export function MessageBar({chatId, flatlistRef, listLen}) {
     if (processedText !== '') {
       setText('');
       //send text message
-      await sendDirectMessage(chatId, {
-        contentType: ContentType.text,
-        messageType: MessageType.new,
-        data: {text: processedText},
-      });
+      await sendMessage(
+        chatId,
+        {
+          contentType: ContentType.text,
+          messageType: MessageType.new,
+          data: {text: processedText},
+        },
+        true,
+        isGroupChat,
+      );
     }
   };
   const onImagePressed = async () => {
@@ -68,14 +83,18 @@ export function MessageBar({chatId, flatlistRef, listLen}) {
           fileType: selected[index].type || '',
           fileName: selected[index].fileName || '',
         };
-        console.log('file selected', file);
         //image is sent
         setPopUpVisible(false);
-        await sendDirectMessage(chatId, {
-          contentType: ContentType.image,
-          messageType: MessageType.new,
-          data: {...file},
-        });
+        await sendMessage(
+          chatId,
+          {
+            contentType: ContentType.image,
+            messageType: MessageType.new,
+            data: {...file},
+          },
+          true,
+          isGroupChat,
+        );
       }
     } catch (error) {
       console.log('Nothing selected', error);
@@ -95,14 +114,18 @@ export function MessageBar({chatId, flatlistRef, listLen}) {
           fileType: selected[index].type || '',
           fileName: selected[index].fileName || '',
         };
-        console.log('file selected', file);
         //video is sent
         setPopUpVisible(false);
-        await sendDirectMessage(chatId, {
-          contentType: ContentType.video,
-          messageType: MessageType.new,
-          data: {...file},
-        });
+        await sendMessage(
+          chatId,
+          {
+            contentType: ContentType.video,
+            messageType: MessageType.new,
+            data: {...file},
+          },
+          true,
+          isGroupChat,
+        );
       }
       //send media message
     } catch (error) {
@@ -120,14 +143,18 @@ export function MessageBar({chatId, flatlistRef, listLen}) {
           fileType: selected[index].type || '',
           fileName: selected[index].name || '',
         };
-        console.log('file selected', file);
         //file is sent
         setPopUpVisible(false);
-        await sendDirectMessage(chatId, {
-          contentType: ContentType.file,
-          messageType: MessageType.new,
-          data: {...file},
-        });
+        await sendMessage(
+          chatId,
+          {
+            contentType: ContentType.file,
+            messageType: MessageType.new,
+            data: {...file},
+          },
+          true,
+          isGroupChat,
+        );
       }
       //send file message
     } catch (error) {

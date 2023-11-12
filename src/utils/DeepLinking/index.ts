@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import {BUNDLE_MANAGEMENT_RESOURCE} from '../../configs/api';
 import {connectionFsSync} from '../Synchronization';
 import {handshakeActionsB1} from '../DirectChats/handshake';
@@ -53,7 +54,7 @@ export async function getBundle(bundleId: string): Promise<string | null> {
 export async function convertBundleToLink(bundleData: string) {
   const bundleId = await postBundle(bundleData);
   const url = 'https://it.numberless.tech/connect?bundleId=' + bundleId;
-  console.log('url: ', url);
+
   return url;
 }
 

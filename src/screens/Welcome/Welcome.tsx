@@ -2,16 +2,20 @@
  * This welcome screen shows Port branding and greets the user the first time they open the app.
  * screen id: 1
  */
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';
-import {View, StyleSheet, TouchableOpacity, StatusBar} from 'react-native';
-import {NumberlessBoldText} from '../../components/NumberlessText';
-import {useNavigation} from '@react-navigation/native';
-import {SafeAreaView} from '../../components/SafeAreaView';
+import {StatusBar, StyleSheet, TouchableOpacity, View} from 'react-native';
 import Logo from '../../../assets/miscellaneous/portBranding.svg';
+import {NumberlessBoldText} from '../../components/NumberlessText';
+import {SafeAreaView} from '../../components/SafeAreaView';
+import {OnboardingStackParamList} from '../../navigation/OnboardingStackTypes';
 
-function Welcome() {
-  // Get navigation props
-  const navigation = useNavigation();
+type Props = NativeStackScreenProps<
+  OnboardingStackParamList,
+  'RequestPermissions'
+>;
+
+function Welcome({navigation}: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#547CEF" />

@@ -20,12 +20,13 @@ import {
   NumberlessBoldText,
   NumberlessMediumText,
 } from '../../components/NumberlessText';
-import {useNavigation} from '@react-navigation/native';
 import {processName} from '../../utils/Profile';
+import {OnboardingStackParamList} from '../../navigation/OnboardingStackTypes';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
-function Onboarding() {
-  //setup navigation props
-  const navigation = useNavigation();
+type Props = NativeStackScreenProps<OnboardingStackParamList, 'Onboarding'>;
+
+function Onboarding({navigation}: Props) {
   //setting initial state of nickname string to ""
   const [name, setName] = useState('');
   const [isFocused, setIsFocused] = useState(false);

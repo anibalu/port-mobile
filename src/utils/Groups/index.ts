@@ -141,7 +141,6 @@ export function extractMemberInfo(
   memberId: string,
 ) {
   try {
-    console.log('groupInfo: ', groupInfo, 'memberID: ', memberId);
     if (groupInfo.members === undefined) {
       throw new Error('No member variable in group info');
     }

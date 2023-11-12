@@ -2,31 +2,40 @@
  * The screen to a contact's profile and associated features
  */
 
-import React, {useEffect, useState} from 'react';
-import {ImageBackground, Modal, Pressable, StatusBar, View} from 'react-native';
-import {Image, StyleSheet} from 'react-native';
+import {default as React, useEffect, useState} from 'react';
+import {
+  Image,
+  ImageBackground,
+  Modal,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
+import BackTopbar from '../../components/BackTopBar';
 import {
   NumberlessRegularText,
   NumberlessSemiBoldText,
 } from '../../components/NumberlessText';
 import NamePopup from './UpdateNamePopup';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import BackTopbar from '../../components/BackTopBar';
 
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import DefaultImage from '../../../assets/avatars/avatar.png';
+import Files from '../../../assets/icons/Files.svg';
+import Gallery from '../../../assets/icons/Gallery.svg';
+import GreyArrowRight from '../../../assets/icons/GreyArrowRight.svg';
 import EditIcon from '../../../assets/icons/Pencil.svg';
+import DeleteChatButton from '../../components/DeleteChatButton';
 import PermissionsDropdown from '../../components/PermissionsDropdown/PermissionsDropdown';
-import {DEFAULT_NAME} from '../../configs/constants';
 import {SafeAreaView} from '../../components/SafeAreaView';
+import {DEFAULT_NAME} from '../../configs/constants';
+import {AppStackParamList} from '../../navigation/AppStackTypes';
 import {getConnection} from '../../utils/Connections';
 import DisconnectButton from './DisconnectButton';
-import DeleteChatButton from '../../components/DeleteChatButton';
-import GreyArrowRight from '../../../assets/icons/GreyArrowRight.svg';
-import Gallery from '../../../assets/icons/Gallery.svg';
-import Files from '../../../assets/icons/Files.svg';
 
-function ContactProfile() {
-  const route = useRoute();
+type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
+
+function ContactProfile({route, navigation}: Props) {
   const {chatId} = route.params;
 
   const [profileURI, setProfileURI] = useState(
@@ -55,8 +64,6 @@ function ContactProfile() {
     }
     setEditingName(false);
   }
-
-  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={styles.profileScreen}>

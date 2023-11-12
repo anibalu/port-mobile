@@ -11,11 +11,17 @@ import {
   NumberlessMediumText,
   NumberlessRegularText,
 } from '../../components/NumberlessText';
-import {useNavigation} from '@react-navigation/native';
-import Notification from '../../../assets/permissions/notifications.svg';
 
-function RequestPermissions() {
-  const navigation = useNavigation();
+import Notification from '../../../assets/permissions/notifications.svg';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {OnboardingStackParamList} from '../../navigation/OnboardingStackTypes';
+
+type Props = NativeStackScreenProps<
+  OnboardingStackParamList,
+  'RequestPermissions'
+>;
+
+function RequestPermissions({navigation}: Props) {
   return (
     <SafeAreaView style={styles.basicContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />

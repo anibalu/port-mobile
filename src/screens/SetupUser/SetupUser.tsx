@@ -2,23 +2,23 @@
  * This screen sets up a user account
  * screen id: 4
  */
-import React, {useState, useEffect} from 'react';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {StyleSheet, StatusBar, View} from 'react-native';
-import ProgressBar from '../../components/ProgressBar';
-import {NumberlessRegularText} from '../../components/NumberlessText';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import React, {useEffect, useState} from 'react';
+import {StatusBar, StyleSheet, View} from 'react-native';
 import Avatar from '../../../assets/avatars/avatar1.svg';
+import {NumberlessRegularText} from '../../components/NumberlessText';
+import ProgressBar from '../../components/ProgressBar';
+import {SafeAreaView} from '../../components/SafeAreaView';
 import {DEFAULT_NAME} from '../../configs/constants';
-import {setupNewProfile} from '../../utils/Profile';
-import {ProfileStatus} from '../../utils/Profile/interfaces';
+import {OnboardingStackParamList} from '../../navigation/OnboardingStackTypes';
 import {getInitialDirectConnectionLinks} from '../../utils/ConnectionLinks/direct';
 import {initialiseFCM} from '../../utils/Messaging/fcm';
+import {setupNewProfile} from '../../utils/Profile';
+import {ProfileStatus} from '../../utils/Profile/interfaces';
 
-function SetupUser() {
-  // Get navigation props
-  const navigation = useNavigation();
-  const route = useRoute();
+type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
+
+function SetupUser({route, navigation}: Props) {
   const {name} = route.params;
   const processedName: string = name || DEFAULT_NAME;
   //state of progress
@@ -61,10 +61,11 @@ function SetupUser() {
   };
   useEffect(() => {
     runActions().then(ret => {
-      if (ret) {
-        navigation.navigate('Home');
-      } else {
+      if (!ret) {
         navigation.navigate('Onboarding');
+      } else {
+        //ts-ignore
+        navigation.navigate('AppStack', {screen: 'Home'});
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

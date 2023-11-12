@@ -16,6 +16,10 @@ import {cancelAllNotifications} from '../../utils/Notifications';
 import DefaultChatTile from './DefaultChatTile';
 import {ConnectionInfo, ReadStatus} from '../../utils/Connections/interfaces';
 import {getConnections} from '../../utils/Connections';
+// import {NativeStackScreenProps} from '@react-navigation/native-stack';
+// import {AppStackParamList} from '../../navigation/AppStackTypes';
+
+//type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
 
 //rendered chat tile of a connection
 function renderChatTile(connection: ConnectionInfo) {
@@ -26,7 +30,6 @@ function renderChatTile(connection: ConnectionInfo) {
 function renderDefaultTile() {
   return <DefaultChatTile />;
 }
-
 function Home() {
   const [connections, setConnections] = useState<Array<ConnectionInfo>>(
     fetchStoreConnections(),

@@ -42,7 +42,7 @@ function NewGroupCard(props: {
             </NumberlessRegularText> */}
           </View>
           <Button
-            onPress={() => navigation.navigate('Groups')}
+            onPress={() => navigation.navigate('GroupOnboarding')}
             style={{width: '80%', backgroundColor: '#547CEF'}}>
             Create
           </Button>

@@ -3,6 +3,7 @@
  * screen Id: N/A
  */
 import React, {useCallback, useEffect, useState} from 'react';
+
 import {
   FlatList,
   ImageBackground,
@@ -14,11 +15,7 @@ import {
 } from 'react-native';
 import {NumberlessMediumText} from '../../components/NumberlessText';
 // import NamePopup from './UpdateNamePopup';
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import {SafeAreaView} from '../../components/SafeAreaView';
 import {NAME_LENGTH_LIMIT} from '../../configs/constants';
 import Share from '../../../assets/icons/Share.svg';
@@ -29,9 +26,12 @@ import {ConnectionInfo} from '../../utils/Connections/interfaces';
 import Tick from '../../../assets/icons/tick.svg';
 import {getDirectChats} from '../../utils/DirectChats';
 import SelectedMemberTile from './SelectedMemberTile';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {AppStackParamList} from '../../navigation/AppStackTypes';
 
-function AddMembers() {
-  const route = useRoute();
+type Props = NativeStackScreenProps<AppStackParamList, 'AddMembers'>;
+
+function AddMembers({route, navigation}: Props) {
   //gets groupId of group
   const {groupId} = route.params;
   const [searchText, setSearchText] = useState('');
@@ -100,8 +100,6 @@ function AddMembers() {
       <SelectedMemberTile member={member.item} onRemove={onMemberRemoved} />
     );
   }, []);
-
-  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={styles.profileScreen}>

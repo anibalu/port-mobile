@@ -2,22 +2,23 @@
  * This screen sets up a user account
  * screen id:
  */
-import React, {useState, useEffect} from 'react';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {SafeAreaView} from '../../../components/SafeAreaView';
-import {StyleSheet, StatusBar, View} from 'react-native';
-import ProgressBar from '../../../components/ProgressBar';
-import {NumberlessRegularText} from '../../../components/NumberlessText';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import React, {useEffect, useState} from 'react';
+import {StatusBar, StyleSheet, View} from 'react-native';
 import Avatar from '../../../../assets/avatars/avatar1.svg';
-import {generateISOTimeStamp} from '../../../utils/Time';
+import {NumberlessRegularText} from '../../../components/NumberlessText';
+import ProgressBar from '../../../components/ProgressBar';
+import {SafeAreaView} from '../../../components/SafeAreaView';
+import {AppStackParamList} from '../../../navigation/AppStackTypes';
+import {getInitialGroupConnectionLinks} from '../../../utils/ConnectionLinks/group';
 import {addNewGroup, attemptNewGroup} from '../../../utils/Groups';
 import {GroupInfo} from '../../../utils/Groups/interfaces';
-import {getInitialGroupConnectionLinks} from '../../../utils/ConnectionLinks/group';
+import {generateISOTimeStamp} from '../../../utils/Time';
 
-function SetupGroup() {
+type Props = NativeStackScreenProps<AppStackParamList, 'SetupGroup'>;
+
+function SetupGroup({route, navigation}: Props) {
   // Get navigation props
-  const navigation = useNavigation();
-  const route = useRoute();
   const {
     groupName = '',
     groupDescription = '',

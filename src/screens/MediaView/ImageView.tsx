@@ -1,10 +1,12 @@
-import {useRoute} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';
-import {SafeAreaView, View, Image, StyleSheet} from 'react-native';
+import {Image, SafeAreaView, StyleSheet, View} from 'react-native';
+import {AppStackParamList} from '../../navigation/AppStackTypes';
 import Topbar from './Topbar';
 
-export default function ImageView() {
-  const route = useRoute();
+type Props = NativeStackScreenProps<AppStackParamList, 'ImageView'>;
+
+export default function ImageView({route}: Props) {
   const {imageURI, title} = route.params;
 
   return (

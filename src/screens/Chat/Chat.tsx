@@ -7,7 +7,7 @@ import {
   Image,
 } from 'react-native';
 import {SafeAreaView} from '../../components/SafeAreaView';
-import {useFocusEffect, useRoute} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import Topbar from './Topbar';
 import {MessageBar} from './MessageBar';
 import store from '../../store/appStore';
@@ -20,13 +20,15 @@ import {ConnectionType} from '../../utils/Connections/interfaces';
 import {getGroupInfo} from '../../utils/Storage/group';
 import ChatList from './ChatList';
 import DefaultImage from '../../../assets/avatars/avatar.png';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {AppStackParamList} from '../../navigation/AppStackTypes';
 
+type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 /**
  * Renders a chat screen.
  * @returns Component for rendered chat window
  */
-function Chat() {
-  const route = useRoute();
+function Chat({route}: Props) {
   //gets lineId of chat
   const {chatId} = route.params;
   //Name to be displayed in topbar
@@ -88,6 +90,12 @@ function Chat() {
         //set saved messages
         setMessages(await readMessages(chatId));
       })();
+      return () => {
+        //toggle chat as read
+        (async () => {
+          await toggleRead(chatId);
+        })();
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
@@ -102,8 +110,6 @@ function Chat() {
           setGroupInfo(await getGroupInfo(chatId));
         }
         setMessages(await readMessages(chatId));
-        //toggle chat as read
-        await toggleRead(chatId);
       });
       // Clean up the subscription when the screen loses focus
       return () => {

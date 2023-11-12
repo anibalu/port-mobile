@@ -19,7 +19,6 @@ import {
   NumberlessSemiBoldText,
 } from '../../../components/NumberlessText';
 // import NamePopup from './UpdateNamePopup';
-import {useNavigation, useRoute} from '@react-navigation/native';
 import BackTopbar from '../../../components/BackTopBar';
 import PermissionsDropdown from '../../../components/PermissionsDropdown/PermissionsDropdown';
 import {SafeAreaView} from '../../../components/SafeAreaView';
@@ -29,9 +28,12 @@ import {GroupInfo} from '../../../utils/Groups/interfaces';
 //import {getConnection} from '../../../utils/Connections';
 import {getTimeStamp} from '../../../utils/Time';
 import {getGroupInfo} from '../../../utils/Storage/group';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {AppStackParamList} from '../../../navigation/AppStackTypes';
 
-function GroupProfile() {
-  const route = useRoute();
+type Props = NativeStackScreenProps<AppStackParamList, 'GroupProfile'>;
+
+function GroupProfile({route, navigation}: Props) {
   const {groupId} = route.params;
 
   const [groupInfo, setGroupInfo] = useState<GroupInfo>({
@@ -63,7 +65,6 @@ function GroupProfile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const navigation = useNavigation();
   return (
     <SafeAreaView>
       <StatusBar barStyle="dark-content" backgroundColor="white" />

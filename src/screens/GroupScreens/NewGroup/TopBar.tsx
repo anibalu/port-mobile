@@ -8,7 +8,7 @@ import {useNavigation} from '@react-navigation/native';
  *
  * @todo add a share button
  */
-function Topbar({title}) {
+function Topbar({title}: {title: string}) {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>

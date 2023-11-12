@@ -1,5 +1,5 @@
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';
-import {SafeAreaView} from '../../../components/SafeAreaView';
 import {
   ImageBackground,
   ScrollView,
@@ -7,17 +7,18 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import Topbar from './TopBar';
-import ConnectionDisplay from './ConnectionDisplay';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
 } from '../../../components/NumberlessText';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {SafeAreaView} from '../../../components/SafeAreaView';
+import {AppStackParamList} from '../../../navigation/AppStackTypes';
+import ConnectionDisplay from './ConnectionDisplay';
+import Topbar from './TopBar';
 
-function ShareGroup() {
-  const navigation = useNavigation();
-  const route = useRoute();
+type Props = NativeStackScreenProps<AppStackParamList, 'ShareGroup'>;
+
+function ShareGroup({route, navigation}: Props) {
   const {groupId} = route.params;
   return (
     <SafeAreaView style={styles.screen}>

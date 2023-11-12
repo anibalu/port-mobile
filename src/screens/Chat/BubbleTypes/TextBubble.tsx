@@ -29,10 +29,7 @@ export default function TextBubble({
       onPress={() => handlePress(message.messageId)}
       onLongPress={() => handleLongPress(message.messageId)}>
       <View>
-        {renderProfileName(
-          shouldRenderProfileName(message, memberName),
-          memberName,
-        )}
+        {renderProfileName(shouldRenderProfileName(memberName), memberName)}
       </View>
       <NumberlessRegularText style={styles.text}>
         {message.data.text || ''}
@@ -72,10 +69,7 @@ export default function TextBubble({
   );
 }
 
-function shouldRenderProfileName(
-  message: SavedMessageParams,
-  memberName: string,
-) {
+function shouldRenderProfileName(memberName: string) {
   if (memberName === '') {
     return false;
   } else {

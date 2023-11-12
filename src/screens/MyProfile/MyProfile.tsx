@@ -2,27 +2,37 @@
  * The screen to view one's own profile
  * screen Id: 8
  */
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
-import {ImageBackground, Modal, Pressable, StatusBar, View} from 'react-native';
-import {Image, StyleSheet} from 'react-native';
+import {
+  Image,
+  ImageBackground,
+  Modal,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
+import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import DefaultImage from '../../../assets/avatars/avatar.png';
-import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import EditIcon from '../../../assets/icons/Pencil.svg';
 import EditCameraIcon from '../../../assets/icons/EditCamera.svg';
-import NamePopup from './UpdateNamePopup';
-import {useNavigation} from '@react-navigation/native';
-import {DEFAULT_NAME} from '../../configs/constants';
+import EditIcon from '../../../assets/icons/Pencil.svg';
 import BackTopbar from '../../components/BackTopBar';
+import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {SafeAreaView} from '../../components/SafeAreaView';
+import {DEFAULT_NAME} from '../../configs/constants';
+import {AppStackParamList} from '../../navigation/AppStackTypes';
 import {
   getProfileName,
   getProfilePicture,
   setNewProfilePicture,
 } from '../../utils/Profile';
-import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import NamePopup from './UpdateNamePopup';
 import PendingContacts from './PendingContacts';
 
-function MyProfile() {
+type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
+
+function MyProfile({navigation}: Props) {
   const [profileURI, setProfileURI] = useState(
     Image.resolveAssetSource(DefaultImage).uri,
   );
@@ -77,8 +87,6 @@ function MyProfile() {
     }
     setEditingName(false);
   }
-
-  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={styles.profileScreen}>

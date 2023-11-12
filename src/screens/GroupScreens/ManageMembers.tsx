@@ -16,11 +16,7 @@ import {
   NumberlessRegularText,
 } from '../../components/NumberlessText';
 // import NamePopup from './UpdateNamePopup';
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import Search from '../../../assets/icons/GreySearch.svg';
 import {SafeAreaView} from '../../components/SafeAreaView';
 import {NAME_LENGTH_LIMIT} from '../../configs/constants';
@@ -29,14 +25,18 @@ import {getGroupInfo} from '../../utils/Storage/group';
 import {Button} from '../ConnectionCentre/Button';
 import Topbar from './Topbar';
 import UserTile from './UserTile';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {AppStackParamList} from '../../navigation/AppStackTypes';
 
-function ManageMembers() {
+type Props = NativeStackScreenProps<AppStackParamList, 'ManageMembers'>;
+
+function ManageMembers({route, navigation}: Props) {
   const [searchText, setSearchText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const onChangeText = (newName: string) => {
     setSearchText(newName);
   };
-  const route = useRoute();
+
   const {groupId} = route.params;
 
   const [groupInfo, setGroupInfo] = useState<GroupInfo>({
@@ -70,8 +70,6 @@ function ManageMembers() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
-
-  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={styles.profileScreen}>

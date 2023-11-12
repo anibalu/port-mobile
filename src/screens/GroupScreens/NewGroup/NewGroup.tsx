@@ -1,3 +1,4 @@
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useState} from 'react';
 import {
   Image,
@@ -10,19 +11,20 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import Avatar4 from '../../../../assets/avatars/avatar4.svg';
 import ImageIcon from '../../../../assets/icons/UploadImage.svg';
-import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import {AppStackParamList} from '../../../navigation/AppStackTypes';
 import Topbar from './TopBar';
-import {useNavigation} from '@react-navigation/native';
+
+type Props = NativeStackScreenProps<AppStackParamList, 'NewGroup'>;
 
 // creation of a new group
-const NewGroup = ({route}) => {
+const NewGroup = ({route, navigation}: Props) => {
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [image, setImage] = useState('');
   const [isButtonActive, setIsButtonActive] = useState(false);
-  const navigation = useNavigation();
   const {errorMessage = ''} = route.params || {};
 
   const onChangeGroupName = useCallback((newText: string) => {
@@ -96,7 +98,7 @@ const NewGroup = ({route}) => {
           navigation.navigate('SetupGroup', {
             groupName: groupName.trim(),
             groupDescription: groupDescription.trim(),
-            image,
+            displayPicPath: image,
           })
         }>
         <Text style={style.buttonText}> Next</Text>

@@ -665,18 +665,24 @@ async function trySendingMessage(
 ): Promise<void> {
   const token: ServerAuthToken = await getToken();
   if (isGroup) {
-    await axios.post(GROUP_MESSAGING_RESOURCE, {
-      token: token,
-      type: 'group',
-      message: message,
-      chat: chatId,
-    });
+    await axios.post(
+      GROUP_MESSAGING_RESOURCE,
+      {
+        type: 'group',
+        message: message,
+        chat: chatId,
+      },
+      {headers: {Authorization: `${token}`}},
+    );
   } else {
-    await axios.post(DIRECT_MESSAGING_RESOURCE, {
-      token: token,
-      message: message,
-      line: chatId,
-    });
+    await axios.post(
+      DIRECT_MESSAGING_RESOURCE,
+      {
+        message: message,
+        line: chatId,
+      },
+      {headers: {Authorization: `${token}`}},
+    );
   }
   console.log('messages sent: ', JSON.parse(message));
 }

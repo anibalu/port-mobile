@@ -18,8 +18,8 @@ import {DEFAULT_NAME} from '../../configs/constants';
 export async function attemptNewGroup(): Promise<string> {
   //axios request that returns a group Id in response.
   const token = await getToken();
-  const response = await axios.post(GROUP_MANAGEMENT_RESOURCE, {
-    token: token,
+  const response = await axios.post(GROUP_MANAGEMENT_RESOURCE, null, {
+    headers: {Authorization: `${token}`},
   });
   if (response.data.newGroup !== undefined) {
     const groupId: string = response.data.newGroup;
@@ -35,11 +35,14 @@ export async function attemptNewGroup(): Promise<string> {
  */
 export async function attemptJoinGroup(connectionLinkId: string) {
   const token = await getToken();
-  const response = await axios.patch(GROUP_MANAGEMENT_RESOURCE, {
-    updateType: 'join',
-    token: token,
-    groupLink: connectionLinkId,
-  });
+  const response = await axios.patch(
+    GROUP_MANAGEMENT_RESOURCE,
+    {
+      updateType: 'join',
+      groupLink: connectionLinkId,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
   if (response.data.groupId !== undefined) {
     const groupId: string = response.data.groupId;
     const members: string[] = response.data.members || [];
@@ -50,12 +53,15 @@ export async function attemptJoinGroup(connectionLinkId: string) {
 
 export async function attemptRemoveMember(groupId: string, memberId: string) {
   const token = await getToken();
-  const response = await axios.patch(GROUP_MANAGEMENT_RESOURCE, {
-    updateType: 'remove',
-    token: token,
-    groupId: groupId,
-    removeMember: memberId,
-  });
+  const response = await axios.patch(
+    GROUP_MANAGEMENT_RESOURCE,
+    {
+      updateType: 'remove',
+      groupId: groupId,
+      removeMember: memberId,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
   console.log('response of remove: ', response.data);
 }
 

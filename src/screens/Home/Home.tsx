@@ -75,7 +75,7 @@ function Home() {
   }, [connections]);
 
   useEffect(() => {
-    if (searchText === '' || searchText == undefined) {
+    if (searchText === '' || searchText === undefined) {
       setViewableConnections(connections);
     } else {
       setViewableConnections(

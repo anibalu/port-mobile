@@ -14,10 +14,13 @@ export async function AttemptNewDirectChat(
   connectionLink: string,
 ): Promise<string> {
   const token = await getToken();
-  const response = await axios.post(LINE_MANAGEMENT_RESOURCE, {
-    token: token,
-    lineLinkId: connectionLink,
-  });
+  const response = await axios.post(
+    LINE_MANAGEMENT_RESOURCE,
+    {
+      lineLinkId: connectionLink,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
   if (response.data.newLine !== undefined) {
     const chatId: string = response.data.newLine;
     return chatId;
@@ -29,10 +32,13 @@ export async function AttemptNewDirectChatFromSuperport(
   superportId: string,
 ): Promise<string> {
   const token = await getToken();
-  const response = await axios.post(LINE_MANAGEMENT_RESOURCE, {
-    token: token,
-    lineSuperportId: superportId,
-  });
+  const response = await axios.post(
+    LINE_MANAGEMENT_RESOURCE,
+    {
+      lineSuperportId: superportId,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
   if (response.data.newLine !== undefined) {
     const chatId: string = response.data.newLine;
     return chatId;

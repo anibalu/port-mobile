@@ -25,14 +25,17 @@ export async function getNewGroupConnectionLinks(
   try {
     const token = await getToken(blocking);
     //add group links management resource
-    const response = await axios.post(GROUP_LINKS_MANAGEMENT_RESOURCE, {
-      token: token,
-      groupId: groupId,
-    });
+    const response = await axios.post(
+      GROUP_LINKS_MANAGEMENT_RESOURCE,
+      {
+        groupId: groupId,
+      },
+      {headers: {Authorization: `${token}`}},
+    );
     const connectionLinks: string[] = response.data;
     return connectionLinks;
   } catch (error) {
-    console.log('Error getting direct connection links:', error);
+    console.log('Error getting direct group connection links:', error);
     return null;
   }
 }

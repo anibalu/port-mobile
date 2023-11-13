@@ -312,10 +312,13 @@ export async function getConnectionPermissions(
 export async function disconnectConnection(chatId: string) {
   try {
     const token = await getToken();
-    await axios.patch(LINE_MANAGEMENT_RESOURCE, {
-      lineId: chatId,
-      token: token,
-    });
+    await axios.patch(
+      LINE_MANAGEMENT_RESOURCE,
+      {
+        lineId: chatId,
+      },
+      {headers: {Authorization: `${token}`}},
+    );
     await updateConnection({chatId: chatId, disconnected: true});
   } catch (error) {
     console.log('failed to disconnect: ', error);

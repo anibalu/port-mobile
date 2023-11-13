@@ -18,8 +18,8 @@ export async function getNewDirectConnectionLinks(
 ): Promise<string[] | null> {
   try {
     const token = await getToken(blocking);
-    const response = await axios.post(LINE_LINKS_MANAGEMENT_RESOURCE, {
-      token: token,
+    const response = await axios.post(LINE_LINKS_MANAGEMENT_RESOURCE, null, {
+      headers: {Authorization: `${token}`},
     });
     const connectionLinks: string[] = response.data;
     return connectionLinks;

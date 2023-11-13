@@ -49,7 +49,7 @@ function ManageMembers({route, navigation}: Props) {
   const [viewableMembers, setViewableMembers] = useState<GroupMember[]>([]);
 
   useEffect(() => {
-    if (searchText === '' || searchText == undefined) {
+    if (searchText === '' || searchText === undefined) {
       setViewableMembers(groupMembers);
     } else {
       setViewableMembers(
@@ -64,10 +64,10 @@ function ManageMembers({route, navigation}: Props) {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        const groupInfo = await getGroupInfo(groupId);
-        setGroupInfo(groupInfo);
-        setGroupMembers(groupInfo.members);
-        setViewableMembers(groupInfo.members);
+        const localGroupInfo = await getGroupInfo(groupId);
+        setGroupInfo(localGroupInfo);
+        setGroupMembers(localGroupInfo.members);
+        setViewableMembers(localGroupInfo.members);
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
@@ -92,14 +92,7 @@ function ManageMembers({route, navigation}: Props) {
       )}
 
       <View style={styles.section}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            width: '100%',
-            alignItems: 'center',
-            marginTop: 31,
-          }}>
+        <View style={styles.memberSection}>
           <NumberlessMediumText
             style={styles.content}
             ellipsizeMode="tail"
@@ -151,6 +144,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginLeft: 14,
     width: '93%',
+  },
+  memberSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 31,
   },
   searchBarStyle: {
     width: '93%',

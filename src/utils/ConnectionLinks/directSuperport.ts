@@ -11,9 +11,13 @@ export async function getNewDirectConnectionSuperport(): Promise<
 > {
   try {
     const token = await getToken(true);
-    const response = await axios.post(LINE_SUPERPORT_MANAGEMENT_RESOURCE, {
-      token: token,
-    });
+    const response = await axios.post(
+      LINE_SUPERPORT_MANAGEMENT_RESOURCE,
+      null,
+      {
+        headers: {Authorization: `${token}`},
+      },
+    );
     if (response.data.NewSuperPort) {
       const superport = response.data.NewSuperPort;
       return superport;

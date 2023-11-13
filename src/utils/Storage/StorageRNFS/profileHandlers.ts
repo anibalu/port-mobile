@@ -133,8 +133,8 @@ export async function readProfilePicAttributesRNFS(
  * @returns {string} - new destination of the profile picture.
  */
 async function copyProfilePicture(file: FileAttributes) {
-  const profileDir = await makeProfileDir();
-  const destinationPath = profileDir + '/' + file.fileName;
+  const localProfDir = await makeProfileDir();
+  const destinationPath = localProfDir + '/' + file.fileName;
   await RNFS.copyFile(file.fileUri, destinationPath);
   return destinationPath;
 }
@@ -171,8 +171,8 @@ export async function writeProfilePicAttributesRNFS(
  */
 export async function deleteProfilePictureRNFS(blocking: boolean = false) {
   const synced = async () => {
-    const profileDir = await makeProfileDir();
-    const files = await RNFS.readDir(profileDir);
+    const localProfileDir = await makeProfileDir();
+    const files = await RNFS.readDir(localProfileDir);
     const filteredFiles = files.filter(file => file.name !== 'data.json');
     for (let index = 0; index < filteredFiles.length; index++) {
       await RNFS.unlink(filteredFiles[index].path);

@@ -85,7 +85,7 @@ function AddMembers({route, navigation}: Props) {
   };
 
   useEffect(() => {
-    if (searchText === '' || searchText == undefined) {
+    if (searchText === '' || searchText === undefined) {
       setViewableMembers(allMembers);
     } else {
       setViewableMembers(
@@ -117,14 +117,7 @@ function AddMembers({route, navigation}: Props) {
             : 'Add members'
         }
       />
-      <View
-        style={{
-          backgroundColor: '#FFF',
-          borderBottomColor: '#EEE',
-          borderBottomWidth: 0.5,
-          width: '100%',
-          flexDirection: 'row',
-        }}>
+      <View style={styles.selectedMemberList}>
         <FlatList
           style={{width: '100%'}}
           contentContainerStyle={{marginLeft: 16}}
@@ -231,6 +224,13 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     flex: 1,
+  },
+  selectedMemberList: {
+    backgroundColor: '#FFF',
+    borderBottomColor: '#EEE',
+    borderBottomWidth: 0.5,
+    width: '100%',
+    flexDirection: 'row',
   },
   background: {
     position: 'absolute',

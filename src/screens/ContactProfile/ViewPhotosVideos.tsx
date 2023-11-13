@@ -1,24 +1,26 @@
 import React, {useEffect, useState} from 'react';
 
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
-  View,
-  StyleSheet,
-  StatusBar,
-  ImageBackground,
-  Image,
   Dimensions,
+  Image,
+  ImageBackground,
   Pressable,
+  StatusBar,
+  StyleSheet,
+  View,
 } from 'react-native';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import Topbar from '../MediaView/Topbar';
-import {useRoute} from '@react-navigation/native';
-import {fetchFilesInMediaDir} from '../../utils/Storage/StorageRNFS/sharedFileHandlers';
-import {NumberlessRegularText} from '../../components/NumberlessText';
 import FileViewer from 'react-native-file-viewer';
 import {ReadDirItem} from 'react-native-fs';
+import {NumberlessRegularText} from '../../components/NumberlessText';
+import {SafeAreaView} from '../../components/SafeAreaView';
+import {AppStackParamList} from '../../navigation/AppStackTypes';
+import {fetchFilesInMediaDir} from '../../utils/Storage/StorageRNFS/sharedFileHandlers';
+import Topbar from '../MediaView/Topbar';
 
-export default function ViewPhotosVideos() {
-  const route = useRoute();
+type Props = NativeStackScreenProps<AppStackParamList, 'ViewPhotosVideos'>;
+
+export default function ViewPhotosVideos({route}: Props) {
   const {chatId} = route.params;
   const [media, setMedia] = useState<ReadDirItem[]>([]);
 

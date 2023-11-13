@@ -20,6 +20,6 @@ export type AppStackParamList = {
     groupDescription: string;
     displayPicPath: string | undefined;
   };
-  ViewPhotosVideos: {};
-  ViewFiles: {};
+  ViewPhotosVideos: {chatId: string};
+  ViewFiles: {chatId: string};
 };

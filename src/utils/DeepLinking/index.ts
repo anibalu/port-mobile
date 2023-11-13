@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 import {BUNDLE_MANAGEMENT_RESOURCE} from '../../configs/api';
-import {connectionFsSync} from '../Synchronization';
-import {handshakeActionsB1} from '../DirectChats/handshake';
-import {getToken} from '../ServerAuth';
 import {ConnectionType} from '../Connections/interfaces';
+import {handshakeActionsB1} from '../DirectChats/handshake';
 import {handshakeActionsG1} from '../Groups/handshake';
+import {getToken} from '../ServerAuth';
+import {connectionFsSync} from '../Synchronization';
 
 interface urlObject {
   url: string | null;
@@ -65,9 +65,12 @@ export async function convertBundleToLink(bundleData: string) {
 
 export async function postBundle(bundleString: string): Promise<string | null> {
   const token = await getToken();
-  const response = await axios.post(BUNDLE_MANAGEMENT_RESOURCE, {
-    token: token,
-    bundle: bundleString,
-  });
+  const response = await axios.post(
+    BUNDLE_MANAGEMENT_RESOURCE,
+    {
+      bundle: bundleString,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
   return response.data.bundleId;
 }

@@ -34,10 +34,13 @@ export const patchFCMToken = async (tokenFCM: string) => {
     if (token === null) {
       throw new Error('tokenGenerationError');
     } else {
-      const response = await axios.patch(INITIAL_POST_MANAGEMENT_RESOURCE, {
-        token: token,
-        fcmtoken: tokenFCM,
-      });
+      const response = await axios.patch(
+        INITIAL_POST_MANAGEMENT_RESOURCE,
+        {
+          fcmtoken: tokenFCM,
+        },
+        {headers: {Authorization: `${token}`}},
+      );
       return response.data;
     }
   } catch (error) {

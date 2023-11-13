@@ -7,6 +7,7 @@ import {
 import Icon from '../../../assets/icons/ConnectionCenterSuperPort.svg';
 import {Button} from './Button';
 import {instrument} from './ConnectionCentre';
+import {useNavigation} from '@react-navigation/native';
 
 type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -14,6 +15,7 @@ function NewSuperPortCard(props: {
   isClicked: boolean;
   setSelected: SetStateFunction<instrument>;
 }) {
+  const navigation = useNavigation();
   if (props.isClicked) {
     return (
       <View style={style.clickedBox}>
@@ -41,9 +43,11 @@ function NewSuperPortCard(props: {
             </NumberlessRegularText> */}
           </View>
           <Button
-            onPress={() => console.log('create pressed')}
-            style={{width: '80%', backgroundColor: '#A3A3A3'}}>
-            Coming Soon
+            onPress={() => {
+              navigation.navigate('NewSuperport', {superportId: ''});
+            }}
+            style={{width: '80%', backgroundColor: '#547CEF'}}>
+            Create
           </Button>
         </View>
       </View>
@@ -133,7 +137,7 @@ const style = StyleSheet.create({
   iconBox: {
     width: 76,
     height: 76,
-    backgroundColor: '#A3A3A3',
+    backgroundColor: '#547CEF',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 16,

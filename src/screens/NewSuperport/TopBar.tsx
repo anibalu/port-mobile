@@ -4,29 +4,29 @@ import {View} from 'react-native';
 import {NumberlessSemiBoldText} from '../../components/NumberlessText';
 import {BackButton} from '../../components/BackButton';
 import {useNavigation} from '@react-navigation/native';
-/**
- *
- * @todo add a share button
- */
-function Topbar({title}: {title: string}) {
+
+function Topbar({isNew}: {isNew: boolean}) {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>
       <BackButton
         style={styles.backIcon}
-        onPress={() => navigation.navigate('Home')}
+        onPress={() => {
+          navigation.goBack();
+        }}
       />
-      <NumberlessSemiBoldText
-        style={styles.title}
-        ellipsizeMode="tail"
-        numberOfLines={1}>
-        {title}
+      <NumberlessSemiBoldText style={styles.title}>
+        {isNew ? 'New Superport' : 'Superport'}
       </NumberlessSemiBoldText>
-      {/* <Pressable
-        onPress={() => {}}
-        style={{marginTop: 10, position: 'absolute', right: 28}}>
-        <BlueQuestion width={24} height={24} />
-      </Pressable> */}
+      <View style={styles.faqBox}>
+        {/* <NumberlessClickableText
+          style={styles.faqText}
+          onPress={() => {
+            console.log("FAQ button clicked");
+          }}>
+          FAQs
+        </NumberlessClickableText> */}
+      </View>
     </View>
   );
 }
@@ -36,31 +36,35 @@ const styles = StyleSheet.create({
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'flex-start',
     paddingRight: '6%',
     paddingLeft: '6%',
     backgroundColor: '#FFF',
-    //borderBottomColor: '#EEE',
-    //borderBottomWidth: 0.5,
+    borderBottomColor: '#EEE',
+    borderBottomWidth: 0.5,
     height: 51,
-    zIndex: 2,
   },
   title: {
-    fontSize: 17,
-    lineHeight: 20,
+    fontSize: 21,
+    lineHeight: 28,
     color: 'black',
-    marginTop: 12,
-    overflow: 'hidden',
-    width: '60%',
-    textAlign: 'center',
+    marginTop: 10,
   },
   backIcon: {
     paddingTop: 16,
     alignItems: 'flex-start',
-    width: '100%',
+    width: 50,
     height: 51,
-    position: 'absolute',
+  },
+  faqBox: {
+    width: 50,
+    alignItems: 'flex-end',
+  },
+  faqText: {
+    marginTop: 10,
+    lineHeight: 28,
+    fontSize: 15,
   },
 });
 

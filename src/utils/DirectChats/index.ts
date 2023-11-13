@@ -25,6 +25,21 @@ export async function AttemptNewDirectChat(
   throw new Error('APIError');
 }
 
+export async function AttemptNewDirectChatFromSuperport(
+  superportId: string,
+): Promise<string> {
+  const token = await getToken();
+  const response = await axios.post(LINE_MANAGEMENT_RESOURCE, {
+    token: token,
+    lineSuperportId: superportId,
+  });
+  if (response.data.newLine !== undefined) {
+    const chatId: string = response.data.newLine;
+    return chatId;
+  }
+  throw new Error('APIError');
+}
+
 /**
  * Retrieves all direct chats
  */

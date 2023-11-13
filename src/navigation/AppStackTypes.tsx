@@ -14,6 +14,7 @@ export type AppStackParamList = {
   NewGroup: {errorMessage: string};
   GroupProfile: {groupId: string};
   NewContact: {groupId: string};
+  NewSuperport: {superportId: string};
   SetupGroup: {
     groupName: string;
     groupDescription: string;

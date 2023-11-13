@@ -29,6 +29,21 @@ export interface GeneratedDirectConnectionBundle
   label?: string;
 }
 
+export interface DirectSuperportConnectionBundle
+  extends DirectConnectionBundle {
+  data: {
+    linkId: string;
+    superportType: string;
+    nonce?: string;
+    pubkeyHash?: string;
+  };
+}
+export interface GeneratedDirectSuperportConnectionBundle
+  extends DirectSuperportConnectionBundle {
+  keys: KeyPair;
+  label?: string;
+}
+
 /**
  * Response to a bundle being read by a handshake function.
  */

@@ -22,6 +22,7 @@ import ChatList from './ChatList';
 import DefaultImage from '../../../assets/avatars/avatar.png';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '../../navigation/AppStackTypes';
+import {tryToSendJournaled} from '../../utils/Messaging/sendMessage';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 /**
@@ -87,6 +88,7 @@ function Chat({route}: Props) {
         setConnectionConnected(!connection.disconnected);
         //toggle chat as read
         await toggleRead(chatId);
+        await tryToSendJournaled();
         //set saved messages
         setMessages(await readMessages(chatId));
       })();

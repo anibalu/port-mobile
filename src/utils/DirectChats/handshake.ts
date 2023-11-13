@@ -5,6 +5,7 @@
 import {
   BundleReadResponse,
   DirectConnectionBundle,
+  DirectSuperportConnectionBundle,
 } from '../Bundles/interfaces';
 import {
   addConnection,
@@ -12,11 +13,10 @@ import {
   getConnection,
   toggleAuthenticated,
 } from '../Connections';
-import {AttemptNewDirectChat} from '.';
+import {AttemptNewDirectChat, AttemptNewDirectChatFromSuperport} from '.';
 import {
   deleteGeneratedDirectConnectionBundle,
   getGeneratedDirectConnectionBundle,
-  saveReadDirectConnectionBundle,
 } from '../Bundles/direct';
 import {ConnectionType, ReadStatus} from '../Connections/interfaces';
 import {defaultDirectPermissions} from '../ChatPermissions/default';
@@ -29,6 +29,7 @@ import {generateKeyPair, generateSharedKey} from '../Crypto/x25519';
 import {decryptMessage, encryptMessage} from '../Crypto/aes';
 import {getProfileName, getProfilePictureAttributes} from '../Profile';
 import store from '../../store/appStore';
+import {loadGeneratedSuperport} from '../Bundles/directSuperport';
 
 /**
  * Actions performed when a connection bundle is read by Bob.
@@ -36,34 +37,60 @@ import store from '../../store/appStore';
  * @returns {Promise<BundleReadResponse>} - based on whether actions succeeded or failed or encountered a format error. If failed becuase of network reasons, actions need to be triggered again.
  */
 export async function handshakeActionsB1(
-  bundle: DirectConnectionBundle,
+  bundle: DirectConnectionBundle | DirectSuperportConnectionBundle,
 ): Promise<BundleReadResponse> {
   try {
-    //try creating a chatId by posting the direct connection link id.
-    const chatId: string = await AttemptNewDirectChat(bundle.data.linkId);
-    //if chatId received, add an unauthenticated connection.
-    await addConnection({
-      chatId: chatId,
-      connectionType: ConnectionType.direct,
-      name: '',
-      permissions: defaultDirectPermissions,
-      recentMessageType: ContentType.newChat,
-      readStatus: ReadStatus.new,
-      authenticated: false,
-      timestamp: generateISOTimeStamp(),
-      newMessageCount: 0,
-    });
-    //save the nonce and pubkey hash from bundle into crypto storage.
-    await saveChatCrypto(
-      chatId,
-      {nonce: bundle.data.nonce, pubKeyHash: bundle.data.pubkeyHash},
-      true,
-    );
-    return BundleReadResponse.success;
+    if (bundle.connectionType === ConnectionType.superport) {
+      //try creating a chatId by posting the direct connection link id.
+      const chatId: string = await AttemptNewDirectChatFromSuperport(
+        bundle.data.linkId,
+      );
+      //if chatId received, add an unauthenticated connection.
+      await addConnection({
+        chatId: chatId,
+        connectionType: ConnectionType.direct,
+        name: '',
+        permissions: defaultDirectPermissions,
+        recentMessageType: ContentType.newChat,
+        readStatus: ReadStatus.new,
+        authenticated: false,
+        timestamp: generateISOTimeStamp(),
+        newMessageCount: 0,
+      });
+      //save the nonce and pubkey hash from bundle into crypto storage.
+      await saveChatCrypto(
+        chatId,
+        {nonce: bundle.data.nonce, pubKeyHash: bundle.data.pubkeyHash},
+        true,
+      );
+      return BundleReadResponse.success;
+    } else {
+      //try creating a chatId by posting the direct connection link id.
+      const chatId: string = await AttemptNewDirectChat(bundle.data.linkId);
+      //if chatId received, add an unauthenticated connection.
+      await addConnection({
+        chatId: chatId,
+        connectionType: ConnectionType.direct,
+        name: '',
+        permissions: defaultDirectPermissions,
+        recentMessageType: ContentType.newChat,
+        readStatus: ReadStatus.new,
+        authenticated: false,
+        timestamp: generateISOTimeStamp(),
+        newMessageCount: 0,
+      });
+      //save the nonce and pubkey hash from bundle into crypto storage.
+      await saveChatCrypto(
+        chatId,
+        {nonce: bundle.data.nonce, pubKeyHash: bundle.data.pubkeyHash},
+        true,
+      );
+      return BundleReadResponse.success;
+    }
   } catch (error) {
     console.log('Network issue in creating chatId', error);
     //if network issue, save the read bundle to bundle storage and try again later.
-    await saveReadDirectConnectionBundle(bundle);
+    //await saveReadDirectConnectionBundle(bundle);
     return BundleReadResponse.networkError;
   }
 }
@@ -97,9 +124,15 @@ export async function handshakeActionsA1(
       timestamp: generateISOTimeStamp(),
       newMessageCount: 0,
     });
-    //load up corresponding generated bundle and delete it.
-    const bundle = await getGeneratedDirectConnectionBundle(connectionLinkId);
-    await deleteGeneratedDirectConnectionBundle(connectionLinkId);
+    let bundle = {};
+    try {
+      //load up corresponding generated bundle and delete it.
+      bundle = await getGeneratedDirectConnectionBundle(connectionLinkId);
+      await deleteGeneratedDirectConnectionBundle(connectionLinkId);
+    } catch (error) {
+      //if bundle cannot be found, it's a superport bundle
+      bundle = await loadGeneratedSuperport(connectionLinkId);
+    }
     //save nonce and keys from generated bundle to crypto storage
     await saveChatCrypto(
       chatId,

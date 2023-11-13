@@ -6,4 +6,4 @@ export const IDEAL_LINE_LINKS_NUMBER = 5;
 export const SOFT_ALERT_DURATION = 500;
 export const DEFAULT_NAME = 'Numberless';
 
-export const BUNDLE_VALIDITY_INTERVAL = 2 * 60 * 1000;
+export const BUNDLE_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;

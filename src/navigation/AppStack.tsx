@@ -20,6 +20,7 @@ import Placeholder from '../screens/Placeholder/Placeholder';
 import Scanner from '../screens/Scanner/Scanner';
 import {AppStackParamList} from './AppStackTypes';
 import GroupProfile from '../screens/GroupScreens/GroupProfile/GroupProfile';
+import NewSuperport from '../screens/NewSuperport/NewSuperport';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -35,6 +36,7 @@ function AppStack() {
       <Stack.Screen name="ManageMembers" component={ManageMembers} />
       <Stack.Screen name="AddMembers" component={AddMembers} />
       <Stack.Screen name="NewContact" component={NewContact} />
+      <Stack.Screen name="NewSuperport" component={NewSuperport} />
       <Stack.Screen name="Scanner" component={Scanner} />
       <Stack.Screen name="DirectChat" component={Chat} />
       <Stack.Screen name="ContactProfile" component={ContactProfile} />

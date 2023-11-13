@@ -3,10 +3,12 @@ import {
   bundlesDir,
   generatedBundlesPath,
   readBundlesPath,
+  generatedSuperportsPath,
 } from '../../../configs/paths';
 import {
   DirectConnectionBundle,
   GeneratedDirectConnectionBundle,
+  GeneratedDirectSuperportConnectionBundle,
 } from '../../Bundles/interfaces';
 import {connectionFsSync} from '../../Synchronization';
 
@@ -53,6 +55,16 @@ async function initialiseGeneratedBundlesFileAsync() {
   return pathToFile;
 }
 
+async function initialiseGeneratedSuperportBundlesFileAsync() {
+  const pathToFile =
+    (await makeBundlesDirAsync()) + `${generatedSuperportsPath}`;
+  if (await RNFS.exists(pathToFile)) {
+    return pathToFile;
+  }
+  await RNFS.writeFile(pathToFile, JSON.stringify([]), DEFAULT_ENCODING);
+  return pathToFile;
+}
+
 /**
  * writes read bundles to file
  * @param {DirectConnectionBundle[]} bundles
@@ -70,6 +82,13 @@ async function writeGeneratedBundlesAsync(
   bundles: GeneratedDirectConnectionBundle[],
 ) {
   const pathToFile = await initialiseGeneratedBundlesFileAsync();
+  await RNFS.writeFile(pathToFile, JSON.stringify(bundles), DEFAULT_ENCODING);
+}
+
+async function writeGeneratedSuperportBundlesAsync(
+  bundles: GeneratedDirectSuperportConnectionBundle[],
+) {
+  const pathToFile = await initialiseGeneratedSuperportBundlesFileAsync();
   await RNFS.writeFile(pathToFile, JSON.stringify(bundles), DEFAULT_ENCODING);
 }
 
@@ -92,6 +111,14 @@ async function readReadBundlesAsync() {
 async function readGeneratedBundlesAsync() {
   const pathToFile = await initialiseGeneratedBundlesFileAsync();
   const bundles: GeneratedDirectConnectionBundle[] = JSON.parse(
+    await RNFS.readFile(pathToFile, DEFAULT_ENCODING),
+  );
+  return bundles;
+}
+
+async function readGeneratedSuperportBundlesAsync() {
+  const pathToFile = await initialiseGeneratedSuperportBundlesFileAsync();
+  const bundles: GeneratedDirectSuperportConnectionBundle[] = JSON.parse(
     await RNFS.readFile(pathToFile, DEFAULT_ENCODING),
   );
   return bundles;
@@ -135,6 +162,20 @@ export async function saveGeneratedBundlesRNFS(
   }
 }
 
+export async function saveGeneratedSuperportBundlesRNFS(
+  bundles: GeneratedDirectSuperportConnectionBundle[],
+  blocking: boolean = false,
+) {
+  if (blocking) {
+    const synced = async () => {
+      await writeGeneratedSuperportBundlesAsync(bundles);
+    };
+    await connectionFsSync(synced);
+  } else {
+    await writeGeneratedSuperportBundlesAsync(bundles);
+  }
+}
+
 /**
  * gets read bundles in storage
  * @@param {boolean} blocking - whether the function should block fs operations until completed. default = false.
@@ -168,5 +209,18 @@ export async function getGeneratedBundlesRNFS(
     return await connectionFsSync(synced);
   } else {
     return await readGeneratedBundlesAsync();
+  }
+}
+
+export async function getGeneratedSuperportBundlesRNFS(
+  blocking: boolean = false,
+): Promise<GeneratedDirectSuperportConnectionBundle[]> {
+  if (blocking) {
+    const synced = async () => {
+      return await readGeneratedSuperportBundlesAsync();
+    };
+    return await connectionFsSync(synced);
+  } else {
+    return await readGeneratedSuperportBundlesAsync();
   }
 }

@@ -27,8 +27,8 @@ import {
 import {encryptMessage} from '../Crypto/aes';
 import {getToken} from '../ServerAuth';
 import {ServerAuthToken} from '../ServerAuth/interfaces';
-import {updateConnectionOnNewMessage} from '../Connections';
-import {ReadStatus} from '../Connections/interfaces';
+import {getConnection, updateConnectionOnNewMessage} from '../Connections';
+import {ConnectionType, ReadStatus} from '../Connections/interfaces';
 import store from '../../store/appStore';
 
 /**
@@ -703,6 +703,9 @@ export async function tryToSendJournaled() {
   while (journaledMessages.length > 0) {
     const {contentType, messageType, data, replyId, messageId, chatId} =
       journaledMessages[0];
+    const connection = await getConnection(chatId);
+    const isGroup =
+      connection.connectionType === ConnectionType.group ? true : false;
     const sendOutput = await sendMessage(
       chatId,
       {
@@ -713,6 +716,7 @@ export async function tryToSendJournaled() {
         replyId,
       },
       false,
+      isGroup,
     );
     if (sendOutput.sendStatus === SendStatus.success) {
       journaledMessages.shift();

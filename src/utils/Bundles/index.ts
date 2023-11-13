@@ -41,6 +41,9 @@ export async function ReadConnectionBundle(
         // add group handshake action
         return await handshakeActionsG1(bundle);
       case ConnectionType.superport:
+        if (bundle.data.superportType === 'direct') {
+          return await handshakeActionsB1(bundle);
+        }
         // add superport handshake action
         return BundleReadResponse.formatError;
       default:

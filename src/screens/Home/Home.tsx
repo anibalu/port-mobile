@@ -16,6 +16,7 @@ import {cancelAllNotifications} from '../../utils/Notifications';
 import DefaultChatTile from './DefaultChatTile';
 import {ConnectionInfo, ReadStatus} from '../../utils/Connections/interfaces';
 import {getConnections} from '../../utils/Connections';
+import {tryToSendJournaled} from '../../utils/Messaging/sendMessage';
 // import {NativeStackScreenProps} from '@react-navigation/native-stack';
 // import {AppStackParamList} from '../../navigation/AppStackTypes';
 
@@ -44,7 +45,10 @@ function Home() {
   //focus effect to initial load connections and cancel all notifications when on home screen
   useFocusEffect(
     React.useCallback(() => {
-      (async () => setConnections(await getConnections()))();
+      (async () => {
+        await tryToSendJournaled();
+        setConnections(await getConnections());
+      })();
       // Cancel all notifications when I land on the home screen
       cancelAllNotifications();
     }, []),

@@ -29,6 +29,7 @@ import {
 } from '../../utils/Profile';
 import NamePopup from './UpdateNamePopup';
 import PendingContacts from './PendingContacts';
+import ActiveSuperports from './ActiveSuperports';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -131,6 +132,7 @@ function MyProfile({navigation}: Props) {
         </View>
       </View>
       <View style={styles.cards}>
+        <ActiveSuperports />
         <PendingContacts />
       </View>
       <Modal animationType="none" visible={editingName} transparent={true}>

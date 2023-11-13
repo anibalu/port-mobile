@@ -34,6 +34,11 @@ export async function handleDeepLink(urlObj: urlObject) {
     if (bundle.connectionType === ConnectionType.group) {
       await handshakeActionsG1(bundle);
     }
+    if (bundle.connectionType === ConnectionType.superport) {
+      if (bundle.data.superportType === 'direct') {
+        await handshakeActionsB1(bundle);
+      }
+    }
   } catch (error) {
     console.log('Error with deep linking: ', error);
   }

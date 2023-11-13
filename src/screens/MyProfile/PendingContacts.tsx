@@ -68,7 +68,9 @@ export default function PendingContacts() {
             )}
           />
         ) : (
-          <NumberlessRegularText>No Pending Contacts</NumberlessRegularText>
+          <NumberlessRegularText style={styles.noContacts}>
+            No Pending Contacts
+          </NumberlessRegularText>
         )}
       </Accordion>
       <Modal animationType="none" visible={modalVisible} transparent={true}>
@@ -118,16 +120,19 @@ const styles = StyleSheet.create({
     maxHeight: 150,
   },
   columnStyles: {
-    marginLeft: 5,
+    marginLeft: 10,
   },
   item: {
-    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 20,
+    paddingRight: 30,
     marginRight: 10,
     height: 65,
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 10,
-    padding: 8,
     borderWidth: 1,
     borderColor: '#F6F6F6',
     marginTop: 10,
@@ -196,5 +201,8 @@ const styles = StyleSheet.create({
     color: 'black',
     marginTop: 15,
     marginLeft: 10,
+  },
+  noContacts: {
+    marginTop: 10,
   },
 });

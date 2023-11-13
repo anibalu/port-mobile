@@ -5,6 +5,8 @@ export const AUTH_SERVER_CHALLENGE_RESOURCE =
   'https://it.numberless.tech/auth/user';
 export const LINE_LINKS_MANAGEMENT_RESOURCE =
   MANAGEMENT_BASE_URL + 'line-links';
+export const LINE_SUPERPORT_MANAGEMENT_RESOURCE =
+  MANAGEMENT_BASE_URL + 'superport/line';
 export const LINE_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + 'line';
 export const DIRECT_MESSAGING_RESOURCE = MESSAGING_BASE_URL + 'line';
 export const BUNDLE_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + 'bundle';

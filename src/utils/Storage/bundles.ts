@@ -1,11 +1,14 @@
 import {
   DirectConnectionBundle,
   GeneratedDirectConnectionBundle,
+  GeneratedDirectSuperportConnectionBundle,
 } from '../Bundles/interfaces';
 import {
   getGeneratedBundlesRNFS,
+  getGeneratedSuperportBundlesRNFS,
   getReadBundlesRNFS,
   saveGeneratedBundlesRNFS,
+  saveGeneratedSuperportBundlesRNFS,
   saveReadBundlesRNFS,
 } from './StorageRNFS/bundlesHandlers';
 
@@ -33,6 +36,13 @@ export async function saveGeneratedDirectConnectionBundles(
   saveGeneratedBundlesRNFS(bundles, blocking);
 }
 
+export async function saveGeneratedSuperportDirectConnectionBundles(
+  bundles: GeneratedDirectSuperportConnectionBundle[],
+  blocking: boolean = false,
+) {
+  saveGeneratedSuperportBundlesRNFS(bundles, blocking);
+}
+
 /**
  * reads read bundles in storage
  * @param {boolean} blocking - whether the function should block operations until completed. default = false
@@ -53,4 +63,10 @@ export async function getGeneratedDirectConnectionBundles(
   blocking: boolean = false,
 ): Promise<GeneratedDirectConnectionBundle[]> {
   return await getGeneratedBundlesRNFS(blocking);
+}
+
+export async function getGeneratedSuperportDirectConnectionBundles(
+  blocking: boolean = false,
+): Promise<GeneratedDirectSuperportConnectionBundle[]> {
+  return await getGeneratedSuperportBundlesRNFS(blocking);
 }

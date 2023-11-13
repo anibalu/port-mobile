@@ -75,11 +75,19 @@ export async function saveReadDirectConnectionBundle(
 export async function saveGeneratedDirectConnectionBundle(
   bundle: GeneratedDirectConnectionBundle,
 ) {
-  const generatedBundles = await getGeneratedDirectConnectionBundles();
-  await storage.saveGeneratedDirectConnectionBundles([
-    ...generatedBundles,
-    bundle,
-  ]);
+  const synced = async () => {
+    const generatedBundles = await getGeneratedDirectConnectionBundles(false);
+    let index: number = generatedBundles.findIndex(
+      obj => obj.data.linkId === bundle.data.linkId,
+    );
+    if (index === -1) {
+      await storage.saveGeneratedDirectConnectionBundles(
+        [...generatedBundles, bundle],
+        false,
+      );
+    }
+  };
+  await connectionFsSync(synced);
 }
 
 export async function deleteGeneratedDirectConnectionBundle(linkId: string) {
@@ -139,17 +147,29 @@ export async function getReadDirectConnectionBundles(): Promise<
  * Gets the generated direct connection bundles. cleans up and automatically removes timed out bundles
  * @returns {Promise<GeneratedDirectConnectionBundle[]>} - A promise that resolves to the generated direct connection bundles.
  */
-export async function getGeneratedDirectConnectionBundles(): Promise<
-  GeneratedDirectConnectionBundle[]
-> {
-  const generatedBundles = await storage.getGeneratedDirectConnectionBundles();
-  const validGeneratedBundles = generatedBundles.filter(bundle =>
-    checkBundleValidity(bundle.timestamp),
-  );
-  if (validGeneratedBundles.length !== generatedBundles.length) {
-    await storage.saveGeneratedDirectConnectionBundles(validGeneratedBundles);
+export async function getGeneratedDirectConnectionBundles(
+  blocking: boolean = false,
+): Promise<GeneratedDirectConnectionBundle[]> {
+  const synced = async () => {
+    const generatedBundles = await storage.getGeneratedDirectConnectionBundles(
+      false,
+    );
+    const validGeneratedBundles = generatedBundles.filter(bundle =>
+      checkBundleValidity(bundle.timestamp),
+    );
+    if (validGeneratedBundles.length !== generatedBundles.length) {
+      await storage.saveGeneratedDirectConnectionBundles(
+        validGeneratedBundles,
+        false,
+      );
+    }
+    return validGeneratedBundles;
+  };
+  if (blocking) {
+    return await connectionFsSync(synced);
+  } else {
+    return synced();
   }
-  return validGeneratedBundles;
 }
 
 /**
@@ -160,7 +180,7 @@ export async function getGeneratedDirectConnectionBundles(): Promise<
 export async function getGeneratedDirectConnectionBundle(
   linkId: string,
 ): Promise<GeneratedDirectConnectionBundle> {
-  const generatedBundles = await getGeneratedDirectConnectionBundles();
+  const generatedBundles = await getGeneratedDirectConnectionBundles(true);
   let index: number = generatedBundles.findIndex(
     obj => obj.data.linkId === linkId,
   );

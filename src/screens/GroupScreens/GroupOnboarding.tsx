@@ -1,5 +1,5 @@
 import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {Pressable, StatusBar, StyleSheet, Text, View} from 'react-native';
 import GroupsImage from '../../../assets/backgrounds/groups.svg';
 import {useNavigation} from '@react-navigation/native';
 import Topbar from './Topbar';
@@ -9,6 +9,7 @@ const GroupOnboarding = () => {
   const navigation = useNavigation();
   return (
     <>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <Topbar title={''} />
       <View style={style.mainContainer}>
         <Text style={style.title}>Welcome to groups</Text>

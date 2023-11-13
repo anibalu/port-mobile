@@ -8,7 +8,11 @@ import {
 } from '../NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import DefaultImage from '../../../assets/avatars/avatar.png';
-import {ConnectionInfo, ReadStatus} from '../../utils/Connections/interfaces';
+import {
+  ConnectionInfo,
+  ConnectionType,
+  ReadStatus,
+} from '../../utils/Connections/interfaces';
 
 function ChatTile(props: ConnectionInfo) {
   const navigation = useNavigation();
@@ -26,7 +30,8 @@ function ChatTile(props: ConnectionInfo) {
   };
   let status: string = props.readStatus;
 
-  return props.authenticated ? (
+  return props.authenticated ||
+    props.connectionType === ConnectionType.group ? (
     <Pressable
       style={
         props.readStatus === ReadStatus.new

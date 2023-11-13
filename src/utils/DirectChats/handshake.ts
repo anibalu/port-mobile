@@ -113,25 +113,36 @@ export async function handshakeActionsA1(
         connectionLinkId: connectionLinkId,
       },
     });
-    await addConnection({
-      chatId: chatId,
-      connectionType: ConnectionType.direct,
-      name: '',
-      permissions: defaultDirectPermissions,
-      recentMessageType: ContentType.newChat,
-      readStatus: ReadStatus.new,
-      authenticated: false,
-      timestamp: generateISOTimeStamp(),
-      newMessageCount: 0,
-    });
     let bundle = {};
     try {
       //load up corresponding generated bundle and delete it.
       bundle = await getGeneratedDirectConnectionBundle(connectionLinkId);
       await deleteGeneratedDirectConnectionBundle(connectionLinkId);
+      await addConnection({
+        chatId: chatId,
+        connectionType: ConnectionType.direct,
+        name: bundle.label || '',
+        permissions: defaultDirectPermissions,
+        recentMessageType: ContentType.newChat,
+        readStatus: ReadStatus.new,
+        authenticated: false,
+        timestamp: generateISOTimeStamp(),
+        newMessageCount: 0,
+      });
     } catch (error) {
       //if bundle cannot be found, it's a superport bundle
       bundle = await loadGeneratedSuperport(connectionLinkId);
+      await addConnection({
+        chatId: chatId,
+        connectionType: ConnectionType.direct,
+        name: '',
+        permissions: defaultDirectPermissions,
+        recentMessageType: ContentType.newChat,
+        readStatus: ReadStatus.new,
+        authenticated: false,
+        timestamp: generateISOTimeStamp(),
+        newMessageCount: 0,
+      });
     }
     //save nonce and keys from generated bundle to crypto storage
     await saveChatCrypto(

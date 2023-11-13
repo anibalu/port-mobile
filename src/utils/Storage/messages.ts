@@ -28,7 +28,7 @@ export async function saveMessage(
  */
 export async function readMessages(
   chatId: string,
-  blocking: boolean = false,
+  blocking: boolean = true,
 ): Promise<SavedMessageParams[]> {
   return await readMessagesRNFS(chatId, blocking);
 }

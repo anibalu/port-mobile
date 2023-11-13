@@ -1,11 +1,11 @@
 /**
  * Default chat tile displayed when there are no connections
  */
-import React from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {Pressable, StyleSheet, View} from 'react-native';
+import React from 'react';
+import {Image, Pressable, StyleSheet} from 'react-native';
+import DefaultImage from '../../../assets/avatars/avatar.png';
 import {NumberlessItalicText} from '../../components/NumberlessText';
-import BottomNavNew from '../../../assets/icons/BottomNavNewInactive.svg';
 
 function DefaultChatTile() {
   const navigation = useNavigation();
@@ -14,11 +14,12 @@ function DefaultChatTile() {
   };
   return (
     <Pressable style={styles.defaultTileContainer} onPress={handleNavigate}>
-      <View style={styles.newIcon}>
-        <BottomNavNew width={50} height={50} />
-      </View>
+      <Image
+        source={{uri: Image.resolveAssetSource(DefaultImage).uri}}
+        style={styles.picture}
+      />
       <NumberlessItalicText style={styles.defaultTileText}>
-        Add a new contact
+        Click here to add a new contact
       </NumberlessItalicText>
     </Pressable>
   );
@@ -34,11 +35,17 @@ const styles = StyleSheet.create({
       width: 14,
       height: 8,
     },
-    backgroundColor: '#FFF6',
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     padding: 15,
+  },
+  picture: {
+    width: 50,
+    height: 50,
+    borderRadius: 17,
+    opacity: 0.3,
   },
   defaultTileText: {
     color: '#A1A1A1',

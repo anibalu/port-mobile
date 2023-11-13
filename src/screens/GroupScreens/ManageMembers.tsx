@@ -53,7 +53,9 @@ function ManageMembers({route, navigation}: Props) {
       setViewableMembers(groupMembers);
     } else {
       setViewableMembers(
-        groupMembers.filter(member => member?.name?.includes(searchText)),
+        groupMembers.filter(member =>
+          member?.name?.toLowerCase().includes(searchText.toLowerCase()),
+        ),
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

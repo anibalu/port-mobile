@@ -562,6 +562,7 @@ async function mediaIdExistsActions(
       chatId,
       getSenderPrefix() + message.messageId,
       savedMessage,
+      true,
     );
   }
   //encrypt message

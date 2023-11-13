@@ -25,7 +25,8 @@ function ChatTile(props: ConnectionInfo) {
     navigation.navigate('DirectChat', {chatId: props.chatId});
   };
   let status: string = props.readStatus;
-  return (
+
+  return props.authenticated ? (
     <Pressable
       style={
         props.readStatus === ReadStatus.new
@@ -61,6 +62,39 @@ function ChatTile(props: ConnectionInfo) {
             {displayNumber(props.newMessageCount, status)}
           </NumberlessSemiBoldText>
         </View>
+      </View>
+    </Pressable>
+  ) : (
+    <Pressable
+      style={
+        props.readStatus === ReadStatus.new
+          ? StyleSheet.compose(styles.tile, styles.newMessage)
+          : styles.tile
+      }
+      onPress={handleNavigate}>
+      <View style={styles.text}>
+        <NumberlessSemiBoldText
+          style={styles.nickname}
+          ellipsizeMode="tail"
+          numberOfLines={1}>
+          New contact
+        </NumberlessSemiBoldText>
+        <NumberlessRegularText
+          style={
+            props.readStatus === ReadStatus.new
+              ? styles.content
+              : StyleSheet.compose(styles.content, styles.newMessageContent)
+          }
+          ellipsizeMode="tail"
+          numberOfLines={1}>
+          Initializing a new contact
+        </NumberlessRegularText>
+      </View>
+      <View style={styles.messageBox}>
+        <Image
+          source={{uri: Image.resolveAssetSource(DefaultImage).uri}}
+          style={styles.pictureInit}
+        />
       </View>
     </Pressable>
   );
@@ -119,6 +153,12 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 17,
+  },
+  pictureInit: {
+    width: 50,
+    height: 50,
+    borderRadius: 17,
+    opacity: 0.3,
   },
   text: {
     height: '100%',

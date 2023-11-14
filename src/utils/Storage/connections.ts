@@ -1,11 +1,5 @@
-import {ConnectionInfo} from '../Connections/interfaces';
-import {
-  deleteAllConnectionsRNFS,
-  deleteConnectionRNFS,
-  getConnectionRNFS,
-  getConnectionsRNFS,
-  saveConnectionsRNFS,
-} from './StorageRNFS/connectionsHandlers';
+import {ConnectionInfo, ConnectionInfoUpdate} from '../Connections/interfaces';
+import * as DBCalls from './DBCalls/connections';
 
 /**
  * Returns the connections stored.
@@ -13,28 +7,44 @@ import {
  * @returns {Promise<ConnectionInfo[]>} - An array containing all the connections
  */
 export async function getConnections(blocking: boolean = false) {
-  return await getConnectionsRNFS(blocking);
+  blocking.toString();
+  return await DBCalls.getConnections();
 }
 /**
  * Finds the connections info associated with a chatId.
  * @param {string} chatId - the chatId of the connection.
- * @param {boolean} blocking - whether the function should block until completed. default = false.
+ * @param {boolean} blocking - deprecated value
  * @returns {Promise<ConnectionInfo>} - the connection info associated with a chatId.
  */
 export async function getConnection(chatId: string, blocking: boolean = false) {
-  return await getConnectionRNFS(chatId, blocking);
+  blocking.toString();
+  return await DBCalls.getConnection(chatId);
 }
 
 /**
- * Saves connections to storage.
- * @param {boolean} blocking - whether the function should block until completed. default = false.
- * @param {Array<ConnectionInfo>} connections - the connections array to save.
+ *
+ * @param connection Add a new connection to storage
+ * @param blocking deprecated value
  */
-export async function saveConnections(
-  connections: ConnectionInfo[],
+export async function addConnection(
+  connection: ConnectionInfo,
   blocking: boolean = false,
 ) {
-  await saveConnectionsRNFS(connections, blocking);
+  blocking.toString();
+  await DBCalls.addConnection(connection);
+}
+
+/**
+ *
+ * @param update the update to make to a connection in storage
+ * @param blocking deprecated, unused value
+ */
+export async function updateConnection(
+  update: ConnectionInfoUpdate,
+  blocking: boolean = false,
+) {
+  blocking.toString();
+  await DBCalls.updateConnection(update.chatId, update);
 }
 
 /**
@@ -46,13 +56,6 @@ export async function deleteConnection(
   chatId: string,
   blocking: boolean = false,
 ) {
-  await deleteConnectionRNFS(chatId, blocking);
-}
-
-/**
- * deletes all connections from storage.
- * @param {boolean} blocking - whether the function should block until completed. default = false.
- */
-export async function deleteAllConnections(blocking: boolean = false) {
-  await deleteAllConnectionsRNFS(blocking);
+  blocking.toString();
+  await DBCalls.deleteConnection(chatId);
 }

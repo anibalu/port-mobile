@@ -16,3 +16,4 @@ export const GROUP_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + 'group';
 export const GROUP_LINKS_MANAGEMENT_RESOURCE =
   MANAGEMENT_BASE_URL + 'group-links';
 export const GROUP_MESSAGING_RESOURCE = MESSAGING_BASE_URL + 'message';
+export const QUEUE_GET_URL = MESSAGING_BASE_URL + '/queue';

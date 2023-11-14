@@ -4,6 +4,7 @@ import {
   overwriteJournalRNFS,
   readJournalRNFS,
 } from './StorageRNFS/journalHandlers';
+import * as DBCalls from './DBCalls/lineMessage';
 
 /**
  * Adds a message to the journal storage.
@@ -40,4 +41,8 @@ export async function readJournal(
   blocking: boolean = false,
 ): Promise<Array<JournaledMessageParams>> {
   return await readJournalRNFS(blocking);
+}
+
+export async function getJournaled(): Promise<JournaledMessageParams[]> {
+  return await DBCalls.getUnsent();
 }

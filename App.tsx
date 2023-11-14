@@ -21,6 +21,10 @@ import {loadJournalToStore} from './src/utils/Messaging/journal';
 import {checkProfile} from './src/utils/Profile';
 import {ProfileStatus} from './src/utils/Profile/interfaces';
 
+import runMigrations from './src/utils/Storage/Migrations';
+
+runMigrations();
+
 import AppStack from './src/navigation/AppStack';
 import OnboardingStack from './src/navigation/OnboardingStack';
 import {handleDeepLink} from './src/utils/DeepLinking';

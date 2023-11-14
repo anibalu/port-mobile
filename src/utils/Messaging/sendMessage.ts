@@ -18,7 +18,6 @@ import {
   updateMessage,
   updateMessageSendStatus,
 } from '../Storage/messages';
-import {getJournal, saveToJournal, updateJournal} from './journal';
 import {DownloadParams, uploadLargeFile} from './largeData';
 import {
   copyToFilesDir,
@@ -30,6 +29,7 @@ import {ServerAuthToken} from '../ServerAuth/interfaces';
 import {getConnection, updateConnectionOnNewMessage} from '../Connections';
 import {ConnectionType, ReadStatus} from '../Connections/interfaces';
 import store from '../../store/appStore';
+import {getJournaled} from '../Storage/journal';
 
 /**
  * The function used to send messages. The send operation has the following flow:
@@ -64,7 +64,10 @@ export async function sendMessage(
   isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //ensure message has a valid message Id
-  const tempMessageId = message.messageId || generateTempMessageId();
+  let tempMessageId = message.messageId || generateTempMessageId();
+  if (!journal) {
+    tempMessageId = tempMessageId.slice(getSenderPrefix().length);
+  }
   const newMessage: SendMessageParamsStrict = {
     ...message,
     messageId: tempMessageId,
@@ -196,7 +199,7 @@ async function sendTextMessage(
     };
     try {
       //add to journal
-      await saveToJournal(journaledMessage);
+      //await saveToJournal(journaledMessage);
       //update send status in storage
       await updateMessageSendStatus(
         chatId,
@@ -294,7 +297,7 @@ async function sendHandshakeDirectMessage(
     };
     try {
       //add to journal
-      await saveToJournal(journaledMessage);
+      //await saveToJournal(journaledMessage);
       //update send status in storage
       await updateMessageSendStatus(
         chatId,
@@ -387,7 +390,7 @@ async function sendNameMessage(
     };
     try {
       //add to journal
-      await saveToJournal(journaledMessage);
+      //await saveToJournal(journaledMessage);
       //update send status in storage
       await updateMessageSendStatus(
         chatId,
@@ -561,7 +564,7 @@ async function mediaIdExistsActions(
     await updateMessage(
       chatId,
       getSenderPrefix() + message.messageId,
-      savedMessage,
+      savedMessage.data,
       true,
     );
   }
@@ -620,7 +623,7 @@ async function mediaIdExistsActions(
       chatId,
     };
     try {
-      await saveToJournal(journaledMessage);
+      //await saveToJournal(journaledMessage);
       //update send status in storage
       await updateMessageSendStatus(
         chatId,
@@ -705,32 +708,31 @@ function getSenderPrefix() {
  */
 
 export async function tryToSendJournaled() {
-  //get current journal
-  const journaledMessages = await getJournal();
-  while (journaledMessages.length > 0) {
-    const {contentType, messageType, data, replyId, messageId, chatId} =
-      journaledMessages[0];
-    const connection = await getConnection(chatId);
-    const isGroup =
-      connection.connectionType === ConnectionType.group ? true : false;
-    const sendOutput = await sendMessage(
-      chatId,
-      {
-        messageType,
-        contentType,
-        data,
-        messageId,
-        replyId,
-      },
-      false,
-      isGroup,
-    );
-    if (sendOutput.sendStatus === SendStatus.success) {
-      journaledMessages.shift();
-    } else {
-      break;
+  try {
+    //get current journal
+    const journaledMessages = await getJournaled();
+    console.log('journaled messages: ', journaledMessages);
+    for (let index = 0; index < journaledMessages.length; index++) {
+      const {contentType, messageType, data, replyId, messageId, chatId} =
+        journaledMessages[index];
+      const connection = await getConnection(chatId);
+      const isGroup =
+        connection.connectionType === ConnectionType.group ? true : false;
+      const sendOutput = await sendMessage(
+        chatId,
+        {
+          messageType,
+          contentType,
+          data,
+          messageId,
+          replyId,
+        },
+        false,
+        isGroup,
+      );
+      console.log('send output: ', sendOutput);
     }
+  } catch (error) {
+    console.log('Error in emptying journal: ', error);
   }
-  //update journal with new journal
-  await updateJournal(journaledMessages);
 }

@@ -26,10 +26,7 @@ import {getConnections} from '../../utils/Connections';
 import {tryToSendJournaled} from '../../utils/Messaging/sendMessage';
 import Topbar from './Topbar';
 import {NAME_LENGTH_LIMIT} from '../../configs/constants';
-// import {NativeStackScreenProps} from '@react-navigation/native-stack';
-// import {AppStackParamList} from '../../navigation/AppStackTypes';
-
-//type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
+import pullBacklog from '../../utils/Messaging/pullBacklog';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: ConnectionInfo) {
@@ -59,11 +56,15 @@ function Home() {
     return storeConnections;
   }
   //focus effect to initial load connections and cancel all notifications when on home screen
+  // Also attempt to send unsent messages
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
         await tryToSendJournaled();
         setConnections(await getConnections());
+      })();
+      (async () => {
+        await pullBacklog();
       })();
       // Cancel all notifications when I land on the home screen
       cancelAllNotifications();
@@ -107,7 +108,6 @@ function Home() {
     React.useCallback(() => {
       (async () => {
         //sets new unread count when store experiences a change.
-        console.log('unread count processed again');
         let count = 0;
         for (const connection of connections) {
           if (connection.readStatus === ReadStatus.new) {

@@ -39,6 +39,10 @@ export async function receiveDirectMessage(
     const timestamp = sentTime.toISOString();
     //if the received message is a handshake A1 message (server notifies that the other party has used a connection link to create a connection).
     if (!messageData.messageContent && messageData.lineLinkId) {
+      if (messageData.superportId && messageData.superportId !== 'None') {
+        await handshakeActionsA1(chatId, messageData.superportId);
+        return ReceiveStatus.success;
+      }
       //trigger handshake A1
       await handshakeActionsA1(chatId, messageData.lineLinkId);
       return ReceiveStatus.success;

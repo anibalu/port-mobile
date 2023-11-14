@@ -12,8 +12,6 @@ export const getFCMToken = async () => {
 
 export const registerBackgroundMessaging = () => {
   messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('background triggered', remoteMessage.data);
-    //recieve message
     await receiveMessage(remoteMessage);
     store.dispatch({type: 'NEW_MESSAGE', payload: remoteMessage});
   });
@@ -21,8 +19,6 @@ export const registerBackgroundMessaging = () => {
 
 export const foregroundMessageHandler = () => {
   messaging().onMessage(async remoteMessage => {
-    console.log('background triggered', remoteMessage);
-    //recieve message
     await receiveMessage(remoteMessage);
     store.dispatch({type: 'NEW_MESSAGE', payload: remoteMessage});
   });

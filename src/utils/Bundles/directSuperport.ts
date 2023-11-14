@@ -16,7 +16,7 @@ export async function loadGeneratedSuperport(
   const generatedBundles =
     await storage.getGeneratedSuperportDirectConnectionBundles(true);
   let index: number = generatedBundles.findIndex(
-    obj => obj.data.linkId === superportId,
+    value => value.data.linkId === superportId,
   );
   if (index === -1) {
     throw new Error('No such superport');
@@ -31,7 +31,7 @@ export async function saveNewGeneratedSuperport(
     const generatedBundles =
       await storage.getGeneratedSuperportDirectConnectionBundles(false);
     let index: number = generatedBundles.findIndex(
-      obj => obj.data.linkId === bundle.data.linkId,
+      value => value.data.linkId === bundle.data.linkId,
     );
     if (index === -1) {
       await storage.saveGeneratedSuperportDirectConnectionBundles(
@@ -44,7 +44,9 @@ export async function saveNewGeneratedSuperport(
 }
 
 export async function loadGeneratedSuperports() {
-  return await storage.getGeneratedSuperportDirectConnectionBundles(true);
+  const generatedBundles =
+    await storage.getGeneratedSuperportDirectConnectionBundles(true);
+  return generatedBundles;
 }
 
 export async function closeGeneratedSuperport(superportId: string) {

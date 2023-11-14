@@ -46,14 +46,7 @@ export async function addConnection(connection: ConnectionInfo) {
         payload: connection,
       });
       //add connection to storage
-      const connections = await storage.getConnections(false);
-      await storage.saveConnections(
-        [
-          connection,
-          ...connections.filter(item => item.chatId !== connection.chatId),
-        ],
-        false,
-      );
+      await storage.addConnection(connection, false);
     };
     await connectionFsSync(synced);
   } catch (error) {
@@ -70,21 +63,14 @@ export async function updateConnectionOnNewMessage(
 ) {
   const synced = async () => {
     try {
-      //read current connections from cache
+      //read current connections from store
       const entireState = store.getState();
-      let connections: ConnectionInfo[] = entireState.connections.connections;
-      let index: number = connections.findIndex(
+      const connections: ConnectionInfo[] = entireState.connections.connections;
+      const index: number = connections.findIndex(
         obj => obj.chatId === update.chatId,
       );
-      if (index === -1) {
-        //try loading connections from storage
-        connections = await storage.getConnections(false);
-        index = connections.findIndex(obj => obj.chatId === update.chatId);
-        if (index === -1) {
-          throw new Error('NoSuchChat');
-        }
-        //update connection
-        connections[index] = {
+      if (index !== -1) {
+        const updatedConnection = {
           ...connections[index],
           ...update,
           timestamp: generateISOTimeStamp(),
@@ -93,44 +79,24 @@ export async function updateConnectionOnNewMessage(
               ? connections[index].newMessageCount + 1
               : connections[index].newMessageCount,
         };
-        const newConnections = [
-          connections[index],
-          ...connections.slice(0, index),
-          ...connections.slice(index + 1),
-        ];
-        //update cache
         store.dispatch({
-          type: 'LOAD_CONNECTIONS',
-          payload: newConnections,
+          type: 'UPDATE_CONNECTION',
+          payload: updatedConnection,
         });
-        //update storage
-        await storage.saveConnections(newConnections, false);
-      } else {
-        //update connection
-        connections[index] = {
-          ...connections[index],
-          ...update,
-          timestamp: generateISOTimeStamp(),
-          newMessageCount:
-            update.readStatus === ReadStatus.new
-              ? connections[index].newMessageCount + 1
-              : connections[index].newMessageCount,
-        };
-        const newConnections = [
-          connections[index],
-          ...connections.slice(0, index),
-          ...connections.slice(index + 1),
-        ];
-        //update cache
-        store.dispatch({
-          type: 'LOAD_CONNECTIONS',
-          payload: newConnections,
-        });
-        //update storage
-        await storage.saveConnections(newConnections, false);
       }
+      await storage.updateConnection(
+        {
+          ...update,
+          timestamp: generateISOTimeStamp(),
+          newMessageCount:
+            update.readStatus === ReadStatus.new
+              ? connections[index].newMessageCount + 1
+              : connections[index].newMessageCount,
+        },
+        false,
+      );
     } catch (error) {
-      console.log('Error updating a connection on new message: ', error);
+      console.log('Error updating a connection: ', error);
     }
   };
   await connectionFsSync(synced);
@@ -143,55 +109,23 @@ export async function updateConnectionOnNewMessage(
 export async function updateConnection(update: ConnectionInfoUpdate) {
   const synced = async () => {
     try {
-      //read current connections from cache
+      //read current connections from store
       const entireState = store.getState();
       let connections: ConnectionInfo[] = entireState.connections.connections;
-      let index: number = connections.findIndex(
+      const index: number = connections.findIndex(
         obj => obj.chatId === update.chatId,
       );
-      if (index === -1) {
-        //try loading connections from storage
-        connections = await storage.getConnections(false);
-        index = connections.findIndex(obj => obj.chatId === update.chatId);
-        if (index === -1) {
-          throw new Error('NoSuchChat');
-        }
-        //update connections
+      if (index !== -1) {
         connections[index] = {
           ...connections[index],
           ...update,
         };
-        const newConnections = [
-          ...connections.slice(0, index),
-          connections[index],
-          ...connections.slice(index + 1),
-        ];
-        //update cache
         store.dispatch({
-          type: 'LOAD_CONNECTIONS',
-          payload: newConnections,
+          type: 'UPDATE_CONNECTION',
+          payload: connections[index],
         });
-        //update storage
-        await storage.saveConnections(newConnections, false);
-      } else {
-        //update connections
-        connections[index] = {
-          ...connections[index],
-          ...update,
-        };
-        const newConnections = [
-          ...connections.slice(0, index),
-          connections[index],
-          ...connections.slice(index + 1),
-        ];
-        //update cache
-        store.dispatch({
-          type: 'LOAD_CONNECTIONS',
-          payload: newConnections,
-        });
-        //update storage
-        await storage.saveConnections(newConnections, false);
       }
+      await storage.updateConnection(update, false);
     } catch (error) {
       console.log('Error updating a connection: ', error);
     }
@@ -237,23 +171,6 @@ export async function deleteConnection(chatId: string) {
     });
     //delete from storage
     await storage.deleteConnection(chatId, true);
-  } catch (error) {
-    console.log('Error deleting a connection: ', error);
-  }
-}
-
-/**
- * Delete all connections
- */
-export async function deleteAllConnections() {
-  try {
-    //delete from cache
-    store.dispatch({
-      type: 'LOAD_CONNECTIONS',
-      payload: [],
-    });
-    //delete from storage
-    await storage.deleteAllConnections(true);
   } catch (error) {
     console.log('Error deleting a connection: ', error);
   }

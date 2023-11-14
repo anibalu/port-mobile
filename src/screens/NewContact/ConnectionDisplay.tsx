@@ -122,6 +122,7 @@ function ConnectionDisplay() {
   useFocusEffect(
     React.useCallback(() => {
       const unsubscribe = store.subscribe(() => {
+        console.log('subscribe logged');
         setStoreChange(storeChange + 1);
       });
       // Clean up the subscription when the screen loses focus

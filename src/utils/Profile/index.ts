@@ -87,7 +87,7 @@ export async function getProfileInfo(
  */
 export async function checkProfile(): Promise<ProfileStatus> {
   try {
-    await getProfileInfo(true);
+    console.log(await getProfileInfo(true));
     return ProfileStatus.created;
   } catch (error) {
     return ProfileStatus.failed;

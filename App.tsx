@@ -28,6 +28,7 @@ runMigrations();
 import AppStack from './src/navigation/AppStack';
 import OnboardingStack from './src/navigation/OnboardingStack';
 import {handleDeepLink} from './src/utils/DeepLinking';
+import pullBacklog from './src/utils/Messaging/pullBacklog';
 
 type RootStackParamList = {
   AppStack: undefined;
@@ -57,6 +58,10 @@ function App(): JSX.Element {
         console.error('Error checking profile:', error);
       }
     };
+    (async () => {
+      await pullBacklog();
+    })();
+
     checkProfileCreated();
     // default way to handle new messages in the foreground
     foregroundMessageHandler();

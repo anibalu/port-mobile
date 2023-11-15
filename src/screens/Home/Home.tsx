@@ -18,15 +18,14 @@ import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator'
 import {Page} from '../../components/BottomNavigator/Button';
 import ChatTile from '../../components/ChatTile/ChatTile';
 import {SafeAreaView} from '../../components/SafeAreaView';
+import {NAME_LENGTH_LIMIT} from '../../configs/constants';
 import store from '../../store/appStore';
+import {getConnections} from '../../utils/Connections';
+import {ConnectionInfo, ReadStatus} from '../../utils/Connections/interfaces';
+import {tryToSendJournaled} from '../../utils/Messaging/sendMessage';
 import {cancelAllNotifications} from '../../utils/Notifications';
 import DefaultChatTile from './DefaultChatTile';
-import {ConnectionInfo, ReadStatus} from '../../utils/Connections/interfaces';
-import {getConnections} from '../../utils/Connections';
-import {tryToSendJournaled} from '../../utils/Messaging/sendMessage';
 import Topbar from './Topbar';
-import {NAME_LENGTH_LIMIT} from '../../configs/constants';
-import pullBacklog from '../../utils/Messaging/pullBacklog';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: ConnectionInfo) {
@@ -62,9 +61,6 @@ function Home() {
       (async () => {
         await tryToSendJournaled();
         setConnections(await getConnections());
-      })();
-      (async () => {
-        await pullBacklog();
       })();
       // Cancel all notifications when I land on the home screen
       cancelAllNotifications();

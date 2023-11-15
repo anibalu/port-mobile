@@ -21,7 +21,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'Numberless' do
+target 'Port' do
   config = use_native_modules!
 
   # Flags change depending on the env values.
@@ -48,7 +48,7 @@ target 'Numberless' do
 
 
 
-  target 'NumberlessTests' do
+  target 'PortTests' do
     inherit! :complete
     # Pods for testing
     

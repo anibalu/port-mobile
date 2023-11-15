@@ -1,6 +1,6 @@
 {
-  "name": "Numberless",
-  "displayName": "Bridge",
+  "name": "Port",
+  "displayName": "Port",
   "extra": {
     "eas": {
       "projectId": "903c910a-1c80-4bfe-94d8-316e58eb174a"

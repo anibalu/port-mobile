@@ -8,9 +8,12 @@ steps:
   inputs:
     versionSpec: '20.x.x'
 
+- task: npmAuthenticate@0
+  inputs:
+    workingFile: .npmrc
+
 - script: |
-    NPM_TOKEN=$(NPM_TOKEN) npm install
-  displayName: 'Install Node dependencies'
+    npm install
 
 - script: npx eslint .
   displayName: 'Lint'

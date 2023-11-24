@@ -17,3 +17,5 @@ export const GROUP_LINKS_MANAGEMENT_RESOURCE =
   MANAGEMENT_BASE_URL + 'group-links';
 export const GROUP_MESSAGING_RESOURCE = MESSAGING_BASE_URL + 'message';
 export const QUEUE_GET_URL = MESSAGING_BASE_URL + '/queue';
+export const BUG_REPORTING_ENDPOINT =
+  'https://4ivi6zkwr3orddkhhc67hfcoei0jqmch.lambda-url.eu-central-1.on.aws/';

@@ -61,7 +61,6 @@ export async function uploadLargeFile(
   fileUri: string,
 ): Promise<DownloadParams> {
   const uploadTo: UploadParams = await getUploadPresignedUrl();
-  // Prepare the form data for POST request
   const {url, fields} = uploadTo;
   const formData = new FormData();
   Object.entries(fields).forEach(([key, value]) => {
@@ -69,19 +68,38 @@ export async function uploadLargeFile(
   });
   //convert file to ciphertext
   const encrypted = await encryptFile(fileUri);
-  const {path, name} = await createTempFileUpload(encrypted.ciphertext);
+  const {path} = await createTempFileUpload(encrypted.ciphertext);
+  await s3Upload('file://' + path, formData, url);
+  await deleteTempFileUpload(path);
+  return {mediaId: fields.key.substring(8), key: encrypted.key};
+}
+
+/**
+ * Upload an unencrypted file
+ * @param fileUri File to be uploaded
+ * @param media_url Media URL to upload file to
+ * @returns URL of returned media
+ */
+export async function uploadRawMedia(fileUri: string, media_url: any) {
+  // @Future Shantanav: FIX THIS it doesn't work
+  const formData = new FormData();
+  Object.entries(media_url.fields).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+  await s3Upload(fileUri, formData, media_url.url);
+  return media_url.fields.key;
+}
+
+async function s3Upload(fileUri: string, formData: FormData, url: string) {
   formData.append('file', {
-    uri: 'file://' + path,
-    type: 'text/plain',
-    name: name,
+    uri: fileUri,
+    type: 'image/*',
+    name: 'test',
   });
   const config = {
     headers: {'Content-Type': 'multipart/form-data'},
   };
   await axios.post(url, formData, config);
-  await deleteTempFileUpload(path);
-  console.log('Upload of encrypted file successful');
-  return {mediaId: fields.key.substring(8), key: encrypted.key};
 }
 
 /**

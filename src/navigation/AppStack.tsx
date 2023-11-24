@@ -21,6 +21,9 @@ import Scanner from '../screens/Scanner/Scanner';
 import {AppStackParamList} from './AppStackTypes';
 import GroupProfile from '../screens/GroupScreens/GroupProfile/GroupProfile';
 import NewSuperport from '../screens/NewSuperport/NewSuperport';
+import AddCategoryScreen from '../screens/BugReporting/AddCategoryScreen';
+import ReportIssueScreen from '../screens/BugReporting/ReportIssueScreen';
+import SuggestAFeature from '../screens/BugReporting/SuggestAFeature';
 import ForwardToContact from '../screens/ForwardToContact/ForwardToContact';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -49,6 +52,9 @@ function AppStack() {
       <Stack.Screen name="ShareGroup" component={ShareGroup} />
       <Stack.Screen name="ViewPhotosVideos" component={ViewPhotosVideos} />
       <Stack.Screen name="ViewFiles" component={ViewFiles} />
+      <Stack.Screen name="AddCategoryScreen" component={AddCategoryScreen} />
+      <Stack.Screen name="ReportIssueScreen" component={ReportIssueScreen} />
+      <Stack.Screen name="SuggestAFeature" component={SuggestAFeature} />
       <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
     </Stack.Navigator>
   );

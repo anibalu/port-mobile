@@ -10,8 +10,9 @@ import {
   Modal,
   Pressable,
   StatusBar,
-  StyleSheet,
+  Text,
   View,
+  StyleSheet,
 } from 'react-native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import DefaultImage from '../../../assets/avatars/avatar.png';
@@ -30,6 +31,7 @@ import {
 import NamePopup from './UpdateNamePopup';
 import PendingContacts from './PendingContacts';
 import ActiveSuperports from './ActiveSuperports';
+import ReportIssueModal from '../BugReporting/ReportIssueModal';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -40,6 +42,7 @@ function MyProfile({navigation}: Props) {
   const [name, setName] = useState(DEFAULT_NAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
   const [editingName, setEditingName] = useState(false);
+  const [reportbugModalOpen, setReportBugModalOpen] = useState(false);
 
   //updates profile picture with user set profile picture
   async function setPicture() {
@@ -131,6 +134,11 @@ function MyProfile({navigation}: Props) {
           </View>
         </View>
       </View>
+      <Pressable
+        style={styles.reportIssueButton}
+        onPress={() => setReportBugModalOpen(p => !p)}>
+        <Text style={styles.reportIssueText}>Report Issue</Text>
+      </Pressable>
       <View style={styles.cards}>
         <ActiveSuperports />
         <PendingContacts />
@@ -139,6 +147,21 @@ function MyProfile({navigation}: Props) {
         <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
           <Pressable style={styles.popupPosition}>
             <NamePopup setUpdated={setUpdated} initialName={name} />
+          </Pressable>
+        </Pressable>
+      </Modal>
+      <Modal
+        animationType="none"
+        visible={reportbugModalOpen}
+        transparent={true}>
+        <Pressable
+          style={styles.popUpArea}
+          onPress={() => setReportBugModalOpen(p => !p)}>
+          <Pressable style={styles.popupPosition}>
+            <ReportIssueModal
+              setReportBugModalOpen={setReportBugModalOpen}
+              reportbugModalOpen={reportbugModalOpen}
+            />
           </Pressable>
         </Pressable>
       </Modal>
@@ -242,6 +265,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
+  },
+  reportIssueButton: {
+    position: 'absolute',
+    bottom: 30,
+    backgroundColor: '#547CEF',
+    height: 55,
+    width: 250,
+    borderRadius: 38,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  reportIssueText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: 'white',
   },
   cards: {
     paddingLeft: 10,

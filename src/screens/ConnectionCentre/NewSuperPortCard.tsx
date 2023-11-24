@@ -3,11 +3,11 @@ import {Pressable, StyleSheet, View} from 'react-native';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../components/NumberlessText';
-import Icon from '../../../assets/icons/ConnectionCenterSuperPort.svg';
-import {Button} from './Button';
+} from '@components/NumberlessText';
+import Icon from '@assets/icons/ConnectionCenterSuperPort.svg';
 import {instrument} from './ConnectionCentre';
 import {useNavigation} from '@react-navigation/native';
+import {GenericButton} from '@components/GenericButton';
 
 type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -42,13 +42,17 @@ function NewSuperPortCard(props: {
               Add education below
             </NumberlessRegularText> */}
           </View>
-          <Button
+          <GenericButton
             onPress={() => {
               navigation.navigate('NewSuperport', {superportId: ''});
             }}
-            style={{width: '80%', backgroundColor: '#547CEF'}}>
+            buttonStyle={{
+              width: '80%',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
             Create
-          </Button>
+          </GenericButton>
         </View>
       </View>
     );

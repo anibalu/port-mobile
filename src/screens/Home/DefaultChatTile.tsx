@@ -5,12 +5,12 @@ import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {Image, Pressable, StyleSheet} from 'react-native';
 import DefaultImage from '../../../assets/avatars/avatar.png';
-import {NumberlessItalicText} from '../../components/NumberlessText';
+import {NumberlessItalicText} from '@components/NumberlessText';
 
 function DefaultChatTile() {
   const navigation = useNavigation();
   const handleNavigate = () => {
-    navigation.navigate('ConnectionCentre');
+    navigation.navigate('HomeTab', {screen: 'NewTab'});
   };
   return (
     <Pressable style={styles.defaultTileContainer} onPress={handleNavigate}>
@@ -30,11 +30,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 7,
     borderRadius: 14,
-    shadowOpacity: 13,
-    shadowOffset: {
-      width: 14,
-      height: 8,
-    },
     backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',

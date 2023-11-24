@@ -1,24 +1,26 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {
-  SafeAreaView,
   View,
   StyleSheet,
   Text,
-  StatusBar,
-  ImageBackground,
   Pressable,
   Modal,
   ActivityIndicator,
 } from 'react-native';
-import Topbar from '../MediaView/Topbar';
 import AccordionWithRadio from './AccordionWithRadio';
 import {Submitted} from './Submitted';
 import DeviceInfo from 'react-native-device-info';
-import {submitBugReport} from '../../utils/BugReporting/bug_reports';
-import {NumberlessRegularText} from '../../components/NumberlessText';
+import {submitBugReport} from '@utils/BugReporting/bug_reports';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import ChatBackground from '@components/ChatBackground';
+import GenericTopBar from '@components/GenericTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
 
-export default function ReportIssueScreen(props) {
-  const {route} = props;
+type Props = NativeStackScreenProps<AppStackParamList, 'ReportIssueScreen'>;
+
+export default function ReportIssueScreen({navigation, route}: Props) {
   const {category = 'Chatting', sections = [], Img} = route.params;
   const [openModal, setOpenModal] = useState(false);
   const [isModalError, setisModalError] = useState(false);
@@ -66,11 +68,12 @@ export default function ReportIssueScreen(props) {
   }, [isLoading]);
   return (
     <SafeAreaView style={styles.screen}>
-      <Topbar title={'Report Issue'} />
-      <StatusBar barStyle="dark-content" backgroundColor="#EEE" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
+      <ChatBackground />
+      <GenericTopBar
+        title={'Report Issue'}
+        onBackPress={() => {
+          navigation.goBack();
+        }}
       />
       <View style={styles.container}>
         <AccordionWithRadio
@@ -116,7 +119,6 @@ const styles = StyleSheet.create({
   screen: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#EEE',
     alignItems: 'center',
   },
   container: {

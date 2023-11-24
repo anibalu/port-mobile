@@ -2,13 +2,15 @@
  * This welcome screen shows Port branding and greets the user the first time they open the app.
  * screen id: 1
  */
+import Logo from '@assets/miscellaneous/portBranding.svg';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {GenericButton} from '@components/GenericButton';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';
-import {StatusBar, StyleSheet, TouchableOpacity, View} from 'react-native';
-import Logo from '../../../assets/miscellaneous/portBranding.svg';
-import {NumberlessBoldText} from '../../components/NumberlessText';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {OnboardingStackParamList} from '../../navigation/OnboardingStackTypes';
+import {StyleSheet, View} from 'react-native';
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
@@ -18,17 +20,19 @@ type Props = NativeStackScreenProps<
 function Welcome({navigation}: Props) {
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#547CEF" />
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.blue.app}
+      />
       <View style={styles.greeting}>
         <Logo height={175} style={styles.logo} />
       </View>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('RequestPermissions')}>
-        <NumberlessBoldText style={styles.buttonText}>
-          Get started
-        </NumberlessBoldText>
-      </TouchableOpacity>
+      <GenericButton
+        onPress={() => navigation.navigate('RequestPermissions')}
+        textStyle={styles.buttonText}
+        buttonStyle={styles.button}>
+        Get started
+      </GenericButton>
     </SafeAreaView>
   );
 }
@@ -39,8 +43,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    backgroundColor: '#547CEF',
+    backgroundColor: PortColors.primary.blue.app,
     height: '100%',
+
     width: '100%',
   },
   greeting: {
@@ -67,7 +72,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: '#547CEF',
+    ...FontSizes[17].medium,
+    color: PortColors.primary.blue.app,
   },
 });
 

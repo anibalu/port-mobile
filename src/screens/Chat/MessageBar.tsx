@@ -1,6 +1,21 @@
-import React, {useEffect, useState} from 'react';
+import FileIcon from '@assets/icons/File.svg';
+import Send from '@assets/icons/NewSend.svg';
+import Cross from '@assets/icons/cross.svg';
 import {
-  Dimensions,
+  default as ImageIcon,
+  default as VideoIcon,
+} from '@assets/icons/image.svg';
+import Plus from '@assets/icons/plus.svg';
+import {isIOS, screen} from '@components/ComponentUtils';
+import {NumberlessMediumText} from '@components/NumberlessText';
+import {DEFAULT_NAME} from '@configs/constants';
+import {extractMemberInfo} from '@utils/Groups';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {sendMessage} from '@utils/Messaging/sendMessage';
+import {FileAttributes} from '@utils/Storage/sharedFile';
+import {wait} from '@utils/Time';
+import React, {memo, useEffect, useState} from 'react';
+import {
   KeyboardAvoidingView,
   Pressable,
   StyleSheet,
@@ -11,30 +26,13 @@ import DocumentPicker, {
   DocumentPickerResponse,
 } from 'react-native-document-picker';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
-import FileIcon from '../../../assets/icons/File.svg';
-import Send from '../../../assets/icons/NewSend.svg';
-import Cross from '../../../assets/icons/cross.svg';
-import {
-  default as ImageIcon,
-  default as VideoIcon,
-} from '../../../assets/icons/image.svg';
-import Plus from '../../../assets/icons/plus.svg';
-import {NumberlessMediumText} from '../../components/NumberlessText';
-import {DEFAULT_NAME} from '../../configs/constants';
-import {extractMemberInfo} from '../../utils/Groups';
-import {
-  ContentType,
-  SavedMessageParams,
-} from '../../utils/Messaging/interfaces';
-import {sendMessage} from '../../utils/Messaging/sendMessage';
-import {FileAttributes} from '../../utils/Storage/sharedFile';
-import {wait} from '../../utils/Time';
+
 import FileReplyContainer from './ReplyContainers/FileReplyContainer';
 import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
 import TextReplyContainer from './ReplyContainers/TextReplyContainer';
 import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
 
-export function MessageBar({
+const MessageBar = ({
   chatId,
   flatlistRef,
   listLen,
@@ -54,9 +52,8 @@ export function MessageBar({
   name: string;
   groupInfo: any;
   onSend: any;
-}) {
-  const viewWidth = Dimensions.get('window').width;
-  const inputTextBarWidth = viewWidth - 126;
+}) => {
+  const inputTextBarWidth = screen.width - 126;
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [isPopUpVisible, setPopUpVisible] = useState(false);
@@ -197,7 +194,9 @@ export function MessageBar({
     }
   };
   return (
-    <KeyboardAvoidingView style={styles.main}>
+    <KeyboardAvoidingView
+      behavior={isIOS ? 'padding' : 'height'}
+      style={styles.main}>
       {isPopUpVisible ? (
         <View style={styles.aggregateContainer}>
           <View style={styles.popUpContainer}>
@@ -327,6 +326,13 @@ export function MessageBar({
       )}
     </KeyboardAvoidingView>
   );
+};
+
+function findMemberName(memberInfo: any) {
+  if (memberInfo.memberId) {
+    return memberInfo.name || DEFAULT_NAME;
+  }
+  return '';
 }
 
 function renderReplyBar(
@@ -395,17 +401,11 @@ function renderReplyBar(
   }
 }
 
-function findMemberName(memberInfo: any) {
-  if (memberInfo.memberId) {
-    return memberInfo.name || DEFAULT_NAME;
-  }
-  return '';
-}
-
 const styles = StyleSheet.create({
   main: {
     width: '100%',
     flexDirection: 'column',
+    marginBottom: isIOS ? 20 : 0,
   },
   aggregateContainer: {
     flexDirection: 'column',
@@ -429,11 +429,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    //height: 65,
+    // height: 65,
     paddingLeft: 10,
     paddingRight: 10,
-    paddingBottom: 10,
-    paddingTop: 5,
+    paddingBottom: 20,
+    paddingTop: 10,
     backgroundColor: '#FFFFFF',
   },
   plus: {
@@ -464,6 +464,7 @@ const styles = StyleSheet.create({
   inputText: {
     width: '100%',
     maxHeight: 110,
+    minHeight: 50,
     color: '#000000',
     fontSize: 15,
     fontFamily: 'Rubik-Regular',
@@ -492,3 +493,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+
+export default memo(MessageBar);

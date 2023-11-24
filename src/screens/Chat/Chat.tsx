@@ -1,34 +1,27 @@
+import {SafeAreaView} from '@components/SafeAreaView';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
-import {
-  Image,
-  ImageBackground,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import DeleteChatButton from '../../components/DeleteChatButton';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {AppStackParamList} from '../../navigation/AppStackTypes';
-import store from '../../store/appStore';
-import {getConnection, toggleRead} from '../../utils/Connections';
-import {ConnectionType} from '../../utils/Connections/interfaces';
-import {
-  ContentType,
-  SavedMessageParams,
-} from '../../utils/Messaging/interfaces';
-import {tryToSendJournaled} from '../../utils/Messaging/sendMessage';
-import {getGroupInfo} from '../../utils/Storage/group';
-import {getMessage, readMessages} from '../../utils/Storage/messages';
-import ChatList from './ChatList';
-import {MessageActionsBar} from './MessageActionsBar';
-import {MessageBar} from './MessageBar';
-import Topbar from './Topbar';
-import {extractMemberInfo} from '../../utils/Groups';
-import {DEFAULT_NAME} from '../../configs/constants';
+import {Image, StyleSheet} from 'react-native';
+
+import DefaultImage from '@assets/avatars/avatar.png';
+import ChatBackground from '@components/ChatBackground';
+import DeleteChatButton from '@components/DeleteChatButton';
+import {DEFAULT_NAME} from '@configs/constants';
+import {AppStackParamList} from '@navigation/AppStackTypes';
 import Clipboard from '@react-native-clipboard/clipboard';
+import store from '@store/appStore';
+import {getConnection, toggleRead} from '@utils/Connections';
+import {ConnectionType} from '@utils/Connections/interfaces';
+import {extractMemberInfo} from '@utils/Groups';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {tryToSendJournaled} from '@utils/Messaging/sendMessage';
+import {getGroupInfo} from '@utils/Storage/group';
+import {getMessage, readMessages} from '@utils/Storage/messages';
+import ChatList from './ChatList';
+import ChatTopbar from './ChatTopbar';
+import {MessageActionsBar} from './MessageActionsBar';
+import MessageBar from './MessageBar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 /**
@@ -174,12 +167,8 @@ function Chat({route, navigation}: Props) {
   const flatList = React.useRef(null);
   return (
     <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
-      />
-      <Topbar
+      <ChatBackground />
+      <ChatTopbar
         name={name}
         chatId={chatId}
         profileURI={profileURI}
@@ -197,7 +186,7 @@ function Chat({route, navigation}: Props) {
         groupInfo={groupInfo}
       />
       {connectionConnected ? (
-        <View style={styles.bottomBar}>
+        <>
           {selectedMessages.length > 0 && replyToMessage === undefined ? (
             <MessageActionsBar
               chatId={chatId}
@@ -220,7 +209,7 @@ function Chat({route, navigation}: Props) {
               groupInfo={groupInfo}
             />
           )}
-        </View>
+        </>
       ) : (
         <DeleteChatButton chatId={chatId} />
       )}
@@ -241,22 +230,7 @@ const styles = StyleSheet.create({
     height: '100%',
     flexDirection: 'column',
   },
-  background: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#FFF',
-    opacity: 0.5,
-    overflow: 'hidden',
-  },
   chatBubble: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  bottomBar: {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',

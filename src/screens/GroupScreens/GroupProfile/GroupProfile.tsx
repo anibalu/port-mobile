@@ -2,34 +2,28 @@
  * The screen to view a group's profile
  * screen Id: N/A
  */
-import React, {useEffect, useState} from 'react';
-import {
-  Image,
-  ImageBackground,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
-import DefaultImage from '../../../../assets/avatars/avatar.png';
+import DefaultImage from '@assets/avatars/avatar.png';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
   NumberlessSemiBoldText,
-} from '../../../components/NumberlessText';
+} from '@components/NumberlessText';
+import React, {useEffect, useState} from 'react';
+import {Image, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 // import NamePopup from './UpdateNamePopup';
-import BackTopbar from '../../../components/BackTopBar';
-import PermissionsDropdown from '../../../components/PermissionsDropdown/PermissionsDropdown';
-import {SafeAreaView} from '../../../components/SafeAreaView';
+import BackTopbar from '@components/BackTopBar';
+import PermissionsDropdown from '@components/PermissionsDropdown/PermissionsDropdown';
+import {SafeAreaView} from '@components/SafeAreaView';
 
-import {Button} from '../../ConnectionCentre/Button';
-import {GroupInfo} from '../../../utils/Groups/interfaces';
-//import {getConnection} from '../../../utils/Connections';
-import {getTimeStamp} from '../../../utils/Time';
-import {getGroupInfo} from '../../../utils/Storage/group';
+import {GroupInfo} from '@utils/Groups/interfaces';
+
+//import {getConnection} from '@utils/Connections';
+import ChatBackground from '@components/ChatBackground';
+import {GenericButton} from '@components/GenericButton';
+import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '../../../navigation/AppStackTypes';
+import {getGroupInfo} from '@utils/Storage/group';
+import {getTimeStamp} from '@utils/Time';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GroupProfile'>;
 
@@ -66,16 +60,12 @@ function GroupProfile({route, navigation}: Props) {
   }, []);
 
   return (
-    <SafeAreaView>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
+    <SafeAreaView style={styles.mainContainer}>
       <BackTopbar />
       <ScrollView
         contentContainerStyle={styles.profileScreen}
         showsVerticalScrollIndicator={false}>
-        <ImageBackground
-          source={require('../../../../assets/backgrounds/puzzle.png')}
-          style={styles.background}
-        />
+        <ChatBackground />
         <View style={styles.profile}>
           <Pressable
             style={styles.profilePictureHitbox}
@@ -114,21 +104,21 @@ function GroupProfile({route, navigation}: Props) {
             </NumberlessRegularText>
             <View>
               {isAdmin ? (
-                <Button
+                <GenericButton
                   onPress={() => {
                     navigation.navigate('ManageMembers', {groupId: groupId});
                   }}
-                  style={{width: '80%'}}>
+                  buttonStyle={{width: '80%'}}>
                   Manage members
-                </Button>
+                </GenericButton>
               ) : (
-                <Button
+                <GenericButton
                   onPress={() => {
                     navigation.navigate('ManageMembers', {groupId: groupId});
                   }}
-                  style={{width: '80%'}}>
+                  buttonStyle={{width: '80%'}}>
                   View members
-                </Button>
+                </GenericButton>
               )}
             </View>
           </View>
@@ -140,6 +130,9 @@ function GroupProfile({route, navigation}: Props) {
 }
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    height: '100%',
+  },
   itemCard: {
     marginTop: 15,
     backgroundColor: 'white',
@@ -190,13 +183,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-  },
-  background: {
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#F9F9F9',
-    opacity: 0.5,
-    overflow: 'hidden',
+    height: '100%',
   },
   profile: {
     backgroundColor: 'white',

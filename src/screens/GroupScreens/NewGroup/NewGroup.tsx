@@ -1,20 +1,18 @@
+import ChatBackground from '@components/ChatBackground';
+import GenericTopBar from '@components/GenericTopBar';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useState} from 'react';
 import {
   Image,
-  ImageBackground,
   Pressable,
-  SafeAreaView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
-import {Asset, launchImageLibrary} from 'react-native-image-picker';
-import Avatar4 from '../../../../assets/avatars/avatar4.svg';
-import {AppStackParamList} from '../../../navigation/AppStackTypes';
-import Topbar from './TopBar';
+import Avatar4 from '@assets/avatars/avatar4.svg';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {AppStackParamList} from '@navigation/AppStackTypes';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewGroup'>;
 
@@ -22,7 +20,8 @@ type Props = NativeStackScreenProps<AppStackParamList, 'NewGroup'>;
 const NewGroup = ({route, navigation}: Props) => {
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
-  const [image, setImage] = useState('');
+  const image = '';
+  //const [image, setImage] = useState('');
   const [isButtonActive, setIsButtonActive] = useState(false);
   const {errorMessage = ''} = route.params || {};
 
@@ -39,29 +38,29 @@ const NewGroup = ({route, navigation}: Props) => {
     setGroupDescription(newText);
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onImagePressed = async () => {
-    try {
-      const response = await launchImageLibrary({
-        mediaType: 'photo',
-        includeBase64: false,
-      });
-      //images are selected
-      const selected: Asset[] = response.assets || [];
-      setImage(selected[0].uri);
-    } catch (error) {
-      console.log('Nothing selected', error);
-    }
-  };
+  // const onImagePressed = async () => {
+  //   try {
+  //     const response = await launchImageLibrary({
+  //       mediaType: 'photo',
+  //       includeBase64: false,
+  //     });
+  //     //images are selected
+  //     const selected: Asset[] = response.assets || [];
+  //     setImage(selected[0].uri);
+  //   } catch (error) {
+  //     console.log('Nothing selected', error);
+  //   }
+  // };
 
   return (
     <SafeAreaView style={style.mainContainer}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <ImageBackground
-        source={require('../../../../assets/backgrounds/puzzle.png')}
-        style={style.background}
+      <ChatBackground />
+      <GenericTopBar
+        title={'New Group'}
+        onBackPress={() => {
+          navigation.goBack();
+        }}
       />
-      <Topbar title={'New Group'} />
       <View style={style.groupContainer}>
         <View style={style.iconContainer}>
           {image ? (
@@ -182,15 +181,6 @@ const style = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
-  },
-  background: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#FFF',
-    opacity: 0.5,
-    overflow: 'hidden',
   },
 });
 export default NewGroup;

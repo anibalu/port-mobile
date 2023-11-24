@@ -1,5 +1,5 @@
 export type AppStackParamList = {
-  Home: undefined;
+  HomeTab: undefined;
   ConnectionCentre: undefined;
   MyProfile: undefined;
   ManageMembers: {groupId: string};
@@ -27,4 +27,11 @@ export type AppStackParamList = {
     setSelectedMessages: any;
     chatId: string;
   };
+  AddCategoryScreen: undefined;
+  ReportIssueScreen: {
+    category: string;
+    sections: any[];
+    Img: any;
+  };
+  SuggestAFeature: undefined;
 };

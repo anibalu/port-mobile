@@ -1,26 +1,20 @@
 import React, {useEffect, useState} from 'react';
 
+import {NumberlessRegularText} from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {
-  Dimensions,
-  Image,
-  ImageBackground,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {Dimensions, Image, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import {ReadDirItem} from 'react-native-fs';
-import {NumberlessRegularText} from '../../components/NumberlessText';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {AppStackParamList} from '../../navigation/AppStackTypes';
-import {fetchFilesInMediaDir} from '../../utils/Storage/StorageRNFS/sharedFileHandlers';
-import Topbar from '../MediaView/Topbar';
+
+import ChatBackground from '@components/ChatBackground';
+import GenericTopBar from '@components/GenericTopBar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ViewPhotosVideos'>;
 
-export default function ViewPhotosVideos({route}: Props) {
+export default function ViewPhotosVideos({navigation, route}: Props) {
   const {chatId} = route.params;
   const [media, setMedia] = useState<ReadDirItem[]>([]);
 
@@ -59,12 +53,13 @@ export default function ViewPhotosVideos({route}: Props) {
 
   return (
     <SafeAreaView>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
+      <ChatBackground />
+      <GenericTopBar
+        title="Photos & Videos"
+        onBackPress={() => {
+          navigation.goBack();
+        }}
       />
-      <Topbar title="Photos & Videos" />
       <View style={styles.mainContainer}>
         {media.length > 0 ? (
           <View style={styles.container}>{rows}</View>
@@ -81,15 +76,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     flexDirection: 'column',
-  },
-  background: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#FFF',
-    opacity: 0.5,
-    overflow: 'hidden',
   },
   mainContainer: {
     height: '100%',

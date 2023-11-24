@@ -1,16 +1,16 @@
-import React from 'react';
-import {Pressable, StatusBar, StyleSheet, Text, View} from 'react-native';
-import GroupsImage from '../../../assets/backgrounds/groups.svg';
+import BackTopbar from '@components/BackTopBar';
 import {useNavigation} from '@react-navigation/native';
-import Topbar from './Topbar';
+import React from 'react';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
+import GroupsImage from '@assets/backgrounds/groups.svg';
+import {SafeAreaView} from '@components/SafeAreaView';
 
 // start point of groups
 const GroupOnboarding = () => {
   const navigation = useNavigation();
   return (
-    <>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <Topbar title={''} />
+    <SafeAreaView style={style.container}>
+      <BackTopbar />
       <View style={style.mainContainer}>
         <Text style={style.title}>Welcome to groups</Text>
         <GroupsImage width="100%" height="65%" />
@@ -23,7 +23,7 @@ const GroupOnboarding = () => {
           <Text style={style.buttonText}> Create Now</Text>
         </Pressable>
       </View>
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -32,6 +32,11 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
     width: '100%',
     backgroundColor: 'white',
+    height: '100%',
+    flex: 1,
+    flexDirection: 'column',
+  },
+  container: {
     height: '100%',
     flex: 1,
     flexDirection: 'column',

@@ -2,35 +2,36 @@
  * The screen to view one's own profile
  * screen Id: 8
  */
+import DefaultImage from '@assets/avatars/avatar.png';
+import EditCameraIcon from '@assets/icons/EditCamera.svg';
+import EditIcon from '@assets/icons/Pencil.svg';
+import BackTopbar from '@components/BackTopBar';
+import ChatBackground from '@components/ChatBackground';
+import {isIOS} from '@components/ComponentUtils';
+import {NumberlessSemiBoldText} from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {DEFAULT_NAME} from '@configs/constants';
+import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useEffect, useState} from 'react';
-import {
-  Image,
-  ImageBackground,
-  Modal,
-  Pressable,
-  StatusBar,
-  Text,
-  View,
-  StyleSheet,
-} from 'react-native';
-import {Asset, launchImageLibrary} from 'react-native-image-picker';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import EditCameraIcon from '../../../assets/icons/EditCamera.svg';
-import EditIcon from '../../../assets/icons/Pencil.svg';
-import BackTopbar from '../../components/BackTopBar';
-import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {DEFAULT_NAME} from '../../configs/constants';
-import {AppStackParamList} from '../../navigation/AppStackTypes';
 import {
   getProfileName,
   getProfilePicture,
   setNewProfilePicture,
-} from '../../utils/Profile';
-import NamePopup from './UpdateNamePopup';
-import PendingContacts from './PendingContacts';
+} from '@utils/Profile';
+import React, {useEffect, useState} from 'react';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import ActiveSuperports from './ActiveSuperports';
+import PendingContacts from './PendingContacts';
+import NamePopup from './UpdateNamePopup';
 import ReportIssueModal from '../BugReporting/ReportIssueModal';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
@@ -94,11 +95,7 @@ function MyProfile({navigation}: Props) {
 
   return (
     <SafeAreaView style={styles.profileScreen}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
-      />
+      <ChatBackground />
       <BackTopbar />
       <View style={styles.profile}>
         <Pressable
@@ -144,11 +141,13 @@ function MyProfile({navigation}: Props) {
         <PendingContacts />
       </View>
       <Modal animationType="none" visible={editingName} transparent={true}>
-        <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
-          <Pressable style={styles.popupPosition}>
-            <NamePopup setUpdated={setUpdated} initialName={name} />
+        <KeyboardAvoidingView behavior={isIOS ? 'padding' : 'height'}>
+          <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
+            <Pressable style={styles.popupPosition}>
+              <NamePopup setUpdated={setUpdated} initialName={name} />
+            </Pressable>
           </Pressable>
-        </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
       <Modal
         animationType="none"
@@ -176,15 +175,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-  },
-  background: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#F9F9F9',
-    opacity: 0.5,
-    overflow: 'hidden',
   },
   profile: {
     width: '100%',

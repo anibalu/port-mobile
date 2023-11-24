@@ -1,22 +1,25 @@
+import Screenshot from '@assets/icons/Screenshot.svg';
+import ChatBackground from '@components/ChatBackground';
+import GenericTopBar from '@components/GenericTopBar';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {
-  SafeAreaView,
-  View,
   Image,
+  Modal,
+  Pressable,
   StyleSheet,
   Text,
-  StatusBar,
-  ImageBackground,
-  Pressable,
   TextInput,
-  Modal,
+  View,
 } from 'react-native';
-import Topbar from '../MediaView/Topbar';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
-import Screenshot from '../../../assets/icons/Screenshot.svg';
 import {Submitted} from './Submitted';
+import {SafeAreaView} from '@components/SafeAreaView';
 
-export default function SuggestAFeature() {
+type Props = NativeStackScreenProps<AppStackParamList, 'SuggestAFeature'>;
+
+export default function SuggestAFeature({navigation}: Props) {
   const [reviewText, setReviewText] = useState('');
   const [image, setImage] = useState('');
   const [openModal, setOpenModal] = useState(false);
@@ -36,11 +39,12 @@ export default function SuggestAFeature() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Topbar title={'Suggest a feature'} />
-      <StatusBar barStyle="dark-content" backgroundColor="#EEE" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
+      <ChatBackground />
+      <GenericTopBar
+        title={'Suggest a feature'}
+        onBackPress={() => {
+          navigation.goBack();
+        }}
       />
       <View style={styles.container}>
         <Text style={styles.titleStyles}> Suggest a feature</Text>
@@ -90,7 +94,6 @@ const styles = StyleSheet.create({
   screen: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#EEE',
     alignItems: 'center',
   },
   container: {

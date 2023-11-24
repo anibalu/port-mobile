@@ -4,7 +4,6 @@ import {
   Dimensions,
   Pressable,
   StyleSheet,
-  ToastAndroid,
   View,
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
@@ -26,6 +25,7 @@ import {
 import Share from 'react-native-share';
 import {generateGroupConnectionBundle} from '../../../utils/Bundles/group';
 import {convertBundleToLink} from '../../../utils/DeepLinking';
+import Toast from 'react-native-toast-message';
 
 function ConnectionDisplay({groupId}: {groupId: string}) {
   const navigation = useNavigation();
@@ -75,10 +75,11 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
       };
       await Share.open(shareContent);
     } catch (error) {
-      ToastAndroid.show(
-        'Error sharing content. Error fetching link',
-        ToastAndroid.SHORT,
-      );
+      Toast.show({
+        type: 'warning',
+        text1: 'Error sharing content. Error fetching link',
+      });
+
       console.log('Error sharing content: ', error);
     }
   };
@@ -177,7 +178,7 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
           <Pressable
             style={styles.button}
             onPress={() => {
-              navigation.navigate('Scanner');
+              navigation.navigate('HomeTab', {screen: 'Scanner'});
             }}>
             <Scan width={24} height={24} />
             <NumberlessRegularText style={styles.buttonText}>
@@ -189,7 +190,6 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
       <View style={styles.nfcEducation}>
         <Nfc width={24} height={24} />
         <NumberlessRegularText style={styles.nfcText}>
-          {' '}
           If NFC is enabled, tap your device against theirs to instantly
           connect.
         </NumberlessRegularText>

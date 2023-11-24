@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
-import DefaultImage from '../../../../assets/avatars/avatar.png';
-import {NumberlessMediumText} from '../../../components/NumberlessText';
-import {DEFAULT_NAME} from '../../../configs/constants';
-import {SavedMessageParams} from '../../../utils/Messaging/interfaces';
+import DefaultImage from '@assets/avatars/avatar.png';
+import {NumberlessMediumText} from '@components/NumberlessText';
+import {DEFAULT_NAME} from '@configs/constants';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 
 export default function VideoReplyContainer({
   message,

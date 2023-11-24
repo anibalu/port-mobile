@@ -1,43 +1,28 @@
-import {useFocusEffect} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useEffect, useState} from 'react';
-import {
-  FlatList,
-  ImageBackground,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
-import BlueForwardIcon from '../../../assets/icons/BlueForwardIcon.svg';
-import Search from '../../../assets/icons/search.svg';
-import {BackButton} from '../../components/BackButton';
+import BlueForwardIcon from '@assets/icons/BlueForwardIcon.svg';
+import {BackButton} from '@components/BackButton';
+import ChatBackground from '@components/ChatBackground';
 import {
   NumberlessMediumText,
   NumberlessSemiBoldText,
-} from '../../components/NumberlessText';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {NAME_LENGTH_LIMIT} from '../../configs/constants';
-import {AppStackParamList} from '../../navigation/AppStackTypes';
-import {getConnections} from '../../utils/Connections';
-import {
-  ConnectionInfo,
-  ConnectionType,
-} from '../../utils/Connections/interfaces';
-import {sendMessage} from '../../utils/Messaging/sendMessage';
+} from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
+import SearchBar from '@components/SearchBar';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {getConnections} from '@utils/Connections';
+import {ConnectionInfo, ConnectionType} from '@utils/Connections/interfaces';
+import {sendMessage} from '@utils/Messaging/sendMessage';
+import {getMessage} from '@utils/Storage/messages';
+import React, {useEffect, useState} from 'react';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 import ContactTile from './ContactTile';
-import {getMessage} from '../../utils/Storage/messages';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ForwardToContact'>;
 
 export default function ForwardToContact({route, navigation}: Props) {
   const {messages = [], setSelectedMessages, chatId} = route.params;
   const [searchText, setSearchText] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const onChangeText = (newName: string) => {
-    setSearchText(newName);
-  };
 
   //Members that have been selected via the checkbox
   const [selectedMembers, setSelectedMembers] = useState<ConnectionInfo[]>([]);
@@ -109,11 +94,7 @@ export default function ForwardToContact({route, navigation}: Props) {
   // TODO: Remove all inline styles
   return (
     <SafeAreaView style={styles.profileScreen}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
-      />
+      <ChatBackground />
       {/* TopBar */}
       <View style={styles.topBar}>
         <BackButton
@@ -127,20 +108,7 @@ export default function ForwardToContact({route, navigation}: Props) {
         <View style={styles.backButton} />
       </View>
       <View style={styles.searchContainer}>
-        <View style={styles.searchBox}>
-          <Search color={'grey'} />
-          <TextInput
-            style={styles.textInputStyles}
-            textAlign="left"
-            maxLength={NAME_LENGTH_LIMIT}
-            placeholder={isFocused ? '' : 'Search'}
-            placeholderTextColor="#BABABA"
-            onChangeText={onChangeText}
-            value={searchText}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-          />
-        </View>
+        <SearchBar searchText={searchText} setSearchText={setSearchText} />
       </View>
       <FlatList
         style={{width: '100%'}}
@@ -204,7 +172,6 @@ const styles = StyleSheet.create({
   },
   memberContainer: {flexDirection: 'row'},
   iconStyles: {alignSelf: 'flex-end'},
-  textInputStyles: {marginLeft: 20, flex: 1},
   topBar: {
     backgroundColor: '#FFF',
     flexDirection: 'row',
@@ -238,13 +205,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     flex: 1,
-  },
-  background: {
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#F9F9F9',
-    opacity: 0.5,
-    overflow: 'hidden',
   },
   profile: {
     backgroundColor: 'white',

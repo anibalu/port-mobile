@@ -2,9 +2,10 @@ import React from 'react';
 
 import {View, StyleSheet, Pressable} from 'react-native';
 
-import {NumberlessRegularText} from '../../../components/NumberlessText';
-import {getTimeStamp} from '../../../utils/Time';
-import {SavedMessageParams} from '../../../utils/Messaging/interfaces';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import {getTimeStamp} from '@utils/Time';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import {PortColors} from '@components/ComponentUtils';
 
 export default function DataBubble(message: SavedMessageParams) {
   return (
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
   },
   timeStamp: {
     fontSize: 10,
-    color: '#B7B6B6',
+    color: PortColors.primary.grey.dark,
   },
   text: {
     color: '#000000',

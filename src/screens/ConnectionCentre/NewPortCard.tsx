@@ -1,13 +1,14 @@
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+
+import Icon from '@assets/icons/BlueArrowUp.svg';
+import {instrument} from './ConnectionCentre';
+import {useNavigation} from '@react-navigation/native';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../components/NumberlessText';
-import Icon from '../../../assets/icons/ConnectionCenterNewPort.svg';
-import {Button} from './Button';
-import {instrument} from './ConnectionCentre';
-import {useNavigation} from '@react-navigation/native';
+} from '@components/NumberlessText';
+import {GenericButton} from '@components/GenericButton';
 
 type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -36,16 +37,15 @@ function NewPortCard(props: {
           </View>
         </View>
         <View style={style.educationBox}>
-          <View>
-            {/* <NumberlessRegularText style={style.educationText}>
-              Add education below
-            </NumberlessRegularText> */}
-          </View>
-          <Button
+          <GenericButton
             onPress={() => navigation.navigate('NewContact')}
-            style={{width: '80%'}}>
+            buttonStyle={{
+              width: '80%',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
             Initiate
-          </Button>
+          </GenericButton>
         </View>
       </View>
     );

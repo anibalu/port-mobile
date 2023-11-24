@@ -1,16 +1,14 @@
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Sending from '../../../../assets/icons/sending.svg';
+import Sending from '@assets/icons/sending.svg';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../../components/NumberlessText';
-import {DEFAULT_NAME} from '../../../configs/constants';
-import {
-  SavedMessageParams,
-  SendStatus,
-} from '../../../utils/Messaging/interfaces';
-import {getTimeStamp} from '../../../utils/Time';
+} from '@components/NumberlessText';
+import {DEFAULT_NAME} from '@configs/constants';
+import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
+import {getTimeStamp} from '@utils/Time';
+import {PortColors} from '@components/ComponentUtils';
 
 export default function TextBubble({
   message,
@@ -123,11 +121,11 @@ const styles = StyleSheet.create({
   },
   timeStamp: {
     fontSize: 10,
-    color: '#868686',
+    color: PortColors.primary.grey.dark,
   },
   failedStamp: {
     fontSize: 10,
-    color: '#CCCCCC',
+    color: PortColors.primary.grey.medium,
   },
   text: {
     color: '#000000',

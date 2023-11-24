@@ -2,13 +2,12 @@
  * Connections centre screen to choose from ports, groups, superports, etc.
  * screen Id: 7
  */
+import ChatBackground from '@components/ChatBackground';
+import {SafeAreaView} from '@components/SafeAreaView';
 import React, {useState} from 'react';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {StatusBar, FlatList, StyleSheet, ImageBackground} from 'react-native';
-import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator';
-import {Page} from '../../components/BottomNavigator/Button';
-import NewPortCard from './NewPortCard';
+import {FlatList, StyleSheet} from 'react-native';
 import NewGroupCard from './NewGroupCard';
+import NewPortCard from './NewPortCard';
 import NewSuperPortCard from './NewSuperPortCard';
 
 export type instrument = {
@@ -58,11 +57,7 @@ function ConnectionCentre() {
   };
   return (
     <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="#EEE" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
-      />
+      <ChatBackground />
       <FlatList
         data={options}
         renderItem={renderInstruments}
@@ -70,7 +65,6 @@ function ConnectionCentre() {
         extraData={selectedInstrument}
         style={styles.options}
       />
-      <BottomNavigator active={Page.connectionCentre} />
     </SafeAreaView>
   );
 }
@@ -80,15 +74,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#EEE',
-  },
-  background: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#FFF',
-    opacity: 0.5,
-    overflow: 'hidden',
   },
   options: {
     paddingLeft: '3%',

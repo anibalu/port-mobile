@@ -1,25 +1,21 @@
+import Chatting from '@assets/icons/Chatting.svg';
+import Connecting from '@assets/icons/Connecting.svg';
+import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
+import Groups from '@assets/icons/Groups.svg';
+import Others from '@assets/icons/Others.svg';
+import SuperPorts from '@assets/icons/SuperPorts.svg';
 import React from 'react';
-import {
-  ImageBackground,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import GreyArrowRight from '../../../assets/icons/GreyArrowRight.svg';
-import Chatting from '../../../assets/icons/Chatting.svg';
-import Connecting from '../../../assets/icons/Connecting.svg';
-import SuperPorts from '../../../assets/icons/SuperPorts.svg';
-import Groups from '../../../assets/icons/Groups.svg';
-import Others from '../../../assets/icons/Others.svg';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 
-import Topbar from '../MediaView/Topbar';
-import {useNavigation} from '@react-navigation/native';
+import ChatBackground from '@components/ChatBackground';
+import GenericTopBar from '@components/GenericTopBar';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {SafeAreaView} from '@components/SafeAreaView';
 
-export default function AddCategoryScreen() {
-  const navigation = useNavigation();
+type Props = NativeStackScreenProps<AppStackParamList, 'AddCategoryScreen'>;
 
+export default function AddCategoryScreen({navigation}: Props) {
   const categories = [
     {
       index: 1,
@@ -78,13 +74,15 @@ export default function AddCategoryScreen() {
   ];
 
   return (
-    <View style={styles.screen}>
-      <Topbar title={'Add Category'} />
-      <StatusBar barStyle="dark-content" backgroundColor="#EEE" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
+    <SafeAreaView style={styles.screen}>
+      <ChatBackground />
+      <GenericTopBar
+        title={'Add Category '}
+        onBackPress={() => {
+          navigation.goBack();
+        }}
       />
+
       <View style={styles.container}>
         {categories.map(category => {
           const {value, Img, subCategory} = category;
@@ -106,7 +104,7 @@ export default function AddCategoryScreen() {
           );
         })}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -114,7 +112,6 @@ const styles = StyleSheet.create({
   screen: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#EEE',
     alignItems: 'center',
   },
   container: {

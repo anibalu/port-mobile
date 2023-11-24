@@ -3,27 +3,18 @@
  * a few other neat features.
  * screen id: 5
  */
+import ChatBackground from '@components/ChatBackground';
+import ChatTile from '@components/ChatTile/ChatTile';
+import {SafeAreaView} from '@components/SafeAreaView';
+import SearchBar from '@components/SearchBar';
 import {useFocusEffect} from '@react-navigation/native';
+import store from '@store/appStore';
+import {getConnections} from '@utils/Connections';
+import {ConnectionInfo, ReadStatus} from '@utils/Connections/interfaces';
+import {tryToSendJournaled} from '@utils/Messaging/sendMessage';
+import {cancelAllNotifications} from '@utils/Notifications';
 import React, {useEffect, useState} from 'react';
-import {
-  FlatList,
-  ImageBackground,
-  StatusBar,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
-import Search from '../../../assets/icons/GreySearch.svg';
-import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator';
-import {Page} from '../../components/BottomNavigator/Button';
-import ChatTile from '../../components/ChatTile/ChatTile';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {NAME_LENGTH_LIMIT} from '../../configs/constants';
-import store from '../../store/appStore';
-import {getConnections} from '../../utils/Connections';
-import {ConnectionInfo, ReadStatus} from '../../utils/Connections/interfaces';
-import {tryToSendJournaled} from '../../utils/Messaging/sendMessage';
-import {cancelAllNotifications} from '../../utils/Notifications';
+import {FlatList, StyleSheet} from 'react-native';
 import DefaultChatTile from './DefaultChatTile';
 import Topbar from './Topbar';
 
@@ -45,7 +36,6 @@ function Home() {
   >([]);
 
   const [searchText, setSearchText] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
 
   const [totalUnread, setTotalUnread] = useState<number>(0);
   function fetchStoreConnections() {
@@ -115,17 +105,9 @@ function Home() {
     }, [connections]),
   );
 
-  const onChangeText = (newName: string) => {
-    setSearchText(newName);
-  };
-
   return (
     <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
-      />
+      <ChatBackground />
       <Topbar unread={totalUnread} filter="All" />
       <FlatList
         data={viewableConnections}
@@ -136,20 +118,7 @@ function Home() {
             /**
              * @todo inline rendering is expensive, need to memoise and move outside. Haven't done so as it requires some finesse to allow focus to be retained
              */
-            <View style={styles.searchBarStyle}>
-              <Search color={'grey'} />
-              <TextInput
-                style={{marginLeft: 20, flex: 1}}
-                textAlign="left"
-                maxLength={NAME_LENGTH_LIMIT}
-                placeholder={isFocused ? '' : 'Search'}
-                placeholderTextColor="#BABABA"
-                onChangeText={onChangeText}
-                value={searchText}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-              />
-            </View>
+            <SearchBar searchText={searchText} setSearchText={setSearchText} />
           ) : (
             <></>
           )
@@ -157,7 +126,7 @@ function Home() {
         keyExtractor={connection => connection.chatId}
         ListEmptyComponent={renderDefaultTile}
       />
-      <BottomNavigator active={Page.home} />
+      {/* <BottomNavigator active={Page.home} /> */}
     </SafeAreaView>
   );
 }
@@ -170,24 +139,6 @@ const styles = StyleSheet.create({
   chats: {
     paddingLeft: '3%',
     paddingRight: '3%',
-  },
-  background: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#FFF',
-    opacity: 0.5,
-    overflow: 'hidden',
-  },
-  searchBarStyle: {
-    width: '100%',
-    borderRadius: 8,
-    flexDirection: 'row',
-    marginTop: 4,
-    paddingLeft: 20,
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
   },
 });
 

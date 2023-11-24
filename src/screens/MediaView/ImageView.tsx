@@ -1,17 +1,22 @@
+import GenericTopBar from '@components/GenericTopBar';
+import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';
 import {Image, SafeAreaView, StyleSheet, View} from 'react-native';
-import {AppStackParamList} from '../../navigation/AppStackTypes';
-import Topbar from './Topbar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ImageView'>;
 
-export default function ImageView({route}: Props) {
+export default function ImageView({navigation, route}: Props) {
   const {imageURI, title} = route.params;
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Topbar title={title} />
+      <GenericTopBar
+        title={title}
+        onBackPress={() => {
+          navigation.goBack();
+        }}
+      />
       {/* The image itself */}
       <View style={styles.imageContainer}>
         <Image source={{uri: imageURI}} style={styles.image} />

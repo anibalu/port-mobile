@@ -34,7 +34,7 @@ export default function QRScanner() {
             text: 'OK',
             onPress: () => {
               setQrData('');
-              navigation.navigate('Home');
+              navigation.navigate('HomeTab');
             },
           },
         ],
@@ -63,7 +63,7 @@ export default function QRScanner() {
       //this makes scan happen only once
       ReadConnectionBundle(qrData).then(ret => {
         if (ret === BundleReadResponse.success) {
-          navigation.navigate('Home');
+          navigation.navigate('HomeTab');
         } else {
           showAlertAndWait(ret);
         }

@@ -6,10 +6,10 @@
 
 import React, {useState} from 'react';
 import {Dimensions, Pressable, StyleSheet, TextInput, View} from 'react-native';
-import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import {NAME_LENGTH_LIMIT} from '../../configs/constants';
-import {updateConnection} from '../../utils/Connections';
-import {processName} from '../../utils/Profile';
+import {NumberlessSemiBoldText} from '@components/NumberlessText';
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
+import {updateConnection} from '@utils/Connections';
+import {processName} from '@utils/Profile';
 
 interface updateNameProps {
   setUpdated: Function;

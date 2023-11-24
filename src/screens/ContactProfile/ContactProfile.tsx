@@ -2,35 +2,28 @@
  * The screen to a contact's profile and associated features
  */
 
-import {default as React, useEffect, useState} from 'react';
-import {
-  Image,
-  ImageBackground,
-  Modal,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
-import BackTopbar from '../../components/BackTopBar';
+import BackTopbar from '@components/BackTopBar';
 import {
   NumberlessRegularText,
   NumberlessSemiBoldText,
-} from '../../components/NumberlessText';
+} from '@components/NumberlessText';
+import {default as React, useEffect, useState} from 'react';
+import {Image, Modal, Pressable, StyleSheet, View} from 'react-native';
 import NamePopup from './UpdateNamePopup';
 
+import DefaultImage from '@assets/avatars/avatar.png';
+import Files from '@assets/icons/Files.svg';
+import Gallery from '@assets/icons/Gallery.svg';
+import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
+import EditIcon from '@assets/icons/Pencil.svg';
+import ChatBackground from '@components/ChatBackground';
+import DeleteChatButton from '@components/DeleteChatButton';
+import PermissionsDropdown from '@components/PermissionsDropdown/PermissionsDropdown';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {DEFAULT_NAME} from '@configs/constants';
+import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import Files from '../../../assets/icons/Files.svg';
-import Gallery from '../../../assets/icons/Gallery.svg';
-import GreyArrowRight from '../../../assets/icons/GreyArrowRight.svg';
-import EditIcon from '../../../assets/icons/Pencil.svg';
-import DeleteChatButton from '../../components/DeleteChatButton';
-import PermissionsDropdown from '../../components/PermissionsDropdown/PermissionsDropdown';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {DEFAULT_NAME} from '../../configs/constants';
-import {AppStackParamList} from '../../navigation/AppStackTypes';
-import {getConnection} from '../../utils/Connections';
+import {getConnection} from '@utils/Connections';
 import DisconnectButton from './DisconnectButton';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
@@ -67,11 +60,7 @@ function ContactProfile({route, navigation}: Props) {
 
   return (
     <SafeAreaView style={styles.profileScreen}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
-      />
+      <ChatBackground />
       <BackTopbar />
       <View style={styles.profile}>
         <Pressable
@@ -152,15 +141,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
-  background: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#F9F9F9',
-    opacity: 0.5,
-    overflow: 'hidden',
-  },
   profile: {
     width: '100%',
     backgroundColor: 'white',
@@ -171,6 +151,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingLeft: 20,
     paddingRight: 20,
+    height: '100%',
   },
   profilePictureHitbox: {
     width: 132,

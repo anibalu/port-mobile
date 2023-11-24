@@ -4,7 +4,7 @@
  */
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
-import {StatusBar, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Avatar from '../../../../assets/avatars/avatar1.svg';
 import {NumberlessRegularText} from '../../../components/NumberlessText';
 import ProgressBar from '../../../components/ProgressBar';
@@ -94,7 +94,6 @@ function SetupGroup({route, navigation}: Props) {
 
   return (
     <SafeAreaView style={styles.basicContainer}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <View style={styles.container}>
         <View style={styles.avatar}>
           <Avatar height={170} width={170} />

@@ -1,13 +1,16 @@
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+
+import Icon from '@assets/icons/ConnectionCenterGroups.svg';
+import {GenericButton} from '@components/GenericButton';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../components/NumberlessText';
-import Icon from '../../../assets/icons/ConnectionCenterGroups.svg';
-import {Button} from './Button';
+} from '@components/NumberlessText';
 import {instrument} from './ConnectionCentre';
-import {useNavigation} from '@react-navigation/native';
+
 type SetStateFunction<T> = React.Dispatch<React.SetStateAction<T>>;
 
 function NewGroupCard(props: {
@@ -36,16 +39,17 @@ function NewGroupCard(props: {
           </View>
         </View>
         <View style={style.educationBox}>
-          <View>
-            {/* <NumberlessRegularText style={style.educationText}>
-              Add education below
-            </NumberlessRegularText> */}
-          </View>
-          <Button
-            onPress={() => navigation.navigate('GroupOnboarding')}
-            style={{width: '80%', backgroundColor: '#547CEF'}}>
+          <GenericButton
+            onPress={() => {
+              navigation.navigate('GroupOnboarding');
+            }}
+            buttonStyle={{
+              width: '80%',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
             Create
-          </Button>
+          </GenericButton>
         </View>
       </View>
     );

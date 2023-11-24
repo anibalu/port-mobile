@@ -5,7 +5,7 @@
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
-import {Linking, StatusBar} from 'react-native';
+import {Linking} from 'react-native';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Provider} from 'react-redux';
@@ -15,7 +15,7 @@ import {loadConnectionsToStore} from './src/utils/Connections';
 import {
   foregroundMessageHandler,
   registerBackgroundMessaging,
-} from './src/utils/Messaging/fcm';
+} from '@utils/Messaging/fcm';
 import {checkProfile} from './src/utils/Profile';
 import {ProfileStatus} from './src/utils/Profile/interfaces';
 
@@ -27,6 +27,7 @@ import AppStack from './src/navigation/AppStack';
 import OnboardingStack from './src/navigation/OnboardingStack';
 import {handleDeepLink} from './src/utils/DeepLinking';
 import pullBacklog from './src/utils/Messaging/pullBacklog';
+import Toast from 'react-native-toast-message';
 
 type RootStackParamList = {
   AppStack: undefined;
@@ -69,19 +70,24 @@ function App(): JSX.Element {
   // Handle any potential deeplinks while foregrounded/backgrounded
   Linking.addEventListener('url', handleDeepLink);
   return (
-    <Provider store={store}>
-      <SafeAreaProvider>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName={profileExists ? 'AppStack' : 'OnboardingStack'}
-            screenOptions={{headerShown: false}}>
-            <Stack.Screen name="AppStack" component={AppStack} />
-            <Stack.Screen name="OnboardingStack" component={OnboardingStack} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </Provider>
+    <>
+      <Provider store={store}>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              initialRouteName={profileExists ? 'AppStack' : 'OnboardingStack'}
+              screenOptions={{headerShown: false}}>
+              <Stack.Screen name="AppStack" component={AppStack} />
+              <Stack.Screen
+                name="OnboardingStack"
+                component={OnboardingStack}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </Provider>
+      <Toast />
+    </>
   );
 }
 

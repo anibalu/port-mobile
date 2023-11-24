@@ -1,19 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {Dimensions, Image, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
-import DefaultImage from '../../../../assets/avatars/avatar.png';
-import Sending from '../../../../assets/icons/sending.svg';
+import DefaultImage from '@assets/avatars/avatar.png';
+import Sending from '@assets/icons/sending.svg';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../../components/NumberlessText';
-import {DEFAULT_NAME} from '../../../configs/constants';
-import {
-  SavedMessageParams,
-  SendStatus,
-} from '../../../utils/Messaging/interfaces';
-import {getTimeStamp} from '../../../utils/Time';
+} from '@components/NumberlessText';
+import {DEFAULT_NAME} from '@configs/constants';
+import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
+import {getTimeStamp} from '@utils/Time';
 import ImageReplyContainer from '../ReplyContainers/ImageReplyContainer';
+import {PortColors} from '@components/ComponentUtils';
 
 export default function ImageBubble({
   message,
@@ -144,11 +142,11 @@ const styles = StyleSheet.create({
   },
   timeStamp: {
     fontSize: 10,
-    color: '#868686',
+    color: PortColors.primary.grey.dark,
   },
   failedStamp: {
     fontSize: 10,
-    color: '#CCCCCC',
+    color: PortColors.primary.grey.medium,
   },
   text: {
     color: '#000000',

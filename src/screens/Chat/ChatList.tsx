@@ -1,8 +1,8 @@
 import React from 'react';
-import {SavedMessageParams} from '../../utils/Messaging/interfaces';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import MessageBubble from './MessageBubble';
 import {FlatList} from 'react-native';
-import {checkDateBoundary} from '../../utils/Time';
+import {checkDateBoundary} from '@utils/Time';
 
 function ChatList({
   messages,

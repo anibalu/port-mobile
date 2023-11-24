@@ -1,18 +1,18 @@
 import React from 'react';
 import {View, StyleSheet, Image, Pressable} from 'react-native';
-import {getTimeStamp} from '../../utils/Time';
+import {getTimeStamp} from '@utils/Time';
 import {
   NumberlessRegularText,
   NumberlessSemiBoldText,
   NumberlessMediumText,
 } from '../NumberlessText';
 import {useNavigation} from '@react-navigation/native';
-import DefaultImage from '../../../assets/avatars/avatar.png';
+import DefaultImage from '@assets/avatars/avatar.png';
 import {
   ConnectionInfo,
   ConnectionType,
   ReadStatus,
-} from '../../utils/Connections/interfaces';
+} from '@utils/Connections/interfaces';
 
 function ChatTile(props: ConnectionInfo) {
   const navigation = useNavigation();
@@ -63,9 +63,11 @@ function ChatTile(props: ConnectionInfo) {
           <NumberlessMediumText style={styles.timestamp}>
             {getTimeStamp(props.timestamp)}
           </NumberlessMediumText>
-          <NumberlessSemiBoldText style={styles[status]}>
-            {displayNumber(props.newMessageCount, status)}
-          </NumberlessSemiBoldText>
+          <View style={styles[status]}>
+            <NumberlessSemiBoldText style={styles[status]}>
+              {displayNumber(props.newMessageCount, status)}
+            </NumberlessSemiBoldText>
+          </View>
         </View>
       </View>
     </Pressable>
@@ -127,11 +129,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 7,
     borderRadius: 14,
-    shadowOpacity: 13,
-    shadowOffset: {
-      width: 14,
-      height: 8,
-    },
     backgroundColor: '#FFF6',
     flexDirection: 'row',
     alignItems: 'center',
@@ -199,9 +196,7 @@ const styles = StyleSheet.create({
     color: '#B7B6B6',
   },
   read: {
-    width: 9,
-    height: 9,
-    fontSize: 0,
+    display: 'none',
   },
   sent: {
     backgroundColor: '#B7B6B6',

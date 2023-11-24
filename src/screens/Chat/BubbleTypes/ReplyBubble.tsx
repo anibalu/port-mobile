@@ -1,19 +1,21 @@
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Sending from '../../../../assets/icons/sending.svg';
-import {NumberlessRegularText} from '../../../components/NumberlessText';
-import {extractMemberInfo} from '../../../utils/Groups';
+import Sending from '@assets/icons/sending.svg';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import {extractMemberInfo} from '@utils/Groups';
 import {
   ContentType,
   SavedMessageParams,
   SendStatus,
-} from '../../../utils/Messaging/interfaces';
-import {getMessage} from '../../../utils/Storage/messages';
-import {getTimeStamp} from '../../../utils/Time';
+} from '@utils/Messaging/interfaces';
+import {getMessage} from '@utils/Storage/messages';
+import {getTimeStamp} from '@utils/Time';
+
 import FileBubble from './FileBubble';
 import ImageBubble from './ImageBubble';
 import TextBubble from './TextBubble';
 import VideoBubble from './VideoBubble';
+import {PortColors} from '@components/ComponentUtils';
 
 /**
  * We get the message that needs to be shown, and the person who sent the message is the memberName.
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
   },
   receiverLine: {
     width: 4,
-    backgroundColor: '#547CEF',
+    backgroundColor: PortColors.primary.blue.app,
     marginBottom: 5,
     borderRadius: 2,
   },
@@ -186,7 +188,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   receiverBubble: {
-    backgroundColor: '#AFCCE4',
+    backgroundColor: PortColors.primary.blue.dull,
     padding: 5,
     marginLeft: -12,
     marginRight: -10,
@@ -197,7 +199,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   senderBubble: {
-    backgroundColor: '#B7B6B64D',
+    backgroundColor: PortColors.primary.grey.light,
     padding: 5,
     marginLeft: -12,
     marginRight: -10,
@@ -221,11 +223,11 @@ const styles = StyleSheet.create({
   },
   timeStamp: {
     fontSize: 10,
-    color: '#868686',
+    color: PortColors.primary.grey.dark,
   },
   failedStamp: {
     fontSize: 10,
-    color: '#CCCCCC',
+    color: PortColors.primary.grey.light,
   },
   text: {
     color: '#000000',

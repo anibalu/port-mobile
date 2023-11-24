@@ -12,7 +12,7 @@ export default function DisconnectButton(props: {chatId: string}) {
   const navigation = useNavigation();
   const invokeConnectionDisconnect = async () => {
     await disconnectConnection(props.chatId);
-    navigation.navigate('Home');
+    navigation.navigate('HomeTab');
   };
 
   return (

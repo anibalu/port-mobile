@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import PendingContactsIcon from '../../assets/icons/PendingContacts.svg';
-import BlueArrowUpIcon from '../../assets/icons/BlueArrowUp.svg';
-import GreyArrowDownIcon from '../../assets/icons/GreyArrowDown.svg';
+import PendingContactsIcon from '@assets/icons/PendingContacts.svg';
+import BlueArrowUpIcon from '@assets/icons/BlueArrowUp.svg';
+import GreyArrowDownIcon from '@assets/icons/GreyArrowDown.svg';
 
 const Accordion = ({title, children, dataLength}) => {
   const [expanded, setExpanded] = useState(false);
@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '80%',
+    alignItems: 'center',
   },
   title: {
     fontWeight: '500',

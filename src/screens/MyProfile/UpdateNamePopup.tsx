@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Rubik-Regular',
     paddingLeft: 10,
     paddingRight: 10,
+    height: 50,
   },
   options: {
     width: '100%',

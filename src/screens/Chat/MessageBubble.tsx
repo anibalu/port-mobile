@@ -253,15 +253,15 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#EDEDED',
     width: '100%',
-    padding: 8,
+    borderRadius: 32,
+    padding: 2,
   },
   dateStamp: {
     fontSize: 12,
     color: '#83868E',
-    backgroundColor: '#EDEDED',
     padding: 8,
-    borderRadius: 32,
   },
   SenderContainer: {
     flexDirection: 'row',

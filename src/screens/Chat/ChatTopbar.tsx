@@ -1,13 +1,14 @@
-import React from 'react';
-import {Image, Pressable, StyleSheet} from 'react-native';
-import {View} from 'react-native';
-import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import {BackButton} from '../../components/BackButton';
+import SettingsIcon from '@assets/icons/contact-settings.svg';
+import Cross from '@assets/icons/cross.svg';
+import {BackButton} from '@components/BackButton';
+import {PortColors} from '@components/ComponentUtils';
+import {GenericButton} from '@components/GenericButton';
+import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
-import SettingsIcon from '../../../assets/icons/contact-settings.svg';
-import Cross from '../../../assets/icons/cross.svg';
+import React from 'react';
+import {Image, StyleSheet, View} from 'react-native';
 
-function Topbar({
+function ChatTopbar({
   name,
   chatId,
   //profile Uri
@@ -58,25 +59,25 @@ function Topbar({
       </View>
       <View>
         {selectedMessages.length >= 1 ? (
-          <Pressable
-            style={styles.crossBox}
+          <GenericButton
+            buttonStyle={styles.crossBox}
+            Icon={Cross}
             onPress={() => {
               setSelectedMessages([]);
-            }}>
-            <Cross />
-          </Pressable>
+            }}
+          />
         ) : (
-          <Pressable
-            style={styles.settingsBox}
+          <GenericButton
+            buttonStyle={styles.settingsBox}
+            Icon={SettingsIcon}
             onPress={() => {
               if (isGroupChat) {
                 navigation.navigate('GroupProfile', {groupId: chatId});
               } else {
                 navigation.navigate('ContactProfile', {chatId});
               }
-            }}>
-            <SettingsIcon width={20} />
-          </Pressable>
+            }}
+          />
         )}
       </View>
     </View>
@@ -121,12 +122,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   settingsBox: {
-    width: 50,
+    backgroundColor: PortColors.primary.white,
     alignItems: 'flex-end',
   },
   crossBox: {
-    width: 50,
-    alignItems: 'flex-end',
+    backgroundColor: PortColors.primary.white,
+    width: 20,
+    padding: 0,
   },
   profile: {
     height: 50,
@@ -141,4 +143,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Topbar;
+export default ChatTopbar;

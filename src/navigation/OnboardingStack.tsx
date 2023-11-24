@@ -1,9 +1,9 @@
-import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import Onboarding from '../screens/Onboarding/Onboarding';
-import SetupUser from '../screens/SetupUser/SetupUser';
-import RequestPermissions from '../screens/RequestPermissions/RequestPermissions';
-import Welcome from '../screens/Welcome/Welcome';
+import Onboarding from '@screens/Onboarding/Onboarding';
+import RequestPermissions from '@screens/RequestPermissions/RequestPermissions';
+import SetupUser from '@screens/SetupUser/SetupUser';
+import Welcome from '@screens/Welcome/Welcome';
+import React from 'react';
 import {OnboardingStackParamList} from './OnboardingStackTypes';
 
 const Stack = createNativeStackNavigator<OnboardingStackParamList>();

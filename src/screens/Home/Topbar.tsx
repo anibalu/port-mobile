@@ -4,11 +4,11 @@
 import React, {useState} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 import {View, Image} from 'react-native';
-import {NumberlessSemiBoldText} from '../../components/NumberlessText';
+import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import {getProfilePicture} from '../../utils/Profile';
-import ProfileBackground from '../../../assets/backgrounds/profileBackground.svg';
+import DefaultImage from '@assets/avatars/avatar.png';
+import {getProfilePicture} from '@utils/Profile';
+import ProfileBackground from '@assets/backgrounds/profileBackground.svg';
 
 type TopbarProps = {
   filter: String | undefined;

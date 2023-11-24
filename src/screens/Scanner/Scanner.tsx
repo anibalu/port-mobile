@@ -3,20 +3,15 @@
  * screen Id: 6
  */
 import React from 'react';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {StyleSheet, StatusBar, View} from 'react-native';
-import {BottomNavigator} from '../../components/BottomNavigator/BottomNavigator';
-import {Page} from '../../components/BottomNavigator/Button';
+import {StyleSheet} from 'react-native';
+import {SafeAreaView} from '@components/SafeAreaView';
+
 import QRScanner from './QRscanner';
 
 function Scanner() {
   return (
     <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
       <QRScanner />
-      <View style={styles.bottomBar}>
-        <BottomNavigator active={Page.scanner} />
-      </View>
     </SafeAreaView>
   );
 }

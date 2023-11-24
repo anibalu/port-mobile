@@ -4,30 +4,22 @@
  */
 import React, {useCallback, useEffect, useState} from 'react';
 
-import {
-  FlatList,
-  ImageBackground,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 import {NumberlessMediumText} from '../../components/NumberlessText';
 // import NamePopup from './UpdateNamePopup';
+import ChatBackground from '@components/ChatBackground';
+import GenericTopBar from '@components/GenericTopBar';
+import SearchBar from '@components/SearchBar';
 import {useFocusEffect} from '@react-navigation/native';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {NAME_LENGTH_LIMIT} from '../../configs/constants';
-import Share from '../../../assets/icons/Share.svg';
-import Topbar from './Topbar';
-import Search from '../../../assets/icons/GreySearch.svg';
-import AddMemberTile from './AddMemberTile';
-import {ConnectionInfo} from '../../utils/Connections/interfaces';
-import Tick from '../../../assets/icons/tick.svg';
-import {getDirectChats} from '../../utils/DirectChats';
-import SelectedMemberTile from './SelectedMemberTile';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import Share from '../../../assets/icons/Share.svg';
+import Tick from '../../../assets/icons/tick.svg';
+import {SafeAreaView} from '../../components/SafeAreaView';
 import {AppStackParamList} from '../../navigation/AppStackTypes';
+import {ConnectionInfo} from '../../utils/Connections/interfaces';
+import {getDirectChats} from '../../utils/DirectChats';
+import AddMemberTile from './AddMemberTile';
+import SelectedMemberTile from './SelectedMemberTile';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AddMembers'>;
 
@@ -35,10 +27,6 @@ function AddMembers({route, navigation}: Props) {
   //gets groupId of group
   const {groupId} = route.params;
   const [searchText, setSearchText] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const onChangeText = (newName: string) => {
-    setSearchText(newName);
-  };
 
   //Members that have been selected via the checkbox
   const [selectedMembers, setSelectedMembers] = useState<ConnectionInfo[]>([]);
@@ -105,17 +93,16 @@ function AddMembers({route, navigation}: Props) {
 
   return (
     <SafeAreaView style={styles.profileScreen}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
-      />
-      <Topbar
+      <ChatBackground />
+      <GenericTopBar
         title={
           selectedMembers.length > 0
             ? 'Selected ' + selectedMembers.length
             : 'Add members'
         }
+        onBackPress={() => {
+          navigation.goBack();
+        }}
       />
       <View style={styles.selectedMemberList}>
         <FlatList
@@ -129,13 +116,15 @@ function AddMembers({route, navigation}: Props) {
         />
       </View>
       <View style={{flexDirection: 'row', marginHorizontal: 14, marginTop: 16}}>
-        <View
+        <SearchBar searchText={searchText} setSearchText={setSearchText} />
+        {/* <View
           style={{
             width: '60%',
             borderRadius: 8,
             flexDirection: 'row',
             paddingLeft: 20,
             alignItems: 'center',
+
             backgroundColor: '#FFFFFF',
           }}>
           <Search color={'grey'} />
@@ -150,7 +139,7 @@ function AddMembers({route, navigation}: Props) {
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
           />
-        </View>
+        </View> */}
         <Pressable
           style={{
             backgroundColor: '#547CEF',

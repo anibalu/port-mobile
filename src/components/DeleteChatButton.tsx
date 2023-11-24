@@ -15,7 +15,7 @@ export default function DeleteChatButton(props: {
   const navigation = useNavigation();
   const invokeConnectionDelete = () => {
     deleteConnection(props.chatId);
-    navigation.navigate('Home');
+    navigation.navigate('HomeTab');
   };
   const buttonStyle = StyleSheet.compose(
     styles.buttonStyle,

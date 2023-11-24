@@ -1,19 +1,17 @@
-import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Pressable, Image, Dimensions} from 'react-native';
+import DefaultImage from '@assets/avatars/avatar.png';
+import File from '@assets/icons/FileClip.svg';
+import Sending from '@assets/icons/sending.svg';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../../components/NumberlessText';
-import {getTimeStamp} from '../../../utils/Time';
-import {
-  SavedMessageParams,
-  SendStatus,
-} from '../../../utils/Messaging/interfaces';
-import Sending from '../../../../assets/icons/sending.svg';
-import {DEFAULT_NAME} from '../../../configs/constants';
+} from '@components/NumberlessText';
+import {DEFAULT_NAME} from '@configs/constants';
+import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
+import {getTimeStamp} from '@utils/Time';
+import React, {useEffect, useState} from 'react';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
-import DefaultImage from '../../../../assets/avatars/avatar.png';
-import File from '../../../../assets/icons/FileClip.svg';
 import FileReplyContainer from '../ReplyContainers/FileReplyContainer';
 
 export default function FileBubble({
@@ -47,10 +45,7 @@ export default function FileBubble({
       ) : (
         <>
           <View>
-            {renderProfileName(
-              shouldRenderProfileName(message, memberName),
-              memberName,
-            )}
+            {renderProfileName(shouldRenderProfileName(memberName), memberName)}
           </View>
           <Pressable
             onPress={() => {
@@ -109,10 +104,7 @@ export default function FileBubble({
   );
 }
 
-function shouldRenderProfileName(
-  message: SavedMessageParams,
-  memberName: string,
-) {
+function shouldRenderProfileName(memberName: string) {
   if (memberName === '') {
     return false;
   } else {
@@ -131,7 +123,7 @@ function renderProfileName(shouldRender: boolean, name: string = DEFAULT_NAME) {
     </View>
   );
 }
-const viewWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
@@ -148,11 +140,11 @@ const styles = StyleSheet.create({
   },
   timeStamp: {
     fontSize: 10,
-    color: '#868686',
+    color: PortColors.primary.grey.dark,
   },
   failedStamp: {
     fontSize: 10,
-    color: '#CCCCCC',
+    color: PortColors.primary.grey.medium,
   },
   text: {
     color: '#000000',
@@ -166,14 +158,14 @@ const styles = StyleSheet.create({
     height: 60,
     width: 60,
     borderRadius: 16,
-    backgroundColor: '#FEB95A',
+    backgroundColor: PortColors.primary.yellow.dull,
     justifyContent: 'center',
     alignItems: 'center',
   },
   fileName: {
     color: 'black',
     overflow: 'hidden',
-    width: 0.7 * viewWidth - 100,
+    width: 0.7 * screen.width - 100,
     marginLeft: 10,
     fontSize: 12,
   },

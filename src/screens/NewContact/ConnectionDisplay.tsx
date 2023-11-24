@@ -5,33 +5,33 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
-  ToastAndroid,
   View,
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 //svg imports
-import Scan from '../../../assets/icons/Scan.svg';
-import ShareIcon from '../../../assets/icons/Share.svg';
-import Logo from '../../../assets/icons/Logo.svg';
-import Refresh from '../../../assets/icons/Refresh.svg';
-import Nfc from '../../../assets/icons/nfc.svg';
+import Scan from '@assets/icons/Scan.svg';
+import ShareIcon from '@assets/icons/Share.svg';
+import Logo from '@assets/icons/Logo.svg';
+import Refresh from '@assets/icons/Refresh.svg';
+import Nfc from '@assets/icons/nfc.svg';
 //config imports
-import {NAME_LENGTH_LIMIT} from '../../configs/constants';
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
 //store import
-import store from '../../store/appStore';
+import store from '@store/appStore';
 //component imports
 import {
   NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../components/NumberlessText';
+} from '@components/NumberlessText';
 import Share from 'react-native-share';
 import {
   generateDirectConnectionBundle,
   updateGeneratedDirectConnectionBundleLabel,
-} from '../../utils/Bundles/direct';
-import {convertBundleToLink} from '../../utils/DeepLinking';
+} from '@utils/Bundles/direct';
+import {convertBundleToLink} from '@utils/DeepLinking';
+import Toast from 'react-native-toast-message';
 
 function ConnectionDisplay() {
   const navigation = useNavigation();
@@ -85,10 +85,10 @@ function ConnectionDisplay() {
       };
       await Share.open(shareContent);
     } catch (error) {
-      ToastAndroid.show(
-        'Error sharing content. Error fetching link',
-        ToastAndroid.SHORT,
-      );
+      Toast.show({
+        type: 'wrning',
+        text1: 'Error sharing content. Error fetching link',
+      });
       console.log('Error sharing content: ', error);
     }
   };
@@ -142,7 +142,7 @@ function ConnectionDisplay() {
         if (qrCodeData !== '') {
           const displayData = JSON.parse(qrCodeData);
           if (displayData.data.linkId === latestUsedConnectionLinkId) {
-            navigation.navigate('Home');
+            navigation.navigate('HomeTab');
           }
         }
       }
@@ -237,7 +237,7 @@ function ConnectionDisplay() {
           <Pressable
             style={styles.button}
             onPress={() => {
-              navigation.navigate('Scanner');
+              navigation.navigate('HomeTab', {screen: 'Scanner'});
             }}>
             <Scan width={24} height={24} />
             <NumberlessRegularText style={styles.buttonText}>
@@ -249,7 +249,6 @@ function ConnectionDisplay() {
       <View style={styles.nfcEducation}>
         <Nfc width={24} height={24} />
         <NumberlessRegularText style={styles.nfcText}>
-          {' '}
           If NFC is enabled, tap your device against theirs to instantly
           connect.
         </NumberlessRegularText>

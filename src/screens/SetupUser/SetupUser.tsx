@@ -2,19 +2,21 @@
  * This screen sets up a user account
  * screen id: 4
  */
+import Avatar from '@assets/avatars/avatar1.svg';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import ProgressBar from '@components/ProgressBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {DEFAULT_NAME} from '@configs/constants';
+import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {getInitialDirectConnectionLinks} from '@utils/ConnectionLinks/direct';
 import React, {useEffect, useState} from 'react';
-import {StatusBar, StyleSheet, View} from 'react-native';
-import Avatar from '../../../assets/avatars/avatar1.svg';
-import {NumberlessRegularText} from '../../components/NumberlessText';
-import ProgressBar from '../../components/ProgressBar';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {DEFAULT_NAME} from '../../configs/constants';
-import {OnboardingStackParamList} from '../../navigation/OnboardingStackTypes';
-import {getInitialDirectConnectionLinks} from '../../utils/ConnectionLinks/direct';
-import {initialiseFCM} from '../../utils/Messaging/fcm';
-import {setupNewProfile} from '../../utils/Profile';
-import {ProfileStatus} from '../../utils/Profile/interfaces';
+import {StyleSheet, View} from 'react-native';
+import {setupNewProfile} from '@utils/Profile';
+import {ProfileStatus} from '@utils/Profile/interfaces';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {PortColors} from '@components/ComponentUtils';
+import {initialiseFCM} from '@utils/Messaging/fcm';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
 
@@ -65,31 +67,36 @@ function SetupUser({route, navigation}: Props) {
         navigation.navigate('Onboarding');
       } else {
         //ts-ignore
-        navigation.navigate('AppStack', {screen: 'Home'});
+        navigation.navigate('AppStack', {screen: 'HomeTab'});
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <SafeAreaView style={styles.basicContainer}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <View style={styles.container}>
-        <View style={styles.avatar}>
-          <Avatar height={170} width={170} />
+    <>
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.white}
+      />
+      <SafeAreaView style={styles.basicContainer}>
+        <View style={styles.container}>
+          <View style={styles.avatar}>
+            <Avatar height={170} width={170} />
+          </View>
+          <ProgressBar progress={progress} />
+          <NumberlessRegularText style={styles.loaderText}>
+            {loaderText}
+          </NumberlessRegularText>
         </View>
-        <ProgressBar progress={progress} />
-        <NumberlessRegularText style={styles.loaderText}>
-          {loaderText}
-        </NumberlessRegularText>
-      </View>
-      <View style={styles.absoluteContainer}>
-        <NumberlessRegularText>
-          This may take a few seconds. Please ensure you have an active internet
-          connection.
-        </NumberlessRegularText>
-      </View>
-    </SafeAreaView>
+        <View style={styles.absoluteContainer}>
+          <NumberlessRegularText>
+            This may take a few seconds. Please ensure you have an active
+            internet connection.
+          </NumberlessRegularText>
+        </View>
+      </SafeAreaView>
+    </>
   );
 }
 

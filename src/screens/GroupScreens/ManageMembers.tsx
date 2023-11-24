@@ -2,40 +2,30 @@
  * The screen to view and manage members for a group
  * screen Id: N/A
  */
-import React, {useEffect, useState} from 'react';
-import {
-  FlatList,
-  ImageBackground,
-  StatusBar,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../components/NumberlessText';
+} from '@components/NumberlessText';
+import React, {useCallback, useEffect, useState} from 'react';
+import {FlatList, StyleSheet, View} from 'react-native';
 // import NamePopup from './UpdateNamePopup';
+import ChatBackground from '@components/ChatBackground';
+import GenericTopBar from '@components/GenericTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+import SearchBar from '@components/SearchBar';
+import {AppStackParamList} from '@navigation/AppStackTypes';
 import {useFocusEffect} from '@react-navigation/native';
-import Search from '../../../assets/icons/GreySearch.svg';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {NAME_LENGTH_LIMIT} from '../../configs/constants';
-import {GroupInfo, GroupMember} from '../../utils/Groups/interfaces';
-import {getGroupInfo} from '../../utils/Storage/group';
-import {Button} from '../ConnectionCentre/Button';
-import Topbar from './Topbar';
-import UserTile from './UserTile';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '../../navigation/AppStackTypes';
+import {GroupInfo, GroupMember} from '@utils/Groups/interfaces';
+import {getGroupInfo} from '@utils/Storage/group';
+
+import {GenericButton} from '@components/GenericButton';
+import UserTile from './UserTile';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ManageMembers'>;
 
 function ManageMembers({route, navigation}: Props) {
   const [searchText, setSearchText] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const onChangeText = (newName: string) => {
-    setSearchText(newName);
-  };
 
   const {groupId} = route.params;
 
@@ -73,22 +63,27 @@ function ManageMembers({route, navigation}: Props) {
     }, []),
   );
 
+  const renderItems = useCallback(({item}: {item: GroupMember}) => {
+    return <UserTile member={item} />;
+  }, []);
+
   return (
     <SafeAreaView style={styles.profileScreen}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
+      <ChatBackground />
+      <GenericTopBar
+        title={'Members'}
+        onBackPress={() => {
+          navigation.goBack();
+        }}
       />
-      <Topbar title={'Members'} />
       {groupInfo?.amAdmin && (
-        <Button
+        <GenericButton
           onPress={() => {
             navigation.navigate('ShareGroup', {groupId: groupId});
           }}
-          style={{width: '80%', marginTop: 30}}>
+          buttonStyle={{width: '80%', marginTop: 30}}>
           Add member
-        </Button>
+        </GenericButton>
       )}
 
       <View style={styles.section}>
@@ -104,20 +99,11 @@ function ManageMembers({route, navigation}: Props) {
           </NumberlessRegularText>
         </View>
 
-        <View style={styles.searchBarStyle}>
-          <Search color={'grey'} />
-          <TextInput
-            // style={{marginLeft: 20, flex: 1}}
-            textAlign="left"
-            maxLength={NAME_LENGTH_LIMIT}
-            placeholder={isFocused ? '' : 'Search'}
-            placeholderTextColor="#BABABA"
-            onChangeText={onChangeText}
-            value={searchText}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-          />
-        </View>
+        <SearchBar
+          style={styles.searchBarStyle}
+          searchText={searchText}
+          setSearchText={setSearchText}
+        />
       </View>
       <FlatList
         numColumns={4}
@@ -129,9 +115,7 @@ function ManageMembers({route, navigation}: Props) {
         data={viewableMembers}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
-        renderItem={(item: any) => {
-          return <UserTile member={item.item} />;
-        }}
+        renderItem={renderItems}
       />
     </SafeAreaView>
   );
@@ -159,6 +143,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 14,
     marginTop: 4,
     paddingLeft: 20,
+    height: 46,
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
@@ -207,13 +192,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  background: {
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#F9F9F9',
-    opacity: 0.5,
-    overflow: 'hidden',
-  },
+
   profile: {
     backgroundColor: 'white',
     display: 'flex',

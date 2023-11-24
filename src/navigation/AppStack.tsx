@@ -1,62 +1,66 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
-import Chat from '../screens/Chat/Chat';
-import ConnectionCentre from '../screens/ConnectionCentre/ConnectionCentre';
-import ContactProfile from '../screens/ContactProfile/ContactProfile';
-import ViewFiles from '../screens/ContactProfile/ViewFiles';
-import ViewPhotosVideos from '../screens/ContactProfile/ViewPhotosVideos';
-import AddMembers from '../screens/GroupScreens/AddMembers';
-import GroupOnboarding from '../screens/GroupScreens/GroupOnboarding';
+import Chat from '@screens/Chat/Chat';
+import ContactProfile from '@screens/ContactProfile/ContactProfile';
+import ViewFiles from '@screens/ContactProfile/ViewFiles';
+import ViewPhotosVideos from '@screens/ContactProfile/ViewPhotosVideos';
+import AddMembers from '@screens/GroupScreens/AddMembers';
+import GroupOnboarding from '@screens/GroupScreens/GroupOnboarding';
 
-import ManageMembers from '../screens/GroupScreens/ManageMembers';
-import NewGroup from '../screens/GroupScreens/NewGroup/NewGroup';
-import SetupGroup from '../screens/GroupScreens/SetupGroup/SetupGroup';
-import ShareGroup from '../screens/GroupScreens/ShareGroup/ShareGroup';
-import Home from '../screens/Home/Home';
-import ImageView from '../screens/MediaView/ImageView';
-import MyProfile from '../screens/MyProfile/MyProfile';
-import NewContact from '../screens/NewContact/NewContact';
-import Placeholder from '../screens/Placeholder/Placeholder';
-import Scanner from '../screens/Scanner/Scanner';
+import GroupProfile from '@screens/GroupScreens/GroupProfile/GroupProfile';
+import ManageMembers from '@screens/GroupScreens/ManageMembers';
+import NewGroup from '@screens/GroupScreens/NewGroup/NewGroup';
+import SetupGroup from '@screens/GroupScreens/SetupGroup/SetupGroup';
+import ShareGroup from '@screens/GroupScreens/ShareGroup/ShareGroup';
+import ImageView from '@screens/MediaView/ImageView';
+import MyProfile from '@screens/MyProfile/MyProfile';
+import NewContact from '@screens/NewContact/NewContact';
+import NewSuperport from '@screens/NewSuperport/NewSuperport';
+import Placeholder from '@screens/Placeholder/Placeholder';
 import {AppStackParamList} from './AppStackTypes';
-import GroupProfile from '../screens/GroupScreens/GroupProfile/GroupProfile';
-import NewSuperport from '../screens/NewSuperport/NewSuperport';
-import AddCategoryScreen from '../screens/BugReporting/AddCategoryScreen';
-import ReportIssueScreen from '../screens/BugReporting/ReportIssueScreen';
-import SuggestAFeature from '../screens/BugReporting/SuggestAFeature';
-import ForwardToContact from '../screens/ForwardToContact/ForwardToContact';
+import BottomNavStack from './BottomNavStack';
+import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
+import {PortColors} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import AddCategoryScreen from '@screens/BugReporting/AddCategoryScreen';
+import ReportIssueScreen from '@screens/BugReporting/ReportIssueScreen';
+import SuggestAFeature from '@screens/BugReporting/SuggestAFeature';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 function AppStack() {
   return (
-    <Stack.Navigator
-      initialRouteName="Home"
-      screenOptions={{headerShown: false}}>
-      <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="ConnectionCentre" component={ConnectionCentre} />
-      <Stack.Screen name="MyProfile" component={MyProfile} />
-      <Stack.Screen name="GroupProfile" component={GroupProfile} />
-      <Stack.Screen name="ManageMembers" component={ManageMembers} />
-      <Stack.Screen name="AddMembers" component={AddMembers} />
-      <Stack.Screen name="NewContact" component={NewContact} />
-      <Stack.Screen name="NewSuperport" component={NewSuperport} />
-      <Stack.Screen name="Scanner" component={Scanner} />
-      <Stack.Screen name="DirectChat" component={Chat} />
-      <Stack.Screen name="ContactProfile" component={ContactProfile} />
-      <Stack.Screen name="Placeholder" component={Placeholder} />
-      <Stack.Screen name="ImageView" component={ImageView} />
-      <Stack.Screen name="GroupOnboarding" component={GroupOnboarding} />
-      <Stack.Screen name="NewGroup" component={NewGroup} />
-      <Stack.Screen name="SetupGroup" component={SetupGroup} />
-      <Stack.Screen name="ShareGroup" component={ShareGroup} />
-      <Stack.Screen name="ViewPhotosVideos" component={ViewPhotosVideos} />
-      <Stack.Screen name="ViewFiles" component={ViewFiles} />
-      <Stack.Screen name="AddCategoryScreen" component={AddCategoryScreen} />
-      <Stack.Screen name="ReportIssueScreen" component={ReportIssueScreen} />
-      <Stack.Screen name="SuggestAFeature" component={SuggestAFeature} />
-      <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
-    </Stack.Navigator>
+    <>
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.white}
+      />
+      <Stack.Navigator
+        initialRouteName="HomeTab"
+        screenOptions={{headerShown: false}}>
+        <Stack.Screen name="HomeTab" component={BottomNavStack} />
+        <Stack.Screen name="MyProfile" component={MyProfile} />
+        <Stack.Screen name="GroupProfile" component={GroupProfile} />
+        <Stack.Screen name="ManageMembers" component={ManageMembers} />
+        <Stack.Screen name="AddMembers" component={AddMembers} />
+        <Stack.Screen name="NewContact" component={NewContact} />
+        <Stack.Screen name="NewSuperport" component={NewSuperport} />
+        <Stack.Screen name="DirectChat" component={Chat} />
+        <Stack.Screen name="ContactProfile" component={ContactProfile} />
+        <Stack.Screen name="Placeholder" component={Placeholder} />
+        <Stack.Screen name="ImageView" component={ImageView} />
+        <Stack.Screen name="GroupOnboarding" component={GroupOnboarding} />
+        <Stack.Screen name="NewGroup" component={NewGroup} />
+        <Stack.Screen name="SetupGroup" component={SetupGroup} />
+        <Stack.Screen name="ShareGroup" component={ShareGroup} />
+        <Stack.Screen name="ViewPhotosVideos" component={ViewPhotosVideos} />
+        <Stack.Screen name="ViewFiles" component={ViewFiles} />
+        <Stack.Screen name="AddCategoryScreen" component={AddCategoryScreen} />
+        <Stack.Screen name="ReportIssueScreen" component={ReportIssueScreen} />
+        <Stack.Screen name="SuggestAFeature" component={SuggestAFeature} />
+        <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
+      </Stack.Navigator>
+    </>
   );
 }
 

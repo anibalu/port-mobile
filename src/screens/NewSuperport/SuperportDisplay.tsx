@@ -5,31 +5,31 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
-  ToastAndroid,
   View,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 //svg imports
-import ShareIcon from '../../../assets/icons/Share.svg';
-import Logo from '../../../assets/icons/Logo.svg';
+import ShareIcon from '@assets/icons/Share.svg';
+import Logo from '@assets/icons/Logo.svg';
 //config imports
-import {NAME_LENGTH_LIMIT} from '../../configs/constants';
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
 //component imports
 import {
   NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../components/NumberlessText';
+} from '@components/NumberlessText';
 import Share from 'react-native-share';
-import {convertBundleToLink} from '../../utils/DeepLinking';
+import {convertBundleToLink} from '@utils/DeepLinking';
 import {
   closeGeneratedSuperport,
   generateDirectSuperportConnectionBundle,
   loadGeneratedSuperport,
   updateGeneratedDirectSuperportConnectionBundleLabel,
-} from '../../utils/Bundles/directSuperport';
-import {DirectSuperportConnectionBundle} from '../../utils/Bundles/interfaces';
+} from '@utils/Bundles/directSuperport';
+import {DirectSuperportConnectionBundle} from '@utils/Bundles/interfaces';
+import Toast from 'react-native-toast-message';
 
 function SuperportDisplay({superportId}: {superportId: string}) {
   const navigation = useNavigation();
@@ -89,10 +89,10 @@ function SuperportDisplay({superportId}: {superportId: string}) {
       };
       await Share.open(shareContent);
     } catch (error) {
-      ToastAndroid.show(
-        'Error sharing content. Error fetching link',
-        ToastAndroid.SHORT,
-      );
+      Toast.show({
+        type: 'warning',
+        text1: 'Error sharing content. Error fetching link',
+      });
       console.log('Error sharing content: ', error);
     }
   };
@@ -103,10 +103,10 @@ function SuperportDisplay({superportId}: {superportId: string}) {
       } else {
         await closeGeneratedSuperport(JSON.parse(qrCodeData).data.linkId);
       }
-      navigation.navigate('Home');
+      navigation.navigate('HomeTab');
     } catch (error) {
       console.log('Error closing superport: ', error);
-      navigation.navigate('Home');
+      navigation.navigate('HomeTab');
     }
   };
 

@@ -1,31 +1,30 @@
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React from 'react';
-import {
-  ImageBackground,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
+import ChatBackground from '@components/ChatBackground';
+import GenericTopBar from '@components/GenericTopBar';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../components/NumberlessText';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {AppStackParamList} from '../../navigation/AppStackTypes';
+} from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import React from 'react';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import SuperportDisplay from './SuperportDisplay';
-import Topbar from './TopBar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewSuperport'>;
 
-function NewSuperport({route}: Props) {
+function NewSuperport({navigation, route}: Props) {
   const {superportId = ''} = route.params;
   return (
     <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <ImageBackground
-        source={require('../../../assets/backgrounds/puzzle.png')}
-        style={styles.background}
+      <ChatBackground />
+      <GenericTopBar
+        title={
+          !(superportId && superportId !== '') ? 'New Superport' : 'Superport'
+        }
+        onBackPress={() => {
+          navigation.goBack();
+        }}
       />
       <ScrollView style={styles.scrollView}>
         <View style={styles.mainBox}>
@@ -41,9 +40,6 @@ function NewSuperport({route}: Props) {
           </View>
         </View>
       </ScrollView>
-      <View style={styles.topBox}>
-        <Topbar isNew={!(superportId && superportId !== '')} />
-      </View>
     </SafeAreaView>
   );
 }
@@ -56,15 +52,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
   },
-  background: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#FFF',
-    opacity: 0.5,
-    overflow: 'hidden',
-  },
+
   topBox: {
     position: 'absolute',
     width: '100%',
@@ -75,7 +63,8 @@ const styles = StyleSheet.create({
   mainBox: {
     height: '100%',
     width: '100%',
-    paddingTop: 51,
+    paddingTop: 20,
+    paddingBottom: 40,
     alignItems: 'center',
   },
   educationBox: {

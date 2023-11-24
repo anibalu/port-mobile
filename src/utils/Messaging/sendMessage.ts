@@ -63,41 +63,43 @@ export async function sendMessage(
   journal: boolean = true,
   isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
-  //ensure message has a valid message Id
-  let tempMessageId = message.messageId || generateTempMessageId();
-  if (!journal) {
-    tempMessageId = tempMessageId.slice(getSenderPrefix().length);
+  try {
+    //ensure message has a valid message Id
+    let tempMessageId = message.messageId || generateRandomHexId();
+    const newMessage: SendMessageParamsStrict = {
+      ...message,
+      messageId: tempMessageId,
+    };
+    //handle message differently for content types.
+    switch (message.contentType) {
+      case ContentType.text: {
+        return await sendTextMessage(chatId, newMessage, journal, isGroup);
+      }
+      case ContentType.name: {
+        return await sendNameMessage(chatId, newMessage, journal, isGroup);
+      }
+      case ContentType.displayImage:
+        return await sendMediaMessage(chatId, newMessage, journal, isGroup);
+      case ContentType.video:
+        return await sendMediaMessage(chatId, newMessage, journal, isGroup);
+      case ContentType.image: {
+        return await sendMediaMessage(chatId, newMessage, journal, isGroup);
+      }
+      case ContentType.file: {
+        return await sendFileMessage(chatId, newMessage, journal, isGroup);
+      }
+      case ContentType.handshakeA1: {
+        return await sendHandshakeDirectMessage(chatId, newMessage, journal);
+      }
+      case ContentType.handshakeB2: {
+        return await sendHandshakeDirectMessage(chatId, newMessage, journal);
+      }
+    }
+    throw new Error('Unrecognised send operation');
+  } catch (error) {
+    console.log('Message send failed: ', error);
+    return {sendStatus: SendStatus.failed, message: message};
   }
-  const newMessage: SendMessageParamsStrict = {
-    ...message,
-    messageId: tempMessageId,
-  };
-  //handle message differently for content types.
-  switch (message.contentType) {
-    case ContentType.text: {
-      return await sendTextMessage(chatId, newMessage, journal, isGroup);
-    }
-    case ContentType.name: {
-      return await sendNameMessage(chatId, newMessage, journal, isGroup);
-    }
-    case ContentType.displayImage:
-      return await sendMediaMessage(chatId, newMessage, journal, isGroup);
-    case ContentType.video:
-      return await sendMediaMessage(chatId, newMessage, journal, isGroup);
-    case ContentType.image: {
-      return await sendMediaMessage(chatId, newMessage, journal, isGroup);
-    }
-    case ContentType.file: {
-      return await sendFileMessage(chatId, newMessage, journal, isGroup);
-    }
-    case ContentType.handshakeA1: {
-      return await sendHandshakeDirectMessage(chatId, newMessage, journal);
-    }
-    case ContentType.handshakeB2: {
-      return await sendHandshakeDirectMessage(chatId, newMessage, journal);
-    }
-  }
-  return {sendStatus: SendStatus.failed, message: message};
 }
 
 /**
@@ -111,12 +113,12 @@ async function journalingFailedActions(
   //remove message Id from sending store
   store.dispatch({
     type: 'REMOVE_FROM_SENDING',
-    payload: {chatId: chatId, messageId: getSenderPrefix() + message.messageId},
+    payload: {chatId: chatId, messageId: message.messageId},
   });
   //update send status in storage
   await updateMessageSendStatus(
     chatId,
-    getSenderPrefix() + message.messageId,
+    message.messageId,
     SendStatus.failed,
     true,
   );
@@ -132,11 +134,11 @@ async function sendTextMessage(
   //add messageId (with sender prefix) to sending queue on store
   store.dispatch({
     type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: getSenderPrefix() + message.messageId},
+    payload: {chatId: chatId, messageId: message.messageId},
   });
   const savedMessage: SavedMessageParams = {
     ...message,
-    messageId: getSenderPrefix() + message.messageId,
+    messageId: message.messageId,
     chatId: chatId,
     sender: true,
     timestamp: generateISOTimeStamp(),
@@ -144,7 +146,7 @@ async function sendTextMessage(
   };
   if (journal) {
     //save message to storage only if not already journaled.
-    await saveMessage(chatId, savedMessage);
+    await saveMessage(savedMessage);
   }
   //encrypt message
   const ciphertext: string = await encryptMessage(
@@ -158,7 +160,7 @@ async function sendTextMessage(
     //update message send status in storage
     await updateMessageSendStatus(
       chatId,
-      getSenderPrefix() + message.messageId,
+      message.messageId,
       SendStatus.success,
       true,
     );
@@ -167,7 +169,7 @@ async function sendTextMessage(
       type: 'REMOVE_FROM_SENDING',
       payload: {
         chatId: chatId,
-        messageId: getSenderPrefix() + message.messageId,
+        messageId: message.messageId,
       },
     });
     //update connection properties
@@ -188,7 +190,7 @@ async function sendTextMessage(
         type: 'REMOVE_FROM_SENDING',
         payload: {
           chatId: chatId,
-          messageId: getSenderPrefix() + message.messageId,
+          messageId: message.messageId,
         },
       });
       return {sendStatus: SendStatus.failed, message: message};
@@ -203,7 +205,7 @@ async function sendTextMessage(
       //update send status in storage
       await updateMessageSendStatus(
         chatId,
-        getSenderPrefix() + message.messageId,
+        message.messageId,
         SendStatus.journaled,
         true,
       );
@@ -219,7 +221,7 @@ async function sendTextMessage(
         type: 'REMOVE_FROM_SENDING',
         payload: {
           chatId: chatId,
-          messageId: getSenderPrefix() + message.messageId,
+          messageId: message.messageId,
         },
       });
       return {sendStatus: SendStatus.journaled, message: journaledMessage};
@@ -238,11 +240,11 @@ async function sendHandshakeDirectMessage(
   //add messageId (with sender prefix) to sending queue on store
   store.dispatch({
     type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: getSenderPrefix() + message.messageId},
+    payload: {chatId: chatId, messageId: message.messageId},
   });
   const savedMessage: SavedMessageParams = {
     ...message,
-    messageId: getSenderPrefix() + message.messageId,
+    messageId: message.messageId,
     chatId: chatId,
     sender: true,
     timestamp: generateISOTimeStamp(),
@@ -250,7 +252,7 @@ async function sendHandshakeDirectMessage(
   };
   if (journal) {
     //save message to storage only if not already journaled.
-    await saveMessage(chatId, savedMessage);
+    await saveMessage(savedMessage);
   }
   //encrypt message
   const ciphertext: string = await encryptMessage(
@@ -264,7 +266,7 @@ async function sendHandshakeDirectMessage(
     //update message send status in storage
     await updateMessageSendStatus(
       chatId,
-      getSenderPrefix() + message.messageId,
+      message.messageId,
       SendStatus.success,
       true,
     );
@@ -273,7 +275,7 @@ async function sendHandshakeDirectMessage(
       type: 'REMOVE_FROM_SENDING',
       payload: {
         chatId: chatId,
-        messageId: getSenderPrefix() + message.messageId,
+        messageId: message.messageId,
       },
     });
     //return success status.
@@ -286,7 +288,7 @@ async function sendHandshakeDirectMessage(
         type: 'REMOVE_FROM_SENDING',
         payload: {
           chatId: chatId,
-          messageId: getSenderPrefix() + message.messageId,
+          messageId: message.messageId,
         },
       });
       return {sendStatus: SendStatus.failed, message: message};
@@ -301,7 +303,7 @@ async function sendHandshakeDirectMessage(
       //update send status in storage
       await updateMessageSendStatus(
         chatId,
-        getSenderPrefix() + message.messageId,
+        message.messageId,
         SendStatus.journaled,
         true,
       );
@@ -310,7 +312,7 @@ async function sendHandshakeDirectMessage(
         type: 'REMOVE_FROM_SENDING',
         payload: {
           chatId: chatId,
-          messageId: getSenderPrefix() + message.messageId,
+          messageId: message.messageId,
         },
       });
       return {sendStatus: SendStatus.journaled, message: journaledMessage};
@@ -331,11 +333,11 @@ async function sendNameMessage(
   //add messageId (with sender prefix) to sending queue on store
   store.dispatch({
     type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: getSenderPrefix() + message.messageId},
+    payload: {chatId: chatId, messageId: message.messageId},
   });
   const savedMessage: SavedMessageParams = {
     ...message,
-    messageId: getSenderPrefix() + message.messageId,
+    messageId: message.messageId,
     chatId: chatId,
     sender: true,
     timestamp: generateISOTimeStamp(),
@@ -343,7 +345,7 @@ async function sendNameMessage(
   };
   if (journal) {
     //save message to storage only if not already journaled.
-    await saveMessage(chatId, savedMessage);
+    await saveMessage(savedMessage);
   }
   //encrypt message
   const ciphertext: string = await encryptMessage(
@@ -357,7 +359,7 @@ async function sendNameMessage(
     //update message send status in storage
     await updateMessageSendStatus(
       chatId,
-      getSenderPrefix() + message.messageId,
+      message.messageId,
       SendStatus.success,
       true,
     );
@@ -366,7 +368,7 @@ async function sendNameMessage(
       type: 'REMOVE_FROM_SENDING',
       payload: {
         chatId: chatId,
-        messageId: getSenderPrefix() + message.messageId,
+        messageId: message.messageId,
       },
     });
     //return success status.
@@ -379,7 +381,7 @@ async function sendNameMessage(
         type: 'REMOVE_FROM_SENDING',
         payload: {
           chatId: chatId,
-          messageId: getSenderPrefix() + message.messageId,
+          messageId: message.messageId,
         },
       });
       return {sendStatus: SendStatus.failed, message: message};
@@ -394,7 +396,7 @@ async function sendNameMessage(
       //update send status in storage
       await updateMessageSendStatus(
         chatId,
-        getSenderPrefix() + message.messageId,
+        message.messageId,
         SendStatus.journaled,
         true,
       );
@@ -403,7 +405,7 @@ async function sendNameMessage(
         type: 'REMOVE_FROM_SENDING',
         payload: {
           chatId: chatId,
-          messageId: getSenderPrefix() + message.messageId,
+          messageId: message.messageId,
         },
       });
       return {sendStatus: SendStatus.journaled, message: journaledMessage};
@@ -424,7 +426,7 @@ async function sendMediaMessage(
   //add messageId (with sender prefix) to sending queue on store
   store.dispatch({
     type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: getSenderPrefix() + message.messageId},
+    payload: {chatId: chatId, messageId: message.messageId},
   });
   //two cases:
   //1. mediaId created
@@ -438,7 +440,7 @@ async function sendMediaMessage(
     try {
       const savedMessage: SavedMessageParams = {
         ...message,
-        messageId: getSenderPrefix() + message.messageId,
+        messageId: message.messageId,
         chatId: chatId,
         sender: true,
         timestamp: generateISOTimeStamp(),
@@ -446,7 +448,7 @@ async function sendMediaMessage(
       };
       if (journal) {
         //save message to storage only if not already journaled.
-        await saveMessage(chatId, savedMessage);
+        await saveMessage(savedMessage);
       }
       const downloadParams: DownloadParams = await uploadLargeFile(
         message.data.fileUri,
@@ -488,7 +490,7 @@ async function sendFileMessage(
   //add messageId (with sender prefix) to sending queue on store
   store.dispatch({
     type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: getSenderPrefix() + message.messageId},
+    payload: {chatId: chatId, messageId: message.messageId},
   });
   //two cases:
   //1. mediaId created
@@ -502,7 +504,7 @@ async function sendFileMessage(
     try {
       const savedMessage: SavedMessageParams = {
         ...message,
-        messageId: getSenderPrefix() + message.messageId,
+        messageId: message.messageId,
         chatId: chatId,
         sender: true,
         timestamp: generateISOTimeStamp(),
@@ -510,7 +512,7 @@ async function sendFileMessage(
       };
       if (journal) {
         //save message to storage only if not already journaled.
-        await saveMessage(chatId, savedMessage);
+        await saveMessage(savedMessage);
       }
       const downloadParams: DownloadParams = await uploadLargeFile(
         message.data.fileUri,
@@ -553,7 +555,7 @@ async function mediaIdExistsActions(
   const savedMessage: SavedMessageParams = {
     ...message,
     data: {...message.data, mediaId: null, key: null},
-    messageId: getSenderPrefix() + message.messageId,
+    messageId: message.messageId,
     chatId: chatId,
     sender: true,
     timestamp: generateISOTimeStamp(),
@@ -561,12 +563,7 @@ async function mediaIdExistsActions(
   };
   if (journal) {
     //update message in storage only if not already journaled.
-    await updateMessage(
-      chatId,
-      getSenderPrefix() + message.messageId,
-      savedMessage.data,
-      true,
-    );
+    await updateMessage(chatId, message.messageId, savedMessage.data, true);
   }
   //encrypt message
   const ciphertext: string = await encryptMessage(
@@ -580,7 +577,7 @@ async function mediaIdExistsActions(
     //update message send status in storage
     await updateMessageSendStatus(
       chatId,
-      getSenderPrefix() + message.messageId,
+      message.messageId,
       SendStatus.success,
       true,
     );
@@ -589,7 +586,7 @@ async function mediaIdExistsActions(
       type: 'REMOVE_FROM_SENDING',
       payload: {
         chatId: chatId,
-        messageId: getSenderPrefix() + message.messageId,
+        messageId: message.messageId,
       },
     });
     if (message.contentType !== ContentType.displayImage) {
@@ -613,7 +610,7 @@ async function mediaIdExistsActions(
         type: 'REMOVE_FROM_SENDING',
         payload: {
           chatId: chatId,
-          messageId: getSenderPrefix() + message.messageId,
+          messageId: message.messageId,
         },
       });
       return {sendStatus: SendStatus.failed, message: message};
@@ -627,7 +624,7 @@ async function mediaIdExistsActions(
       //update send status in storage
       await updateMessageSendStatus(
         chatId,
-        getSenderPrefix() + message.messageId,
+        message.messageId,
         SendStatus.journaled,
         true,
       );
@@ -643,7 +640,7 @@ async function mediaIdExistsActions(
         type: 'REMOVE_FROM_SENDING',
         payload: {
           chatId: chatId,
-          messageId: getSenderPrefix() + message.messageId,
+          messageId: message.messageId,
         },
       });
       return {sendStatus: SendStatus.journaled, message: journaledMessage};
@@ -691,18 +688,6 @@ async function trySendingMessage(
 }
 
 /**
- * Generates unique message ID based on the current time.
- * @returns {string} A unique message ID
- */
-export function generateTempMessageId(): string {
-  const date = new Date();
-  return date.getTime().toString();
-}
-function getSenderPrefix() {
-  return '0001_';
-}
-
-/**
  * Tries to empty journal by sending messages.
  * unsent messages get re-journaled.
  */
@@ -713,7 +698,7 @@ export async function tryToSendJournaled() {
     const journaledMessages = await getJournaled();
     console.log('journaled messages: ', journaledMessages);
     for (let index = 0; index < journaledMessages.length; index++) {
-      const {contentType, messageType, data, replyId, messageId, chatId} =
+      const {contentType, data, replyId, messageId, chatId} =
         journaledMessages[index];
       const connection = await getConnection(chatId);
       const isGroup =
@@ -721,7 +706,6 @@ export async function tryToSendJournaled() {
       const sendOutput = await sendMessage(
         chatId,
         {
-          messageType,
           contentType,
           data,
           messageId,
@@ -735,4 +719,14 @@ export async function tryToSendJournaled() {
   } catch (error) {
     console.log('Error in emptying journal: ', error);
   }
+}
+
+function generateRandomHexId(): string {
+  const hexChars = '0123456789ABCDEF';
+  let hexId = '';
+  for (let i = 0; i < 32; i++) {
+    const randomIndex = Math.floor(Math.random() * hexChars.length);
+    hexId += hexChars.charAt(randomIndex);
+  }
+  return hexId;
 }

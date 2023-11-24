@@ -75,7 +75,6 @@ export interface SendHandshakeB2Params {
 export interface SendMessageParams {
   messageId?: string;
   contentType: ContentType;
-  messageType: MessageType;
   data:
     | SendTextParams
     | SendNameParams
@@ -85,7 +84,8 @@ export interface SendMessageParams {
     | SendDisplayImageParams
     | SendNewChatParams
     | SendHandshakeA1Params
-    | SendHandshakeB2Params;
+    | SendHandshakeB2Params
+    | object;
   replyId?: string;
 }
 export interface SendMessageParamsStrict extends SendMessageParams {

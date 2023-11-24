@@ -3,7 +3,7 @@ import axios from 'axios';
 import {INITIAL_POST_MANAGEMENT_RESOURCE} from '../../configs/api';
 import store from '../../store/appStore';
 import {getToken} from '../ServerAuth';
-import pullBacklog from './pullBacklog';
+import {receiveMessage} from './receiveMessage';
 
 export const getFCMToken = async () => {
   const token = await messaging().getToken();
@@ -12,18 +12,18 @@ export const getFCMToken = async () => {
 
 export const registerBackgroundMessaging = () => {
   messaging().setBackgroundMessageHandler(async remoteMessage => {
-    // await receiveMessage(remoteMessage);
-    await pullBacklog();
+    await receiveMessage(remoteMessage);
+    // console.log("receiving messages");
+    //await pullBacklog();
     store.dispatch({type: 'NEW_MESSAGE', payload: remoteMessage});
   });
 };
 
 export const foregroundMessageHandler = () => {
   messaging().onMessage(async remoteMessage => {
-    // await receiveMessage(remoteMessage);
-
-    await pullBacklog();
-
+    await receiveMessage(remoteMessage);
+    // console.log("receiving messages foreground");
+    //await pullBacklog();
     store.dispatch({type: 'NEW_MESSAGE', payload: remoteMessage});
   });
 };

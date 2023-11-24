@@ -14,7 +14,6 @@ import {saveToMediaDir} from '../Storage/StorageRNFS/sharedFileHandlers';
 import {saveMessage} from '../Storage/messages';
 import {
   ContentType,
-  MessageType,
   ReceiveStatus,
   SavedMessageParams,
   SendMessageParamsStrict,
@@ -54,7 +53,6 @@ export async function receiveGroupMessage(
           groupId,
           {
             contentType: ContentType.name,
-            messageType: MessageType.new,
             data: {name: await getProfileName()},
           },
           true,
@@ -147,12 +145,12 @@ async function receiveTextGroupMessage(
     const savedMessage: SavedMessageParams = {
       ...message,
       chatId: groupId,
-      messageId: getReceiverPrefix(senderId) + message.messageId,
+      messageId: message.messageId,
       memberId: senderId,
       sender: false,
       timestamp: timestamp,
     };
-    await saveMessage(groupId, savedMessage);
+    await saveMessage(savedMessage);
     //update connection
     await updateConnectionOnNewMessage({
       chatId: groupId,
@@ -188,12 +186,12 @@ async function receiveNameGroupMessage(
     const savedMessage: SavedMessageParams = {
       ...message,
       chatId: groupId,
-      messageId: getReceiverPrefix(senderId) + message.messageId,
+      messageId: message.messageId,
       memberId: senderId,
       sender: false,
       timestamp: timestamp,
     };
-    await saveMessage(groupId, savedMessage);
+    await saveMessage(savedMessage);
     console.log('received name: ', message.data.name);
     await updateMemberName(
       groupId,
@@ -266,12 +264,12 @@ async function receiveMediaOrFileDirectMessage(
           key: null,
         },
         chatId: groupId,
-        messageId: getReceiverPrefix(senderId) + message.messageId,
+        messageId: message.messageId,
         memberId: senderId,
         sender: false,
         timestamp: timestamp,
       };
-      await saveMessage(groupId, savedMessage);
+      await saveMessage(savedMessage);
       removeMediaFromDownloading(message.data.mediaId || '');
     }
     //2. Media Autodownload permission is OFF
@@ -280,12 +278,12 @@ async function receiveMediaOrFileDirectMessage(
       const savedMessage: SavedMessageParams = {
         ...message,
         chatId: groupId,
-        messageId: getReceiverPrefix(senderId) + message.messageId,
+        messageId: message.messageId,
         memberId: senderId,
         sender: false,
         timestamp: timestamp,
       };
-      await saveMessage(groupId, savedMessage);
+      await saveMessage(savedMessage);
     }
     //update connection
     await updateConnectionOnNewMessage({
@@ -333,8 +331,4 @@ async function receiveMediaOrFileDirectMessage(
     console.log('Error receiving media or file direct message: ', error);
     return ReceiveStatus.failed;
   }
-}
-
-function getReceiverPrefix(senderId: string) {
-  return senderId + '_';
 }

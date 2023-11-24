@@ -21,6 +21,7 @@ import Scanner from '../screens/Scanner/Scanner';
 import {AppStackParamList} from './AppStackTypes';
 import GroupProfile from '../screens/GroupScreens/GroupProfile/GroupProfile';
 import NewSuperport from '../screens/NewSuperport/NewSuperport';
+import ForwardToContact from '../screens/ForwardToContact/ForwardToContact';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -48,6 +49,7 @@ function AppStack() {
       <Stack.Screen name="ShareGroup" component={ShareGroup} />
       <Stack.Screen name="ViewPhotosVideos" component={ViewPhotosVideos} />
       <Stack.Screen name="ViewFiles" component={ViewFiles} />
+      <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
     </Stack.Navigator>
   );
 }

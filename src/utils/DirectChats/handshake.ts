@@ -2,34 +2,34 @@
  * handshake protocols for direct connections.
  * For the purposes of this module, we call bundle generator Alice(A) and the bundle reader Bob(B).
  */
+import {AttemptNewDirectChat, AttemptNewDirectChatFromSuperport} from '.';
+import store from '../../store/appStore';
+import {
+  deleteGeneratedDirectConnectionBundle,
+  getGeneratedDirectConnectionBundle,
+} from '../Bundles/direct';
+import {loadGeneratedSuperport} from '../Bundles/directSuperport';
 import {
   BundleReadResponse,
   DirectConnectionBundle,
   DirectSuperportConnectionBundle,
 } from '../Bundles/interfaces';
+import {defaultDirectPermissions} from '../ChatPermissions/default';
 import {
   addConnection,
   deleteConnection,
   getConnection,
   toggleAuthenticated,
 } from '../Connections';
-import {AttemptNewDirectChat, AttemptNewDirectChatFromSuperport} from '.';
-import {
-  deleteGeneratedDirectConnectionBundle,
-  getGeneratedDirectConnectionBundle,
-} from '../Bundles/direct';
 import {ConnectionType, ReadStatus} from '../Connections/interfaces';
-import {defaultDirectPermissions} from '../ChatPermissions/default';
-import {ContentType, MessageType} from '../Messaging/interfaces';
-import {generateISOTimeStamp} from '../Time';
-import {getChatCrypto, saveChatCrypto} from '../Storage/crypto';
-import {sendMessage} from '../Messaging/sendMessage';
+import {decryptMessage, encryptMessage} from '../Crypto/aes';
 import {sha256} from '../Crypto/sha';
 import {generateKeyPair, generateSharedKey} from '../Crypto/x25519';
-import {decryptMessage, encryptMessage} from '../Crypto/aes';
+import {ContentType} from '../Messaging/interfaces';
+import {sendMessage} from '../Messaging/sendMessage';
 import {getProfileName, getProfilePictureAttributes} from '../Profile';
-import store from '../../store/appStore';
-import {loadGeneratedSuperport} from '../Bundles/directSuperport';
+import {getChatCrypto, saveChatCrypto} from '../Storage/crypto';
+import {generateISOTimeStamp} from '../Time';
 
 /**
  * Actions performed when a connection bundle is read by Bob.
@@ -158,7 +158,6 @@ export async function handshakeActionsA1(
     //send public key.
     await sendMessage(chatId, {
       contentType: ContentType.handshakeA1,
-      messageType: MessageType.new,
       data: {pubKey: bundle.keys.pubKey},
     });
   } catch (error) {
@@ -206,13 +205,11 @@ export async function handshakeActionsB2(chatId: string, peerPubKey: string) {
     //send a message with your pubkey and encrypted nonce
     await sendMessage(chatId, {
       contentType: ContentType.handshakeB2,
-      messageType: MessageType.new,
       data: {pubKey: keys.pubKey, encryptedNonce: encryptedNonce},
     });
     //send a message with your name.
     await sendMessage(chatId, {
       contentType: ContentType.name,
-      messageType: MessageType.new,
       data: {name: await getProfileName()},
     });
     //send your profile picture if that permission is given
@@ -222,7 +219,6 @@ export async function handshakeActionsB2(chatId: string, peerPubKey: string) {
       if (file) {
         await sendMessage(chatId, {
           contentType: ContentType.displayImage,
-          messageType: MessageType.new,
           data: {...file},
         });
       }
@@ -275,7 +271,6 @@ export async function handshakeActionsA2(
     //send a message with your name.
     await sendMessage(chatId, {
       contentType: ContentType.name,
-      messageType: MessageType.new,
       data: {name: await getProfileName()},
     });
     //send your profile picture if that permission is given
@@ -285,7 +280,6 @@ export async function handshakeActionsA2(
       if (file) {
         await sendMessage(chatId, {
           contentType: ContentType.displayImage,
-          messageType: MessageType.new,
           data: {...file},
         });
       }

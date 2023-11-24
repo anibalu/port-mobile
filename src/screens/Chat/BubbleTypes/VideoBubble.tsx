@@ -13,17 +13,20 @@ import Sending from '../../../../assets/icons/sending.svg';
 import {DEFAULT_NAME} from '../../../configs/constants';
 import FileViewer from 'react-native-file-viewer';
 import DefaultImage from '../../../../assets/avatars/avatar.png';
+import VideoReplyContainer from '../ReplyContainers/VideoReplyContainer';
 
 export default function VideoBubble({
   message,
   handlePress,
   handleLongPress,
   memberName,
+  isReply = false,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
   memberName: string;
+  isReply?: boolean;
 }) {
   const [profileURI, setProfileURI] = useState(
     Image.resolveAssetSource(DefaultImage).uri,
@@ -38,51 +41,59 @@ export default function VideoBubble({
       style={styles.textBubbleContainer}
       onPress={() => handlePress(message.messageId)}
       onLongPress={() => handleLongPress(message.messageId)}>
-      <View>
-        {renderProfileName(
-          shouldRenderProfileName(message, memberName),
-          memberName,
-        )}
-      </View>
-      <Pressable
-        onPress={() => {
-          FileViewer.open(profileURI, {
-            showOpenWithDialog: true,
-          });
-        }}>
-        <Image source={{uri: profileURI}} style={styles.image} />
-      </Pressable>
-      <View style={styles.timeStampContainer}>
-        {message.sendStatus === SendStatus.success || !message.sender ? (
+      {isReply ? (
+        <VideoReplyContainer message={message} memberName={memberName} />
+      ) : (
+        <>
           <View>
-            <NumberlessRegularText style={styles.timeStamp}>
-              {getTimeStamp(message.timestamp)}
-            </NumberlessRegularText>
-          </View>
-        ) : (
-          <View>
-            {message.sendStatus === SendStatus.journaled ? (
-              <View>
-                <Sending />
-              </View>
-            ) : (
-              <View>
-                {message.sendStatus === SendStatus.failed ? (
-                  <View>
-                    <NumberlessRegularText style={styles.failedStamp}>
-                      {'failed'}
-                    </NumberlessRegularText>
-                  </View>
-                ) : (
-                  <View>
-                    <Sending />
-                  </View>
-                )}
-              </View>
+            {renderProfileName(
+              shouldRenderProfileName(message, memberName),
+              memberName,
             )}
           </View>
-        )}
-      </View>
+          <Pressable
+            onPress={() => {
+              FileViewer.open(profileURI, {
+                showOpenWithDialog: true,
+              });
+            }}>
+            <Image source={{uri: profileURI}} style={styles.image} />
+          </Pressable>
+        </>
+      )}
+      {!isReply && (
+        <View style={styles.timeStampContainer}>
+          {message.sendStatus === SendStatus.success || !message.sender ? (
+            <View>
+              <NumberlessRegularText style={styles.timeStamp}>
+                {getTimeStamp(message.timestamp)}
+              </NumberlessRegularText>
+            </View>
+          ) : (
+            <View>
+              {message.sendStatus === SendStatus.journaled ? (
+                <View>
+                  <Sending />
+                </View>
+              ) : (
+                <View>
+                  {message.sendStatus === SendStatus.failed ? (
+                    <View>
+                      <NumberlessRegularText style={styles.failedStamp}>
+                        {'failed'}
+                      </NumberlessRegularText>
+                    </View>
+                  ) : (
+                    <View>
+                      <Sending />
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
+        </View>
+      )}
     </Pressable>
   );
 }

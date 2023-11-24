@@ -15,7 +15,7 @@ const DEFAULT_ENCODING = 'utf8';
  * @returns {Promise<string>} The path to the profile directory.
  */
 async function makeProfileDir(): Promise<string> {
-  const profileDirPath = RNFS.DocumentDirectoryPath + `${profileDir}`;
+  const profileDirPath = RNFS.DocumentDirectoryPath + profileDir;
   const folderExists = await RNFS.exists(profileDirPath);
   if (folderExists) {
     return profileDirPath;

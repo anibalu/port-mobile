@@ -13,6 +13,16 @@ function CustomModal({
   bottomButton,
   topButtonFunction,
   bottomButtonFunction,
+}: {
+  openCustomModal: boolean;
+  setOpenCustomModal: any;
+  title: string;
+  question?: string;
+  description?: string;
+  topButton: string;
+  bottomButton: string;
+  topButtonFunction: any;
+  bottomButtonFunction: any;
 }) {
   return (
     <Modal animationType="none" visible={openCustomModal} transparent={true}>
@@ -28,8 +38,13 @@ function CustomModal({
             <CrossIcon />
           </View>
 
-          <Text style={styles.questionStyles}>{question}</Text>
-          <Text style={styles.descriptionStyles}>{description}</Text>
+          {question != undefined && (
+            <Text style={styles.questionStyles}>{question}</Text>
+          )}
+          {description != undefined && (
+            <Text style={styles.descriptionStyles}>{description}</Text>
+          )}
+
           <Pressable
             style={styles.topButtonContainer}
             onPress={topButtonFunction}>

@@ -1,35 +1,41 @@
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {
-  StyleSheet,
-  StatusBar,
-  ImageBackground,
-  View,
   Image,
+  ImageBackground,
+  StatusBar,
+  StyleSheet,
+  View,
 } from 'react-native';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {useFocusEffect} from '@react-navigation/native';
-import Topbar from './Topbar';
-import {MessageBar} from './MessageBar';
-import store from '../../store/appStore';
-import {SavedMessageParams} from '../../utils/Messaging/interfaces';
-import {getConnection, toggleRead} from '../../utils/Connections';
-import {readMessages} from '../../utils/Storage/messages';
-import {MessageActionsBar} from './MessageActionsBar';
-import DeleteChatButton from '../../components/DeleteChatButton';
-import {ConnectionType} from '../../utils/Connections/interfaces';
-import {getGroupInfo} from '../../utils/Storage/group';
-import ChatList from './ChatList';
 import DefaultImage from '../../../assets/avatars/avatar.png';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import DeleteChatButton from '../../components/DeleteChatButton';
+import {SafeAreaView} from '../../components/SafeAreaView';
 import {AppStackParamList} from '../../navigation/AppStackTypes';
+import store from '../../store/appStore';
+import {getConnection, toggleRead} from '../../utils/Connections';
+import {ConnectionType} from '../../utils/Connections/interfaces';
+import {
+  ContentType,
+  SavedMessageParams,
+} from '../../utils/Messaging/interfaces';
 import {tryToSendJournaled} from '../../utils/Messaging/sendMessage';
+import {getGroupInfo} from '../../utils/Storage/group';
+import {getMessage, readMessages} from '../../utils/Storage/messages';
+import ChatList from './ChatList';
+import {MessageActionsBar} from './MessageActionsBar';
+import {MessageBar} from './MessageBar';
+import Topbar from './Topbar';
+import {extractMemberInfo} from '../../utils/Groups';
+import {DEFAULT_NAME} from '../../configs/constants';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 /**
  * Renders a chat screen.
  * @returns Component for rendered chat window
  */
-function Chat({route}: Props) {
+function Chat({route, navigation}: Props) {
   //gets lineId of chat
   const {chatId} = route.params;
   //Name to be displayed in topbar
@@ -39,6 +45,8 @@ function Chat({route}: Props) {
   const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
   //selected messages
   const [selectedMessages, setSelectedMessages] = useState<Array<string>>([]);
+  //message to be replied
+  const [replyToMessage, setReplyToMessage] = useState<SavedMessageParams>();
   // Track whether the connection is disconnected
   const [connectionConnected, setConnectionConnected] = useState(true);
   const [profileURI, setProfileURI] = useState(
@@ -67,6 +75,48 @@ function Chat({route}: Props) {
       }
     }
   };
+
+  //Removes selected messages post deletion
+  const updateAfterDeletion = (messageIds: string[]) => {
+    setMessages(messages =>
+      messages.filter(message => !messageIds.includes(message.messageId)),
+    );
+    setSelectedMessages([]);
+  };
+
+  const onCopy = async () => {
+    let copyString = '';
+    for (const message of selectedMessages) {
+      const msg = await getMessage(chatId, message);
+      switch (msg?.contentType) {
+        case ContentType.text: {
+          copyString += `[${msg?.timestamp}] : [${
+            isGroupChat
+              ? findMemberName(extractMemberInfo(groupInfo, msg.memberId))
+              : name
+          }] : [${msg?.data.text}]`;
+          break;
+        }
+        default:
+          throw new Error('Unsupported copy type');
+      }
+    }
+    Clipboard.setString(copyString);
+  };
+
+  const onForward = () => {
+    navigation.navigate('ForwardToContact', {
+      chatId: chatId,
+      messages: selectedMessages,
+      setSelectedMessages: setSelectedMessages,
+    });
+  };
+
+  const clearSelected = () => {
+    setReplyToMessage(undefined);
+    setSelectedMessages([]);
+  };
+
   //effect runs when screen is focused
   //retrieves name of connection
   //toggles messages as read
@@ -148,17 +198,26 @@ function Chat({route}: Props) {
       />
       {connectionConnected ? (
         <View style={styles.bottomBar}>
-          {selectedMessages.length > 0 ? (
+          {selectedMessages.length > 0 && replyToMessage === undefined ? (
             <MessageActionsBar
               chatId={chatId}
+              onCopy={onCopy}
+              onForward={onForward}
               selectedMessages={selectedMessages}
+              setReplyTo={setReplyToMessage}
+              postDelete={updateAfterDeletion}
             />
           ) : (
             <MessageBar
+              name={name}
+              onSend={clearSelected}
               chatId={chatId}
+              replyTo={replyToMessage}
+              setReplyTo={setReplyToMessage}
               flatlistRef={flatList}
               listLen={messages.length}
               isGroupChat={isGroupChat}
+              groupInfo={groupInfo}
             />
           )}
         </View>
@@ -167,6 +226,13 @@ function Chat({route}: Props) {
       )}
     </SafeAreaView>
   );
+}
+
+function findMemberName(memberInfo: any) {
+  if (memberInfo.memberId) {
+    return memberInfo.name || DEFAULT_NAME;
+  }
+  return '';
 }
 
 const styles = StyleSheet.create({

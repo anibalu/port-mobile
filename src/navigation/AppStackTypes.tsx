@@ -22,4 +22,9 @@ export type AppStackParamList = {
   };
   ViewPhotosVideos: {chatId: string};
   ViewFiles: {chatId: string};
+  ForwardToContact: {
+    messages: string[];
+    setSelectedMessages: any;
+    chatId: string;
+  };
 };

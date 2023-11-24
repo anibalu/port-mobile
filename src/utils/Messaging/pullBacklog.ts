@@ -15,7 +15,8 @@ export default async function pullBacklog() {
   ).data;
   for (const message of messages) {
     //TODO: This needs to be removed in a future refactor
-    const parsed = {data: message, sentTime: Date.now()};
+    const parsed = {data: JSON.parse(message), sentTime: Date.now()};
+    console.log('parsed: ', parsed);
     if (parsed.data.group) {
       return await receiveGroupMessage(parsed);
     } else {

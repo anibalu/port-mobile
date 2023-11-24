@@ -14,17 +14,20 @@ import {DEFAULT_NAME} from '../../../configs/constants';
 import FileViewer from 'react-native-file-viewer';
 import DefaultImage from '../../../../assets/avatars/avatar.png';
 import File from '../../../../assets/icons/FileClip.svg';
+import FileReplyContainer from '../ReplyContainers/FileReplyContainer';
 
 export default function FileBubble({
   message,
   handlePress,
   handleLongPress,
   memberName,
+  isReply = false,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
   memberName: string;
+  isReply?: boolean;
 }) {
   const [fileURI, setFileURI] = useState(
     Image.resolveAssetSource(DefaultImage).uri,
@@ -39,61 +42,69 @@ export default function FileBubble({
       style={styles.textBubbleContainer}
       onPress={() => handlePress(message.messageId)}
       onLongPress={() => handleLongPress(message.messageId)}>
-      <View>
-        {renderProfileName(
-          shouldRenderProfileName(message, memberName),
-          memberName,
-        )}
-      </View>
-      <Pressable
-        onPress={() => {
-          FileViewer.open(fileURI, {
-            showOpenWithDialog: true,
-          });
-        }}>
-        <View style={styles.fileBox}>
-          <View style={styles.fileClip}>
-            <File />
-          </View>
-          <NumberlessMediumText
-            style={styles.fileName}
-            ellipsizeMode="tail"
-            numberOfLines={1}>
-            {message.data.fileName}
-          </NumberlessMediumText>
-        </View>
-      </Pressable>
-      <View style={styles.timeStampContainer}>
-        {message.sendStatus === SendStatus.success || !message.sender ? (
+      {isReply ? (
+        <FileReplyContainer message={message} memberName={memberName} />
+      ) : (
+        <>
           <View>
-            <NumberlessRegularText style={styles.timeStamp}>
-              {getTimeStamp(message.timestamp)}
-            </NumberlessRegularText>
-          </View>
-        ) : (
-          <View>
-            {message.sendStatus === SendStatus.journaled ? (
-              <View>
-                <Sending />
-              </View>
-            ) : (
-              <View>
-                {message.sendStatus === SendStatus.failed ? (
-                  <View>
-                    <NumberlessRegularText style={styles.failedStamp}>
-                      {'failed'}
-                    </NumberlessRegularText>
-                  </View>
-                ) : (
-                  <View>
-                    <Sending />
-                  </View>
-                )}
-              </View>
+            {renderProfileName(
+              shouldRenderProfileName(message, memberName),
+              memberName,
             )}
           </View>
-        )}
-      </View>
+          <Pressable
+            onPress={() => {
+              FileViewer.open(fileURI, {
+                showOpenWithDialog: true,
+              });
+            }}>
+            <View style={styles.fileBox}>
+              <View style={styles.fileClip}>
+                <File />
+              </View>
+              <NumberlessMediumText
+                style={styles.fileName}
+                ellipsizeMode="tail"
+                numberOfLines={1}>
+                {message.data.fileName}
+              </NumberlessMediumText>
+            </View>
+          </Pressable>
+        </>
+      )}
+      {!isReply && (
+        <View style={styles.timeStampContainer}>
+          {message.sendStatus === SendStatus.success || !message.sender ? (
+            <View>
+              <NumberlessRegularText style={styles.timeStamp}>
+                {getTimeStamp(message.timestamp)}
+              </NumberlessRegularText>
+            </View>
+          ) : (
+            <View>
+              {message.sendStatus === SendStatus.journaled ? (
+                <View>
+                  <Sending />
+                </View>
+              ) : (
+                <View>
+                  {message.sendStatus === SendStatus.failed ? (
+                    <View>
+                      <NumberlessRegularText style={styles.failedStamp}>
+                        {'failed'}
+                      </NumberlessRegularText>
+                    </View>
+                  ) : (
+                    <View>
+                      <Sending />
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
+        </View>
+      )}
     </Pressable>
   );
 }

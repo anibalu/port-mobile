@@ -121,11 +121,11 @@ async function receiveTextDirectMessage(
     const savedMessage: SavedMessageParams = {
       ...message,
       chatId: chatId,
-      messageId: getReceiverPrefix() + message.messageId,
+      messageId: message.messageId,
       sender: false,
       timestamp: timestamp,
     };
-    await saveMessage(chatId, savedMessage);
+    await saveMessage(savedMessage);
     //update connection
     await updateConnectionOnNewMessage({
       chatId: chatId,
@@ -160,11 +160,11 @@ async function receiveNameDirectMessage(
     const savedMessage: SavedMessageParams = {
       ...message,
       chatId: chatId,
-      messageId: getReceiverPrefix() + message.messageId,
+      messageId: message.messageId,
       sender: false,
       timestamp: timestamp,
     };
-    await saveMessage(chatId, savedMessage);
+    await saveMessage(savedMessage);
     //update connection if name not present
     const connection = await getConnection(chatId);
     if (connection.name === undefined || connection.name === '') {
@@ -250,11 +250,11 @@ async function receiveMediaOrFileDirectMessage(
           key: null,
         },
         chatId: chatId,
-        messageId: getReceiverPrefix() + message.messageId,
+        messageId: message.messageId,
         sender: false,
         timestamp: timestamp,
       };
-      await saveMessage(chatId, savedMessage);
+      await saveMessage(savedMessage);
       removeMediaFromDownloading(message.data.mediaId || '');
     }
     //2. Media Autodownload permission is OFF
@@ -263,11 +263,11 @@ async function receiveMediaOrFileDirectMessage(
       const savedMessage: SavedMessageParams = {
         ...message,
         chatId: chatId,
-        messageId: getReceiverPrefix() + message.messageId,
+        messageId: message.messageId,
         sender: false,
         timestamp: timestamp,
       };
-      await saveMessage(chatId, savedMessage);
+      await saveMessage(savedMessage);
     }
     //update connection
     await updateConnectionOnNewMessage({
@@ -343,11 +343,11 @@ async function receiveDisplayPictureDirectMessage(
         mediaId: null,
         key: null,
       },
-      messageId: getReceiverPrefix() + message.messageId,
+      messageId: message.messageId,
       sender: false,
       timestamp: timestamp,
     };
-    await saveMessage(chatId, savedMessage);
+    await saveMessage(savedMessage);
     //update connection
     await updateConnection({
       chatId: chatId,
@@ -370,11 +370,11 @@ async function receiveHandshakeDirectMessage(
     const savedMessage: SavedMessageParams = {
       ...message,
       chatId: chatId,
-      messageId: getReceiverPrefix() + message.messageId,
+      messageId: message.messageId,
       sender: false,
       timestamp: timestamp,
     };
-    await saveMessage(chatId, savedMessage);
+    await saveMessage(savedMessage);
     switch (message.contentType) {
       case ContentType.handshakeA1:
         await handshakeActionsB2(chatId, message.data.pubKey || '');
@@ -392,8 +392,4 @@ async function receiveHandshakeDirectMessage(
     console.log('Error receiving handshake direct message: ', error);
     return ReceiveStatus.failed;
   }
-}
-
-function getReceiverPrefix() {
-  return '0002_';
 }

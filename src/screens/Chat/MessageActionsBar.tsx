@@ -1,30 +1,63 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {NumberlessMediumText} from '../../components/NumberlessText';
-import Reply from '../../../assets/icons/reply.svg';
-import Forward from '../../../assets/icons/forward.svg';
 import Copy from '../../../assets/icons/copy.svg';
-import Info from '../../../assets/icons/info.svg';
 import Delete from '../../../assets/icons/delete.svg';
+import Forward from '../../../assets/icons/forward.svg';
+import Info from '../../../assets/icons/info.svg';
+import Reply from '../../../assets/icons/reply.svg';
+import CustomModal from '../../components/CustomModal';
+import {NumberlessMediumText} from '../../components/NumberlessText';
+import {getMessage, updateMessage} from '../../utils/Storage/messages';
 
 export function MessageActionsBar({
   chatId,
   selectedMessages,
+  setReplyTo,
+  postDelete,
+  onCopy,
+  onForward,
 }: {
   chatId: string;
   selectedMessages: string[];
+  setReplyTo: any;
+  postDelete: any;
+  onCopy: any;
+  onForward: any;
 }) {
+  const performReply = async () => {
+    setReplyTo(await getMessage(chatId, selectedMessages[0]));
+  };
+  const performDelete = async () => {
+    for (const msg of selectedMessages) {
+      const message = await getMessage(chatId, msg);
+      await updateMessage(chatId, msg, {
+        ...message?.data,
+        deleted: true,
+      });
+    }
+    postDelete(selectedMessages);
+    setOpenCustomModal(false);
+  };
+
+  const [openCustomModal, setOpenCustomModal] = useState(false);
+
   return (
     <View style={styles.parentContainer}>
+      <CustomModal
+        openCustomModal={openCustomModal}
+        setOpenCustomModal={setOpenCustomModal}
+        title={'Delete message'}
+        topButton="Delete for me"
+        topButtonFunction={performDelete}
+        bottomButton="Cancel"
+        bottomButtonFunction={() => {
+          setOpenCustomModal(false);
+        }}
+      />
       {selectedMessages.length > 1 ? (
         <View style={styles.multiSelectedContainer}>
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                console.log('chatId:', chatId);
-                console.log('forward pressed');
-              }}>
+            <Pressable style={styles.optionBox} onPress={onForward}>
               <Forward />
             </Pressable>
             <NumberlessMediumText style={styles.optionText}>
@@ -32,11 +65,7 @@ export function MessageActionsBar({
             </NumberlessMediumText>
           </View>
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                console.log('copy pressed');
-              }}>
+            <Pressable style={styles.optionBox} onPress={onCopy}>
               <Copy />
             </Pressable>
             <NumberlessMediumText style={styles.optionText}>
@@ -47,7 +76,7 @@ export function MessageActionsBar({
             <Pressable
               style={styles.optionBox}
               onPress={() => {
-                console.log('delete pressed');
+                setOpenCustomModal(true);
               }}>
               <Delete />
             </Pressable>
@@ -59,11 +88,7 @@ export function MessageActionsBar({
       ) : (
         <View style={styles.singleSelectedContainer}>
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                console.log('reply pressed');
-              }}>
+            <Pressable style={styles.optionBox} onPress={performReply}>
               <Reply />
             </Pressable>
             <NumberlessMediumText style={styles.optionText}>
@@ -71,11 +96,7 @@ export function MessageActionsBar({
             </NumberlessMediumText>
           </View>
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                console.log('forward pressed');
-              }}>
+            <Pressable style={styles.optionBox} onPress={onForward}>
               <Forward />
             </Pressable>
             <NumberlessMediumText style={styles.optionText}>
@@ -83,11 +104,7 @@ export function MessageActionsBar({
             </NumberlessMediumText>
           </View>
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                console.log('copy pressed');
-              }}>
+            <Pressable style={styles.optionBox} onPress={onCopy}>
               <Copy />
             </Pressable>
             <NumberlessMediumText style={styles.optionText}>
@@ -110,7 +127,7 @@ export function MessageActionsBar({
             <Pressable
               style={styles.optionBox}
               onPress={() => {
-                console.log('delete pressed');
+                setOpenCustomModal(true);
               }}>
               <Delete />
             </Pressable>

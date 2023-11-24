@@ -35,7 +35,6 @@ export async function getConnections() {
       }
     },
   );
-  console.log(connections);
   return connections;
 }
 

@@ -63,6 +63,7 @@ export async function getProfileInfo(
   //read profile from cache
   const entireState = store.getState();
   const cachedProfile = entireState.profile.profile;
+  //const cachedProfile = {};
   //if profile doesn't exist in cache
   if (cachedProfile.clientId === undefined) {
     //read profile from storage
@@ -87,9 +88,10 @@ export async function getProfileInfo(
  */
 export async function checkProfile(): Promise<ProfileStatus> {
   try {
-    console.log(await getProfileInfo(true));
+    await getProfileInfo(true);
     return ProfileStatus.created;
   } catch (error) {
+    console.log('profile doesnt exist: ', error);
     return ProfileStatus.failed;
   }
 }

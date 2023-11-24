@@ -1,44 +1,69 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  Dimensions,
   KeyboardAvoidingView,
   Pressable,
   StyleSheet,
-  View,
   TextInput,
-  Dimensions,
+  View,
 } from 'react-native';
-import Send from '../../../assets/icons/NewSend.svg';
-import Plus from '../../../assets/icons/plus.svg';
-import Cross from '../../../assets/icons/cross.svg';
-import ImageIcon from '../../../assets/icons/image.svg';
-import VideoIcon from '../../../assets/icons/image.svg';
-import FileIcon from '../../../assets/icons/File.svg';
-import {wait} from '../../utils/Time';
-import {NumberlessMediumText} from '../../components/NumberlessText';
 import DocumentPicker, {
   DocumentPickerResponse,
 } from 'react-native-document-picker';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
-import {FileAttributes} from '../../utils/Storage/sharedFile';
+import FileIcon from '../../../assets/icons/File.svg';
+import Send from '../../../assets/icons/NewSend.svg';
+import Cross from '../../../assets/icons/cross.svg';
+import {
+  default as ImageIcon,
+  default as VideoIcon,
+} from '../../../assets/icons/image.svg';
+import Plus from '../../../assets/icons/plus.svg';
+import {NumberlessMediumText} from '../../components/NumberlessText';
+import {DEFAULT_NAME} from '../../configs/constants';
+import {extractMemberInfo} from '../../utils/Groups';
+import {
+  ContentType,
+  SavedMessageParams,
+} from '../../utils/Messaging/interfaces';
 import {sendMessage} from '../../utils/Messaging/sendMessage';
-import {ContentType, MessageType} from '../../utils/Messaging/interfaces';
+import {FileAttributes} from '../../utils/Storage/sharedFile';
+import {wait} from '../../utils/Time';
+import FileReplyContainer from './ReplyContainers/FileReplyContainer';
+import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
+import TextReplyContainer from './ReplyContainers/TextReplyContainer';
+import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
 
 export function MessageBar({
   chatId,
   flatlistRef,
   listLen,
   isGroupChat,
+  replyTo,
+  setReplyTo,
+  name,
+  groupInfo,
+  onSend,
 }: {
   chatId: string;
   flatlistRef: any;
   listLen: number;
+  replyTo: SavedMessageParams | undefined;
+  setReplyTo: any;
   isGroupChat: boolean;
+  name: string;
+  groupInfo: any;
+  onSend: any;
 }) {
   const viewWidth = Dimensions.get('window').width;
   const inputTextBarWidth = viewWidth - 126;
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [isPopUpVisible, setPopUpVisible] = useState(false);
+
+  useEffect(() => {
+    console.log('Opbecjt is: ', replyTo);
+  }, [replyTo]);
 
   const togglePopUp = () => {
     setPopUpVisible(!isPopUpVisible);
@@ -57,16 +82,29 @@ export function MessageBar({
     if (processedText !== '') {
       setText('');
       //send text message
-      await sendMessage(
-        chatId,
-        {
-          contentType: ContentType.text,
-          messageType: MessageType.new,
-          data: {text: processedText},
-        },
-        true,
-        isGroupChat,
-      );
+      if (replyTo) {
+        await sendMessage(
+          chatId,
+          {
+            contentType: ContentType.text,
+            replyId: replyTo.messageId,
+            data: {text: processedText},
+          },
+          true,
+          isGroupChat,
+        );
+      } else {
+        await sendMessage(
+          chatId,
+          {
+            contentType: ContentType.text,
+            data: {text: processedText},
+          },
+          true,
+          isGroupChat,
+        );
+      }
+      onSend();
     }
   };
   const onImagePressed = async () => {
@@ -89,7 +127,6 @@ export function MessageBar({
           chatId,
           {
             contentType: ContentType.image,
-            messageType: MessageType.new,
             data: {...file},
           },
           true,
@@ -120,7 +157,6 @@ export function MessageBar({
           chatId,
           {
             contentType: ContentType.video,
-            messageType: MessageType.new,
             data: {...file},
           },
           true,
@@ -149,7 +185,6 @@ export function MessageBar({
           chatId,
           {
             contentType: ContentType.file,
-            messageType: MessageType.new,
             data: {...file},
           },
           true,
@@ -216,32 +251,155 @@ export function MessageBar({
           </View>
         </View>
       ) : (
-        <View style={styles.textInputContainer}>
-          <Pressable style={styles.plus} onPress={togglePopUp}>
-            <Plus />
-          </Pressable>
-          <View style={{width: inputTextBarWidth}}>
-            <View style={styles.textBox}>
-              <TextInput
-                style={styles.inputText}
-                multiline={true}
-                placeholder={isFocused ? '' : 'Type your message here'}
-                placeholderTextColor="#BABABA"
-                onChangeText={onChangeText}
-                value={text}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                onPressIn={onPressed}
-              />
+        <View style={{backgroundColor: '#FFF', flexDirection: 'column'}}>
+          {replyTo ? (
+            <View
+              style={{
+                backgroundColor: '#fff',
+                width: '100%',
+                paddingVertical: 16,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <View
+                style={{
+                  backgroundColor: '#f6f6f6',
+                  borderRadius: 16,
+                  width: '95%',
+                  paddingVertical: 9,
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}>
+                <View
+                  style={{
+                    width: 6,
+                    marginLeft: 10,
+                    borderRadius: 16,
+                    height: '70%',
+                    backgroundColor: !replyTo?.sender ? '#547CEF' : '#fff',
+                  }}
+                />
+                <View
+                  style={{
+                    marginLeft: 11,
+                    flexDirection: 'column',
+                    width: '90%',
+                  }}>
+                  {renderReplyBar(replyTo, isGroupChat, groupInfo, name)}
+                </View>
+              </View>
+              <Pressable
+                onPress={() => setReplyTo(undefined)}
+                style={{position: 'absolute', right: 17, top: 22}}>
+                <Plus
+                  style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
+                />
+              </Pressable>
             </View>
+          ) : (
+            <></>
+          )}
+
+          <View style={styles.textInputContainer}>
+            <Pressable style={styles.plus} onPress={togglePopUp}>
+              <Plus />
+            </Pressable>
+            <View style={{width: inputTextBarWidth}}>
+              <View style={styles.textBox}>
+                <TextInput
+                  style={styles.inputText}
+                  multiline={true}
+                  placeholder={isFocused ? '' : 'Type your message here'}
+                  placeholderTextColor="#BABABA"
+                  onChangeText={onChangeText}
+                  value={text}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                  onPressIn={onPressed}
+                />
+              </View>
+            </View>
+            <Pressable style={styles.send} onPress={sendText}>
+              <Send />
+            </Pressable>
           </View>
-          <Pressable style={styles.send} onPress={sendText}>
-            <Send />
-          </Pressable>
         </View>
       )}
     </KeyboardAvoidingView>
   );
+}
+
+function renderReplyBar(
+  replyTo: SavedMessageParams,
+  isGroupChat: boolean,
+  groupInfo: any,
+  name: string,
+) {
+  switch (replyTo.contentType) {
+    case ContentType.text: {
+      return (
+        <TextReplyContainer
+          message={replyTo}
+          memberName={
+            !replyTo?.sender
+              ? isGroupChat
+                ? findMemberName(extractMemberInfo(groupInfo, replyTo.memberId))
+                : name
+              : 'You'
+          }
+        />
+      );
+    }
+    case ContentType.image: {
+      return (
+        <ImageReplyContainer
+          message={replyTo}
+          memberName={
+            !replyTo?.sender
+              ? isGroupChat
+                ? findMemberName(extractMemberInfo(groupInfo, replyTo.memberId))
+                : name
+              : 'You'
+          }
+        />
+      );
+    }
+    case ContentType.file: {
+      return (
+        <FileReplyContainer
+          message={replyTo}
+          memberName={
+            !replyTo?.sender
+              ? isGroupChat
+                ? findMemberName(extractMemberInfo(groupInfo, replyTo.memberId))
+                : name
+              : 'You'
+          }
+        />
+      );
+    }
+    case ContentType.video: {
+      return (
+        <VideoReplyContainer
+          message={replyTo}
+          memberName={
+            !replyTo?.sender
+              ? isGroupChat
+                ? findMemberName(extractMemberInfo(groupInfo, replyTo.memberId))
+                : name
+              : 'You'
+          }
+        />
+      );
+    }
+  }
+}
+
+function findMemberName(memberInfo: any) {
+  if (memberInfo.memberId) {
+    return memberInfo.name || DEFAULT_NAME;
+  }
+  return '';
 }
 
 const styles = StyleSheet.create({

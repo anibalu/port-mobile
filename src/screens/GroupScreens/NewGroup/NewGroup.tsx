@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import Avatar4 from '../../../../assets/avatars/avatar4.svg';
-import ImageIcon from '../../../../assets/icons/UploadImage.svg';
 import {AppStackParamList} from '../../../navigation/AppStackTypes';
 import Topbar from './TopBar';
 
@@ -40,6 +39,7 @@ const NewGroup = ({route, navigation}: Props) => {
     setGroupDescription(newText);
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onImagePressed = async () => {
     try {
       const response = await launchImageLibrary({
@@ -71,7 +71,7 @@ const NewGroup = ({route, navigation}: Props) => {
           ) : (
             <Avatar4 width={140} height={140} />
           )}
-          <ImageIcon style={style.uploadImageICon} onPress={onImagePressed} />
+          {/* <ImageIcon style={style.uploadImageICon} onPress={onImagePressed} /> */}
         </View>
         <TextInput
           style={style.groupNameBox}

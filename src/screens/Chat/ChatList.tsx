@@ -39,6 +39,10 @@ function ChatList({
         previousItem.timestamp,
       );
     }
+
+    if (item.data?.deleted) {
+      return <></>;
+    }
     return (
       <MessageBubble
         message={item}

@@ -1,20 +1,21 @@
 import React, {useEffect, useState} from 'react';
 
 import {Image, StyleSheet, View} from 'react-native';
-import TextBubble from './BubbleTypes/TextBubble';
+import DefaultImage from '../../../assets/avatars/avatar.png';
 import {NumberlessRegularText} from '../../components/NumberlessText';
-import {createDateBoundaryStamp} from '../../utils/Time';
+import {DEFAULT_NAME} from '../../configs/constants';
+import {extractMemberInfo} from '../../utils/Groups';
 import {
   ContentType,
   SavedMessageParams,
 } from '../../utils/Messaging/interfaces';
+import {createDateBoundaryStamp} from '../../utils/Time';
 import DataBubble from './BubbleTypes/DataBubble';
-import VideoBubble from './BubbleTypes/VideoBubble';
 import FileBubble from './BubbleTypes/FileBubble';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import {extractMemberInfo} from '../../utils/Groups';
-import {DEFAULT_NAME} from '../../configs/constants';
 import ImageBubble from './BubbleTypes/ImageBubble';
+import ReplyBubble from './BubbleTypes/ReplyBubble';
+import TextBubble from './BubbleTypes/TextBubble';
+import VideoBubble from './BubbleTypes/VideoBubble';
 
 interface MessageBubbleProps {
   message: SavedMessageParams;
@@ -42,6 +43,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const [containerType] = useState(intitialContainerType);
   const [blobType, setBlobType] = useState(initialBlobType);
   const [memberInfo, setMemberInfo] = useState({});
+
   useEffect(() => {
     if (selected.includes(message.messageId)) {
       setBlobType(
@@ -90,9 +92,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         <View style={blobType}>
           {renderBubbleType(
             message,
+            isGroupChat,
             handlePress,
             handleLongPress,
             findMemberName(memberInfo),
+            groupInfo,
           )}
         </View>
       </View>
@@ -166,23 +170,39 @@ function isDataMessage(contentType: ContentType) {
 
 function renderBubbleType(
   message: SavedMessageParams,
+  isGroup: boolean,
   handlePress: any,
   handleLongPress: any,
   memberName: string = '',
+  groupInfo: any,
 ) {
   /**
    * @todo add styling properly
    */
   switch (message.contentType) {
-    case ContentType.text:
-      return (
-        <TextBubble
-          message={message}
-          memberName={memberName}
-          handlePress={handlePress}
-          handleLongPress={handleLongPress}
-        />
-      );
+    case ContentType.text: {
+      if (message.replyId && message.replyId != '') {
+        return (
+          <ReplyBubble
+            message={message}
+            memberName={memberName}
+            isGroup={isGroup}
+            groupInfo={groupInfo}
+            handlePress={handlePress}
+            handleLongPress={handleLongPress}
+          />
+        );
+      } else {
+        return (
+          <TextBubble
+            message={message}
+            memberName={memberName}
+            handlePress={handlePress}
+            handleLongPress={handleLongPress}
+          />
+        );
+      }
+    }
     case ContentType.image:
       return (
         <ImageBubble

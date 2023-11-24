@@ -1,6 +1,6 @@
-import {addNewGroup, getInitialGroupMembersInfo, attemptJoinGroup} from '.';
+import {addNewGroup, attemptJoinGroup, getInitialGroupMembersInfo} from '.';
 import {BundleReadResponse, GroupConnectionBundle} from '../Bundles/interfaces';
-import {ContentType, MessageType} from '../Messaging/interfaces';
+import {ContentType} from '../Messaging/interfaces';
 import {sendMessage} from '../Messaging/sendMessage';
 import {getProfileName} from '../Profile';
 import {generateISOTimeStamp} from '../Time';
@@ -30,7 +30,6 @@ export async function handshakeActionsG1(
       groupId,
       {
         contentType: ContentType.name,
-        messageType: MessageType.new,
         data: {name: await getProfileName()},
       },
       true,

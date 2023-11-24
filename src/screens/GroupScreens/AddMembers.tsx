@@ -179,6 +179,7 @@ function AddMembers({route, navigation}: Props) {
         data={viewableMembers}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
+        keyExtractor={item => item.chatId}
         renderItem={(item: any) => {
           return (
             <AddMemberTile member={item.item} onToggle={onMemberSelected} />

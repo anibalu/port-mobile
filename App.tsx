@@ -10,14 +10,12 @@ import {Linking, StatusBar} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Provider} from 'react-redux';
 import store from './src/store/appStore';
-import {loadReadDirectConnectionBundlesToStore} from './src/utils/Bundles/direct';
 import {loadConnectionsToStore} from './src/utils/Connections';
 
 import {
   foregroundMessageHandler,
   registerBackgroundMessaging,
 } from './src/utils/Messaging/fcm';
-import {loadJournalToStore} from './src/utils/Messaging/journal';
 import {checkProfile} from './src/utils/Profile';
 import {ProfileStatus} from './src/utils/Profile/interfaces';
 
@@ -49,26 +47,21 @@ function App(): JSX.Element {
           //load up to store
           //load connections to store
           await loadConnectionsToStore();
+          await pullBacklog();
           //load read bundles to store
-          await loadReadDirectConnectionBundlesToStore();
+          //await loadReadDirectConnectionBundlesToStore();
           //load journaled messages to store
-          await loadJournalToStore();
+          //await loadJournalToStore();
+          // handle any potential inital deep links
+          handleDeepLink({url: await Linking.getInitialURL()});
         }
       } catch (error) {
         console.error('Error checking profile:', error);
       }
     };
-    (async () => {
-      await pullBacklog();
-    })();
-
     checkProfileCreated();
     // default way to handle new messages in the foreground
     foregroundMessageHandler();
-    // handle any potential inital deep links
-    (async () => {
-      handleDeepLink({url: await Linking.getInitialURL()});
-    })();
   }, []);
 
   //set up background message handler here

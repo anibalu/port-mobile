@@ -8,20 +8,27 @@ import * as DBCalls from './DBCalls/lineMessage';
  * @param {boolean} blocking - deprecated, unused value
  */
 export async function saveMessage(
-  chatId: string,
+  //chatId: string,
   message: SavedMessageParams,
   blocking: boolean = true,
 ): Promise<void> {
   blocking.toString();
-  await DBCalls.addMessage({chatId, ...message});
+  await DBCalls.addMessage({...message});
   return;
+}
+
+export async function getMessage(
+  chatId: string,
+  messageId: string,
+): Promise<null | SavedMessageParams> {
+  return await DBCalls.getMessage(chatId, messageId);
 }
 
 /**
  * reads messages of a chat from storage
  * @param {string} chatId - chatId of chat
  * @param {boolean} blocking - deprecated, unused value
- * @returns {Promise<SavedMessageParams[]>} - messages in storage
+ * @returns {Promise<DBCalls.MessageEntry[]>} - messages in storage
  */
 export async function readMessages(
   chatId: string,
@@ -68,7 +75,7 @@ export async function updateMessageSendStatus(
 export async function updateMessage(
   chatId: string,
   messageId: string, //with sender prefix
-  update: any,
+  update: any, //{...data,deleted:true}
   blocking: boolean = false,
 ): Promise<void> {
   blocking.toString();

@@ -18,10 +18,10 @@ function ChatTile(props: ConnectionInfo) {
   const navigation = useNavigation();
   //sets profile picture URI
   function chooseProfileURI() {
-    if (props.pathToDisplayPic === undefined || props.pathToDisplayPic === '') {
-      return Image.resolveAssetSource(DefaultImage).uri;
+    if (props.pathToDisplayPic && props.pathToDisplayPic !== '') {
+      return `file://${props.pathToDisplayPic}`;
     }
-    return `file://${props.pathToDisplayPic}`;
+    return Image.resolveAssetSource(DefaultImage).uri;
   }
 
   //handles navigation to a chat screen and toggles chat to read.

@@ -28,6 +28,7 @@ export async function handleDeepLink(urlObj: urlObject) {
   };
   try {
     const bundle = JSON.parse(await connectionFsSync(synced));
+    console.log('bundle: ', bundle);
     if (bundle.connectionType === ConnectionType.direct) {
       await handshakeActionsB1(bundle);
     }

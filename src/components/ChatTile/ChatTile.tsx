@@ -1,19 +1,19 @@
-import React from 'react';
-import {View, StyleSheet, Image, Pressable} from 'react-native';
-import {getTimeStamp} from '@utils/Time';
-import {useNavigation} from '@react-navigation/native';
 import DefaultImage from '@assets/avatars/avatar.png';
-import {
-  ConnectionInfo,
-  ConnectionType,
-  ReadStatus,
-} from '@utils/Connections/interfaces';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
   NumberlessSemiBoldText,
 } from '@components/NumberlessText';
-import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {useNavigation} from '@react-navigation/native';
+import {
+  ConnectionInfo,
+  ConnectionType,
+  ReadStatus,
+} from '@utils/Connections/interfaces';
+import {getChatTileTimestamp} from '@utils/Time';
+import React from 'react';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
 
 function ChatTile(props: ConnectionInfo) {
   const navigation = useNavigation();
@@ -78,7 +78,7 @@ function ChatTile(props: ConnectionInfo) {
             </View>
           ) : (
             <NumberlessMediumText style={styles.timestamp}>
-              {getTimeStamp(props.timestamp)}
+              {getChatTileTimestamp(props.timestamp)}
             </NumberlessMediumText>
           )}
 

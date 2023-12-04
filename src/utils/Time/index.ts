@@ -26,6 +26,45 @@ export function getTimeStamp(ISOTime: string | undefined): string {
   }
 }
 
+/**
+ * converts an ISO timestamp into a user-readable timestamp string, used for chattiles exclusively.
+ * @param {string|undefined} ISOTime - ISO timestamp or undefined
+ * @returns {string} - user-readable timestamp string
+ */
+export function getChatTileTimestamp(ISOTime: string | undefined): string {
+  if (!ISOTime) {
+    return '';
+  }
+  try {
+    // Format the time in 12-hour format with AM/PM
+    const date = new Date(ISOTime);
+    let formattedTime = date.toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+    //Comparing dates, if today's message we send the time, else a DD/MM/YY object
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (today > date) {
+      console.log('Is older messages');
+      const options: Intl.DateTimeFormatOptions = {
+        day: 'numeric', // Day of the month
+        month: 'numeric', // Full month name
+        year: 'numeric', // Four-digit year
+      };
+      formattedTime = date.toLocaleDateString('en-US', options);
+      return formattedTime;
+    }
+    formattedTime = formattedTime
+      .replace(/\bam\b/i, 'AM')
+      .replace(/\bpm\b/i, 'PM');
+    return formattedTime;
+  } catch (error) {
+    return '';
+  }
+}
+
 export function checkDateBoundary(
   ISOTimeString1: string | null,
   ISOTimeString2: string | null,

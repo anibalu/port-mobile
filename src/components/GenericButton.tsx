@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Pressable, View} from 'react-native';
+import {StyleSheet, Pressable, View, TextStyle, ViewStyle} from 'react-native';
 import {NumberlessMediumText} from './NumberlessText';
 import {FontSizes, PortColors} from './ComponentUtils';
 
@@ -12,8 +12,8 @@ export function GenericButton({
 }: {
   children?: React.ReactNode;
   onPress: any;
-  buttonStyle?: any;
-  textStyle?: any;
+  buttonStyle?: ViewStyle;
+  textStyle?: TextStyle;
   Icon?: any;
 }) {
   return (

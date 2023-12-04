@@ -3,10 +3,10 @@
  */
 import React from 'react';
 import {Image, Pressable, StyleSheet} from 'react-native';
-import {NumberlessRegularText} from '../../components/NumberlessText';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import {GroupMember} from '../../utils/Groups/interfaces';
-import {DEFAULT_NAME} from '../../configs/constants';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import DefaultImage from '@assets/avatars/avatar.png';
+import {GroupMember} from '@utils/Groups/interfaces';
+import {DEFAULT_NAME} from '@configs/constants';
 
 function UserTile({member}: {member: GroupMember}) {
   return (

@@ -1,3 +1,7 @@
+/**
+ * @deprecated
+ * This entire util got deprecated after introducing local databases
+ */
 import {JournaledMessageParams} from './interfaces';
 import store from '../../store/appStore';
 import {addToJournal, overwriteJournal, readJournal} from '../Storage/journal';

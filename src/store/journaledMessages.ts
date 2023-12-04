@@ -1,8 +1,9 @@
 /**
+ * @deprecated
  * A reducer for the message journal
  */
 
-import {JournaledMessages} from '../utils/Messaging/interfaces';
+import {JournaledMessages} from '@utils/Messaging/interfaces';
 
 const initialState: JournaledMessages = {
   journal: [],

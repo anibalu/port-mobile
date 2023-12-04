@@ -4,35 +4,41 @@
  * profile
  */
 
+import {NumberlessSemiBoldText} from '@components/NumberlessText';
+import {updateConnection} from '@utils/Connections';
+import {updateProfileInfo} from '@utils/Profile';
 import React, {useState} from 'react';
-import {Dimensions, Pressable, StyleSheet, TextInput, View} from 'react-native';
-import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import {NAME_LENGTH_LIMIT} from '../../configs/constants';
-import {updateProfileInfo} from '../../utils/Profile';
+import {Pressable, StyleSheet, View} from 'react-native';
+import {FontSizes, screen} from './ComponentUtils';
+import GenericInput from './GenericInput';
 
 interface updateNameProps {
   setUpdated: Function;
   initialName: string;
+  chatId?: string;
 }
 
-export default function NamePopup(props: updateNameProps) {
-  const viewWidth = Dimensions.get('window').width;
-  const inputTextBarWidth = viewWidth;
+export default function UpdateNamePopup(props: updateNameProps) {
   const [newName, setNewName] = useState(props.initialName);
+  const chatId = props.chatId;
   return (
     <View style={styles.editRegion}>
       <NumberlessSemiBoldText style={styles.titleText}>
-        Update your name
+        {props?.chatId ? ' Update your name' : "Update this contact's name"}
       </NumberlessSemiBoldText>
-      <View style={{width: inputTextBarWidth, padding: 20}}>
-        <TextInput
-          style={styles.nicknameInput}
-          onChangeText={setNewName}
-          value={newName}
-          placeholder={'Enter a new name'}
-          maxLength={NAME_LENGTH_LIMIT}
-        />
-      </View>
+      <GenericInput
+        wrapperStyle={{
+          width: screen.width,
+          height: 50,
+          marginBottom: 20,
+          paddingHorizontal: '8%',
+        }}
+        inputStyle={{...FontSizes[15].medium, borderRadius: 4, paddingLeft: 10}}
+        text={newName}
+        setText={setNewName}
+        placeholder="Enter a new name"
+        alignment="left"
+      />
       <View style={styles.options}>
         <Pressable
           style={styles.cancel}
@@ -45,9 +51,19 @@ export default function NamePopup(props: updateNameProps) {
           style={styles.save}
           onPress={() => {
             (async () => {
-              await updateProfileInfo({
-                name: newName,
-              });
+              if (chatId) {
+                const payload = {
+                  chatId: chatId,
+                  name: newName,
+                };
+                await updateConnection(payload);
+              } else {
+                const payload = {
+                  name: newName,
+                };
+                await updateProfileInfo(payload);
+              }
+
               props.setUpdated(true);
             })();
           }}>
@@ -70,6 +86,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingBottom: 20,
     paddingTop: 20,
+    borderTopStartRadius: 32,
+    borderTopEndRadius: 32,
   },
   titleText: {
     fontSize: 17,
@@ -78,7 +96,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   nicknameInput: {
-    width: '100%',
+    width: screen.width - 40,
     backgroundColor: '#F0F0F0',
     fontSize: 15,
     fontFamily: 'Rubik-Regular',

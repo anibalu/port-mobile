@@ -1,27 +1,25 @@
-import React, {useState, useEffect} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Dimensions,
   Pressable,
   StyleSheet,
-  TextInput,
   View,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 //svg imports
-import ShareIcon from '@assets/icons/Share.svg';
 import Logo from '@assets/icons/Logo.svg';
+import ShareIcon from '@assets/icons/Share.svg';
 //config imports
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 //component imports
+import GenericInput from '@components/GenericInput';
 import {
   NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
-import Share from 'react-native-share';
-import {convertBundleToLink} from '@utils/DeepLinking';
 import {
   closeGeneratedSuperport,
   generateDirectSuperportConnectionBundle,
@@ -29,12 +27,13 @@ import {
   updateGeneratedDirectSuperportConnectionBundleLabel,
 } from '@utils/Bundles/directSuperport';
 import {DirectSuperportConnectionBundle} from '@utils/Bundles/interfaces';
+import {convertBundleToLink} from '@utils/DeepLinking';
+import Share from 'react-native-share';
 import Toast from 'react-native-toast-message';
 
 function SuperportDisplay({superportId}: {superportId: string}) {
   const navigation = useNavigation();
   const [isLoadingBundle, setIsLoadingBundle] = useState(true);
-  const [isFocused, setIsFocused] = useState(false);
   const [bundleGenError, setBundleGenError] = useState(false);
   const [label, setLabel] = useState<string>('');
   const [lastSaveLabel, setLastSaveLabel] = useState<string>('');
@@ -103,10 +102,10 @@ function SuperportDisplay({superportId}: {superportId: string}) {
       } else {
         await closeGeneratedSuperport(JSON.parse(qrCodeData).data.linkId);
       }
-      navigation.navigate('HomeTab');
+      navigation.navigate('HomeTab', {screen: 'ChatTab'});
     } catch (error) {
       console.log('Error closing superport: ', error);
-      navigation.navigate('HomeTab');
+      navigation.navigate('HomeTab', {screen: 'ChatTab'});
     }
   };
 
@@ -182,17 +181,12 @@ function SuperportDisplay({superportId}: {superportId: string}) {
               width: viewWidth * 0.6,
               marginTop: 20,
             }}>
-            <TextInput
-              style={styles.labelInput}
-              maxLength={NAME_LENGTH_LIMIT}
-              placeholder={isFocused ? '' : 'Superport Name (Optional)'}
-              placeholderTextColor="#BABABA"
-              onChangeText={showSaveButton}
-              value={label}
-              textAlign="center"
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
+            <GenericInput
+              text={label}
+              setText={showSaveButton}
+              placeholder="Superport name (optional)"
             />
+
             <View style={styles.saveButtonBox}>
               {saveVisible ? (
                 <Pressable style={styles.saveButton} onPress={labelUpdate}>

@@ -14,6 +14,7 @@ export async function AttemptNewDirectChat(
   connectionLink: string,
 ): Promise<string> {
   const token = await getToken();
+  console.log('token: ', token);
   const response = await axios.post(
     LINE_MANAGEMENT_RESOURCE,
     {

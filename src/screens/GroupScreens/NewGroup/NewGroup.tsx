@@ -1,18 +1,14 @@
-import ChatBackground from '@components/ChatBackground';
-import GenericTopBar from '@components/GenericTopBar';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useCallback, useState} from 'react';
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
 import Avatar4 from '@assets/avatars/avatar4.svg';
+import ChatBackground from '@components/ChatBackground';
+import {FontSizes, screen} from '@components/ComponentUtils';
+import {GenericButton} from '@components/GenericButton';
+import GenericInput from '@components/GenericInput';
+import GenericTopBar from '@components/GenericTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {AppStackParamList} from '@navigation/AppStackTypes';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import React, {useCallback, useState} from 'react';
+import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewGroup'>;
 
@@ -57,11 +53,15 @@ const NewGroup = ({route, navigation}: Props) => {
       <ChatBackground />
       <GenericTopBar
         title={'New Group'}
+        titleStyle={{...FontSizes[17].bold}}
         onBackPress={() => {
           navigation.goBack();
         }}
       />
-      <View style={style.groupContainer}>
+
+      <ScrollView
+        automaticallyAdjustKeyboardInsets={true}
+        style={style.groupContainer}>
         <View style={style.iconContainer}>
           {image ? (
             <>
@@ -72,36 +72,59 @@ const NewGroup = ({route, navigation}: Props) => {
           )}
           {/* <ImageIcon style={style.uploadImageICon} onPress={onImagePressed} /> */}
         </View>
-        <TextInput
-          style={style.groupNameBox}
+        <GenericInput
+          wrapperStyle={{height: 60, paddingHorizontal: '8%'}}
+          inputStyle={{
+            ...FontSizes[17].medium,
+            paddingLeft: 10,
+            borderRadius: 12,
+          }}
+          text={groupName}
+          setText={onChangeGroupName}
           placeholder="Group Name"
-          placeholderTextColor="#868686"
-          value={groupName}
-          onChangeText={onChangeGroupName}
+          alignment="left"
         />
-        <TextInput
-          style={style.groupBoxDescription}
-          placeholder="Add a description (optional)"
-          placeholderTextColor="#868686"
-          value={groupDescription}
-          multiline={true}
-          onChangeText={onChangeGroupDescription}
-        />
-      </View>
-      {!!errorMessage && <Text style={style.errorMessage}>{errorMessage}</Text>}
 
-      <Pressable
-        disabled={!isButtonActive}
-        style={isButtonActive ? style.activeButton : style.inctiveButton}
-        onPress={() =>
-          navigation.navigate('SetupGroup', {
-            groupName: groupName.trim(),
-            groupDescription: groupDescription.trim(),
-            displayPicPath: image,
-          })
-        }>
-        <Text style={style.buttonText}> Next</Text>
-      </Pressable>
+        <GenericInput
+          wrapperStyle={{
+            height: screen.height / 4,
+            marginBottom: 20,
+            paddingHorizontal: '8%',
+          }}
+          inputStyle={{
+            ...FontSizes[17].regular,
+            paddingLeft: 10,
+            paddingTop: 12,
+            textAlignVertical: 'top',
+            borderRadius: 12,
+          }}
+          maxLength={200}
+          multiline={true}
+          text={groupDescription}
+          setText={onChangeGroupDescription}
+          placeholder="Add a description (optional)"
+          alignment="left"
+          showLimit={true}
+        />
+        {!!errorMessage && (
+          <Text style={style.errorMessage}>{errorMessage}</Text>
+        )}
+        <GenericButton
+          buttonStyle={
+            isButtonActive ? style.activeButton : style.inactiveButton
+          }
+          onPress={() => {
+            isButtonActive
+              ? navigation.navigate('SetupGroup', {
+                  groupName: groupName.trim(),
+                  groupDescription: groupDescription.trim(),
+                  displayPicPath: image,
+                })
+              : null;
+          }}>
+          Next
+        </GenericButton>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -160,21 +183,21 @@ const style = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     marginHorizontal: 10,
+    marginTop: 40,
     alignSelf: 'center',
-    position: 'absolute',
-    bottom: 15,
     width: '95%',
+    marginBottom: 20,
   },
-  inctiveButton: {
+  inactiveButton: {
     backgroundColor: '#868686',
     height: 70,
+    marginTop: 40,
     borderRadius: 16,
     justifyContent: 'center',
     marginHorizontal: 10,
     alignSelf: 'center',
-    position: 'absolute',
-    bottom: 15,
     width: '95%',
+    marginBottom: 20,
   },
   buttonText: {
     color: 'white',

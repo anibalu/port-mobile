@@ -1,25 +1,27 @@
 import React, {useEffect, useState} from 'react';
-import {FlatList, Modal, Pressable, StyleSheet, View} from 'react-native';
-import Accordion from '../../components/Accordion';
-import Link from '../../../assets/icons/link.svg';
-import QRCode from '../../../assets/icons/qrcode.svg';
-import {getTimeAndDateStamp} from '../../utils/Time';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
+import Accordion from '@components/Accordion';
+import Link from '@assets/icons/link.svg';
+import QRCode from '@assets/icons/qrcode.svg';
+import {getTimeAndDateStamp} from '@utils/Time';
 import {
   deleteGeneratedDirectConnectionBundle,
   getGeneratedDirectConnectionBundles,
-} from '../../utils/Bundles/direct';
-import CrossIcon from '../../../assets/icons/cross.svg';
-import {GeneratedDirectConnectionBundle} from '../../utils/Bundles/interfaces';
+} from '@utils/Bundles/direct';
+import CrossIcon from '@assets/icons/cross.svg';
+import {GeneratedDirectConnectionBundle} from '@utils/Bundles/interfaces';
 import {
   NumberlessBoldText,
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../components/NumberlessText';
+} from '@components/NumberlessText';
+import GenericModal from '@components/GenericModal';
+import {screen} from '@components/ComponentUtils';
 
 export default function PendingContacts() {
   const [data, setData] = useState<Array<GeneratedDirectConnectionBundle>>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedObject, setSelectedObject] = useState({});
+  const [selectedObject, setSelectedObject] = useState<any>({});
   const [updateCount, setUpdateCount] = useState<number>(0);
   useEffect(() => {
     const fetchData = async () => {
@@ -73,40 +75,38 @@ export default function PendingContacts() {
           </NumberlessRegularText>
         )}
       </Accordion>
-      <Modal animationType="none" visible={modalVisible} transparent={true}>
-        <Pressable
-          style={styles.popUpArea}
-          onPress={() => setModalVisible(false)}>
-          <Pressable style={styles.popupPosition}>
-            <View style={styles.modal}>
-              <View style={{flexDirection: 'row'}}>
-                {selectedObject.type === 'link' ? (
-                  <Link style={styles.iconStyles} />
-                ) : (
-                  <QRCode style={styles.iconStyles} />
-                )}
-                <View style={styles.modalStyles}>
-                  <NumberlessBoldText style={styles.modalLabel}>
-                    {selectedObject.label ? selectedObject.label : 'unlabled'}
-                  </NumberlessBoldText>
-                  <NumberlessMediumText style={styles.modalTime}>
-                    Created
-                  </NumberlessMediumText>
-                  <NumberlessMediumText style={styles.modalTime}>
-                    {getTimeAndDateStamp(selectedObject.timestamp)}
-                  </NumberlessMediumText>
-                </View>
-                <CrossIcon onPress={() => setModalVisible(false)} />
-              </View>
-              <Pressable style={styles.button} onPress={deleteBundle}>
-                <NumberlessBoldText style={styles.buttonText}>
-                  Delete
-                </NumberlessBoldText>
-              </Pressable>
+      <GenericModal
+        visible={modalVisible}
+        onClose={() => {
+          setModalVisible(p => !p);
+        }}>
+        <View style={styles.modal}>
+          <View style={{flexDirection: 'row'}}>
+            {selectedObject.type === 'link' ? (
+              <Link style={styles.iconStyles} />
+            ) : (
+              <QRCode style={styles.iconStyles} />
+            )}
+            <View style={styles.modalStyles}>
+              <NumberlessBoldText style={styles.modalLabel}>
+                {selectedObject.label ? selectedObject.label : 'unlabled'}
+              </NumberlessBoldText>
+              <NumberlessMediumText style={styles.modalTime}>
+                Created
+              </NumberlessMediumText>
+              <NumberlessMediumText style={styles.modalTime}>
+                {getTimeAndDateStamp(selectedObject.timestamp)}
+              </NumberlessMediumText>
             </View>
+            <CrossIcon onPress={() => setModalVisible(false)} />
+          </View>
+          <Pressable style={styles.button} onPress={deleteBundle}>
+            <NumberlessBoldText style={styles.buttonText}>
+              Delete
+            </NumberlessBoldText>
           </Pressable>
-        </Pressable>
-      </Modal>
+        </View>
+      </GenericModal>
     </View>
   );
 }
@@ -148,7 +148,6 @@ const styles = StyleSheet.create({
     color: '#B7B7B7',
   },
   popUpArea: {
-    backgroundColor: '#0005',
     width: '100%',
     height: '100%',
   },
@@ -157,7 +156,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   modal: {
-    width: '100%',
+    width: screen.width,
     paddingHorizontal: 35,
     paddingVertical: 30,
     backgroundColor: 'white',

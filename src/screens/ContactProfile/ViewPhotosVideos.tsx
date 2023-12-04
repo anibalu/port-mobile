@@ -64,7 +64,9 @@ export default function ViewPhotosVideos({navigation, route}: Props) {
         {media.length > 0 ? (
           <View style={styles.container}>{rows}</View>
         ) : (
-          <NumberlessRegularText>No Media yet</NumberlessRegularText>
+          <NumberlessRegularText style={styles.nocontentText}>
+            No Media yet
+          </NumberlessRegularText>
         )}
       </View>
     </SafeAreaView>
@@ -81,6 +83,9 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     paddingVertical: 10,
+  },
+  nocontentText: {
+    paddingLeft: 15,
   },
   image: {
     width: (Dimensions.get('window').width - 30) / 3,

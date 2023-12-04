@@ -8,7 +8,7 @@ function BackTopbar() {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>
-      <BackButton style={styles.backIcon} onPress={() => navigation.goBack()} />
+      <BackButton onPress={() => navigation.goBack()} />
     </View>
   );
 }
@@ -23,12 +23,6 @@ const styles = StyleSheet.create({
     paddingRight: '6%',
     paddingLeft: '6%',
     backgroundColor: '#FFF',
-    height: 51,
-  },
-  backIcon: {
-    paddingTop: 16,
-    alignItems: 'flex-start',
-    width: 50,
     height: 51,
   },
 });

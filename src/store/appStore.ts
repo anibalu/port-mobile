@@ -1,5 +1,6 @@
 import {combineReducers, configureStore} from '@reduxjs/toolkit';
-import latestMessage from './latestMessage';
+import latestReceivedMessage from './latestReceivedMessage';
+import latestSentMessage from './latestSentMessage';
 import latestNewConnection from './latestNewConnection';
 import connectionFsSyncMutex from './connectionFsSyncMutex';
 import journaledMessages from './journaledMessages';
@@ -9,9 +10,13 @@ import authToken from './authToken';
 import readBundles from './readBundles';
 import mediaDownloading from './mediaDowloading';
 import sendingMessages from './sendingMessages';
+import imageSelection from './imageSelection';
+import latestSendStatusUpdate from './latestSendStatusUpdate';
 
 const rootReducer = combineReducers({
-  latestMessage,
+  latestReceivedMessage,
+  latestSentMessage,
+  latestSendStatusUpdate,
   latestNewConnection,
   connectionFsSyncMutex,
   journaledMessages,
@@ -21,6 +26,7 @@ const rootReducer = combineReducers({
   readBundles,
   mediaDownloading,
   sendingMessages,
+  imageSelection,
 });
 
 const store = configureStore({

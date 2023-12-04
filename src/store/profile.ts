@@ -4,6 +4,7 @@
 
 const initialState = {
   profile: {},
+  onboardingComplete: false,
 };
 
 export default function profile(state = initialState, action: any) {
@@ -12,6 +13,11 @@ export default function profile(state = initialState, action: any) {
       return {
         ...state,
         profile: action.payload,
+      };
+    case 'ONBOARDING_COMPLETE':
+      return {
+        ...state,
+        onboardingComplete: action.payload,
       };
     default:
       return state;

@@ -41,7 +41,9 @@ export default function ViewFiles({navigation, route}: Props) {
         {media.length > 0 ? (
           <FileComponent media={media} />
         ) : (
-          <NumberlessRegularText>No Files yet</NumberlessRegularText>
+          <NumberlessRegularText style={styles.nocontentText}>
+            No Files yet
+          </NumberlessRegularText>
         )}
       </View>
     </SafeAreaView>
@@ -53,5 +55,8 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     paddingVertical: 10,
+  },
+  nocontentText: {
+    paddingLeft: 15,
   },
 });

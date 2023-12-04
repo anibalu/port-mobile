@@ -1,7 +1,8 @@
 import React, {useCallback} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import Close from '../../../assets/icons/cross.svg';
+import Close from '@assets/icons/cross.svg';
 import {useNavigation} from '@react-navigation/native';
+import {screen} from '@components/ComponentUtils';
 
 export const Submitted = ({
   setOpenModal,
@@ -17,27 +18,25 @@ export const Submitted = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <>
-      <View style={styles.editRegion}>
-        <Close style={styles.crossIcon} onPress={closeModal} />
-        {isModalError ? (
-          <Text style={styles.titleError}>Something went wrong</Text>
-        ) : (
-          <Text style={styles.title}>Submitted Successfully</Text>
-        )}
-        <Text style={styles.subtitle}>
-          {isModalError
-            ? 'Please try again after a while'
-            : 'Your suggestion has been recorded and will be looked into shortly.'}
-        </Text>
-      </View>
-    </>
+    <View style={styles.editRegion}>
+      <Close style={styles.crossIcon} onPress={closeModal} />
+      {isModalError ? (
+        <Text style={styles.titleError}>Something went wrong</Text>
+      ) : (
+        <Text style={styles.title}>Submitted Successfully</Text>
+      )}
+      <Text style={styles.subtitle}>
+        {isModalError
+          ? 'Please try again after a while'
+          : 'Your suggestion has been recorded and will be looked into shortly.'}
+      </Text>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   editRegion: {
-    width: '90%',
+    width: screen.width - 40,
     backgroundColor: 'white',
     paddingBottom: 20,
     paddingTop: 20,

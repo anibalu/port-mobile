@@ -5,13 +5,15 @@ import Groups from '@assets/icons/Groups.svg';
 import Others from '@assets/icons/Others.svg';
 import SuperPorts from '@assets/icons/SuperPorts.svg';
 import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {SafeAreaView} from '@components/SafeAreaView';
+import {FontSizes} from '@components/ComponentUtils';
+import {NumberlessRegularText} from '@components/NumberlessText';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AddCategoryScreen'>;
 
@@ -77,6 +79,7 @@ export default function AddCategoryScreen({navigation}: Props) {
     <SafeAreaView style={styles.screen}>
       <ChatBackground />
       <GenericTopBar
+        titleStyle={{...FontSizes[17].medium}}
         title={'Add Category '}
         onBackPress={() => {
           navigation.goBack();
@@ -98,7 +101,9 @@ export default function AddCategoryScreen({navigation}: Props) {
               }
               key={category.index}>
               <Img style={{marginLeft: 10}} />
-              <Text style={styles.categoryText}>{value}</Text>
+              <NumberlessRegularText style={styles.categoryText}>
+                {value}
+              </NumberlessRegularText>
               <GreyArrowRight />
             </Pressable>
           );
@@ -115,7 +120,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   container: {
-    marginTop: 20,
+    marginTop: 10,
   },
   background: {
     width: '100%',
@@ -131,14 +136,12 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 16,
     backgroundColor: 'white',
-    marginBottom: 15,
+    marginBottom: 8,
     alignItems: 'center',
     flexDirection: 'row',
     paddingRight: 15,
   },
   categoryText: {
-    fontSize: 14,
-    fontWeight: '400',
     color: 'black',
     width: '100%',
     paddingLeft: 10,

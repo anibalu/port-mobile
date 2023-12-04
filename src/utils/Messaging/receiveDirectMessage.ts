@@ -35,7 +35,9 @@ export async function receiveDirectMessage(
   try {
     const chatId: string = messageFCM.data.lineId;
     const messageData = messageFCM.data;
-    const sentTime = new Date(messageFCM.sentTime);
+    const sentTime = messageFCM.sentTime
+      ? new Date(messageFCM.sentTime)
+      : new Date();
     const timestamp = sentTime.toISOString();
     //if the received message is a handshake A1 message (server notifies that the other party has used a connection link to create a connection).
     if (!messageData.messageContent && messageData.lineLinkId) {
@@ -53,6 +55,9 @@ export async function receiveDirectMessage(
       const message: SendMessageParamsStrict = JSON.parse(
         await decryptMessage(chatId, messageData.messageContent),
       );
+      // const message: SendMessageParamsStrict = JSON.parse(
+      //   JSON.parse(await decryptMessage(chatId, messageData.content)),
+      // );
       switch (message.contentType) {
         case ContentType.text: {
           return await receiveTextDirectMessage(chatId, message, timestamp);

@@ -1,49 +1,72 @@
 import {SafeAreaView} from '@components/SafeAreaView';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Image, StyleSheet} from 'react-native';
 
 import DefaultImage from '@assets/avatars/avatar.png';
 import ChatBackground from '@components/ChatBackground';
 import DeleteChatButton from '@components/DeleteChatButton';
-import {DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_NAME, START_OF_TIME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import Clipboard from '@react-native-clipboard/clipboard';
-import store from '@store/appStore';
+//import store from '@store/appStore';
 import {getConnection, toggleRead} from '@utils/Connections';
 import {ConnectionType} from '@utils/Connections/interfaces';
 import {extractMemberInfo} from '@utils/Groups';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  SavedMessageParams,
+  SendStatus,
+} from '@utils/Messaging/interfaces';
 import {tryToSendJournaled} from '@utils/Messaging/sendMessage';
+import {getLatestMessages} from '@utils/Storage/DBCalls/lineMessage';
 import {getGroupInfo} from '@utils/Storage/group';
-import {getMessage, readMessages} from '@utils/Storage/messages';
+import {getMessage, readPaginatedMessages} from '@utils/Storage/messages';
+//import {debounce} from 'lodash';
 import ChatList from './ChatList';
 import ChatTopbar from './ChatTopbar';
 import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
+import {useSelector} from 'react-redux';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 /**
- * Renders a chat screen.
+ * Renders a chat screen. The chatlist that is rendered is INVERTED, which means that any `top` function is a `bottom` function and vice versa.
  * @returns Component for rendered chat window
  */
 function Chat({route, navigation}: Props) {
   //gets lineId of chat
   const {chatId} = route.params;
   //Name to be displayed in topbar
-  const [name, setName] = useState('');
-  const [isGroupChat, setIsGroupChat] = useState<boolean>(false);
-  const [groupInfo, setGroupInfo] = useState({});
+  const [cursor, setCursor] = useState(0);
+
+  const [chatState, setChatState] = useState({
+    name: '',
+    isGroupChat: false,
+    groupInfo: {},
+    profileURI: Image.resolveAssetSource(DefaultImage).uri,
+    connectionConnected: true,
+    messagesLoaded: false,
+  });
+
   const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
+
+  const [enableAutoscrollToTop, setEnableAutoscrollToTop] = useState(true);
+
   //selected messages
   const [selectedMessages, setSelectedMessages] = useState<Array<string>>([]);
   //message to be replied
   const [replyToMessage, setReplyToMessage] = useState<SavedMessageParams>();
-  // Track whether the connection is disconnected
-  const [connectionConnected, setConnectionConnected] = useState(true);
-  const [profileURI, setProfileURI] = useState(
-    Image.resolveAssetSource(DefaultImage).uri,
+
+  const latestReceivedMessage: any = useSelector(
+    state => state.latestReceivedMessage.content.data,
+  );
+  const latestSentMessage: any = useSelector(
+    state => state.latestSentMessage.message,
+  );
+  const latestUpdatedSendStatus: any = useSelector(
+    state => state.latestSendStatusUpdate.updated,
   );
 
   //handles selecting messages
@@ -53,6 +76,7 @@ function Chat({route, navigation}: Props) {
       setSelectedMessages([...selectedMessages, messageId]);
     }
   };
+
   const handleMessageBubbleShortPress = (messageId: string) => {
     // removes messageId from selected messages on short press
     if (selectedMessages.includes(messageId)) {
@@ -69,6 +93,11 @@ function Chat({route, navigation}: Props) {
     }
   };
 
+  //update chat state
+  const updateChatState = useCallback(newState => {
+    setChatState(prevState => ({...prevState, ...newState}));
+  }, []);
+
   //Removes selected messages post deletion
   const updateAfterDeletion = (messageIds: string[]) => {
     setMessages(messages =>
@@ -77,25 +106,28 @@ function Chat({route, navigation}: Props) {
     setSelectedMessages([]);
   };
 
-  const onCopy = async () => {
+  const onCopy = useCallback(async () => {
     let copyString = '';
     for (const message of selectedMessages) {
       const msg = await getMessage(chatId, message);
       switch (msg?.contentType) {
         case ContentType.text: {
           copyString += `[${msg?.timestamp}] : [${
-            isGroupChat
-              ? findMemberName(extractMemberInfo(groupInfo, msg.memberId))
-              : name
+            chatState.isGroupChat
+              ? findMemberName(
+                  extractMemberInfo(chatState.groupInfo, msg.memberId),
+                )
+              : chatState.name
           }] : [${msg?.data.text}]`;
           break;
         }
         default:
-          throw new Error('Unsupported copy type');
+          //throw new Error('Unsupported copy type');
+          break;
       }
     }
     Clipboard.setString(copyString);
-  };
+  }, [selectedMessages, chatState, chatId]);
 
   const onForward = () => {
     navigation.navigate('ForwardToContact', {
@@ -115,77 +147,145 @@ function Chat({route, navigation}: Props) {
   //toggles messages as read
   //reads intial messages from messages storage.
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       (async () => {
         const connection = await getConnection(chatId);
+        const localState: any = {};
         if (connection.pathToDisplayPic && connection.pathToDisplayPic !== '') {
-          setProfileURI(`file://${connection.pathToDisplayPic}`);
+          localState.profileURI = `file://${connection.pathToDisplayPic}`;
         }
-        //set connection name
-        setName(connection.name);
+        localState.name = connection.name;
         if (connection.connectionType === ConnectionType.group) {
-          setIsGroupChat(true);
-          setGroupInfo(await getGroupInfo(chatId));
+          localState.isGroupChat = true;
+          localState.groupInfo = await getGroupInfo(chatId);
         }
         //sets connection connected state
-        setConnectionConnected(!connection.disconnected);
+        localState.connectionConnected = !connection.disconnected;
+
         //toggle chat as read
         await toggleRead(chatId);
         await tryToSendJournaled();
         //set saved messages
-        setMessages(await readMessages(chatId));
+        const resp = await readPaginatedMessages(chatId);
+        setMessages(resp.messages);
+        setCursor(resp.cursor);
+
+        //Notifying that initial message load is complete.
+        localState.messagesLoaded = true;
+        updateChatState(localState);
       })();
-      return () => {
-        //toggle chat as read
-        (async () => {
-          await toggleRead(chatId);
-        })();
-      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
+
   //sets up a subscriber to the message store when screen is focused.
   //subscriber runs every time a new message is sent or recieved.
   //chat is automatically toggled as read.
-  useFocusEffect(
-    React.useCallback(() => {
-      const unsubscribe = store.subscribe(async () => {
-        //set latest messages
-        if (isGroupChat) {
-          setGroupInfo(await getGroupInfo(chatId));
-        }
-        setMessages(await readMessages(chatId));
-      });
-      // Clean up the subscription when the screen loses focus
-      return () => {
-        unsubscribe();
-      };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
-  );
+
+  useEffect(() => {
+    console.log('receive trigger called');
+    (async () => {
+      if (chatState.isGroupChat) {
+        updateChatState({groupInfo: await getGroupInfo(chatId)});
+      }
+      //If messages have been loaded and the check fails, we need to fetch the latest messages only.
+      if (chatState.messagesLoaded) {
+        await addNewMessages();
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestReceivedMessage]);
+
+  useEffect(() => {
+    console.log('send trigger called');
+    (async () => {
+      if (chatState.messagesLoaded) {
+        await addNewMessages();
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestSentMessage]);
+
+  useEffect(() => {
+    console.log('updates send status trigger called');
+    (async () => {
+      if (chatState.messagesLoaded) {
+        await updateMessages(messages);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestUpdatedSendStatus]);
+
+  const updateMessages = async (msgs: SavedMessageParams[]) => {
+    const indices: number[] = [];
+    msgs.forEach((element, index) => {
+      if (
+        element.sendStatus !== SendStatus.success &&
+        element.sendStatus !== null
+      ) {
+        indices.push(index);
+      }
+    });
+    for (const i of indices) {
+      const msg = await getMessage(chatId, msgs[i].messageId);
+      if (msg) {
+        msgs[i] = msg;
+      }
+    }
+    setMessages(msgs);
+  };
+
+  //This function is called twice when a message is sent (subscriber detects send and receive), hence a debouncer.
+  const addNewMessages = async () => {
+    if (messages.length >= 1) {
+      const messageList = await getLatestMessages(
+        chatId,
+        messages[0].timestamp,
+      );
+      const newList = messageList.concat(messages);
+      await updateMessages(newList);
+    } else {
+      const messageList = await getLatestMessages(chatId, START_OF_TIME);
+      const newList = messageList.concat(messages);
+      await updateMessages(newList);
+    }
+  };
+
+  const onStartReached = async () => {
+    const resp = await readPaginatedMessages(chatId, cursor);
+    setMessages(oldList => oldList.concat(resp.messages));
+    //When this is called, the user has reached the top and a new message should autoscroll them down.
+    if (cursor == 0) {
+      !enableAutoscrollToTop && setEnableAutoscrollToTop(false);
+    }
+    setCursor(resp.cursor);
+  };
+
   //A reference to the flatlist that displays messages
   const flatList = React.useRef(null);
   return (
     <SafeAreaView style={styles.screen}>
       <ChatBackground />
       <ChatTopbar
-        name={name}
+        name={chatState.name}
         chatId={chatId}
-        profileURI={profileURI}
+        profileURI={chatState.profileURI}
         selectedMessages={selectedMessages}
         setSelectedMessages={setSelectedMessages}
-        isGroupChat={isGroupChat}
+        isGroupChat={chatState.isGroupChat}
       />
       <ChatList
         messages={messages}
-        flatList={flatList}
+        flatlistRef={flatList}
+        allowScrollToTop={enableAutoscrollToTop}
+        onStartReached={onStartReached}
         selectedMessages={selectedMessages}
         handlePress={handleMessageBubbleShortPress}
         handleLongPress={handleMessageBubbleLongPress}
-        isGroupChat={isGroupChat}
-        groupInfo={groupInfo}
+        isGroupChat={chatState.isGroupChat}
+        groupInfo={chatState.groupInfo}
       />
-      {connectionConnected ? (
+      {chatState.connectionConnected ? (
         <>
           {selectedMessages.length > 0 && replyToMessage === undefined ? (
             <MessageActionsBar
@@ -198,15 +298,15 @@ function Chat({route, navigation}: Props) {
             />
           ) : (
             <MessageBar
-              name={name}
+              name={chatState.name}
               onSend={clearSelected}
               chatId={chatId}
               replyTo={replyToMessage}
               setReplyTo={setReplyToMessage}
               flatlistRef={flatList}
               listLen={messages.length}
-              isGroupChat={isGroupChat}
-              groupInfo={groupInfo}
+              isGroupChat={chatState.isGroupChat}
+              groupInfo={chatState.groupInfo}
             />
           )}
         </>

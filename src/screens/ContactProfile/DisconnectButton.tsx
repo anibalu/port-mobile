@@ -1,8 +1,8 @@
 import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {Pressable, StyleSheet} from 'react-native';
-import {NumberlessSemiBoldText} from '../../components/NumberlessText';
-import {disconnectConnection} from '../../utils/Connections';
+import {NumberlessSemiBoldText} from '@components/NumberlessText';
+import {disconnectConnection} from '@utils/Connections';
 
 /**
  * When clicked, marks the line as disconnected and redirects to the home page

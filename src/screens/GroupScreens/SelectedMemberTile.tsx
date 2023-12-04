@@ -3,10 +3,10 @@
  */
 import React from 'react';
 import {Image, Pressable, StyleSheet, View} from 'react-native';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import Plus from '../../../assets/icons/plus.svg';
-import {NumberlessRegularText} from '../../components/NumberlessText';
-import {ConnectionInfo} from '../../utils/Connections/interfaces';
+import DefaultImage from '@assets/avatars/avatar.png';
+import Plus from '@assets/icons/plus.svg';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import {ConnectionInfo} from '@utils/Connections/interfaces';
 
 function SelectedMemberTile({
   member,

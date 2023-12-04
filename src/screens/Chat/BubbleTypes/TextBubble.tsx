@@ -9,6 +9,7 @@ import {DEFAULT_NAME} from '@configs/constants';
 import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
 import {getTimeStamp} from '@utils/Time';
 import {PortColors} from '@components/ComponentUtils';
+//import store from '@store/appStore';
 
 export default function TextBubble({
   message,
@@ -26,8 +27,12 @@ export default function TextBubble({
   return (
     <Pressable
       style={styles.textBubbleContainer}
-      onPress={() => handlePress(message.messageId)}
-      onLongPress={() => handleLongPress(message.messageId)}>
+      onPress={() => {
+        handlePress(message.messageId);
+      }}
+      onLongPress={() => {
+        handleLongPress(message.messageId);
+      }}>
       <View>
         {renderProfileName(
           shouldRenderProfileName(memberName),
@@ -41,41 +46,29 @@ export default function TextBubble({
         numberOfLines={isReply ? 3 : 0}>
         {message.data.text || ''}
       </NumberlessRegularText>
-      {!isReply && (
-        <View style={styles.timeStampContainer}>
-          {message.sendStatus === SendStatus.success || !message.sender ? (
-            <View>
-              <NumberlessRegularText style={styles.timeStamp}>
-                {getTimeStamp(message.timestamp)}
-              </NumberlessRegularText>
-            </View>
-          ) : (
-            <View>
-              {message.sendStatus === SendStatus.journaled ? (
-                <View>
-                  <Sending />
-                </View>
-              ) : (
-                <View>
-                  {true ? (
-                    <View>
-                      <Sending />
-                    </View>
-                  ) : (
-                    <View>
-                      <NumberlessRegularText style={styles.failedStamp}>
-                        {'failed'}
-                      </NumberlessRegularText>
-                    </View>
-                  )}
-                </View>
-              )}
-            </View>
-          )}
-        </View>
-      )}
+      {!isReply && renderTimeStamp(message)}
     </Pressable>
   );
+}
+
+function renderTimeStamp(message: SavedMessageParams) {
+  if (message.sendStatus === SendStatus.success || !message.sender) {
+    return (
+      <View style={styles.timeStampContainer}>
+        <NumberlessRegularText style={styles.timeStamp}>
+          {getTimeStamp(message.timestamp)}
+        </NumberlessRegularText>
+      </View>
+    );
+  } else if (message.sendStatus === SendStatus.journaled || true) {
+    // Simplified conditional
+    return (
+      <View style={styles.timeStampContainer}>
+        <Sending />
+      </View>
+    );
+  }
+  // Add more conditions if necessary
 }
 
 function shouldRenderProfileName(memberName: string) {

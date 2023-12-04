@@ -1,17 +1,21 @@
 import React, {useState} from 'react';
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
-  TextInput,
   Image,
   Pressable,
 } from 'react-native';
-import GreyArrowDown from '../../../assets/icons/GreyArrowDown.svg';
-import GreyArrowUp from '../../../assets/icons/GreyArrowUp.svg';
-import Screenshot from '../../../assets/icons/Screenshot.svg';
+import GreyArrowDown from '@assets/icons/GreyArrowDown.svg';
+import GreyArrowUp from '@assets/icons/GreyArrowUp.svg';
+import Screenshot from '@assets/icons/Screenshot.svg';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import {
+  NumberlessMediumText,
+  NumberlessRegularText,
+} from '@components/NumberlessText';
+import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import GenericInput from '@components/GenericInput';
 
 const AccordionWithRadio = ({
   sections,
@@ -50,7 +54,9 @@ const AccordionWithRadio = ({
       <TouchableOpacity onPress={toggleAccordion} style={styles.header}>
         <View style={styles.accordionTitleStyles}>
           <Img style={{marginRight: 10}} />
-          <Text style={styles.headerText}>{category}</Text>
+          <NumberlessMediumText style={styles.headerText}>
+            {category}
+          </NumberlessMediumText>
           {expanded ? <GreyArrowUp /> : <GreyArrowDown />}
         </View>
       </TouchableOpacity>
@@ -63,39 +69,64 @@ const AccordionWithRadio = ({
                 onPress={() => setSelected(section)}
                 style={styles.sectionStyles}
                 key={section.index}>
-                <Text style={styles.sectionTextStyles}>{content}</Text>
+                <NumberlessRegularText style={styles.sectionTextStyles}>
+                  {content}
+                </NumberlessRegularText>
                 <RadioButton selected={selected.index === index} />
               </Pressable>
             );
           })}
         </View>
       )}
-      <TextInput
-        textAlign="left"
-        textAlignVertical="top"
-        style={styles.input}
-        placeholder="Enter issue here"
-        onChangeText={value => {
+
+      <GenericInput
+        wrapperStyle={{
+          height: screen.height / 4,
+          marginBottom: 20,
+          marginTop: 0,
+          paddingHorizontal: '5%',
+        }}
+        inputStyle={{
+          ...FontSizes[15].regular,
+          paddingLeft: 15,
+          paddingTop: 10,
+          textAlignVertical: 'top',
+          borderRadius: 12,
+        }}
+        maxLength={350}
+        multiline={true}
+        text={reviewText}
+        setText={value => {
           setReviewText(value);
           setError('');
         }}
-        value={reviewText}
+        placeholder="Enter issue here"
+        alignment="left"
+        showLimit={true}
       />
 
       <View style={styles.screenshot}>
         {image ? (
           <>
-            <Text onPress={openImageGallery} style={styles.screenshotText}>
-              Attached Screenshot. Click to change
-            </Text>
+            <NumberlessRegularText style={styles.screenshotText}>
+              Attached Screenshot.{' '}
+              <NumberlessRegularText
+                style={[
+                  styles.screenshotText,
+                  {textDecorationLine: 'underline'},
+                ]}
+                onPress={openImageGallery}>
+                Click to change
+              </NumberlessRegularText>
+            </NumberlessRegularText>
             <Image style={styles.selectedImage} source={{uri: image}} />
           </>
         ) : (
           <>
-            <Text style={styles.screenshotText}>
+            <NumberlessRegularText style={styles.screenshotText}>
               Do you wish to attach a screenshot?
-            </Text>
-            <Screenshot onPress={openImageGallery} />
+            </NumberlessRegularText>
+            <Screenshot style={{top: -7}} onPress={openImageGallery} />
           </>
         )}
       </View>
@@ -129,9 +160,8 @@ const styles = StyleSheet.create({
   },
   screenshotText: {
     width: '90%',
+    ...FontSizes[12].regular,
     alignSelf: 'center',
-    fontWeight: '400',
-    fontSize: 14,
     marginBottom: 15,
     color: '#868686',
   },
@@ -144,21 +174,17 @@ const styles = StyleSheet.create({
   input: {
     width: '90%',
     height: 150,
-    alignSelf: 'center',
-    backgroundColor: '#F9F9F9',
     marginBottom: 20,
-    borderRadius: 16,
     paddingLeft: 15,
   },
 
   headerText: {
-    fontSize: 15,
-    fontWeight: '600',
+    ...FontSizes[15].medium,
     width: '90%',
     color: 'black',
   },
   content: {
-    paddingTop: 25,
+    paddingTop: 5,
     backgroundColor: 'white',
   },
   sectionStyles: {
@@ -168,8 +194,6 @@ const styles = StyleSheet.create({
   },
   sectionTextStyles: {
     width: '85%',
-    fontSize: 14,
-    fontWeight: '400',
     marginBottom: 20,
     marginLeft: 20,
     color: 'black',
@@ -183,7 +207,7 @@ const RadioButton = ({selected}) => (
       height: 20,
       borderRadius: 10,
       borderWidth: 2,
-      borderColor: '#547CEF',
+      borderColor: PortColors.primary.blue.app,
       justifyContent: 'center',
       alignItems: 'center',
     }}>
@@ -193,7 +217,7 @@ const RadioButton = ({selected}) => (
           width: 10,
           height: 10,
           borderRadius: 5,
-          backgroundColor: '#547CEF',
+          backgroundColor: PortColors.primary.blue.app,
         }}
       />
     )}

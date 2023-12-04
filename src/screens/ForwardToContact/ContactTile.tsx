@@ -3,10 +3,10 @@
  */
 import React, {useState} from 'react';
 import {Image, Pressable, StyleSheet} from 'react-native';
-import {NumberlessMediumText} from '../../components/NumberlessText';
+import {NumberlessMediumText} from '@components/NumberlessText';
 import CheckBox from '@react-native-community/checkbox';
-import {ConnectionInfo} from '../../utils/Connections/interfaces';
-import DefaultImage from '../../../assets/avatars/avatar.png';
+import {ConnectionInfo} from '@utils/Connections/interfaces';
+import DefaultImage from '@assets/avatars/avatar.png';
 
 export default function ContactTile({
   member,

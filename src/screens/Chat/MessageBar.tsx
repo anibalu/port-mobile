@@ -6,7 +6,7 @@ import {
   default as VideoIcon,
 } from '@assets/icons/image.svg';
 import Plus from '@assets/icons/plus.svg';
-import {isIOS, screen} from '@components/ComponentUtils';
+import {FontSizes, isIOS, screen} from '@components/ComponentUtils';
 import {NumberlessMediumText} from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
 import {extractMemberInfo} from '@utils/Groups';
@@ -14,7 +14,7 @@ import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {sendMessage} from '@utils/Messaging/sendMessage';
 import {FileAttributes} from '@utils/Storage/sharedFile';
 import {wait} from '@utils/Time';
-import React, {memo, useEffect, useState} from 'react';
+import React, {memo, useState} from 'react';
 import {
   KeyboardAvoidingView,
   Pressable,
@@ -58,10 +58,6 @@ const MessageBar = ({
   const [isFocused, setIsFocused] = useState(false);
   const [isPopUpVisible, setPopUpVisible] = useState(false);
 
-  useEffect(() => {
-    console.log('Opbecjt is: ', replyTo);
-  }, [replyTo]);
-
   const togglePopUp = () => {
     setPopUpVisible(!isPopUpVisible);
   };
@@ -71,7 +67,7 @@ const MessageBar = ({
   const onPressed = async () => {
     await wait(300);
     if (listLen > 1) {
-      flatlistRef.current.scrollToEnd();
+      flatlistRef.current.scrollToOffset({animated: true, offset: 0});
     }
   };
   const sendText = async () => {
@@ -196,6 +192,7 @@ const MessageBar = ({
   return (
     <KeyboardAvoidingView
       behavior={isIOS ? 'padding' : 'height'}
+      keyboardVerticalOffset={isIOS ? 44 : undefined}
       style={styles.main}>
       {isPopUpVisible ? (
         <View style={styles.aggregateContainer}>
@@ -306,7 +303,10 @@ const MessageBar = ({
             <View style={{width: inputTextBarWidth}}>
               <View style={styles.textBox}>
                 <TextInput
-                  style={styles.inputText}
+                  style={StyleSheet.compose(
+                    styles.inputText,
+                    isIOS ? {paddingTop: 15} : {},
+                  )}
                   multiline={true}
                   placeholder={isFocused ? '' : 'Type your message here'}
                   placeholderTextColor="#BABABA"
@@ -405,7 +405,6 @@ const styles = StyleSheet.create({
   main: {
     width: '100%',
     flexDirection: 'column',
-    marginBottom: isIOS ? 20 : 0,
   },
   aggregateContainer: {
     flexDirection: 'column',
@@ -466,8 +465,7 @@ const styles = StyleSheet.create({
     maxHeight: 110,
     minHeight: 50,
     color: '#000000',
-    fontSize: 15,
-    fontFamily: 'Rubik-Regular',
+    ...FontSizes[15].regular,
     backgroundColor: '#F9F9F9',
     borderRadius: 8,
     paddingLeft: 5,

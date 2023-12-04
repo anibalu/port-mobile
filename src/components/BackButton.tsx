@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
 } from 'react-native';
-import Back from '../../assets/navigation/backButton.svg';
+import Back from '@assets/navigation/backButton.svg';
 
 export const BackButton: React.FC<TouchableOpacityProps> = ({
   onPress,

@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {FlatList, Pressable, StyleSheet, Text, View} from 'react-native';
-import {getTimeAndDateStamp} from '../../utils/Time';
+import {getTimeAndDateStamp} from '@utils/Time';
 
-import {GeneratedDirectConnectionBundle} from '../../utils/Bundles/interfaces';
-import {NumberlessRegularText} from '../../components/NumberlessText';
+import {GeneratedDirectConnectionBundle} from '@utils/Bundles/interfaces';
+import {NumberlessRegularText} from '@components/NumberlessText';
 import AGAccordion from './AGAccordion';
-//import AGIcon from '../../../assets/icons/AGIcon.svg';
-import {loadGeneratedSuperports} from '../../utils/Bundles/directSuperport';
+//import AGIcon from '@../assets/icons/AGIcon.svg';
+import {loadGeneratedSuperports} from '@utils/Bundles/directSuperport';
 import {useNavigation} from '@react-navigation/native';
 
 export default function ActiveSuperports() {

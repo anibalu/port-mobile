@@ -1,21 +1,25 @@
-import React from 'react';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
-import MessageBubble from './MessageBubble';
-import {FlatList} from 'react-native';
 import {checkDateBoundary} from '@utils/Time';
+import React from 'react';
+import {FlatList} from 'react-native-bidirectional-infinite-scroll';
+import MessageBubble from './MessageBubble';
 
 function ChatList({
   messages,
-  flatList,
+  allowScrollToTop,
+  flatlistRef,
   selectedMessages,
   handlePress,
   handleLongPress,
+  onStartReached,
   isGroupChat,
   groupInfo,
 }: {
   messages: SavedMessageParams[];
-  flatList: any;
+  flatlistRef: any;
+  allowScrollToTop: boolean;
   selectedMessages: string[];
+  onStartReached: any;
   handlePress: any;
   handleLongPress: any;
   isGroupChat: boolean;
@@ -29,20 +33,14 @@ function ChatList({
     item: SavedMessageParams;
     index: number;
   }) => {
-    let isDateBoundary = false;
-    if (index === 0) {
-      isDateBoundary = true;
-    } else {
-      const previousItem = messages[index - 1];
-      isDateBoundary = checkDateBoundary(
-        item.timestamp,
-        previousItem.timestamp,
-      );
-    }
-
     if (item.data?.deleted) {
-      return <></>;
+      return null;
     }
+    const isDateBoundary =
+      index >= messages.length - 1
+        ? true
+        : checkDateBoundary(item.timestamp, messages[index + 1].timestamp);
+
     return (
       <MessageBubble
         message={item}
@@ -55,20 +53,29 @@ function ChatList({
       />
     );
   };
+
   return (
     <FlatList
       data={messages}
       renderItem={renderMessage}
+      inverted
+      ref={flatlistRef}
       keyExtractor={message => message.messageId}
-      ref={flatList}
-      onContentSizeChange={() => {
-        //initiates a scroll to the end when a new message is sent or recieved
-        if (messages.length > 1) {
-          flatList.current.scrollToEnd({animated: false});
-        }
-      }}
+      enableAutoscrollToTop={allowScrollToTop}
+      onStartReached={async () => {}}
+      onEndReached={onStartReached}
     />
   );
 }
 
 export default ChatList;
+
+// memo(ChatList, (prevProps, nextProps) => {
+//   return (
+//     prevProps.messages !== nextProps.messages &&
+//     prevProps.selectedMessages === nextProps.selectedMessages &&
+//     prevProps.groupInfo === nextProps.groupInfo &&
+//     prevProps.isGroupChat === nextProps.isGroupChat &&
+//     prevProps.allowScrollToTop === nextProps.allowScrollToTop
+//   );
+// });

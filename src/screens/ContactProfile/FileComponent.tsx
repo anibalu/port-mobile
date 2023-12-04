@@ -1,8 +1,8 @@
 import React from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import PDF from '../../../assets/icons/PDF.svg';
-import {NumberlessBoldText} from '../../components/NumberlessText';
-import {getDateStamp} from '../../utils/Time';
+import PDF from '@assets/icons/PDF.svg';
+import {NumberlessBoldText} from '@components/NumberlessText';
+import {getDateStamp} from '@utils/Time';
 import FileViewer from 'react-native-file-viewer';
 
 export default function FileComponent({media}) {

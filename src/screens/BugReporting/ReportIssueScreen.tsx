@@ -3,9 +3,8 @@ import {
   View,
   StyleSheet,
   Text,
-  Pressable,
-  Modal,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import AccordionWithRadio from './AccordionWithRadio';
 import {Submitted} from './Submitted';
@@ -16,7 +15,9 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
+import GenericModal from '@components/GenericModal';
 import {SafeAreaView} from '@components/SafeAreaView';
+import {GenericButton} from '@components/GenericButton';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ReportIssueScreen'>;
 
@@ -75,42 +76,52 @@ export default function ReportIssueScreen({navigation, route}: Props) {
           navigation.goBack();
         }}
       />
-      <View style={styles.container}>
-        <AccordionWithRadio
-          category={category}
-          sections={sections}
-          selected={selected}
-          setSelected={setSelected}
-          setReviewText={setReviewText}
-          reviewText={reviewText}
-          image={image}
-          setImage={setImage}
-          Img={Img}
-          setError={setError}
-        />
-        {error !== '' && (
-          <NumberlessRegularText style={styles.error}>
-            {error}
-          </NumberlessRegularText>
-        )}
-      </View>
-      <Pressable
-        style={styles.button}
-        onPress={() => {
-          sendBugReport(category, selected.content, reviewText, [image]);
+      <ScrollView
+        automaticallyAdjustKeyboardInsets={true}
+        contentContainerStyle={{alignItems: 'center', flex: 1}}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          <AccordionWithRadio
+            category={category}
+            sections={sections}
+            selected={selected}
+            setSelected={setSelected}
+            setReviewText={setReviewText}
+            reviewText={reviewText}
+            image={image}
+            setImage={setImage}
+            Img={Img}
+            setError={setError}
+          />
+          {error !== '' && (
+            <NumberlessRegularText style={styles.error}>
+              {error}
+            </NumberlessRegularText>
+          )}
+        </View>
+
+        <GenericButton
+          onPress={() => {
+            sendBugReport(category, selected.content, reviewText, [image]);
+          }}
+          buttonStyle={{
+            height: 70,
+            width: '90%',
+            position: 'absolute',
+            bottom: 15,
+          }}>
+          {loadingContent}
+        </GenericButton>
+      </ScrollView>
+
+      <GenericModal
+        visible={openModal}
+        position="center"
+        onClose={() => {
+          setOpenModal(p => !p);
         }}>
-        {loadingContent}
-      </Pressable>
-      <Modal animationType="none" visible={openModal} transparent={true}>
-        <Pressable style={styles.popUpArea}>
-          <Pressable style={styles.popupPosition}>
-            <Submitted
-              setOpenModal={setOpenModal}
-              isModalError={isModalError}
-            />
-          </Pressable>
-        </Pressable>
-      </Modal>
+        <Submitted setOpenModal={setOpenModal} isModalError={isModalError} />
+      </GenericModal>
     </SafeAreaView>
   );
 }
@@ -155,13 +166,4 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     overflow: 'hidden',
   },
-  popUpArea: {
-    backgroundColor: '#0005',
-    width: '100%',
-    height: '100%',
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  popupPosition: {},
 });

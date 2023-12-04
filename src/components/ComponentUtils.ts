@@ -18,6 +18,7 @@ export const PortColors = {
     yellow: {
       dull: '#FEB95A',
     },
+    success: '#6FC960',
   },
 };
 
@@ -45,6 +46,10 @@ export const FontSizes = {
   17: {
     bold: {
       fontFamily: 'Rubik-Bold',
+      fontSize: 17,
+    },
+    semibold: {
+      fontFamily: 'Rubik-Semibold',
       fontSize: 17,
     },
     medium: {

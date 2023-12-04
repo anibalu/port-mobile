@@ -28,7 +28,7 @@ function Welcome({navigation}: Props) {
         <Logo height={175} style={styles.logo} />
       </View>
       <GenericButton
-        onPress={() => navigation.navigate('RequestPermissions')}
+        onPress={() => navigation.navigate('NameScreen')}
         textStyle={styles.buttonText}
         buttonStyle={styles.button}>
         Get started

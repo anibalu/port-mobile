@@ -2,8 +2,7 @@ import axios from 'axios';
 import {getToken} from '../ServerAuth';
 import {QUEUE_GET_URL} from '../../configs/api';
 import {ServerAuthToken} from '../ServerAuth/interfaces';
-import {receiveGroupMessage} from './receiveGroupMessage';
-import {receiveDirectMessage} from './receiveDirectMessage';
+import {receiveMessage} from './receiveMessage';
 
 /**
  * Pull messages from the backlog and process them
@@ -15,12 +14,8 @@ export default async function pullBacklog() {
   ).data;
   for (const message of messages) {
     //TODO: This needs to be removed in a future refactor
-    const parsed = {data: JSON.parse(message), sentTime: Date.now()};
-    console.log('parsed: ', parsed);
-    if (parsed.data.group) {
-      return await receiveGroupMessage(parsed);
-    } else {
-      return await receiveDirectMessage(parsed);
-    }
+    console.log('raw message: ', message);
+    const firstParse = JSON.parse(message);
+    await receiveMessage({data: firstParse});
   }
 }

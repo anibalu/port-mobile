@@ -5,15 +5,15 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import Avatar from '../../../../assets/avatars/avatar1.svg';
-import {NumberlessRegularText} from '../../../components/NumberlessText';
-import ProgressBar from '../../../components/ProgressBar';
-import {SafeAreaView} from '../../../components/SafeAreaView';
-import {AppStackParamList} from '../../../navigation/AppStackTypes';
-import {getInitialGroupConnectionLinks} from '../../../utils/ConnectionLinks/group';
-import {addNewGroup, attemptNewGroup} from '../../../utils/Groups';
-import {GroupInfo} from '../../../utils/Groups/interfaces';
-import {generateISOTimeStamp} from '../../../utils/Time';
+import Avatar from '@assets/avatars/avatar1.svg';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import ProgressBar from '@components/ProgressBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import {getInitialGroupConnectionLinks} from '@utils/ConnectionLinks/group';
+import {addNewGroup, attemptNewGroup} from '@utils/Groups';
+import {GroupInfo} from '@utils/Groups/interfaces';
+import {generateISOTimeStamp} from '@utils/Time';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SetupGroup'>;
 

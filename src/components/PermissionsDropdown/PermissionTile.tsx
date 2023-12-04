@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {NumberlessRegularText} from '../NumberlessText';
+import {NumberlessRegularText} from '@components/NumberlessText';
 import ToggleSwitch from 'toggle-switch-react-native';
-import {getConnection, updateConnection} from '../../utils/Connections';
+import {getConnection, updateConnection} from '@utils/Connections';
 
 export default function PermissionTile(props: {
   permissionValue: string;

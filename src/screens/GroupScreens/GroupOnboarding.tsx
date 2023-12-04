@@ -1,9 +1,15 @@
 import BackTopbar from '@components/BackTopBar';
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import GroupsImage from '@assets/backgrounds/groups.svg';
 import {SafeAreaView} from '@components/SafeAreaView';
+import {
+  NumberlessRegularText,
+  NumberlessSemiBoldText,
+} from '@components/NumberlessText';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {GenericButton} from '@components/GenericButton';
 
 // start point of groups
 const GroupOnboarding = () => {
@@ -12,16 +18,26 @@ const GroupOnboarding = () => {
     <SafeAreaView style={style.container}>
       <BackTopbar />
       <View style={style.mainContainer}>
-        <Text style={style.title}>Welcome to groups</Text>
-        <GroupsImage width="100%" height="65%" />
-        <Text style={style.subtitle}>
-          Build your tribe with Groups with fun control options
-        </Text>
-        <Pressable
-          style={style.button}
-          onPress={() => navigation.navigate('NewGroup')}>
-          <Text style={style.buttonText}> Create Now</Text>
-        </Pressable>
+        <ScrollView style={style.scroll} showsVerticalScrollIndicator={false}>
+          <NumberlessSemiBoldText style={style.title}>
+            Welcome to groups
+          </NumberlessSemiBoldText>
+          <GroupsImage />
+          <NumberlessRegularText style={style.subtitle}>
+            Build your tribe with Groups with fun control options
+          </NumberlessRegularText>
+
+          <GenericButton
+            onPress={() => navigation.navigate('NewGroup')}
+            buttonStyle={{
+              width: '100%',
+              top: 0,
+              marginTop: 10,
+              height: 70,
+            }}>
+            Create Now
+          </GenericButton>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
@@ -33,37 +49,42 @@ const style = StyleSheet.create({
     width: '100%',
     backgroundColor: 'white',
     height: '100%',
-    flex: 1,
     flexDirection: 'column',
+  },
+  scroll: {
+    height: '110%',
+    width: '100%',
   },
   container: {
     height: '100%',
-    flex: 1,
     flexDirection: 'column',
+    backgroundColor: 'red',
+  },
+  image: {
+    width: '100%',
+    height: '65%',
   },
   title: {
-    fontWeight: '700',
-    fontSize: 24,
-    alignSelf: 'center',
-    color: '#547CEF',
+    ...FontSizes[24].bold,
+    textAlign: 'center',
+    color: PortColors.primary.blue.app,
     marginBottom: 25,
   },
   subtitle: {
-    fontWeight: '400',
-    fontSize: 17,
-    alignSelf: 'center',
-    color: '#ACACAC',
-    marginBottom: 30,
+    ...FontSizes[17].regular,
+    textAlign: 'center',
+    marginTop: 20,
+    color: PortColors.primary.grey.medium,
   },
   button: {
     backgroundColor: '#547CEF',
     height: 70,
     borderRadius: 16,
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 30,
     alignSelf: 'center',
     position: 'absolute',
-    bottom: 15,
+    bottom: 30,
     width: '100%',
   },
   buttonText: {

@@ -1,31 +1,25 @@
-import React, {useState, useEffect} from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 //svg imports
-import Scan from '../../../../assets/icons/Scan.svg';
-import ShareIcon from '../../../../assets/icons/Share.svg';
-import Logo from '../../../../assets/icons/Logo.svg';
-import Refresh from '../../../../assets/icons/Refresh.svg';
-import Nfc from '../../../../assets/icons/nfc.svg';
-//store import
-import store from '../../../store/appStore';
+import Logo from '@assets/icons/Logo.svg';
+import Refresh from '@assets/icons/Refresh.svg';
+import Scan from '@assets/icons/Scan.svg';
+import ShareIcon from '@assets/icons/Share.svg';
+import Nfc from '@assets/icons/nfc.svg';
 //component imports
 import {
   NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
-} from '../../../components/NumberlessText';
+} from '@components/NumberlessText';
+import {generateGroupConnectionBundle} from '@utils/Bundles/group';
+import {convertBundleToLink} from '@utils/DeepLinking';
 import Share from 'react-native-share';
-import {generateGroupConnectionBundle} from '../../../utils/Bundles/group';
-import {convertBundleToLink} from '../../../utils/DeepLinking';
 import Toast from 'react-native-toast-message';
+import {screen} from '@components/ComponentUtils';
+import {useSelector} from 'react-redux';
 
 function ConnectionDisplay({groupId}: {groupId: string}) {
   const navigation = useNavigation();
@@ -33,8 +27,7 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
   const [generate, setGenerate] = useState(0);
   const [bundleGenError, setBundleGenError] = useState(false);
   const [qrCodeData, setQRCodeData] = useState<string>('');
-  const [storeChange, setStoreChange] = useState(0);
-  const viewWidth = Dimensions.get('window').width;
+  const latestNewConnection = useSelector(state => state.latestNewConnection);
 
   //initial effect that generates initial connection bundle and displays it.
   useEffect(() => {
@@ -84,30 +77,37 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const unsubscribe = store.subscribe(() => {
-        setStoreChange(storeChange + 1);
-      });
-      // Clean up the subscription when the screen loses focus
-      return () => {
-        unsubscribe();
-      };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const unsubscribe = store.subscribe(() => {
+  //       setStoreChange(storeChange + 1);
+  //     });
+  //     // Clean up the subscription when the screen loses focus
+  //     return () => {
+  //       unsubscribe();
+  //     };
+  //     // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   }, []),
+  // );
   //navigates to home if a qr is scanned while on new connection screen and device is connected to the internet.
-  useFocusEffect(
-    React.useCallback(() => {
-      const state = store.getState();
-      // generate new qr code if a member successfully gets added to the group.
-      if (state.latestNewConnection.chatId === groupId) {
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const state = store.getState();
+  //     // generate new qr code if a member successfully gets added to the group.
+  //     if (state.latestNewConnection.chatId === groupId) {
+  //       setGenerate(generate + 1);
+  //     }
+  //     // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   }, [storeChange]),
+  // );
+  useEffect(() => {
+    if (latestNewConnection) {
+      if (latestNewConnection.chatId === groupId) {
         setGenerate(generate + 1);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [storeChange]),
-  );
-
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestNewConnection]);
   return (
     <View style={styles.container}>
       <NumberlessMediumText style={styles.cardTitleText}>
@@ -116,8 +116,8 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
       <View
         style={{
           flexDirection: 'column',
-          width: viewWidth * 0.5,
-          height: viewWidth * 0.5,
+          width: screen.width * 0.5,
+          height: screen.width * 0.5,
         }}>
         {isLoadingBundle ? (
           <View style={styles.qrBox}>
@@ -133,9 +133,12 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
               </NumberlessItalicText>
             ) : (
               <View style={styles.qrBox}>
-                <QRCode value={qrCodeData} size={viewWidth * 0.5} />
+                <QRCode value={qrCodeData} size={screen.width * 0.5} />
                 <View style={styles.logoBox}>
-                  <Logo width={viewWidth * 0.08} height={viewWidth * 0.08} />
+                  <Logo
+                    width={screen.width * 0.08}
+                    height={screen.width * 0.08}
+                  />
                 </View>
               </View>
             )}
@@ -149,7 +152,7 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
           <View
             style={{
               flexDirection: 'column',
-              width: viewWidth * 0.6,
+              width: screen.width * 0.6,
               marginTop: 20,
             }}>
             <View style={styles.labelInput}>
@@ -178,7 +181,7 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
           <Pressable
             style={styles.button}
             onPress={() => {
-              navigation.navigate('HomeTab', {screen: 'Scanner'});
+              navigation.navigate('HomeTab', {screen: 'ScanTab'});
             }}>
             <Scan width={24} height={24} />
             <NumberlessRegularText style={styles.buttonText}>

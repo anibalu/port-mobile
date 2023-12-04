@@ -13,11 +13,7 @@ import {
   SendMessageParamsStrict,
 } from './interfaces';
 import {generateISOTimeStamp} from '../Time';
-import {
-  saveMessage,
-  updateMessage,
-  updateMessageSendStatus,
-} from '../Storage/messages';
+import * as storage from '../Storage/messages';
 import {DownloadParams, uploadLargeFile} from './largeData';
 import {
   copyToFilesDir,
@@ -30,6 +26,7 @@ import {getConnection, updateConnectionOnNewMessage} from '../Connections';
 import {ConnectionType, ReadStatus} from '../Connections/interfaces';
 import store from '../../store/appStore';
 import {getJournaled} from '../Storage/journal';
+import uuid from 'react-native-uuid';
 
 /**
  * The function used to send messages. The send operation has the following flow:
@@ -111,10 +108,10 @@ async function journalingFailedActions(
   message: SendMessageParamsStrict,
 ) {
   //remove message Id from sending store
-  store.dispatch({
-    type: 'REMOVE_FROM_SENDING',
-    payload: {chatId: chatId, messageId: message.messageId},
-  });
+  // store.dispatch({
+  //   type: 'REMOVE_FROM_SENDING',
+  //   payload: {chatId: chatId, messageId: message.messageId},
+  // });
   //update send status in storage
   await updateMessageSendStatus(
     chatId,
@@ -132,10 +129,10 @@ async function sendTextMessage(
   isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //add messageId (with sender prefix) to sending queue on store
-  store.dispatch({
-    type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: message.messageId},
-  });
+  // store.dispatch({
+  //   type: 'ADD_TO_SENDING',
+  //   payload: {chatId: chatId, messageId: message.messageId},
+  // });
   const savedMessage: SavedMessageParams = {
     ...message,
     messageId: message.messageId,
@@ -165,13 +162,13 @@ async function sendTextMessage(
       true,
     );
     //remove messageId from store
-    store.dispatch({
-      type: 'REMOVE_FROM_SENDING',
-      payload: {
-        chatId: chatId,
-        messageId: message.messageId,
-      },
-    });
+    // store.dispatch({
+    //   type: 'REMOVE_FROM_SENDING',
+    //   payload: {
+    //     chatId: chatId,
+    //     messageId: message.messageId,
+    //   },
+    // });
     //update connection properties
     await updateConnectionOnNewMessage({
       chatId: chatId,
@@ -186,13 +183,13 @@ async function sendTextMessage(
     //if fails, save to journal (if journaling is ON), update connection
     if (!journal) {
       //remove message Id from sending store
-      store.dispatch({
-        type: 'REMOVE_FROM_SENDING',
-        payload: {
-          chatId: chatId,
-          messageId: message.messageId,
-        },
-      });
+      // store.dispatch({
+      //   type: 'REMOVE_FROM_SENDING',
+      //   payload: {
+      //     chatId: chatId,
+      //     messageId: message.messageId,
+      //   },
+      // });
       return {sendStatus: SendStatus.failed, message: message};
     }
     const journaledMessage: JournaledMessageParams = {
@@ -217,13 +214,13 @@ async function sendTextMessage(
         recentMessageType: journaledMessage.contentType,
       });
       //remove message Id from sending store
-      store.dispatch({
-        type: 'REMOVE_FROM_SENDING',
-        payload: {
-          chatId: chatId,
-          messageId: message.messageId,
-        },
-      });
+      // store.dispatch({
+      //   type: 'REMOVE_FROM_SENDING',
+      //   payload: {
+      //     chatId: chatId,
+      //     messageId: message.messageId,
+      //   },
+      // });
       return {sendStatus: SendStatus.journaled, message: journaledMessage};
     } catch (error) {
       console.log('Journaling failed: ', error);
@@ -238,10 +235,10 @@ async function sendHandshakeDirectMessage(
   journal: boolean = true,
 ): Promise<SendMessageOutput> {
   //add messageId (with sender prefix) to sending queue on store
-  store.dispatch({
-    type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: message.messageId},
-  });
+  // store.dispatch({
+  //   type: 'ADD_TO_SENDING',
+  //   payload: {chatId: chatId, messageId: message.messageId},
+  // });
   const savedMessage: SavedMessageParams = {
     ...message,
     messageId: message.messageId,
@@ -271,26 +268,26 @@ async function sendHandshakeDirectMessage(
       true,
     );
     //remove messageId from store
-    store.dispatch({
-      type: 'REMOVE_FROM_SENDING',
-      payload: {
-        chatId: chatId,
-        messageId: message.messageId,
-      },
-    });
+    // store.dispatch({
+    //   type: 'REMOVE_FROM_SENDING',
+    //   payload: {
+    //     chatId: chatId,
+    //     messageId: message.messageId,
+    //   },
+    // });
     //return success status.
     return {sendStatus: SendStatus.success, message: savedMessage};
   } catch (error) {
     //if fails, save to journal (if journaling is ON), update connection
     if (!journal) {
       //remove message Id from sending store
-      store.dispatch({
-        type: 'REMOVE_FROM_SENDING',
-        payload: {
-          chatId: chatId,
-          messageId: message.messageId,
-        },
-      });
+      // store.dispatch({
+      //   type: 'REMOVE_FROM_SENDING',
+      //   payload: {
+      //     chatId: chatId,
+      //     messageId: message.messageId,
+      //   },
+      // });
       return {sendStatus: SendStatus.failed, message: message};
     }
     const journaledMessage: JournaledMessageParams = {
@@ -308,13 +305,13 @@ async function sendHandshakeDirectMessage(
         true,
       );
       //remove message Id from sending store
-      store.dispatch({
-        type: 'REMOVE_FROM_SENDING',
-        payload: {
-          chatId: chatId,
-          messageId: message.messageId,
-        },
-      });
+      // store.dispatch({
+      //   type: 'REMOVE_FROM_SENDING',
+      //   payload: {
+      //     chatId: chatId,
+      //     messageId: message.messageId,
+      //   },
+      // });
       return {sendStatus: SendStatus.journaled, message: journaledMessage};
     } catch (error) {
       console.log('Journaling failed: ', error);
@@ -331,10 +328,10 @@ async function sendNameMessage(
   isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //add messageId (with sender prefix) to sending queue on store
-  store.dispatch({
-    type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: message.messageId},
-  });
+  // store.dispatch({
+  //   type: 'ADD_TO_SENDING',
+  //   payload: {chatId: chatId, messageId: message.messageId},
+  // });
   const savedMessage: SavedMessageParams = {
     ...message,
     messageId: message.messageId,
@@ -364,26 +361,26 @@ async function sendNameMessage(
       true,
     );
     //remove messageId from store
-    store.dispatch({
-      type: 'REMOVE_FROM_SENDING',
-      payload: {
-        chatId: chatId,
-        messageId: message.messageId,
-      },
-    });
+    // store.dispatch({
+    //   type: 'REMOVE_FROM_SENDING',
+    //   payload: {
+    //     chatId: chatId,
+    //     messageId: message.messageId,
+    //   },
+    // });
     //return success status.
     return {sendStatus: SendStatus.success, message: savedMessage};
   } catch (error) {
     //if fails, save to journal (if journaling is ON), update connection
     if (!journal) {
       //remove message Id from sending store
-      store.dispatch({
-        type: 'REMOVE_FROM_SENDING',
-        payload: {
-          chatId: chatId,
-          messageId: message.messageId,
-        },
-      });
+      // store.dispatch({
+      //   type: 'REMOVE_FROM_SENDING',
+      //   payload: {
+      //     chatId: chatId,
+      //     messageId: message.messageId,
+      //   },
+      // });
       return {sendStatus: SendStatus.failed, message: message};
     }
     const journaledMessage: JournaledMessageParams = {
@@ -401,13 +398,13 @@ async function sendNameMessage(
         true,
       );
       //remove message Id from sending store
-      store.dispatch({
-        type: 'REMOVE_FROM_SENDING',
-        payload: {
-          chatId: chatId,
-          messageId: message.messageId,
-        },
-      });
+      // store.dispatch({
+      //   type: 'REMOVE_FROM_SENDING',
+      //   payload: {
+      //     chatId: chatId,
+      //     messageId: message.messageId,
+      //   },
+      // });
       return {sendStatus: SendStatus.journaled, message: journaledMessage};
     } catch (error) {
       console.log('Journaling failed: ', error);
@@ -424,10 +421,10 @@ async function sendMediaMessage(
   isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //add messageId (with sender prefix) to sending queue on store
-  store.dispatch({
-    type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: message.messageId},
-  });
+  // store.dispatch({
+  //   type: 'ADD_TO_SENDING',
+  //   payload: {chatId: chatId, messageId: message.messageId},
+  // });
   //two cases:
   //1. mediaId created
   if (message.data.mediaId !== null && message.data.mediaId !== undefined) {
@@ -488,10 +485,10 @@ async function sendFileMessage(
   isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
   //add messageId (with sender prefix) to sending queue on store
-  store.dispatch({
-    type: 'ADD_TO_SENDING',
-    payload: {chatId: chatId, messageId: message.messageId},
-  });
+  // store.dispatch({
+  //   type: 'ADD_TO_SENDING',
+  //   payload: {chatId: chatId, messageId: message.messageId},
+  // });
   //two cases:
   //1. mediaId created
   if (message.data.mediaId !== null && message.data.mediaId !== undefined) {
@@ -563,7 +560,12 @@ async function mediaIdExistsActions(
   };
   if (journal) {
     //update message in storage only if not already journaled.
-    await updateMessage(chatId, message.messageId, savedMessage.data, true);
+    await storage.updateMessage(
+      chatId,
+      message.messageId,
+      savedMessage.data,
+      true,
+    );
   }
   //encrypt message
   const ciphertext: string = await encryptMessage(
@@ -582,13 +584,13 @@ async function mediaIdExistsActions(
       true,
     );
     //remove messageId from store
-    store.dispatch({
-      type: 'REMOVE_FROM_SENDING',
-      payload: {
-        chatId: chatId,
-        messageId: message.messageId,
-      },
-    });
+    // store.dispatch({
+    //   type: 'REMOVE_FROM_SENDING',
+    //   payload: {
+    //     chatId: chatId,
+    //     messageId: message.messageId,
+    //   },
+    // });
     if (message.contentType !== ContentType.displayImage) {
       //update connection properties
       await updateConnectionOnNewMessage({
@@ -606,13 +608,13 @@ async function mediaIdExistsActions(
     //if fails, save to journal (only if journaling is ON), update connection
     if (!journal) {
       //remove message Id from sending store
-      store.dispatch({
-        type: 'REMOVE_FROM_SENDING',
-        payload: {
-          chatId: chatId,
-          messageId: message.messageId,
-        },
-      });
+      // store.dispatch({
+      //   type: 'REMOVE_FROM_SENDING',
+      //   payload: {
+      //     chatId: chatId,
+      //     messageId: message.messageId,
+      //   },
+      // });
       return {sendStatus: SendStatus.failed, message: message};
     }
     const journaledMessage: JournaledMessageParams = {
@@ -636,13 +638,13 @@ async function mediaIdExistsActions(
         text: journaledMessage.data.text || '',
       });
       //remove message Id from sending store
-      store.dispatch({
-        type: 'REMOVE_FROM_SENDING',
-        payload: {
-          chatId: chatId,
-          messageId: message.messageId,
-        },
-      });
+      // store.dispatch({
+      //   type: 'REMOVE_FROM_SENDING',
+      //   payload: {
+      //     chatId: chatId,
+      //     messageId: message.messageId,
+      //   },
+      // });
       return {sendStatus: SendStatus.journaled, message: journaledMessage};
     } catch (error) {
       console.log('Journaling failed: ', error);
@@ -684,7 +686,7 @@ async function trySendingMessage(
       {headers: {Authorization: `${token}`}},
     );
   }
-  console.log('messages sent: ', JSON.parse(message));
+  console.log('messages sent successfully: ', JSON.parse(message));
 }
 
 /**
@@ -722,11 +724,37 @@ export async function tryToSendJournaled() {
 }
 
 function generateRandomHexId(): string {
-  const hexChars = '0123456789ABCDEF';
-  let hexId = '';
-  for (let i = 0; i < 32; i++) {
-    const randomIndex = Math.floor(Math.random() * hexChars.length);
-    hexId += hexChars.charAt(randomIndex);
-  }
-  return hexId;
+  // Generate a UUID
+  const uuidv4 = uuid.v4();
+  const hexUUID = uuidv4.toString().replace(/-/g, '');
+  return hexUUID;
+}
+
+async function saveMessage(
+  message: SavedMessageParams,
+  blocking: boolean = true,
+): Promise<void> {
+  await storage.saveMessage(message, blocking);
+  store.dispatch({
+    type: 'NEW_SENT_MESSAGE',
+    payload: message,
+  });
+}
+
+async function updateMessageSendStatus(
+  chatId: string,
+  messageId: string, //with sender prefix
+  updatedStatus: SendStatus,
+  blocking: boolean = true,
+): Promise<void> {
+  await storage.updateMessageSendStatus(
+    chatId,
+    messageId,
+    updatedStatus,
+    blocking,
+  );
+  store.dispatch({
+    type: 'NEW_SEND_STATUS_UPDATE',
+    payload: {chatId: chatId, messageId: messageId, sendStatus: updatedStatus},
+  });
 }

@@ -8,8 +8,8 @@ import ChatTile from '@components/ChatTile/ChatTile';
 import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
 import {useFocusEffect} from '@react-navigation/native';
-import store from '@store/appStore';
-import {getConnections} from '@utils/Connections';
+// import store from '@store/appStore';
+// import {getConnections} from '@utils/Connections';
 import {ConnectionInfo, ReadStatus} from '@utils/Connections/interfaces';
 import {tryToSendJournaled} from '@utils/Messaging/sendMessage';
 import {cancelAllNotifications} from '@utils/Notifications';
@@ -17,6 +17,7 @@ import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import DefaultChatTile from './DefaultChatTile';
 import Topbar from './Topbar';
+import {useSelector} from 'react-redux';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: ConnectionInfo) {
@@ -28,29 +29,31 @@ function renderDefaultTile() {
   return <DefaultChatTile />;
 }
 function Home() {
-  const [connections, setConnections] = useState<Array<ConnectionInfo>>(
-    fetchStoreConnections(),
-  );
+  // const [connections, setConnections] = useState<Array<ConnectionInfo>>(
+  //   fetchStoreConnections(),
+  // );
   const [viewableConnections, setViewableConnections] = useState<
     ConnectionInfo[]
   >([]);
-
+  const connections: ConnectionInfo[] = useSelector(
+    state => state.connections.connections,
+  );
   const [searchText, setSearchText] = useState('');
 
   const [totalUnread, setTotalUnread] = useState<number>(0);
-  function fetchStoreConnections() {
-    const entireState = store.getState();
-    const storeConnections: ConnectionInfo[] =
-      entireState.connections.connections;
-    return storeConnections;
-  }
+  // function fetchStoreConnections() {
+  //   const entireState = store.getState();
+  //   const storeConnections: ConnectionInfo[] =
+  //     entireState.connections.connections;
+  //   return storeConnections;
+  // }
   //focus effect to initial load connections and cancel all notifications when on home screen
   // Also attempt to send unsent messages
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
         await tryToSendJournaled();
-        setConnections(await getConnections());
+        //setConnections(await getConnections());
       })();
       // Cancel all notifications when I land on the home screen
       cancelAllNotifications();
@@ -59,6 +62,8 @@ function Home() {
 
   useEffect(() => {
     setViewableConnections(connections);
+    console.log('changing viewable connections :', viewableConnections);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connections]);
 
   useEffect(() => {
@@ -75,19 +80,19 @@ function Home() {
   }, [searchText]);
 
   //focus effect to reload connection whenever store changes
-  useFocusEffect(
-    React.useCallback(() => {
-      const unsubscribe = store.subscribe(async () => {
-        //sets new connections
-        const newConnections = await getConnections();
-        setConnections(newConnections);
-      });
-      // Clean up the subscription when the screen loses focus
-      return () => {
-        unsubscribe();
-      };
-    }, []),
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const unsubscribe = store.subscribe(async () => {
+  //       //sets new connections
+  //       const newConnections = await getConnections();
+  //       setConnections(newConnections);
+  //     });
+  //     // Clean up the subscription when the screen loses focus
+  //     return () => {
+  //       unsubscribe();
+  //     };
+  //   }, []),
+  // );
 
   //focus effect to load connections from store and count unread connections when home screen is focused
   useFocusEffect(

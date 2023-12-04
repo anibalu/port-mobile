@@ -64,10 +64,10 @@ function SetupUser({route, navigation}: Props) {
   useEffect(() => {
     runActions().then(ret => {
       if (!ret) {
-        navigation.navigate('Onboarding');
+        navigation.navigate('OnboardingStack', {screen: 'PermissionsScreen'});
       } else {
         //ts-ignore
-        navigation.navigate('AppStack', {screen: 'HomeTab'});
+        navigation.navigate('InformationScreen1');
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

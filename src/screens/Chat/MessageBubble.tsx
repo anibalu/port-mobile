@@ -1,15 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {memo, useEffect, useState} from 'react';
 
 import {Image, StyleSheet, View} from 'react-native';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import {NumberlessRegularText} from '../../components/NumberlessText';
-import {DEFAULT_NAME} from '../../configs/constants';
-import {extractMemberInfo} from '../../utils/Groups';
-import {
-  ContentType,
-  SavedMessageParams,
-} from '../../utils/Messaging/interfaces';
-import {createDateBoundaryStamp} from '../../utils/Time';
+import DefaultImage from '@assets/avatars/avatar.png';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import {DEFAULT_NAME} from '@configs/constants';
+import {extractMemberInfo} from '@utils/Groups';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {createDateBoundaryStamp} from '@utils/Time';
 import DataBubble from './BubbleTypes/DataBubble';
 import FileBubble from './BubbleTypes/FileBubble';
 import ImageBubble from './BubbleTypes/ImageBubble';
@@ -67,28 +64,25 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   }, [selected]);
   return (
     <View style={styles.parentContainer}>
-      <View>
-        {isDateBoundary ? (
-          <View style={styles.dateContainer}>
-            <NumberlessRegularText style={styles.dateStamp}>
-              {createDateBoundaryStamp(message.timestamp)}
-            </NumberlessRegularText>
-          </View>
-        ) : (
-          <View />
-        )}
-      </View>
-      <View style={containerType}>
-        <View>
-          {!isDataMessage(message.contentType) &&
-            isGroupChat &&
-            !message.sender && (
-              <Image
-                source={{uri: chooseProfileURI()}}
-                style={styles.displayPicContainer}
-              />
-            )}
+      {isDateBoundary ? (
+        <View style={styles.dateContainer}>
+          <NumberlessRegularText style={styles.dateStamp}>
+            {createDateBoundaryStamp(message.timestamp)}
+          </NumberlessRegularText>
         </View>
+      ) : (
+        <View />
+      )}
+      <View style={containerType}>
+        {!isDataMessage(message.contentType) &&
+          isGroupChat &&
+          !message.sender && (
+            <Image
+              source={{uri: chooseProfileURI()}}
+              style={styles.displayPicContainer}
+            />
+          )}
+
         <View style={blobType}>
           {renderBubbleType(
             message,
@@ -103,6 +97,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     </View>
   );
 };
+
 /**
  * Decides the styling of the container - data, sender or receiver container and blobs
  * @param contentType - message content type
@@ -167,7 +162,6 @@ function isDataMessage(contentType: ContentType) {
   }
   return false;
 }
-
 function renderBubbleType(
   message: SavedMessageParams,
   isGroup: boolean,
@@ -254,7 +248,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#EDEDED',
-    width: '100%',
+    maxWidth: '80%',
     borderRadius: 32,
     padding: 2,
   },
@@ -391,4 +385,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MessageBubble;
+export default memo(MessageBubble, (prevProps, nextProps) => {
+  return (
+    prevProps.message.sendStatus === nextProps.message.sendStatus &&
+    prevProps.selected === nextProps.selected &&
+    prevProps.isDateBoundary === nextProps.isDateBoundary
+  );
+});

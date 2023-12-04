@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Copy from '../../../assets/icons/copy.svg';
-import Delete from '../../../assets/icons/delete.svg';
-import Forward from '../../../assets/icons/forward.svg';
-import Info from '../../../assets/icons/info.svg';
-import Reply from '../../../assets/icons/reply.svg';
-import CustomModal from '../../components/CustomModal';
-import {NumberlessMediumText} from '../../components/NumberlessText';
-import {getMessage, updateMessage} from '../../utils/Storage/messages';
+import Copy from '@assets/icons/copy.svg';
+import Delete from '@assets/icons/delete.svg';
+import Forward from '@assets/icons/forward.svg';
+import Info from '@assets/icons/info.svg';
+import Reply from '@assets/icons/reply.svg';
+import CustomModal from '@components/CustomModal';
+import {NumberlessMediumText} from '@components/NumberlessText';
+import {getMessage, updateMessage} from '@utils/Storage/messages';
 
 export function MessageActionsBar({
   chatId,
@@ -45,12 +45,12 @@ export function MessageActionsBar({
     <View style={styles.parentContainer}>
       <CustomModal
         openCustomModal={openCustomModal}
-        setOpenCustomModal={setOpenCustomModal}
         title={'Delete message'}
         topButton="Delete for me"
         topButtonFunction={performDelete}
         bottomButton="Cancel"
         bottomButtonFunction={() => {
+          console.log('Pressing bro');
           setOpenCustomModal(false);
         }}
       />
@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     padding: 10,
+    paddingBottom: 20,
     backgroundColor: '#FFFFFF',
   },
   singleSelectedContainer: {

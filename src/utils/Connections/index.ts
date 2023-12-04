@@ -132,13 +132,41 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
   };
   await connectionFsSync(synced);
 }
+export async function updateConnectionWithoutPromotion(
+  update: ConnectionInfoUpdate,
+) {
+  const synced = async () => {
+    try {
+      //read current connections from store
+      const entireState = store.getState();
+      let connections: ConnectionInfo[] = entireState.connections.connections;
+      const index: number = connections.findIndex(
+        obj => obj.chatId === update.chatId,
+      );
+      if (index !== -1) {
+        connections[index] = {
+          ...connections[index],
+          ...update,
+        };
+        store.dispatch({
+          type: 'UPDATE_CONNECTION_WITHOUT_PROMOTING',
+          payload: connections[index],
+        });
+      }
+      await storage.updateConnection(update, false);
+    } catch (error) {
+      console.log('Error updating a connection: ', error);
+    }
+  };
+  await connectionFsSync(synced);
+}
 
 /**
  * Toggles a connection as read.
  * @param {string} chatId - connection to toggle read
  */
 export async function toggleRead(chatId: string) {
-  await updateConnection({
+  await updateConnectionWithoutPromotion({
     chatId: chatId,
     newMessageCount: 0,
     readStatus: ReadStatus.read,

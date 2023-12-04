@@ -7,9 +7,10 @@ import EditCameraIcon from '@assets/icons/EditCamera.svg';
 import EditIcon from '@assets/icons/Pencil.svg';
 import BackTopbar from '@components/BackTopBar';
 import ChatBackground from '@components/ChatBackground';
-import {isIOS} from '@components/ComponentUtils';
+import GenericModal from '@components/GenericModal';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
+import UpdateNamePopup from '@components/UpdateNamePopup';
 import {DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -19,20 +20,11 @@ import {
   setNewProfilePicture,
 } from '@utils/Profile';
 import React, {useEffect, useState} from 'react';
-import {
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import ReportIssueModal from '../BugReporting/ReportIssueModal';
 import ActiveSuperports from './ActiveSuperports';
 import PendingContacts from './PendingContacts';
-import NamePopup from './UpdateNamePopup';
-import ReportIssueModal from '../BugReporting/ReportIssueModal';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -140,30 +132,25 @@ function MyProfile({navigation}: Props) {
         <ActiveSuperports />
         <PendingContacts />
       </View>
-      <Modal animationType="none" visible={editingName} transparent={true}>
-        <KeyboardAvoidingView behavior={isIOS ? 'padding' : 'height'}>
-          <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
-            <Pressable style={styles.popupPosition}>
-              <NamePopup setUpdated={setUpdated} initialName={name} />
-            </Pressable>
-          </Pressable>
-        </KeyboardAvoidingView>
-      </Modal>
-      <Modal
-        animationType="none"
+
+      <GenericModal
+        visible={editingName}
+        onClose={() => {
+          setUpdated(p => !p);
+        }}>
+        <UpdateNamePopup setUpdated={setUpdated} initialName={name} />
+      </GenericModal>
+
+      <GenericModal
         visible={reportbugModalOpen}
-        transparent={true}>
-        <Pressable
-          style={styles.popUpArea}
-          onPress={() => setReportBugModalOpen(p => !p)}>
-          <Pressable style={styles.popupPosition}>
-            <ReportIssueModal
-              setReportBugModalOpen={setReportBugModalOpen}
-              reportbugModalOpen={reportbugModalOpen}
-            />
-          </Pressable>
-        </Pressable>
-      </Modal>
+        onClose={() => {
+          setReportBugModalOpen(p => !p);
+        }}>
+        <ReportIssueModal
+          setReportBugModalOpen={setReportBugModalOpen}
+          reportbugModalOpen={reportbugModalOpen}
+        />
+      </GenericModal>
     </SafeAreaView>
   );
 }
@@ -239,13 +226,13 @@ const styles = StyleSheet.create({
     height: 40,
   },
   popUpArea: {
-    backgroundColor: '#0005',
-    width: '100%',
-    height: '100%',
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   popupPosition: {
-    position: 'absolute',
-    bottom: 0,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   updatePicture: {
     width: 40,

@@ -32,7 +32,9 @@ export async function receiveGroupMessage(
     const groupId: string = messageFCM.data.group;
     const senderId: string = messageFCM.data.sender;
     const messageData = messageFCM.data;
-    const sentTime = new Date(messageFCM.sentTime);
+    const sentTime = messageFCM.sentTime
+      ? new Date(messageFCM.sentTime)
+      : new Date();
     const timestamp = sentTime.toISOString();
     if (messageData.content) {
       const firstParse = JSON.parse(messageData.content);
@@ -74,7 +76,7 @@ export async function receiveGroupMessage(
       }
       //regular group message
       const message: SendMessageParamsStrict = JSON.parse(
-        JSON.parse(await decryptMessage(groupId, messageData.content)),
+        await decryptMessage(groupId, messageData.content),
       );
       if (senderId !== 'Numberless') {
         await updateNewMember(groupId, senderId);

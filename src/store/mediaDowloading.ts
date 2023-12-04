@@ -2,7 +2,7 @@
  * A reducer for media currently being downloaded
  */
 
-import {DownloadingMedia} from '../utils/Messaging/interfaces';
+import {DownloadingMedia} from '@utils/Messaging/interfaces';
 
 const initialState: DownloadingMedia = {
   media: [],

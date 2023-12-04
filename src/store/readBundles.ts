@@ -1,8 +1,9 @@
 /**
+ * @deprecated
  * A reducer for read bundles
  */
 
-import {DirectConnectionBundles} from '../utils/Bundles/interfaces';
+import {DirectConnectionBundles} from '@utils/Bundles/interfaces';
 
 const initialState: DirectConnectionBundles = {
   bundles: [],

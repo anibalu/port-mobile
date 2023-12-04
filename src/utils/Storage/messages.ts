@@ -25,17 +25,20 @@ export async function getMessage(
 }
 
 /**
- * reads messages of a chat from storage
+ * reads messages of a chat from storage using pagination
  * @param {string} chatId - chatId of chat
- * @param {boolean} blocking - deprecated, unused value
- * @returns {Promise<DBCalls.MessageEntry[]>} - messages in storage
+ * @param {number} startIndex - index to get the next 'X' messages from.
+ * @returns {Promise<{DBCalls.MessageEntry[],number}>} - messages in storage
  */
-export async function readMessages(
+export async function readPaginatedMessages(
   chatId: string,
-  blocking: boolean = true,
-): Promise<SavedMessageParams[]> {
-  blocking.toString();
-  return await DBCalls.getMessages(chatId);
+  cursor?: number,
+): Promise<{
+  messages: SavedMessageParams[];
+  cursor: number;
+  maxLength: number;
+}> {
+  return await DBCalls.getPaginatedMessages(chatId, cursor);
 }
 
 /**

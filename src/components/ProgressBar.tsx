@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
-import Icon from '../../assets/miscellaneous/progressIcon.svg';
+import Icon from '@assets/miscellaneous/progressIcon.svg';
 
 const ProgressBar = props => {
   const {progress} = props;

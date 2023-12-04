@@ -1,6 +1,5 @@
 import React, {memo} from 'react';
 import {ImageBackground, StyleSheet} from 'react-native';
-import {isIOS} from './ComponentUtils';
 
 const ChatBackground = () => {
   return (
@@ -14,7 +13,7 @@ const ChatBackground = () => {
 const styles = StyleSheet.create({
   background: {
     width: '100%',
-    height: isIOS ? '110%' : '100%',
+    height: '110%',
     position: 'absolute',
     resizeMode: 'cover',
     backgroundColor: '#FFF',

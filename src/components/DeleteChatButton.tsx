@@ -2,7 +2,7 @@ import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {Pressable, StyleSheet} from 'react-native';
 import {NumberlessSemiBoldText} from './NumberlessText';
-import {deleteConnection} from '../utils/Connections';
+import {deleteConnection} from '@utils/Connections';
 
 /**
  * When clicked, deletes the history of the chat and redirects to the home page

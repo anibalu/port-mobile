@@ -1,9 +1,10 @@
 import messaging from '@react-native-firebase/messaging';
 import axios from 'axios';
 import {INITIAL_POST_MANAGEMENT_RESOURCE} from '../../configs/api';
-import store from '../../store/appStore';
+//import store from '../../store/appStore';
 import {getToken} from '../ServerAuth';
-import {receiveMessage} from './receiveMessage';
+//import {receiveMessage} from './receiveMessage';
+import pullBacklog from './pullBacklog';
 
 export const getFCMToken = async () => {
   const token = await messaging().getToken();
@@ -12,19 +13,23 @@ export const getFCMToken = async () => {
 
 export const registerBackgroundMessaging = () => {
   messaging().setBackgroundMessageHandler(async remoteMessage => {
-    await receiveMessage(remoteMessage);
+    if (remoteMessage) {
+    }
+    //await receiveMessage(remoteMessage);
     // console.log("receiving messages");
-    //await pullBacklog();
-    store.dispatch({type: 'NEW_MESSAGE', payload: remoteMessage});
+    await pullBacklog();
+    //store.dispatch({type: 'NEW_RECEIVED_MESSAGE', payload: remoteMessage});
   });
 };
 
 export const foregroundMessageHandler = () => {
   messaging().onMessage(async remoteMessage => {
-    await receiveMessage(remoteMessage);
-    // console.log("receiving messages foreground");
-    //await pullBacklog();
-    store.dispatch({type: 'NEW_MESSAGE', payload: remoteMessage});
+    if (remoteMessage) {
+    }
+    //await receiveMessage(remoteMessage);
+    //console.log('receiving messages foreground: ', remoteMessage);
+    await pullBacklog();
+    //store.dispatch({type: 'NEW_RECEIVED_MESSAGE', payload: remoteMessage});
   });
 };
 

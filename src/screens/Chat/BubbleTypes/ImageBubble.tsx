@@ -12,6 +12,7 @@ import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
 import {getTimeStamp} from '@utils/Time';
 import ImageReplyContainer from '../ReplyContainers/ImageReplyContainer';
 import {PortColors} from '@components/ComponentUtils';
+//import store from '@store/appStore';
 
 export default function ImageBubble({
   message,
@@ -34,11 +35,18 @@ export default function ImageBubble({
       setProfileURI('file://' + message.data.fileUri);
     }
   }, [message]);
+
+  const handleLongPressFunction = () => {
+    handleLongPress(message.messageId);
+  };
+
   return (
     <Pressable
       style={styles.textBubbleContainer}
-      onPress={() => handlePress(message.messageId)}
-      onLongPress={() => handleLongPress(message.messageId)}>
+      onPress={() => {
+        handlePress(message.messageId);
+      }}
+      onLongPress={handleLongPressFunction}>
       {isReply ? (
         <ImageReplyContainer message={message} memberName={memberName} />
       ) : (
@@ -52,6 +60,7 @@ export default function ImageBubble({
             )}
           </View>
           <Pressable
+            onLongPress={handleLongPressFunction}
             onPress={() => {
               FileViewer.open(profileURI, {
                 showOpenWithDialog: true,

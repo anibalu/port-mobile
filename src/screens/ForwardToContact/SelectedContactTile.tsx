@@ -3,10 +3,10 @@
  */
 import React from 'react';
 import {Image, Pressable, StyleSheet, View} from 'react-native';
-import {NumberlessRegularText} from '../../components/NumberlessText';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import {ConnectionInfo} from '../../utils/Connections/interfaces';
-import Plus from '../../../assets/icons/plus.svg';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import DefaultImage from '@assets/avatars/avatar.png';
+import {ConnectionInfo} from '@utils/Connections/interfaces';
+import Plus from '@assets/icons/plus.svg';
 
 export default function SelectedContactTile({
   member,

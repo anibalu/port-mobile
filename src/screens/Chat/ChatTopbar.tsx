@@ -5,6 +5,7 @@ import {PortColors} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
+import {toggleRead} from '@utils/Connections';
 import React from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 
@@ -31,8 +32,9 @@ function ChatTopbar({
       <View style={styles.backAndProfile}>
         <BackButton
           style={styles.backIcon}
-          onPress={() => {
+          onPress={async () => {
             setSelectedMessages([]);
+            await toggleRead(chatId);
             navigation.goBack();
           }}
         />
@@ -74,7 +76,7 @@ function ChatTopbar({
               if (isGroupChat) {
                 navigation.navigate('GroupProfile', {groupId: chatId});
               } else {
-                navigation.navigate('ContactProfile', {chatId});
+                navigation.navigate('ContactProfile', {chatId: chatId});
               }
             }}
           />

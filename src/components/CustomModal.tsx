@@ -1,11 +1,11 @@
+import CrossIcon from '@assets/icons/cross.svg';
 import React from 'react';
-import {Modal, Pressable, StyleSheet, Text} from 'react-native';
-import {View} from 'react-native';
-import CrossIcon from '../../assets/icons/cross.svg';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
+import GenericModal from './GenericModal';
+import {screen} from './ComponentUtils';
 
 function CustomModal({
   openCustomModal,
-  setOpenCustomModal,
   title,
   question,
   description,
@@ -15,7 +15,6 @@ function CustomModal({
   bottomButtonFunction,
 }: {
   openCustomModal: boolean;
-  setOpenCustomModal: any;
   title: string;
   question?: string;
   description?: string;
@@ -25,55 +24,47 @@ function CustomModal({
   bottomButtonFunction: any;
 }) {
   return (
-    <Modal animationType="none" visible={openCustomModal} transparent={true}>
-      <Pressable
-        style={styles.popUpArea}
-        onPress={() => setOpenCustomModal(p => !p)}>
-        <View style={styles.mainContainer}>
-          <View
-            style={{
-              flexDirection: 'row',
-            }}>
-            <Text style={styles.titleStyles}>{title}</Text>
+    <GenericModal
+      visible={openCustomModal}
+      position="center"
+      onClose={bottomButtonFunction}>
+      <View style={styles.mainContainer}>
+        <View
+          style={{
+            flexDirection: 'row',
+          }}>
+          <Text style={styles.titleStyles}>{title}</Text>
+          <Pressable onPress={bottomButtonFunction}>
             <CrossIcon />
-          </View>
-
-          {question != undefined && (
-            <Text style={styles.questionStyles}>{question}</Text>
-          )}
-          {description != undefined && (
-            <Text style={styles.descriptionStyles}>{description}</Text>
-          )}
-
-          <Pressable
-            style={styles.topButtonContainer}
-            onPress={topButtonFunction}>
-            <Text style={styles.topButtonText}>{topButton}</Text>
-          </Pressable>
-          <Pressable
-            style={styles.bottomButtonContainer}
-            onPress={bottomButtonFunction}>
-            <Text style={styles.bottomButtonText}>{bottomButton}</Text>
           </Pressable>
         </View>
-      </Pressable>
-    </Modal>
+
+        {question != undefined && (
+          <Text style={styles.questionStyles}>{question}</Text>
+        )}
+        {description != undefined && (
+          <Text style={styles.descriptionStyles}>{description}</Text>
+        )}
+
+        <Pressable
+          style={styles.topButtonContainer}
+          onPress={topButtonFunction}>
+          <Text style={styles.topButtonText}>{topButton}</Text>
+        </Pressable>
+        <Pressable
+          style={styles.bottomButtonContainer}
+          onPress={bottomButtonFunction}>
+          <Text style={styles.bottomButtonText}>{bottomButton}</Text>
+        </Pressable>
+      </View>
+    </GenericModal>
   );
 }
 
 const styles = StyleSheet.create({
-  popUpArea: {
-    backgroundColor: '#0005',
-    width: '100%',
-    height: '100%',
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  popupPosition: {},
   mainContainer: {
     backgroundColor: 'white',
-    width: '90%',
+    width: screen.width - 40,
     paddingVertical: 20,
     paddingHorizontal: 30,
     borderRadius: 30,

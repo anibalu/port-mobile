@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>206413479249-kdf3u6f9f3e9pk6gnkcdhv2is4gdskmg.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.206413479249-kdf3u6f9f3e9pk6gnkcdhv2is4gdskmg</string>
 	<key>API_KEY</key>
 	<string>AIzaSyBR5tqz1oY5ENmdGQfb1G6rouD0319vsQU</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.numberless</string>
+	<string>tech.numberless.port</string>
 	<key>PROJECT_ID</key>
 	<string>numberless-chat</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:206413479249:ios:04b8d6fce6215e82b42770</string>
+	<string>1:206413479249:ios:08d01f78c29933f3b42770</string>
 </dict>
 </plist>

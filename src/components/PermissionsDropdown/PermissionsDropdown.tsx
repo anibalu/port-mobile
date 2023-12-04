@@ -1,14 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import PermissionIconActive from '../../../assets/permissions/permissions-active.svg';
-import PermissionIconInactive from '../../../assets/permissions/permissions-inactive.svg';
-import {NumberlessBoldText, NumberlessMediumText} from '../NumberlessText';
-import SingleDown from '../../../assets/icons/single-down.svg';
-import SingleUp from '../../../assets/icons/BlueSingleUp.svg';
+import PermissionIconActive from '@assets/permissions/permissions-active.svg';
+import PermissionIconInactive from '@assets/permissions/permissions-inactive.svg';
+import {
+  NumberlessBoldText,
+  NumberlessMediumText,
+} from '@components/NumberlessText';
+import SingleDown from '@assets/icons/single-down.svg';
+import SingleUp from '@assets/icons/BlueSingleUp.svg';
 import PermissionTile from './PermissionTile';
-import {Permissions} from '../../utils/ChatPermissions/interfaces';
-import {defaultDirectPermissions} from '../../utils/ChatPermissions/default';
-import {getConnection} from '../../utils/Connections';
+import {Permissions} from '@utils/ChatPermissions/interfaces';
+import {defaultDirectPermissions} from '@utils/ChatPermissions/default';
+import {getConnection} from '@utils/Connections';
 
 export default function PermissionsDropdown(props: {
   bold: boolean;

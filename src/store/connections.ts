@@ -2,7 +2,7 @@
  * A reducer for connections
  */
 
-import {Connections} from '../utils/Connections/interfaces';
+import {ConnectionInfo, Connections} from '@utils/Connections/interfaces';
 
 const initialState: Connections = {
   connections: [],
@@ -37,6 +37,14 @@ export default function connections(state = initialState, action: any) {
           ),
         ],
       };
+    case 'UPDATE_CONNECTION_WITHOUT_PROMOTING':
+      return {
+        ...state,
+        connections: updatedConnectionsWithoutPromotion(
+          state.connections,
+          action.payload,
+        ),
+      };
     case 'LOAD_CONNECTIONS':
       return {
         ...state,
@@ -45,4 +53,17 @@ export default function connections(state = initialState, action: any) {
     default:
       return state;
   }
+}
+
+function updatedConnectionsWithoutPromotion(
+  oldConnections: ConnectionInfo[],
+  update: ConnectionInfo,
+) {
+  const index: number = oldConnections.findIndex(
+    obj => obj.chatId === update.chatId,
+  );
+  if (index !== -1) {
+    oldConnections[index] = update;
+  }
+  return oldConnections;
 }

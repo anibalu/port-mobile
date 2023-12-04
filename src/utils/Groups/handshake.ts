@@ -1,4 +1,8 @@
-import {addNewGroup, attemptJoinGroup, getInitialGroupMembersInfo} from '.';
+import {
+  addNewGroup,
+  attemptJoinGroup,
+  getInitialGroupMembersInfo,
+} from '../Groups';
 import {BundleReadResponse, GroupConnectionBundle} from '../Bundles/interfaces';
 import {ContentType} from '../Messaging/interfaces';
 import {sendMessage} from '../Messaging/sendMessage';

@@ -10,8 +10,10 @@ import Sending from '@assets/icons/sending.svg';
 import {DEFAULT_NAME} from '@configs/constants';
 import FileViewer from 'react-native-file-viewer';
 import DefaultImage from '@assets/avatars/avatar.png';
+//import Video from '@assets/icons/Video.svg';
 import VideoReplyContainer from '../ReplyContainers/VideoReplyContainer';
 import {PortColors, screen} from '@components/ComponentUtils';
+//import store from '@store/appStore';
 
 export default function VideoBubble({
   message,
@@ -29,16 +31,20 @@ export default function VideoBubble({
   const [profileURI, setProfileURI] = useState(
     Image.resolveAssetSource(DefaultImage).uri,
   );
+
   useEffect(() => {
     if (message.data.fileUri) {
       setProfileURI('file://' + message.data.fileUri);
     }
   }, [message]);
+
   return (
     <Pressable
       style={styles.textBubbleContainer}
       onPress={() => handlePress(message.messageId)}
-      onLongPress={() => handleLongPress(message.messageId)}>
+      onLongPress={() => {
+        handleLongPress(message.messageId);
+      }}>
       {isReply ? (
         <VideoReplyContainer message={message} memberName={memberName} />
       ) : (
@@ -46,7 +52,11 @@ export default function VideoBubble({
           <View>
             {renderProfileName(shouldRenderProfileName(memberName), memberName)}
           </View>
+
           <Pressable
+            onLongPress={() => {
+              handleLongPress(message.messageId);
+            }}
             onPress={() => {
               FileViewer.open(profileURI, {
                 showOpenWithDialog: true,
@@ -138,8 +148,24 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   image: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  videoContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     height: 0.7 * screen.width - 40, // Set the maximum height you desire
     width: 0.7 * screen.width - 40, // Set the maximum width you desire
     borderRadius: 16,
   },
+  videoIconOverlay: {},
+  backgroundContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0,
+  },
+  overlay: {},
 });

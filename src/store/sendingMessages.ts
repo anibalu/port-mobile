@@ -1,4 +1,5 @@
 /**
+ * @deprecated
  * A reducer for the messages we are currently attempting to send.
  */
 

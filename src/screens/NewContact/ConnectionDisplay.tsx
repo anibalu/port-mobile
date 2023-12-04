@@ -7,7 +7,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 //svg imports
 import Scan from '@assets/icons/Scan.svg';
@@ -18,7 +18,7 @@ import Nfc from '@assets/icons/nfc.svg';
 //config imports
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 //store import
-import store from '@store/appStore';
+//import store from '@store/appStore';
 //component imports
 import {
   NumberlessItalicText,
@@ -32,6 +32,8 @@ import {
 } from '@utils/Bundles/direct';
 import {convertBundleToLink} from '@utils/DeepLinking';
 import Toast from 'react-native-toast-message';
+import GenericInput from '@components/GenericInput';
+import {useSelector} from 'react-redux';
 
 function ConnectionDisplay() {
   const navigation = useNavigation();
@@ -43,8 +45,8 @@ function ConnectionDisplay() {
   const [lastSaveLabel, setLastSaveLabel] = useState<string>('');
   const [saveVisible, setSaveVisible] = useState(false);
   const [qrCodeData, setQRCodeData] = useState<string>('');
-  const [storeChange, setStoreChange] = useState(0);
   const viewWidth = Dimensions.get('window').width;
+  const latestNewConnection = useSelector(state => state.latestNewConnection);
 
   //initial effect that generates initial connection bundle and displays it.
   useEffect(() => {
@@ -119,37 +121,48 @@ function ConnectionDisplay() {
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const unsubscribe = store.subscribe(() => {
-        console.log('subscribe logged');
-        setStoreChange(storeChange + 1);
-      });
-      // Clean up the subscription when the screen loses focus
-      return () => {
-        unsubscribe();
-      };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
-  );
-  //navigates to home if a qr is scanned while on new connection screen and device is connected to the internet.
-  useFocusEffect(
-    React.useCallback(() => {
-      const state = store.getState();
-      if (state && state.latestNewConnection) {
-        const latestUsedConnectionLinkId =
-          state.latestNewConnection.connectionLinkId;
-        if (qrCodeData !== '') {
-          const displayData = JSON.parse(qrCodeData);
-          if (displayData.data.linkId === latestUsedConnectionLinkId) {
-            navigation.navigate('HomeTab');
-          }
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const unsubscribe = store.subscribe(() => {
+  //       console.log('subscribe logged');
+  //       setStoreChange(storeChange + 1);
+  //     });
+  //     // Clean up the subscription when the screen loses focus
+  //     return () => {
+  //       unsubscribe();
+  //     };
+  //     // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   }, []),
+  // );
+  // //navigates to home if a qr is scanned while on new connection screen and device is connected to the internet.
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const state = store.getState();
+  //     if (state && state.latestNewConnection) {
+  //       const latestUsedConnectionLinkId =
+  //         state.latestNewConnection.connectionLinkId;
+  //       if (qrCodeData !== '') {
+  //         const displayData = JSON.parse(qrCodeData);
+  //         if (displayData.data.linkId === latestUsedConnectionLinkId) {
+  //           navigation.navigate('HomeTab', {screen: 'ChatTab'});
+  //         }
+  //       }
+  //     }
+  //     // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   }, [storeChange]),
+  // );
+  useEffect(() => {
+    if (latestNewConnection) {
+      const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
+      if (qrCodeData !== '') {
+        const displayData = JSON.parse(qrCodeData);
+        if (displayData.data.linkId === latestUsedConnectionLinkId) {
+          navigation.navigate('HomeTab', {screen: 'ChatTab'});
         }
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [storeChange]),
-  );
-
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestNewConnection]);
   return (
     <View style={styles.container}>
       <NumberlessMediumText style={styles.cardTitleText}>
@@ -194,6 +207,11 @@ function ConnectionDisplay() {
               width: viewWidth * 0.6,
               marginTop: 20,
             }}>
+            <GenericInput
+              text={label}
+              setText={showSaveButton}
+              placeholder="Contact Name (optional)"
+            />
             <TextInput
               style={styles.labelInput}
               maxLength={NAME_LENGTH_LIMIT}
@@ -237,7 +255,7 @@ function ConnectionDisplay() {
           <Pressable
             style={styles.button}
             onPress={() => {
-              navigation.navigate('HomeTab', {screen: 'Scanner'});
+              navigation.navigate('HomeTab', {screen: 'ScanTab'});
             }}>
             <Scan width={24} height={24} />
             <NumberlessRegularText style={styles.buttonText}>

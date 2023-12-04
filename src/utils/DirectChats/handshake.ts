@@ -2,7 +2,10 @@
  * handshake protocols for direct connections.
  * For the purposes of this module, we call bundle generator Alice(A) and the bundle reader Bob(B).
  */
-import {AttemptNewDirectChat, AttemptNewDirectChatFromSuperport} from '.';
+import {
+  AttemptNewDirectChat,
+  AttemptNewDirectChatFromSuperport,
+} from '../DirectChats';
 import store from '../../store/appStore';
 import {
   deleteGeneratedDirectConnectionBundle,
@@ -38,6 +41,7 @@ import {generateISOTimeStamp} from '../Time';
  */
 export async function handshakeActionsB1(
   bundle: DirectConnectionBundle | DirectSuperportConnectionBundle,
+  name: string = '',
 ): Promise<BundleReadResponse> {
   try {
     if (bundle.connectionType === ConnectionType.superport) {
@@ -49,7 +53,7 @@ export async function handshakeActionsB1(
       await addConnection({
         chatId: chatId,
         connectionType: ConnectionType.direct,
-        name: '',
+        name: name,
         permissions: defaultDirectPermissions,
         recentMessageType: ContentType.newChat,
         readStatus: ReadStatus.new,
@@ -71,7 +75,7 @@ export async function handshakeActionsB1(
       await addConnection({
         chatId: chatId,
         connectionType: ConnectionType.direct,
-        name: '',
+        name: name,
         permissions: defaultDirectPermissions,
         recentMessageType: ContentType.newChat,
         readStatus: ReadStatus.new,

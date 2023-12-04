@@ -1,4 +1,4 @@
-import store from '../../store/appStore';
+import store from '@store/appStore';
 import {
   DirectConnectionBundle,
   GeneratedDirectConnectionBundle,
@@ -10,7 +10,7 @@ import {sha256} from '../Crypto/sha';
 import {generateISOTimeStamp} from '../Time';
 import {connectionFsSync} from '../Synchronization';
 import {ConnectionType} from '../Connections/interfaces';
-import {BUNDLE_VALIDITY_INTERVAL} from '../../configs/constants';
+import {BUNDLE_VALIDITY_INTERVAL} from '@configs/constants';
 
 /**
  * Checks if a bundle is still valid.
@@ -38,6 +38,7 @@ function checkBundleValidity(
 
 /**
  * Loads read bundles to store
+ * @deprecated
  */
 export async function loadReadDirectConnectionBundlesToStore() {
   try {
@@ -53,6 +54,7 @@ export async function loadReadDirectConnectionBundlesToStore() {
 /**
  * Saves read bundle.
  * @param {DirectConnectionBundle} bundle - bundle to be saved.
+ * @deprecated
  */
 export async function saveReadDirectConnectionBundle(
   bundle: DirectConnectionBundle,
@@ -103,6 +105,7 @@ export async function deleteGeneratedDirectConnectionBundle(linkId: string) {
 /**
  * Gets the read direct connection bundles. cleans up and automatically removes timed out bundles
  * @returns {Promise<DirectConnectionBundle[]>} - A promise that resolves to the read direct connection bundles.
+ * @deprecated
  */
 export async function getReadDirectConnectionBundles(): Promise<
   DirectConnectionBundle[]
@@ -194,7 +197,9 @@ export async function getGeneratedDirectConnectionBundle(
  * generates a valid bundle and returns it. return null incase of failure.
  * @returns {Promise<DirectConnectionBundle | null>} - depending on whether the generate was successful
  */
-export async function generateDirectConnectionBundle(): Promise<DirectConnectionBundle> {
+export async function generateDirectConnectionBundle(
+  label: string = '',
+): Promise<DirectConnectionBundle> {
   const linkId = await getDirectConnectionLink();
   if (linkId === null) {
     throw new Error('out of links');
@@ -217,6 +222,7 @@ export async function generateDirectConnectionBundle(): Promise<DirectConnection
       ...bundle,
       keys: keys,
       timestamp: generateISOTimeStamp(),
+      label: label,
     };
     await saveGeneratedDirectConnectionBundle(generatedBundle);
     return bundle;

@@ -5,19 +5,19 @@
 import React, {useCallback, useEffect, useState} from 'react';
 
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
-import {NumberlessMediumText} from '../../components/NumberlessText';
+import {NumberlessMediumText} from '@components/NumberlessText';
 // import NamePopup from './UpdateNamePopup';
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
 import SearchBar from '@components/SearchBar';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import Share from '../../../assets/icons/Share.svg';
-import Tick from '../../../assets/icons/tick.svg';
-import {SafeAreaView} from '../../components/SafeAreaView';
-import {AppStackParamList} from '../../navigation/AppStackTypes';
-import {ConnectionInfo} from '../../utils/Connections/interfaces';
-import {getDirectChats} from '../../utils/DirectChats';
+import Share from '@assets/icons/Share.svg';
+import Tick from '@assets/icons/tick.svg';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {getDirectChats} from '@utils/DirectChats';
 import AddMemberTile from './AddMemberTile';
 import SelectedMemberTile from './SelectedMemberTile';
 

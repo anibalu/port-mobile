@@ -1,9 +1,26 @@
 {
   "name": "Port",
   "displayName": "Port",
-  "extra": {
-    "eas": {
-      "projectId": "903c910a-1c80-4bfe-94d8-316e58eb174a"
+  "extra": {},
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "85473827-abd6-4052-a170-51a515f4a4c5"
+      }
+    },
+    "version": "1.0.3",
+    "ios": {
+      "buildNumber": "1.0.4"
+    },
+    "android": {
+      "versionCode": 1
     }
+  },
+  "version": "1.0.3",
+  "ios": {
+    "buildNumber": "1.0.3"
+  },
+  "android": {
+    "versionCode": 1
   }
 }

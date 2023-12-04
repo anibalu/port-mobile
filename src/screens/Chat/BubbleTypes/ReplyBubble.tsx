@@ -193,6 +193,7 @@ const styles = StyleSheet.create({
     marginLeft: -12,
     marginRight: -10,
     borderTopLeftRadius: 0,
+    width: '110%',
     borderTopRightRadius: 10,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
@@ -207,6 +208,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    width: '110%',
     flexDirection: 'row',
   },
   replyMessage: {

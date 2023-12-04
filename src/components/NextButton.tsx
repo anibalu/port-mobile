@@ -7,7 +7,7 @@ import {
   TouchableOpacityProps,
   StyleSheet,
 } from 'react-native';
-import Next from '../../assets/navigation/nextButton.svg';
+import Next from '@assets/navigation/nextButton.svg';
 
 export const NextButton: React.FC<TouchableOpacityProps> = ({
   onPress,

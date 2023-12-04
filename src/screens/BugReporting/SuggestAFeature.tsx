@@ -6,7 +6,6 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {
   Image,
-  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -16,6 +15,7 @@ import {
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import {Submitted} from './Submitted';
 import {SafeAreaView} from '@components/SafeAreaView';
+import GenericModal from '@components/GenericModal';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SuggestAFeature'>;
 
@@ -77,15 +77,14 @@ export default function SuggestAFeature({navigation}: Props) {
       <Pressable style={styles.button} onPress={() => setOpenModal(p => !p)}>
         <Text style={styles.buttonText}>Submit</Text>
       </Pressable>
-      <Modal animationType="none" visible={openModal} transparent={true}>
-        <Pressable
-          style={styles.popUpArea}
-          onPress={() => setOpenModal(p => !p)}>
-          <Pressable style={styles.popupPosition}>
-            <Submitted setOpenModal={setOpenModal} openModal={openModal} />
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <GenericModal
+        visible={openModal}
+        position="center"
+        onClose={() => {
+          setOpenModal(p => !p);
+        }}>
+        <Submitted setOpenModal={setOpenModal} openModal={openModal} />
+      </GenericModal>
     </SafeAreaView>
   );
 }
@@ -163,7 +162,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   popUpArea: {
-    backgroundColor: '#0005',
     width: '100%',
     height: '100%',
     flex: 1,

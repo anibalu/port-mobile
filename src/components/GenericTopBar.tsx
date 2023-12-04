@@ -1,5 +1,5 @@
 import React, {memo} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, TextStyle} from 'react-native';
 import {View} from 'react-native';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {BackButton} from '@components/BackButton';
@@ -7,10 +7,12 @@ import {FontSizes} from './ComponentUtils';
 
 const GenericTopBar = ({
   title,
+  titleStyle,
   onBackPress,
   rightElement,
 }: {
   title: string;
+  titleStyle?: TextStyle;
   onBackPress: any;
   rightElement?: any;
 }) => {
@@ -18,7 +20,7 @@ const GenericTopBar = ({
     <View style={styles.bar}>
       <BackButton style={styles.backIcon} onPress={onBackPress} />
       <NumberlessSemiBoldText
-        style={styles.title}
+        style={StyleSheet.compose(styles.title, titleStyle)}
         ellipsizeMode="tail"
         numberOfLines={1}>
         {title}

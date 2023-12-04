@@ -1,3 +1,4 @@
+import {PAGINATION_LIMIT} from '@configs/constants';
 import {runSimpleQuery} from './dbCommon';
 
 function toBool(a: number) {
@@ -102,8 +103,8 @@ export async function updateStatus(
  * @param chatId the chat id to get messages for
  * @returns the list of chat ids to get messages for
  */
-export async function getMessages(chatId: string) {
-  let messageList = [];
+export async function getMessageIterator(chatId: string) {
+  let messageIterator = {};
   await runSimpleQuery(
     `
     SELECT * FROM lineMessages
@@ -111,6 +112,25 @@ export async function getMessages(chatId: string) {
     ORDER BY timestamp ASC;
     `,
     [chatId],
+    (tx, results) => {
+      messageIterator = results;
+    },
+  );
+  return messageIterator;
+}
+
+export async function getLatestMessages(
+  chatId: string,
+  latestTimestamp: string,
+) {
+  let messageList: any[] = [];
+  await runSimpleQuery(
+    `
+    SELECT * FROM lineMessages
+    WHERE chatId = ? AND timestamp > ?
+    ORDER BY timestamp ASC;
+    `,
+    [chatId, latestTimestamp],
     (tx, results) => {
       const len = results.rows.length;
       let entry;
@@ -123,6 +143,49 @@ export async function getMessages(chatId: string) {
     },
   );
   return messageList;
+}
+
+//Is reversed, fetches messages from end of list.
+export async function getPaginatedMessages(chatId: string, cursor?: number) {
+  const iter: any = await getMessageIterator(chatId);
+  const len = iter.rows.length;
+  let messages = [];
+
+  // Reverse pagination logic
+  let startFetchIndex;
+  let endFetchIndex;
+
+  if (cursor === undefined) {
+    // Fetching the latest messages, up to PAGINATION_LIMIT. This only runs if there is no cursor for the query.
+    startFetchIndex = Math.max(0, len - PAGINATION_LIMIT);
+    endFetchIndex = len;
+  } else if (cursor < PAGINATION_LIMIT) {
+    // Not enough messages for a full page, which means we fetch from 0 to cursor.
+    startFetchIndex = 0;
+    endFetchIndex = cursor;
+  } else {
+    // Standard reverse pagination, fetching from cursor-X to curson
+    startFetchIndex = cursor - PAGINATION_LIMIT;
+    endFetchIndex = cursor;
+  }
+
+  // Fetch messages, if the cursor isn't 0. Cursor = 0 implies no messages left to fetch
+  if (cursor !== 0) {
+    for (let i = startFetchIndex; i < endFetchIndex; i++) {
+      let entry = iter.rows.item(i);
+      entry.data = JSON.parse(entry.data);
+      entry.sender = toBool(entry.sender);
+      messages.push(entry);
+    }
+  }
+
+  // Reverse the order to send latest messages first
+  messages.reverse();
+
+  // Calculate new cursor position
+  const newCursor = Math.max(0, startFetchIndex);
+
+  return {messages: messages, cursor: newCursor, maxLength: len};
 }
 
 /**

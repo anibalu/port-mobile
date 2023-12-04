@@ -1,11 +1,6 @@
 import React from 'react';
 import {View, StyleSheet, Image, Pressable} from 'react-native';
 import {getTimeStamp} from '@utils/Time';
-import {
-  NumberlessRegularText,
-  NumberlessSemiBoldText,
-  NumberlessMediumText,
-} from '../NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import DefaultImage from '@assets/avatars/avatar.png';
 import {
@@ -13,6 +8,12 @@ import {
   ConnectionType,
   ReadStatus,
 } from '@utils/Connections/interfaces';
+import {
+  NumberlessMediumText,
+  NumberlessRegularText,
+  NumberlessSemiBoldText,
+} from '@components/NumberlessText';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
 
 function ChatTile(props: ConnectionInfo) {
   const navigation = useNavigation();
@@ -60,14 +61,34 @@ function ChatTile(props: ConnectionInfo) {
       <View style={styles.messageBox}>
         <Image source={{uri: chooseProfileURI()}} style={styles.picture} />
         <View style={styles.metadata}>
-          <NumberlessMediumText style={styles.timestamp}>
-            {getTimeStamp(props.timestamp)}
-          </NumberlessMediumText>
-          <View style={styles[status]}>
-            <NumberlessSemiBoldText style={styles[status]}>
-              {displayNumber(props.newMessageCount, status)}
-            </NumberlessSemiBoldText>
-          </View>
+          {props.disconnected ? (
+            <View
+              style={{
+                backgroundColor: PortColors.primary.grey.light,
+                paddingHorizontal: 4,
+                width: 90,
+                flexDirection: 'row',
+                paddingVertical: 2,
+              }}>
+              <NumberlessMediumText
+                numberOfLines={1}
+                style={styles.disconnectedText}>
+                Disconnected
+              </NumberlessMediumText>
+            </View>
+          ) : (
+            <NumberlessMediumText style={styles.timestamp}>
+              {getTimeStamp(props.timestamp)}
+            </NumberlessMediumText>
+          )}
+
+          {props?.newMessageCount > 0 && status != ReadStatus.read ? (
+            <View style={styles[status]}>
+              <NumberlessSemiBoldText style={styles[status]}>
+                {displayNumber(props.newMessageCount, status)}
+              </NumberlessSemiBoldText>
+            </View>
+          ) : null}
         </View>
       </View>
     </Pressable>
@@ -129,7 +150,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 7,
     borderRadius: 14,
-    backgroundColor: '#FFF6',
+    backgroundColor: '#FFF9',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
@@ -137,6 +158,10 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     paddingLeft: 15,
     paddingRight: 15,
+  },
+  disconnectedText: {
+    ...FontSizes[12].medium,
+    color: PortColors.primary.red,
   },
   newMessage: {
     backgroundColor: '#FFF',

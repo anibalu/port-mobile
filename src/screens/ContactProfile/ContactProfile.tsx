@@ -8,8 +8,7 @@ import {
   NumberlessSemiBoldText,
 } from '@components/NumberlessText';
 import {default as React, useEffect, useState} from 'react';
-import {Image, Modal, Pressable, StyleSheet, View} from 'react-native';
-import NamePopup from './UpdateNamePopup';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
 
 import DefaultImage from '@assets/avatars/avatar.png';
 import Files from '@assets/icons/Files.svg';
@@ -25,6 +24,8 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getConnection} from '@utils/Connections';
 import DisconnectButton from './DisconnectButton';
+import GenericModal from '@components/GenericModal';
+import UpdateNamePopup from '@components/UpdateNamePopup';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -118,17 +119,17 @@ function ContactProfile({route, navigation}: Props) {
       ) : (
         <DeleteChatButton chatId={chatId} stripMargin={true} />
       )}
-      <Modal animationType="none" visible={editingName} transparent={true}>
-        <Pressable style={styles.popUpArea} onPress={() => setUpdated(false)}>
-          <Pressable style={styles.popupPosition}>
-            <NamePopup
-              setUpdated={setUpdated}
-              initialName={name}
-              chatId={chatId}
-            />
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <GenericModal
+        visible={editingName}
+        onClose={() => {
+          setUpdated(p => !p);
+        }}>
+        <UpdateNamePopup
+          setUpdated={setUpdated}
+          initialName={name}
+          chatId={chatId}
+        />
+      </GenericModal>
     </SafeAreaView>
   );
 }
@@ -151,7 +152,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingLeft: 20,
     paddingRight: 20,
-    height: '100%',
   },
   profilePictureHitbox: {
     width: 132,

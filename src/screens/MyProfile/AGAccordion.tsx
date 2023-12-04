@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import ActiveGateways from '../../../assets/icons/ActiveGateways.svg';
-import BlueArrowUpIcon from '../../../assets/icons/BlueArrowUp.svg';
-import GreyArrowDownIcon from '../../../assets/icons/GreyArrowDown.svg';
+import ActiveGateways from '@assets/icons/ActiveGateways.svg';
+import BlueArrowUpIcon from '@assets/icons/BlueArrowUp.svg';
+import GreyArrowDownIcon from '@assets/icons/GreyArrowDown.svg';
 
 const AGAccordion = ({title, children, dataLength}) => {
   const [expanded, setExpanded] = useState(false);

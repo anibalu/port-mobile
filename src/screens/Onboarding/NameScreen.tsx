@@ -3,34 +3,45 @@
  * screen id: 3
  */
 import Next from '@assets/navigation/nextButton.svg';
-import {BackButton} from '@components/BackButton';
-import {FontSizes, PortColors, isIOS} from '@components/ComponentUtils';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {GenericButton} from '@components/GenericButton';
+import GenericInput from '@components/GenericInput';
 import {
-  NumberlessBoldText,
-  NumberlessClickableText,
   NumberlessMediumText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {processName} from '@utils/Profile';
-import React, {useState} from 'react';
-import {KeyboardAvoidingView, StyleSheet, TextInput, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Onboarding'>;
 
-function Onboarding({navigation}: Props) {
+function NameScreen({navigation}: Props) {
   //setting initial state of nickname string to ""
 
   const [name, setName] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const onChangeName = (newName: string) => {
-    setName(newName);
-  };
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        return null;
+      },
+    );
+
+    navigation.addListener('beforeRemove', e => {
+      // Prevent default behavior of leaving the screen
+      e.preventDefault();
+    });
+
+    return () => backHandler.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <CustomStatusBar
@@ -38,54 +49,44 @@ function Onboarding({navigation}: Props) {
         backgroundColor={PortColors.primary.white}
       />
       <SafeAreaView style={styles.basicContainer}>
-        <KeyboardAvoidingView
-          behavior={isIOS ? 'padding' : 'height'}
-          style={styles.container}>
+        <ScrollView
+          //   style={styles.container}
+          contentContainerStyle={{
+            justifyContent: 'space-between',
+            flex: 1,
+            // backgroundColor: 'red',
+          }}
+          showsVerticalScrollIndicator={false}>
           <View style={styles.contentBox}>
-            <BackButton
-              style={styles.topBarContainer}
-              onPress={() => navigation.navigate('RequestPermissions')}
-            />
-            <NumberlessBoldText style={styles.titleText}>
-              Enter a name... or don't
-            </NumberlessBoldText>
-            <NumberlessMediumText style={styles.topBodyText}>
-              We like to stay simple. We don't require any personal data to get
-              you setup.
+            <NumberlessMediumText style={styles.titleText}>
+              Share a name but
             </NumberlessMediumText>
+            <NumberlessMediumText style={styles.titleTextp2}>
+              not a number
+            </NumberlessMediumText>
+
             <NumberlessRegularText style={styles.bodyText}>
-              If you add a name below, it can be seen only by your Port
-              connections in an end-to-end encrypted way. Port never gets to see
-              your name.
+              We like to keep things simple. We don't require any data to set up
+              your portfolio. Just a name will do.{'\n\n'} And even this is
+              optional.
             </NumberlessRegularText>
-            <NumberlessClickableText
-              onPress={() =>
-                console.log('Learn more about how numberless works')
-              }>
-              Learn more about how numberless works
-            </NumberlessClickableText>
-            <View style={styles.nicknameBox}>
-              <TextInput
-                style={styles.inputText}
-                maxLength={NAME_LENGTH_LIMIT}
-                placeholder={isFocused ? '' : 'Name'}
-                textAlign="center"
-                placeholderTextColor={PortColors.primary.grey.medium}
-                onChangeText={onChangeName}
-                value={name}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-              />
-            </View>
+            <GenericInput
+              wrapperStyle={{paddingHorizontal: '8%'}}
+              placeholder="Name (Optional)"
+              text={name}
+              setText={setName}
+            />
           </View>
           <GenericButton
             onPress={() =>
-              navigation.navigate('SetupUser', {name: processName(name)})
+              navigation.navigate('PermissionsScreen', {
+                name: processName(name),
+              })
             }
             Icon={Next}
             buttonStyle={styles.nextButtonContainer}
           />
-        </KeyboardAvoidingView>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
@@ -104,12 +105,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     width: '100%',
     height: '100%',
-    justifyContent: 'space-between',
   },
   contentBox: {
     width: '100%',
     justifyContent: 'flex-start',
     alignItems: 'center',
+    marginTop: 98,
   },
   topBarContainer: {
     width: '100%',
@@ -120,11 +121,14 @@ const styles = StyleSheet.create({
     paddingLeft: '6%',
   },
   titleText: {
-    fontSize: 24,
-    marginBottom: 30,
+    ...FontSizes[21].medium,
     marginTop: 20,
     paddingRight: '8%',
     paddingLeft: '8%',
+  },
+  titleTextp2: {
+    ...FontSizes[21].bold,
+    color: PortColors.primary.blue.app,
   },
   topBodyText: {
     marginBottom: 20,
@@ -134,8 +138,10 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     marginBottom: 10,
+    marginTop: 60,
     paddingRight: '8%',
     paddingLeft: '8%',
+    textAlign: 'center',
   },
   nicknameBox: {
     width: '100%',
@@ -148,7 +154,7 @@ const styles = StyleSheet.create({
   inputText: {
     width: '100%',
     height: '100%',
-    color: PortColors.primary.grey.medium,
+    color: PortColors.primary.black,
     ...FontSizes[17].bold,
     backgroundColor: PortColors.primary.grey.light,
     borderRadius: 16,
@@ -166,4 +172,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Onboarding;
+export default NameScreen;

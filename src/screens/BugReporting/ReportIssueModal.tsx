@@ -1,11 +1,13 @@
 import React, {useCallback} from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 
-import CrossIcon from '../../../assets/icons/cross.svg';
-import InfoIcon from '../../../assets/icons/Information.svg';
-import WorldIcon from '../../../assets/icons/WorldIcon.svg';
-import GreyArrowRight from '../../../assets/icons/GreyArrowRight.svg';
+import CrossIcon from '@assets/icons/cross.svg';
+import InfoIcon from '@assets/icons/Information.svg';
+import WorldIcon from '@assets/icons/WorldIcon.svg';
+import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
 import {useNavigation} from '@react-navigation/native';
+import {NumberlessMediumText} from '@components/NumberlessText';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
 
 interface reportIssueProps {
   setReportBugModalOpen: Function;
@@ -30,7 +32,9 @@ export default function ReportIssueModal(props: reportIssueProps) {
   return (
     <View style={styles.editRegion}>
       <View style={styles.rowStyles}>
-        <Text style={styles.titleText}>Need help?</Text>
+        <NumberlessMediumText style={styles.titleText}>
+          Need help?
+        </NumberlessMediumText>
         <CrossIcon onPress={() => setReportBugModalOpen(p => !p)} />
       </View>
       <Pressable style={styles.button} onPress={onClickReportProblem}>
@@ -49,16 +53,19 @@ export default function ReportIssueModal(props: reportIssueProps) {
 
 const styles = StyleSheet.create({
   editRegion: {
-    width: 400,
+    width: '100%',
     backgroundColor: 'white',
     display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingBottom: 20,
     paddingTop: 20,
     paddingLeft: 20,
     paddingRight: 20,
   },
   titleText: {
-    fontSize: 17,
+    ...FontSizes[15].medium,
     color: 'black',
     paddingRight: 20,
     width: 330,
@@ -71,6 +78,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     height: 60,
     marginBottom: 15,
+    backgroundColor: PortColors.primary.white,
     flexDirection: 'row',
     alignItems: 'center',
   },

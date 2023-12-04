@@ -14,6 +14,9 @@ import ReplyBubble from './BubbleTypes/ReplyBubble';
 import TextBubble from './BubbleTypes/TextBubble';
 import VideoBubble from './BubbleTypes/VideoBubble';
 
+/**
+ * Props that a message bubble takes
+ */
 interface MessageBubbleProps {
   message: SavedMessageParams;
   isDateBoundary: boolean;
@@ -85,6 +88,9 @@ const MessageBubble = ({
         <View />
       )}
       <View style={containerType}>
+        {/**
+         * Profile image added if message is a received, non-data group message
+         */}
         {!isDataMessage(message.contentType) &&
           isGroupChat &&
           !message.sender && (
@@ -93,7 +99,6 @@ const MessageBubble = ({
               style={styles.displayPicContainer}
             />
           )}
-
         <View style={blobType}>
           {renderBubbleType(
             message,
@@ -108,6 +113,24 @@ const MessageBubble = ({
     </View>
   );
 };
+
+/**
+ * Responsible for identifies which content types are data messages.
+ * @param contentType
+ * @returns {boolean} - whether message is a data message
+ */
+function isDataMessage(contentType: ContentType) {
+  if (
+    contentType === ContentType.newChat ||
+    contentType === ContentType.displayImage ||
+    contentType === ContentType.handshakeA1 ||
+    contentType === ContentType.handshakeB2 ||
+    contentType === ContentType.name
+  ) {
+    return true;
+  }
+  return false;
+}
 
 /**
  * Decides the styling of the container - data, sender or receiver container and blobs
@@ -167,32 +190,14 @@ function unselectedMessageBackgroundStylePicker(
 }
 
 /**
- * Determines if message to be rendered is a protocol message
- * @param contentType, content flag
- * @returns {boolean}
- */
-function isDataMessage(contentType: ContentType): boolean {
-  if (
-    contentType === ContentType.newChat ||
-    contentType === ContentType.displayImage ||
-    contentType === ContentType.handshakeA1 ||
-    contentType === ContentType.handshakeB2 ||
-    contentType === ContentType.name
-  ) {
-    return true;
-  }
-  return false;
-}
-
-/**
- * Renders a bubble based on the type of message
+ * Responsible for displaying the right kind of message bubble for a message.
  * @param message
  * @param isGroup
  * @param handlePress
  * @param handleLongPress
  * @param memberName
  * @param groupInfo
- * @returns {ReactNode} bubble based on contents.
+ * @returns the right kind of message bubble
  */
 function renderBubbleType(
   message: SavedMessageParams,
@@ -201,13 +206,10 @@ function renderBubbleType(
   handleLongPress: any,
   memberName: string = '',
   groupInfo: any,
-): ReactNode {
-  /**
-   * @todo add styling properly
-   */
+) {
   switch (message.contentType) {
     case ContentType.text: {
-      if (message.replyId && message.replyId != '') {
+      if (message.replyId && message.replyId !== '') {
         return (
           <ReplyBubble
             message={message}

@@ -31,14 +31,14 @@ async function initialiseLargeFileDirAsync(chatId: string) {
  * Creates a copy of the large file in the files directory of a chat.
  * @returns {Promise<string>} A Promise that resolves to the destination path.
  */
-export async function copyToFilesDir(
+export async function moveToFilesDir(
   chatId: string,
   fileUri: string,
   fileName: string,
 ) {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath = chatIdDir + filesDir + '/' + fileName;
-  await RNFS.copyFile(fileUri, destinationPath);
+  await RNFS.moveFile(fileUri, destinationPath);
   return destinationPath;
 }
 
@@ -46,14 +46,14 @@ export async function copyToFilesDir(
  * Creates a copy of the large file in the media directory of a chat.
  * @returns {Promise<string>} A Promise that resolves to the destination path.
  */
-export async function copyToMediaDir(
+export async function moveToMediaDir(
   chatId: string,
   fileUri: string,
   fileName: string,
 ) {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath = chatIdDir + mediaDir + '/' + fileName;
-  await RNFS.copyFile(fileUri, destinationPath);
+  await RNFS.moveFile(fileUri, destinationPath);
   return destinationPath;
 }
 

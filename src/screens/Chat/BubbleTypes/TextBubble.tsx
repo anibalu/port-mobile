@@ -2,6 +2,7 @@ import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import Sending from '@assets/icons/sending.svg';
 import {
+  NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
@@ -9,7 +10,6 @@ import {DEFAULT_NAME} from '@configs/constants';
 import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
 import {getTimeStamp} from '@utils/Time';
 import {PortColors} from '@components/ComponentUtils';
-//import store from '@store/appStore';
 
 export default function TextBubble({
   message,
@@ -60,15 +60,21 @@ function renderTimeStamp(message: SavedMessageParams) {
         </NumberlessRegularText>
       </View>
     );
-  } else if (message.sendStatus === SendStatus.journaled || true) {
-    // Simplified conditional
+  } else if (message.sendStatus === SendStatus.failed) {
+    return (
+      <View style={styles.timeStampContainer}>
+        <NumberlessItalicText style={styles.failedStamp}>
+          failed
+        </NumberlessItalicText>
+      </View>
+    );
+  } else {
     return (
       <View style={styles.timeStampContainer}>
         <Sending />
       </View>
     );
   }
-  // Add more conditions if necessary
 }
 
 function shouldRenderProfileName(memberName: string) {

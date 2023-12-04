@@ -16,8 +16,8 @@ import {generateISOTimeStamp} from '../Time';
 import * as storage from '../Storage/messages';
 import {DownloadParams, uploadLargeFile} from './largeData';
 import {
-  copyToFilesDir,
-  copyToMediaDir,
+  moveToFilesDir,
+  moveToMediaDir,
 } from '../Storage/StorageRNFS/sharedFileHandlers';
 import {encryptMessage} from '../Crypto/aes';
 import {getToken} from '../ServerAuth';
@@ -107,11 +107,6 @@ async function journalingFailedActions(
   chatId: string,
   message: SendMessageParamsStrict,
 ) {
-  //remove message Id from sending store
-  // store.dispatch({
-  //   type: 'REMOVE_FROM_SENDING',
-  //   payload: {chatId: chatId, messageId: message.messageId},
-  // });
   //update send status in storage
   await updateMessageSendStatus(
     chatId,
@@ -420,11 +415,6 @@ async function sendMediaMessage(
   journal: boolean = true,
   isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
-  //add messageId (with sender prefix) to sending queue on store
-  // store.dispatch({
-  //   type: 'ADD_TO_SENDING',
-  //   payload: {chatId: chatId, messageId: message.messageId},
-  // });
   //two cases:
   //1. mediaId created
   if (message.data.mediaId !== null && message.data.mediaId !== undefined) {
@@ -435,8 +425,17 @@ async function sendMediaMessage(
   else {
     //try getting mediaId, fail message send if unsuccessful
     try {
+      let destinationPath = '';
+      if (message.contentType !== ContentType.displayImage) {
+        destinationPath = await moveToMediaDir(
+          chatId,
+          message.data.fileUri,
+          message.data.fileName,
+        );
+      }
       const savedMessage: SavedMessageParams = {
         ...message,
+        data: {...message.data, fileUri: destinationPath},
         messageId: message.messageId,
         chatId: chatId,
         sender: true,
@@ -448,22 +447,17 @@ async function sendMediaMessage(
         await saveMessage(savedMessage);
       }
       const downloadParams: DownloadParams = await uploadLargeFile(
-        message.data.fileUri,
+        savedMessage.data.fileUri,
       );
-      let destinationPath = '';
-      if (message.contentType !== ContentType.displayImage) {
-        destinationPath = await copyToMediaDir(
-          chatId,
-          message.data.fileUri,
-          message.data.fileName,
-        );
-      }
       const newData = {
-        ...message.data,
+        ...savedMessage.data,
         mediaId: downloadParams.mediaId,
         key: downloadParams.key,
-        fileUri: destinationPath,
       };
+      if (journal) {
+        //update message in storage only if not already journaled.
+        await storage.updateMessage(chatId, message.messageId, newData, true);
+      }
       //once mediaId is created, sending is routine.
       return await mediaIdExistsActions(
         chatId,
@@ -484,11 +478,6 @@ async function sendFileMessage(
   journal: boolean = true,
   isGroup: boolean = false,
 ): Promise<SendMessageOutput> {
-  //add messageId (with sender prefix) to sending queue on store
-  // store.dispatch({
-  //   type: 'ADD_TO_SENDING',
-  //   payload: {chatId: chatId, messageId: message.messageId},
-  // });
   //two cases:
   //1. mediaId created
   if (message.data.mediaId !== null && message.data.mediaId !== undefined) {
@@ -499,8 +488,17 @@ async function sendFileMessage(
   else {
     //try getting mediaId, fail message send if unsuccessful
     try {
+      let destinationPath = '';
+      if (message.contentType !== ContentType.displayImage) {
+        destinationPath = await moveToFilesDir(
+          chatId,
+          message.data.fileUri,
+          message.data.fileName,
+        );
+      }
       const savedMessage: SavedMessageParams = {
         ...message,
+        data: {...message.data, fileUri: destinationPath},
         messageId: message.messageId,
         chatId: chatId,
         sender: true,
@@ -512,19 +510,17 @@ async function sendFileMessage(
         await saveMessage(savedMessage);
       }
       const downloadParams: DownloadParams = await uploadLargeFile(
-        message.data.fileUri,
-      );
-      const destinationPath = await copyToFilesDir(
-        chatId,
-        message.data.fileUri,
-        message.data.fileName,
+        savedMessage.data.fileUri,
       );
       const newData = {
-        ...message.data,
+        ...savedMessage.data,
         mediaId: downloadParams.mediaId,
         key: downloadParams.key,
-        fileUri: destinationPath,
       };
+      if (journal) {
+        //update message in storage only if not already journaled.
+        await storage.updateMessage(chatId, message.messageId, newData, true);
+      }
       //once mediaId is created, sending is routine.
       return await mediaIdExistsActions(
         chatId,
@@ -534,7 +530,7 @@ async function sendFileMessage(
       );
     } catch (error) {
       console.log('Error fetching mediaId and key: ', error);
-      return {sendStatus: SendStatus.failed, message: message};
+      return await journalingFailedActions(chatId, message);
     }
   }
 }
@@ -549,24 +545,6 @@ async function mediaIdExistsActions(
     ...message,
     data: {...message.data, fileUri: null},
   };
-  const savedMessage: SavedMessageParams = {
-    ...message,
-    data: {...message.data, mediaId: null, key: null},
-    messageId: message.messageId,
-    chatId: chatId,
-    sender: true,
-    timestamp: generateISOTimeStamp(),
-    sendStatus: SendStatus.undefined,
-  };
-  if (journal) {
-    //update message in storage only if not already journaled.
-    await storage.updateMessage(
-      chatId,
-      message.messageId,
-      savedMessage.data,
-      true,
-    );
-  }
   //encrypt message
   const ciphertext: string = await encryptMessage(
     chatId,
@@ -583,45 +561,39 @@ async function mediaIdExistsActions(
       SendStatus.success,
       true,
     );
-    //remove messageId from store
-    // store.dispatch({
-    //   type: 'REMOVE_FROM_SENDING',
-    //   payload: {
-    //     chatId: chatId,
-    //     messageId: message.messageId,
-    //   },
-    // });
     if (message.contentType !== ContentType.displayImage) {
       //update connection properties
       await updateConnectionOnNewMessage({
         chatId: chatId,
         readStatus: ReadStatus.sent,
-        recentMessageType: savedMessage.contentType,
-        text: savedMessage.data.text || '',
+        recentMessageType: newMessage.contentType,
+        text: newMessage.data.text || '',
       });
     }
     //return success status.
-    console.log('message sent successfully');
-    return {sendStatus: SendStatus.success, message: savedMessage};
-  } catch (error) {
-    console.log('failed to send: ', error);
-    //if fails, save to journal (only if journaling is ON), update connection
-    if (!journal) {
-      //remove message Id from sending store
-      // store.dispatch({
-      //   type: 'REMOVE_FROM_SENDING',
-      //   payload: {
-      //     chatId: chatId,
-      //     messageId: message.messageId,
-      //   },
-      // });
-      return {sendStatus: SendStatus.failed, message: message};
-    }
-    const journaledMessage: JournaledMessageParams = {
-      ...message,
-      chatId,
+    store.dispatch({
+      type: 'NEW_SEND_STATUS_UPDATE',
+      payload: {
+        chatId: chatId,
+        messageId: message.messageId,
+        sendStatus: SendStatus.success,
+        timestamp: generateISOTimeStamp(),
+      },
+    });
+    return {
+      sendStatus: SendStatus.success,
+      message: message,
     };
+  } catch (error) {
     try {
+      //if fails, save to journal (only if journaling is ON), update connection
+      if (!journal) {
+        throw new Error('Journal disabled');
+      }
+      const journaledMessage: JournaledMessageParams = {
+        ...message,
+        chatId,
+      };
       //await saveToJournal(journaledMessage);
       //update send status in storage
       await updateMessageSendStatus(
@@ -637,17 +609,8 @@ async function mediaIdExistsActions(
         recentMessageType: journaledMessage.contentType,
         text: journaledMessage.data.text || '',
       });
-      //remove message Id from sending store
-      // store.dispatch({
-      //   type: 'REMOVE_FROM_SENDING',
-      //   payload: {
-      //     chatId: chatId,
-      //     messageId: message.messageId,
-      //   },
-      // });
       return {sendStatus: SendStatus.journaled, message: journaledMessage};
     } catch (error) {
-      console.log('Journaling failed: ', error);
       return await journalingFailedActions(chatId, message);
     }
   }
@@ -755,6 +718,11 @@ async function updateMessageSendStatus(
   );
   store.dispatch({
     type: 'NEW_SEND_STATUS_UPDATE',
-    payload: {chatId: chatId, messageId: messageId, sendStatus: updatedStatus},
+    payload: {
+      chatId: chatId,
+      messageId: messageId,
+      sendStatus: updatedStatus,
+      timestamp: generateISOTimeStamp(),
+    },
   });
 }

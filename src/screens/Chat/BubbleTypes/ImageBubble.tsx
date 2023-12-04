@@ -4,6 +4,7 @@ import FileViewer from 'react-native-file-viewer';
 import DefaultImage from '@assets/avatars/avatar.png';
 import Sending from '@assets/icons/sending.svg';
 import {
+  NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
@@ -12,6 +13,7 @@ import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
 import {getTimeStamp} from '@utils/Time';
 import ImageReplyContainer from '../ReplyContainers/ImageReplyContainer';
 import {PortColors} from '@components/ComponentUtils';
+import {SelectedMessagesSize} from '../Chat';
 //import store from '@store/appStore';
 
 export default function ImageBubble({
@@ -39,13 +41,18 @@ export default function ImageBubble({
   const handleLongPressFunction = () => {
     handleLongPress(message.messageId);
   };
-
+  const handlePressFunction = () => {
+    const selectedMessagesSize = handlePress(message.messageId);
+    if (selectedMessagesSize === SelectedMessagesSize.empty) {
+      FileViewer.open(profileURI, {
+        showOpenWithDialog: true,
+      });
+    }
+  };
   return (
     <Pressable
       style={styles.textBubbleContainer}
-      onPress={() => {
-        handlePress(message.messageId);
-      }}
+      onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
       {isReply ? (
         <ImageReplyContainer message={message} memberName={memberName} />
@@ -59,52 +66,40 @@ export default function ImageBubble({
               isReply,
             )}
           </View>
-          <Pressable
-            onLongPress={handleLongPressFunction}
-            onPress={() => {
-              FileViewer.open(profileURI, {
-                showOpenWithDialog: true,
-              });
-            }}>
+          <View>
             <Image source={{uri: profileURI}} style={styles.image} />
-          </Pressable>
+          </View>
         </>
       )}
-      {!isReply && (
-        <View style={styles.timeStampContainer}>
-          {message.sendStatus === SendStatus.success || !message.sender ? (
-            <View>
-              <NumberlessRegularText style={styles.timeStamp}>
-                {getTimeStamp(message.timestamp)}
-              </NumberlessRegularText>
-            </View>
-          ) : (
-            <View>
-              {message.sendStatus === SendStatus.journaled ? (
-                <View>
-                  <Sending />
-                </View>
-              ) : (
-                <View>
-                  {message.sendStatus === SendStatus.failed ? (
-                    <View>
-                      <NumberlessRegularText style={styles.failedStamp}>
-                        {'failed'}
-                      </NumberlessRegularText>
-                    </View>
-                  ) : (
-                    <View>
-                      <Sending />
-                    </View>
-                  )}
-                </View>
-              )}
-            </View>
-          )}
-        </View>
-      )}
+      {!isReply && renderTimeStamp(message)}
     </Pressable>
   );
+}
+
+function renderTimeStamp(message: SavedMessageParams) {
+  if (message.sendStatus === SendStatus.success || !message.sender) {
+    return (
+      <View style={styles.timeStampContainer}>
+        <NumberlessRegularText style={styles.timeStamp}>
+          {getTimeStamp(message.timestamp)}
+        </NumberlessRegularText>
+      </View>
+    );
+  } else if (message.sendStatus === SendStatus.failed) {
+    return (
+      <View style={styles.timeStampContainer}>
+        <NumberlessItalicText style={styles.failedStamp}>
+          failed
+        </NumberlessItalicText>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.timeStampContainer}>
+        <Sending />
+      </View>
+    );
+  }
 }
 
 function shouldRenderProfileName(memberName: string) {

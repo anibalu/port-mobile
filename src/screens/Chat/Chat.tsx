@@ -31,6 +31,10 @@ import MessageBar from './MessageBar';
 import {useSelector} from 'react-redux';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
+export enum SelectedMessagesSize {
+  empty,
+  notEmpty,
+}
 /**
  * Renders a chat screen. The chatlist that is rendered is INVERTED, which means that any `top` function is a `bottom` function and vice versa.
  * @returns Component for rendered chat window
@@ -80,6 +84,10 @@ function Chat({route, navigation}: Props) {
   //Handles selecting messages once select messages flow is toggled
   const handleMessageBubbleShortPress = (messageId: string): void => {
     // removes messageId from selected messages on short press
+    let selectedMessagesSize: SelectedMessagesSize =
+      selectedMessages.length >= 1
+        ? SelectedMessagesSize.notEmpty
+        : SelectedMessagesSize.empty;
     if (selectedMessages.includes(messageId)) {
       setSelectedMessages(
         selectedMessages.filter(
@@ -92,6 +100,7 @@ function Chat({route, navigation}: Props) {
         setSelectedMessages([...selectedMessages, messageId]);
       }
     }
+    return selectedMessagesSize;
   };
 
   const updateChatState = useCallback(newState => {

@@ -1,18 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Pressable, Image} from 'react-native';
+import {Dimensions, Image, Pressable, StyleSheet, View} from 'react-native';
+import FileViewer from 'react-native-file-viewer';
+import DefaultImage from '@assets/avatars/avatar.png';
+import Sending from '@assets/icons/sending.svg';
 import {
+  NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
-import {getTimeStamp} from '@utils/Time';
-import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
-import Sending from '@assets/icons/sending.svg';
 import {DEFAULT_NAME} from '@configs/constants';
-import FileViewer from 'react-native-file-viewer';
-import DefaultImage from '@assets/avatars/avatar.png';
-//import Video from '@assets/icons/Video.svg';
+import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
+import {getTimeStamp} from '@utils/Time';
+import {PortColors} from '@components/ComponentUtils';
+import {SelectedMessagesSize} from '../Chat';
 import VideoReplyContainer from '../ReplyContainers/VideoReplyContainer';
-import {PortColors, screen} from '@components/ComponentUtils';
 //import store from '@store/appStore';
 
 export default function VideoBubble({
@@ -31,76 +32,74 @@ export default function VideoBubble({
   const [profileURI, setProfileURI] = useState(
     Image.resolveAssetSource(DefaultImage).uri,
   );
-
   useEffect(() => {
     if (message.data.fileUri) {
       setProfileURI('file://' + message.data.fileUri);
     }
   }, [message]);
 
+  const handleLongPressFunction = () => {
+    handleLongPress(message.messageId);
+  };
+  const handlePressFunction = () => {
+    const selectedMessagesSize = handlePress(message.messageId);
+    if (selectedMessagesSize === SelectedMessagesSize.empty) {
+      FileViewer.open(profileURI, {
+        showOpenWithDialog: true,
+      });
+    }
+  };
   return (
     <Pressable
       style={styles.textBubbleContainer}
-      onPress={() => handlePress(message.messageId)}
-      onLongPress={() => {
-        handleLongPress(message.messageId);
-      }}>
+      onPress={handlePressFunction}
+      onLongPress={handleLongPressFunction}>
       {isReply ? (
         <VideoReplyContainer message={message} memberName={memberName} />
       ) : (
         <>
           <View>
-            {renderProfileName(shouldRenderProfileName(memberName), memberName)}
+            {renderProfileName(
+              shouldRenderProfileName(memberName),
+              memberName,
+              message.sender,
+              isReply,
+            )}
           </View>
-
-          <Pressable
-            onLongPress={() => {
-              handleLongPress(message.messageId);
-            }}
-            onPress={() => {
-              FileViewer.open(profileURI, {
-                showOpenWithDialog: true,
-              });
-            }}>
+          <View>
             <Image source={{uri: profileURI}} style={styles.image} />
-          </Pressable>
+          </View>
         </>
       )}
-      {!isReply && (
-        <View style={styles.timeStampContainer}>
-          {message.sendStatus === SendStatus.success || !message.sender ? (
-            <View>
-              <NumberlessRegularText style={styles.timeStamp}>
-                {getTimeStamp(message.timestamp)}
-              </NumberlessRegularText>
-            </View>
-          ) : (
-            <View>
-              {message.sendStatus === SendStatus.journaled ? (
-                <View>
-                  <Sending />
-                </View>
-              ) : (
-                <View>
-                  {message.sendStatus === SendStatus.failed ? (
-                    <View>
-                      <NumberlessRegularText style={styles.failedStamp}>
-                        {'failed'}
-                      </NumberlessRegularText>
-                    </View>
-                  ) : (
-                    <View>
-                      <Sending />
-                    </View>
-                  )}
-                </View>
-              )}
-            </View>
-          )}
-        </View>
-      )}
+      {!isReply && renderTimeStamp(message)}
     </Pressable>
   );
+}
+
+function renderTimeStamp(message: SavedMessageParams) {
+  if (message.sendStatus === SendStatus.success || !message.sender) {
+    return (
+      <View style={styles.timeStampContainer}>
+        <NumberlessRegularText style={styles.timeStamp}>
+          {getTimeStamp(message.timestamp)}
+        </NumberlessRegularText>
+      </View>
+    );
+  } else if (message.sendStatus === SendStatus.failed) {
+    return (
+      <View style={styles.timeStampContainer}>
+        <NumberlessItalicText style={styles.failedStamp}>
+          failed
+        </NumberlessItalicText>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.timeStampContainer}>
+        <Sending />
+      </View>
+    );
+  }
 }
 
 function shouldRenderProfileName(memberName: string) {
@@ -111,17 +110,26 @@ function shouldRenderProfileName(memberName: string) {
   }
 }
 
-function renderProfileName(shouldRender: boolean, name: string = DEFAULT_NAME) {
+function renderProfileName(
+  shouldRender: boolean,
+  name: string = DEFAULT_NAME,
+  isSender: boolean,
+  isReply: boolean,
+) {
   return (
     <View>
       {shouldRender ? (
         <NumberlessMediumText>{name}</NumberlessMediumText>
+      ) : isSender && isReply ? (
+        <NumberlessMediumText>You</NumberlessMediumText>
       ) : (
         <View />
       )}
     </View>
   );
 }
+
+const viewWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
@@ -148,24 +156,22 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   image: {
-    flex: 1,
-    flexDirection: 'column',
-  },
-  videoContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 0.7 * screen.width - 40, // Set the maximum height you desire
-    width: 0.7 * screen.width - 40, // Set the maximum width you desire
+    height: 0.7 * viewWidth - 40, // Set the maximum height you desire
+    width: 0.7 * viewWidth - 40, // Set the maximum width you desire
     borderRadius: 16,
   },
-  videoIconOverlay: {},
-  backgroundContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    right: 0,
-    left: 0,
+  replyImage: {
+    height: 65,
+    width: 65,
+
+    borderRadius: 16,
   },
-  overlay: {},
+  replyImageContainer: {
+    width: 0.7 * viewWidth - 40,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  imageText: {
+    marginTop: 10,
+  },
 });

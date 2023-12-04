@@ -3,6 +3,7 @@ import File from '@assets/icons/FileClip.svg';
 import Sending from '@assets/icons/sending.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
 import {
+  NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
@@ -13,6 +14,7 @@ import React, {ReactNode, useEffect, useState} from 'react';
 import {Image, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import FileReplyContainer from '../ReplyContainers/FileReplyContainer';
+import {SelectedMessagesSize} from '../Chat';
 
 /**
  * @param message, message object
@@ -43,24 +45,35 @@ export default function FileBubble({
       setFileURI('file://' + message.data.fileUri);
     }
   }, [message]);
+  const handleLongPressFunction = () => {
+    handleLongPress(message.messageId);
+  };
+  const handlePressFunction = () => {
+    const selectedMessagesSize = handlePress(message.messageId);
+    if (selectedMessagesSize === SelectedMessagesSize.empty) {
+      FileViewer.open(fileURI, {
+        showOpenWithDialog: true,
+      });
+    }
+  };
   return (
     <Pressable
       style={styles.textBubbleContainer}
-      onPress={() => handlePress(message.messageId)}
-      onLongPress={() => handleLongPress(message.messageId)}>
+      onPress={handlePressFunction}
+      onLongPress={handleLongPressFunction}>
       {isReply ? (
         <FileReplyContainer message={message} memberName={memberName} />
       ) : (
         <>
           <View>
-            {renderProfileName(shouldRenderProfileName(memberName), memberName)}
+            {renderProfileName(
+              shouldRenderProfileName(memberName),
+              memberName,
+              message.sender,
+              isReply,
+            )}
           </View>
-          <Pressable
-            onPress={() => {
-              FileViewer.open(fileURI, {
-                showOpenWithDialog: true,
-              });
-            }}>
+          <View>
             <View style={styles.fileBox}>
               <View style={styles.fileClip}>
                 <File />
@@ -72,47 +85,41 @@ export default function FileBubble({
                 {message.data.fileName}
               </NumberlessMediumText>
             </View>
-          </Pressable>
+          </View>
         </>
       )}
-      {!isReply && (
-        <View style={styles.timeStampContainer}>
-          {message.sendStatus === SendStatus.success || !message.sender ? (
-            <View>
-              <NumberlessRegularText style={styles.timeStamp}>
-                {getTimeStamp(message.timestamp)}
-              </NumberlessRegularText>
-            </View>
-          ) : (
-            <View>
-              {message.sendStatus === SendStatus.journaled ? (
-                <View>
-                  <Sending />
-                </View>
-              ) : (
-                <View>
-                  {message.sendStatus === SendStatus.failed ? (
-                    <View>
-                      <NumberlessRegularText style={styles.failedStamp}>
-                        {'failed'}
-                      </NumberlessRegularText>
-                    </View>
-                  ) : (
-                    <View>
-                      <Sending />
-                    </View>
-                  )}
-                </View>
-              )}
-            </View>
-          )}
-        </View>
-      )}
+      {!isReply && renderTimeStamp(message)}
     </Pressable>
   );
 }
 
-function shouldRenderProfileName(memberName: string): boolean {
+function renderTimeStamp(message: SavedMessageParams) {
+  if (message.sendStatus === SendStatus.success || !message.sender) {
+    return (
+      <View style={styles.timeStampContainer}>
+        <NumberlessRegularText style={styles.timeStamp}>
+          {getTimeStamp(message.timestamp)}
+        </NumberlessRegularText>
+      </View>
+    );
+  } else if (message.sendStatus === SendStatus.failed) {
+    return (
+      <View style={styles.timeStampContainer}>
+        <NumberlessItalicText style={styles.failedStamp}>
+          failed
+        </NumberlessItalicText>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.timeStampContainer}>
+        <Sending />
+      </View>
+    );
+  }
+}
+
+function shouldRenderProfileName(memberName: string) {
   if (memberName === '') {
     return false;
   } else {
@@ -123,11 +130,15 @@ function shouldRenderProfileName(memberName: string): boolean {
 function renderProfileName(
   shouldRender: boolean,
   name: string = DEFAULT_NAME,
-): ReactNode {
+  isSender: boolean,
+  isReply: boolean,
+) {
   return (
     <View>
       {shouldRender ? (
         <NumberlessMediumText>{name}</NumberlessMediumText>
+      ) : isSender && isReply ? (
+        <NumberlessMediumText>You</NumberlessMediumText>
       ) : (
         <View />
       )}

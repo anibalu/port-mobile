@@ -14,14 +14,11 @@ import UpdateNamePopup from '@components/UpdateNamePopup';
 import {DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {
-  getProfileName,
-  getProfilePicture,
-  setNewProfilePicture,
-} from '@utils/Profile';
+import {getProfileName, getProfilePicture} from '@utils/Profile';
 import React, {useEffect, useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
-import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {useFocusEffect} from '@react-navigation/native';
 import ReportIssueModal from '../BugReporting/ReportIssueModal';
 import ActiveSuperports from './ActiveSuperports';
 import PendingContacts from './PendingContacts';
@@ -44,28 +41,6 @@ function MyProfile({navigation}: Props) {
       setProfileURI(uri);
     }
   }
-  //lets user set new profile picture
-  async function setNewPicture() {
-    try {
-      const selectedAssets = await launchImageLibrary({
-        mediaType: 'photo',
-        includeBase64: true,
-        selectionLimit: 1,
-      });
-      //images are selected
-      const selected: Asset[] = selectedAssets.assets || [];
-      if (selected.length >= 1) {
-        await setNewProfilePicture({
-          fileUri: selected[0].uri || '',
-          fileType: selected[0].type || '',
-          fileName: selected[0].fileName || '',
-        });
-        await setPicture();
-      }
-    } catch (error) {
-      console.log('Nothing selected', error);
-    }
-  }
   //updates name with user set name
   async function setUserName() {
     setName(await getProfileName());
@@ -84,29 +59,28 @@ function MyProfile({navigation}: Props) {
     }
     setEditingName(false);
   }
-
+  useFocusEffect(
+    React.useCallback(() => {
+      (async () => {
+        setPicture();
+      })();
+    }, []),
+  );
   return (
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
       <BackTopbar />
       <View style={styles.profile}>
-        <Pressable
-          style={styles.profilePictureHitbox}
-          onPress={() => {
-            navigation.navigate('ImageView', {
-              imageURI: profileURI,
-              title: name,
-            });
-          }}>
-          <Image source={{uri: profileURI}} style={styles.profilePic} />
+        <View style={styles.profilePictureHitbox}>
+          <GenericAvatar profileUri={profileURI} avatarSize="medium" />
           <Pressable
             style={styles.updatePicture}
             onPress={() => {
-              setNewPicture();
+              navigation.navigate('EditAvatar');
             }}>
             <EditCameraIcon />
           </Pressable>
-        </Pressable>
+        </View>
         <View style={styles.nicknameArea}>
           <NumberlessSemiBoldText
             style={styles.nickname}
@@ -180,6 +154,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
+    padding: 10,
   },
   profilePic: {
     width: 132,

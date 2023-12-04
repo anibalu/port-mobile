@@ -1,5 +1,5 @@
-import DefaultImage from '@assets/avatars/avatar.png';
 import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {GenericAvatar} from '@components/GenericAvatar';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
@@ -13,7 +13,7 @@ import {
 } from '@utils/Connections/interfaces';
 import {getChatTileTimestamp} from '@utils/Time';
 import React from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 
 function ChatTile(props: ConnectionInfo) {
   const navigation = useNavigation();
@@ -22,7 +22,7 @@ function ChatTile(props: ConnectionInfo) {
     if (props.pathToDisplayPic && props.pathToDisplayPic !== '') {
       return `file://${props.pathToDisplayPic}`;
     }
-    return Image.resolveAssetSource(DefaultImage).uri;
+    return 'avatar://1';
   }
 
   //handles navigation to a chat screen and toggles chat to read.
@@ -59,7 +59,7 @@ function ChatTile(props: ConnectionInfo) {
         </NumberlessRegularText>
       </View>
       <View style={styles.messageBox}>
-        <Image source={{uri: chooseProfileURI()}} style={styles.picture} />
+        <GenericAvatar profileUri={chooseProfileURI()} avatarSize="small" />
         <View style={styles.metadata}>
           {props.disconnected ? (
             <View
@@ -119,10 +119,7 @@ function ChatTile(props: ConnectionInfo) {
         </NumberlessRegularText>
       </View>
       <View style={styles.messageBox}>
-        <Image
-          source={{uri: Image.resolveAssetSource(DefaultImage).uri}}
-          style={styles.pictureInit}
-        />
+        <GenericAvatar profileUri={chooseProfileURI()} avatarSize="small" />
       </View>
     </Pressable>
   );

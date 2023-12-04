@@ -9,6 +9,7 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import DefaultImage from '@assets/avatars/avatar.png';
 import {getProfilePicture} from '@utils/Profile';
 import ProfileBackground from '@assets/backgrounds/profileBackground.svg';
+import {GenericAvatar} from '@components/GenericAvatar';
 
 type TopbarProps = {
   filter: String | undefined;
@@ -43,7 +44,7 @@ function Topbar(props: TopbarProps) {
       <View style={styles.profileImageContainer}>
         <ProfileBackground style={styles.backgroundImage} />
         <Pressable onPress={() => navigation.navigate('MyProfile')}>
-          <Image source={{uri: profileURI}} style={styles.image} />
+          <GenericAvatar profileUri={profileURI} avatarSize={'extraSmall'} />
         </Pressable>
       </View>
     </View>

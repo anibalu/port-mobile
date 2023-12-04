@@ -24,6 +24,7 @@ import Placeholder from '@screens/Placeholder/Placeholder';
 import {NewPortModalProvider} from 'src/context/NewPortModalContext';
 import {AppStackParamList} from './AppStackTypes';
 import BottomNavStack from './BottomNavStack';
+import EditAvatar from '@screens/MyProfile/EditAvatar';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -64,6 +65,7 @@ function AppStack() {
           />
           <Stack.Screen name="SuggestAFeature" component={SuggestAFeature} />
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
+          <Stack.Screen name="EditAvatar" component={EditAvatar} />
         </Stack.Navigator>
       </NewPortModalProvider>
     </>

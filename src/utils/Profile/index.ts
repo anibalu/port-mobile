@@ -143,9 +143,9 @@ export async function getProfileName() {
 export async function getProfilePicture(): Promise<string | null> {
   try {
     const file: FileAttributes = await storage.getProfilePicAttributes(true);
-    return 'file://' + file.fileUri;
+    return file.fileUri;
   } catch (error) {
-    return null;
+    return 'avatar://1';
   }
 }
 
@@ -163,7 +163,12 @@ export async function getProfilePictureAttributes(): Promise<FileAttributes | nu
  * @param {FileAttributes} file - new profile picture file attributes
  */
 export async function setNewProfilePicture(file: FileAttributes) {
-  await storage.saveProfilePicAttributes(file, true);
+  try {
+    console.log('saving new dp: ', file);
+    await storage.saveProfilePicAttributes(file, true);
+  } catch (error) {
+    console.log('error saving profile pic');
+  }
 }
 
 /**

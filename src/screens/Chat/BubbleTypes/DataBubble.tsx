@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 
 import {View, StyleSheet, Pressable} from 'react-native';
 
@@ -7,7 +7,11 @@ import {getTimeStamp} from '@utils/Time';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import {PortColors} from '@components/ComponentUtils';
 
-export default function DataBubble(message: SavedMessageParams) {
+/**
+ * @param message, message object
+ * @returns {ReactNode} data bubble element
+ */
+export default function DataBubble(message: SavedMessageParams): ReactNode {
   return (
     <Pressable style={styles.textBubbleContainer}>
       <NumberlessRegularText style={styles.text}>

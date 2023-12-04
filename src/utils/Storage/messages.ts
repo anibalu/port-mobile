@@ -16,7 +16,12 @@ export async function saveMessage(
   await DBCalls.addMessage({...message});
   return;
 }
-
+/**
+ *
+ * @param {string} chatId
+ * @param {string} messageId
+ * @returns {Promise<{SavedMessageParams|null}>} - message for the given chat and messsageId, if it exists
+ */
 export async function getMessage(
   chatId: string,
   messageId: string,

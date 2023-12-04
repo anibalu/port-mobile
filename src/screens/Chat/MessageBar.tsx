@@ -13,8 +13,7 @@ import {extractMemberInfo} from '@utils/Groups';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {sendMessage} from '@utils/Messaging/sendMessage';
 import {FileAttributes} from '@utils/Storage/sharedFile';
-import {wait} from '@utils/Time';
-import React, {memo, useState} from 'react';
+import React, {ReactNode, memo, useState} from 'react';
 import {
   KeyboardAvoidingView,
   Pressable,
@@ -32,10 +31,19 @@ import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
 import TextReplyContainer from './ReplyContainers/TextReplyContainer';
 import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
 
+/**
+ * Renders the bottom input bar for a chat.
+ * @param chatId , active chat
+ * @param isGroupChat
+ * @param replyTo, message being replied to
+ * @param setReplyTo, setter for the same
+ * @param name, name of the person being replied to
+ * @param groupInfo
+ * @param chatId
+ * @returns {ReactNode}, message bar that handles all inputs
+ */
 const MessageBar = ({
   chatId,
-  flatlistRef,
-  listLen,
   isGroupChat,
   replyTo,
   setReplyTo,
@@ -44,33 +52,27 @@ const MessageBar = ({
   onSend,
 }: {
   chatId: string;
-  flatlistRef: any;
-  listLen: number;
   replyTo: SavedMessageParams | undefined;
   setReplyTo: any;
   isGroupChat: boolean;
   name: string;
   groupInfo: any;
   onSend: any;
-}) => {
+}): ReactNode => {
   const inputTextBarWidth = screen.width - 126;
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [isPopUpVisible, setPopUpVisible] = useState(false);
 
-  const togglePopUp = () => {
+  const togglePopUp = (): void => {
     setPopUpVisible(!isPopUpVisible);
   };
-  const onChangeText = (newText: string) => {
+
+  const onChangeText = (newText: string): void => {
     setText(newText);
   };
-  const onPressed = async () => {
-    await wait(300);
-    if (listLen > 1) {
-      flatlistRef.current.scrollToOffset({animated: true, offset: 0});
-    }
-  };
-  const sendText = async () => {
+
+  const sendText = async (): Promise<void> => {
     const processedText = text.trim();
     if (processedText !== '') {
       setText('');
@@ -100,7 +102,8 @@ const MessageBar = ({
       onSend();
     }
   };
-  const onImagePressed = async () => {
+
+  const onImagePressed = async (): Promise<void> => {
     try {
       const response = await launchImageLibrary({
         mediaType: 'photo',
@@ -130,7 +133,8 @@ const MessageBar = ({
       console.log('Nothing selected', error);
     }
   };
-  const onVideoPressed = async () => {
+
+  const onVideoPressed = async (): Promise<void> => {
     try {
       const response = await launchImageLibrary({
         mediaType: 'video',
@@ -161,7 +165,8 @@ const MessageBar = ({
       console.log('Nothing selected', error);
     }
   };
-  const onFilePressed = async () => {
+
+  const onFilePressed = async (): Promise<void> => {
     try {
       const selected: DocumentPickerResponse[] = await DocumentPicker.pick({
         type: [DocumentPicker.types.allFiles],
@@ -237,7 +242,6 @@ const MessageBar = ({
                   value={text}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
-                  onPressIn={onPressed}
                 />
               </View>
             </View>
@@ -314,7 +318,6 @@ const MessageBar = ({
                   value={text}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
-                  onPressIn={onPressed}
                 />
               </View>
             </View>
@@ -340,7 +343,7 @@ function renderReplyBar(
   isGroupChat: boolean,
   groupInfo: any,
   name: string,
-) {
+): ReactNode {
   switch (replyTo.contentType) {
     case ContentType.text: {
       return (

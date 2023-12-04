@@ -1,6 +1,6 @@
-import React, {memo, useEffect, useState} from 'react';
+import React, {ReactNode, memo, useEffect, useState} from 'react';
 
-import {Image, StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, View, ViewStyle} from 'react-native';
 import DefaultImage from '@assets/avatars/avatar.png';
 import {NumberlessRegularText} from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
@@ -24,7 +24,18 @@ interface MessageBubbleProps {
   groupInfo: any;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({
+/**
+ * Individual chat bubbles
+ * @param message
+ * @param isDateBoundary , if message should have a date bubble before it.
+ * @param selected
+ * @param handlePress
+ * @param handleLongPress
+ * @param isGroupChat
+ * @param groupInfo
+ * @returns {ReactNode} bubble component
+ */
+const MessageBubble = ({
   message,
   isDateBoundary,
   selected,
@@ -32,7 +43,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   handleLongPress,
   isGroupChat,
   groupInfo,
-}) => {
+}: MessageBubbleProps): ReactNode => {
   const [intitialContainerType, initialBlobType] = initialStylePicker(
     message.contentType,
     message.sender,
@@ -102,9 +113,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
  * Decides the styling of the container - data, sender or receiver container and blobs
  * @param contentType - message content type
  * @param sender - whether message is sent by user
- * @returns - styling
+ * @returns {list} - styling
  */
-function initialStylePicker(contentType: ContentType, sender: boolean) {
+function initialStylePicker(
+  contentType: ContentType,
+  sender: boolean,
+): ViewStyle[] {
   if (isDataMessage(contentType)) {
     return [styles.DataContainer, styles.DataBlob];
   } else {
@@ -116,7 +130,7 @@ function initialStylePicker(contentType: ContentType, sender: boolean) {
     }
   }
 }
-function findMemberName(memberInfo: any) {
+function findMemberName(memberInfo: any): string {
   if (memberInfo.memberId) {
     return memberInfo.name || DEFAULT_NAME;
   }
@@ -125,7 +139,7 @@ function findMemberName(memberInfo: any) {
 function selectedMessageBackgroundStylePicker(
   contentType: ContentType,
   sender: boolean,
-) {
+): ViewStyle {
   if (isDataMessage(contentType)) {
     return styles.DataBlob;
   }
@@ -136,10 +150,11 @@ function selectedMessageBackgroundStylePicker(
       return styles.ReceiverSelectedBlob;
   }
 }
+
 function unselectedMessageBackgroundStylePicker(
   contentType: ContentType,
   sender: boolean,
-) {
+): ViewStyle {
   if (isDataMessage(contentType)) {
     return styles.DataBlob;
   }
@@ -150,7 +165,13 @@ function unselectedMessageBackgroundStylePicker(
       return styles.ReceiverBlob;
   }
 }
-function isDataMessage(contentType: ContentType) {
+
+/**
+ * Determines if message to be rendered is a protocol message
+ * @param contentType, content flag
+ * @returns {boolean}
+ */
+function isDataMessage(contentType: ContentType): boolean {
   if (
     contentType === ContentType.newChat ||
     contentType === ContentType.displayImage ||
@@ -162,6 +183,17 @@ function isDataMessage(contentType: ContentType) {
   }
   return false;
 }
+
+/**
+ * Renders a bubble based on the type of message
+ * @param message
+ * @param isGroup
+ * @param handlePress
+ * @param handleLongPress
+ * @param memberName
+ * @param groupInfo
+ * @returns {ReactNode} bubble based on contents.
+ */
 function renderBubbleType(
   message: SavedMessageParams,
   isGroup: boolean,
@@ -169,7 +201,7 @@ function renderBubbleType(
   handleLongPress: any,
   memberName: string = '',
   groupInfo: any,
-) {
+): ReactNode {
   /**
    * @todo add styling properly
    */
@@ -228,7 +260,8 @@ function renderBubbleType(
       return <DataBubble {...message} />;
   }
 }
-function chooseProfileURI(imageUri: string = '') {
+
+function chooseProfileURI(imageUri: string = ''): string {
   if (imageUri !== undefined && imageUri !== '') {
     return `file://${imageUri}`;
   } else {

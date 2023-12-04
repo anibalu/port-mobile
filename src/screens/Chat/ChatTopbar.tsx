@@ -6,13 +6,22 @@ import {GenericButton} from '@components/GenericButton';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import {toggleRead} from '@utils/Connections';
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 
+/**
+ * Handles top bar for chat
+ * @param name, of user being interacted with, or group
+ * @param chatId
+ * @param selectedMessages
+ * @param setSelectedMessages
+ * @param isGroupChat
+ * @param profileURI, URI for the user/group.
+ * @returns {ReactNode} topbar for chat
+ */
 function ChatTopbar({
   name,
   chatId,
-  //profile Uri
   selectedMessages,
   setSelectedMessages,
   isGroupChat,
@@ -20,24 +29,31 @@ function ChatTopbar({
 }: {
   name: string;
   chatId: string;
-  //type string
   selectedMessages: string[];
   setSelectedMessages: any;
   isGroupChat: boolean;
   profileURI?: string;
-}) {
-  const navigation = useNavigation();
+}): ReactNode {
+  const navigation = useNavigation<any>();
+
+  const onBackPress = async (): Promise<void> => {
+    setSelectedMessages([]);
+    await toggleRead(chatId);
+    navigation.goBack();
+  };
+
+  const onSettingsPressed = (): void => {
+    if (isGroupChat) {
+      navigation.navigate('GroupProfile', {groupId: chatId});
+    } else {
+      navigation.navigate('ContactProfile', {chatId: chatId});
+    }
+  };
+
   return (
     <View style={styles.bar}>
       <View style={styles.backAndProfile}>
-        <BackButton
-          style={styles.backIcon}
-          onPress={async () => {
-            setSelectedMessages([]);
-            await toggleRead(chatId);
-            navigation.goBack();
-          }}
-        />
+        <BackButton style={styles.backIcon} onPress={onBackPress} />
         {profileURI && (
           <Image source={{uri: profileURI}} style={styles.profile} />
         )}
@@ -72,13 +88,7 @@ function ChatTopbar({
           <GenericButton
             buttonStyle={styles.settingsBox}
             Icon={SettingsIcon}
-            onPress={() => {
-              if (isGroupChat) {
-                navigation.navigate('GroupProfile', {groupId: chatId});
-              } else {
-                navigation.navigate('ContactProfile', {chatId: chatId});
-              }
-            }}
+            onPress={onSettingsPressed}
           />
         )}
       </View>

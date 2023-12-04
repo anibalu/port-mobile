@@ -1,5 +1,6 @@
 import {PAGINATION_LIMIT} from '@configs/constants';
 import {runSimpleQuery} from './dbCommon';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 
 function toBool(a: number) {
   if (a) {
@@ -119,11 +120,16 @@ export async function getMessageIterator(chatId: string) {
   return messageIterator;
 }
 
+/**
+ * @param chatId , chat to be loaded
+ * @param latestTimestamp , lower bound of messages that need to be fetched
+ * @returns {SavedMessageParams[]} list of messages
+ */
 export async function getLatestMessages(
   chatId: string,
   latestTimestamp: string,
-) {
-  let messageList: any[] = [];
+): Promise<SavedMessageParams[]> {
+  let messageList: SavedMessageParams[] = [];
   await runSimpleQuery(
     `
     SELECT * FROM lineMessages

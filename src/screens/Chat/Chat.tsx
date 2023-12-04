@@ -38,9 +38,8 @@ type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 function Chat({route, navigation}: Props) {
   //gets lineId of chat
   const {chatId} = route.params;
-  //Name to be displayed in topbar
-  const [cursor, setCursor] = useState(0);
 
+  const [cursor, setCursor] = useState(0);
   const [chatState, setChatState] = useState({
     name: '',
     isGroupChat: false,
@@ -52,6 +51,7 @@ function Chat({route, navigation}: Props) {
 
   const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
 
+  //Allows for message auto-scrolling in the list. Set to true as list is INVERTED.
   const [enableAutoscrollToTop, setEnableAutoscrollToTop] = useState(true);
 
   //selected messages
@@ -69,15 +69,16 @@ function Chat({route, navigation}: Props) {
     state => state.latestSendStatusUpdate.updated,
   );
 
-  //handles selecting messages
-  const handleMessageBubbleLongPress = (messageId: string) => {
+  //handles toggling the select messages flow.
+  const handleMessageBubbleLongPress = (messageId: string): void => {
     //adds messageId to selected messages on long press
     if (!selectedMessages.includes(messageId)) {
       setSelectedMessages([...selectedMessages, messageId]);
     }
   };
 
-  const handleMessageBubbleShortPress = (messageId: string) => {
+  //Handles selecting messages once select messages flow is toggled
+  const handleMessageBubbleShortPress = (messageId: string): void => {
     // removes messageId from selected messages on short press
     if (selectedMessages.includes(messageId)) {
       setSelectedMessages(
@@ -93,13 +94,11 @@ function Chat({route, navigation}: Props) {
     }
   };
 
-  //update chat state
   const updateChatState = useCallback(newState => {
     setChatState(prevState => ({...prevState, ...newState}));
   }, []);
 
-  //Removes selected messages post deletion
-  const updateAfterDeletion = (messageIds: string[]) => {
+  const updateAfterDeletion = (messageIds: string[]): void => {
     setMessages(messages =>
       messages.filter(message => !messageIds.includes(message.messageId)),
     );
@@ -112,6 +111,7 @@ function Chat({route, navigation}: Props) {
       const msg = await getMessage(chatId, message);
       switch (msg?.contentType) {
         case ContentType.text: {
+          //Formatting multiple messages into a single string.
           copyString += `[${msg?.timestamp}] : [${
             chatState.isGroupChat
               ? findMemberName(
@@ -178,12 +178,8 @@ function Chat({route, navigation}: Props) {
     }, []),
   );
 
-  //sets up a subscriber to the message store when screen is focused.
-  //subscriber runs every time a new message is sent or recieved.
-  //chat is automatically toggled as read.
-
+  //runs every time a new message is recieved.
   useEffect(() => {
-    console.log('receive trigger called');
     (async () => {
       if (chatState.isGroupChat) {
         updateChatState({groupInfo: await getGroupInfo(chatId)});
@@ -196,8 +192,8 @@ function Chat({route, navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestReceivedMessage]);
 
+  //Runs every time a message is sent into the queue.
   useEffect(() => {
-    console.log('send trigger called');
     (async () => {
       if (chatState.messagesLoaded) {
         await addNewMessages();
@@ -206,8 +202,8 @@ function Chat({route, navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestSentMessage]);
 
+  //Runs every time a sent message's send status is updated.
   useEffect(() => {
-    console.log('updates send status trigger called');
     (async () => {
       if (chatState.messagesLoaded) {
         await updateMessages(messages);
@@ -216,7 +212,7 @@ function Chat({route, navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestUpdatedSendStatus]);
 
-  const updateMessages = async (msgs: SavedMessageParams[]) => {
+  const updateMessages = async (msgs: SavedMessageParams[]): Promise<void> => {
     const indices: number[] = [];
     msgs.forEach((element, index) => {
       if (
@@ -235,8 +231,7 @@ function Chat({route, navigation}: Props) {
     setMessages(msgs);
   };
 
-  //This function is called twice when a message is sent (subscriber detects send and receive), hence a debouncer.
-  const addNewMessages = async () => {
+  const addNewMessages = async (): Promise<void> => {
     if (messages.length >= 1) {
       const messageList = await getLatestMessages(
         chatId,
@@ -251,7 +246,7 @@ function Chat({route, navigation}: Props) {
     }
   };
 
-  const onStartReached = async () => {
+  const onStartReached = async (): Promise<void> => {
     const resp = await readPaginatedMessages(chatId, cursor);
     setMessages(oldList => oldList.concat(resp.messages));
     //When this is called, the user has reached the top and a new message should autoscroll them down.
@@ -261,8 +256,6 @@ function Chat({route, navigation}: Props) {
     setCursor(resp.cursor);
   };
 
-  //A reference to the flatlist that displays messages
-  const flatList = React.useRef(null);
   return (
     <SafeAreaView style={styles.screen}>
       <ChatBackground />
@@ -276,7 +269,6 @@ function Chat({route, navigation}: Props) {
       />
       <ChatList
         messages={messages}
-        flatlistRef={flatList}
         allowScrollToTop={enableAutoscrollToTop}
         onStartReached={onStartReached}
         selectedMessages={selectedMessages}
@@ -303,8 +295,6 @@ function Chat({route, navigation}: Props) {
               chatId={chatId}
               replyTo={replyToMessage}
               setReplyTo={setReplyToMessage}
-              flatlistRef={flatList}
-              listLen={messages.length}
               isGroupChat={chatState.isGroupChat}
               groupInfo={chatState.groupInfo}
             />
@@ -317,7 +307,11 @@ function Chat({route, navigation}: Props) {
   );
 }
 
-function findMemberName(memberInfo: any) {
+/**
+ * @param memberInfo, object containing details about a member
+ * @returns {string}, member name if present
+ */
+function findMemberName(memberInfo: any): string {
   if (memberInfo.memberId) {
     return memberInfo.name || DEFAULT_NAME;
   }

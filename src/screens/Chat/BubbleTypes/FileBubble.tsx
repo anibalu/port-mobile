@@ -9,11 +9,19 @@ import {
 import {DEFAULT_NAME} from '@configs/constants';
 import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
 import {getTimeStamp} from '@utils/Time';
-import React, {useEffect, useState} from 'react';
+import React, {ReactNode, useEffect, useState} from 'react';
 import {Image, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import FileReplyContainer from '../ReplyContainers/FileReplyContainer';
 
+/**
+ * @param message, message object
+ * @param handlePress
+ * @param handleLongPress
+ * @param memberName
+ * @param isReply, defaults to false, used to handle reply bubbles
+ * @returns {ReactNode} file bubble component
+ */
 export default function FileBubble({
   message,
   handlePress,
@@ -26,7 +34,7 @@ export default function FileBubble({
   handleLongPress: any;
   memberName: string;
   isReply?: boolean;
-}) {
+}): ReactNode {
   const [fileURI, setFileURI] = useState(
     Image.resolveAssetSource(DefaultImage).uri,
   );
@@ -104,7 +112,7 @@ export default function FileBubble({
   );
 }
 
-function shouldRenderProfileName(memberName: string) {
+function shouldRenderProfileName(memberName: string): boolean {
   if (memberName === '') {
     return false;
   } else {
@@ -112,7 +120,10 @@ function shouldRenderProfileName(memberName: string) {
   }
 }
 
-function renderProfileName(shouldRender: boolean, name: string = DEFAULT_NAME) {
+function renderProfileName(
+  shouldRender: boolean,
+  name: string = DEFAULT_NAME,
+): ReactNode {
   return (
     <View>
       {shouldRender ? (

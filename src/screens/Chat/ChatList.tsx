@@ -1,13 +1,23 @@
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import {checkDateBoundary} from '@utils/Time';
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {FlatList} from 'react-native-bidirectional-infinite-scroll';
 import MessageBubble from './MessageBubble';
-
+/**
+ * Renders an inverted flatlist that displays all chat messages.
+ * @param messages - messages to be displayed
+ * @param allowScrollToTop - allows autoscroll
+ * @param selectedMessages - messages selected, if any
+ * @param handlePress
+ * @param handleLongPress
+ * @param onStartReached - on reaching end of the message list
+ * @param isGroupChat
+ * @param groupInfo
+ * @returns {ReactNode} flatlist that renders chat.
+ */
 function ChatList({
   messages,
   allowScrollToTop,
-  flatlistRef,
   selectedMessages,
   handlePress,
   handleLongPress,
@@ -16,7 +26,6 @@ function ChatList({
   groupInfo,
 }: {
   messages: SavedMessageParams[];
-  flatlistRef: any;
   allowScrollToTop: boolean;
   selectedMessages: string[];
   onStartReached: any;
@@ -24,7 +33,7 @@ function ChatList({
   handleLongPress: any;
   isGroupChat: boolean;
   groupInfo: any;
-}) {
+}): ReactNode {
   //render function to display message bubbles
   const renderMessage = ({
     item,
@@ -36,6 +45,8 @@ function ChatList({
     if (item.data?.deleted) {
       return null;
     }
+
+    //Checks if a date bubbled needs to be displayed.
     const isDateBoundary =
       index >= messages.length - 1
         ? true
@@ -59,7 +70,6 @@ function ChatList({
       data={messages}
       renderItem={renderMessage}
       inverted
-      ref={flatlistRef}
       keyExtractor={message => message.messageId}
       enableAutoscrollToTop={allowScrollToTop}
       onStartReached={async () => {}}

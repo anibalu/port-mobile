@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import Copy from '@assets/icons/copy.svg';
 import Delete from '@assets/icons/delete.svg';
@@ -9,6 +9,16 @@ import CustomModal from '@components/CustomModal';
 import {NumberlessMediumText} from '@components/NumberlessText';
 import {getMessage, updateMessage} from '@utils/Storage/messages';
 
+/**
+ * Renders action bar based on messages that are selected
+ * @param chatId,
+ * @param selectedMessages, messages selected
+ * @param setReplyTo, message being replied to (only useful if one message is selected)
+ * @param postDelete,
+ * @param onCopy,
+ * @param onForward,
+ * @returns {ReactNode} action bar that sits above the message bar
+ */
 export function MessageActionsBar({
   chatId,
   selectedMessages,
@@ -23,11 +33,11 @@ export function MessageActionsBar({
   postDelete: any;
   onCopy: any;
   onForward: any;
-}) {
-  const performReply = async () => {
+}): ReactNode {
+  const performReply = async (): Promise<void> => {
     setReplyTo(await getMessage(chatId, selectedMessages[0]));
   };
-  const performDelete = async () => {
+  const performDelete = async (): Promise<void> => {
     for (const msg of selectedMessages) {
       const message = await getMessage(chatId, msg);
       await updateMessage(chatId, msg, {

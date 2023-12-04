@@ -68,7 +68,7 @@ export function getChatTileTimestamp(ISOTime: string | undefined): string {
 export function checkDateBoundary(
   ISOTimeString1: string | null,
   ISOTimeString2: string | null,
-) {
+): boolean {
   try {
     if (!ISOTimeString1 || !ISOTimeString2) {
       return false;

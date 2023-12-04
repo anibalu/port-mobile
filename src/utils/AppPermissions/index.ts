@@ -35,7 +35,15 @@ export const checkNotificationPermission = async () => {
   }
 };
 
-export const checkCameraPermission = async setIsCameraPermissionGranted => {
+/**
+ * Self explanatory
+ * @param setIsCameraPermissionGranted, a setter function that sets state based on the response
+ * @returns {null};
+ */
+
+export const checkCameraPermission = async (
+  setIsCameraPermissionGranted: Function,
+) => {
   const requestCameraPermission = async (cameraPermission: Permission) => {
     const cameraPermissionStatus = await request(cameraPermission);
     if (cameraPermissionStatus === RESULTS.GRANTED) {

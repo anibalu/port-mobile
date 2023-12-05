@@ -35,7 +35,7 @@ export const FontSizes = {
       fontSize: 21,
     },
     semibold: {
-      fontFamily: 'Rubik-Semibold',
+      fontFamily: 'Rubik-SemiBold',
       fontSize: 21,
     },
     medium: {
@@ -49,7 +49,7 @@ export const FontSizes = {
       fontSize: 17,
     },
     semibold: {
-      fontFamily: 'Rubik-Semibold',
+      fontFamily: 'Rubik-SemiBold',
       fontSize: 17,
     },
     medium: {

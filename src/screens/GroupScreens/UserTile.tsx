@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
   defaultTileContainer: {
     width: 80,
     marginBottom: 16,
+    marginHorizontal: 5,
     alignItems: 'center',
     justifyContent: 'center',
   },

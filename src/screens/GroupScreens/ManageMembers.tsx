@@ -6,8 +6,8 @@ import {
   NumberlessMediumText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
-import React, {useCallback, useEffect, useState} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 // import NamePopup from './UpdateNamePopup';
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
@@ -19,6 +19,7 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {GroupInfo, GroupMember} from '@utils/Groups/interfaces';
 import {getGroupInfo} from '@utils/Storage/group';
 
+import {FontSizes} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import UserTile from './UserTile';
 
@@ -63,27 +64,61 @@ function ManageMembers({route, navigation}: Props) {
     }, []),
   );
 
-  const renderItems = useCallback(({item}: {item: GroupMember}) => {
-    return <UserTile member={item} />;
-  }, []);
+  // const renderItems = useCallback(({item}: {item: GroupMember}) => {
+  //   return <UserTile member={item} />;
+  // }, []);
+
+  const rows = [];
+  for (let i = 0; i < viewableMembers.length; i += 4) {
+    const rowMembers = viewableMembers.slice(i, i + 4);
+    rows.push(
+      <View
+        key={i}
+        style={{
+          flexDirection: 'row',
+          width: '100%',
+          justifyContent:
+            rowMembers.length == 4 ? 'space-between' : 'flex-start',
+        }}>
+        {rowMembers.map(item => (
+          <UserTile member={item} />
+        ))}
+      </View>,
+    );
+  }
 
   return (
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
       <GenericTopBar
         title={'Members'}
+        titleStyle={{...FontSizes[17].semibold}}
         onBackPress={() => {
           navigation.goBack();
         }}
       />
       {groupInfo?.amAdmin && (
-        <GenericButton
-          onPress={() => {
-            navigation.navigate('ShareGroup', {groupId: groupId});
-          }}
-          buttonStyle={{width: '80%', marginTop: 30}}>
-          Add member
-        </GenericButton>
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '90%',
+            justifyContent: 'space-between',
+          }}>
+          <GenericButton
+            onPress={() => {
+              navigation.navigate('ShareGroup', {groupId: groupId});
+            }}
+            buttonStyle={{width: '47%', height: 60, marginTop: 30}}>
+            Existing ports
+          </GenericButton>
+          <GenericButton
+            onPress={() => {
+              navigation.navigate('ShareGroup', {groupId: groupId});
+            }}
+            buttonStyle={{width: '47%', height: 60, marginTop: 30}}>
+            Group invite
+          </GenericButton>
+        </View>
       )}
 
       <View style={styles.section}>
@@ -105,7 +140,8 @@ function ManageMembers({route, navigation}: Props) {
           setSearchText={setSearchText}
         />
       </View>
-      <FlatList
+      <View style={styles.container}>{rows}</View>
+      {/* <FlatList
         numColumns={4}
         style={{width: '100%'}}
         contentContainerStyle={{
@@ -116,7 +152,7 @@ function ManageMembers({route, navigation}: Props) {
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
         renderItem={renderItems}
-      />
+      /> */}
     </SafeAreaView>
   );
 }
@@ -295,6 +331,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
+  },
+  container: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    width: '95%',
   },
 });
 

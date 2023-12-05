@@ -117,29 +117,6 @@ function AddMembers({route, navigation}: Props) {
       </View>
       <View style={{flexDirection: 'row', marginHorizontal: 14, marginTop: 16}}>
         <SearchBar searchText={searchText} setSearchText={setSearchText} />
-        {/* <View
-          style={{
-            width: '60%',
-            borderRadius: 8,
-            flexDirection: 'row',
-            paddingLeft: 20,
-            alignItems: 'center',
-
-            backgroundColor: '#FFFFFF',
-          }}>
-          <Search color={'grey'} />
-          <TextInput
-            style={{marginLeft: 20, flex: 1}}
-            textAlign="left"
-            maxLength={NAME_LENGTH_LIMIT}
-            placeholder={isFocused ? '' : 'Search'}
-            placeholderTextColor="#BABABA"
-            onChangeText={onChangeText}
-            value={searchText}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-          />
-        </View> */}
         <Pressable
           style={{
             backgroundColor: '#547CEF',

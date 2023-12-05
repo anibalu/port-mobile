@@ -8,5 +8,6 @@ export const SOFT_ALERT_DURATION = 500;
 export const DEFAULT_NAME = 'Numberless';
 
 export const BUNDLE_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;
+export const ERROR_MODAL_VALIDITY_TIMEOUT = 3000;
 export const SELECTED_MESSAGES_LIMIT = 20;
 export const START_OF_TIME = '2023-11-30T09:47:11Z';

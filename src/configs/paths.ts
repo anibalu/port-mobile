@@ -1,11 +1,9 @@
 /**
  * Paths to profile info
  * @param profileDir - path to directory where profile information is stored
- * @param profileDataPath - path to where general profile info is store
  * @param profilePicAttributesPath - path to where attributes associated with profile picture are stored.
  */
 export const profileDir = '/profile';
-export const profileDataPath = '/data.json';
 export const profilePicAttributesPath = '/profilePictureAttributes.json';
 
 /**
@@ -79,3 +77,8 @@ export const tempDir = '/temp';
  * @param cryptoDir - path to directory where cryptographic information of chats is stored.
  */
 export const cryptoDir = '/crypto';
+
+/**
+ * Key to user profile storage
+ */
+export const sessionKey = 'USER_SESSION_KEY';

@@ -1,9 +1,11 @@
 import {ProfileInfo} from '../Profile/interfaces';
 import {
+  getProfileInfoRNSS,
+  saveProfileInfoRNSS,
+} from './RNSecure/secureProfileHandler';
+import {
   deleteProfilePictureRNFS,
-  getProfileInfoRNFS,
   readProfilePicAttributesRNFS,
-  saveProfileInfoRNFS,
   writeProfilePicAttributesRNFS,
 } from './StorageRNFS/profileHandlers';
 import {FileAttributes} from './sharedFile';
@@ -17,16 +19,18 @@ export async function saveProfileInfo(
   profile: ProfileInfo,
   blocking: boolean = false,
 ) {
-  await saveProfileInfoRNFS(profile, blocking);
+  await saveProfileInfoRNSS(profile, blocking);
 }
 
 /**
  * returns saved profile info
  * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- * @returns {ProfileInfo} - profile info saved
+ * @returns {ProfileInfo|undefined} - profile info saved, undefined if no data exists
  */
-export async function getProfileInfo(blocking: boolean = false) {
-  return await getProfileInfoRNFS(blocking);
+export async function getProfileInfo(
+  blocking: boolean = false,
+): Promise<ProfileInfo | undefined> {
+  return await getProfileInfoRNSS(blocking);
 }
 
 /**

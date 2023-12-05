@@ -55,11 +55,11 @@ export async function setupNewProfile(
 /**
  * gets the profile info of the user
  * @param {boolean} blocking - whether the function should block fs operations until completed. default = true.
- * @returns {Promise<ProfileInfo>} - profile info of the user
+ * @returns {Promise<ProfileInfo|undefined>} - profile info of the user, undefined if none exist
  */
 export async function getProfileInfo(
   blocking: boolean = true,
-): Promise<ProfileInfo> {
+): Promise<ProfileInfo | undefined> {
   //read profile from cache
   const entireState = store.getState();
   const cachedProfile = entireState.profile.profile;
@@ -67,13 +67,20 @@ export async function getProfileInfo(
   //if profile doesn't exist in cache
   if (cachedProfile.clientId === undefined) {
     //read profile from storage
-    const savedProfile: ProfileInfo = await storage.getProfileInfo(blocking);
-    //update cache with profile info
-    store.dispatch({
-      type: 'UPDATE_PROFILE',
-      payload: savedProfile,
-    });
-    return savedProfile;
+    const savedProfile: ProfileInfo | undefined = await storage.getProfileInfo(
+      blocking,
+    );
+    //If undefined, no profile exists.
+    if (savedProfile) {
+      //update cache with profile info
+      store.dispatch({
+        type: 'UPDATE_PROFILE',
+        payload: savedProfile,
+      });
+      return savedProfile;
+    } else {
+      return undefined;
+    }
   }
   //if profile exists in cache
   else {
@@ -87,11 +94,11 @@ export async function getProfileInfo(
  * @returns {Promise<ProfileStatus>} - if profile info exists or not
  */
 export async function checkProfile(): Promise<ProfileStatus> {
-  try {
-    await getProfileInfo(true);
+  const response = await getProfileInfo(true);
+  if (response) {
     return ProfileStatus.created;
-  } catch (error) {
-    console.log('profile doesnt exist: ', error);
+  } else {
+    console.log('profile doesnt exist');
     return ProfileStatus.failed;
   }
 }
@@ -108,7 +115,7 @@ export async function updateProfileInfo(
   const synced = async () => {
     //get current profile info
     const currentProfile = await getProfileInfo(false);
-    let name = currentProfile.name;
+    let name: string = currentProfile!.name;
     if (profileUpdate.name) {
       name = processName(profileUpdate.name);
     }
@@ -131,9 +138,9 @@ export async function updateProfileInfo(
  * Returns name in profile
  * @returns {string} - name in profile
  */
-export async function getProfileName() {
-  const profile: ProfileInfo = await getProfileInfo();
-  return profile.name;
+export async function getProfileName(): Promise<string | undefined> {
+  const profile: ProfileInfo | undefined = await getProfileInfo();
+  return profile?.name ? profile.name : DEFAULT_NAME;
 }
 
 /**

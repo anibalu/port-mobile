@@ -1,10 +1,5 @@
+import {profileDir, profilePicAttributesPath} from '@configs/paths';
 import RNFS from 'react-native-fs';
-import {
-  profileDataPath,
-  profileDir,
-  profilePicAttributesPath,
-} from '../../../configs/paths';
-import {ProfileInfo} from '../../Profile/interfaces';
 import {connectionFsSync} from '../../Synchronization';
 import {FileAttributes} from '../sharedFile';
 
@@ -26,16 +21,6 @@ async function makeProfileDir(): Promise<string> {
 }
 
 /**
- * Retrieves the path to the profile data file inside the profile directory.
- * This function ensures the profile directory exists.
- * @returns {Promise<string>} The path to the profile data file.
- */
-async function getProfileDataPath(): Promise<string> {
-  const profileDirPath = await makeProfileDir();
-  return profileDirPath + profileDataPath;
-}
-
-/**
  * Retrieves the path to the profile pic attributes file inside the profile directory.
  * This function ensures the profile directory exists.
  * @returns {Promise<string>} The path to the profile pic attributes file.
@@ -43,65 +28,6 @@ async function getProfileDataPath(): Promise<string> {
 async function getProfilePicAttributesPath(): Promise<string> {
   const profileDirPath = await makeProfileDir();
   return profileDirPath + profilePicAttributesPath;
-}
-
-/**
- * Overwrites profile file with new info
- * @param {ProfileInfo} profile - the profile information to overwrite witih
- */
-async function writeProfileInfoAsync(profile: ProfileInfo) {
-  const pathToFile = await getProfileDataPath();
-  await RNFS.writeFile(pathToFile, JSON.stringify(profile), DEFAULT_ENCODING);
-}
-/**
- * Reads profile info from profile file
- * @throws {Error} If there is no profile info.
- * @returns {ProfileInfo} - profile info read from file.
- */
-async function readProfileInfoAsync() {
-  const pathToFile = await getProfileDataPath();
-  const profile: ProfileInfo = JSON.parse(
-    await RNFS.readFile(pathToFile, DEFAULT_ENCODING),
-  );
-  return profile;
-}
-
-/**
- * saves profile info to file
- * @param {ProfileInfo} profile - profile info to save
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- */
-export async function saveProfileInfoRNFS(
-  profile: ProfileInfo,
-  blocking: boolean = false,
-) {
-  if (blocking) {
-    const synced = async () => {
-      await writeProfileInfoAsync(profile);
-    };
-    await connectionFsSync(synced);
-  } else {
-    await writeProfileInfoAsync(profile);
-  }
-}
-
-/**
- * reads profile info from file
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- * @throws {Error} If there is no profile info.
- * @returns {ProfileInfo} - profile info saved in file
- */
-export async function getProfileInfoRNFS(
-  blocking: boolean = false,
-): Promise<ProfileInfo> {
-  if (blocking) {
-    const synced = async () => {
-      return await readProfileInfoAsync();
-    };
-    return await connectionFsSync(synced);
-  } else {
-    return await readProfileInfoAsync();
-  }
 }
 
 /**

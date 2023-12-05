@@ -65,7 +65,6 @@ function InformationScreen1({navigation}: Props) {
             justifyContent: 'flex-start',
             flex: 1,
             paddingTop: 50,
-            minHeight: screen.height,
           }}
           showsVerticalScrollIndicator={false}>
           <Pressable
@@ -128,7 +127,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     ...FontSizes[21].medium,
-    marginBottom: 20,
+    marginBottom: 60,
     color: PortColors.primary.blue.app,
     paddingRight: '8%',
     paddingLeft: '8%',
@@ -169,10 +168,9 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.blue.app,
     height: 65,
     width: 65,
-    marginRight: 25,
-    marginTop: 120,
-    marginBottom: 28,
-    alignSelf: 'flex-end',
+    position: 'absolute',
+    bottom: 28,
+    right: 25,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 16,

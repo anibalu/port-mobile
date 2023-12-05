@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {StyleSheet, Pressable, View, TextStyle, ViewStyle} from 'react-native';
 import {NumberlessMediumText} from './NumberlessText';
 import {FontSizes, PortColors} from './ComponentUtils';
@@ -8,21 +8,23 @@ export function GenericButton({
   onPress,
   buttonStyle,
   textStyle,
+  iconHeight,
   Icon,
 }: {
   children?: React.ReactNode;
   onPress: any;
   buttonStyle?: ViewStyle;
   textStyle?: TextStyle;
+  iconHeight?: number;
   Icon?: any;
-}) {
+}): ReactNode {
   return (
     <Pressable
       style={StyleSheet.compose(styles.button, buttonStyle)}
       onPress={onPress}>
       {Icon ? (
         <View style={children ? {marginRight: 8} : {}}>
-          <Icon height={24} />
+          <Icon height={iconHeight ? iconHeight : 24} />
         </View>
       ) : null}
       {children ? (

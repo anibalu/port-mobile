@@ -1,13 +1,13 @@
 import SettingsIcon from '@assets/icons/contact-settings.svg';
 import Cross from '@assets/icons/cross.svg';
 import {BackButton} from '@components/BackButton';
-import {PortColors} from '@components/ComponentUtils';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import {toggleRead} from '@utils/Connections';
 import React, {ReactNode} from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
 
 /**
  * Handles top bar for chat
@@ -54,8 +54,10 @@ function ChatTopbar({
     <View style={styles.bar}>
       <View style={styles.backAndProfile}>
         <BackButton style={styles.backIcon} onPress={onBackPress} />
-        {profileURI && (
-          <Image source={{uri: profileURI}} style={styles.profile} />
+        {profileURI && selectedMessages.length == 0 && (
+          <Pressable onPress={onSettingsPressed}>
+            <Image source={{uri: profileURI}} style={styles.profile} />
+          </Pressable>
         )}
         <View style={styles.titleBar}>
           {selectedMessages.length >= 1 ? (
@@ -63,11 +65,12 @@ function ChatTopbar({
               style={styles.selectedCount}
               ellipsizeMode="tail"
               numberOfLines={1}>
-              {selectedMessages.length.toString() + '  selected'}
+              {selectedMessages.length.toString() + ' selected'}
             </NumberlessSemiBoldText>
           ) : (
             <NumberlessSemiBoldText
               style={styles.title}
+              onPress={onSettingsPressed}
               ellipsizeMode="tail"
               numberOfLines={1}>
               {name}
@@ -80,6 +83,7 @@ function ChatTopbar({
           <GenericButton
             buttonStyle={styles.crossBox}
             Icon={Cross}
+            iconHeight={48}
             onPress={() => {
               setSelectedMessages([]);
             }}
@@ -115,9 +119,8 @@ const styles = StyleSheet.create({
     maxWidth: '60%',
   },
   selectedCount: {
-    fontSize: 17,
-    lineHeight: 28,
-    color: 'black',
+    ...FontSizes[17].semibold,
+    color: PortColors.primary.black,
     overflow: 'hidden',
     width: '100%',
     textAlign: 'center',

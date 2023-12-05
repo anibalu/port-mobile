@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {Dimensions, Image, Pressable, StyleSheet, View} from 'react-native';
-import FileViewer from 'react-native-file-viewer';
 import DefaultImage from '@assets/avatars/avatar.png';
 import Sending from '@assets/icons/sending.svg';
+import Play from '@assets/icons/videoPlay.svg';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {
   NumberlessItalicText,
   NumberlessMediumText,
@@ -11,7 +10,9 @@ import {
 import {DEFAULT_NAME} from '@configs/constants';
 import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
 import {getTimeStamp} from '@utils/Time';
-import {PortColors} from '@components/ComponentUtils';
+import React, {ReactNode, useEffect, useState} from 'react';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
+import FileViewer from 'react-native-file-viewer';
 import {SelectedMessagesSize} from '../Chat';
 import VideoReplyContainer from '../ReplyContainers/VideoReplyContainer';
 //import store from '@store/appStore';
@@ -28,7 +29,7 @@ export default function VideoBubble({
   handleLongPress: any;
   memberName: string;
   isReply?: boolean;
-}) {
+}): ReactNode {
   const [profileURI, setProfileURI] = useState(
     Image.resolveAssetSource(DefaultImage).uri,
   );
@@ -38,10 +39,10 @@ export default function VideoBubble({
     }
   }, [message]);
 
-  const handleLongPressFunction = () => {
+  const handleLongPressFunction = (): void => {
     handleLongPress(message.messageId);
   };
-  const handlePressFunction = () => {
+  const handlePressFunction = (): void => {
     const selectedMessagesSize = handlePress(message.messageId);
     if (selectedMessagesSize === SelectedMessagesSize.empty) {
       FileViewer.open(profileURI, {
@@ -66,8 +67,8 @@ export default function VideoBubble({
               isReply,
             )}
           </View>
-          <View>
-            <Image source={{uri: profileURI}} style={styles.image} />
+          <View style={styles.image}>
+            <Play />
           </View>
         </>
       )}
@@ -76,7 +77,7 @@ export default function VideoBubble({
   );
 }
 
-function renderTimeStamp(message: SavedMessageParams) {
+function renderTimeStamp(message: SavedMessageParams): ReactNode {
   if (message.sendStatus === SendStatus.success || !message.sender) {
     return (
       <View style={styles.timeStampContainer}>
@@ -102,7 +103,7 @@ function renderTimeStamp(message: SavedMessageParams) {
   }
 }
 
-function shouldRenderProfileName(memberName: string) {
+function shouldRenderProfileName(memberName: string): boolean {
   if (memberName === '') {
     return false;
   } else {
@@ -115,7 +116,7 @@ function renderProfileName(
   name: string = DEFAULT_NAME,
   isSender: boolean,
   isReply: boolean,
-) {
+): ReactNode {
   return (
     <View>
       {shouldRender ? (
@@ -129,7 +130,6 @@ function renderProfileName(
   );
 }
 
-const viewWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
@@ -156,9 +156,13 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   image: {
-    height: 0.7 * viewWidth - 40, // Set the maximum height you desire
-    width: 0.7 * viewWidth - 40, // Set the maximum width you desire
+    marginTop: 4,
+    height: 0.7 * screen.width - 40, // Set the maximum height you desire
+    width: 0.7 * screen.width - 40, // Set the maximum width you desire
     borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: PortColors.primary.black,
   },
   replyImage: {
     height: 65,
@@ -167,7 +171,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   replyImageContainer: {
-    width: 0.7 * viewWidth - 40,
+    width: 0.7 * screen.width - 40,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },

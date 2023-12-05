@@ -34,7 +34,7 @@ function CustomModal({
             flexDirection: 'row',
           }}>
           <Text style={styles.titleStyles}>{title}</Text>
-          <Pressable onPress={bottomButtonFunction}>
+          <Pressable style={{bottom: 5}} onPress={bottomButtonFunction}>
             <CrossIcon />
           </Pressable>
         </View>

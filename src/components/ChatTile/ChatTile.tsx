@@ -1,4 +1,4 @@
-import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {
   NumberlessMediumText,
@@ -12,13 +12,13 @@ import {
   ReadStatus,
 } from '@utils/Connections/interfaces';
 import {getChatTileTimestamp} from '@utils/Time';
-import React from 'react';
+import React, {ReactNode, memo} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
-function ChatTile(props: ConnectionInfo) {
-  const navigation = useNavigation();
+function ChatTile(props: ConnectionInfo): ReactNode {
+  const navigation = useNavigation<any>();
   //sets profile picture URI
-  function chooseProfileURI() {
+  function chooseProfileURI(): string {
     if (props.pathToDisplayPic && props.pathToDisplayPic !== '') {
       return `file://${props.pathToDisplayPic}`;
     }
@@ -26,7 +26,7 @@ function ChatTile(props: ConnectionInfo) {
   }
 
   //handles navigation to a chat screen and toggles chat to read.
-  const handleNavigate = async () => {
+  const handleNavigate = async (): Promise<void> => {
     navigation.navigate('DirectChat', {chatId: props.chatId});
   };
   let status: string = props.readStatus;
@@ -65,8 +65,9 @@ function ChatTile(props: ConnectionInfo) {
             <View
               style={{
                 backgroundColor: PortColors.primary.grey.light,
-                paddingHorizontal: 4,
-                width: 90,
+                paddingLeft: 4,
+                width: 100,
+                justifyContent: 'center',
                 flexDirection: 'row',
                 paddingVertical: 2,
               }}>
@@ -126,7 +127,10 @@ function ChatTile(props: ConnectionInfo) {
 }
 
 //returns display string based on new message count
-function displayNumber(newMsgCount: undefined | number, status: string) {
+function displayNumber(
+  newMsgCount: undefined | number,
+  status: string,
+): string {
   switch (status) {
     case 'sent':
       return '';
@@ -137,7 +141,7 @@ function displayNumber(newMsgCount: undefined | number, status: string) {
         if (newMsgCount > 999) {
           return '999+';
         }
-        return newMsgCount;
+        return newMsgCount.toString();
       }
   }
 }
@@ -164,7 +168,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   newMessageContent: {
-    color: '#9E9E9E',
+    color: PortColors.primary.grey.dark,
   },
   messageBox: {
     width: '100%',
@@ -178,30 +182,20 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 17,
   },
-  pictureInit: {
-    width: 50,
-    height: 50,
-    borderRadius: 17,
-    opacity: 0.3,
-  },
   text: {
     height: '100%',
-    width: '100%',
-    overflow: 'hidden',
+    maxWidth: screen.width / 1.5,
     justifyContent: 'center',
     alignContent: 'flex-start',
     position: 'absolute',
-    paddingRight: 64,
     paddingLeft: 78,
   },
   nickname: {
-    fontSize: 16,
-    lineHeight: 16,
+    ...FontSizes[17].medium,
     paddingBottom: 3,
   },
   content: {
-    fontSize: 14,
-    color: '#000000',
+    color: PortColors.primary.black,
   },
   metadata: {
     height: '100%',
@@ -215,13 +209,13 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 12,
-    color: '#B7B6B6',
+    color: PortColors.primary.grey.medium,
   },
   read: {
     display: 'none',
   },
   sent: {
-    backgroundColor: '#B7B6B6',
+    backgroundColor: PortColors.primary.grey.medium,
     borderRadius: 9,
     width: 9,
     height: 9,
@@ -229,14 +223,14 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   seen: {
-    backgroundColor: '#88A9FF',
+    backgroundColor: PortColors.primary.blue.light,
     borderRadius: 9,
     width: 9,
     height: 9,
     fontSize: 0,
   },
   new: {
-    backgroundColor: '#EE786B',
+    backgroundColor: PortColors.primary.red,
     padding: 2,
     paddingLeft: 4,
     paddingRight: 4,
@@ -248,4 +242,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatTile;
+export default memo(ChatTile, (prevProps, nextProps) => {
+  return (
+    prevProps.readStatus === nextProps.readStatus &&
+    prevProps.text === nextProps.text
+  );
+});

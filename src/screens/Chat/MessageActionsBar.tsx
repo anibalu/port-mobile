@@ -60,7 +60,6 @@ export function MessageActionsBar({
         topButtonFunction={performDelete}
         bottomButton="Cancel"
         bottomButtonFunction={() => {
-          console.log('Pressing bro');
           setOpenCustomModal(false);
         }}
       />

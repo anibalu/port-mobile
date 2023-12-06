@@ -8,29 +8,27 @@ import {useNavigation} from '@react-navigation/native';
 import {generateDirectConnectionBundle} from '@utils/Bundles/direct';
 import {convertBundleToLink} from '@utils/DeepLinking';
 import React, {useEffect, useState} from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
-import {useNewPortModal} from '../context/NewPortModalContext';
-import {screen} from './ComponentUtils';
-import GenericInput from './GenericInput';
-import GenericModal from './GenericModal';
+import {useConnectionModal} from '../../context/ConnectionModalContext';
+import {screen} from '../ComponentUtils';
+import GenericInput from '../GenericInput';
+import GenericModal from '../GenericModal';
 import {
   NumberlessBoldText,
   NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
-} from './NumberlessText';
+} from '../NumberlessText';
 import {useSelector} from 'react-redux';
 
 const NewPortModal: React.FC = () => {
-  const {modalVisible, hideModal} = useNewPortModal();
+  const {
+    newPortModalVisible: modalVisible,
+    hideNewPortModal: hideModal,
+    showSuperportModal: showSuperportModal,
+  } = useConnectionModal();
   const [label, setLabel] = useState('');
   const [createPressed, setCreatePressed] = useState<boolean>(false);
 
@@ -40,7 +38,7 @@ const NewPortModal: React.FC = () => {
   // const [saveVisible, setSaveVisible] = useState(false);
   const [qrCodeData, setQRCodeData] = useState<string>('');
   const [linkData, setLinkData] = useState<string>('');
-  const viewWidth = Dimensions.get('window').width;
+
   const latestNewConnection = useSelector(state => state.latestNewConnection);
 
   const navigation = useNavigation();
@@ -54,6 +52,10 @@ const NewPortModal: React.FC = () => {
     // setSaveVisible(false);
     setQRCodeData('');
     setLinkData('');
+  };
+  const openSuperportModal = () => {
+    cleanupModal();
+    showSuperportModal();
   };
   const fetchQRCodeData = async () => {
     try {
@@ -72,7 +74,7 @@ const NewPortModal: React.FC = () => {
   };
   //converts qr bundle into link.
   const fetchLinkData = async () => {
-    if (!isLoadingBundle && !bundleGenError) {
+    if (!isLoadingBundle && !bundleGenError && qrCodeData !== '') {
       if (linkData === '') {
         const link = await convertBundleToLink(qrCodeData);
         setLinkData(link);
@@ -169,6 +171,7 @@ const NewPortModal: React.FC = () => {
           const displayData = JSON.parse(qrCodeData);
           if (displayData.data.linkId === latestUsedConnectionLinkId) {
             cleanupModal();
+            navigation.navigate('HomeTab');
           }
         }
       }
@@ -214,8 +217,8 @@ const NewPortModal: React.FC = () => {
               <View
                 style={{
                   flexDirection: 'column',
-                  width: viewWidth * 0.5,
-                  height: viewWidth * 0.5,
+                  width: screen.width * 0.5,
+                  height: screen.width * 0.5,
                 }}>
                 {isLoadingBundle ? (
                   <View style={styles.qrBox}>
@@ -231,11 +234,11 @@ const NewPortModal: React.FC = () => {
                       </NumberlessItalicText>
                     ) : (
                       <View style={styles.qrBox}>
-                        <QRCode value={qrCodeData} size={viewWidth * 0.5} />
+                        <QRCode value={qrCodeData} size={screen.width * 0.5} />
                         <View style={styles.logoBox}>
                           <Logo
-                            width={viewWidth * 0.08}
-                            height={viewWidth * 0.08}
+                            width={screen.width * 0.08}
+                            height={screen.width * 0.08}
                           />
                         </View>
                       </View>
@@ -307,8 +310,7 @@ const NewPortModal: React.FC = () => {
           <Pressable
             style={styles.otherPortsButton}
             onPress={() => {
-              cleanupModal();
-              navigation.navigate('NewSuperport', {superportId: ''});
+              openSuperportModal();
             }}>
             <NumberlessMediumText style={styles.otherPortsText}>
               SuperPort

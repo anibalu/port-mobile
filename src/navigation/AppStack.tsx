@@ -21,7 +21,7 @@ import ImageView from '@screens/MediaView/ImageView';
 import MyProfile from '@screens/MyProfile/MyProfile';
 import NewSuperport from '@screens/NewSuperport/NewSuperport';
 import Placeholder from '@screens/Placeholder/Placeholder';
-import {NewPortModalProvider} from 'src/context/NewPortModalContext';
+import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
 import {AppStackParamList} from './AppStackTypes';
 import BottomNavStack from './BottomNavStack';
 import EditAvatar from '@screens/MyProfile/EditAvatar';
@@ -35,7 +35,7 @@ function AppStack() {
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
       />
-      <NewPortModalProvider>
+      <ConnectionModalProvider>
         <Stack.Navigator
           initialRouteName="HomeTab"
           screenOptions={{headerShown: false}}>
@@ -67,7 +67,7 @@ function AppStack() {
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
           <Stack.Screen name="EditAvatar" component={EditAvatar} />
         </Stack.Navigator>
-      </NewPortModalProvider>
+      </ConnectionModalProvider>
     </>
   );
 }

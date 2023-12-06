@@ -25,10 +25,10 @@ import {ConnectionType} from '@utils/Connections/interfaces';
 import React, {useEffect, useState} from 'react';
 import {Alert, Pressable, StyleSheet, View} from 'react-native';
 import {Camera} from 'react-native-camera-kit';
-import {useNewPortModal} from 'src/context/NewPortModalContext';
+import {useConnectionModal} from 'src/context/ConnectionModalContext';
 
 export default function QRScanner() {
-  const {modalVisible} = useNewPortModal();
+  const {newPortModalVisible: modalVisible} = useConnectionModal();
   const navigation = useNavigation();
   const [label, setLabel] = useState('');
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =

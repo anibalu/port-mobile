@@ -8,11 +8,15 @@ export function GenericButton({
   onPress,
   buttonStyle,
   textStyle,
+  iconPosition = 'left',
+  iconStyle,
   iconHeight,
   Icon,
 }: {
   children?: React.ReactNode;
   onPress: any;
+  iconPosition?: 'left' | 'right';
+  iconStyle?: ViewStyle;
   buttonStyle?: ViewStyle;
   textStyle?: TextStyle;
   iconHeight?: number;
@@ -22,8 +26,12 @@ export function GenericButton({
     <Pressable
       style={StyleSheet.compose(styles.button, buttonStyle)}
       onPress={onPress}>
-      {Icon ? (
-        <View style={children ? {marginRight: 8} : {}}>
+      {Icon && iconPosition == 'left' ? (
+        <View
+          style={StyleSheet.compose(
+            children ? {marginRight: 8} : {},
+            iconStyle,
+          )}>
           <Icon height={iconHeight ? iconHeight : 24} />
         </View>
       ) : null}
@@ -32,6 +40,15 @@ export function GenericButton({
           style={StyleSheet.compose(styles.text, textStyle)}>
           {children}
         </NumberlessMediumText>
+      ) : null}
+      {Icon && iconPosition == 'right' ? (
+        <View
+          style={StyleSheet.compose(
+            children ? {marginLeft: 8} : {},
+            iconStyle,
+          )}>
+          <Icon height={24} />
+        </View>
       ) : null}
     </Pressable>
   );

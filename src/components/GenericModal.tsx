@@ -23,6 +23,7 @@ const GenericModal = ({
         flex: 1,
         justifyContent: position,
         alignItems: 'center',
+        maxHeight: '100%',
       }}
       hideModalContentWhileAnimating={true}
       onBackButtonPress={onClose}

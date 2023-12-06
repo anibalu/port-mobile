@@ -42,6 +42,7 @@ export interface GeneratedDirectSuperportConnectionBundle
   extends DirectSuperportConnectionBundle {
   keys: KeyPair;
   label?: string;
+  lastUsed?: string;
 }
 
 /**

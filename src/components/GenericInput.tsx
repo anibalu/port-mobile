@@ -12,13 +12,15 @@ const GenericInput = ({
   wrapperStyle,
   inputStyle,
   alignment = 'center',
+  editable = true,
   maxLength = NAME_LENGTH_LIMIT,
   showLimit = false,
 }: {
-  placeholder: string;
+  placeholder?: string;
   text: string;
   multiline?: boolean;
-  setText: any;
+  setText?: any;
+  editable?: boolean;
   wrapperStyle?: ViewStyle;
   inputStyle?: TextStyle;
   alignment?: 'center' | 'left' | 'right';
@@ -36,6 +38,7 @@ const GenericInput = ({
       <TextInput
         style={StyleSheet.compose(styles.inputText, inputStyle)}
         maxLength={maxLength}
+        editable={editable}
         placeholder={isFocused ? '' : placeholder}
         textAlign={alignment}
         multiline={multiline}

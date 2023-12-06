@@ -7,12 +7,14 @@ import NewIconInactive from '@assets/icons/BottomNavNewInactive.svg';
 import ScanIconActive from '@assets/icons/BottomNavScanActive.svg';
 import ScanIconInactive from '@assets/icons/BottomNavScanInactive.svg';
 import {FontSizes} from '@components/ComponentUtils';
-import NewPortModal from '@components/NewPortModal';
+import NewPortModal from '@components/ConnectionModal/NewPortModal';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '@screens/Home/Home';
 import Scanner from '@screens/Scanner/Scanner';
 import {StyleSheet} from 'react-native';
-import {useNewPortModal} from 'src/context/NewPortModalContext';
+import {useConnectionModal} from 'src/context/ConnectionModalContext';
+import SuperportModal from '@components/ConnectionModal/SuperportModal';
+import CreateSuperportModal from '@components/ConnectionModal/CreateSuperportModal';
 
 const Tab = createBottomTabNavigator();
 
@@ -37,7 +39,7 @@ const Tab = createBottomTabNavigator();
 // ];
 
 function BottomNavStack() {
-  const {showModal} = useNewPortModal();
+  const {showNewPortModal: showModal} = useConnectionModal();
   return (
     <>
       <Tab.Navigator
@@ -90,6 +92,8 @@ function BottomNavStack() {
         />
       </Tab.Navigator>
       <NewPortModal />
+      <SuperportModal />
+      <CreateSuperportModal />
     </>
   );
 }

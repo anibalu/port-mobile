@@ -89,7 +89,9 @@ export async function updateGeneratedDirectSuperportConnectionBundleLabel(
   await connectionFsSync(synced);
 }
 
-export async function generateDirectSuperportConnectionBundle(): Promise<DirectSuperportConnectionBundle> {
+export async function generateDirectSuperportConnectionBundle(
+  label: string = '',
+): Promise<DirectSuperportConnectionBundle> {
   const linkId = await getNewDirectConnectionSuperport();
   if (linkId === null) {
     throw new Error('out of superports');
@@ -113,6 +115,8 @@ export async function generateDirectSuperportConnectionBundle(): Promise<DirectS
       ...bundle,
       keys: keys,
       timestamp: generateISOTimeStamp(),
+      label: label,
+      lastUsed: generateISOTimeStamp(),
     };
     await saveNewGeneratedSuperport(generatedBundle);
     return bundle;

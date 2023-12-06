@@ -20,6 +20,7 @@ export default function QRScanner() {
   const {
     newPortModalVisible: modalVisible,
     showConnectionModal,
+    connectionModalVisible,
     setConnectionQRData,
   } = useConnectionModal();
   const {portCreationError, incorrectQRError} = useErrorModal();
@@ -62,6 +63,13 @@ export default function QRScanner() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qrData]);
+
+  //When the connection modal shows, we need to clean the screen up AFTER it disappears.
+  useEffect(() => {
+    if (!connectionModalVisible) {
+      cleanScreen();
+    }
+  }, [connectionModalVisible]);
   const onLayout = event => {
     const {width} = event.nativeEvent.layout;
     setViewWidth(width);

@@ -12,7 +12,7 @@ import {
   ReadStatus,
 } from '@utils/Connections/interfaces';
 import {getChatTileTimestamp} from '@utils/Time';
-import React, {ReactNode} from 'react';
+import React, {ReactNode, memo} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import PendingChatTile from './PendingChatTile';
 import Sending from '@assets/icons/sending.svg';
@@ -202,11 +202,13 @@ const styles = StyleSheet.create({
   },
 });
 
-// export default memo(ChatTile, (prevProps, nextProps) => {
-//   return (
-//     prevProps.readStatus === nextProps.readStatus &&
-//     prevProps.text === nextProps.text
-//   );
-// });
-
-export default ChatTile;
+export default memo(ChatTile, (prevProps, nextProps) => {
+  return (
+    prevProps.readStatus === nextProps.readStatus &&
+    prevProps.text === nextProps.text &&
+    prevProps.newMessageCount === nextProps.newMessageCount &&
+    prevProps.authenticated === nextProps.authenticated &&
+    prevProps.disconnected === nextProps.disconnected &&
+    prevProps.connectionType === nextProps.connectionType
+  );
+});

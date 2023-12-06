@@ -267,13 +267,13 @@ const CreateSuperportModal: React.FC = () => {
                       width: '70%',
                       height: 60,
                       backgroundColor: PortColors.primary.white,
-                      borderColor: PortColors.primary.red,
+                      borderColor: PortColors.primary.red.error,
                       borderWidth: 1,
                       marginBottom: 18,
                     }}
                     textStyle={{
                       flex: 1,
-                      color: PortColors.primary.red,
+                      color: PortColors.primary.red.error,
                       textAlign: 'center',
                     }}
                     Icon={Delete}

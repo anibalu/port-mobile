@@ -9,7 +9,9 @@ import {BundleReadResponse, ConnectionBundle} from './interfaces';
  * @throws {Error} - If bundle data format is incorrect.
  * @returns {ConnectionBundle} - successfully parsed bundle data.
  */
-export function checkConnectionBundleDataFormat(rawData: string) {
+export function checkConnectionBundleDataFormat(
+  rawData: string,
+): ConnectionBundle {
   const bundle: ConnectionBundle = JSON.parse(rawData);
   if (bundle.org !== 'numberless.tech') {
     throw new Error('Organisation data incorrect');

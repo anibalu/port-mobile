@@ -4,7 +4,6 @@
 
 import {NavigationContainer} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
-import {Linking} from 'react-native';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Provider} from 'react-redux';
@@ -19,13 +18,14 @@ import runMigrations from './src/utils/Storage/Migrations';
 
 runMigrations();
 
+import ErrorModal from '@components/ErrorModal';
 import LoginStack from '@navigation/LoginStack';
-import Toast from 'react-native-toast-message';
-import {handleDeepLink} from './src/utils/DeepLinking';
-import {checkProfile} from '@utils/Profile';
-import {ProfileStatus} from '@utils/Profile/interfaces';
 import {loadConnectionsToStore} from '@utils/Connections';
 import pullBacklog from '@utils/Messaging/pullBacklog';
+import {checkProfile} from '@utils/Profile';
+import {ProfileStatus} from '@utils/Profile/interfaces';
+import Toast from 'react-native-toast-message';
+import {ErrorModalProvider} from 'src/context/ErrorModalContext';
 
 function App(): JSX.Element {
   //check if initial setup is done, and accordingly decides which flow to render on app start
@@ -43,8 +43,8 @@ function App(): JSX.Element {
         //await loadReadDirectConnectionBundlesToStore();
         //load journaled messages to store
         //await loadJournalToStore();
-        // handle any potential inital deep links
-        handleDeepLink({url: await Linking.getInitialURL()});
+        // // handle any potential inital deep links
+        // handleDeepLink({url: await Linking.getInitialURL()});
       }
     } catch (error) {
       console.error('Error checking profile:', error);
@@ -58,14 +58,16 @@ function App(): JSX.Element {
   }, []);
   //set up background message handler here
   registerBackgroundMessaging();
-  // Handle any potential deeplinks while foregrounded/backgrounded
-  Linking.addEventListener('url', handleDeepLink);
+
   return (
     <>
       <Provider store={store}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <LoginStack startOnboarding={profileExists} />
+            <ErrorModalProvider>
+              <LoginStack startOnboarding={profileExists} />
+              <ErrorModal />
+            </ErrorModalProvider>
           </NavigationContainer>
         </SafeAreaProvider>
       </Provider>

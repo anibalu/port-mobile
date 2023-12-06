@@ -1,18 +1,26 @@
 import axios from 'axios';
 
+import {checkConnectionBundleDataFormat} from '@utils/Bundles';
+import {ConnectionBundle} from '@utils/Bundles/interfaces';
 import {BUNDLE_MANAGEMENT_RESOURCE} from '../../configs/api';
-import {ConnectionType} from '../Connections/interfaces';
-import {handshakeActionsB1} from '../DirectChats/handshake';
-import {handshakeActionsG1} from '../Groups/handshake';
 import {getToken} from '../ServerAuth';
 import {connectionFsSync} from '../Synchronization';
 
 interface urlObject {
   url: string | null;
 }
-export async function handleDeepLink(urlObj: urlObject) {
+
+/**
+ *
+ * @param urlObj , url to be processed
+ * @returns {ConnectionBundle|undefined}, connection bundle if successful, undefined on failure
+ */
+export async function handleDeepLink(
+  urlObj: urlObject,
+): Promise<ConnectionBundle | undefined> {
   const synced = async () => {
     const url = urlObj.url;
+    console.log('URL is: ', url);
     if (url) {
       let regex = /[?&]([^=#]+)=([^&#]*)/g,
         params = {},
@@ -24,24 +32,16 @@ export async function handleDeepLink(urlObj: urlObject) {
       const bundle = await getBundle(bundleId);
       return bundle;
     }
-    return null;
+    return undefined;
   };
   try {
-    const bundle = JSON.parse(await connectionFsSync(synced));
-    console.log('bundle: ', bundle);
-    if (bundle.connectionType === ConnectionType.direct) {
-      await handshakeActionsB1(bundle);
-    }
-    if (bundle.connectionType === ConnectionType.group) {
-      await handshakeActionsG1(bundle);
-    }
-    if (bundle.connectionType === ConnectionType.superport) {
-      if (bundle.data.superportType === 'direct') {
-        await handshakeActionsB1(bundle);
-      }
-    }
+    const bundle: ConnectionBundle = checkConnectionBundleDataFormat(
+      await connectionFsSync(synced),
+    );
+    return bundle;
   } catch (error) {
     console.log('Error with deep linking: ', error);
+    return undefined;
   }
 }
 

@@ -29,7 +29,7 @@ function PendingChatTile() {
       </View>
       <Pressable
         style={{
-          backgroundColor: PortColors.primary.red,
+          backgroundColor: PortColors.primary.red.error,
           paddingHorizontal: 9,
           borderRadius: 4,
           right: 11,

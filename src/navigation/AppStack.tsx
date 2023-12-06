@@ -1,30 +1,31 @@
+import {PortColors} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import AddCategoryScreen from '@screens/BugReporting/AddCategoryScreen';
+import ReportIssueScreen from '@screens/BugReporting/ReportIssueScreen';
+import SuggestAFeature from '@screens/BugReporting/SuggestAFeature';
 import Chat from '@screens/Chat/Chat';
 import ContactProfile from '@screens/ContactProfile/ContactProfile';
 import ViewFiles from '@screens/ContactProfile/ViewFiles';
 import ViewPhotosVideos from '@screens/ContactProfile/ViewPhotosVideos';
+import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
 import AddMembers from '@screens/GroupScreens/AddMembers';
 import GroupOnboarding from '@screens/GroupScreens/GroupOnboarding';
-import React from 'react';
-import {PortColors} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import AddCategoryScreen from '@screens/BugReporting/AddCategoryScreen';
-import ReportIssueScreen from '@screens/BugReporting/ReportIssueScreen';
-import SuggestAFeature from '@screens/BugReporting/SuggestAFeature';
-import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
 import GroupProfile from '@screens/GroupScreens/GroupProfile/GroupProfile';
 import ManageMembers from '@screens/GroupScreens/ManageMembers';
 import NewGroup from '@screens/GroupScreens/NewGroup/NewGroup';
 import SetupGroup from '@screens/GroupScreens/SetupGroup/SetupGroup';
 import ShareGroup from '@screens/GroupScreens/ShareGroup/ShareGroup';
 import ImageView from '@screens/MediaView/ImageView';
+import EditAvatar from '@screens/MyProfile/EditAvatar';
 import MyProfile from '@screens/MyProfile/MyProfile';
 import NewSuperport from '@screens/NewSuperport/NewSuperport';
 import Placeholder from '@screens/Placeholder/Placeholder';
+import ScannerModal from '@screens/Scanner/ScannerModal';
+import React from 'react';
 import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
 import {AppStackParamList} from './AppStackTypes';
 import BottomNavStack from './BottomNavStack';
-import EditAvatar from '@screens/MyProfile/EditAvatar';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -67,6 +68,7 @@ function AppStack() {
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
           <Stack.Screen name="EditAvatar" component={EditAvatar} />
         </Stack.Navigator>
+        <ScannerModal />
       </ConnectionModalProvider>
     </>
   );

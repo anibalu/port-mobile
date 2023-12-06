@@ -6,8 +6,8 @@ import React, {
   FC,
   useEffect,
 } from 'react';
-import Info from '../../assets/icons/RedInfo.svg';
-import Error from '../../assets/icons/Error.svg';
+import Info from '@assets/icons/RedInfo.svg';
+import Error from '@assets/icons/sadError.svg';
 import {SvgProps} from 'react-native-svg';
 import {ERROR_MODAL_VALIDITY_TIMEOUT} from '@configs/constants';
 
@@ -24,6 +24,8 @@ type ModalContextType = {
   unableToDisconnectError: () => void;
   unableToSharelinkError: () => void;
   unableToCreateGroupError: () => void;
+  portCreationError: () => void;
+  incorrectQRError: () => void;
   errorToShow: ErrorObject;
 };
 type ErrorObject = {
@@ -105,6 +107,20 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
     });
   };
 
+  const portCreationError = () => {
+    setErrorToShow({
+      text: 'Network Error in creating new Port.',
+      Icon: Info,
+    });
+  };
+
+  const incorrectQRError = () => {
+    setErrorToShow({
+      text: 'QR code not a numberless QR code',
+      Icon: Info,
+    });
+  };
+
   const imageSelectionError = () => {
     setErrorToShow({
       text: 'Image selection error',
@@ -160,6 +176,8 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         personOfflineError,
         unableToDisconnectError,
         unableToSharelinkError,
+        portCreationError,
+        incorrectQRError,
       }}>
       {children}
     </ErrorModalContext.Provider>

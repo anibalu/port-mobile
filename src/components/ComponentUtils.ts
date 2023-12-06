@@ -9,7 +9,7 @@ export const PortColors = {
     },
     white: '#FFFFFF',
     black: '#000000',
-    red: '#EE786B',
+    red: {error: '#EE786B', light: '#FFE6E6'},
     grey: {
       light: '#F6F6F6',
       medium: '#C9C9C9',

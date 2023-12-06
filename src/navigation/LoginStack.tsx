@@ -22,7 +22,11 @@ function LoginStack({startOnboarding}: {startOnboarding: boolean}) {
       {startOnboarding || onboardingStatus ? (
         <Stack.Screen name="AppStack" component={AppStack} />
       ) : (
-        <Stack.Screen name="OnboardingStack" component={OnboardingStack} />
+        <Stack.Screen
+          name="OnboardingStack"
+          options={{gestureEnabled: false}}
+          component={OnboardingStack}
+        />
       )}
     </Stack.Navigator>
   );

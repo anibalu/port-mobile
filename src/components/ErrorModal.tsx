@@ -1,7 +1,7 @@
 import React from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {StyleSheet, View} from 'react-native';
-import {screen} from './ComponentUtils';
+import {PortColors, screen} from './ComponentUtils';
 import {NumberlessMediumText} from './NumberlessText';
 
 function ErrorModal() {
@@ -24,18 +24,19 @@ function ErrorModal() {
 
 const styles = StyleSheet.create({
   modalView: {
-    backgroundColor: '#FFE6E6',
+    backgroundColor: PortColors.primary.red.light,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     width: screen.width - 70,
-    marginTop: 120,
+    marginTop: 100,
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: 20,
     position: 'absolute',
     alignSelf: 'center',
-    borderColor: '#8B0000',
+    borderWidth: 1,
+    borderColor: PortColors.primary.red.error,
   },
   modaltext: {
     fontSize: 12,

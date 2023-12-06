@@ -3,34 +3,26 @@
  */
 import TorchOff from '@assets/icons/TorchOff.svg';
 import TorchOn from '@assets/icons/TorchOn.svg';
-import Cross from '@assets/icons/cross.svg';
-import SuccessQR from '@assets/icons/successqr.svg';
 import Area from '@assets/miscellaneous/scanArea.svg';
 import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
-import GenericInput from '@components/GenericInput';
-import GenericModal from '@components/GenericModal';
-import {
-  NumberlessBoldText,
-  NumberlessMediumText,
-  NumberlessRegularText,
-} from '@components/NumberlessText';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import {useIsFocused} from '@react-navigation/native';
 import {checkCameraPermission} from '@utils/AppPermissions';
-import {
-  checkConnectionBundleDataFormat,
-  processConnectionBundle,
-} from '@utils/Bundles';
-import {BundleReadResponse, ConnectionBundle} from '@utils/Bundles/interfaces';
-import {ConnectionType} from '@utils/Connections/interfaces';
+import {checkConnectionBundleDataFormat} from '@utils/Bundles';
+import {BundleReadResponse} from '@utils/Bundles/interfaces';
 import React, {useEffect, useState} from 'react';
-import {Alert, Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import {Camera} from 'react-native-camera-kit';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 export default function QRScanner() {
-  const {newPortModalVisible: modalVisible} = useConnectionModal();
-  const navigation = useNavigation();
-  const [label, setLabel] = useState('');
+  const {
+    newPortModalVisible: modalVisible,
+    showConnectionModal,
+    setConnectionQRData,
+  } = useConnectionModal();
+  const {portCreationError, incorrectQRError} = useErrorModal();
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
     useState(false);
   useEffect(() => {
@@ -40,51 +32,21 @@ export default function QRScanner() {
   const [qrData, setQrData] = useState('');
   const [torchState, setTorchState] = useState('off');
   const [scanCode, setScanCode] = useState(true);
-  const [showScannedModal, setShowScannedModal] = useState<boolean>(false);
-  const [qrParsed, setQrParsed] = useState<ConnectionBundle | undefined>(
-    undefined,
-  );
   const isFocused = useIsFocused();
 
-  const cleanScanModal = () => {
-    setLabel('');
+  const cleanScreen = () => {
     setQrData('');
     setTorchState('off');
-    setQrParsed(undefined);
-    setShowScannedModal(false);
     setScanCode(true);
   };
   //shows an alert if there is an issue creating a new Port after scanning a QR code.
   const showAlertAndWait = (bundleReadResponse: BundleReadResponse) => {
     if (bundleReadResponse === BundleReadResponse.networkError) {
-      Alert.alert(
-        'Network Error in creating new Port.',
-        'QR code data has been saved and a connection will be attempted again when network improves.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              cleanScanModal();
-            },
-          },
-        ],
-        {cancelable: false},
-      );
+      portCreationError();
     } else {
-      Alert.alert(
-        'Incorrect OR data format',
-        'QR code not a numberless QR code',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              cleanScanModal();
-            },
-          },
-        ],
-        {cancelable: false},
-      );
+      incorrectQRError();
     }
+    cleanScreen();
   };
   //navigate to back to home screen is scan succeeds and an unauthenticated port is created.
   useEffect(() => {
@@ -92,8 +54,8 @@ export default function QRScanner() {
       //this makes scan happen only once
       try {
         const newBundle = checkConnectionBundleDataFormat(qrData);
-        setQrParsed(newBundle);
-        setShowScannedModal(true);
+        setConnectionQRData(newBundle);
+        showConnectionModal();
       } catch (error) {
         showAlertAndWait(BundleReadResponse.formatError);
       }
@@ -104,41 +66,7 @@ export default function QRScanner() {
     const {width} = event.nativeEvent.layout;
     setViewWidth(width);
   };
-  const saveNewConnection = async () => {
-    if (qrParsed) {
-      const saveResponse = await processConnectionBundle(qrParsed, label);
-      if (saveResponse === BundleReadResponse.networkError) {
-        showAlertAndWait(BundleReadResponse.networkError);
-      }
-      if (saveResponse === BundleReadResponse.success) {
-        navigation.navigate('HomeTab', {screen: 'ChatTab'});
-        cleanScanModal();
-      }
-    } else {
-      showAlertAndWait(BundleReadResponse.formatError);
-    }
-  };
-  const checkSavePossible = () => {
-    if (qrParsed) {
-      switch (qrParsed.connectionType) {
-        case ConnectionType.direct:
-          if (label.trim().length > 0) {
-            return true;
-          }
-          return false;
-        case ConnectionType.group:
-          return true;
-        case ConnectionType.superport:
-          if (label.trim().length > 0) {
-            return true;
-          }
-          return false;
-        default:
-          return false;
-      }
-    }
-    return false;
-  };
+
   return (
     <View style={styles.container} onLayout={onLayout}>
       {isCameraPermissionGranted && isFocused ? (
@@ -173,78 +101,6 @@ export default function QRScanner() {
       <View style={styles.torch}>
         <Torch state={torchState} setState={setTorchState} />
       </View>
-      <GenericModal visible={showScannedModal} onClose={cleanScanModal}>
-        <View style={styles.successIndicatorArea}>
-          <Pressable
-            style={styles.closeButton}
-            onPress={() => cleanScanModal()}>
-            <Cross />
-          </Pressable>
-          <SuccessQR />
-          <NumberlessRegularText style={styles.scanSuccessText}>
-            Scan successful
-          </NumberlessRegularText>
-          <View style={styles.newPortArea}>
-            <NumberlessBoldText>
-              {(() => {
-                if (qrParsed) {
-                  switch (qrParsed.connectionType) {
-                    case ConnectionType.direct:
-                      return 'Connecting over Port with';
-                    case ConnectionType.group:
-                      return 'Joining group';
-                    case ConnectionType.superport:
-                      return 'Connecting over SuperPort with';
-                    default:
-                      return 'Connection type unknown';
-                  }
-                } else {
-                  return 'Connection type unknown';
-                }
-              })()}
-            </NumberlessBoldText>
-            {qrParsed !== undefined &&
-              qrParsed.connectionType === ConnectionType.group && (
-                <View style={styles.savedInput}>
-                  <NumberlessBoldText style={styles.savedInputText}>
-                    {qrParsed.data.name || 'group'}
-                  </NumberlessBoldText>
-                </View>
-              )}
-            {qrParsed !== undefined &&
-              qrParsed.connectionType !== ConnectionType.group && (
-                <GenericInput
-                  text={label}
-                  wrapperStyle={{marginVertical: 15, paddingHorizontal: '8%'}}
-                  inputStyle={{...FontSizes[15].medium}}
-                  setText={setLabel}
-                  placeholder="Contact Name"
-                />
-              )}
-            {qrParsed !== undefined &&
-              qrParsed.connectionType === ConnectionType.group && (
-                <View style={styles.savedDescription}>
-                  <NumberlessRegularText
-                    style={styles.savedDescriptionText}
-                    numberOfLines={5}
-                    ellipsizeMode="tail">
-                    {qrParsed.data.description || 'No description available'}
-                  </NumberlessRegularText>
-                </View>
-              )}
-            <Pressable
-              style={
-                !checkSavePossible() ? styles.disabledbutton : styles.button
-              }
-              disabled={!checkSavePossible()}
-              onPress={saveNewConnection}>
-              <NumberlessMediumText style={styles.buttontext}>
-                Save
-              </NumberlessMediumText>
-            </Pressable>
-          </View>
-        </View>
-      </GenericModal>
     </View>
   );
 }

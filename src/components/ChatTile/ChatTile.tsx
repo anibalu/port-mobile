@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   disconnectedText: {
     ...FontSizes[12].medium,
-    color: PortColors.primary.red,
+    color: PortColors.primary.red.error,
   },
   newMessage: {
     backgroundColor: '#FFF',
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     fontSize: 0,
   },
   new: {
-    backgroundColor: PortColors.primary.red,
+    backgroundColor: PortColors.primary.red.error,
     padding: 2,
     paddingLeft: 4,
     paddingRight: 4,
@@ -245,6 +245,9 @@ const styles = StyleSheet.create({
 export default memo(ChatTile, (prevProps, nextProps) => {
   return (
     prevProps.readStatus === nextProps.readStatus &&
-    prevProps.text === nextProps.text
+    prevProps.text === nextProps.text &&
+    prevProps.authenticated === nextProps.authenticated &&
+    prevProps.connectionType === nextProps.connectionType &&
+    prevProps.disconnected === nextProps.disconnected
   );
 });

@@ -62,8 +62,6 @@ function Home() {
 
   useEffect(() => {
     setViewableConnections(connections);
-    console.log('changing viewable connections :', viewableConnections);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connections]);
 
   useEffect(() => {

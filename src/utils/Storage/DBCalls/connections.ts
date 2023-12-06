@@ -115,8 +115,7 @@ export async function deleteConnection(chatId: string) {
   await runSimpleQuery(
     `
     DELETE FROM connections
-    WHERE chatId = ? 
-    CASCADE;
+    WHERE chatId = ?;
     `,
     [chatId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

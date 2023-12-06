@@ -12,8 +12,10 @@ import {
   ReadStatus,
 } from '@utils/Connections/interfaces';
 import {getChatTileTimestamp} from '@utils/Time';
-import React, {ReactNode, memo} from 'react';
+import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+import PendingChatTile from './PendingChatTile';
+import Sending from '@assets/icons/sending.svg';
 
 function ChatTile(props: ConnectionInfo): ReactNode {
   const navigation = useNavigation<any>();
@@ -29,7 +31,6 @@ function ChatTile(props: ConnectionInfo): ReactNode {
   const handleNavigate = async (): Promise<void> => {
     navigation.navigate('DirectChat', {chatId: props.chatId});
   };
-  let status: string = props.readStatus;
 
   return props.authenticated ||
     props.connectionType === ConnectionType.group ? (
@@ -40,6 +41,9 @@ function ChatTile(props: ConnectionInfo): ReactNode {
           : styles.tile
       }
       onPress={handleNavigate}>
+      <View style={styles.dpBox}>
+        <GenericAvatar profileUri={chooseProfileURI()} avatarSize="small" />
+      </View>
       <View style={styles.text}>
         <NumberlessSemiBoldText
           style={styles.nickname}
@@ -58,196 +62,151 @@ function ChatTile(props: ConnectionInfo): ReactNode {
           {props.text}
         </NumberlessRegularText>
       </View>
-      <View style={styles.messageBox}>
-        <GenericAvatar profileUri={chooseProfileURI()} avatarSize="small" />
-        <View style={styles.metadata}>
-          {props.disconnected ? (
-            <View
-              style={{
-                backgroundColor: PortColors.primary.grey.light,
-                paddingLeft: 4,
-                width: 100,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                paddingVertical: 2,
-              }}>
-              <NumberlessMediumText
-                numberOfLines={1}
-                style={styles.disconnectedText}>
-                Disconnected
-              </NumberlessMediumText>
-            </View>
-          ) : (
+      <View style={styles.metadata}>
+        {props.disconnected ? (
+          <View style={styles.disconnectedBox}>
+            <NumberlessMediumText style={styles.disconnectedText}>
+              Disconnected
+            </NumberlessMediumText>
+          </View>
+        ) : (
+          <View style={styles.dateAndStatusBox}>
             <NumberlessMediumText style={styles.timestamp}>
               {getChatTileTimestamp(props.timestamp)}
             </NumberlessMediumText>
-          )}
-
-          {props?.newMessageCount > 0 && status != ReadStatus.read ? (
-            <View style={styles[status]}>
-              <NumberlessSemiBoldText style={styles[status]}>
-                {displayNumber(props.newMessageCount, status)}
-              </NumberlessSemiBoldText>
-            </View>
-          ) : null}
-        </View>
+            <DisplayStatus {...props} />
+          </View>
+        )}
       </View>
     </Pressable>
   ) : (
-    <Pressable
-      style={
-        props.readStatus === ReadStatus.new
-          ? StyleSheet.compose(styles.tile, styles.newMessage)
-          : styles.tile
-      }
-      onPress={handleNavigate}>
-      <View style={styles.text}>
-        <NumberlessSemiBoldText
-          style={styles.nickname}
-          ellipsizeMode="tail"
-          numberOfLines={1}>
-          New contact
-        </NumberlessSemiBoldText>
-        <NumberlessRegularText
-          style={
-            props.readStatus === ReadStatus.new
-              ? styles.content
-              : StyleSheet.compose(styles.content, styles.newMessageContent)
-          }
-          ellipsizeMode="tail"
-          numberOfLines={1}>
-          Initializing a new contact
-        </NumberlessRegularText>
-      </View>
-      <View style={styles.messageBox}>
-        <GenericAvatar profileUri={chooseProfileURI()} avatarSize="small" />
-      </View>
-    </Pressable>
+    <PendingChatTile {...props} />
   );
 }
 
-//returns display string based on new message count
-function displayNumber(
-  newMsgCount: undefined | number,
-  status: string,
-): string {
-  switch (status) {
-    case 'sent':
-      return '';
+function DisplayStatus(props: ConnectionInfo) {
+  switch (props.readStatus) {
+    case ReadStatus.new:
+      return (
+        <View style={styles.new}>
+          <NumberlessSemiBoldText style={styles.newTextDot}>
+            {displayNumber(props.newMessageCount)}
+          </NumberlessSemiBoldText>
+        </View>
+      );
+    case ReadStatus.read:
+      return null;
+    case ReadStatus.sent:
+      return null;
+    case ReadStatus.journaled:
+      return <Sending />;
     default:
-      if (newMsgCount === undefined || newMsgCount === 0) {
-        return 'New';
-      } else {
-        if (newMsgCount > 999) {
-          return '999+';
-        }
-        return newMsgCount.toString();
-      }
+      return null;
+  }
+}
+
+//returns display string based on new message count
+function displayNumber(newMsgCount: undefined | null | number): string {
+  if (!newMsgCount || newMsgCount === 0) {
+    return 'New';
+  } else {
+    if (newMsgCount > 999) {
+      return '999+';
+    }
+    return newMsgCount.toString();
   }
 }
 
 const styles = StyleSheet.create({
   tile: {
-    flex: 1,
+    width: screen.width - 20,
     marginTop: 7,
     borderRadius: 14,
     backgroundColor: '#FFF9',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     paddingBottom: 15,
     paddingTop: 15,
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-  disconnectedText: {
-    ...FontSizes[12].medium,
-    color: PortColors.primary.red.error,
   },
   newMessage: {
     backgroundColor: '#FFF',
   },
+  dpBox: {
+    width: 80,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  disconnectedText: {
+    fontSize: 10,
+    textAlign: 'center',
+    color: '#FFF',
+    backgroundColor: PortColors.primary.red.error,
+    padding: 4,
+    borderRadius: 5,
+  },
   newMessageContent: {
     color: PortColors.primary.grey.dark,
   },
-  messageBox: {
-    width: '100%',
-    height: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  picture: {
-    width: 50,
-    height: 50,
-    borderRadius: 17,
-  },
   text: {
-    height: '100%',
-    maxWidth: screen.width / 1.5,
+    width: screen.width - 20 - 80 - 100,
     justifyContent: 'center',
     alignContent: 'flex-start',
-    position: 'absolute',
-    paddingLeft: 78,
   },
   nickname: {
     ...FontSizes[17].medium,
-    paddingBottom: 3,
+    marginBottom: 3,
   },
   content: {
     color: PortColors.primary.black,
   },
   metadata: {
-    height: '100%',
-    display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    width: 80,
-    paddingBottom: 3,
-    paddingTop: 3,
+    width: 100,
+    height: 50,
+  },
+  dateAndStatusBox: {
+    maxWidth: '100%',
+    height: '100%',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    paddingRight: 15,
+  },
+  disconnectedBox: {
+    maxWidth: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingRight: 15,
   },
   timestamp: {
     fontSize: 12,
     color: PortColors.primary.grey.medium,
   },
-  read: {
-    display: 'none',
-  },
-  sent: {
-    backgroundColor: PortColors.primary.grey.medium,
-    borderRadius: 9,
-    width: 9,
-    height: 9,
-    fontSize: 0,
-    paddingBottom: 8,
-  },
-  seen: {
-    backgroundColor: PortColors.primary.blue.light,
-    borderRadius: 9,
-    width: 9,
-    height: 9,
-    fontSize: 0,
-  },
   new: {
     backgroundColor: PortColors.primary.red.error,
-    padding: 2,
-    paddingLeft: 4,
-    paddingRight: 4,
-    minWidth: 17,
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingLeft: 6,
+    paddingRight: 6,
     borderRadius: 19,
+  },
+  newTextDot: {
     fontSize: 10,
     textAlign: 'center',
     color: '#FFF',
   },
 });
 
-export default memo(ChatTile, (prevProps, nextProps) => {
-  return (
-    prevProps.readStatus === nextProps.readStatus &&
-    prevProps.text === nextProps.text &&
-    prevProps.authenticated === nextProps.authenticated &&
-    prevProps.connectionType === nextProps.connectionType &&
-    prevProps.disconnected === nextProps.disconnected
-  );
-});
+// export default memo(ChatTile, (prevProps, nextProps) => {
+//   return (
+//     prevProps.readStatus === nextProps.readStatus &&
+//     prevProps.text === nextProps.text
+//   );
+// });
+
+export default ChatTile;

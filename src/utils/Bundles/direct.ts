@@ -9,8 +9,11 @@ import {generateKeyPair, generateRandomNonce} from '../Crypto/x25519';
 import {sha256} from '../Crypto/sha';
 import {generateISOTimeStamp} from '../Time';
 import {connectionFsSync} from '../Synchronization';
-import {ConnectionType} from '../Connections/interfaces';
+import {ConnectionType, ReadStatus} from '../Connections/interfaces';
 import {BUNDLE_VALIDITY_INTERVAL} from '@configs/constants';
+import {addConnection, deleteConnection} from '@utils/Connections';
+import {defaultDirectPermissions} from '@utils/ChatPermissions/default';
+import {ContentType} from '@utils/Messaging/interfaces';
 
 /**
  * Checks if a bundle is still valid.
@@ -98,6 +101,8 @@ export async function deleteGeneratedDirectConnectionBundle(linkId: string) {
     await storage.saveGeneratedDirectConnectionBundles(
       generatedBundles.filter(bundle => bundle.data.linkId !== linkId),
     );
+    //remove connection here
+    await deleteConnection('linkId://' + linkId);
   };
   await connectionFsSync(synced);
 }
@@ -225,6 +230,17 @@ export async function generateDirectConnectionBundle(
       label: label,
     };
     await saveGeneratedDirectConnectionBundle(generatedBundle);
+    await addConnection({
+      chatId: 'linkId://' + generatedBundle.data.linkId,
+      connectionType: ConnectionType.direct,
+      name: generatedBundle.label || '',
+      permissions: defaultDirectPermissions,
+      recentMessageType: ContentType.newChat,
+      readStatus: ReadStatus.new,
+      authenticated: false,
+      timestamp: generatedBundle.timestamp,
+      newMessageCount: 0,
+    });
     return bundle;
   }
 }

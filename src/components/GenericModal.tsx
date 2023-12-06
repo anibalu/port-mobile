@@ -17,7 +17,10 @@ const GenericModal = ({
       avoidKeyboard={true}
       onSwipeComplete={onClose}
       swipeDirection="down"
-      backdropTransitionOutTiming={0}
+      backdropTransitionOutTiming={10}
+      backdropTransitionInTiming={10}
+      animationInTiming={10}
+      animationOutTiming={10}
       style={{
         margin: 0,
         flex: 1,

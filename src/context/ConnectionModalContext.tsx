@@ -3,6 +3,7 @@ import {handleDeepLink} from '@utils/DeepLinking';
 import React, {ReactNode, createContext, useContext, useState} from 'react';
 import {Linking} from 'react-native';
 import {useErrorModal} from './ErrorModalContext';
+import {wait} from '@utils/Time';
 
 type ModalContextType = {
   //controls incoming connection modal
@@ -57,19 +58,28 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   >(undefined);
   const [connectionModalVisible, setConnectionModalVisible] = useState(false);
   const [femaleModal, setFemaleModal] = useState(false);
-  const showConnectionModal = () => setConnectionModalVisible(true);
+  const showConnectionModal = async () => {
+    await safeToggleFalse();
+    setConnectionModalVisible(true);
+  };
   const hideConnectionModal = () => setConnectionModalVisible(false);
   const toggleConnectionModal = () => setConnectionModalVisible(p => !p);
 
   const [newPortModalVisible, setNewPortModalVisible] =
     useState<boolean>(false);
-  const showNewPortModal = () => setNewPortModalVisible(true);
+  const showNewPortModal = async () => {
+    await safeToggleFalse();
+    setNewPortModalVisible(true);
+  };
   const hideNewPortModal = () => setNewPortModalVisible(false);
   const toggleNewPortModal = () => setNewPortModalVisible(p => !p);
 
   const [superportModalVisible, setSuperportModalVisible] =
     useState<boolean>(false);
-  const showSuperportModal = () => setSuperportModalVisible(true);
+  const showSuperportModal = async () => {
+    await safeToggleFalse();
+    setSuperportModalVisible(true);
+  };
   const hideSuperportModal = () => setSuperportModalVisible(false);
   const toggleSuperportModal = () => setSuperportModalVisible(p => !p);
 
@@ -77,11 +87,21 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
     useState<boolean>(false);
   const [contextSuperportId, setContextSuperportId] = useState<string>('');
   const setConnectionSuperportId = (x: string) => setContextSuperportId(x);
-  const showSuperportCreateModal = () => setSuperportCreateModalVisible(true);
+  const showSuperportCreateModal = async () => {
+    await safeToggleFalse();
+    setSuperportCreateModalVisible(true);
+  };
   const hideSuperportCreateModal = () => setSuperportCreateModalVisible(false);
   const toggleSuperportCreateModal = () =>
     setSuperportCreateModalVisible(p => !p);
 
+  const safeToggleFalse = async () => {
+    setConnectionModalVisible(false);
+    setNewPortModalVisible(false);
+    setSuperportModalVisible(false);
+    setSuperportCreateModalVisible(false);
+    await wait(100);
+  };
   const {portConnectionError} = useErrorModal();
 
   const checkDeeplink = async ({url}: {url: string}) => {
@@ -89,7 +109,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
     if (bundle) {
       setConnectionQRData(bundle);
       setFemaleModal(true);
-      setConnectionModalVisible(true);
+      showConnectionModal();
     } else {
       portConnectionError();
     }
@@ -100,14 +120,14 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   return (
     <ConnectionModalContext.Provider
       value={{
-        femaleModal,
-        setFemaleModal,
-        connectionQRData,
-        setConnectionQRData,
-        connectionModalVisible,
-        showConnectionModal,
-        hideConnectionModal,
-        toggleConnectionModal,
+        femaleModal: femaleModal,
+        setFemaleModal: setFemaleModal,
+        connectionQRData: connectionQRData,
+        setConnectionQRData: setConnectionQRData,
+        connectionModalVisible: connectionModalVisible,
+        showConnectionModal: showConnectionModal,
+        hideConnectionModal: hideConnectionModal,
+        toggleConnectionModal: toggleConnectionModal,
         newPortModalVisible: newPortModalVisible,
         showNewPortModal: showNewPortModal,
         hideNewPortModal: hideNewPortModal,

@@ -50,7 +50,6 @@ const NewGroup = ({route, navigation}: Props) => {
 
   return (
     <SafeAreaView style={style.mainContainer}>
-      <ChatBackground />
       <GenericTopBar
         title={'New Group'}
         titleStyle={{...FontSizes[17].bold}}
@@ -58,72 +57,75 @@ const NewGroup = ({route, navigation}: Props) => {
           navigation.goBack();
         }}
       />
+      <ChatBackground />
+      <ScrollView automaticallyAdjustKeyboardInsets={true}>
+        <View style={style.groupContainer}>
+          <View style={style.iconContainer}>
+            {image ? (
+              <>
+                <Image
+                  source={{uri: image}}
+                  style={{width: 140, height: 140}}
+                />
+              </>
+            ) : (
+              <Avatar4 width={140} height={140} />
+            )}
+            {/* <ImageIcon style={style.uploadImageICon} onPress={onImagePressed} /> */}
+          </View>
+          <GenericInput
+            wrapperStyle={{height: 60, paddingHorizontal: '8%'}}
+            inputStyle={{
+              ...FontSizes[17].medium,
+              paddingLeft: 10,
+              borderRadius: 12,
+            }}
+            text={groupName}
+            setText={onChangeGroupName}
+            placeholder="Group Name"
+            alignment="left"
+          />
 
-      <ScrollView
-        automaticallyAdjustKeyboardInsets={true}
-        style={style.groupContainer}>
-        <View style={style.iconContainer}>
-          {image ? (
-            <>
-              <Image source={{uri: image}} style={{width: 140, height: 140}} />
-            </>
-          ) : (
-            <Avatar4 width={140} height={140} />
+          <GenericInput
+            wrapperStyle={{
+              height: screen.height / 4,
+              marginBottom: 20,
+              paddingHorizontal: '8%',
+            }}
+            inputStyle={{
+              ...FontSizes[17].regular,
+              paddingLeft: 10,
+              paddingTop: 12,
+              textAlignVertical: 'top',
+              borderRadius: 12,
+            }}
+            maxLength={200}
+            multiline={true}
+            text={groupDescription}
+            setText={onChangeGroupDescription}
+            placeholder="Add a description (optional)"
+            alignment="left"
+            showLimit={true}
+          />
+          {!!errorMessage && (
+            <Text style={style.errorMessage}>{errorMessage}</Text>
           )}
-          {/* <ImageIcon style={style.uploadImageICon} onPress={onImagePressed} /> */}
+          <GenericButton
+            buttonStyle={
+              isButtonActive ? style.activeButton : style.inactiveButton
+            }
+            onPress={() => {
+              isButtonActive
+                ? navigation.navigate('SetupGroup', {
+                    groupName: groupName.trim(),
+                    groupDescription: groupDescription.trim(),
+                    displayPicPath: image,
+                  })
+                : null;
+            }}>
+            Next
+          </GenericButton>
         </View>
-        <GenericInput
-          wrapperStyle={{height: 60, paddingHorizontal: '8%'}}
-          inputStyle={{
-            ...FontSizes[17].medium,
-            paddingLeft: 10,
-            borderRadius: 12,
-          }}
-          text={groupName}
-          setText={onChangeGroupName}
-          placeholder="Group Name"
-          alignment="left"
-        />
-
-        <GenericInput
-          wrapperStyle={{
-            height: screen.height / 4,
-            marginBottom: 20,
-            paddingHorizontal: '8%',
-          }}
-          inputStyle={{
-            ...FontSizes[17].regular,
-            paddingLeft: 10,
-            paddingTop: 12,
-            textAlignVertical: 'top',
-            borderRadius: 12,
-          }}
-          maxLength={200}
-          multiline={true}
-          text={groupDescription}
-          setText={onChangeGroupDescription}
-          placeholder="Add a description (optional)"
-          alignment="left"
-          showLimit={true}
-        />
-        {!!errorMessage && (
-          <Text style={style.errorMessage}>{errorMessage}</Text>
-        )}
-        <GenericButton
-          buttonStyle={
-            isButtonActive ? style.activeButton : style.inactiveButton
-          }
-          onPress={() => {
-            isButtonActive
-              ? navigation.navigate('SetupGroup', {
-                  groupName: groupName.trim(),
-                  groupDescription: groupDescription.trim(),
-                  displayPicPath: image,
-                })
-              : null;
-          }}>
-          Next
-        </GenericButton>
       </ScrollView>
     </SafeAreaView>
   );
@@ -136,10 +138,10 @@ const style = StyleSheet.create({
     flexDirection: 'column',
   },
   groupContainer: {
-    marginHorizontal: 30,
-    marginVertical: 40,
     backgroundColor: 'white',
     borderRadius: 24,
+    marginHorizontal: 30,
+    marginVertical: 40,
   },
   errorMessage: {
     textAlign: 'center',

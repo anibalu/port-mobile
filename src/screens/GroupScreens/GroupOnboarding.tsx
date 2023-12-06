@@ -8,7 +8,7 @@ import {
   NumberlessRegularText,
   NumberlessSemiBoldText,
 } from '@components/NumberlessText';
-import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 
 // start point of groups
@@ -22,7 +22,9 @@ const GroupOnboarding = () => {
           <NumberlessSemiBoldText style={style.title}>
             Welcome to groups
           </NumberlessSemiBoldText>
-          <GroupsImage />
+
+          <GroupsImage height={screen.height - 300} />
+
           <NumberlessRegularText style={style.subtitle}>
             Build your tribe with Groups with fun control options
           </NumberlessRegularText>
@@ -62,7 +64,7 @@ const style = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: '65%',
+    height: '60%',
   },
   title: {
     ...FontSizes[24].bold,

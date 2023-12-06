@@ -121,6 +121,16 @@ export async function deleteConnection(chatId: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, result) => {},
   );
+
+  await runSimpleQuery(
+    `
+    DELETE FROM connections
+    WHERE chatId = ?;
+    `,
+    [chatId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, result) => {},
+  );
 }
 
 export type ConnectionUpdate = {

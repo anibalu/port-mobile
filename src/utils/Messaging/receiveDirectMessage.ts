@@ -33,12 +33,18 @@ export async function receiveDirectMessage(
   messageFCM: any,
 ): Promise<ReceiveStatus> {
   try {
-    const chatId: string = messageFCM.data.lineId;
+    const chatId: string = messageFCM.data.lineId || messageFCM.data.deletion;
+    if (!chatId || chatId === '') {
+      return ReceiveStatus.failed;
+    }
     const messageData = messageFCM.data;
     const sentTime = messageFCM.sentTime
       ? new Date(messageFCM.sentTime)
       : new Date();
     const timestamp = sentTime.toISOString();
+    if (messageData.deletion) {
+      await updateConnection({chatId: chatId, disconnected: true});
+    }
     //if the received message is a handshake A1 message (server notifies that the other party has used a connection link to create a connection).
     if (!messageData.messageContent && messageData.lineLinkId) {
       if (messageData.superportId && messageData.superportId !== 'None') {

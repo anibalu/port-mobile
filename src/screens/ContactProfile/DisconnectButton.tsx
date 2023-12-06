@@ -3,6 +3,7 @@ import {useNavigation} from '@react-navigation/native';
 import {Pressable, StyleSheet} from 'react-native';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {disconnectConnection} from '@utils/Connections';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 /**
  * When clicked, marks the line as disconnected and redirects to the home page
@@ -10,9 +11,15 @@ import {disconnectConnection} from '@utils/Connections';
  */
 export default function DisconnectButton(props: {chatId: string}) {
   const navigation = useNavigation();
+  const {unableToDisconnectError} = useErrorModal();
   const invokeConnectionDisconnect = async () => {
-    await disconnectConnection(props.chatId);
-    navigation.navigate('HomeTab');
+    const resp = await disconnectConnection(props.chatId);
+    if (!resp) {
+      //show error modal for failure to disconnect
+      unableToDisconnectError();
+    } else {
+      navigation.navigate('HomeTab');
+    }
   };
 
   return (

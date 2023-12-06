@@ -265,7 +265,15 @@ export async function disconnectConnection(chatId: string) {
       {headers: {Authorization: `${token}`}},
     );
     await updateConnection({chatId: chatId, disconnected: true});
+    return true;
   } catch (error) {
-    console.log('failed to disconnect: ', error);
+    if (typeof error === 'object' && error.response) {
+      if (error.response.status === 404) {
+        console.log('failed to disconnect asdf: ', error.code);
+        await updateConnection({chatId: chatId, disconnected: true});
+        return true;
+      }
+    }
+    return false;
   }
 }

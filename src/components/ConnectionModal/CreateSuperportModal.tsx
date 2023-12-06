@@ -67,8 +67,14 @@ const CreateSuperportModal: React.FC = () => {
         const fullBundle = await loadGeneratedSuperport(superportId);
         const bundle: DirectSuperportConnectionBundle = fullBundle;
         setQRCodeData(JSON.stringify(bundle));
-        setLabel(fullBundle.label || 'unlabeled');
+        const newLabel =
+          fullBundle.label && fullBundle.label !== ''
+            ? fullBundle.label
+            : 'unlabeled';
+        setLabel(newLabel);
       } else {
+        const newLabel = label.trim() !== '' ? label.trim() : 'unlabeled';
+        setLabel(newLabel);
         const bundle = await generateDirectSuperportConnectionBundle(label);
         setQRCodeData(JSON.stringify(bundle));
       }

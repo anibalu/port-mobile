@@ -156,7 +156,11 @@ export default function ScannerModal() {
             connectionQRData.connectionType !== ConnectionType.group && (
               <GenericInput
                 text={label}
-                wrapperStyle={{marginVertical: 15, paddingHorizontal: '8%'}}
+                wrapperStyle={{
+                  height: 60,
+                  marginVertical: 15,
+                  paddingHorizontal: '8%',
+                }}
                 inputStyle={{...FontSizes[15].medium}}
                 setText={setLabel}
                 placeholder="Contact Name"

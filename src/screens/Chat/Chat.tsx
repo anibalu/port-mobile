@@ -97,7 +97,11 @@ function Chat({route, navigation}: Props) {
     } else {
       //makes short press select a message if atleast one message is already selected.
       if (selectedMessages.length >= 1) {
-        setSelectedMessages([...selectedMessages, messageId]);
+        if (selectedMessages.length >= SELECTED_MESSAGES_LIMIT) {
+          copyingMessageError();
+        } else {
+          setSelectedMessages([...selectedMessages, messageId]);
+        }
       }
     }
     return selectedMessagesSize;

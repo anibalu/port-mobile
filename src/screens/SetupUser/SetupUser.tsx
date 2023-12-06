@@ -17,10 +17,12 @@ import {ProfileStatus} from '@utils/Profile/interfaces';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {PortColors} from '@components/ComponentUtils';
 import {initialiseFCM} from '@utils/Messaging/fcm';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
 
 function SetupUser({route, navigation}: Props) {
+  const {onboardingFailureError} = useErrorModal();
   const {name} = route.params;
   const processedName: string = name || DEFAULT_NAME;
   //state of progress
@@ -64,7 +66,8 @@ function SetupUser({route, navigation}: Props) {
   useEffect(() => {
     runActions().then(ret => {
       if (!ret) {
-        navigation.navigate('OnboardingStack', {screen: 'PermissionsScreen'});
+        onboardingFailureError();
+        navigation.navigate('OnboardingStack', {screen: 'NameScreen'});
       } else {
         //ts-ignore
         navigation.navigate('InformationScreen1');

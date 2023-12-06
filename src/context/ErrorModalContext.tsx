@@ -14,6 +14,7 @@ import {ERROR_MODAL_VALIDITY_TIMEOUT} from '@configs/constants';
 type ModalContextType = {
   modalVisible: boolean;
   establishingConnectionError: () => void;
+  onboardingFailureError: () => void;
   checkingProfileError: () => void;
   portConnectionError: () => void;
   imageSelectionError: () => void;
@@ -63,6 +64,13 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
     setErrorToShow({
       text: 'Error establishing connection. Other person is offline.',
       Icon: Info,
+    });
+  };
+
+  const onboardingFailureError = () => {
+    setErrorToShow({
+      text: 'Error in setting you up, please check your network.',
+      Icon: Error,
     });
   };
 
@@ -178,6 +186,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         unableToSharelinkError,
         portCreationError,
         incorrectQRError,
+        onboardingFailureError,
       }}>
       {children}
     </ErrorModalContext.Provider>

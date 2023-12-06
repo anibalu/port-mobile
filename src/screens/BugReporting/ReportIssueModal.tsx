@@ -15,8 +15,7 @@ interface reportIssueProps {
 }
 
 export default function ReportIssueModal(props: reportIssueProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {setReportBugModalOpen, reportbugModalOpen} = props;
+  const {setReportBugModalOpen} = props;
   const navigation = useNavigation();
   const onClickReportProblem = useCallback(() => {
     navigation.navigate('AddCategoryScreen');
@@ -35,7 +34,10 @@ export default function ReportIssueModal(props: reportIssueProps) {
         <NumberlessMediumText style={styles.titleText}>
           Need help?
         </NumberlessMediumText>
-        <CrossIcon onPress={() => setReportBugModalOpen(p => !p)} />
+        <CrossIcon
+          style={{top: -8}}
+          onPress={() => setReportBugModalOpen(p => !p)}
+        />
       </View>
       <Pressable style={styles.button} onPress={onClickReportProblem}>
         <InfoIcon />
@@ -53,13 +55,13 @@ export default function ReportIssueModal(props: reportIssueProps) {
 
 const styles = StyleSheet.create({
   editRegion: {
-    width: '100%',
     backgroundColor: 'white',
-    display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: 20,
+    borderTopRightRadius: 32,
+    borderTopLeftRadius: 32,
     paddingTop: 20,
     paddingLeft: 20,
     paddingRight: 20,
@@ -76,11 +78,15 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     borderRadius: 16,
-    height: 60,
-    marginBottom: 15,
+    height: 70,
+    marginTop: 17,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     backgroundColor: PortColors.primary.white,
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: PortColors.primary.grey.light,
   },
   buttonText: {
     fontSize: 14,

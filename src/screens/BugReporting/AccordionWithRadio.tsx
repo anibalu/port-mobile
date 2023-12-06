@@ -136,6 +136,7 @@ const AccordionWithRadio = ({
 const styles = StyleSheet.create({
   container: {
     margin: 10,
+    borderRadius: 16,
     backgroundColor: 'white',
   },
   header: {

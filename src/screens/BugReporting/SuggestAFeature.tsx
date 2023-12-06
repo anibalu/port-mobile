@@ -1,21 +1,17 @@
 import Screenshot from '@assets/icons/Screenshot.svg';
 import ChatBackground from '@components/ChatBackground';
+import {FontSizes, screen} from '@components/ComponentUtils';
+import {GenericButton} from '@components/GenericButton';
+import GenericInput from '@components/GenericInput';
+import GenericModal from '@components/GenericModal';
 import GenericTopBar from '@components/GenericTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import {Submitted} from './Submitted';
-import {SafeAreaView} from '@components/SafeAreaView';
-import GenericModal from '@components/GenericModal';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SuggestAFeature'>;
 
@@ -48,13 +44,28 @@ export default function SuggestAFeature({navigation}: Props) {
       />
       <View style={styles.container}>
         <Text style={styles.titleStyles}> Suggest a feature</Text>
-        <TextInput
-          textAlign="left"
-          textAlignVertical="top"
-          style={styles.input}
+        <GenericInput
+          wrapperStyle={{
+            height: screen.height / 4,
+            marginBottom: 20,
+            marginTop: 20,
+          }}
+          inputStyle={{
+            ...FontSizes[15].regular,
+            paddingLeft: 15,
+            paddingTop: 10,
+            textAlignVertical: 'top',
+            borderRadius: 12,
+          }}
+          maxLength={350}
+          multiline={true}
+          text={reviewText}
+          setText={value => {
+            setReviewText(value);
+          }}
           placeholder="Enter issue here"
-          onChangeText={value => setReviewText(value)}
-          value={reviewText}
+          alignment="left"
+          showLimit={true}
         />
         <View style={styles.screenshot}>
           {image ? (
@@ -74,9 +85,19 @@ export default function SuggestAFeature({navigation}: Props) {
           )}
         </View>
       </View>
-      <Pressable style={styles.button} onPress={() => setOpenModal(p => !p)}>
-        <Text style={styles.buttonText}>Submit</Text>
-      </Pressable>
+      <GenericButton
+        onPress={() => {
+          setOpenModal(p => !p);
+        }}
+        buttonStyle={{
+          height: 70,
+          width: '90%',
+          position: 'absolute',
+          bottom: 15,
+        }}>
+        Submit
+      </GenericButton>
+
       <GenericModal
         visible={openModal}
         position="center"
@@ -137,6 +158,7 @@ const styles = StyleSheet.create({
   screenshot: {
     flexDirection: 'row',
     paddingLeft: 20,
+    marginTop: 20,
     paddingRight: 10,
   },
   selectedImage: {

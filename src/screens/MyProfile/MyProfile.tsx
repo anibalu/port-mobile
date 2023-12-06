@@ -20,8 +20,6 @@ import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {useFocusEffect} from '@react-navigation/native';
 import ReportIssueModal from '../BugReporting/ReportIssueModal';
-import ActiveSuperports from './ActiveSuperports';
-import PendingContacts from './PendingContacts';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -102,10 +100,6 @@ function MyProfile({navigation}: Props) {
         onPress={() => setReportBugModalOpen(p => !p)}>
         <Text style={styles.reportIssueText}>Report Issue</Text>
       </Pressable>
-      <View style={styles.cards}>
-        <ActiveSuperports />
-        <PendingContacts />
-      </View>
 
       <GenericModal
         visible={editingName}

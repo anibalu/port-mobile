@@ -2,12 +2,16 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useState} from 'react';
-import {Image, StyleSheet} from 'react-native';
+import {Image, StyleSheet, Vibration} from 'react-native';
 
 import DefaultImage from '@assets/avatars/avatar.png';
 import ChatBackground from '@components/ChatBackground';
 import DeleteChatButton from '@components/DeleteChatButton';
-import {DEFAULT_NAME, START_OF_TIME} from '@configs/constants';
+import {
+  DEFAULT_NAME,
+  SELECTED_MESSAGES_LIMIT,
+  START_OF_TIME,
+} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import Clipboard from '@react-native-clipboard/clipboard';
 //import store from '@store/appStore';
@@ -29,6 +33,7 @@ import ChatTopbar from './ChatTopbar';
 import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
 import {useSelector} from 'react-redux';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 export enum SelectedMessagesSize {
@@ -53,6 +58,8 @@ function Chat({route, navigation}: Props) {
     messagesLoaded: false,
   });
 
+  const {copyingMessageError} = useErrorModal();
+
   const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
 
   //Allows for message auto-scrolling in the list. Set to true as list is INVERTED.
@@ -75,7 +82,8 @@ function Chat({route, navigation}: Props) {
 
   //handles toggling the select messages flow.
   const handleMessageBubbleLongPress = (messageId: string): void => {
-    //adds messageId to selected messages on long press
+    //adds messageId to selected messages on long press and vibrates
+    Vibration.vibrate(50);
     if (!selectedMessages.includes(messageId)) {
       setSelectedMessages([...selectedMessages, messageId]);
     }

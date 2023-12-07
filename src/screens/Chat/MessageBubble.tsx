@@ -13,6 +13,7 @@ import ImageBubble from './BubbleTypes/ImageBubble';
 import ReplyBubble from './BubbleTypes/ReplyBubble';
 import TextBubble from './BubbleTypes/TextBubble';
 import VideoBubble from './BubbleTypes/VideoBubble';
+import InfoBubble from './BubbleTypes/InfoBubble';
 
 /**
  * Props that a message bubble takes
@@ -76,6 +77,12 @@ const MessageBubble = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
+  if (
+    message.contentType === ContentType.handshakeA1 ||
+    message.contentType === ContentType.handshakeB2
+  ) {
+    return null;
+  }
   return (
     <View style={styles.parentContainer}>
       {isDateBoundary ? (
@@ -125,7 +132,8 @@ function isDataMessage(contentType: ContentType) {
     contentType === ContentType.displayImage ||
     contentType === ContentType.handshakeA1 ||
     contentType === ContentType.handshakeB2 ||
-    contentType === ContentType.name
+    contentType === ContentType.name ||
+    contentType === ContentType.info
   ) {
     return true;
   }
@@ -258,6 +266,8 @@ function renderBubbleType(
           handleLongPress={handleLongPress}
         />
       );
+    case ContentType.info:
+      return <InfoBubble {...message} />;
     default:
       return <DataBubble {...message} />;
   }

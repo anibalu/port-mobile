@@ -30,6 +30,7 @@ export enum ContentType {
   displayImage, //send, receive handled
   handshakeA1, //send handled
   handshakeB2, //send handled
+  info,
 }
 /**
  * Enum representing different message types.

@@ -7,11 +7,20 @@ import {
 } from '../Connections';
 import {ReadStatus} from '../Connections/interfaces';
 import {decryptFile, decryptMessage} from '../Crypto/aes';
-import {removeMember, updateMemberName, updateNewMember} from '../Groups';
+import {
+  getMemberInfo,
+  removeMember,
+  updateMemberName,
+  updateNewMember,
+} from '../Groups';
 import {displaySimpleNotification} from '../Notifications';
 import {getProfileName} from '../Profile';
-import {saveToMediaDir} from '../Storage/StorageRNFS/sharedFileHandlers';
+import {
+  saveToFilesDir,
+  saveToMediaDir,
+} from '../Storage/StorageRNFS/sharedFileHandlers';
 import {saveMessage} from '../Storage/messages';
+import {generateRandomHexId} from './idGenerator';
 import {
   ContentType,
   ReceiveStatus,
@@ -62,10 +71,30 @@ export async function receiveGroupMessage(
         );
         return ReceiveStatus.success;
       }
-      if (firstParse.removedMember) {
+      // Either a member left, or they were removed
+      if (firstParse.removedMember || firstParse.memberLeft) {
         //removed member actions
-        console.log('removing member');
-        await removeMember(groupId, firstParse.removedMember);
+        let removalMember: string;
+        if (firstParse.removedMember) {
+          removalMember = firstParse.removedMember;
+        } else {
+          removalMember = firstParse.memberLeft;
+        }
+        const removedMemberInfo = await getMemberInfo(groupId, removalMember);
+        const savedMessage: SavedMessageParams = {
+          messageId: generateRandomHexId(),
+          contentType: ContentType.info,
+          data: {
+            info: `${
+              removedMemberInfo?.name || DEFAULT_NAME
+            } is no longer in the group`,
+          },
+          chatId: groupId,
+          sender: false,
+          timestamp: timestamp,
+        };
+        await saveMessage(savedMessage);
+        await removeMember(groupId, removalMember);
         return ReceiveStatus.success;
       }
       if (firstParse.removedFromGroup) {

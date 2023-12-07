@@ -12,6 +12,9 @@ import {
 import {LINE_MANAGEMENT_RESOURCE} from '../../configs/api';
 import {connectionFsSync} from '../Synchronization';
 import {Permissions} from '../ChatPermissions/interfaces';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {generateRandomHexId} from '@utils/Messaging/idGenerator';
+import {saveMessage} from '@utils/Storage/messages';
 
 /**
  * Loads saved connections to store
@@ -178,6 +181,17 @@ export async function toggleRead(chatId: string) {
  * @param {string} chatId - connection to toggle authenticated
  */
 export async function toggleAuthenticated(chatId: string) {
+  const savedMessage: SavedMessageParams = {
+    messageId: generateRandomHexId(),
+    contentType: ContentType.info,
+    data: {
+      info: 'Handshake complete',
+    },
+    chatId: chatId,
+    sender: false,
+    timestamp: generateISOTimeStamp(),
+  };
+  await saveMessage(savedMessage);
   await updateConnection({
     chatId: chatId,
     authenticated: true,

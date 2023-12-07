@@ -26,8 +26,7 @@ import {getConnection, updateConnectionOnNewMessage} from '../Connections';
 import {ConnectionType, ReadStatus} from '../Connections/interfaces';
 import store from '../../store/appStore';
 import {getJournaled} from '../Storage/journal';
-import uuid from 'react-native-uuid';
-
+import {generateRandomHexId} from './idGenerator';
 /**
  * The function used to send messages. The send operation has the following flow:
  * If the message being sent is a new message (not an old message being resent from journal):
@@ -85,9 +84,7 @@ export async function sendMessage(
       case ContentType.file: {
         return await sendFileMessage(chatId, newMessage, journal, isGroup);
       }
-      case ContentType.handshakeA1: {
-        return await sendHandshakeDirectMessage(chatId, newMessage, journal);
-      }
+      case ContentType.handshakeA1:
       case ContentType.handshakeB2: {
         return await sendHandshakeDirectMessage(chatId, newMessage, journal);
       }
@@ -684,13 +681,6 @@ export async function tryToSendJournaled() {
   } catch (error) {
     console.log('Error in emptying journal: ', error);
   }
-}
-
-function generateRandomHexId(): string {
-  // Generate a UUID
-  const uuidv4 = uuid.v4();
-  const hexUUID = uuidv4.toString().replace(/-/g, '');
-  return hexUUID;
 }
 
 async function saveMessage(

@@ -14,7 +14,6 @@ export default async function pullBacklog() {
   ).data;
   for (const message of messages) {
     //TODO: This needs to be removed in a future refactor
-    console.log('raw message: ', message);
     const firstParse = JSON.parse(message);
     await receiveMessage({data: firstParse});
   }

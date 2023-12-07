@@ -1,35 +1,22 @@
 import React, {ReactNode} from 'react';
 
-import {Pressable, StyleSheet, View} from 'react-native';
+import {View, StyleSheet, Pressable} from 'react-native';
 
 import {NumberlessRegularText} from '@components/NumberlessText';
 import {getTimeStamp} from '@utils/Time';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import {PortColors} from '@components/ComponentUtils';
-import {DEFAULT_NAME} from '@configs/constants';
 
 /**
  * @param message, message object
- * @returns {ReactNode} data bubble element
+ * @returns {ReactNode} info bubble element
  */
-export default function DataBubble(message: SavedMessageParams): ReactNode {
+export default function InfoBubble(message: SavedMessageParams): ReactNode {
   return (
     <Pressable style={styles.textBubbleContainer}>
-      {message.contentType === ContentType.name ? (
-        <NumberlessRegularText style={styles.text}>
-          {(message.data?.name?.toString() || DEFAULT_NAME) +
-            ' has joined the chat'}
-        </NumberlessRegularText>
-      ) : (
-        <>
-          <NumberlessRegularText style={styles.text}>
-            {'data message: ' + message.contentType.toString()}
-          </NumberlessRegularText>
-          <NumberlessRegularText style={styles.text}>
-            {JSON.stringify(message.data)}
-          </NumberlessRegularText>
-        </>
-      )}
+      <NumberlessRegularText style={styles.text}>
+        {message.data.info.toString()}
+      </NumberlessRegularText>
       <View style={styles.timeStampContainer}>
         <View>
           <NumberlessRegularText style={styles.timeStamp}>
@@ -60,6 +47,7 @@ const styles = StyleSheet.create({
     color: PortColors.primary.grey.dark,
   },
   text: {
+    textAlign: 'center',
     color: '#000000',
   },
 });

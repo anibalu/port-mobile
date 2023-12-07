@@ -99,19 +99,9 @@ export async function receiveDirectMessage(
             timestamp,
           );
         }
-        case ContentType.handshakeA1: {
-          return await receiveHandshakeDirectMessage(
-            chatId,
-            message,
-            timestamp,
-          );
-        }
+        case ContentType.handshakeA1:
         case ContentType.handshakeB2: {
-          return await receiveHandshakeDirectMessage(
-            chatId,
-            message,
-            timestamp,
-          );
+          return await receiveHandshakeDirectMessage(chatId, message);
         }
       }
     }
@@ -374,18 +364,8 @@ async function receiveDisplayPictureDirectMessage(
 async function receiveHandshakeDirectMessage(
   chatId: string,
   message: SendMessageParamsStrict,
-  timestamp: string,
 ) {
   try {
-    //save message to storage
-    const savedMessage: SavedMessageParams = {
-      ...message,
-      chatId: chatId,
-      messageId: message.messageId,
-      sender: false,
-      timestamp: timestamp,
-    };
-    await saveMessage(savedMessage);
     switch (message.contentType) {
       case ContentType.handshakeA1:
         await handshakeActionsB2(chatId, message.data.pubKey || '');

@@ -24,6 +24,8 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getGroupInfo} from '@utils/Storage/group';
 import {getTimeStamp} from '@utils/Time';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {leaveGroup} from '@utils/Groups';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GroupProfile'>;
 
@@ -124,6 +126,20 @@ function GroupProfile({route, navigation}: Props) {
           </View>
         </View>
         <PermissionsDropdown bold={false} chatId={groupId} />
+        <GenericButton
+          onPress={() => {
+            leaveGroup(groupInfo.groupId);
+            navigation.goBack();
+          }}
+          textStyle={{...FontSizes[17].medium}}
+          buttonStyle={{
+            width: '90%',
+            marginTop: 38,
+            height: 70,
+            backgroundColor: PortColors.primary.red,
+          }}>
+          Delete group
+        </GenericButton>
       </ScrollView>
     </SafeAreaView>
   );

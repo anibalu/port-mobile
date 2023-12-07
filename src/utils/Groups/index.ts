@@ -1,15 +1,16 @@
+import {ServerAuthToken} from '@utils/ServerAuth/interfaces';
 import axios from 'axios';
-import {getToken} from '../ServerAuth';
-import {GROUP_MANAGEMENT_RESOURCE} from '../../configs/api';
-import {GroupInfo, GroupInfoUpdate, GroupMember} from './interfaces';
-import {addConnection} from '../Connections';
-import {ConnectionType, ReadStatus} from '../Connections/interfaces';
-import * as storage from '../Storage/group';
+import {GROUP_MANAGEMENT_RESOURCE} from '@configs/api';
+import {DEFAULT_NAME} from '@configs/constants';
 import {defaultGroupPermissions} from '../ChatPermissions/default';
+import {addConnection, updateConnection} from '../Connections';
+import {ConnectionType, ReadStatus} from '../Connections/interfaces';
 import {ContentType} from '../Messaging/interfaces';
-import {generateISOTimeStamp} from '../Time';
+import {getToken} from '../ServerAuth';
+import * as storage from '../Storage/group';
 import {connectionFsSync} from '../Synchronization';
-import {DEFAULT_NAME} from '../../configs/constants';
+import {generateISOTimeStamp} from '../Time';
+import {GroupInfo, GroupInfoUpdate, GroupMember} from './interfaces';
 
 /**
  * A request to the server to create a new group and return groupId
@@ -180,4 +181,17 @@ export async function updateMemberName(
     }
   };
   await connectionFsSync(synced);
+}
+
+export async function leaveGroup(groupId: string) {
+  const token: ServerAuthToken = await getToken();
+  await axios.patch(
+    GROUP_MANAGEMENT_RESOURCE,
+    {
+      updateType: 'leave',
+      groupId: groupId,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
+  await updateConnection({chatId: groupId, disconnected: true});
 }

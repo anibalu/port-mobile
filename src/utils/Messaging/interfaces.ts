@@ -31,6 +31,9 @@ export enum ContentType {
   handshakeA1, //send handled
   handshakeB2, //send handled
   info,
+  contactBundle,
+  contactBundleRequest,
+  contactBundleResponse,
 }
 /**
  * Enum representing different message types.

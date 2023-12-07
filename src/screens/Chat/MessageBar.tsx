@@ -30,6 +30,7 @@ import FileReplyContainer from './ReplyContainers/FileReplyContainer';
 import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
 import TextReplyContainer from './ReplyContainers/TextReplyContainer';
 import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
+import {useNavigation} from '@react-navigation/native';
 
 /**
  * Renders the bottom input bar for a chat.
@@ -59,6 +60,7 @@ const MessageBar = ({
   groupInfo: any;
   onSend: any;
 }): ReactNode => {
+  const navigation = useNavigation();
   const inputTextBarWidth = screen.width - 126;
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -227,6 +229,20 @@ const MessageBar = ({
                 Files
               </NumberlessMediumText>
             </View>
+            {!isGroupChat && (
+              <View style={styles.optionContainer}>
+                <Pressable
+                  style={styles.optionBox}
+                  onPress={() => {
+                    navigation.navigate('ShareContact', {chatId: chatId});
+                  }}>
+                  <FileIcon />
+                </Pressable>
+                <NumberlessMediumText style={styles.optionText}>
+                  Share Contact
+                </NumberlessMediumText>
+              </View>
+            )}
           </View>
           <View style={styles.textInputContainer}>
             <Pressable style={styles.plus} onPress={togglePopUp}>
@@ -477,10 +493,11 @@ const styles = StyleSheet.create({
   },
   optionContainer: {
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingLeft: 10,
-    paddingRight: 10,
+    width: 70,
+    height: 100,
+    marginLeft: 8,
   },
   optionBox: {
     width: 60,
@@ -494,6 +511,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 12,
+    textAlign: 'center',
   },
 });
 

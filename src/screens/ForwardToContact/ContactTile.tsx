@@ -2,11 +2,12 @@
  * Default chat tile displayed when there are no connections
  */
 import React, {useState} from 'react';
-import {Image, Pressable, StyleSheet} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
 import {NumberlessMediumText} from '@components/NumberlessText';
 import CheckBox from '@react-native-community/checkbox';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
-import DefaultImage from '@assets/avatars/avatar.png';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {PortColors} from '@components/ComponentUtils';
 
 export default function ContactTile({
   member,
@@ -28,13 +29,11 @@ export default function ContactTile({
       onPress={() => {
         onCheckboxToggle(!toggleCheckBox);
       }}>
-      <Image
-        source={{
-          uri: member?.pathToDisplayPic
-            ? member.pathToDisplayPic
-            : Image.resolveAssetSource(DefaultImage).uri,
-        }}
-        style={styles.newIcon}
+      <GenericAvatar
+        profileUri={
+          member?.pathToDisplayPic ? member.pathToDisplayPic : 'avatar://1'
+        }
+        avatarSize={'small'}
       />
       <NumberlessMediumText style={styles.defaultTileText} numberOfLines={1}>
         {member.name}
@@ -57,8 +56,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   defaultTileText: {
-    color: '#18191F',
-    marginTop: 12,
+    color: PortColors.primary.black,
     textAlign: 'left',
     flex: 1,
     marginLeft: 19,

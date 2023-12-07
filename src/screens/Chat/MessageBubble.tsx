@@ -14,6 +14,7 @@ import ReplyBubble from './BubbleTypes/ReplyBubble';
 import TextBubble from './BubbleTypes/TextBubble';
 import VideoBubble from './BubbleTypes/VideoBubble';
 import InfoBubble from './BubbleTypes/InfoBubble';
+import ContactSharingBubble from './BubbleTypes/ContactSharingBubble';
 
 /**
  * Props that a message bubble takes
@@ -267,6 +268,8 @@ function renderBubbleType(
       );
     case ContentType.info:
       return <InfoBubble {...message} />;
+    case ContentType.contactBundle:
+      return <ContactSharingBubble message={message} />;
     default:
       return <DataBubble {...message} />;
   }

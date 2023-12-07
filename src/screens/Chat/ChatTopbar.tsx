@@ -2,12 +2,13 @@ import SettingsIcon from '@assets/icons/contact-settings.svg';
 import Cross from '@assets/icons/cross.svg';
 import {BackButton} from '@components/BackButton';
 import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import {toggleRead} from '@utils/Connections';
 import React, {ReactNode} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 
 /**
  * Handles top bar for chat
@@ -39,7 +40,7 @@ function ChatTopbar({
   const onBackPress = async (): Promise<void> => {
     setSelectedMessages([]);
     await toggleRead(chatId);
-    navigation.goBack();
+    navigation.navigate('HomeTab');
   };
 
   const onSettingsPressed = (): void => {
@@ -54,9 +55,12 @@ function ChatTopbar({
     <View style={styles.bar}>
       <View style={styles.backAndProfile}>
         <BackButton style={styles.backIcon} onPress={onBackPress} />
-        {profileURI && selectedMessages.length == 0 && (
+        {selectedMessages.length == 0 && (
           <Pressable onPress={onSettingsPressed}>
-            <Image source={{uri: profileURI}} style={styles.profile} />
+            <GenericAvatar
+              profileUri={profileURI || 'avatar://1'}
+              avatarSize={'small'}
+            />
           </Pressable>
         )}
         <View style={styles.titleBar}>

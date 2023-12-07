@@ -8,9 +8,7 @@ import {
   NumberlessSemiBoldText,
 } from '@components/NumberlessText';
 import {default as React, useEffect, useState} from 'react';
-import {Image, Pressable, ScrollView, StyleSheet, View} from 'react-native';
-
-import DefaultImage from '@assets/avatars/avatar.png';
+import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import Files from '@assets/icons/Files.svg';
 import Gallery from '@assets/icons/Gallery.svg';
 import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
@@ -26,6 +24,7 @@ import {getConnection} from '@utils/Connections';
 import DisconnectButton from './DisconnectButton';
 import GenericModal from '@components/GenericModal';
 import UpdateNamePopup from '@components/UpdateNamePopup';
+import {GenericAvatar} from '@components/GenericAvatar';
 import {screen} from '@components/ComponentUtils';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
@@ -33,9 +32,7 @@ type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 function ContactProfile({route, navigation}: Props) {
   const {chatId} = route.params;
 
-  const [profileURI, setProfileURI] = useState(
-    Image.resolveAssetSource(DefaultImage).uri,
-  );
+  const [profileURI, setProfileURI] = useState<string>('avatar://1');
   const [name, setName] = useState(DEFAULT_NAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
   const [editingName, setEditingName] = useState(false);
@@ -46,7 +43,7 @@ function ContactProfile({route, navigation}: Props) {
       const connection = await getConnection(chatId);
       setName(connection.name);
       if (connection.pathToDisplayPic) {
-        setProfileURI(`file://${connection.pathToDisplayPic}`);
+        setProfileURI(connection.pathToDisplayPic);
       }
       setConnected(!connection.disconnected);
     })();
@@ -67,16 +64,7 @@ function ContactProfile({route, navigation}: Props) {
       <ScrollView>
         <View style={styles.scrollContainer}>
           <View style={styles.profile}>
-            <Pressable
-              style={styles.profilePictureHitbox}
-              onPress={() => {
-                navigation.navigate('ImageView', {
-                  imageURI: profileURI,
-                  title: name,
-                });
-              }}>
-              <Image source={{uri: profileURI}} style={styles.profilePic} />
-            </Pressable>
+            <GenericAvatar profileUri={profileURI} avatarSize={'large'} />
             <View style={styles.nicknameArea}>
               <NumberlessSemiBoldText
                 style={styles.nickname}

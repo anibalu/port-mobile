@@ -28,6 +28,7 @@ export type AppStackParamList = {
     setSelectedMessages: any;
     chatId: string;
   };
+  ShareContact: {chatId: string};
   AddCategoryScreen: undefined;
   ReportIssueScreen: {
     category: string;

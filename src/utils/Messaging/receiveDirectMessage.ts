@@ -1,3 +1,7 @@
+import {
+  provideContactShareBundle,
+  relayContactShareBundle,
+} from '@utils/ContactSharing';
 import {DEFAULT_NAME} from '../../configs/constants';
 import {
   getConnection,
@@ -103,6 +107,17 @@ export async function receiveDirectMessage(
         case ContentType.handshakeB2: {
           return await receiveHandshakeDirectMessage(chatId, message);
         }
+        case ContentType.contactBundleRequest: {
+          await provideContactShareBundle(chatId, message.data.bundleId || '');
+          return ReceiveStatus.success;
+        }
+        case ContentType.contactBundleResponse: {
+          await relayContactShareBundle(chatId, message.data);
+          return ReceiveStatus.success;
+        }
+        case ContentType.contactBundle: {
+          return await receiveContactBundle(chatId, message, timestamp);
+        }
       }
     }
     return ReceiveStatus.failed;
@@ -110,6 +125,23 @@ export async function receiveDirectMessage(
     console.log('error receiving message: ', error);
     return ReceiveStatus.failed;
   }
+}
+
+async function receiveContactBundle(
+  chatId: string,
+  message: SendMessageParamsStrict,
+  timestamp: string,
+) {
+  //respond to getting a valid bundle
+  const savedMessage: SavedMessageParams = {
+    ...message,
+    chatId: chatId,
+    messageId: message.messageId,
+    sender: false,
+    timestamp: timestamp,
+  };
+  await saveMessage(savedMessage);
+  return ReceiveStatus.success;
 }
 
 async function receiveTextDirectMessage(
@@ -324,37 +356,55 @@ async function receiveDisplayPictureDirectMessage(
   timestamp: string,
 ) {
   try {
-    //try to download file
-    const ciphertext = await downloadData(message.data.mediaId || '');
-    //decrypt file with key
-    const plaintext = await decryptFile(ciphertext, message.data.key || '');
-    //save file to chat storage and update fileUri
-    const fileUri = await saveToMediaDir(
-      chatId,
-      plaintext,
-      message.data.fileName,
-    );
-    //save message to storage
-    const savedMessage: SavedMessageParams = {
-      ...message,
-      chatId: chatId,
-      data: {
-        ...message.data,
-        fileUri: fileUri,
-        mediaId: null,
-        key: null,
-      },
-      messageId: message.messageId,
-      sender: false,
-      timestamp: timestamp,
-    };
-    await saveMessage(savedMessage);
-    //update connection
-    await updateConnection({
-      chatId: chatId,
-      pathToDisplayPic: fileUri,
-    });
-    return ReceiveStatus.success;
+    if (message.data.fileType === 'avatar') {
+      //save message to storage
+      const savedMessage: SavedMessageParams = {
+        ...message,
+        chatId: chatId,
+        messageId: message.messageId,
+        sender: false,
+        timestamp: timestamp,
+      };
+      await saveMessage(savedMessage);
+      //update connection
+      await updateConnection({
+        chatId: chatId,
+        pathToDisplayPic: message.data.fileUri,
+      });
+      return ReceiveStatus.success;
+    } else {
+      //try to download file
+      const ciphertext = await downloadData(message.data.mediaId || '');
+      //decrypt file with key
+      const plaintext = await decryptFile(ciphertext, message.data.key || '');
+      //save file to chat storage and update fileUri
+      const fileUri = await saveToMediaDir(
+        chatId,
+        plaintext,
+        message.data.fileName,
+      );
+      // //save message to storage
+      const savedMessage: SavedMessageParams = {
+        ...message,
+        chatId: chatId,
+        data: {
+          ...message.data,
+          fileUri: fileUri,
+          mediaId: null,
+          key: null,
+        },
+        messageId: message.messageId,
+        sender: false,
+        timestamp: timestamp,
+      };
+      await saveMessage(savedMessage);
+      //update connection
+      await updateConnection({
+        chatId: chatId,
+        pathToDisplayPic: 'file://' + fileUri,
+      });
+      return ReceiveStatus.success;
+    }
   } catch (error) {
     console.log('Error receiving diplay picture direct message: ', error);
     return ReceiveStatus.failed;

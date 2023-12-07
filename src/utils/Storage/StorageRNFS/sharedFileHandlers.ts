@@ -1,6 +1,7 @@
 import RNFS from 'react-native-fs';
 import {initialiseChatIdDirAsync} from './messagesHandlers';
 import {filesDir, mediaDir, tempDir} from '../../../configs/paths';
+import {generateRandomHexId} from '@utils/Messaging/idGenerator';
 
 const DEFAULT_ENCODING = 'base64';
 const WRITE_ENCODING = 'utf8';
@@ -37,7 +38,8 @@ export async function moveToFilesDir(
   fileName: string,
 ) {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
-  const destinationPath = chatIdDir + filesDir + '/' + fileName;
+  const destinationPath =
+    chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
   await RNFS.moveFile(fileUri, destinationPath);
   return destinationPath;
 }
@@ -52,7 +54,8 @@ export async function moveToMediaDir(
   fileName: string,
 ) {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
-  const destinationPath = chatIdDir + mediaDir + '/' + fileName;
+  const destinationPath =
+    chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
   await RNFS.moveFile(fileUri, destinationPath);
   return destinationPath;
 }
@@ -68,7 +71,8 @@ export async function saveToFilesDir(
   encoding: string = DEFAULT_ENCODING,
 ) {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
-  const destinationPath = chatIdDir + filesDir + '/' + fileName;
+  const destinationPath =
+    chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
   await RNFS.writeFile(destinationPath, plaintext, encoding);
   return destinationPath;
 }
@@ -84,7 +88,8 @@ export async function saveToMediaDir(
   encoding: string = DEFAULT_ENCODING,
 ) {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
-  const destinationPath = chatIdDir + mediaDir + '/' + fileName;
+  const destinationPath =
+    chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
   await RNFS.writeFile(destinationPath, plaintext, encoding);
   return destinationPath;
 }

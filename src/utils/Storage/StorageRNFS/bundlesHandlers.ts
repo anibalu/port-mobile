@@ -4,8 +4,10 @@ import {
   generatedBundlesPath,
   readBundlesPath,
   generatedSuperportsPath,
+  bundleMapPath,
 } from '../../../configs/paths';
 import {
+  BundleMapEntry,
   DirectConnectionBundle,
   GeneratedDirectConnectionBundle,
   GeneratedDirectSuperportConnectionBundle,
@@ -53,6 +55,49 @@ async function initialiseGeneratedBundlesFileAsync() {
   }
   await RNFS.writeFile(pathToFile, JSON.stringify([]), DEFAULT_ENCODING);
   return pathToFile;
+}
+
+async function initialiseBundleMapFileAsync() {
+  const pathToFile = (await makeBundlesDirAsync()) + `${bundleMapPath}`;
+  if (await RNFS.exists(pathToFile)) {
+    return pathToFile;
+  }
+  await RNFS.writeFile(pathToFile, JSON.stringify([]), DEFAULT_ENCODING);
+  return pathToFile;
+}
+
+export async function readBundleMap(blocking: boolean = true) {
+  const synced = async () => {
+    const pathToFile = await initialiseBundleMapFileAsync();
+    const bundleMap: BundleMapEntry[] = JSON.parse(
+      await RNFS.readFile(pathToFile, DEFAULT_ENCODING),
+    );
+    return bundleMap;
+  };
+  if (blocking) {
+    return await connectionFsSync(synced);
+  } else {
+    return await synced();
+  }
+}
+
+export async function writeBundleMap(
+  bundleMap: BundleMapEntry[],
+  blocking: boolean = true,
+) {
+  const synced = async () => {
+    const pathToFile = await initialiseBundleMapFileAsync();
+    await RNFS.writeFile(
+      pathToFile,
+      JSON.stringify(bundleMap),
+      DEFAULT_ENCODING,
+    );
+  };
+  if (blocking) {
+    await connectionFsSync(synced);
+  } else {
+    await synced();
+  }
 }
 
 async function initialiseGeneratedSuperportBundlesFileAsync() {

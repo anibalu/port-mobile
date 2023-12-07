@@ -7,4 +7,5 @@ export interface Permissions {
   notifications: Permission;
   autoDownload: Permission;
   displayPicture?: Permission;
+  contactSharing?: Permission;
 }

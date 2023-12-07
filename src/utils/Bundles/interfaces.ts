@@ -17,6 +17,7 @@ export interface DirectConnectionBundle extends ConnectionBundle {
     linkId: string;
     nonce?: string;
     pubkeyHash?: string;
+    bundleId?: string;
   };
 }
 
@@ -27,6 +28,7 @@ export interface GeneratedDirectConnectionBundle
   extends DirectConnectionBundle {
   keys: KeyPair;
   label?: string;
+  requestedBy?: string;
 }
 
 export interface DirectSuperportConnectionBundle
@@ -67,4 +69,9 @@ export interface GroupConnectionBundle extends ConnectionBundle {
     name: string;
     description?: string;
   };
+}
+
+export interface BundleMapEntry {
+  bundleId: string;
+  chatId: string;
 }

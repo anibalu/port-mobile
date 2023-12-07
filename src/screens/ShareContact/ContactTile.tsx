@@ -1,40 +1,44 @@
 /**
  * Default chat tile displayed when there are no connections
  */
-import React from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import {NumberlessRegularText} from '@components/NumberlessText';
+import React, {useState} from 'react';
+import {Pressable, StyleSheet} from 'react-native';
+import {NumberlessMediumText} from '@components/NumberlessText';
+import CheckBox from '@react-native-community/checkbox';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
-import Plus from '@assets/icons/plus.svg';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {PortColors} from '@components/ComponentUtils';
 
-export default function SelectedContactTile({
+export default function ContactTile({
   member,
-  onRemove,
+  onToggle,
 }: {
   member: ConnectionInfo;
-  onRemove: (member: ConnectionInfo) => void;
+  onToggle: (member: ConnectionInfo) => boolean;
 }) {
+  const [toggleCheckBox, setToggleCheckBox] = useState(false);
+
+  const onCheckboxToggle = () => {
+    setToggleCheckBox(onToggle(member));
+  };
+
   return (
-    <View style={styles.defaultTileContainer}>
+    <Pressable
+      style={styles.defaultTileContainer}
+      onPress={() => {
+        onCheckboxToggle();
+      }}>
       <GenericAvatar
         profileUri={
           member?.pathToDisplayPic ? member.pathToDisplayPic : 'avatar://1'
         }
         avatarSize={'small'}
       />
-      <Pressable
-        onPress={() => {
-          onRemove(member);
-        }}
-        style={styles.plusIcon}>
-        <Plus style={{transform: [{rotate: '45deg'}]}} />
-      </Pressable>
-      <NumberlessRegularText style={styles.defaultTileText} numberOfLines={1}>
+      <NumberlessMediumText style={styles.defaultTileText} numberOfLines={1}>
         {member.name}
-      </NumberlessRegularText>
-    </View>
+      </NumberlessMediumText>
+      <CheckBox value={toggleCheckBox} onValueChange={onCheckboxToggle} />
+    </Pressable>
   );
 }
 
@@ -57,18 +61,10 @@ const styles = StyleSheet.create({
     marginLeft: 19,
     fontSize: 17,
   },
-  plusIcon: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    backgroundColor: '#A1A1A1',
-    opacity: 0.5,
+  newIcon: {
+    width: 60,
+    height: 60,
     borderRadius: 20,
-  },
-  profileIcon: {
-    width: 54,
-    height: 54,
-    borderRadius: 11,
     overflow: 'hidden',
   },
 });

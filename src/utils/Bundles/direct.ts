@@ -204,6 +204,8 @@ export async function getGeneratedDirectConnectionBundle(
  */
 export async function generateDirectConnectionBundle(
   label: string = '',
+  bundleId: string = '',
+  requester: string = '',
 ): Promise<DirectConnectionBundle> {
   const linkId = await getDirectConnectionLink();
   if (linkId === null) {
@@ -221,6 +223,7 @@ export async function generateDirectConnectionBundle(
         linkId: linkId,
         nonce: nonce,
         pubkeyHash: hash,
+        bundleId: bundleId,
       },
     };
     const generatedBundle: GeneratedDirectConnectionBundle = {
@@ -228,6 +231,7 @@ export async function generateDirectConnectionBundle(
       keys: keys,
       timestamp: generateISOTimeStamp(),
       label: label,
+      requestedBy: requester,
     };
     await saveGeneratedDirectConnectionBundle(generatedBundle);
     await addConnection({

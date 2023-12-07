@@ -75,7 +75,7 @@ export async function sendMessage(
         return await sendNameMessage(chatId, newMessage, journal, isGroup);
       }
       case ContentType.displayImage:
-        return await sendMediaMessage(chatId, newMessage, journal, isGroup);
+        return await sendDisplayImage(chatId, newMessage, journal, isGroup);
       case ContentType.video:
         return await sendMediaMessage(chatId, newMessage, journal, isGroup);
       case ContentType.image: {
@@ -88,12 +88,38 @@ export async function sendMessage(
       case ContentType.handshakeB2: {
         return await sendHandshakeDirectMessage(chatId, newMessage, journal);
       }
+      case ContentType.contactBundleRequest:
+      case ContentType.contactBundleResponse:
+      case ContentType.contactBundle: {
+        return await sendContactBundleMessage(chatId, newMessage, journal);
+      }
     }
     throw new Error('Unrecognised send operation');
   } catch (error) {
     console.log('Message send failed: ', error);
     return {sendStatus: SendStatus.failed, message: message};
   }
+}
+
+async function sendDisplayImage(
+  chatId: string,
+  message: SendMessageParamsStrict,
+  journal: boolean = true,
+  isGroup: boolean = false,
+): Promise<SendMessageOutput> {
+  if (message.data.fileType === 'avatar') {
+    return await sendNameMessage(chatId, message, journal, isGroup);
+  } else {
+    return await sendMediaMessage(chatId, message, journal, isGroup);
+  }
+}
+
+async function sendContactBundleMessage(
+  chatId: string,
+  message: SendMessageParamsStrict,
+  journal: boolean = true,
+): Promise<SendMessageOutput> {
+  return await sendHandshakeDirectMessage(chatId, message, journal);
 }
 
 /**

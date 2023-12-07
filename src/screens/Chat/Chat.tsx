@@ -176,7 +176,8 @@ function Chat({route, navigation}: Props) {
         const connection = await getConnection(chatId);
         const localState: any = {};
         if (connection.pathToDisplayPic && connection.pathToDisplayPic !== '') {
-          localState.profileURI = `file://${connection.pathToDisplayPic}`;
+          localState.profileURI = connection.pathToDisplayPic;
+          console.log('profile pic: ', localState.profileURI);
         }
         localState.name = connection.name;
         if (connection.connectionType === ConnectionType.group) {

@@ -1,79 +1,70 @@
-import {
-  NumberlessMediumText,
-  NumberlessRegularText,
-} from '@components/NumberlessText';
-import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import {getTimeStamp} from '@utils/Time';
 import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
-import Sending from '../../../../assets/icons/sending.svg';
+import {Pressable, StyleSheet, View} from 'react-native';
+import {DEFAULT_NAME} from '@configs/constants';
+import {GenericButton} from '@components/GenericButton';
+import {useConnectionModal} from 'src/context/ConnectionModalContext';
+import {DirectConnectionBundle} from '@utils/Bundles/interfaces';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
-export default function JoinGroupBubble({
+export default function ContactSharingBubble({
   message,
-  memberName,
-  handleButtonPress,
 }: {
   message: SavedMessageParams;
-  memberName: string;
-  handleButtonPress: any;
 }) {
-  const data = {
-    groupName: 'Family forever',
-    isGroupChatInvite: true,
-    memberName: 'Charlie',
+  const {setFemaleModal, setConnectionQRData, showConnectionModal} =
+    useConnectionModal();
+  const {portConnectionError} = useErrorModal();
+  const handleConnect = () => {
+    const bundle: DirectConnectionBundle = message.data;
+    if (bundle) {
+      setConnectionQRData(bundle);
+      setFemaleModal(true);
+      showConnectionModal();
+    } else {
+      portConnectionError();
+    }
   };
-  return (
-    <View style={styles.textBubbleContainer}>
-      <NumberlessMediumText style={styles.groupName}>
-        {data.groupName}
-      </NumberlessMediumText>
-      {data.isGroupChatInvite && (
-        <NumberlessRegularText style={styles.groupInvite}>
-          Group Chat Invite
+  if (message.sender) {
+    return (
+      <Pressable style={styles.textBubbleContainer}>
+        <NumberlessRegularText style={styles.text}>
+          {'You have shared the contact of ' +
+            (message.data.fromName || DEFAULT_NAME)}
         </NumberlessRegularText>
-      )}
-      <Text style={styles.inviteMessage}>
-        {memberName} has invited you to join {data.groupName} group, Scan qr
-        code or click the link below to join
-      </Text>
-      <View style={styles.timeStampContainer}>
-        {message.sendStatus === SendStatus.success || !message.sender ? (
+        <View style={styles.timeStampContainer}>
           <View>
             <NumberlessRegularText style={styles.timeStamp}>
               {getTimeStamp(message.timestamp)}
             </NumberlessRegularText>
           </View>
-        ) : (
-          <View>
-            {message.sendStatus === SendStatus.journaled ? (
-              <View>
-                <Sending />
-              </View>
-            ) : (
-              <View>
-                {true ? (
-                  <View>
-                    <Sending />
-                  </View>
-                ) : (
-                  <View>
-                    <NumberlessRegularText style={styles.failedStamp}>
-                      {'failed'}
-                    </NumberlessRegularText>
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
-        )}
-      </View>
-      <Pressable style={styles.buttonContainer} onPress={handleButtonPress}>
-        <NumberlessMediumText style={styles.buttonText}>
-          Join group
-        </NumberlessMediumText>
+        </View>
       </Pressable>
-    </View>
-  );
+    );
+  } else {
+    return (
+      <View style={styles.textBubbleContainer}>
+        <NumberlessRegularText style={styles.text}>
+          {'You have been shared the contact of ' +
+            (message.data.fromName || DEFAULT_NAME)}
+        </NumberlessRegularText>
+        <GenericButton
+          onPress={handleConnect}
+          buttonStyle={styles.connectButton}>
+          Connect
+        </GenericButton>
+        <View style={styles.timeStampContainer}>
+          <View>
+            <NumberlessRegularText style={styles.timeStamp}>
+              {getTimeStamp(message.timestamp)}
+            </NumberlessRegularText>
+          </View>
+        </View>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -124,5 +115,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#547CEF',
     fontSize: 15,
+  },
+  connectButton: {
+    marginTop: 10,
+    marginBottom: 10,
   },
 });

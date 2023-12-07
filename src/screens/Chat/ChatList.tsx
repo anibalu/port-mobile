@@ -1,4 +1,4 @@
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {checkDateBoundary} from '@utils/Time';
 import React, {ReactNode} from 'react';
 import {FlatList} from 'react-native-bidirectional-infinite-scroll';
@@ -42,10 +42,14 @@ function ChatList({
     item: SavedMessageParams;
     index: number;
   }) => {
-    if (item.data?.deleted) {
+    if (
+      item.data?.deleted ||
+      item.contentType === ContentType.displayImage ||
+      item.contentType === ContentType.contactBundleRequest ||
+      item.contentType === ContentType.contactBundleResponse
+    ) {
       return null;
     }
-
     //Checks if a date bubbled needs to be displayed.
     const isDateBoundary =
       index >= messages.length - 1

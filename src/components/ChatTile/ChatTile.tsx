@@ -22,7 +22,7 @@ function ChatTile(props: ConnectionInfo): ReactNode {
   //sets profile picture URI
   function chooseProfileURI(): string {
     if (props.pathToDisplayPic && props.pathToDisplayPic !== '') {
-      return `file://${props.pathToDisplayPic}`;
+      return props.pathToDisplayPic;
     }
     return 'avatar://1';
   }

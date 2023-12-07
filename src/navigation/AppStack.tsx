@@ -26,6 +26,7 @@ import React from 'react';
 import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
 import {AppStackParamList} from './AppStackTypes';
 import BottomNavStack from './BottomNavStack';
+import ShareContact from '@screens/ShareContact/ShareContact';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -67,6 +68,7 @@ function AppStack() {
           <Stack.Screen name="SuggestAFeature" component={SuggestAFeature} />
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
           <Stack.Screen name="EditAvatar" component={EditAvatar} />
+          <Stack.Screen name="ShareContact" component={ShareContact} />
         </Stack.Navigator>
         <ScannerModal />
       </ConnectionModalProvider>

@@ -9,6 +9,10 @@ export const defaultDirectPermissions: Permissions = {
     name: 'Display Picture',
     toggled: true,
   },
+  contactSharing: {
+    name: 'Contact Sharing',
+    toggled: true,
+  },
   autoDownload: {
     name: 'Media AutoDownload',
     toggled: true,

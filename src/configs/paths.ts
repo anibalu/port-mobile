@@ -34,6 +34,7 @@ export const tokenPath = '/token.json';
 export const bundlesDir = '/bundles';
 export const generatedBundlesPath = '/generatedBundles.json';
 export const generatedSuperportsPath = '/generatedSuperports.json';
+export const bundleMapPath = '/bundleMap.json';
 
 /**
  * Paths to read bundles

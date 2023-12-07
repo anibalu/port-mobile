@@ -8,7 +8,7 @@ import {
   NumberlessSemiBoldText,
 } from '@components/NumberlessText';
 import {default as React, useEffect, useState} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import {Image, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 
 import DefaultImage from '@assets/avatars/avatar.png';
 import Files from '@assets/icons/Files.svg';
@@ -26,6 +26,7 @@ import {getConnection} from '@utils/Connections';
 import DisconnectButton from './DisconnectButton';
 import GenericModal from '@components/GenericModal';
 import UpdateNamePopup from '@components/UpdateNamePopup';
+import {screen} from '@components/ComponentUtils';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -63,62 +64,66 @@ function ContactProfile({route, navigation}: Props) {
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
       <BackTopbar />
-      <View style={styles.profile}>
-        <Pressable
-          style={styles.profilePictureHitbox}
-          onPress={() => {
-            navigation.navigate('ImageView', {
-              imageURI: profileURI,
-              title: name,
-            });
-          }}>
-          <Image source={{uri: profileURI}} style={styles.profilePic} />
-        </Pressable>
-        <View style={styles.nicknameArea}>
-          <NumberlessSemiBoldText
-            style={styles.nickname}
-            ellipsizeMode="tail"
-            numberOfLines={1}>
-            {name}
-          </NumberlessSemiBoldText>
-          <View style={styles.nicknameEditBox}>
+      <ScrollView>
+        <View style={styles.scrollContainer}>
+          <View style={styles.profile}>
             <Pressable
-              style={styles.nicknameEditHitbox}
-              onPress={() => setEditingName(true)}>
-              <EditIcon />
+              style={styles.profilePictureHitbox}
+              onPress={() => {
+                navigation.navigate('ImageView', {
+                  imageURI: profileURI,
+                  title: name,
+                });
+              }}>
+              <Image source={{uri: profileURI}} style={styles.profilePic} />
+            </Pressable>
+            <View style={styles.nicknameArea}>
+              <NumberlessSemiBoldText
+                style={styles.nickname}
+                ellipsizeMode="tail"
+                numberOfLines={1}>
+                {name}
+              </NumberlessSemiBoldText>
+              <View style={styles.nicknameEditBox}>
+                <Pressable
+                  style={styles.nicknameEditHitbox}
+                  onPress={() => setEditingName(true)}>
+                  <EditIcon />
+                </Pressable>
+              </View>
+            </View>
+          </View>
+          <PermissionsDropdown bold={true} chatId={chatId} />
+          <View style={styles.content}>
+            <NumberlessSemiBoldText style={styles.contentTitle}>
+              Content
+            </NumberlessSemiBoldText>
+            <Pressable
+              style={styles.galleryButton}
+              onPress={() => navigation.navigate('ViewPhotosVideos', {chatId})}>
+              <Gallery />
+              <NumberlessRegularText style={styles.galleryText}>
+                Gallery
+              </NumberlessRegularText>
+              <GreyArrowRight />
+            </Pressable>
+            <Pressable
+              style={styles.galleryButton}
+              onPress={() => navigation.navigate('ViewFiles', {chatId})}>
+              <Files />
+              <NumberlessRegularText style={styles.galleryText}>
+                Files
+              </NumberlessRegularText>
+              <GreyArrowRight />
             </Pressable>
           </View>
+          {connected ? (
+            <DisconnectButton chatId={chatId} />
+          ) : (
+            <DeleteChatButton chatId={chatId} stripMargin={true} />
+          )}
         </View>
-      </View>
-      <PermissionsDropdown bold={true} chatId={chatId} />
-      <View style={styles.content}>
-        <NumberlessSemiBoldText style={styles.contentTitle}>
-          Content
-        </NumberlessSemiBoldText>
-        <Pressable
-          style={styles.galleryButton}
-          onPress={() => navigation.navigate('ViewPhotosVideos', {chatId})}>
-          <Gallery />
-          <NumberlessRegularText style={styles.galleryText}>
-            Gallery
-          </NumberlessRegularText>
-          <GreyArrowRight />
-        </Pressable>
-        <Pressable
-          style={styles.galleryButton}
-          onPress={() => navigation.navigate('ViewFiles', {chatId})}>
-          <Files />
-          <NumberlessRegularText style={styles.galleryText}>
-            Files
-          </NumberlessRegularText>
-          <GreyArrowRight />
-        </Pressable>
-      </View>
-      {connected ? (
-        <DisconnectButton chatId={chatId} />
-      ) : (
-        <DeleteChatButton chatId={chatId} stripMargin={true} />
-      )}
+      </ScrollView>
       <GenericModal
         visible={editingName}
         onClose={() => {
@@ -136,14 +141,17 @@ function ContactProfile({route, navigation}: Props) {
 
 const styles = StyleSheet.create({
   profileScreen: {
-    width: '100%',
+    width: screen.width,
     height: '100%',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
+  scrollContainer: {
+    alignItems: 'center',
+  },
   profile: {
-    width: '100%',
+    width: screen.width,
     backgroundColor: 'white',
     display: 'flex',
     flexDirection: 'column',

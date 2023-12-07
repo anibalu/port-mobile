@@ -12,6 +12,7 @@ import PermissionTile from './PermissionTile';
 import {Permissions} from '@utils/ChatPermissions/interfaces';
 import {defaultDirectPermissions} from '@utils/ChatPermissions/default';
 import {getConnection} from '@utils/Connections';
+import {screen} from '@components/ComponentUtils';
 
 export default function PermissionsDropdown(props: {
   bold: boolean;
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   dropdownHitbox: {
-    width: '100%',
+    width: screen.width - 40,
     height: 70,
     flexDirection: 'row',
     alignItems: 'center',

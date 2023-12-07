@@ -58,14 +58,14 @@ function InformationScreen3({navigation}: Props) {
           contentContainerStyle={{
             justifyContent: 'flex-start',
             flex: 1,
-            paddingTop: 50,
+            paddingTop: 20,
           }}
           showsVerticalScrollIndicator={false}>
           <View style={{alignItems: 'center'}}>
             <NumberlessSemiBoldText style={styles.titleText}>
               Publish Superports
             </NumberlessSemiBoldText>
-            <S3 width={screen.width * 0.9} />
+            <S3 width={screen.width * 0.9} height={screen.height * 0.4} />
             <NumberlessRegularText style={styles.bodyText}>
               Publish Superports to your social channels to funnel new
               conversations to Port, or use them to port over large groups ,
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   bodyText: {
-    marginTop: 50,
+    marginTop: 40,
     paddingRight: '8%',
     paddingLeft: '8%',
     textAlign: 'center',

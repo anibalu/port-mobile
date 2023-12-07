@@ -3,6 +3,7 @@ import {StyleSheet, View} from 'react-native';
 import {NumberlessRegularText} from '@components/NumberlessText';
 import ToggleSwitch from 'toggle-switch-react-native';
 import {getConnection, updateConnection} from '@utils/Connections';
+import {screen} from '@components/ComponentUtils';
 
 export default function PermissionTile(props: {
   permissionValue: string;
@@ -47,7 +48,7 @@ async function updatePermission(
 
 const styles = StyleSheet.create({
   permissionTile: {
-    width: '100%',
+    width: screen.width - 40,
     height: 36,
     margin: 10,
     flexDirection: 'row',

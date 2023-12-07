@@ -63,7 +63,7 @@ function InformationScreen2({navigation}: Props) {
           contentContainerStyle={{
             justifyContent: 'flex-start',
             flex: 1,
-            paddingTop: 50,
+            paddingTop: 20,
           }}
           showsVerticalScrollIndicator={false}>
           <Pressable
@@ -77,7 +77,7 @@ function InformationScreen2({navigation}: Props) {
             <NumberlessSemiBoldText style={styles.titleText}>
               Adjust permissions and profiles
             </NumberlessSemiBoldText>
-            <S2 width={screen.width * 0.9} />
+            <S2 width={screen.width * 0.9} height={screen.height * 0.4} />
             <NumberlessRegularText style={styles.bodyText}>
               Set permissions like calling or media sharing on a on-off basis or
               en masse via profiles like “Colleagues or Friends”.
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   bodyText: {
-    marginTop: 50,
+    marginTop: 40,
     paddingRight: '8%',
     paddingLeft: '8%',
     textAlign: 'center',

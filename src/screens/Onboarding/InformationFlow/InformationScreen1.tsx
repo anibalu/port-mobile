@@ -64,7 +64,7 @@ function InformationScreen1({navigation}: Props) {
           contentContainerStyle={{
             justifyContent: 'flex-start',
             flex: 1,
-            paddingTop: 50,
+            paddingTop: 20,
           }}
           showsVerticalScrollIndicator={false}>
           <Pressable
@@ -78,8 +78,7 @@ function InformationScreen1({navigation}: Props) {
             <NumberlessSemiBoldText style={styles.titleText}>
               Open, and close, ports
             </NumberlessSemiBoldText>
-
-            <S1 width={screen.width * 0.9} />
+            <S1 width={screen.width * 0.9} height={screen.height * 0.4} />
             <NumberlessRegularText style={styles.bodyText}>
               Tap, click, or scan to open single-use ports without sharing phone
               numbers. Close the port at any time or keep it open indifinetly.
@@ -143,7 +142,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   bodyText: {
-    marginTop: 50,
+    marginTop: 40,
     paddingRight: '8%',
     paddingLeft: '8%',
     textAlign: 'center',

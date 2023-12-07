@@ -58,7 +58,7 @@ function Chat({route, navigation}: Props) {
     messagesLoaded: false,
   });
 
-  const {copyingMessageError} = useErrorModal();
+  const {copyingMessageError, messageCopied} = useErrorModal();
 
   const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
 
@@ -128,6 +128,7 @@ function Chat({route, navigation}: Props) {
 
   const onCopy = useCallback(async () => {
     let copyString = '';
+    messageCopied();
     for (const message of selectedMessages) {
       const msg = await getMessage(chatId, message);
       switch (msg?.contentType) {
@@ -148,7 +149,7 @@ function Chat({route, navigation}: Props) {
       }
     }
     Clipboard.setString(copyString);
-  }, [selectedMessages, chatState, chatId]);
+  }, [selectedMessages, chatState, chatId, messageCopied]);
 
   const onForward = () => {
     navigation.navigate('ForwardToContact', {

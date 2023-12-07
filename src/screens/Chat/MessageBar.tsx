@@ -408,6 +408,7 @@ const styles = StyleSheet.create({
   main: {
     width: '100%',
     flexDirection: 'column',
+    backgroundColor: '#FFFFFF',
   },
   aggregateContainer: {
     flexDirection: 'column',

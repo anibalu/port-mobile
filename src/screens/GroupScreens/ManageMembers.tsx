@@ -22,11 +22,13 @@ import {getGroupInfo} from '@utils/Storage/group';
 import {FontSizes} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import UserTile from './UserTile';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ManageMembers'>;
 
 function ManageMembers({route, navigation}: Props) {
   const [searchText, setSearchText] = useState('');
+  const {componentNotSupportedyetError} = useErrorModal();
 
   const {groupId} = route.params;
 
@@ -106,9 +108,14 @@ function ManageMembers({route, navigation}: Props) {
           }}>
           <GenericButton
             onPress={() => {
-              navigation.navigate('ShareGroup', {groupId: groupId});
+              componentNotSupportedyetError();
             }}
-            buttonStyle={{width: '47%', height: 60, marginTop: 30}}>
+            buttonStyle={{
+              width: '47%',
+              height: 60,
+              marginTop: 30,
+              backgroundColor: '#868686',
+            }}>
             Existing ports
           </GenericButton>
           <GenericButton

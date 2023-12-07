@@ -27,11 +27,15 @@ type ModalContextType = {
   unableToCreateGroupError: () => void;
   portCreationError: () => void;
   incorrectQRError: () => void;
+  messageCopied: () => void;
+  componentNotSupportedyetError: () => void;
   errorToShow: ErrorObject;
+  showGreen: boolean;
 };
 type ErrorObject = {
   text: string;
-  Icon: FC<SvgProps>;
+  Icon?: FC<SvgProps>;
+  showGreen?: boolean;
 };
 
 const ErrorModalContext = createContext<ModalContextType | undefined>(
@@ -57,12 +61,19 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
   const [errorToShow, setErrorToShow] = useState<ErrorObject>({
     text: '',
     Icon: Info,
+    showGreen: false,
   });
 
   // all error scenarios
   const personOfflineError = () => {
     setErrorToShow({
       text: 'Error establishing connection. Other person is offline.',
+      Icon: Info,
+    });
+  };
+  const componentNotSupportedyetError = () => {
+    setErrorToShow({
+      text: 'This is not supported yet!',
       Icon: Info,
     });
   };
@@ -156,6 +167,12 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
       Icon: Info,
     });
   };
+  const messageCopied = () => {
+    setErrorToShow({
+      text: 'Copied!',
+      showGreen: true,
+    });
+  };
 
   useEffect(() => {
     //   to make the view disappear in 3 seconds
@@ -187,6 +204,8 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         portCreationError,
         incorrectQRError,
         onboardingFailureError,
+        messageCopied,
+        componentNotSupportedyetError,
       }}>
       {children}
     </ErrorModalContext.Provider>

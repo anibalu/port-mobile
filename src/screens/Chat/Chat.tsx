@@ -252,7 +252,7 @@ function Chat({route, navigation}: Props) {
         msgs[i] = msg;
       }
     }
-    setMessages(msgs);
+    setMessages([...msgs]);
   };
 
   const addNewMessages = async (): Promise<void> => {
@@ -261,6 +261,7 @@ function Chat({route, navigation}: Props) {
         chatId,
         messages[0].timestamp,
       );
+      console.log('Adding in: ', messageList);
       const newList = messageList.concat(messages);
       await updateMessages(newList);
     } else {

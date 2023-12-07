@@ -63,13 +63,13 @@ function InformationScreen3({navigation}: Props) {
           showsVerticalScrollIndicator={false}>
           <View style={{alignItems: 'center'}}>
             <NumberlessSemiBoldText style={styles.titleText}>
-              Publish Superports
+              Publish "superports"
             </NumberlessSemiBoldText>
             <S3 width={screen.width * 0.9} height={screen.height * 0.4} />
             <NumberlessRegularText style={styles.bodyText}>
-              Publish Superports to your social channels to funnel new
-              conversations to Port, or use them to port over large groups ,
-              too.
+              Publish "superports" to your social channels to funnel new
+              conversations safely onto Port or use them to port over large
+              groups.
             </NumberlessRegularText>
           </View>
 

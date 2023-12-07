@@ -1532,10 +1532,10 @@
   resolved "https://registry.npmjs.org/@notifee/react-native/-/react-native-7.8.0.tgz"
   integrity sha512-sx8h62U4FrR4pqlbN1rkgPsdamDt9Tad0zgfO6VtP6rNJq/78k8nxUnh0xIX3WPDcCV8KAzdYCE7+UNvhF1CpQ==
 
-"@numberless/react-native-numberless-crypto@0.1.15":
-  version "0.1.15"
-  resolved "https://pkgs.dev.azure.com/numberless-india/Port/_packaging/port-packages/npm/registry/@numberless/react-native-numberless-crypto/-/react-native-numberless-crypto-0.1.15.tgz#7f5ee85998ea1cc69bbc70ef4d67515d51f64baa"
-  integrity sha1-f17oWZjqHMabvHDvTWdRXVH2S6o=
+"@numberless/react-native-numberless-crypto@0.1.16":
+  version "0.1.16"
+  resolved "https://pkgs.dev.azure.com/numberless-india/Port/_packaging/port-packages/npm/registry/@numberless/react-native-numberless-crypto/-/react-native-numberless-crypto-0.1.16.tgz#12d63799ff89f32e85d180f90b7e439eaa0afedc"
+  integrity sha1-EtY3mf+J8y6F0YD5C35DnqoK/tw=
 
 "@react-native-clipboard/clipboard@^1.12.1":
   version "1.12.1"

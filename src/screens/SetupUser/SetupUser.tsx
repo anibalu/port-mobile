@@ -33,7 +33,7 @@ function SetupUser({route, navigation}: Props) {
   const setupActions: ThunkAction[] = [
     async () => {
       //setup profile
-      setLoaderText('Setting up crypto');
+      setLoaderText("We're setting up a safe place");
       const response = await setupNewProfile(processedName);
       if (response === ProfileStatus.created) {
         return true;
@@ -42,12 +42,12 @@ function SetupUser({route, navigation}: Props) {
     },
     async () => {
       //get initial set of connection links
-      setLoaderText('Retrieving connection links');
+      setLoaderText('Getting you ready to connect with others');
       return await getInitialDirectConnectionLinks();
     },
     async () => {
       //initialise FCM
-      setLoaderText('Initialising FCM');
+      setLoaderText("We're almost there");
       return await initialiseFCM();
     },
   ];

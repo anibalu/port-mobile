@@ -75,12 +75,12 @@ function InformationScreen2({navigation}: Props) {
           </Pressable>
           <View style={{alignItems: 'center'}}>
             <NumberlessSemiBoldText style={styles.titleText}>
-              Adjust permissions and profiles
+              Customize permissions and profiles
             </NumberlessSemiBoldText>
             <S2 width={screen.width * 0.9} height={screen.height * 0.4} />
             <NumberlessRegularText style={styles.bodyText}>
-              Set permissions like calling or media sharing on a on-off basis or
-              en masse via profiles like “Colleagues or Friends”.
+              Set permissions like calling or media sharing on a per-user basis
+              or for entire groups like your co-workers.
             </NumberlessRegularText>
           </View>
           <GenericButton

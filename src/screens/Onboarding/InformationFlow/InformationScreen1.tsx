@@ -76,12 +76,13 @@ function InformationScreen1({navigation}: Props) {
           </Pressable>
           <View style={{alignItems: 'center'}}>
             <NumberlessSemiBoldText style={styles.titleText}>
-              Open, and close, ports
+              Open and close "ports"
             </NumberlessSemiBoldText>
             <S1 width={screen.width * 0.9} height={screen.height * 0.4} />
             <NumberlessRegularText style={styles.bodyText}>
-              Tap, click, or scan to open single-use ports without sharing phone
-              numbers. Close the port at any time or keep it open indifinetly.
+              Tap, click or scan to open single-use ports without sharing phone
+              numbers or handles. Close the port at any point or keep it open
+              indifinetly if you've found a meaningful connection.
             </NumberlessRegularText>
           </View>
           <GenericButton

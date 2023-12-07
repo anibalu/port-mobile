@@ -1,6 +1,7 @@
 import React from 'react';
 import {StatusBar, StyleSheet, View} from 'react-native';
 import {PortColors, isIOS} from './ComponentUtils';
+import DeviceInfo from 'react-native-device-info';
 
 /**
  *
@@ -21,7 +22,9 @@ export const CustomStatusBar = ({
     <StatusBar translucent backgroundColor={backgroundColor} {...props} />
   );
 const STATUSBAR_HEIGHT = StatusBar.currentHeight;
-const APPBAR_HEIGHT = isIOS ? 50 : 56;
+
+//For devices with a notch, we don't need to add an APPBAR_HEIGHT (both iOS and Android)
+const APPBAR_HEIGHT = DeviceInfo.hasNotch() ? (isIOS ? 50 : 56) : 0;
 
 const styles = StyleSheet.create({
   statusBar: {

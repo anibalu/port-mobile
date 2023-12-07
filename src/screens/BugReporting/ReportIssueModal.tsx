@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   titleText: {
     ...FontSizes[15].medium,
     color: 'black',
-    paddingRight: 20,
+    paddingHorizontal: 15,
     width: 330,
   },
   rowStyles: {

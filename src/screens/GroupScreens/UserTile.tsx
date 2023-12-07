@@ -14,6 +14,7 @@ import {DEFAULT_NAME} from '@configs/constants';
 import GenericModal from '@components/GenericModal';
 import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
+import {GenericAvatar} from '@components/GenericAvatar';
 
 function UserTile({member}: {member: GroupMember}) {
   const [visible, setVisible] = useState(false);
@@ -22,13 +23,13 @@ function UserTile({member}: {member: GroupMember}) {
       <Pressable
         style={styles.defaultTileContainer}
         onPress={() => setVisible(true)}>
-        <Image
-          source={{
-            uri: member?.profilePicture
+        <GenericAvatar
+          profileUri={
+            member.profilePicture && member.profilePicture !== ''
               ? member.profilePicture
-              : Image.resolveAssetSource(DefaultImage).uri,
-          }}
-          style={styles.newIcon}
+              : 'avatar://1'
+          }
+          avatarSize={'small'}
         />
         <NumberlessRegularText style={styles.defaultTileText} numberOfLines={1}>
           {member?.name ? member.name : DEFAULT_NAME}

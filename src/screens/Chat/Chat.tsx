@@ -90,7 +90,9 @@ function Chat({route, navigation}: Props) {
   };
 
   //Handles selecting messages once select messages flow is toggled
-  const handleMessageBubbleShortPress = (messageId: string): void => {
+  const handleMessageBubbleShortPress = (
+    messageId: string,
+  ): SelectedMessagesSize => {
     // removes messageId from selected messages on short press
     let selectedMessagesSize: SelectedMessagesSize =
       selectedMessages.length >= 1
@@ -115,9 +117,9 @@ function Chat({route, navigation}: Props) {
     return selectedMessagesSize;
   };
 
-  const updateChatState = useCallback(newState => {
+  const updateChatState = (newState: any) => {
     setChatState(prevState => ({...prevState, ...newState}));
-  }, []);
+  };
 
   const updateAfterDeletion = (messageIds: string[]): void => {
     setMessages(messages =>

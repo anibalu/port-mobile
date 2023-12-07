@@ -5,11 +5,11 @@ import Cross from '@assets/icons/cross.svg';
 import Link from '@assets/icons/linkGrey.svg';
 import SuccessQR from '@assets/icons/successqr.svg';
 import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
 import GenericModal from '@components/GenericModal';
 import {
   NumberlessBoldText,
-  NumberlessMediumText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
@@ -33,6 +33,8 @@ export default function ScannerModal() {
 
   const {portCreationError, incorrectQRError} = useErrorModal();
 
+  const [loading, setLoading] = useState(false);
+
   const navigation = useNavigation<any>();
   const [label, setLabel] = useState(
     connectionQRData?.data.name ? connectionQRData?.data.name : '',
@@ -55,6 +57,7 @@ export default function ScannerModal() {
   };
 
   const saveNewConnection = async () => {
+    setLoading(true);
     if (connectionQRData) {
       const saveResponse = await processConnectionBundle(
         connectionQRData,
@@ -70,6 +73,7 @@ export default function ScannerModal() {
     } else {
       showAlertAndWait(BundleReadResponse.formatError);
     }
+    setLoading(false);
   };
   const checkSavePossible = () => {
     if (connectionQRData) {
@@ -178,14 +182,16 @@ export default function ScannerModal() {
                 </NumberlessRegularText>
               </View>
             )}
-          <Pressable
-            style={!checkSavePossible() ? styles.disabledbutton : styles.button}
-            disabled={!checkSavePossible()}
+
+          <GenericButton
+            buttonStyle={
+              !checkSavePossible() ? styles.disabledbutton : styles.button
+            }
+            textStyle={{flex: 1, textAlign: 'center'}}
+            loading={loading}
             onPress={saveNewConnection}>
-            <NumberlessMediumText style={styles.buttontext}>
-              Save
-            </NumberlessMediumText>
-          </Pressable>
+            Save
+          </GenericButton>
         </View>
       </View>
     </GenericModal>
@@ -297,7 +303,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    backgroundColor: '#547CEF',
     width: '85%',
     height: 60,
     alignItems: 'center',
@@ -306,7 +311,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   disabledbutton: {
-    backgroundColor: '#547CEF',
     width: '85%',
     height: 60,
     alignItems: 'center',

@@ -1,10 +1,8 @@
 import BlueForwardIcon from '@assets/icons/BlueForwardIcon.svg';
-import {BackButton} from '@components/BackButton';
 import ChatBackground from '@components/ChatBackground';
-import {
-  NumberlessMediumText,
-  NumberlessSemiBoldText,
-} from '@components/NumberlessText';
+import {FontSizes, screen} from '@components/ComponentUtils';
+import GenericTopBar from '@components/GenericTopBar';
+import {NumberlessMediumText} from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -96,17 +94,13 @@ export default function ForwardToContact({route, navigation}: Props) {
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
       {/* TopBar */}
-      <View style={styles.topBar}>
-        <BackButton
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        />
-        <NumberlessSemiBoldText style={styles.header}>
-          Forward to
-        </NumberlessSemiBoldText>
-        {/* Dummy view keeps title of screen centered */}
-        <View style={styles.backButton} />
-      </View>
+      <GenericTopBar
+        titleStyle={{...FontSizes[17].semibold}}
+        title={'Forward to'}
+        onBackPress={() => {
+          navigation.goBack();
+        }}
+      />
       <View style={styles.searchContainer}>
         <SearchBar searchText={searchText} setSearchText={setSearchText} />
       </View>
@@ -117,24 +111,23 @@ export default function ForwardToContact({route, navigation}: Props) {
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
         keyExtractor={item => item.chatId}
-        renderItem={(item: any) => {
-          return <ContactTile member={item.item} onToggle={onMemberSelected} />;
+        renderItem={({item}: {item: ConnectionInfo}) => {
+          return <ContactTile member={item} onToggle={onMemberSelected} />;
         }}
       />
+
       {selectedMembers.length > 0 && (
         <View style={styles.selectedMembers}>
-          <View style={{width: '90%', flexDirection: 'row'}}>
-            {selectedMembers.map(members => {
-              const {name} = members;
-              return (
-                <View style={styles.memberContainer}>
-                  <NumberlessMediumText style={styles.memberName}>
-                    {name}
-                    {selectedMembers.length > 1 ? ', ' : ''}
-                  </NumberlessMediumText>
-                </View>
-              );
-            })}
+          <View
+            style={{
+              width: screen.width - 130,
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginHorizontal: 20,
+            }}>
+            <NumberlessMediumText numberOfLines={1} style={styles.memberName}>
+              {selectedMembers.map(m => m.name).join(',')}
+            </NumberlessMediumText>
           </View>
 
           <Pressable style={styles.iconStyles} onPress={onForward}>
@@ -187,7 +180,7 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
   memberName: {
-    fontSize: 15,
+    ...FontSizes[15].medium,
   },
   itemCard: {
     marginTop: 15,

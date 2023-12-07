@@ -147,13 +147,15 @@ export async function updateConnectionWithoutPromotion(
         obj => obj.chatId === update.chatId,
       );
       if (index !== -1) {
-        connections[index] = {
-          ...connections[index],
-          ...update,
-        };
+        connections = [
+          ...connections.slice(0, index),
+          {...connections[index], ...update},
+          ...connections.slice(index + 1),
+        ];
+
         store.dispatch({
-          type: 'UPDATE_CONNECTION_WITHOUT_PROMOTING',
-          payload: connections[index],
+          type: 'LOAD_CONNECTIONS',
+          payload: connections,
         });
       }
       await storage.updateConnection(update, false);

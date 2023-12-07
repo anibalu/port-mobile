@@ -8,6 +8,7 @@ import Reply from '@assets/icons/reply.svg';
 import CustomModal from '@components/CustomModal';
 import {NumberlessMediumText} from '@components/NumberlessText';
 import {getMessage, updateMessage} from '@utils/Storage/messages';
+import {PortColors} from '@components/ComponentUtils';
 
 /**
  * Renders action bar based on messages that are selected
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 10,
     paddingBottom: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: PortColors.primary.white,
   },
   singleSelectedContainer: {
     flexDirection: 'row',

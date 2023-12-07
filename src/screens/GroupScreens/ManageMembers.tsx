@@ -7,7 +7,7 @@ import {
   NumberlessRegularText,
 } from '@components/NumberlessText';
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, View} from 'react-native';
 // import NamePopup from './UpdateNamePopup';
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
@@ -19,8 +19,10 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {GroupInfo, GroupMember} from '@utils/Groups/interfaces';
 import {getGroupInfo} from '@utils/Storage/group';
 
+import DefaultImage from '@assets/avatars/avatar.png';
 import {FontSizes} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
+import {getProfileName, getProfilePicture} from '@utils/Profile';
 import UserTile from './UserTile';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 
@@ -57,10 +59,21 @@ function ManageMembers({route, navigation}: Props) {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
+        const name = await getProfileName();
+        const uri = await getProfilePicture();
+        console.log('Uri is: ', uri);
+        const selfConnectionInfo: GroupMember = {
+          name: name,
+          profilePicture: uri
+            ? uri
+            : Image.resolveAssetSource(DefaultImage).uri,
+          memberId: 'self',
+          joinedAt: '',
+        };
         const localGroupInfo = await getGroupInfo(groupId);
         setGroupInfo(localGroupInfo);
         setGroupMembers(localGroupInfo.members);
-        setViewableMembers(localGroupInfo.members);
+        setViewableMembers([selfConnectionInfo, ...localGroupInfo.members]);
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
@@ -82,8 +95,8 @@ function ManageMembers({route, navigation}: Props) {
           justifyContent:
             rowMembers.length == 4 ? 'space-between' : 'flex-start',
         }}>
-        {rowMembers.map(item => (
-          <UserTile member={item} />
+        {rowMembers.map((item, index) => (
+          <UserTile key={index} member={item} />
         ))}
       </View>,
     );

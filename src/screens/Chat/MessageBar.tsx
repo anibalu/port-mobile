@@ -78,6 +78,7 @@ const MessageBar = ({
       setText('');
       //send text message
       if (replyTo) {
+        onSend();
         await sendMessage(
           chatId,
           {
@@ -89,6 +90,7 @@ const MessageBar = ({
           isGroupChat,
         );
       } else {
+        onSend();
         await sendMessage(
           chatId,
           {
@@ -99,7 +101,6 @@ const MessageBar = ({
           isGroupChat,
         );
       }
-      onSend();
     }
   };
 

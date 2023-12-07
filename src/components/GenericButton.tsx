@@ -1,8 +1,28 @@
-import React, {ReactNode} from 'react';
-import {StyleSheet, Pressable, View, TextStyle, ViewStyle} from 'react-native';
+import React, {FC, ReactNode} from 'react';
+import {
+  StyleSheet,
+  Pressable,
+  View,
+  TextStyle,
+  ViewStyle,
+  ActivityIndicator,
+} from 'react-native';
 import {NumberlessMediumText} from './NumberlessText';
 import {FontSizes, PortColors} from './ComponentUtils';
+import {SvgProps} from 'react-native-svg';
 
+/**
+ * Generic button for Numberless, use this for any and all buttons in app.
+ * @param onPress
+ * @param buttonStyle, custom styling
+ * @param textStyle , custom styling for text
+ * @param iconPosition , has two options: left or right
+ * @param iconStyle , styling the icon itself
+ * @param iconSize , sets the height and width of the icon
+ * @param Icon, SVG Icon Component
+ * @param loading, toggles a loader inside. Disables button presses while loading automatically.
+ * @returns {ReactNode} a button component
+ */
 export function GenericButton({
   children,
   onPress,
@@ -10,8 +30,9 @@ export function GenericButton({
   textStyle,
   iconPosition = 'left',
   iconStyle,
-  iconHeight,
+  iconSize,
   Icon,
+  loading,
 }: {
   children?: React.ReactNode;
   onPress: any;
@@ -19,37 +40,50 @@ export function GenericButton({
   iconStyle?: ViewStyle;
   buttonStyle?: ViewStyle;
   textStyle?: TextStyle;
-  iconHeight?: number;
-  Icon?: any;
+  iconSize?: number;
+  Icon?: FC<SvgProps>;
+  loading?: boolean;
 }): ReactNode {
   return (
     <Pressable
       style={StyleSheet.compose(styles.button, buttonStyle)}
-      onPress={onPress}>
-      {Icon && iconPosition == 'left' ? (
-        <View
-          style={StyleSheet.compose(
-            children ? {marginRight: 8} : {},
-            iconStyle,
-          )}>
-          <Icon height={iconHeight ? iconHeight : 24} />
-        </View>
-      ) : null}
-      {children ? (
-        <NumberlessMediumText
-          style={StyleSheet.compose(styles.text, textStyle)}>
-          {children}
-        </NumberlessMediumText>
-      ) : null}
-      {Icon && iconPosition == 'right' ? (
-        <View
-          style={StyleSheet.compose(
-            children ? {marginLeft: 8} : {},
-            iconStyle,
-          )}>
-          <Icon height={24} />
-        </View>
-      ) : null}
+      onPress={loading ? () => {} : onPress}>
+      {loading ? (
+        <ActivityIndicator size={'small'} color={PortColors.primary.white} />
+      ) : (
+        <>
+          {Icon && iconPosition == 'left' ? (
+            <View
+              style={StyleSheet.compose(
+                children ? {marginRight: 8} : {},
+                iconStyle,
+              )}>
+              <Icon
+                height={iconSize ? iconSize : 24}
+                width={iconSize ? iconSize : 24}
+              />
+            </View>
+          ) : null}
+          {children ? (
+            <NumberlessMediumText
+              style={StyleSheet.compose(styles.text, textStyle)}>
+              {children}
+            </NumberlessMediumText>
+          ) : null}
+          {Icon && iconPosition == 'right' ? (
+            <View
+              style={StyleSheet.compose(
+                children ? {marginLeft: 8} : {},
+                iconStyle,
+              )}>
+              <Icon
+                height={iconSize ? iconSize : 24}
+                width={iconSize ? iconSize : 24}
+              />
+            </View>
+          ) : null}
+        </>
+      )}
     </Pressable>
   );
 }

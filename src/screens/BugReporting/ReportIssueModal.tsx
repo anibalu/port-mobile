@@ -7,7 +7,7 @@ import WorldIcon from '@assets/icons/WorldIcon.svg';
 import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
 import {useNavigation} from '@react-navigation/native';
 import {NumberlessMediumText} from '@components/NumberlessText';
-import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 
 interface reportIssueProps {
   setReportBugModalOpen: Function;
@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
   editRegion: {
     backgroundColor: 'white',
     flexDirection: 'column',
+    width: screen.width,
     justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: 20,
@@ -76,12 +77,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   button: {
-    width: '100%',
+    width: screen.width - 48,
     borderRadius: 16,
     height: 70,
     marginTop: 17,
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     backgroundColor: PortColors.primary.white,
     flexDirection: 'row',
     alignItems: 'center',

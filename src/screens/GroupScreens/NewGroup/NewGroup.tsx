@@ -50,6 +50,7 @@ const NewGroup = ({route, navigation}: Props) => {
 
   return (
     <SafeAreaView style={style.mainContainer}>
+      <ChatBackground />
       <GenericTopBar
         title={'New Group'}
         titleStyle={{...FontSizes[17].bold}}
@@ -57,7 +58,6 @@ const NewGroup = ({route, navigation}: Props) => {
           navigation.goBack();
         }}
       />
-      <ChatBackground />
       <ScrollView automaticallyAdjustKeyboardInsets={true}>
         <View style={style.groupContainer}>
           <View style={style.iconContainer}>

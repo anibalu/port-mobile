@@ -190,10 +190,8 @@ const styles = StyleSheet.create({
   receiverBubble: {
     backgroundColor: PortColors.primary.blue.dull,
     padding: 5,
-    marginLeft: -12,
-    marginRight: -10,
     borderTopLeftRadius: 0,
-    width: '110%',
+    width: '100%',
     borderTopRightRadius: 10,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
@@ -202,13 +200,11 @@ const styles = StyleSheet.create({
   senderBubble: {
     backgroundColor: PortColors.primary.grey.light,
     padding: 5,
-    marginLeft: -12,
-    marginRight: -10,
+    width: '100%',
     borderTopLeftRadius: 10,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    width: '110%',
     flexDirection: 'row',
   },
   replyMessage: {

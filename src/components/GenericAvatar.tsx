@@ -1,6 +1,7 @@
 import {avatarmapping} from '@configs/avatarmapping';
-import React from 'react';
-import {StyleSheet, View, Image} from 'react-native';
+import React, {FC} from 'react';
+import {Image, ImageStyle, StyleSheet, View} from 'react-native';
+import {SvgProps} from 'react-native-svg';
 
 //profile uri => file://pathtoimage.jpg
 //avatar uri => avatar://avatar_id
@@ -8,7 +9,7 @@ export function GenericAvatar({
   avatarSize,
   profileUri,
 }: {
-  avatarSize: string; //size - extraSmall, small, medium, large || default - large
+  avatarSize: 'extraSmall' | 'small' | 'medium' | 'large'; //size - extraSmall, small, medium, large || default - large
   profileUri: string;
 }) {
   //extract avatar id from profileUri
@@ -18,7 +19,7 @@ export function GenericAvatar({
       : '0';
 
   // set size of avatar according to specs
-  function avatarSizeStylePicker(avatarSize?: string) {
+  function avatarSizeStylePicker(avatarSize?: string): ImageStyle {
     if (avatarSize === 'small') {
       return styles.small;
     } else if (avatarSize === 'medium') {
@@ -33,7 +34,7 @@ export function GenericAvatar({
   }
 
   // Function to retrieve Icon based on id
-  const getIconById = (id: string) => {
+  const getIconById = (id: string): FC<SvgProps> | null => {
     const avatarMappingEntry = avatarmapping.find(entry => entry.id === id);
     return avatarMappingEntry ? avatarMappingEntry.Icon : null;
   };

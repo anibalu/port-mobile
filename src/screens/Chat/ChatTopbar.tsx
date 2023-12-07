@@ -1,7 +1,7 @@
 import SettingsIcon from '@assets/icons/contact-settings.svg';
 import Cross from '@assets/icons/cross.svg';
 import {BackButton} from '@components/BackButton';
-import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
@@ -83,7 +83,7 @@ function ChatTopbar({
           <GenericButton
             buttonStyle={styles.crossBox}
             Icon={Cross}
-            iconHeight={48}
+            iconSize={38}
             onPress={() => {
               setSelectedMessages([]);
             }}
@@ -122,8 +122,7 @@ const styles = StyleSheet.create({
     ...FontSizes[17].semibold,
     color: PortColors.primary.black,
     overflow: 'hidden',
-    width: '100%',
-    textAlign: 'center',
+    width: screen.width / 2,
   },
   title: {
     fontSize: 21,

@@ -54,8 +54,10 @@ const MessageBubble = ({
   );
   const [containerType] = useState(intitialContainerType);
   const [blobType, setBlobType] = useState(initialBlobType);
-  const [memberInfo, setMemberInfo] = useState({});
-
+  const memberInfo =
+    isGroupChat && !message.sender
+      ? extractMemberInfo(groupInfo, message.memberId)
+      : {};
   useEffect(() => {
     if (selected.includes(message.messageId)) {
       setBlobType(
@@ -71,9 +73,6 @@ const MessageBubble = ({
           message.sender,
         ),
       );
-    }
-    if (isGroupChat && !message.sender) {
-      setMemberInfo(extractMemberInfo(groupInfo, message.memberId));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
@@ -433,6 +432,7 @@ const styles = StyleSheet.create({
 export default memo(MessageBubble, (prevProps, nextProps) => {
   return (
     prevProps.message.sendStatus === nextProps.message.sendStatus &&
+    prevProps.isGroupChat === nextProps.isGroupChat &&
     prevProps.selected === nextProps.selected &&
     prevProps.isDateBoundary === nextProps.isDateBoundary
   );

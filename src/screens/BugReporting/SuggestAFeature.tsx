@@ -12,6 +12,7 @@ import React, {useState} from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import {Submitted} from './Submitted';
+import {NumberlessRegularText} from '@components/NumberlessText';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SuggestAFeature'>;
 
@@ -70,17 +71,25 @@ export default function SuggestAFeature({navigation}: Props) {
         <View style={styles.screenshot}>
           {image ? (
             <>
-              <Text onPress={openImageGallery} style={styles.screenshotText}>
-                Attached Screenshot. Click to change
-              </Text>
+              <NumberlessRegularText style={styles.screenshotText}>
+                Attached Screenshot.{' '}
+                <NumberlessRegularText
+                  style={[
+                    styles.screenshotText,
+                    {textDecorationLine: 'underline'},
+                  ]}
+                  onPress={openImageGallery}>
+                  Click to change
+                </NumberlessRegularText>
+              </NumberlessRegularText>
               <Image style={styles.selectedImage} source={{uri: image}} />
             </>
           ) : (
             <>
-              <Text style={styles.screenshotText}>
+              <NumberlessRegularText style={styles.screenshotText}>
                 Do you wish to attach a screenshot?
-              </Text>
-              <Screenshot onPress={openImageGallery} />
+              </NumberlessRegularText>
+              <Screenshot style={{top: -7}} onPress={openImageGallery} />
             </>
           )}
         </View>
@@ -164,12 +173,14 @@ const styles = StyleSheet.create({
   selectedImage: {
     height: 70,
     width: 70,
+    marginLeft: '-10%',
+    borderRadius: 10,
+    marginBottom: 10,
   },
   screenshotText: {
     width: '90%',
+    ...FontSizes[12].regular,
     alignSelf: 'center',
-    fontWeight: '400',
-    fontSize: 14,
     marginBottom: 15,
     color: '#868686',
   },

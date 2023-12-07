@@ -184,14 +184,23 @@ export async function updateMemberName(
 }
 
 export async function leaveGroup(groupId: string) {
-  const token: ServerAuthToken = await getToken();
-  await axios.patch(
-    GROUP_MANAGEMENT_RESOURCE,
-    {
-      updateType: 'leave',
-      groupId: groupId,
-    },
-    {headers: {Authorization: `${token}`}},
-  );
-  await updateConnection({chatId: groupId, disconnected: true});
+  try {
+    const token: ServerAuthToken = await getToken();
+    await axios.patch(
+      GROUP_MANAGEMENT_RESOURCE,
+      {
+        updateType: 'leave',
+        groupId: groupId,
+      },
+      {headers: {Authorization: `${token}`}},
+    );
+    await updateConnection({chatId: groupId, disconnected: true});
+  } catch (error) {
+    console.log('error: ', error);
+    if (typeof error === 'object' && error.response) {
+      if (error.response.status === 404 || error.response.status === 500) {
+        await updateConnection({chatId: groupId, disconnected: true});
+      }
+    }
+  }
 }

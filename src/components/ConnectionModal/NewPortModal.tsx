@@ -300,8 +300,8 @@ const NewPortModal: React.FC = () => {
           <Pressable
             style={styles.otherPortsButton}
             onPress={() => {
-              cleanupModal();
               navigation.navigate('GroupOnboarding');
+              cleanupModal();
             }}>
             <NumberlessMediumText style={styles.otherPortsText}>
               GroupPort

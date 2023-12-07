@@ -2,12 +2,11 @@
  * Default chat tile displayed when there are no connections
  */
 import React, {useState} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import {
   NumberlessBoldText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
-import DefaultImage from '@assets/avatars/avatar.png';
 import Cross from '@assets/icons/cross.svg';
 import {GroupMember} from '@utils/Groups/interfaces';
 import {DEFAULT_NAME} from '@configs/constants';
@@ -15,8 +14,17 @@ import GenericModal from '@components/GenericModal';
 import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {GenericAvatar} from '@components/GenericAvatar';
+import {attemptRemoveMember} from '@utils/Groups';
 
-function UserTile({member}: {member: GroupMember}) {
+function UserTile({
+  member,
+  groupId,
+  isAdmin,
+}: {
+  member: GroupMember;
+  groupId: string;
+  isAdmin: boolean;
+}) {
   const [visible, setVisible] = useState(false);
   return (
     <>
@@ -35,34 +43,38 @@ function UserTile({member}: {member: GroupMember}) {
           {member?.name ? member.name : DEFAULT_NAME}
         </NumberlessRegularText>
       </Pressable>
-      {visible && (
-        <GenericModal onClose={() => setVisible(false)} visible={visible}>
-          <View style={styles.modal}>
-            <View style={styles.row}>
-              <Image
-                source={{
-                  uri: member?.profilePicture
-                    ? member.profilePicture
-                    : Image.resolveAssetSource(DefaultImage).uri,
-                }}
-                style={styles.newIcon}
-              />
-              <View style={styles.textColumn}>
-                <NumberlessBoldText style={styles.bold}>
-                  {member?.name ? member.name : DEFAULT_NAME}
-                </NumberlessBoldText>
-                <NumberlessRegularText>Member since:</NumberlessRegularText>
-              </View>
-              <Cross />
+      <GenericModal
+        onClose={() => setVisible(false)}
+        visible={visible && isAdmin}>
+        <View style={styles.modal}>
+          <View style={styles.row}>
+            <GenericAvatar
+              profileUri={
+                member.profilePicture ? member.profilePicture : 'avatar://1'
+              }
+              avatarSize={'small'}
+            />
+            <View style={styles.textColumn}>
+              <NumberlessBoldText style={styles.bold}>
+                {member?.name ? member.name : DEFAULT_NAME}
+              </NumberlessBoldText>
             </View>
+            <Pressable onPress={() => setVisible(false)}>
+              <Cross />
+            </Pressable>
+          </View>
+          {member.memberId !== 'self' && (
             <GenericButton
-              onPress={() => console.log('press')}
+              onPress={async () => {
+                await attemptRemoveMember(groupId, member.memberId);
+                setVisible(false);
+              }}
               buttonStyle={styles.button}>
               Remove Member
             </GenericButton>
-          </View>
-        </GenericModal>
-      )}
+          )}
+        </View>
+      </GenericModal>
     </>
   );
 }

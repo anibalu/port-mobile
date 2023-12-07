@@ -136,9 +136,9 @@ function GroupProfile({route, navigation}: Props) {
             width: '90%',
             marginTop: 38,
             height: 70,
-            backgroundColor: PortColors.primary.red,
+            backgroundColor: PortColors.primary.red.error,
           }}>
-          Delete group
+          Exit group
         </GenericButton>
       </ScrollView>
     </SafeAreaView>

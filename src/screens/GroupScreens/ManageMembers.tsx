@@ -7,7 +7,7 @@ import {
   NumberlessRegularText,
 } from '@components/NumberlessText';
 import React, {useEffect, useState} from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 // import NamePopup from './UpdateNamePopup';
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
@@ -18,8 +18,6 @@ import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {GroupInfo, GroupMember} from '@utils/Groups/interfaces';
 import {getGroupInfo} from '@utils/Storage/group';
-
-import DefaultImage from '@assets/avatars/avatar.png';
 import {FontSizes} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {getProfileName, getProfilePicture} from '@utils/Profile';
@@ -61,12 +59,9 @@ function ManageMembers({route, navigation}: Props) {
       (async () => {
         const name = await getProfileName();
         const uri = await getProfilePicture();
-        console.log('Uri is: ', uri);
         const selfConnectionInfo: GroupMember = {
           name: name,
-          profilePicture: uri
-            ? uri
-            : Image.resolveAssetSource(DefaultImage).uri,
+          profilePicture: uri || 'avatar://1',
           memberId: 'self',
           joinedAt: '',
         };
@@ -96,7 +91,12 @@ function ManageMembers({route, navigation}: Props) {
             rowMembers.length == 4 ? 'space-between' : 'flex-start',
         }}>
         {rowMembers.map((item, index) => (
-          <UserTile key={index} member={item} />
+          <UserTile
+            key={index}
+            member={item}
+            groupId={groupId}
+            isAdmin={groupInfo.amAdmin}
+          />
         ))}
       </View>,
     );

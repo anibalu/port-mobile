@@ -17,7 +17,6 @@ import {
 import {generateGroupConnectionBundle} from '@utils/Bundles/group';
 import {convertBundleToLink} from '@utils/DeepLinking';
 import Share from 'react-native-share';
-import Toast from 'react-native-toast-message';
 import {screen} from '@components/ComponentUtils';
 import {useSelector} from 'react-redux';
 
@@ -68,11 +67,6 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
       };
       await Share.open(shareContent);
     } catch (error) {
-      Toast.show({
-        type: 'warning',
-        text1: 'Error sharing content. Error fetching link',
-      });
-
       console.log('Error sharing content: ', error);
     }
   };

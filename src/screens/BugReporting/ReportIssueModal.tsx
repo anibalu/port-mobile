@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     borderWidth: 2,
     borderColor: PortColors.primary.grey.light,
   },
@@ -95,6 +96,6 @@ const styles = StyleSheet.create({
     color: 'black',
     paddingLeft: 15,
     paddingRight: 10,
-    width: 270,
+    width: 160,
   },
 });

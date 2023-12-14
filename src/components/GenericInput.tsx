@@ -67,8 +67,6 @@ const styles = StyleSheet.create({
     height: 76,
     justifyContent: 'center',
     marginTop: 30,
-    // paddingLeft: '8%',
-    // paddingRight: '8%',
   },
   limitStyle: {
     ...FontSizes[12].regular,

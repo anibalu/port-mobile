@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     height: 51,
     alignItems: 'flex-start',
-    paddingLeft: '6%',
+    paddingLeft: 12,
   },
   titleText: {
     ...FontSizes[17].regular,
@@ -163,27 +163,27 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 92,
     textAlign: 'center',
-    paddingRight: '8%',
-    paddingLeft: '8%',
+    paddingRight: 20,
+    paddingLeft: 20,
   },
   permissionBox: {
     flexDirection: 'row',
-    paddingLeft: '8%',
+    paddingLeft: 20,
   },
   notificationIcon: {
     marginRight: 20,
   },
   bodyText: {
     marginTop: 50,
-    paddingRight: '8%',
-    paddingLeft: '8%',
+    paddingRight: 20,
+    paddingLeft: 20,
   },
   continueBox: {
     width: '100%',
     alignItems: 'center',
   },
   button: {
-    marginBottom: '10%',
+    marginBottom: 12,
     backgroundColor: PortColors.primary.blue.app,
     width: '85%',
     height: 70,

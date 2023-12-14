@@ -118,8 +118,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: '8%',
-    paddingRight: '8%',
+    paddingLeft: 20,
+    paddingRight: 20,
     paddingBottom: '15%',
   },
   absoluteContainer: {
@@ -129,9 +129,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: '100%',
-    paddingBottom: '10%',
-    paddingLeft: '8%',
-    paddingRight: '8%',
+    paddingBottom: 25,
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   avatar: {
     borderRadius: 57,

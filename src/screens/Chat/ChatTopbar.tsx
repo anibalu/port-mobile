@@ -4,9 +4,7 @@ import {BackButton} from '@components/BackButton';
 import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
-import {NumberlessSemiBoldText} from '@components/NumberlessText';
-import {useNavigation} from '@react-navigation/native';
-import {toggleRead} from '@utils/Connections';
+import {NumberlessMediumText} from '@components/NumberlessText';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
@@ -14,83 +12,63 @@ import {Pressable, StyleSheet, View} from 'react-native';
  * Handles top bar for chat
  * @param name, of user being interacted with, or group
  * @param chatId
- * @param selectedMessages
- * @param setSelectedMessages
- * @param isGroupChat
+ * @param selectedMessagesLength
  * @param profileURI, URI for the user/group.
+ * @param onSettingsPressed
+ * @param onBackPress
+ * @param onCancelPressed
  * @returns {ReactNode} topbar for chat
  */
 function ChatTopbar({
   name,
-  chatId,
-  selectedMessages,
-  setSelectedMessages,
-  isGroupChat,
-  profileURI,
+  selectedMessagesLength,
+  onSettingsPressed,
+  onBackPress,
+  onCancelPressed,
+  profileURI = 'avatar://1',
 }: {
   name: string;
-  chatId: string;
-  selectedMessages: string[];
-  setSelectedMessages: any;
-  isGroupChat: boolean;
+  selectedMessagesLength: number;
   profileURI?: string;
+  onSettingsPressed: () => void;
+  onBackPress: () => void;
+  onCancelPressed: () => void;
 }): ReactNode {
-  const navigation = useNavigation<any>();
-
-  const onBackPress = async (): Promise<void> => {
-    setSelectedMessages([]);
-    await toggleRead(chatId);
-    navigation.navigate('HomeTab');
-  };
-
-  const onSettingsPressed = (): void => {
-    if (isGroupChat) {
-      navigation.navigate('GroupProfile', {groupId: chatId});
-    } else {
-      navigation.navigate('ContactProfile', {chatId: chatId});
-    }
-  };
-
   return (
     <View style={styles.bar}>
       <View style={styles.backAndProfile}>
         <BackButton style={styles.backIcon} onPress={onBackPress} />
-        {selectedMessages.length == 0 && (
+        {selectedMessagesLength == 0 && (
           <Pressable onPress={onSettingsPressed}>
-            <GenericAvatar
-              profileUri={profileURI || 'avatar://1'}
-              avatarSize={'small'}
-            />
+            <GenericAvatar profileUri={profileURI} avatarSize={'extraSmall'} />
           </Pressable>
         )}
         <View style={styles.titleBar}>
-          {selectedMessages.length >= 1 ? (
-            <NumberlessSemiBoldText
+          {selectedMessagesLength >= 1 ? (
+            <NumberlessMediumText
               style={styles.selectedCount}
               ellipsizeMode="tail"
               numberOfLines={1}>
-              {selectedMessages.length.toString() + ' selected'}
-            </NumberlessSemiBoldText>
+              {selectedMessagesLength.toString() + ' selected'}
+            </NumberlessMediumText>
           ) : (
-            <NumberlessSemiBoldText
+            <NumberlessMediumText
               style={styles.title}
               onPress={onSettingsPressed}
               ellipsizeMode="tail"
               numberOfLines={1}>
               {name}
-            </NumberlessSemiBoldText>
+            </NumberlessMediumText>
           )}
         </View>
       </View>
       <View>
-        {selectedMessages.length >= 1 ? (
+        {selectedMessagesLength >= 1 ? (
           <GenericButton
             buttonStyle={styles.crossBox}
             Icon={Cross}
             iconSize={38}
-            onPress={() => {
-              setSelectedMessages([]);
-            }}
+            onPress={onCancelPressed}
           />
         ) : (
           <GenericButton
@@ -111,12 +89,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingRight: '6%',
-    paddingLeft: '6%',
+    paddingRight: 18,
+    paddingLeft: 18,
     backgroundColor: '#FFF',
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
-    height: 70,
+    height: 65,
   },
   titleBar: {
     marginLeft: 10,
@@ -129,9 +107,8 @@ const styles = StyleSheet.create({
     width: screen.width / 2,
   },
   title: {
-    fontSize: 21,
-    lineHeight: 28,
-    color: 'black',
+    ...FontSizes[17].medium,
+    color: PortColors.primary.black,
     overflow: 'hidden',
     width: '100%',
     textAlign: 'center',
@@ -142,6 +119,8 @@ const styles = StyleSheet.create({
   settingsBox: {
     backgroundColor: PortColors.primary.white,
     alignItems: 'flex-end',
+    height: 42,
+    width: 42,
   },
   crossBox: {
     backgroundColor: PortColors.primary.white,

@@ -163,7 +163,7 @@ export default function ScannerModal() {
                 wrapperStyle={{
                   height: 60,
                   marginVertical: 15,
-                  paddingHorizontal: '8%',
+                  paddingHorizontal: 20,
                 }}
                 inputStyle={{...FontSizes[15].medium}}
                 setText={setLabel}
@@ -210,8 +210,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: '5%',
-    paddingRight: '5%',
+    paddingLeft: 10,
+    paddingRight: 10,
     paddingBottom: 100,
     width: '100%',
   },

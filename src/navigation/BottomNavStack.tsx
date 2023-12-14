@@ -46,7 +46,7 @@ function BottomNavStack() {
         initialRouteName="ChatTab"
         screenOptions={{
           headerShown: false,
-          tabBarStyle: {paddingBottom: 10, height: 94},
+          tabBarStyle: {paddingBottom: 5, height: 80},
         }}>
         <Tab.Screen
           name="ChatTab"
@@ -54,7 +54,11 @@ function BottomNavStack() {
             title: 'Chats',
             tabBarLabelStyle: styles.tabbarLabel,
             tabBarIcon: ({focused}) =>
-              focused ? <HomeIconActive /> : <HomeIconInactive />,
+              focused ? (
+                <HomeIconActive height={23} width={23} />
+              ) : (
+                <HomeIconInactive height={23} width={23} />
+              ),
           }}
           component={Home}
         />
@@ -64,7 +68,11 @@ function BottomNavStack() {
             title: 'New',
             tabBarLabelStyle: styles.tabbarLabel,
             tabBarIcon: ({focused}) =>
-              focused ? <NewIconActive /> : <NewIconInactive />,
+              focused ? (
+                <NewIconActive height={23} width={23} />
+              ) : (
+                <NewIconInactive height={23} width={23} />
+              ),
           }}
           component={Home}
           listeners={() => ({
@@ -86,7 +94,11 @@ function BottomNavStack() {
             title: 'Scan',
             tabBarLabelStyle: styles.tabbarLabel,
             tabBarIcon: ({focused}) =>
-              focused ? <ScanIconActive /> : <ScanIconInactive />,
+              focused ? (
+                <ScanIconActive height={23} width={23} />
+              ) : (
+                <ScanIconInactive height={23} width={23} />
+              ),
           }}
           component={Scanner}
         />

@@ -1,6 +1,6 @@
 import {avatarmapping} from '@configs/avatarmapping';
 import React, {FC} from 'react';
-import {Image, ImageStyle, StyleSheet, View} from 'react-native';
+import {Image, ImageStyle, Pressable, StyleSheet} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
 //profile uri => file://pathtoimage.jpg
@@ -8,9 +8,11 @@ import {SvgProps} from 'react-native-svg';
 export function GenericAvatar({
   avatarSize,
   profileUri,
+  onPress,
 }: {
   avatarSize: 'extraSmall' | 'small' | 'medium' | 'large'; //size - extraSmall, small, medium, large || default - large
   profileUri: string;
+  onPress?: () => void;
 }) {
   //extract avatar id from profileUri
   const avatarId =
@@ -42,7 +44,8 @@ export function GenericAvatar({
   const Icon = getIconById(avatarId);
 
   return (
-    <View
+    <Pressable
+      onPress={onPress}
       style={StyleSheet.compose(
         styles.container,
         avatarSizeStylePicker(avatarSize),
@@ -59,7 +62,7 @@ export function GenericAvatar({
           width={avatarSizeStylePicker(avatarSize).width}
         />
       ) : null}
-    </View>
+    </Pressable>
   );
 }
 

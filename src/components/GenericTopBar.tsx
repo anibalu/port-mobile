@@ -9,12 +9,12 @@ const GenericTopBar = ({
   title,
   titleStyle,
   onBackPress,
-  rightElement,
+  rightOptionalIcon,
 }: {
   title: string;
   titleStyle?: TextStyle;
   onBackPress: any;
-  rightElement?: any;
+  rightOptionalIcon?: any;
 }) => {
   return (
     <View style={styles.bar}>
@@ -25,7 +25,11 @@ const GenericTopBar = ({
         numberOfLines={1}>
         {title}
       </NumberlessSemiBoldText>
-      {rightElement ? rightElement : <View style={styles.faqBox} />}
+      {rightOptionalIcon ? (
+        rightOptionalIcon
+      ) : (
+        <View style={styles.rightOptionalIconStyle} />
+      )}
     </View>
   );
 };
@@ -36,34 +40,28 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingRight: '6%',
-    paddingLeft: '6%',
+    alignItems: 'center',
+    paddingRight: 10,
+    paddingLeft: 10,
     backgroundColor: '#FFF',
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
-    height: 51,
+    height: 65,
   },
   title: {
     ...FontSizes[21].semibold,
     lineHeight: 28,
     color: 'black',
-    marginTop: 10,
   },
   backIcon: {
-    paddingTop: 16,
-    alignItems: 'flex-start',
+    alignItems: 'center',
     width: 50,
     height: 51,
   },
-  faqBox: {
-    width: 50,
+  rightOptionalIconStyle: {
+    width: 65,
+    height: 65,
     alignItems: 'flex-end',
-  },
-  faqText: {
-    marginTop: 10,
-    lineHeight: 28,
-    fontSize: 15,
   },
 });
 

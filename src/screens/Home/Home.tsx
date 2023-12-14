@@ -111,7 +111,7 @@ function Home() {
   return (
     <SafeAreaView style={styles.screen}>
       <ChatBackground />
-      <Topbar unread={totalUnread} filter="All" />
+      <Topbar unread={totalUnread} toptitleMessage="All" />
       <FlatList
         data={viewableConnections}
         renderItem={element => renderChatTile(element.item)}
@@ -140,8 +140,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   chats: {
-    paddingLeft: '3%',
-    paddingRight: '3%',
+    paddingLeft: 8,
+    paddingRight: 8,
   },
 });
 

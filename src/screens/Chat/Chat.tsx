@@ -281,17 +281,34 @@ function Chat({route, navigation}: Props) {
     }
     setCursor(resp.cursor);
   };
+  const onSettingsPressed = (): void => {
+    if (chatState.isGroupChat) {
+      navigation.navigate('GroupProfile', {groupId: chatId});
+    } else {
+      navigation.navigate('ContactProfile', {chatId: chatId});
+    }
+  };
+
+  const onBackPress = async (): Promise<void> => {
+    setSelectedMessages([]);
+    await toggleRead(chatId);
+    navigation.navigate('HomeTab');
+  };
+
+  const onCancelPressed = () => {
+    setSelectedMessages([]);
+  };
 
   return (
     <SafeAreaView style={styles.screen}>
       <ChatBackground />
       <ChatTopbar
         name={chatState.name}
-        chatId={chatId}
         profileURI={chatState.profileURI}
-        selectedMessages={selectedMessages}
-        setSelectedMessages={setSelectedMessages}
-        isGroupChat={chatState.isGroupChat}
+        selectedMessagesLength={selectedMessages.length}
+        onSettingsPressed={onSettingsPressed}
+        onBackPress={onBackPress}
+        onCancelPressed={onCancelPressed}
       />
       <ChatList
         messages={messages}

@@ -2,27 +2,25 @@
  * Top Bar of the home screen containing profile picture and unread count
  */
 import React, {useState} from 'react';
-import {Pressable, StyleSheet} from 'react-native';
-import {View, Image} from 'react-native';
+import {StyleSheet} from 'react-native';
+import {View} from 'react-native';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import DefaultImage from '@assets/avatars/avatar.png';
 import {getProfilePicture} from '@utils/Profile';
 import ProfileBackground from '@assets/backgrounds/profileBackground.svg';
 import {GenericAvatar} from '@components/GenericAvatar';
 
 type TopbarProps = {
-  filter: String | undefined;
+  toptitleMessage: String;
   unread: Number | undefined;
 };
 
-function Topbar(props: TopbarProps) {
-  const [profileURI, setProfileURI] = useState(
-    Image.resolveAssetSource(DefaultImage).uri,
-  );
-  const title = props.unread
-    ? `${props.filter || 'All'} (${props.unread})`
-    : `${props.filter || 'All'}`;
+function Topbar({unread, toptitleMessage = 'All'}: TopbarProps) {
+  const [profileURI, setProfileURI] = useState('avatar://1');
+
+  const title = unread
+    ? `${toptitleMessage} (${unread})`
+    : `${toptitleMessage}`;
   useFocusEffect(
     React.useCallback(() => {
       //updates profile picture with user set profile picture
@@ -43,9 +41,11 @@ function Topbar(props: TopbarProps) {
       </NumberlessSemiBoldText>
       <View style={styles.profileImageContainer}>
         <ProfileBackground style={styles.backgroundImage} />
-        <Pressable onPress={() => navigation.navigate('MyProfile')}>
-          <GenericAvatar profileUri={profileURI} avatarSize={'extraSmall'} />
-        </Pressable>
+        <GenericAvatar
+          onPress={() => navigation.navigate('MyProfile')}
+          profileUri={profileURI}
+          avatarSize={'extraSmall'}
+        />
       </View>
     </View>
   ); // TODO: Add sidebar icon when decided
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
-    height: 60,
+    height: 65,
   },
   imageNavigation: {
     width: 42,
@@ -69,16 +69,11 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     width: 80,
-    height: 50,
+    height: 65,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-  },
-  image: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
   },
   backgroundImage: {
     width: 50,
@@ -93,7 +88,7 @@ const styles = StyleSheet.create({
   },
   sidebarIcon: {
     width: 80,
-    height: 42,
+    height: 65,
   },
 });
 

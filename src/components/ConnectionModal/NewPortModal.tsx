@@ -271,7 +271,7 @@ const NewPortModal: React.FC = () => {
                 wrapperStyle={{
                   height: 60,
                   marginVertical: 15,
-                  paddingHorizontal: '8%',
+                  paddingHorizontal: 20,
                 }}
                 text={label}
                 setText={setLabel}

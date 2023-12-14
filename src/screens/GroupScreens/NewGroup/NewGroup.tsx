@@ -74,7 +74,7 @@ const NewGroup = ({route, navigation}: Props) => {
             {/* <ImageIcon style={style.uploadImageICon} onPress={onImagePressed} /> */}
           </View>
           <GenericInput
-            wrapperStyle={{height: 60, paddingHorizontal: '8%'}}
+            wrapperStyle={{height: 60, paddingHorizontal: 20}}
             inputStyle={{
               ...FontSizes[17].medium,
               paddingLeft: 10,
@@ -90,7 +90,7 @@ const NewGroup = ({route, navigation}: Props) => {
             wrapperStyle={{
               height: screen.height / 4,
               marginBottom: 20,
-              paddingHorizontal: '8%',
+              paddingHorizontal: 20,
             }}
             inputStyle={{
               ...FontSizes[17].regular,

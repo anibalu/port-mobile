@@ -158,7 +158,7 @@ const CreateSuperportModal: React.FC = () => {
               wrapperStyle={{
                 width: screen.width,
                 height: 60,
-                paddingHorizontal: '8%',
+                paddingHorizontal: 20,
               }}
               inputStyle={{...FontSizes[15].medium, borderRadius: 4}}
               text={label}
@@ -172,7 +172,7 @@ const CreateSuperportModal: React.FC = () => {
                 height: 60,
                 marginTop: 8,
                 marginBottom: 54,
-                paddingHorizontal: '8%',
+                paddingHorizontal: 20,
               }}
               editable={false}
               inputStyle={{borderRadius: 4}}
@@ -210,7 +210,7 @@ const CreateSuperportModal: React.FC = () => {
                 width: screen.width,
                 height: 60,
                 marginTop: 20,
-                paddingHorizontal: '8%',
+                paddingHorizontal: 20,
               }}
               editable={false}
               inputStyle={{borderRadius: 4}}
@@ -223,7 +223,7 @@ const CreateSuperportModal: React.FC = () => {
                 height: 60,
                 marginTop: 8,
                 marginBottom: 20,
-                paddingHorizontal: '8%',
+                paddingHorizontal: 20,
               }}
               editable={false}
               inputStyle={{borderRadius: 4}}

@@ -1,9 +1,8 @@
 import React, {ReactNode} from 'react';
 
-import {View, StyleSheet, Pressable} from 'react-native';
+import {StyleSheet, Pressable} from 'react-native';
 
 import {NumberlessRegularText} from '@components/NumberlessText';
-import {getTimeStamp} from '@utils/Time';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import {PortColors} from '@components/ComponentUtils';
 
@@ -17,13 +16,6 @@ export default function InfoBubble(message: SavedMessageParams): ReactNode {
       <NumberlessRegularText style={styles.text}>
         {message.data.info.toString()}
       </NumberlessRegularText>
-      <View style={styles.timeStampContainer}>
-        <View>
-          <NumberlessRegularText style={styles.timeStamp}>
-            {getTimeStamp(message.timestamp)}
-          </NumberlessRegularText>
-        </View>
-      </View>
     </Pressable>
   );
 }
@@ -49,5 +41,6 @@ const styles = StyleSheet.create({
   text: {
     textAlign: 'center',
     color: '#000000',
+    fontSize: 12,
   },
 });

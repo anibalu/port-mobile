@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   timeStampContainer: {
     flexDirection: 'column',
     width: '100%',
-    marginTop: 5,
+    marginTop: 3,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },

@@ -31,7 +31,7 @@ export default function UpdateNamePopup(props: updateNameProps) {
           width: screen.width,
           height: 50,
           marginBottom: 20,
-          paddingHorizontal: '8%',
+          paddingHorizontal: 20,
         }}
         inputStyle={{...FontSizes[15].medium, borderRadius: 4, paddingLeft: 10}}
         text={newName}

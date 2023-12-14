@@ -84,7 +84,7 @@ const AccordionWithRadio = ({
           height: screen.height / 4,
           marginBottom: 20,
           marginTop: 0,
-          paddingHorizontal: '5%',
+          paddingHorizontal: 20,
         }}
         inputStyle={{
           ...FontSizes[15].regular,

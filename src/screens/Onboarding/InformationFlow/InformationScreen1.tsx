@@ -123,14 +123,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     height: 51,
     alignItems: 'flex-start',
-    paddingLeft: '6%',
+    paddingLeft: 12,
   },
   titleText: {
     ...FontSizes[21].medium,
     marginBottom: 60,
     color: PortColors.primary.blue.app,
-    paddingRight: '8%',
-    paddingLeft: '8%',
+    paddingRight: 20,
+    paddingLeft: 20,
   },
   titleTextp2: {
     ...FontSizes[21].bold,
@@ -138,14 +138,14 @@ const styles = StyleSheet.create({
   },
   topBodyText: {
     marginBottom: 20,
-    paddingRight: '8%',
-    paddingLeft: '8%',
+    paddingRight: 20,
+    paddingLeft: 20,
     fontSize: 15,
   },
   bodyText: {
     marginTop: 40,
-    paddingRight: '8%',
-    paddingLeft: '8%',
+    paddingRight: 20,
+    paddingLeft: 20,
     textAlign: 'center',
   },
   nicknameBox: {
@@ -153,8 +153,8 @@ const styles = StyleSheet.create({
     height: 76,
     justifyContent: 'center',
     marginTop: 30,
-    paddingLeft: '8%',
-    paddingRight: '8%',
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   inputText: {
     width: '100%',

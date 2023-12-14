@@ -114,10 +114,7 @@ function MyProfile({navigation}: Props) {
         onClose={() => {
           setReportBugModalOpen(p => !p);
         }}>
-        <ReportIssueModal
-          setReportBugModalOpen={setReportBugModalOpen}
-          reportbugModalOpen={reportbugModalOpen}
-        />
+        <ReportIssueModal setReportBugModalOpen={setReportBugModalOpen} />
       </GenericModal>
     </SafeAreaView>
   );

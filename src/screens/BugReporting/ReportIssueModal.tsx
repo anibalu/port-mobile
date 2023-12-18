@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 
 import CrossIcon from '@assets/icons/cross.svg';
@@ -11,22 +11,19 @@ import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 
 interface reportIssueProps {
   setReportBugModalOpen: Function;
-  reportbugModalOpen: boolean;
 }
 
 export default function ReportIssueModal(props: reportIssueProps) {
   const {setReportBugModalOpen} = props;
   const navigation = useNavigation();
-  const onClickReportProblem = useCallback(() => {
+  const onClickReportProblem = () => {
     navigation.navigate('AddCategoryScreen');
     setReportBugModalOpen(p => !p);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const onClickSuggestFeature = useCallback(() => {
+  };
+  const onClickSuggestFeature = () => {
     navigation.navigate('SuggestAFeature');
     setReportBugModalOpen(p => !p);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   return (
     <View style={styles.editRegion}>
@@ -63,14 +60,14 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
-    paddingTop: 20,
+    paddingTop: 25,
     paddingLeft: 20,
     paddingRight: 20,
   },
   titleText: {
     ...FontSizes[15].medium,
     color: 'black',
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     width: 330,
   },
   rowStyles: {

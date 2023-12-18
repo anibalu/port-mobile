@@ -11,3 +11,19 @@ export const BUNDLE_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;
 export const ERROR_MODAL_VALIDITY_TIMEOUT = 3000;
 export const SELECTED_MESSAGES_LIMIT = 20;
 export const START_OF_TIME = '2023-11-30T09:47:11Z';
+
+export const AVATAR_ARRAY = [
+  'avatar://1',
+  'avatar://2',
+  'avatar://3',
+  'avatar://4',
+  'avatar://5',
+  'avatar://6',
+  'avatar://7',
+  'avatar://8',
+  'avatar://9',
+  'avatar://10',
+  'avatar://11',
+  'avatar://12',
+  'avatar://13',
+];

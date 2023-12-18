@@ -2,11 +2,10 @@
  * This screen sets up a user account
  * screen id: 4
  */
-import Avatar from '@assets/avatars/avatar1.svg';
 import {NumberlessRegularText} from '@components/NumberlessText';
 import ProgressBar from '@components/ProgressBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {DEFAULT_NAME} from '@configs/constants';
+import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getInitialDirectConnectionLinks} from '@utils/ConnectionLinks/direct';
@@ -18,11 +17,13 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import {PortColors} from '@components/ComponentUtils';
 import {initialiseFCM} from '@utils/Messaging/fcm';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import {GenericAvatar} from '@components/GenericAvatar';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
 
 function SetupUser({route, navigation}: Props) {
   const {onboardingFailureError} = useErrorModal();
+  const [profileUri, setProfileUri] = useState(AVATAR_ARRAY[0]);
   const {name} = route.params;
   const processedName: string = name || DEFAULT_NAME;
   //state of progress
@@ -34,6 +35,8 @@ function SetupUser({route, navigation}: Props) {
     async () => {
       //setup profile
       setLoaderText("We're setting up a safe place");
+      setProfileUri(AVATAR_ARRAY[1]);
+
       const response = await setupNewProfile(processedName);
       if (response === ProfileStatus.created) {
         return true;
@@ -43,11 +46,14 @@ function SetupUser({route, navigation}: Props) {
     async () => {
       //get initial set of connection links
       setLoaderText('Getting you ready to connect with others');
+      setProfileUri(AVATAR_ARRAY[2]);
+
       return await getInitialDirectConnectionLinks();
     },
     async () => {
       //initialise FCM
       setLoaderText("We're almost there");
+      setProfileUri('avatar://4');
       return await initialiseFCM();
     },
   ];
@@ -85,7 +91,7 @@ function SetupUser({route, navigation}: Props) {
       <SafeAreaView style={styles.basicContainer}>
         <View style={styles.container}>
           <View style={styles.avatar}>
-            <Avatar height={170} width={170} />
+            <GenericAvatar avatarSize="large" profileUri={profileUri} />
           </View>
           <ProgressBar progress={progress} />
           <NumberlessRegularText style={styles.loaderText}>
@@ -134,9 +140,8 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   avatar: {
-    borderRadius: 57,
     overflow: 'hidden',
-    marginBottom: '10%',
+    marginBottom: 30,
   },
   loaderText: {
     marginTop: '5%',

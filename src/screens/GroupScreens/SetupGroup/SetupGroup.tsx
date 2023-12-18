@@ -5,7 +5,6 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import Avatar from '@assets/avatars/avatar1.svg';
 import {NumberlessRegularText} from '@components/NumberlessText';
 import ProgressBar from '@components/ProgressBar';
 import {SafeAreaView} from '@components/SafeAreaView';
@@ -14,6 +13,8 @@ import {getInitialGroupConnectionLinks} from '@utils/ConnectionLinks/group';
 import {addNewGroup, attemptNewGroup} from '@utils/Groups';
 import {GroupInfo} from '@utils/Groups/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {AVATAR_ARRAY} from '@configs/constants';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SetupGroup'>;
 
@@ -28,12 +29,14 @@ function SetupGroup({route, navigation}: Props) {
   //state of progress
   const [progress, setProgress] = useState(10);
   const [loaderText, setLoaderText] = useState('Initializing...');
+  const [profileUri, setProfileUri] = useState(AVATAR_ARRAY[0]);
 
   //actions attached to progress
   type ThunkAction = () => Promise<boolean>;
   const setupActions: ThunkAction[] = [
     async () => {
       //attempt to post group info -> update state variable group info and return true / return false
+      setProfileUri(AVATAR_ARRAY[1]);
       setLoaderText('creating group');
       try {
         groupId = await attemptNewGroup();
@@ -44,6 +47,8 @@ function SetupGroup({route, navigation}: Props) {
       }
     },
     async () => {
+      setProfileUri(AVATAR_ARRAY[2]);
+
       setLoaderText('saving group');
       //attempt to save group info, return true when successful.
       const groupInfo: GroupInfo = {
@@ -61,6 +66,8 @@ function SetupGroup({route, navigation}: Props) {
     async () => {
       //attempt to get some group links. return true either way. this is not an essential step.
       setLoaderText('fetching group connection links');
+      setProfileUri(AVATAR_ARRAY[3]);
+
       await getInitialGroupConnectionLinks(groupId);
       return true;
     },
@@ -96,7 +103,7 @@ function SetupGroup({route, navigation}: Props) {
     <SafeAreaView style={styles.basicContainer}>
       <View style={styles.container}>
         <View style={styles.avatar}>
-          <Avatar height={170} width={170} />
+          <GenericAvatar avatarSize="large" profileUri={profileUri} />
         </View>
         <ProgressBar progress={progress} />
         <NumberlessRegularText style={styles.loaderText}>
@@ -144,9 +151,8 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   avatar: {
-    borderRadius: 57,
     overflow: 'hidden',
-    marginBottom: 25,
+    marginBottom: 30,
   },
   loaderText: {
     marginTop: 10,

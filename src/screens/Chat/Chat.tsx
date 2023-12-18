@@ -27,7 +27,7 @@ import {tryToSendJournaled} from '@utils/Messaging/sendMessage';
 import {getLatestMessages} from '@utils/Storage/DBCalls/lineMessage';
 import {getGroupInfo} from '@utils/Storage/group';
 import {getMessage, readPaginatedMessages} from '@utils/Storage/messages';
-//import {debounce} from 'lodash';
+import {debounce} from 'lodash';
 import ChatList from './ChatList';
 import ChatTopbar from './ChatTopbar';
 import {MessageActionsBar} from './MessageActionsBar';
@@ -237,26 +237,29 @@ function Chat({route, navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestUpdatedSendStatus]);
 
-  const updateMessages = async (msgs: SavedMessageParams[]): Promise<void> => {
-    const indices: number[] = [];
-    msgs.forEach((element, index) => {
-      if (
-        element.sendStatus !== SendStatus.success &&
-        element.sendStatus !== null
-      ) {
-        indices.push(index);
+  const updateMessages = debounce(
+    async (msgs: SavedMessageParams[]): Promise<void> => {
+      const indices: number[] = [];
+      msgs.forEach((element, index) => {
+        if (
+          element.sendStatus !== SendStatus.success &&
+          element.sendStatus !== null
+        ) {
+          indices.push(index);
+        }
+      });
+      for (const i of indices) {
+        const msg = await getMessage(chatId, msgs[i].messageId);
+        if (msg) {
+          msgs[i] = msg;
+        }
       }
-    });
-    for (const i of indices) {
-      const msg = await getMessage(chatId, msgs[i].messageId);
-      if (msg) {
-        msgs[i] = msg;
-      }
-    }
-    setMessages([...msgs]);
-  };
+      setMessages([...msgs]);
+    },
+    300,
+  );
 
-  const addNewMessages = async (): Promise<void> => {
+  const addNewMessages = debounce(async (): Promise<void> => {
     if (messages.length >= 1) {
       const messageList = await getLatestMessages(
         chatId,
@@ -270,7 +273,7 @@ function Chat({route, navigation}: Props) {
       const newList = messageList.concat(messages);
       await updateMessages(newList);
     }
-  };
+  }, 300);
 
   const onStartReached = async (): Promise<void> => {
     const resp = await readPaginatedMessages(chatId, cursor);

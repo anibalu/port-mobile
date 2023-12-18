@@ -2,12 +2,13 @@
  * Top Bar of the home screen containing profile picture and unread count
  */
 import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {getProfilePicture} from '@utils/Profile';
 import ProfileBackground from '@assets/backgrounds/profileBackground.svg';
+import PendingConnectionsIcon from '@assets/icons/PendingConnectionsIcon.svg';
 import {GenericAvatar} from '@components/GenericAvatar';
 
 type TopbarProps = {
@@ -35,7 +36,14 @@ function Topbar({unread, toptitleMessage = 'All'}: TopbarProps) {
   const navigation = useNavigation();
   return (
     <View style={styles.bar}>
-      <View style={styles.sidebarIcon} />
+      <Pressable
+        style={styles.iconWrapper}
+        onPress={() => console.log('open pending connections screen')}>
+        <NumberlessSemiBoldText style={styles.redWrapper}>
+          {/* TODO: no of pending connections come here */}2
+        </NumberlessSemiBoldText>
+        <PendingConnectionsIcon />
+      </Pressable>
       <NumberlessSemiBoldText style={styles.title}>
         {title}
       </NumberlessSemiBoldText>
@@ -87,8 +95,29 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   sidebarIcon: {
-    width: 80,
+    width: 10,
     height: 65,
+  },
+  iconWrapper: {
+    backgroundColor: '#F6F6F6',
+    padding: 6,
+    marginLeft: 15,
+    borderRadius: 8,
+  },
+  redWrapper: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#EE786B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    color: 'white',
+    fontSize: 10,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
   },
 });
 

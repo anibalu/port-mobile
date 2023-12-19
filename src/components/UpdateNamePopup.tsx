@@ -4,13 +4,19 @@
  * profile
  */
 
-import {NumberlessSemiBoldText} from '@components/NumberlessText';
+import {
+  NumberlessRegularText,
+  NumberlessSemiBoldText,
+} from '@components/NumberlessText';
 import {updateConnection} from '@utils/Connections';
 import {updateProfileInfo} from '@utils/Profile';
 import React, {useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {FontSizes, screen} from './ComponentUtils';
 import GenericInput from './GenericInput';
+import GenericModalTopBar from './GenericModalTopBar';
+import Cross from '../../assets/icons/cross.svg';
+import {GenericButton} from './GenericButton';
 
 interface updateNameProps {
   setUpdated: Function;
@@ -23,9 +29,14 @@ export default function UpdateNamePopup(props: updateNameProps) {
   const chatId = props.chatId;
   return (
     <View style={styles.editRegion}>
+      <GenericModalTopBar RightOptionalIcon={Cross} />
       <NumberlessSemiBoldText style={styles.titleText}>
         {props?.chatId ? ' Update your name' : "Update this contact's name"}
       </NumberlessSemiBoldText>
+      <NumberlessRegularText style={styles.subtitleText}>
+        When left blank the username would be “Numberless” and will appear so
+        while forming connections.
+      </NumberlessRegularText>
       <GenericInput
         wrapperStyle={{
           width: screen.width,
@@ -40,15 +51,9 @@ export default function UpdateNamePopup(props: updateNameProps) {
         alignment="left"
       />
       <View style={styles.options}>
-        <Pressable
-          style={styles.cancel}
-          onPress={() => props.setUpdated(false)}>
-          <NumberlessSemiBoldText style={styles.cancelText}>
-            Cancel
-          </NumberlessSemiBoldText>
-        </Pressable>
-        <Pressable
-          style={styles.save}
+        <GenericButton
+          buttonStyle={styles.save}
+          textStyle={styles.saveText}
           onPress={() => {
             (async () => {
               if (chatId) {
@@ -67,10 +72,8 @@ export default function UpdateNamePopup(props: updateNameProps) {
               props.setUpdated(true);
             })();
           }}>
-          <NumberlessSemiBoldText style={styles.saveText}>
-            Save
-          </NumberlessSemiBoldText>
-        </Pressable>
+          Save
+        </GenericButton>
       </View>
     </View>
   );
@@ -95,6 +98,13 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
+  subtitleText: {
+    fontSize: 14,
+    color: '#868686',
+    paddingLeft: 20,
+    paddingRight: 5,
+    marginTop: 10,
+  },
   nicknameInput: {
     width: screen.width - 40,
     backgroundColor: '#F0F0F0',
@@ -106,31 +116,18 @@ const styles = StyleSheet.create({
   },
   options: {
     width: '100%',
-    height: 50,
+    height: 60,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
-  cancel: {
-    height: '100%',
-    width: '40%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 4,
-    borderColor: '#747474',
-    borderWidth: 1,
-  },
-  cancelText: {
-    fontSize: 15,
-    color: '#747474',
-  },
   save: {
     height: '100%',
-    width: '40%',
+    width: '70%',
     backgroundColor: '#547CEF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 4,
+    borderRadius: 16,
   },
   saveText: {
     fontSize: 15,

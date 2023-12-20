@@ -2,6 +2,7 @@ import RNFS from 'react-native-fs';
 import {initialiseChatIdDirAsync} from './messagesHandlers';
 import {filesDir, mediaDir, tempDir} from '../../../configs/paths';
 import {generateRandomHexId} from '@utils/Messaging/idGenerator';
+import {ContentType} from '@utils/Messaging/interfaces';
 
 const DEFAULT_ENCODING = 'base64';
 const WRITE_ENCODING = 'utf8';
@@ -26,6 +27,22 @@ async function initialiseLargeFileDirAsync(chatId: string) {
     await RNFS.mkdir(fileDir);
   }
   return chatIdDir;
+}
+
+export async function moveToLargeFileDir(
+  chatId: string,
+  fileUri: string,
+  fileName: string,
+  contentType: ContentType,
+) {
+  if (contentType === ContentType.displayImage) {
+    return fileUri;
+  }
+  if (contentType === ContentType.image || contentType === ContentType.video) {
+    return await moveToMediaDir(chatId, fileUri, fileName);
+  } else {
+    return await moveToFilesDir(chatId, fileUri, fileName);
+  }
 }
 
 /**

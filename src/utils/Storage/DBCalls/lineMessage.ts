@@ -1,6 +1,10 @@
 import {PAGINATION_LIMIT} from '@configs/constants';
 import {runSimpleQuery} from './dbCommon';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import {
+  JournaledMessageParams,
+  MessageStatus,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
 
 function toBool(a: number) {
   if (a) {
@@ -17,7 +21,7 @@ export type MessageEntry = {
   replyId: string;
   sender: boolean;
   memberId: string;
-  sendStatus: number;
+  messageStatus: number;
   timestamp: string;
 };
 
@@ -33,7 +37,7 @@ export async function addMessage(message: MessageEntry) {
       sender,
       memberId,
       timestamp,
-      sendStatus
+      messageStatus
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
     `,
     [
@@ -45,7 +49,7 @@ export async function addMessage(message: MessageEntry) {
       message.sender,
       message.memberId,
       message.timestamp,
-      message.sendStatus,
+      message.messageStatus,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
@@ -81,19 +85,52 @@ export async function updateMessage(
 export async function updateStatus(
   chatId: string,
   messageId: string,
-  readStatus: number,
+  messageStatus: MessageStatus,
 ) {
-  if (!readStatus) {
+  if (!messageStatus) {
     return;
   }
   await runSimpleQuery(
     `
     UPDATE lineMessages
-    SET sendStatus = ?
+    SET messageStatus = ?
     WHERE chatId = ? AND messageId = ?
     ;
     `,
-    [readStatus, chatId, messageId],
+    [messageStatus, chatId, messageId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, res) => {},
+  );
+}
+
+/**
+ * Update the status of a message along with its timestamp. Only used for delivered and read status updates
+ * or failute.
+ * @param chatId the chatId of the message to udpate
+ * @param messageId the messageId of the message to update
+ * @param messageStatus The new read status. Note, if success, use set Sent.
+ * @param deliveredTimestamp time when the message was delivered.
+ * @param readTimestamp time when the message was read
+ * @returns null
+ */
+export async function updateStatusAndTimestamp(
+  chatId: string,
+  messageId: string,
+  messageStatus: MessageStatus,
+  deliveredTimestamp?: string,
+  readTimestamp?: string,
+) {
+  await runSimpleQuery(
+    `
+    UPDATE lineMessages
+    SET
+    messageStatus = ?,
+    deliveredTimestamp = COALESCE(?, deliveredTimestamp),
+    readTimestamp = COALESCE(?, readTimestamp),
+    WHERE chatId = ? AND messageId = ?
+    ;
+    `,
+    [messageStatus, deliveredTimestamp, readTimestamp, chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
@@ -229,11 +266,11 @@ export async function setSent(chatId: string, messageId: string) {
   await runSimpleQuery(
     `
     UPDATE lineMessages
-    SET sendStatus = 0
+    SET messageStatus = ?
     WHERE chatId = ? AND messageId = ?
     ;
     `,
-    [chatId, messageId],
+    [MessageStatus.sent, chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
@@ -242,14 +279,15 @@ export async function setSent(chatId: string, messageId: string) {
  * Get ALL unsent messages
  * @returns all messages that haven't been sent
  */
-export async function getUnsent() {
-  let unsent = [];
+export async function getUnsent(): Promise<JournaledMessageParams[]> {
+  let unsent: JournaledMessageParams[] = [];
   await runSimpleQuery(
     `
     SELECT * FROM lineMessages 
-    WHERE sendStatus = 2;
+    WHERE messageStatus = ?
+    ;
     `,
-    [],
+    [MessageStatus.journaled],
     (tx, results) => {
       const len = results.rows.length;
       let entry;

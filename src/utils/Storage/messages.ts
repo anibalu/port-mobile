@@ -1,4 +1,4 @@
-import {SavedMessageParams, SendStatus} from '../Messaging/interfaces';
+import {MessageStatus, SavedMessageParams} from '../Messaging/interfaces';
 import * as DBCalls from './DBCalls/lineMessage';
 
 /**
@@ -52,17 +52,36 @@ export async function readPaginatedMessages(
  * @param messageId the messageId of message to update
  * @param updatedStatus the value to update to
  * @param blocking deprecated, unused value
+ * @param deliveredTimestamp time of message delivery
+ * @param readTimestamp time of message reading
  * @returns
  */
 export async function updateMessageSendStatus(
   chatId: string,
   messageId: string, //with sender prefix
-  updatedStatus: SendStatus,
+  updatedStatus: MessageStatus,
   blocking: boolean = false,
+  deliveredTimestamp?: string,
+  readTimestamp?: string,
 ): Promise<void> {
   blocking.toString();
   if (updatedStatus || updatedStatus === 0) {
-    if (updatedStatus === SendStatus.success) {
+    if (deliveredTimestamp && updatedStatus === MessageStatus.delivered) {
+      await DBCalls.updateStatusAndTimestamp(
+        chatId,
+        messageId,
+        updatedStatus,
+        deliveredTimestamp,
+      );
+    } else if (readTimestamp && updatedStatus === MessageStatus.read) {
+      await DBCalls.updateStatusAndTimestamp(
+        chatId,
+        messageId,
+        updatedStatus,
+        undefined,
+        readTimestamp,
+      );
+    } else if (updatedStatus === MessageStatus.sent) {
       await DBCalls.setSent(chatId, messageId);
     } else {
       await DBCalls.updateStatus(chatId, messageId, updatedStatus);

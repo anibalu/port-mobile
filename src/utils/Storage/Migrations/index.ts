@@ -5,14 +5,17 @@ import {runSimpleQuery} from '../DBCalls/dbCommon';
 
 // To run a migration, write a suitible callback and add it to the list.
 // Make sure to increment the counter above to make sure we don't do weird things.
-const migrations: [number, () => Promise<void>][] = [[1, migration1]];
+const migrations: [number, () => Promise<void>][] = [
+  [1, migration1],
+  [2, migration2],
+];
 
 export default async function runMigrations() {
   await createMigrationsTable();
   console.log('created migrations table');
   for (let migration of migrations) {
     console.log('trying to run migration: ', migration[0]);
-    runMigration(migration[0], migration[1]);
+    await runMigration(migration[0], migration[1]);
   }
 }
 
@@ -131,6 +134,46 @@ async function migration1() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {
       console.log('successfully created 3 indexes on lineMessages');
+    },
+  );
+}
+
+/**
+ * Migration 2:
+ * - rename a lineMessages table column sendStatus to messageStatus
+ */
+async function migration2() {
+  await runSimpleQuery(
+    `
+    ALTER TABLE lineMessages
+    RENAME COLUMN sendStatus TO messageStatus; 
+    `,
+    [],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {
+      console.log('successfully modified lineMessages table');
+    },
+  );
+  await runSimpleQuery(
+    `
+    ALTER TABLE lineMessages
+    ADD COLUMN deliveredTimestamp VARCHAR(64);
+    `,
+    [],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {
+      console.log('successfully added deliveredTimestamp');
+    },
+  );
+  await runSimpleQuery(
+    `
+    ALTER TABLE lineMessages
+    ADD COLUMN readTimestamp VARCHAR(64);
+    `,
+    [],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {
+      console.log('successfully added readTimestamp');
     },
   );
 }

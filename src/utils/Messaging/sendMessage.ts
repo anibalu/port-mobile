@@ -6,11 +6,11 @@ import {
 import {
   ContentType,
   SavedMessageParams,
-  SendStatus,
   SendMessageParams,
   JournaledMessageParams,
   SendMessageOutput,
   SendMessageParamsStrict,
+  MessageStatus,
 } from './interfaces';
 import {generateISOTimeStamp} from '../Time';
 import * as storage from '../Storage/messages';
@@ -97,7 +97,7 @@ export async function sendMessage(
     throw new Error('Unrecognised send operation');
   } catch (error) {
     console.log('Message send failed: ', error);
-    return {sendStatus: SendStatus.failed, message: message};
+    return {sendStatus: MessageStatus.failed, message: message};
   }
 }
 
@@ -134,10 +134,10 @@ async function journalingFailedActions(
   await updateMessageSendStatus(
     chatId,
     message.messageId,
-    SendStatus.failed,
+    MessageStatus.failed,
     true,
   );
-  return {sendStatus: SendStatus.failed, message: message};
+  return {sendStatus: MessageStatus.failed, message: message};
 }
 
 async function sendTextMessage(
@@ -157,7 +157,7 @@ async function sendTextMessage(
     chatId: chatId,
     sender: true,
     timestamp: generateISOTimeStamp(),
-    sendStatus: SendStatus.undefined,
+    messageStatus: MessageStatus.unassigned,
   };
   if (journal) {
     //save message to storage only if not already journaled.
@@ -176,7 +176,7 @@ async function sendTextMessage(
     await updateMessageSendStatus(
       chatId,
       message.messageId,
-      SendStatus.success,
+      MessageStatus.sent,
       true,
     );
     //remove messageId from store
@@ -195,7 +195,7 @@ async function sendTextMessage(
       recentMessageType: savedMessage.contentType,
     });
     //return success status.
-    return {sendStatus: SendStatus.success, message: savedMessage};
+    return {sendStatus: MessageStatus.sent, message: savedMessage};
   } catch (error) {
     console.log('failed to send: ', error);
     //if fails, save to journal (if journaling is ON), update connection
@@ -208,7 +208,7 @@ async function sendTextMessage(
       //     messageId: message.messageId,
       //   },
       // });
-      return {sendStatus: SendStatus.failed, message: message};
+      return {sendStatus: MessageStatus.failed, message: message};
     }
     const journaledMessage: JournaledMessageParams = {
       ...message,
@@ -221,7 +221,7 @@ async function sendTextMessage(
       await updateMessageSendStatus(
         chatId,
         message.messageId,
-        SendStatus.journaled,
+        MessageStatus.journaled,
         true,
       );
       //update connection properties
@@ -239,7 +239,7 @@ async function sendTextMessage(
       //     messageId: message.messageId,
       //   },
       // });
-      return {sendStatus: SendStatus.journaled, message: journaledMessage};
+      return {sendStatus: MessageStatus.journaled, message: journaledMessage};
     } catch (error) {
       console.log('Journaling failed: ', error);
       return await journalingFailedActions(chatId, message);
@@ -263,7 +263,7 @@ async function sendHandshakeDirectMessage(
     chatId: chatId,
     sender: true,
     timestamp: generateISOTimeStamp(),
-    sendStatus: SendStatus.undefined,
+    messageStatus: MessageStatus.unassigned,
   };
   if (journal) {
     //save message to storage only if not already journaled.
@@ -282,7 +282,7 @@ async function sendHandshakeDirectMessage(
     await updateMessageSendStatus(
       chatId,
       message.messageId,
-      SendStatus.success,
+      MessageStatus.sent,
       true,
     );
     //remove messageId from store
@@ -294,7 +294,7 @@ async function sendHandshakeDirectMessage(
     //   },
     // });
     //return success status.
-    return {sendStatus: SendStatus.success, message: savedMessage};
+    return {sendStatus: MessageStatus.sent, message: savedMessage};
   } catch (error) {
     //if fails, save to journal (if journaling is ON), update connection
     if (!journal) {
@@ -306,7 +306,7 @@ async function sendHandshakeDirectMessage(
       //     messageId: message.messageId,
       //   },
       // });
-      return {sendStatus: SendStatus.failed, message: message};
+      return {sendStatus: MessageStatus.failed, message: message};
     }
     const journaledMessage: JournaledMessageParams = {
       ...message,
@@ -319,7 +319,7 @@ async function sendHandshakeDirectMessage(
       await updateMessageSendStatus(
         chatId,
         message.messageId,
-        SendStatus.journaled,
+        MessageStatus.journaled,
         true,
       );
       //remove message Id from sending store
@@ -330,7 +330,7 @@ async function sendHandshakeDirectMessage(
       //     messageId: message.messageId,
       //   },
       // });
-      return {sendStatus: SendStatus.journaled, message: journaledMessage};
+      return {sendStatus: MessageStatus.journaled, message: journaledMessage};
     } catch (error) {
       console.log('Journaling failed: ', error);
       //remove message Id from sending store
@@ -356,7 +356,7 @@ async function sendNameMessage(
     chatId: chatId,
     sender: true,
     timestamp: generateISOTimeStamp(),
-    sendStatus: SendStatus.undefined,
+    messageStatus: MessageStatus.unassigned,
   };
   if (journal) {
     //save message to storage only if not already journaled.
@@ -375,7 +375,7 @@ async function sendNameMessage(
     await updateMessageSendStatus(
       chatId,
       message.messageId,
-      SendStatus.success,
+      MessageStatus.sent,
       true,
     );
     //remove messageId from store
@@ -387,7 +387,7 @@ async function sendNameMessage(
     //   },
     // });
     //return success status.
-    return {sendStatus: SendStatus.success, message: savedMessage};
+    return {sendStatus: MessageStatus.sent, message: savedMessage};
   } catch (error) {
     //if fails, save to journal (if journaling is ON), update connection
     if (!journal) {
@@ -399,7 +399,7 @@ async function sendNameMessage(
       //     messageId: message.messageId,
       //   },
       // });
-      return {sendStatus: SendStatus.failed, message: message};
+      return {sendStatus: MessageStatus.failed, message: message};
     }
     const journaledMessage: JournaledMessageParams = {
       ...message,
@@ -412,7 +412,7 @@ async function sendNameMessage(
       await updateMessageSendStatus(
         chatId,
         message.messageId,
-        SendStatus.journaled,
+        MessageStatus.journaled,
         true,
       );
       //remove message Id from sending store
@@ -423,7 +423,7 @@ async function sendNameMessage(
       //     messageId: message.messageId,
       //   },
       // });
-      return {sendStatus: SendStatus.journaled, message: journaledMessage};
+      return {sendStatus: MessageStatus.journaled, message: journaledMessage};
     } catch (error) {
       console.log('Journaling failed: ', error);
       //remove message Id from sending store
@@ -463,7 +463,7 @@ async function sendMediaMessage(
         chatId: chatId,
         sender: true,
         timestamp: generateISOTimeStamp(),
-        sendStatus: SendStatus.undefined,
+        messageStatus: MessageStatus.unassigned,
       };
       if (journal) {
         //save message to storage only if not already journaled.
@@ -526,7 +526,7 @@ async function sendFileMessage(
         chatId: chatId,
         sender: true,
         timestamp: generateISOTimeStamp(),
-        sendStatus: SendStatus.undefined,
+        messageStatus: MessageStatus.unassigned,
       };
       if (journal) {
         //save message to storage only if not already journaled.
@@ -581,7 +581,7 @@ async function mediaIdExistsActions(
     await updateMessageSendStatus(
       chatId,
       message.messageId,
-      SendStatus.success,
+      MessageStatus.sent,
       true,
     );
     if (message.contentType !== ContentType.displayImage) {
@@ -599,12 +599,12 @@ async function mediaIdExistsActions(
       payload: {
         chatId: chatId,
         messageId: message.messageId,
-        sendStatus: SendStatus.success,
+        sendStatus: MessageStatus.sent,
         timestamp: generateISOTimeStamp(),
       },
     });
     return {
-      sendStatus: SendStatus.success,
+      sendStatus: MessageStatus.sent,
       message: message,
     };
   } catch (error) {
@@ -622,7 +622,7 @@ async function mediaIdExistsActions(
       await updateMessageSendStatus(
         chatId,
         message.messageId,
-        SendStatus.journaled,
+        MessageStatus.journaled,
         true,
       );
       //update connection properties
@@ -632,7 +632,7 @@ async function mediaIdExistsActions(
         recentMessageType: journaledMessage.contentType,
         text: journaledMessage.data.text || '',
       });
-      return {sendStatus: SendStatus.journaled, message: journaledMessage};
+      return {sendStatus: MessageStatus.journaled, message: journaledMessage};
     } catch (error) {
       return await journalingFailedActions(chatId, message);
     }
@@ -723,7 +723,7 @@ async function saveMessage(
 async function updateMessageSendStatus(
   chatId: string,
   messageId: string, //with sender prefix
-  updatedStatus: SendStatus,
+  updatedStatus: MessageStatus | MessageStatus,
   blocking: boolean = true,
 ): Promise<void> {
   await storage.updateMessageSendStatus(

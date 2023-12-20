@@ -21,7 +21,7 @@ import {extractMemberInfo} from '@utils/Groups';
 import {
   ContentType,
   SavedMessageParams,
-  SendStatus,
+  MessageStatus,
 } from '@utils/Messaging/interfaces';
 import {tryToSendJournaled} from '@utils/Messaging/sendMessage';
 import {getLatestMessages} from '@utils/Storage/DBCalls/lineMessage';
@@ -242,8 +242,8 @@ function Chat({route, navigation}: Props) {
       const indices: number[] = [];
       msgs.forEach((element, index) => {
         if (
-          element.sendStatus !== SendStatus.success &&
-          element.sendStatus !== null
+          element.messageStatus !== MessageStatus.success &&
+          element.messageStatus !== null
         ) {
           indices.push(index);
         }

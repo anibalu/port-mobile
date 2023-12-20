@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
 
 export default memo(MessageBubble, (prevProps, nextProps) => {
   return (
-    prevProps.message.sendStatus === nextProps.message.sendStatus &&
+    prevProps.message.messageStatus === nextProps.message.messageStatus &&
     prevProps.isGroupChat === nextProps.isGroupChat &&
     prevProps.selected === nextProps.selected &&
     prevProps.isDateBoundary === nextProps.isDateBoundary

@@ -1,6 +1,6 @@
 import RNFS from 'react-native-fs';
 import {conversationsDir, messagesDir} from '../../../configs/paths';
-import {SavedMessageParams, SendStatus} from '../../Messaging/interfaces';
+import {SavedMessageParams, MessageStatus} from '../../Messaging/interfaces';
 import {connectionFsSync} from '../../Synchronization';
 
 const DEFAULT_ENCODING = 'utf8';
@@ -161,7 +161,7 @@ export async function readMessagesRNFS(
 export async function updateMessageSendStatusRNFS(
   chatId: string,
   messageId: string, //with sender prefix
-  updatedStatus: SendStatus,
+  updatedStatus: MessageStatus,
   blocking: boolean = false,
 ) {
   const synced = async () => {
@@ -170,7 +170,7 @@ export async function updateMessageSendStatusRNFS(
       obj => obj.messageId === messageId,
     );
     if (index !== -1) {
-      messages[index] = {...messages[index], sendStatus: updatedStatus};
+      messages[index] = {...messages[index], messageStatus: updatedStatus};
     }
     await rewriteMessagesRNFS(chatId, messages, false);
   };

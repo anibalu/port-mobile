@@ -7,6 +7,7 @@ import {
   ConnectionInfo,
   ConnectionInfoUpdate,
   ConnectionInfoUpdateOnNewMessage,
+  ConnectionType,
   ReadStatus,
 } from './interfaces';
 import {LINE_MANAGEMENT_RESOURCE} from '../../configs/api';
@@ -15,6 +16,19 @@ import {Permissions} from '../ChatPermissions/interfaces';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {generateRandomHexId} from '@utils/Messaging/idGenerator';
 import {saveMessage} from '@utils/Storage/messages';
+
+/**
+ * Checks if chat is a group
+ */
+export async function isGroupChat(chatId: string) {
+  const connection = await storage.getConnection(chatId);
+  if (connection === null) {
+    throw new Error('No such connection');
+  } else {
+    const isGroup = connection.connectionType === ConnectionType.group;
+    return isGroup;
+  }
+}
 
 /**
  * Loads saved connections to store

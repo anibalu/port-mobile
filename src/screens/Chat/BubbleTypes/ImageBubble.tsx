@@ -9,7 +9,7 @@ import {
   NumberlessRegularText,
 } from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
-import {SavedMessageParams, SendStatus} from '@utils/Messaging/interfaces';
+import {SavedMessageParams, MessageStatus} from '@utils/Messaging/interfaces';
 import {getTimeStamp} from '@utils/Time';
 import ImageReplyContainer from '../ReplyContainers/ImageReplyContainer';
 import {PortColors} from '@components/ComponentUtils';
@@ -77,7 +77,7 @@ export default function ImageBubble({
 }
 
 function renderTimeStamp(message: SavedMessageParams) {
-  if (message.sendStatus === SendStatus.success || !message.sender) {
+  if (message.messageStatus === MessageStatus.sent || !message.sender) {
     return (
       <View style={styles.timeStampContainer}>
         <NumberlessRegularText style={styles.timeStamp}>
@@ -85,7 +85,7 @@ function renderTimeStamp(message: SavedMessageParams) {
         </NumberlessRegularText>
       </View>
     );
-  } else if (message.sendStatus === SendStatus.failed) {
+  } else if (message.messageStatus === MessageStatus.failed) {
     return (
       <View style={styles.timeStampContainer}>
         <NumberlessItalicText style={styles.failedStamp}>

@@ -58,20 +58,29 @@ async function getUploadPresignedUrl(): Promise<UploadParams> {
  * @throws {Error} If there is an issue with the upload.
  */
 export async function uploadLargeFile(
-  fileUri: string,
+  fileUri: string | null,
 ): Promise<DownloadParams> {
-  const uploadTo: UploadParams = await getUploadPresignedUrl();
-  const {url, fields} = uploadTo;
-  const formData = new FormData();
-  Object.entries(fields).forEach(([key, value]) => {
-    formData.append(key, value);
-  });
+  if (!fileUri) {
+    throw new Error('File Uri is null');
+  }
   //convert file to ciphertext
   const encrypted = await encryptFile(fileUri);
   const {path} = await createTempFileUpload(encrypted.ciphertext);
-  await s3Upload('file://' + path, formData, url);
-  await deleteTempFileUpload(path);
-  return {mediaId: fields.key.substring(8), key: encrypted.key};
+  try {
+    const uploadTo: UploadParams = await getUploadPresignedUrl();
+    const {url, fields} = uploadTo;
+    const formData = new FormData();
+    Object.entries(fields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+    await s3Upload('file://' + path, formData, url);
+    await deleteTempFileUpload(path);
+    return {mediaId: fields.key.substring(8), key: encrypted.key};
+  } catch (error) {
+    await deleteTempFileUpload(path);
+    console.log('Error creating mediaId and Key: ', error);
+    throw new Error('Error creating media Id and Key');
+  }
 }
 
 /**
@@ -90,11 +99,16 @@ export async function uploadRawMedia(fileUri: string, media_url: any) {
   return media_url.fields.key;
 }
 
-async function s3Upload(fileUri: string, formData: FormData, url: string) {
+async function s3Upload(
+  fileUri: string,
+  formData: FormData,
+  url: string,
+  fileName: string = 'test',
+) {
   formData.append('file', {
     uri: fileUri,
     type: 'image/*',
-    name: 'test',
+    name: fileName,
   });
   const config = {
     headers: {'Content-Type': 'multipart/form-data'},

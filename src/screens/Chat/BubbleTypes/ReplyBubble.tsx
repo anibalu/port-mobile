@@ -6,7 +6,7 @@ import {extractMemberInfo} from '@utils/Groups';
 import {
   ContentType,
   SavedMessageParams,
-  SendStatus,
+  MessageStatus,
 } from '@utils/Messaging/interfaces';
 import {getMessage} from '@utils/Storage/messages';
 import {getTimeStamp} from '@utils/Time';
@@ -131,7 +131,7 @@ export default function ReplyBubble({
         {message.data.text}
       </NumberlessRegularText>
       <View style={styles.timeStampContainer}>
-        {message.sendStatus === SendStatus.success || !message.sender ? (
+        {message.messageStatus === MessageStatus.sent || !message.sender ? (
           <View>
             <NumberlessRegularText style={styles.timeStamp}>
               {getTimeStamp(message.timestamp)}
@@ -139,7 +139,7 @@ export default function ReplyBubble({
           </View>
         ) : (
           <View>
-            {message.sendStatus === SendStatus.journaled ? (
+            {message.messageStatus === MessageStatus.journaled ? (
               <View>
                 <Sending />
               </View>

@@ -245,30 +245,33 @@ const MessageBar = ({
             )}
           </View>
           <View style={styles.textInputContainer}>
-            <Pressable style={styles.plus} onPress={togglePopUp}>
-              <Cross />
-            </Pressable>
-            <View style={{width: inputTextBarWidth}}>
-              <View style={styles.textBox}>
-                <TextInput
-                  style={styles.inputText}
-                  multiline={true}
-                  placeholder={isFocused ? '' : 'Type your message here'}
-                  placeholderTextColor="#BABABA"
-                  onChangeText={onChangeText}
-                  value={text}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                />
+            <View style={styles.textInput}>
+              <Pressable style={styles.plus} onPress={togglePopUp}>
+                <Cross />
+              </Pressable>
+              <View style={{width: inputTextBarWidth}}>
+                <View style={styles.textBox}>
+                  <TextInput
+                    style={styles.inputText}
+                    multiline={true}
+                    placeholder={isFocused ? '' : 'Type your message here'}
+                    placeholderTextColor="#BABABA"
+                    onChangeText={onChangeText}
+                    value={text}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                  />
+                </View>
               </View>
             </View>
+
             <Pressable style={styles.send} onPress={sendText}>
               <Send />
             </Pressable>
           </View>
         </View>
       ) : (
-        <View style={{backgroundColor: '#FFF', flexDirection: 'column'}}>
+        <View style={{flexDirection: 'column'}}>
           {replyTo ? (
             <View
               style={{
@@ -318,24 +321,26 @@ const MessageBar = ({
           )}
 
           <View style={styles.textInputContainer}>
-            <Pressable style={styles.plus} onPress={togglePopUp}>
-              <Plus />
-            </Pressable>
-            <View style={{width: inputTextBarWidth}}>
-              <View style={styles.textBox}>
-                <TextInput
-                  style={StyleSheet.compose(
-                    styles.inputText,
-                    isIOS ? {paddingTop: 15} : {},
-                  )}
-                  multiline={true}
-                  placeholder={isFocused ? '' : 'Type your message here'}
-                  placeholderTextColor="#BABABA"
-                  onChangeText={onChangeText}
-                  value={text}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                />
+            <View style={styles.textInput}>
+              <Pressable style={styles.plus} onPress={togglePopUp}>
+                <Plus />
+              </Pressable>
+              <View style={{width: inputTextBarWidth}}>
+                <View style={styles.textBox}>
+                  <TextInput
+                    style={StyleSheet.compose(
+                      styles.inputText,
+                      isIOS ? {paddingTop: 15} : {},
+                    )}
+                    multiline={true}
+                    placeholder={isFocused ? '' : 'Type your message here'}
+                    placeholderTextColor="#BABABA"
+                    onChangeText={onChangeText}
+                    value={text}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                  />
+                </View>
               </View>
             </View>
             <Pressable style={styles.send} onPress={sendText}>
@@ -425,41 +430,41 @@ const styles = StyleSheet.create({
   main: {
     width: '100%',
     flexDirection: 'column',
-    backgroundColor: '#FFFFFF',
+    marginBottom: 15,
   },
   aggregateContainer: {
     flexDirection: 'column',
-    alignItems: 'center',
-    width: '100%',
     justifyContent: 'flex-end',
-    backgroundColor: '#FFF',
   },
   popUpContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    width: '100%',
     paddingTop: 20,
     paddingLeft: 30,
     paddingRight: 30,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    marginBottom: 5,
+    width: '95%',
+    alignSelf: 'center',
   },
   textInputContainer: {
-    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingBottom: 25,
-    paddingTop: 10,
-    backgroundColor: '#FFFFFF',
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  textInput: {
+    flexDirection: 'row',
+    backgroundColor: '#FFF',
+    borderRadius: 34,
   },
   plus: {
     width: 48,
     height: 48,
     borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#A3A3A3',
     alignItems: 'center',
     justifyContent: 'center',
     //backgroundColor: '#F9F9F9',
@@ -485,7 +490,6 @@ const styles = StyleSheet.create({
     minHeight: 50,
     color: '#000000',
     ...FontSizes[15].regular,
-    backgroundColor: '#F9F9F9',
     borderRadius: 8,
     paddingLeft: 5,
   },
@@ -500,12 +504,11 @@ const styles = StyleSheet.create({
   optionBox: {
     width: 60,
     height: 60,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#547CEF',
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 5,
+    backgroundColor: '#F6F6F6',
   },
   optionText: {
     fontSize: 12,

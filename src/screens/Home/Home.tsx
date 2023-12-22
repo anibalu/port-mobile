@@ -11,13 +11,13 @@ import {useFocusEffect} from '@react-navigation/native';
 // import store from '@store/appStore';
 // import {getConnections} from '@utils/Connections';
 import {ConnectionInfo, ReadStatus} from '@utils/Connections/interfaces';
-import {tryToSendJournaled} from '@utils/Messaging/sendMessage';
 import {cancelAllNotifications} from '@utils/Notifications';
 import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import DefaultChatTile from './DefaultChatTile';
 import Topbar from './Topbar';
 import {useSelector} from 'react-redux';
+import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: ConnectionInfo) {
@@ -52,7 +52,7 @@ function Home() {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        await tryToSendJournaled();
+        await sendJournaled();
         //setConnections(await getConnections());
       })();
       // Cancel all notifications when I land on the home screen

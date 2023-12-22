@@ -29,10 +29,10 @@ import {decryptMessage, encryptMessage} from '../Crypto/aes';
 import {sha256} from '../Crypto/sha';
 import {generateKeyPair, generateSharedKey} from '../Crypto/x25519';
 import {ContentType} from '../Messaging/interfaces';
-import {sendMessage} from '../Messaging/sendMessage';
 import {getProfileName, getProfilePictureAttributes} from '../Profile';
 import {getChatCrypto, saveChatCrypto} from '../Storage/crypto';
 import {generateISOTimeStamp} from '../Time';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 /**
  * Actions performed when a connection bundle is read by Bob.
@@ -160,10 +160,10 @@ export async function handshakeActionsA1(
       true,
     );
     //send public key.
-    await sendMessage(chatId, {
-      contentType: ContentType.handshakeA1,
-      data: {pubKey: bundle.keys.pubKey},
+    const sender = new SendMessage(chatId, ContentType.handshakeA1, {
+      pubKey: bundle.keys.pubKey,
     });
+    await sender.send();
   } catch (error) {
     console.log('Handshake A1 error', error);
   }
@@ -207,24 +207,25 @@ export async function handshakeActionsB2(chatId: string, peerPubKey: string) {
     //encrypt saved nonce
     const encryptedNonce = await encryptMessage(chatId, cryptoData.nonce || '');
     //send a message with your pubkey and encrypted nonce
-    await sendMessage(chatId, {
-      contentType: ContentType.handshakeB2,
-      data: {pubKey: keys.pubKey, encryptedNonce: encryptedNonce},
+    const sender1 = new SendMessage(chatId, ContentType.handshakeB2, {
+      pubKey: keys.pubKey,
+      encryptedNonce: encryptedNonce,
     });
+    await sender1.send();
     //send a message with your name.
-    await sendMessage(chatId, {
-      contentType: ContentType.name,
-      data: {name: await getProfileName()},
+    const sender2 = new SendMessage(chatId, ContentType.name, {
+      name: await getProfileName(),
     });
+    await sender2.send();
     //send your profile picture if that permission is given
     const connection = await getConnection(chatId);
     if (connection.permissions.displayPicture?.toggled) {
       const file = await getProfilePictureAttributes();
       if (file) {
-        await sendMessage(chatId, {
-          contentType: ContentType.displayImage,
-          data: {...file},
+        const sender = new SendMessage(chatId, ContentType.displayImage, {
+          ...file,
         });
+        await sender.send();
       }
     }
   } catch (error) {
@@ -273,19 +274,19 @@ export async function handshakeActionsA2(
       throw new Error('Encrypted Nonce Authentication Failed');
     }
     //send a message with your name.
-    await sendMessage(chatId, {
-      contentType: ContentType.name,
-      data: {name: await getProfileName()},
+    const sender = new SendMessage(chatId, ContentType.name, {
+      name: await getProfileName(),
     });
+    await sender.send();
     //send your profile picture if that permission is given
     const connection = await getConnection(chatId);
     if (connection.permissions.displayPicture?.toggled) {
       const file = await getProfilePictureAttributes();
       if (file) {
-        await sendMessage(chatId, {
-          contentType: ContentType.displayImage,
-          data: {...file},
+        const sender1 = new SendMessage(chatId, ContentType.displayImage, {
+          ...file,
         });
+        await sender1.send();
       }
     }
   } catch (error) {

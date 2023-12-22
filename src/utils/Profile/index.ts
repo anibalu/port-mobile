@@ -138,7 +138,7 @@ export async function updateProfileInfo(
  * Returns name in profile
  * @returns {string} - name in profile
  */
-export async function getProfileName(): Promise<string | undefined> {
+export async function getProfileName(): Promise<string> {
   const profile: ProfileInfo | undefined = await getProfileInfo();
   return profile?.name ? profile.name : DEFAULT_NAME;
 }

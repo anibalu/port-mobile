@@ -43,7 +43,6 @@ export const LargeDataMessageContentTypes = [
  */
 export type DataType =
   | null
-  | NoParams
   | TextParams
   | NameParams
   | LargeDataParams
@@ -58,7 +57,6 @@ export type DataType =
   | ContactBundleRequestParams
   | ContactBundleResponseParams;
 
-export interface NoParams {}
 export interface TextParams {
   text: string;
 }

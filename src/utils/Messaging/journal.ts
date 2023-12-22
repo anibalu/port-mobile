@@ -7,6 +7,7 @@ import store from '../../store/appStore';
 import {addToJournal, overwriteJournal, readJournal} from '../Storage/journal';
 
 /**
+ * @deprecated
  * saves a message to journal
  */
 export async function saveToJournal(message: JournaledMessageParams) {
@@ -21,6 +22,7 @@ export async function saveToJournal(message: JournaledMessageParams) {
 }
 
 /**
+ * @deprecated
  * Loads saved journal to store.
  */
 export async function loadJournalToStore() {
@@ -32,6 +34,7 @@ export async function loadJournalToStore() {
 }
 
 /**
+ * @deprecated
  * updates new journal to store.
  */
 export async function updateJournal(
@@ -45,6 +48,7 @@ export async function updateJournal(
 }
 
 /**
+ * @deprecated
  * gets journal.
  */
 export async function getJournal() {

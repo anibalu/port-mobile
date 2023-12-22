@@ -47,7 +47,7 @@ import {generateRandomHexId} from './idGenerator';
  *  a. success - Message in storage is updated to "success" send status
  * and MessageId is removed from "sending" queue on store.
  *  b. failed - MessageId is removed from "sending" queue on store.
- *
+ * @deprecated
  * @param {string} chatId
  * @param {} message
  * @param {} journal

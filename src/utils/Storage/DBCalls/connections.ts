@@ -1,20 +1,5 @@
 import {runSimpleQuery} from './dbCommon';
-
-export type ConnectionEntry = {
-  chatId: string;
-  connectionType: number;
-  name: string;
-  permissions: object;
-  text?: string;
-  recentMessageType?: number;
-  pathToDisplayPic?: string;
-  readStatus?: number;
-  authenticated?: boolean;
-  timestamp?: string;
-  newMessageCount?: number;
-  disconnected?: boolean;
-};
-
+import {ConnectionEntry} from '@utils/Connections/interfaces';
 /**
  * Get all of the user's connections
  * @returns All current connections

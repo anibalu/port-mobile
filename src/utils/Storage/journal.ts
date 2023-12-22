@@ -1,4 +1,7 @@
-import {JournaledMessageParams} from '../Messaging/interfaces';
+import {
+  JournaledMessageParams,
+  SavedMessageParams,
+} from '../Messaging/interfaces';
 import {
   addToJournalRNFS,
   overwriteJournalRNFS,
@@ -43,6 +46,6 @@ export async function readJournal(
   return await readJournalRNFS(blocking);
 }
 
-export async function getJournaled(): Promise<JournaledMessageParams[]> {
+export async function getJournaled(): Promise<SavedMessageParams[]> {
   return await DBCalls.getUnsent();
 }

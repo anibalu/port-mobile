@@ -5,9 +5,9 @@ import {
 } from '../Groups';
 import {BundleReadResponse, GroupConnectionBundle} from '../Bundles/interfaces';
 import {ContentType} from '../Messaging/interfaces';
-import {sendMessage} from '../Messaging/sendMessage';
 import {getProfileName} from '../Profile';
 import {generateISOTimeStamp} from '../Time';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 /**
  * Actions performed when a group connection bundle is read.
@@ -30,15 +30,10 @@ export async function handshakeActionsG1(
       amAdmin: false,
       members: getInitialGroupMembersInfo(members),
     });
-    await sendMessage(
-      groupId,
-      {
-        contentType: ContentType.name,
-        data: {name: await getProfileName()},
-      },
-      true,
-      true,
-    );
+    const sender = new SendMessage(groupId, ContentType.name, {
+      name: await getProfileName(),
+    });
+    await sender.send();
     return BundleReadResponse.success;
   } catch (error) {
     console.log('Network issue in joining group', error);

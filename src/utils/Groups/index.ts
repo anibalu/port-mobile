@@ -127,19 +127,14 @@ export function getInitialGroupMembersInfo(members: string[]) {
 }
 
 export async function getMemberInfo(groupId: string, memberId: string) {
-  try {
-    const groupInfo = await storage.getGroupInfo(groupId, true);
-    const index = groupInfo.members.findIndex(
-      member => member.memberId === memberId,
-    );
-    if (index === -1) {
-      throw new Error('No such member error');
-    } else {
-      return groupInfo.members[index];
-    }
-  } catch (error) {
-    console.log('error fetching group member information: ', error);
-    return {};
+  const groupInfo = await storage.getGroupInfo(groupId, true);
+  const index = groupInfo.members.findIndex(
+    member => member.memberId === memberId,
+  );
+  if (index === -1) {
+    throw new Error('No such member error');
+  } else {
+    return groupInfo.members[index];
   }
 }
 

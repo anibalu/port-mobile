@@ -16,16 +16,33 @@ export enum ReadStatus {
 
 export type ConnectionInfo = {
   chatId: string;
-  connectionType: ConnectionType;
+  connectionType: ConnectionType | number;
   name: string;
-  permissions: Permissions;
+  permissions: Permissions | object;
   text?: string;
-  recentMessageType: ContentType;
+  recentMessageType: ContentType | number;
   pathToDisplayPic?: string;
-  readStatus: ReadStatus;
+  readStatus: ReadStatus | number;
   authenticated: boolean;
   timestamp: string;
   newMessageCount: number;
+  disconnected?: boolean;
+};
+/**
+ * flattened version of ConnectionInfo for DB operations
+ */
+export type ConnectionEntry = {
+  chatId: string;
+  connectionType: number;
+  name: string;
+  permissions: object;
+  text?: string;
+  recentMessageType?: number;
+  pathToDisplayPic?: string;
+  readStatus?: number;
+  authenticated?: boolean;
+  timestamp?: string;
+  newMessageCount?: number;
   disconnected?: boolean;
 };
 

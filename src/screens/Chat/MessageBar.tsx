@@ -11,7 +11,6 @@ import {NumberlessMediumText} from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
 import {extractMemberInfo} from '@utils/Groups';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
-import {sendMessage} from '@utils/Messaging/sendMessage';
 import {FileAttributes} from '@utils/Storage/sharedFile';
 import React, {ReactNode, memo, useState} from 'react';
 import {
@@ -31,6 +30,7 @@ import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
 import TextReplyContainer from './ReplyContainers/TextReplyContainer';
 import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
 import {useNavigation} from '@react-navigation/native';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 /**
  * Renders the bottom input bar for a chat.
@@ -79,30 +79,14 @@ const MessageBar = ({
     if (processedText !== '') {
       setText('');
       //send text message
-      if (replyTo) {
-        onSend();
-        await sendMessage(
-          chatId,
-          {
-            contentType: ContentType.text,
-            replyId: replyTo.messageId,
-            data: {text: processedText},
-          },
-          true,
-          isGroupChat,
-        );
-      } else {
-        onSend();
-        await sendMessage(
-          chatId,
-          {
-            contentType: ContentType.text,
-            data: {text: processedText},
-          },
-          true,
-          isGroupChat,
-        );
-      }
+      onSend();
+      const sender = new SendMessage(
+        chatId,
+        ContentType.text,
+        {text: processedText},
+        replyTo ? replyTo.messageId : null,
+      );
+      await sender.send();
     }
   };
 
@@ -122,15 +106,8 @@ const MessageBar = ({
         };
         //image is sent
         setPopUpVisible(false);
-        await sendMessage(
-          chatId,
-          {
-            contentType: ContentType.image,
-            data: {...file},
-          },
-          true,
-          isGroupChat,
-        );
+        const sender = new SendMessage(chatId, ContentType.image, {...file});
+        await sender.send();
       }
     } catch (error) {
       console.log('Nothing selected', error);
@@ -153,15 +130,8 @@ const MessageBar = ({
         };
         //video is sent
         setPopUpVisible(false);
-        await sendMessage(
-          chatId,
-          {
-            contentType: ContentType.video,
-            data: {...file},
-          },
-          true,
-          isGroupChat,
-        );
+        const sender = new SendMessage(chatId, ContentType.video, {...file});
+        await sender.send();
       }
       //send media message
     } catch (error) {
@@ -182,15 +152,8 @@ const MessageBar = ({
         };
         //file is sent
         setPopUpVisible(false);
-        await sendMessage(
-          chatId,
-          {
-            contentType: ContentType.file,
-            data: {...file},
-          },
-          true,
-          isGroupChat,
-        );
+        const sender = new SendMessage(chatId, ContentType.file, {...file});
+        await sender.send();
       }
       //send file message
     } catch (error) {

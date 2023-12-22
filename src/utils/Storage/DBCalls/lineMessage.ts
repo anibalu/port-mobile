@@ -1,10 +1,6 @@
 import {PAGINATION_LIMIT} from '@configs/constants';
 import {runSimpleQuery} from './dbCommon';
-import {
-  JournaledMessageParams,
-  MessageStatus,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
+import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
 
 function toBool(a: number) {
   if (a) {
@@ -279,8 +275,8 @@ export async function setSent(chatId: string, messageId: string) {
  * Get ALL unsent messages
  * @returns all messages that haven't been sent
  */
-export async function getUnsent(): Promise<JournaledMessageParams[]> {
-  let unsent: JournaledMessageParams[] = [];
+export async function getUnsent(): Promise<SavedMessageParams[]> {
+  let unsent: SavedMessageParams[] = [];
   await runSimpleQuery(
     `
     SELECT * FROM lineMessages 

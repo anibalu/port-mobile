@@ -23,7 +23,6 @@ import {
   SavedMessageParams,
   MessageStatus,
 } from '@utils/Messaging/interfaces';
-import {tryToSendJournaled} from '@utils/Messaging/sendMessage';
 import {getLatestMessages} from '@utils/Storage/DBCalls/lineMessage';
 import {getGroupInfo} from '@utils/Storage/group';
 import {getMessage, readPaginatedMessages} from '@utils/Storage/messages';
@@ -34,6 +33,7 @@ import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
 import {useSelector} from 'react-redux';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 export enum SelectedMessagesSize {
@@ -189,7 +189,7 @@ function Chat({route, navigation}: Props) {
 
         //toggle chat as read
         await toggleRead(chatId);
-        await tryToSendJournaled();
+        await sendJournaled();
         //set saved messages
         const resp = await readPaginatedMessages(chatId);
         setMessages(resp.messages);
@@ -265,7 +265,6 @@ function Chat({route, navigation}: Props) {
         chatId,
         messages[0].timestamp,
       );
-      console.log('Adding in: ', messageList);
       const newList = messageList.concat(messages);
       await updateMessages(newList);
     } else {

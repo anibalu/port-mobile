@@ -34,6 +34,9 @@ import {
 } from './largeData';
 import {sendMessage} from './sendMessage';
 
+/**
+ * @deprecated
+ */
 export async function receiveGroupMessage(
   messageFCM: any,
 ): Promise<ReceiveStatus> {
@@ -107,6 +110,7 @@ export async function receiveGroupMessage(
       const message: SendMessageParamsStrict = JSON.parse(
         await decryptMessage(groupId, messageData.content),
       );
+      //this carveout shouldnt have to exist
       if (senderId !== 'Numberless') {
         await updateNewMember(groupId, senderId);
       }

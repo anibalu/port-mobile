@@ -33,6 +33,9 @@ import {
   removeMediaFromDownloading,
 } from './largeData';
 
+/**
+ * @deprecated
+ */
 export async function receiveDirectMessage(
   messageFCM: any,
 ): Promise<ReceiveStatus> {

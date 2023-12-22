@@ -3,6 +3,9 @@ import {ReceiveStatus} from './interfaces';
 import {receiveDirectMessage} from './receiveDirectMessage';
 import {receiveGroupMessage} from './receiveGroupMessage';
 
+/**
+ * @deprecated
+ */
 export async function receiveMessage(receivedMsg: any): Promise<void> {
   let receiveStatus = ReceiveStatus.failed;
   if (receivedMsg.data.group) {

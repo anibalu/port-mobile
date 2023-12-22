@@ -263,14 +263,11 @@ export async function getConnections(): Promise<ConnectionInfo[]> {
  * @param {string} chatId - chatId of connection
  */
 export async function getConnection(chatId: string): Promise<ConnectionInfo> {
-  //get connections
-  const connections = await getConnections();
-  //find the right connection
-  let index: number = connections.findIndex(obj => obj.chatId === chatId);
-  if (index === -1) {
+  const connection = await storage.getConnection(chatId);
+  if (!connection) {
     throw new Error('No such connection');
   }
-  return connections[index];
+  return connection as ConnectionInfo;
 }
 
 /**

@@ -80,11 +80,8 @@ class SendMessage<T extends ContentType> {
       await this.loadSavedMessage();
       //perform rudimentary checks before progressing further
       this.validateMessage();
-      //pre-process large data message to create valid media Id and key and prep payload.
-      //doesn't do anything if message is not large data message.
-      await this.preProcessLargeDataMessage();
-      //save message to storage if journaling is on
-      await this.saveMessage(journal);
+      //pre-process message appropriately.
+      await this.preProcessMessage(journal);
       //get encrypted payload. @todo: encrypt data with crypto driver.
       const encryptedPayload = await encryptMessage(
         this.chatId,
@@ -176,11 +173,20 @@ class SendMessage<T extends ContentType> {
     return LargeDataMessageContentTypes.includes(this.contentType);
   }
 
+  private async preProcessMessage(journal: boolean) {
+    const isLargeDataMessage = this.isLargeDataMessage();
+    if (isLargeDataMessage) {
+      await this.preProcessLargeDataMessage(journal);
+    } else {
+      //save message to storage if journaling is on
+      await this.saveMessage(journal);
+    }
+  }
   //we would like this process to:
   //1. ensure large data file is in local chat storage
   //2. valid media Id and key are part of message data
   //3. payload is prepped properly to be encrypted and sent
-  private async preProcessLargeDataMessage() {
+  private async preProcessLargeDataMessage(journal: boolean) {
     const isLargeDataMessage = this.isLargeDataMessage();
     //only run if message is large data message
     if (isLargeDataMessage) {
@@ -189,15 +195,15 @@ class SendMessage<T extends ContentType> {
         //if media Id and key exist:
         //1. make sure they are still valid
         //2. If not valid, create valid media Id and key again.
+        await this.saveMessage(journal);
         if (!checkMediaIdAndKeyValidity(this.savedMessage.timestamp)) {
           const newMediaIdAndKey = await uploadLargeFile(largeData.fileUri);
           largeData.mediaId = newMediaIdAndKey.mediaId;
           largeData.key = newMediaIdAndKey.key;
-          this.data = {...this.data, ...largeData};
         }
       } else {
         //if media Id and key don't exist:
-        //1. create a copy of file in chat storage
+        //1. create a copy of file in chat storage and save message if journal is ON
         const localCopyPath = await moveToLargeFileDir(
           this.chatId,
           largeData.fileUri,
@@ -205,18 +211,25 @@ class SendMessage<T extends ContentType> {
           this.contentType,
         );
         largeData.fileUri = localCopyPath;
+        this.data = {...this.data, ...largeData};
+        this.savedMessage.data = this.data;
+        await this.saveMessage(journal);
         //2. create valid media Id and key.
         const newMediaIdAndKey = await uploadLargeFile(largeData.fileUri);
         largeData.mediaId = newMediaIdAndKey.mediaId;
         largeData.key = newMediaIdAndKey.key;
-        this.data = {...this.data, ...largeData};
       }
       //data now contains valid local fileUri, mediaId and key
+      this.data = {...this.data, ...largeData};
       //update saved message
       this.savedMessage.data = this.data;
       this.savedMessage.timestamp = generateISOTimeStamp();
       //prep payload
-      this.payload.data = {...this.data, fileUri: null};
+      this.payload.data = {
+        ...(this.data as LargeDataParams),
+        ...this.data,
+        fileUri: null,
+      };
     }
   }
 
@@ -232,8 +245,8 @@ class SendMessage<T extends ContentType> {
       } else {
         await storage.updateMessage(this.chatId, this.messageId, {
           ...this.data,
-          mediaId: undefined,
-          key: undefined,
+          mediaId: null,
+          key: null,
         });
       }
     }
@@ -242,7 +255,7 @@ class SendMessage<T extends ContentType> {
   //save message to storage
   private async saveMessage(shouldSave: boolean) {
     if (shouldSave) {
-      //save message to storage with "undefined" sendStatus
+      //save message to storage with "unassigned" sendStatus
       await storage.saveMessage(this.savedMessage);
       //update redux store that a new message will be sent
       store.dispatch({

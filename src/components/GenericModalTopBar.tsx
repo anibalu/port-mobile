@@ -1,4 +1,4 @@
-import React, {memo} from 'react';
+import React, {ReactNode, memo} from 'react';
 import {StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
@@ -12,7 +12,7 @@ const GenericModalTopbar = ({
   title?: string;
   onBackPress?: any;
   RightOptionalIcon?: any;
-}) => {
+}): ReactNode => {
   return (
     <View style={styles.bar}>
       {title && (

@@ -1,5 +1,9 @@
 import axios from 'axios';
-import {DEFAULT_NAME, NAME_LENGTH_LIMIT} from '../../configs/constants';
+import {
+  DEFAULT_AVATAR,
+  DEFAULT_NAME,
+  NAME_LENGTH_LIMIT,
+} from '../../configs/constants';
 import store from '../../store/appStore';
 import {
   generateKeyPair,
@@ -152,7 +156,7 @@ export async function getProfilePicture(): Promise<string | null> {
     const file: FileAttributes = await storage.getProfilePicAttributes(true);
     return file.fileUri;
   } catch (error) {
-    return 'avatar://1';
+    return DEFAULT_AVATAR;
   }
 }
 

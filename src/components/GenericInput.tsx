@@ -1,16 +1,21 @@
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
-import React, {useState} from 'react';
-import {StyleSheet, TextInput, TextStyle, View, ViewStyle} from 'react-native';
-import {FontSizes, PortColors} from './ComponentUtils';
-import {NumberlessRegularText} from './NumberlessText';
+import React from 'react';
+import {StyleSheet, TextInput, ViewStyle} from 'react-native';
+import {PortColors} from './ComponentUtils';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from './NumberlessText';
 
 const GenericInput = ({
   placeholder,
   text,
   multiline = false,
   setText,
-  wrapperStyle,
   inputStyle,
+  size = 'md',
   alignment = 'center',
   editable = true,
   maxLength = NAME_LENGTH_LIMIT,
@@ -21,8 +26,8 @@ const GenericInput = ({
   multiline?: boolean;
   setText?: any;
   editable?: boolean;
-  wrapperStyle?: ViewStyle;
-  inputStyle?: TextStyle;
+  size?: 'sm' | 'md';
+  inputStyle?: ViewStyle;
   alignment?: 'center' | 'left' | 'right';
   maxLength?: number;
   showLimit?: boolean;
@@ -30,53 +35,61 @@ const GenericInput = ({
   const onChangeText = (text: string) => {
     setText(text);
   };
-
-  const [isFocused, setIsFocused] = useState(false);
-
   return (
-    <View style={StyleSheet.compose(styles.nicknameBox, wrapperStyle)}>
+    <>
       <TextInput
-        style={StyleSheet.compose(styles.inputText, inputStyle)}
+        style={StyleSheet.compose(
+          [
+            styles.inputText,
+            size === 'md'
+              ? {
+                  fontFamily: FontType.md,
+                  fontSize: FontSizeType.m,
+                  fontWeight: getWeight(FontType.md),
+                }
+              : {
+                  fontFamily: FontType.rg,
+                  fontSize: FontSizeType.m,
+                  fontWeight: getWeight(FontType.rg),
+                },
+          ],
+          inputStyle,
+        )}
         maxLength={maxLength}
         editable={editable}
-        placeholder={isFocused ? '' : placeholder}
+        placeholder={placeholder}
         textAlign={alignment}
         multiline={multiline}
         placeholderTextColor={PortColors.primary.grey.medium}
         onChangeText={onChangeText}
         value={text}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
       />
       {showLimit && (
-        <View style={{position: 'absolute', bottom: 10, right: 45}}>
-          <NumberlessRegularText style={styles.limitStyle}>
-            {text.length}/{maxLength}
-          </NumberlessRegularText>
-        </View>
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.s}
+          textColor={PortColors.text.secondary}
+          style={styles.inputCounterStyle}>
+          {text.length}/{maxLength}
+        </NumberlessText>
       )}
-    </View>
+    </>
   );
 };
 
 export default GenericInput;
 
 const styles = StyleSheet.create({
-  nicknameBox: {
-    width: '100%',
-    height: 76,
-    justifyContent: 'center',
-    marginTop: 30,
-  },
-  limitStyle: {
-    ...FontSizes[12].regular,
-  },
   inputText: {
-    ...FontSizes[15].medium,
-    width: '100%',
-    height: '100%',
+    height: 76,
+    alignSelf: 'stretch',
     color: PortColors.primary.grey.dark,
     backgroundColor: PortColors.primary.grey.light,
     borderRadius: 16,
+  },
+  inputCounterStyle: {
+    alignSelf: 'flex-end',
+    top: -24,
+    right: 12,
   },
 });

@@ -14,6 +14,8 @@ export const START_OF_TIME = '2023-11-30T09:47:11Z';
 export const MEDIA_ID_AND_KEY_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;
 export const MESSAGE_DATA_MAX_LENGTH = 2048;
 
+//UI Definitions for elements
+export const TOPBAR_HEIGHT = 75;
 export const AVATAR_ARRAY = [
   'avatar://1',
   'avatar://2',

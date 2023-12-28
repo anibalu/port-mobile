@@ -2,7 +2,77 @@
  * custom text bar for Numberless that uses Rubik font
  */
 import React from 'react';
-import {Text, StyleSheet, TouchableOpacity, TextProps} from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextProps,
+  ColorValue,
+} from 'react-native';
+import {PortColors} from './ComponentUtils';
+
+export enum FontType {
+  'sb' = 'Rubik-SemiBold',
+  'md' = 'Rubik-Medium',
+  'rg' = 'Rubik-Regular',
+}
+
+export enum FontSizeType {
+  'xl' = 21,
+  'l' = 17,
+  'm' = 15,
+  's' = 12,
+  'xs' = 10,
+}
+
+export const getWeight = (fontType: FontType): '400' | '500' | '600' => {
+  switch (fontType) {
+    case FontType.sb: {
+      return '600';
+    }
+    case FontType.md: {
+      return '500';
+    }
+    case FontType.rg: {
+      return '400';
+    }
+  }
+};
+
+type TypographyProps = TextProps & {
+  fontType: FontType;
+  fontSizeType: FontSizeType;
+  textColor?: ColorValue;
+};
+
+/**
+ *
+ * @param children - String or ReactNode components that can be placed inside
+ * @param style -  adjust padding or bounding boxes. Do not pass in color or font sizes here.
+ * @returns
+ */
+export const NumberlessText: React.FC<TypographyProps> = ({
+  children,
+  style,
+  fontType,
+  fontSizeType,
+  textColor = PortColors.text.primary,
+  ...rest
+}) => (
+  <Text
+    style={StyleSheet.compose(
+      {
+        fontFamily: fontType,
+        fontSize: fontSizeType,
+        fontWeight: getWeight(fontType),
+        color: textColor,
+      },
+      style,
+    )}
+    {...rest}>
+    {children}
+  </Text>
+);
 
 export const NumberlessRegularText: React.FC<TextProps> = ({
   children,

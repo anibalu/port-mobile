@@ -1,15 +1,16 @@
 import React, {FC, ReactNode} from 'react';
 import {
-  StyleSheet,
-  Pressable,
-  View,
-  TextStyle,
-  ViewStyle,
   ActivityIndicator,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  TextStyle,
+  View,
+  ViewStyle,
 } from 'react-native';
-import {NumberlessMediumText} from './NumberlessText';
-import {FontSizes, PortColors} from './ComponentUtils';
 import {SvgProps} from 'react-native-svg';
+import {PortColors} from './ComponentUtils';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 
 /**
  * Generic button for Numberless, use this for any and all buttons in app.
@@ -33,20 +34,23 @@ export function GenericButton({
   iconSize,
   Icon,
   loading,
+  disabled = false,
 }: {
   children?: React.ReactNode;
   onPress: any;
   iconPosition?: 'left' | 'right';
   iconStyle?: ViewStyle;
-  buttonStyle?: ViewStyle;
+  buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: TextStyle;
   iconSize?: number;
   Icon?: FC<SvgProps>;
   loading?: boolean;
+  disabled?: boolean;
 }): ReactNode {
   return (
     <Pressable
       style={StyleSheet.compose(styles.button, buttonStyle)}
+      disabled={disabled}
       onPress={loading ? () => {} : onPress}>
       {loading ? (
         <ActivityIndicator size={'small'} color={PortColors.primary.white} />
@@ -65,10 +69,12 @@ export function GenericButton({
             </View>
           ) : null}
           {children ? (
-            <NumberlessMediumText
+            <NumberlessText
+              fontType={FontType.md}
+              fontSizeType={FontSizeType.m}
               style={StyleSheet.compose(styles.text, textStyle)}>
               {children}
-            </NumberlessMediumText>
+            </NumberlessText>
           ) : null}
           {Icon && iconPosition == 'right' ? (
             <View
@@ -96,9 +102,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 15,
   },
-
   text: {
-    ...FontSizes[15].medium,
     color: PortColors.primary.white,
   },
 });

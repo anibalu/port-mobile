@@ -4,23 +4,24 @@
  */
 import S3 from '@assets/carousels/s3.svg';
 import Next from '@assets/navigation/nextButton.svg';
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {GenericButton} from '@components/GenericButton';
 import {
-  NumberlessRegularText,
-  NumberlessSemiBoldText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
-import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import store from '@store/appStore';
-import React, {useEffect} from 'react';
-import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
+import React, {ReactNode, useEffect} from 'react';
+import {BackHandler, ScrollView} from 'react-native';
+import {onboardingStylesheet} from '../NameScreen';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Onboarding'>;
 
-function InformationScreen3({navigation}: Props) {
+function InformationScreen3({navigation}: Props): ReactNode {
   //setting initial state of nickname string to ""
 
   useEffect(() => {
@@ -40,7 +41,7 @@ function InformationScreen3({navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onFinish = () => {
+  const onFinish = (): void => {
     store.dispatch({
       type: 'ONBOARDING_COMPLETE',
       payload: true,
@@ -53,116 +54,35 @@ function InformationScreen3({navigation}: Props) {
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
       />
-      <SafeAreaView style={styles.basicContainer}>
-        <ScrollView
-          contentContainerStyle={{
-            justifyContent: 'flex-start',
-            flex: 1,
-            paddingTop: 20,
-          }}
-          showsVerticalScrollIndicator={false}>
-          <View style={{alignItems: 'center'}}>
-            <NumberlessSemiBoldText style={styles.titleText}>
-              Publish "superports"
-            </NumberlessSemiBoldText>
-            <S3 width={screen.width * 0.9} height={screen.height * 0.4} />
-            <NumberlessRegularText style={styles.bodyText}>
-              Publish "superports" to your social channels to funnel new
-              conversations safely onto Port or use them to port over large
-              groups.
-            </NumberlessRegularText>
-          </View>
 
-          <GenericButton
-            onPress={onFinish}
-            Icon={Next}
-            buttonStyle={styles.nextButtonContainer}
-          />
-        </ScrollView>
-      </SafeAreaView>
+      <ScrollView
+        contentContainerStyle={onboardingStylesheet.scrollViewContainer}
+        showsVerticalScrollIndicator={false}>
+        <NumberlessText
+          fontType={FontType.sb}
+          fontSizeType={FontSizeType.xl}
+          style={{marginTop: 26}}
+          textColor={PortColors.text.title}>
+          Publish "superports"
+        </NumberlessText>
+        <S3 width={screen.width * 0.9} height={screen.height * 0.4} />
+        <NumberlessText
+          fontSizeType={FontSizeType.l}
+          fontType={FontType.rg}
+          style={{textAlign: 'center', paddingHorizontal: 30, marginTop: 30}}
+          textColor={PortColors.text.secondary}>
+          Publish "superports" to your social channels to funnel new
+          conversations safely onto Port or use them to port over large groups.
+        </NumberlessText>
+
+        <GenericButton
+          onPress={onFinish}
+          Icon={Next}
+          buttonStyle={onboardingStylesheet.nextButtonContainer}
+        />
+      </ScrollView>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  basicContainer: {
-    flex: 1,
-    flexDirection: 'column',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-  },
-  container: {
-    flexDirection: 'column',
-    width: '100%',
-    height: '100%',
-  },
-  contentBox: {
-    width: '100%',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    marginTop: 98,
-    backgroundColor: 'red',
-  },
-  topBarContainer: {
-    width: '100%',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    height: 51,
-    alignItems: 'flex-start',
-    paddingLeft: 12,
-  },
-  titleText: {
-    ...FontSizes[21].medium,
-    marginBottom: 60,
-    color: PortColors.primary.blue.app,
-    paddingRight: 20,
-    paddingLeft: 20,
-  },
-  titleTextp2: {
-    ...FontSizes[21].bold,
-    color: PortColors.primary.blue.app,
-  },
-  topBodyText: {
-    marginBottom: 20,
-    paddingRight: 20,
-    paddingLeft: 20,
-    fontSize: 15,
-  },
-  bodyText: {
-    marginTop: 40,
-    paddingRight: 20,
-    paddingLeft: 20,
-    textAlign: 'center',
-  },
-  nicknameBox: {
-    width: '100%',
-    height: 76,
-    justifyContent: 'center',
-    marginTop: 30,
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  inputText: {
-    width: '100%',
-    height: '100%',
-    color: PortColors.primary.black,
-    ...FontSizes[17].bold,
-    backgroundColor: PortColors.primary.grey.light,
-    borderRadius: 16,
-  },
-  nextButtonContainer: {
-    backgroundColor: PortColors.primary.blue.app,
-    height: 65,
-    width: 65,
-    position: 'absolute',
-    bottom: 28,
-    right: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 16,
-  },
-});
 
 export default InformationScreen3;

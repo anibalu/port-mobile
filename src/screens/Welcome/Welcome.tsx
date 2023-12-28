@@ -3,7 +3,7 @@
  * screen id: 1
  */
 import Logo from '@assets/miscellaneous/portBranding.svg';
-import {FontSizes, PortColors} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {GenericButton} from '@components/GenericButton';
 import {SafeAreaView} from '@components/SafeAreaView';
@@ -25,7 +25,7 @@ function Welcome({navigation}: Props) {
         backgroundColor={PortColors.primary.blue.app}
       />
       <View style={styles.greeting}>
-        <Logo height={175} style={styles.logo} />
+        <Logo height={175} />
       </View>
       <GenericButton
         onPress={() => navigation.navigate('NameScreen')}
@@ -44,35 +44,23 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     backgroundColor: PortColors.primary.blue.app,
-    height: '100%',
-
-    width: '100%',
   },
   greeting: {
-    position: 'absolute',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100%',
-    width: '100%',
-    paddingBottom: 50,
-  },
-  logo: {
-    marginBottom: '5%',
-  },
-  name: {
-    marginBottom: '15%',
   },
   button: {
-    marginBottom: '10%',
-    backgroundColor: '#FFFFFF',
-    width: '85%',
+    marginBottom: 32,
+    backgroundColor: PortColors.primary.white,
     height: 70,
+    flexDirection: 'row',
     borderRadius: 16,
     alignItems: 'center',
+    width: screen.width - 38,
     justifyContent: 'center',
   },
   buttonText: {
-    ...FontSizes[17].medium,
     color: PortColors.primary.blue.app,
   },
 });

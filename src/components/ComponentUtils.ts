@@ -1,6 +1,18 @@
 import {Dimensions, Platform} from 'react-native';
 
+/**
+ * All app colors, use colors defined here only.
+ */
 export const PortColors = {
+  text: {
+    title: '#547CEF',
+    primary: '#000000',
+    secondary: '#868686',
+    labels: '#C9C9C9',
+    primaryWhite: '#FFFFFF',
+    greenLabel: '#00340B',
+    delete: '#EE786B',
+  },
   primary: {
     blue: {
       app: '#547CEF',
@@ -22,6 +34,9 @@ export const PortColors = {
   },
 };
 
+/**
+ * All fonts used in the app. Always use this object to define font sizes, if you ever need to.
+ */
 export const FontSizes = {
   24: {
     bold: {
@@ -30,59 +45,68 @@ export const FontSizes = {
     },
   },
   21: {
-    bold: {
-      fontFamily: 'Rubik-Bold',
-      fontSize: 21,
-    },
-    semibold: {
-      fontFamily: 'Rubik-SemiBold',
-      fontSize: 21,
-    },
     medium: {
       fontFamily: 'Rubik-Medium',
       fontSize: 21,
+      fontWeight: '500',
     },
   },
   17: {
     bold: {
       fontFamily: 'Rubik-Bold',
       fontSize: 17,
+      fontWeight: '700',
     },
     semibold: {
       fontFamily: 'Rubik-SemiBold',
       fontSize: 17,
+      fontWeight: '600',
     },
     medium: {
       fontFamily: 'Rubik-Medium',
       fontSize: 17,
+      fontWeight: '500',
     },
     regular: {
       fontFamily: 'Rubik-Regular',
       fontSize: 17,
+      fontWeight: '400',
     },
   },
   15: {
     medium: {
       fontFamily: 'Rubik-Medium',
       fontSize: 15,
+      fontWeight: '500',
     },
     regular: {
       fontFamily: 'Rubik-Regular',
       fontSize: 15,
+      fontWeight: '400',
     },
   },
   12: {
-    bold: {
-      fontFamily: 'Rubik-Bold',
+    semibold: {
+      fontFamily: 'Rubik-SemiBold',
       fontSize: 12,
+      fontWeight: '600',
     },
     medium: {
       fontFamily: 'Rubik-Medium',
       fontSize: 12,
+      fontWeight: '500',
     },
     regular: {
       fontFamily: 'Rubik-Regular',
       fontSize: 12,
+      fontWeight: '400',
+    },
+  },
+  10: {
+    medium: {
+      fontFamily: 'Rubik-Medium',
+      fontSize: 10,
+      fontWeight: '500',
     },
   },
 };

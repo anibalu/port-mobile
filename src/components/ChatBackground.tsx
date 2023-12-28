@@ -1,7 +1,8 @@
-import React, {memo} from 'react';
+import React, {ReactNode, memo} from 'react';
 import {ImageBackground, StyleSheet} from 'react-native';
+import {screen} from './ComponentUtils';
 
-const ChatBackground = ({standard = true}) => {
+const ChatBackground = ({standard = true}): ReactNode => {
   return standard ? (
     <ImageBackground
       source={require('@assets/backgrounds/puzzle.png')}
@@ -17,22 +18,20 @@ const ChatBackground = ({standard = true}) => {
 
 const styles = StyleSheet.create({
   background: {
-    width: '100%',
-    height: '110%',
+    width: screen.width,
+    height: screen.height,
     position: 'absolute',
     resizeMode: 'cover',
     backgroundColor: '#FFF',
     opacity: 0.5,
-    overflow: 'hidden',
   },
   background2: {
-    width: '100%',
-    height: '110%',
+    width: screen.width,
+    height: screen.height,
     position: 'absolute',
     resizeMode: 'cover',
     backgroundColor: '#EEE',
     opacity: 0.5,
-    overflow: 'hidden',
   },
 });
 

@@ -23,6 +23,7 @@ import {GenericButton} from '@components/GenericButton';
 import {getProfileName, getProfilePicture} from '@utils/Profile';
 import UserTile from './UserTile';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import {DEFAULT_AVATAR} from '@configs/constants';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ManageMembers'>;
 
@@ -61,7 +62,7 @@ function ManageMembers({route, navigation}: Props) {
         const uri = await getProfilePicture();
         const selfConnectionInfo: GroupMember = {
           name: name,
-          profilePicture: uri || 'avatar://1',
+          profilePicture: uri || DEFAULT_AVATAR,
           memberId: 'self',
           joinedAt: '',
         };

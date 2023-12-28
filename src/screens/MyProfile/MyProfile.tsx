@@ -2,46 +2,50 @@
  * The screen to view one's own profile
  * screen Id: 8
  */
-import DefaultImage from '@assets/avatars/avatar.png';
 import EditCameraIcon from '@assets/icons/EditCamera.svg';
 import EditIcon from '@assets/icons/Pencil.svg';
 import BackTopbar from '@components/BackTopBar';
 import ChatBackground from '@components/ChatBackground';
+import {PortColors, screen} from '@components/ComponentUtils';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {GenericButton} from '@components/GenericButton';
 import GenericModal from '@components/GenericModal';
-import {NumberlessSemiBoldText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
 import UpdateNamePopup from '@components/UpdateNamePopup';
-import {DEFAULT_NAME} from '@configs/constants';
+import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
+import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getProfileName, getProfilePicture} from '@utils/Profile';
-import React, {useEffect, useState} from 'react';
-import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
-import {GenericAvatar} from '@components/GenericAvatar';
-import {useFocusEffect} from '@react-navigation/native';
+import React, {ReactNode, useEffect, useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
 import ReportIssueModal from '../BugReporting/ReportIssueModal';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
-function MyProfile({navigation}: Props) {
-  const [profileURI, setProfileURI] = useState(
-    Image.resolveAssetSource(DefaultImage).uri,
-  );
-  const [name, setName] = useState(DEFAULT_NAME);
+function MyProfile({navigation}: Props): ReactNode {
+  const [profileURI, setProfileURI] = useState(AVATAR_ARRAY[0]);
+  const [name, setName] = useState<string>(DEFAULT_NAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
   const [editingName, setEditingName] = useState(false);
   const [reportbugModalOpen, setReportBugModalOpen] = useState(false);
 
   //updates profile picture with user set profile picture
-  async function setPicture() {
+  async function setPicture(): Promise<void> {
     const uri = await getProfilePicture();
     if (uri && uri !== '') {
       setProfileURI(uri);
     }
   }
   //updates name with user set name
-  async function setUserName() {
-    setName(await getProfileName());
+  async function setUserName(): Promise<void> {
+    const fetchedName = await getProfileName();
+    setName(fetchedName ? fetchedName : DEFAULT_NAME);
   }
 
   useEffect(() => {
@@ -57,6 +61,7 @@ function MyProfile({navigation}: Props) {
     }
     setEditingName(false);
   }
+
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
@@ -64,6 +69,7 @@ function MyProfile({navigation}: Props) {
       })();
     }, []),
   );
+
   return (
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
@@ -80,12 +86,13 @@ function MyProfile({navigation}: Props) {
           </Pressable>
         </View>
         <View style={styles.nicknameArea}>
-          <NumberlessSemiBoldText
-            style={styles.nickname}
+          <NumberlessText
+            fontSizeType={FontSizeType.xl}
+            fontType={FontType.sb}
             ellipsizeMode="tail"
             numberOfLines={1}>
             {name}
-          </NumberlessSemiBoldText>
+          </NumberlessText>
           <View style={styles.nicknameEditBox}>
             <Pressable
               style={styles.nicknameEditHitbox}
@@ -95,11 +102,12 @@ function MyProfile({navigation}: Props) {
           </View>
         </View>
       </View>
-      <Pressable
-        style={styles.reportIssueButton}
+
+      <GenericButton
+        buttonStyle={styles.reportIssueButton}
         onPress={() => setReportBugModalOpen(p => !p)}>
-        <Text style={styles.reportIssueText}>Report Issue</Text>
-      </Pressable>
+        Report Issue
+      </GenericButton>
 
       <GenericModal
         visible={editingName}
@@ -122,16 +130,11 @@ function MyProfile({navigation}: Props) {
 
 const styles = StyleSheet.create({
   profileScreen: {
-    width: '100%',
-    height: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   profile: {
-    width: '100%',
-    backgroundColor: 'white',
-    display: 'flex',
+    width: screen.width,
+    backgroundColor: PortColors.primary.white,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -156,26 +159,13 @@ const styles = StyleSheet.create({
   },
   nicknameArea: {
     width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
   },
-  nickname: {
-    fontSize: 19,
-    color: 'black',
-    overflow: 'hidden',
-    width: '60%',
-    textAlign: 'center',
-  },
   nicknameEditBox: {
-    width: '100%',
+    right: 0,
     position: 'absolute',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
   },
   nicknameEditHitbox: {
     width: 24,
@@ -183,27 +173,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  nicknameEdit: {
-    width: 24,
-    height: 24,
-  },
-  empty: {
-    width: 40,
-    height: 40,
-  },
-  popUpArea: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  popupPosition: {
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   updatePicture: {
     width: 40,
     height: 40,
-    backgroundColor: '#547CEF',
+    backgroundColor: PortColors.primary.blue.app,
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
@@ -212,21 +185,11 @@ const styles = StyleSheet.create({
   reportIssueButton: {
     position: 'absolute',
     bottom: 30,
-    backgroundColor: '#547CEF',
     height: 55,
     width: 250,
     borderRadius: 38,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  reportIssueText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: 'white',
-  },
-  cards: {
-    paddingLeft: 10,
-    paddingRight: 10,
   },
 });
 

@@ -1,21 +1,21 @@
 /**
  * Default chat tile displayed when there are no connections
  */
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {PortColors} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {
-  NumberlessMediumText,
-  NumberlessRegularText,
-  NumberlessSemiBoldText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import {deleteGeneratedDirectConnectionBundle} from '@utils/Bundles/direct';
 import {deleteConnection} from '@utils/Connections';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import {getChatTileTimestamp} from '@utils/Time';
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
-const handleDelete = async (chatId: string) => {
+const handleDelete = async (chatId: string): Promise<void> => {
   if (chatId.substring(0, 9) === 'linkId://') {
     const linkId = chatId.substring(9);
     await deleteGeneratedDirectConnectionBundle(linkId);
@@ -24,38 +24,55 @@ const handleDelete = async (chatId: string) => {
   }
 };
 
-function PendingChatTile(props: ConnectionInfo) {
+function PendingChatTile(props: ConnectionInfo): ReactNode {
   return (
     <Pressable style={styles.tile} onPress={() => {}}>
-      <View style={styles.dpBox}>
-        <GenericAvatar profileUri={'avatar://2'} avatarSize="small" />
-      </View>
+      <GenericAvatar profileUri={'avatar://2'} avatarSize="small" />
       <View style={styles.text}>
-        <NumberlessSemiBoldText
-          style={styles.nickname}
+        <NumberlessText
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.md}
           ellipsizeMode="tail"
           numberOfLines={1}>
-          {props.name && props.name !== ''
-            ? getChatTileTimestamp(props.timestamp) + ': ' + props.name
-            : getChatTileTimestamp(props.timestamp) + ': ' + 'New Contact'}
-        </NumberlessSemiBoldText>
-        <NumberlessRegularText
-          style={styles.content}
+          {props.name && props.name !== '' ? props.name : 'New Contact'}
+        </NumberlessText>
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}
+          style={{marginTop: 2}}
+          textColor={PortColors.text.secondary}>
+          {getChatTileTimestamp(props.timestamp)}
+        </NumberlessText>
+
+        <NumberlessText
           ellipsizeMode="tail"
-          numberOfLines={1}>
+          numberOfLines={1}
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}
+          style={{marginTop: 2}}
+          textColor={PortColors.text.title}>
           {props.chatId.substring(0, 9) === 'linkId://'
             ? 'Pending Handshake'
             : 'Pending Authentication'}
-        </NumberlessRegularText>
+        </NumberlessText>
       </View>
       <Pressable
         style={styles.metadata}
         onPress={() => handleDelete(props.chatId)}>
-        <View style={styles.disconnectedBox}>
-          <NumberlessMediumText style={styles.disconnectedText}>
-            Delete
-          </NumberlessMediumText>
-        </View>
+        <NumberlessText
+          style={{
+            marginHorizontal: 6,
+            marginRight: 12,
+            paddingHorizontal: 8,
+            borderRadius: 4,
+            backgroundColor: PortColors.primary.red.error,
+            paddingVertical: 3,
+          }}
+          textColor={PortColors.text.primaryWhite}
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}>
+          DELETE
+        </NumberlessText>
       </Pressable>
     </Pressable>
   );
@@ -63,71 +80,28 @@ function PendingChatTile(props: ConnectionInfo) {
 
 const styles = StyleSheet.create({
   tile: {
-    width: screen.width - 20,
     marginTop: 7,
     borderRadius: 14,
-    backgroundColor: '#FFF9',
+    backgroundColor: PortColors.primary.white,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingBottom: 15,
+    paddingLeft: 15,
     paddingTop: 15,
   },
-  newMessage: {
-    backgroundColor: '#FFF',
-  },
-  dpBox: {
-    width: 80,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  disconnectedText: {
-    fontSize: 12,
-    textAlign: 'center',
-    color: '#FFF',
-    backgroundColor: PortColors.primary.red.error,
-    padding: 10,
-    borderRadius: 5,
-  },
-  newMessageContent: {
-    color: PortColors.primary.grey.dark,
-  },
   text: {
-    width: screen.width - 20 - 80 - 100,
     justifyContent: 'center',
+    flex: 1,
+    marginLeft: 19,
     alignContent: 'flex-start',
-  },
-  nickname: {
-    ...FontSizes[15].medium,
-    color: PortColors.primary.grey.dark,
-    marginBottom: 3,
-  },
-  content: {
-    ...FontSizes[12].medium,
-    color: PortColors.primary.blue.app,
   },
   metadata: {
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    width: 100,
     height: 50,
-  },
-  dateAndStatusBox: {
-    maxWidth: '100%',
-    height: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    paddingRight: 15,
-  },
-  disconnectedBox: {
-    maxWidth: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingRight: 15,
+    paddingLeft: 5,
   },
 });
 

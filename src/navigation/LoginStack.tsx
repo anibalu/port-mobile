@@ -1,5 +1,5 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React from 'react';
+import React, {ReactNode} from 'react';
 import AppStack from './AppStack';
 import {LoginStackTypes} from './LoginStackTypes';
 import {useSelector} from 'react-redux';
@@ -7,8 +7,7 @@ import OnboardingStack from './OnboardingStack';
 
 const Stack = createNativeStackNavigator<LoginStackTypes>();
 
-function LoginStack({startOnboarding}: {startOnboarding: boolean}) {
-  console.log('Passed in: ', startOnboarding);
+function LoginStack({startOnboarding}: {startOnboarding: boolean}): ReactNode {
   const onboardingStatus = useSelector(
     state => state.profile.onboardingComplete,
   );

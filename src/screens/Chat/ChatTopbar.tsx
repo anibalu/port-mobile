@@ -5,6 +5,7 @@ import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
 import {NumberlessMediumText} from '@components/NumberlessText';
+import {DEFAULT_AVATAR} from '@configs/constants';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
@@ -25,7 +26,7 @@ function ChatTopbar({
   onSettingsPressed,
   onBackPress,
   onCancelPressed,
-  profileURI = 'avatar://1',
+  profileURI = DEFAULT_AVATAR,
 }: {
   name: string;
   selectedMessagesLength: number;

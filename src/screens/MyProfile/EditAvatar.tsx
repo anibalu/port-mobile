@@ -20,13 +20,14 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {getProfilePicture, setNewProfilePicture} from '@utils/Profile';
 import {useNavigation} from '@react-navigation/native';
 import {FileAttributes} from '@utils/Storage/sharedFile';
+import {DEFAULT_AVATAR} from '@configs/constants';
 
 function EditAvatar() {
   const navigation = useNavigation();
   // this is the profile uri
-  const [imagePath, setImagePath] = useState('avatar://1');
+  const [imagePath, setImagePath] = useState(DEFAULT_AVATAR);
   const [profilePicAttr, setProfilePicAttr] = useState<FileAttributes>({
-    fileUri: 'avatar://1',
+    fileUri: DEFAULT_AVATAR,
     fileName: '1',
     fileType: 'avatar',
   });
@@ -40,9 +41,9 @@ function EditAvatar() {
       });
       // setting profile uri for display
       if (selectedAssets.assets && selectedAssets.assets[0]) {
-        setImagePath(selectedAssets.assets[0].uri || 'avatar://1');
+        setImagePath(selectedAssets.assets[0].uri || DEFAULT_AVATAR);
         setProfilePicAttr({
-          fileUri: selectedAssets.assets[0].uri || 'avatar://1',
+          fileUri: selectedAssets.assets[0].uri || DEFAULT_AVATAR,
           fileName: selectedAssets.assets[0].fileName || '1',
           fileType: selectedAssets.assets[0].type || 'avatar',
         });
@@ -71,9 +72,9 @@ function EditAvatar() {
     navigation.goBack();
   }
   async function onRemovePicture() {
-    setImagePath('avatar://1');
+    setImagePath(DEFAULT_AVATAR);
     setProfilePicAttr({
-      fileUri: 'avatar://1',
+      fileUri: DEFAULT_AVATAR,
       fileName: '1',
       fileType: 'avatar',
     });
@@ -105,7 +106,7 @@ function EditAvatar() {
               Select Image
             </NumberlessMediumText>
           </Pressable>
-          {imagePath !== 'avatar://1' && (
+          {imagePath !== DEFAULT_AVATAR && (
             <Pressable onPress={onRemovePicture} style={styles.selectOption}>
               <RemoveIcon />
               <NumberlessMediumText style={styles.iconName}>

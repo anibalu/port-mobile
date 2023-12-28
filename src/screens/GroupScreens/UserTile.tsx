@@ -9,7 +9,7 @@ import {
 } from '@components/NumberlessText';
 import Cross from '@assets/icons/cross.svg';
 import {GroupMember} from '@utils/Groups/interfaces';
-import {DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
 import GenericModal from '@components/GenericModal';
 import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
@@ -35,7 +35,7 @@ function UserTile({
           profileUri={
             member.profilePicture && member.profilePicture !== ''
               ? member.profilePicture
-              : 'avatar://1'
+              : DEFAULT_AVATAR
           }
           avatarSize={'small'}
         />
@@ -50,7 +50,7 @@ function UserTile({
           <View style={styles.row}>
             <GenericAvatar
               profileUri={
-                member.profilePicture ? member.profilePicture : 'avatar://1'
+                member.profilePicture ? member.profilePicture : DEFAULT_AVATAR
               }
               avatarSize={'small'}
             />

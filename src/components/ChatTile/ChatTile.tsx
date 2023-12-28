@@ -1,10 +1,12 @@
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import Sending from '@assets/icons/sending.svg';
+import {PortColors} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {
-  NumberlessMediumText,
-  NumberlessRegularText,
-  NumberlessSemiBoldText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
+import {DEFAULT_AVATAR} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import {
   ConnectionInfo,
@@ -15,7 +17,6 @@ import {getChatTileTimestamp} from '@utils/Time';
 import React, {ReactNode, memo} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import PendingChatTile from './PendingChatTile';
-import Sending from '@assets/icons/sending.svg';
 
 function ChatTile(props: ConnectionInfo): ReactNode {
   const navigation = useNavigation<any>();
@@ -24,56 +25,81 @@ function ChatTile(props: ConnectionInfo): ReactNode {
     if (props.pathToDisplayPic && props.pathToDisplayPic !== '') {
       return props.pathToDisplayPic;
     }
-    return 'avatar://1';
+    return DEFAULT_AVATAR;
   }
 
   //handles navigation to a chat screen and toggles chat to read.
-  const handleNavigate = async (): Promise<void> => {
+  const handleNavigate = (): void => {
     navigation.navigate('DirectChat', {chatId: props.chatId});
   };
+
+  const isNewMessage = props.readStatus === ReadStatus.new;
 
   return props.authenticated ||
     props.connectionType === ConnectionType.group ? (
     <Pressable
-      style={
-        props.readStatus === ReadStatus.new
-          ? StyleSheet.compose(styles.tile, styles.newMessage)
-          : styles.tile
-      }
+      style={StyleSheet.compose(
+        styles.tile,
+        isNewMessage
+          ? {backgroundColor: PortColors.primary.white}
+          : {backgroundColor: '#FFF9'},
+      )}
       onPress={handleNavigate}>
-      <View style={styles.dpBox}>
-        <GenericAvatar profileUri={chooseProfileURI()} avatarSize="small" />
-      </View>
-      <View style={styles.text}>
-        <NumberlessSemiBoldText
-          style={styles.nickname}
+      <GenericAvatar profileUri={chooseProfileURI()} avatarSize="small" />
+
+      <View style={styles.textInfoContainer}>
+        <NumberlessText
           ellipsizeMode="tail"
-          numberOfLines={1}>
+          numberOfLines={1}
+          fontType={FontType.md}
+          style={{marginBottom: 4}}
+          fontSizeType={FontSizeType.l}>
           {props.name}
-        </NumberlessSemiBoldText>
-        <NumberlessRegularText
-          style={
-            props.readStatus === ReadStatus.new
-              ? styles.content
-              : StyleSheet.compose(styles.content, styles.newMessageContent)
-          }
-          ellipsizeMode="tail"
-          numberOfLines={1}>
-          {props.text}
-        </NumberlessRegularText>
+        </NumberlessText>
+
+        {props.readStatus === ReadStatus.new ? (
+          <NumberlessText
+            ellipsizeMode="tail"
+            numberOfLines={1}
+            fontType={FontType.md}
+            fontSizeType={FontSizeType.m}
+            textColor={PortColors.text.title}>
+            New connection
+          </NumberlessText>
+        ) : (
+          <NumberlessText
+            ellipsizeMode="tail"
+            numberOfLines={1}
+            fontType={FontType.rg}
+            fontSizeType={FontSizeType.m}
+            textColor={isNewMessage ? undefined : PortColors.text.secondary}>
+            {props.text}
+          </NumberlessText>
+        )}
       </View>
-      <View style={styles.metadata}>
+      <View style={styles.metadataContainer}>
         {props.disconnected ? (
-          <View style={styles.disconnectedBox}>
-            <NumberlessMediumText style={styles.disconnectedText}>
-              Disconnected
-            </NumberlessMediumText>
-          </View>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.md}
+            style={{
+              backgroundColor: PortColors.primary.grey.light,
+              marginHorizontal: 6,
+              paddingHorizontal: 4,
+              borderRadius: 4,
+              paddingVertical: 3,
+            }}
+            textColor={PortColors.text.delete}>
+            Disconnected
+          </NumberlessText>
         ) : (
           <View style={styles.dateAndStatusBox}>
-            <NumberlessMediumText style={styles.timestamp}>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.md}
+              textColor={PortColors.text.labels}>
               {getChatTileTimestamp(props.timestamp)}
-            </NumberlessMediumText>
+            </NumberlessText>
             <DisplayStatus {...props} />
           </View>
         )}
@@ -84,16 +110,24 @@ function ChatTile(props: ConnectionInfo): ReactNode {
   );
 }
 
-function DisplayStatus(props: ConnectionInfo) {
+function DisplayStatus(props: ConnectionInfo): ReactNode {
   switch (props.readStatus) {
     case ReadStatus.new:
-      return (
-        <View style={styles.new}>
-          <NumberlessSemiBoldText style={styles.newTextDot}>
-            {displayNumber(props.newMessageCount)}
-          </NumberlessSemiBoldText>
-        </View>
-      );
+      if (props.newMessageCount > 0) {
+        return (
+          <View style={styles.new}>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.md}
+              textColor={PortColors.text.primaryWhite}>
+              {displayNumber(props.newMessageCount)}
+            </NumberlessText>
+          </View>
+        );
+      } else {
+        return null;
+      }
+
     case ReadStatus.read:
       return null;
     case ReadStatus.sent:
@@ -106,94 +140,48 @@ function DisplayStatus(props: ConnectionInfo) {
 }
 
 //returns display string based on new message count
-function displayNumber(newMsgCount: undefined | null | number): string {
-  if (!newMsgCount || newMsgCount === 0) {
-    return 'New';
-  } else {
-    if (newMsgCount > 999) {
-      return '999+';
-    }
-    return newMsgCount.toString();
+function displayNumber(newMsgCount: number): string {
+  if (newMsgCount > 999) {
+    return '999+';
   }
+  return newMsgCount.toString();
 }
 
 const styles = StyleSheet.create({
   tile: {
-    width: screen.width - 20,
     marginTop: 7,
     borderRadius: 14,
-    backgroundColor: '#FFF9',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 15,
-    paddingTop: 15,
+    paddingVertical: 14,
+    height: 89,
+    paddingLeft: 15,
   },
-  newMessage: {
-    backgroundColor: '#FFF',
-  },
-  dpBox: {
-    width: 80,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  disconnectedText: {
-    fontSize: 10,
-    textAlign: 'center',
-    color: '#FFF',
-    backgroundColor: PortColors.primary.red.error,
-    padding: 4,
-    borderRadius: 5,
-  },
-  newMessageContent: {
-    color: PortColors.primary.grey.dark,
-  },
-  text: {
-    width: screen.width - 20 - 80 - 100,
-    justifyContent: 'center',
+  textInfoContainer: {
     alignContent: 'flex-start',
+    flex: 1,
+    marginLeft: 19,
   },
-  nickname: {
-    ...FontSizes[17].medium,
-    marginBottom: 3,
-  },
-  content: {
-    color: PortColors.primary.black,
-  },
-  metadata: {
+  metadataContainer: {
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    width: 100,
     height: 50,
+    paddingLeft: 5,
   },
   dateAndStatusBox: {
-    maxWidth: '100%',
-    height: '100%',
     flexDirection: 'column',
+    flex: 1,
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingRight: 15,
-  },
-  disconnectedBox: {
-    maxWidth: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingRight: 15,
-  },
-  timestamp: {
-    fontSize: 12,
-    color: PortColors.primary.grey.medium,
   },
   new: {
     backgroundColor: PortColors.primary.red.error,
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingLeft: 6,
-    paddingRight: 6,
-    borderRadius: 19,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 12,
   },
   newTextDot: {
     fontSize: 10,

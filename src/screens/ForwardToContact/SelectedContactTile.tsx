@@ -8,6 +8,7 @@ import {ConnectionInfo} from '@utils/Connections/interfaces';
 import Plus from '@assets/icons/plus.svg';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {PortColors} from '@components/ComponentUtils';
+import {DEFAULT_AVATAR} from '@configs/constants';
 
 export default function SelectedContactTile({
   member,
@@ -20,7 +21,7 @@ export default function SelectedContactTile({
     <View style={styles.defaultTileContainer}>
       <GenericAvatar
         profileUri={
-          member?.pathToDisplayPic ? member.pathToDisplayPic : 'avatar://1'
+          member?.pathToDisplayPic ? member.pathToDisplayPic : DEFAULT_AVATAR
         }
         avatarSize={'small'}
       />

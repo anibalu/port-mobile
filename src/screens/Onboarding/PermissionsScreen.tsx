@@ -2,31 +2,31 @@
  * This screens informs a user of the permissions the App requires.
  * screen id: 2
  */
-import {
-  NumberlessBoldText,
-  NumberlessMediumText,
-  NumberlessRegularText,
-} from '@components/NumberlessText';
 import Next from '@assets/navigation/nextButton.svg';
-import {SafeAreaView} from '@components/SafeAreaView';
-import React, {useEffect} from 'react';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import React, {ReactNode, useEffect} from 'react';
 import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
 
-import Notification from '@assets/icons/notificationBell.svg';
 import Call from '@assets/icons/call.svg';
-import {FontSizes, PortColors} from '@components/ComponentUtils';
+import Notification from '@assets/icons/notificationBell.svg';
+import {PortColors} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import {GenericButton} from '@components/GenericButton';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {CustomStatusBar} from '@components/CustomStatusBar';
 import {processName} from '@utils/Profile';
+import {onboardingStylesheet} from './NameScreen';
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
   'PermissionsScreen'
 >;
 
-function PermissionsScreen({route, navigation}: Props) {
+function PermissionsScreen({route, navigation}: Props): ReactNode {
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -49,79 +49,80 @@ function PermissionsScreen({route, navigation}: Props) {
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
       />
-      <SafeAreaView style={styles.basicContainer}>
-        <ScrollView
-          //   style={styles.container}
-          contentContainerStyle={{
-            justifyContent: 'space-between',
-            flex: 1,
-            // backgroundColor: 'red',
-          }}
-          showsVerticalScrollIndicator={false}>
-          <View style={styles.container}>
-            <View style={styles.contentBox}>
-              <NumberlessRegularText style={styles.titleText}>
-                Allow basic permissions to get{'\n'} started with
-                <NumberlessBoldText> Ports</NumberlessBoldText>
-              </NumberlessRegularText>
-              <NumberlessRegularText style={styles.bodyText}>
-                We need the following permissions to help you use the our app
-                with complete ownership.{'\n\n'}You could restrict them if you
-                feel so.
-              </NumberlessRegularText>
-              <View style={{flexDirection: 'row', width: '80%', marginTop: 40}}>
-                <View
-                  style={{
-                    backgroundColor: PortColors.primary.blue.app,
-                    width: 48,
-                    height: 48,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderRadius: 12,
-                  }}>
-                  <Notification />
-                </View>
-                <View style={{flexDirection: 'column', marginLeft: 16}}>
-                  <NumberlessMediumText>Notifications</NumberlessMediumText>
-                  <NumberlessRegularText>
-                    Get notified of events like a message response or new port
-                    opening.
-                  </NumberlessRegularText>
-                </View>
-              </View>
-              <View style={{flexDirection: 'row', width: '80%', marginTop: 40}}>
-                <View
-                  style={{
-                    backgroundColor: PortColors.primary.blue.app,
-                    width: 48,
-                    height: 48,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderRadius: 12,
-                  }}>
-                  <Call />
-                </View>
-                <View style={{flexDirection: 'column', marginLeft: 16}}>
-                  <NumberlessMediumText>Calls</NumberlessMediumText>
-                  <NumberlessRegularText>
-                    Go beyond your testing and chat{'\n'}with your contact on
-                    Port.
-                  </NumberlessRegularText>
-                </View>
-              </View>
-            </View>
-            <GenericButton
-              onPress={() =>
-                navigation.navigate('SetupUser', {
-                  name: processName(route.params.name),
-                })
-              }
-              Icon={Next}
-              buttonStyle={styles.nextButtonContainer}
-            />
+
+      <ScrollView
+        contentContainerStyle={onboardingStylesheet.scrollViewContainer}
+        showsVerticalScrollIndicator={false}>
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.xl}
+          style={{textAlign: 'center'}}>
+          Allow basic permissions to get{'\n'} started with
+          <NumberlessText
+            fontType={FontType.sb}
+            fontSizeType={FontSizeType.xl}
+            textColor={PortColors.text.title}>
+            {' '}
+            Ports
+          </NumberlessText>
+        </NumberlessText>
+        <NumberlessText
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}
+          textColor={PortColors.text.secondary}
+          style={{marginTop: 50, textAlign: 'center'}}>
+          We need the following permissions to help you use the our app with
+          complete ownership.{'\n\n'}You could restrict them if you feel so.
+        </NumberlessText>
+        <View style={styles.blockWrapper}>
+          <View style={styles.iconWrapper}>
+            <Notification />
           </View>
-        </ScrollView>
-      </SafeAreaView>
+          <View style={styles.textColumnWrapper}>
+            <NumberlessText
+              fontType={FontType.md}
+              fontSizeType={FontSizeType.l}>
+              Notifications
+            </NumberlessText>
+            <NumberlessText
+              fontType={FontType.rg}
+              style={{marginTop: 2}}
+              textColor={PortColors.text.secondary}
+              fontSizeType={FontSizeType.m}>
+              Get notified of events like a message response or new port
+              opening.
+            </NumberlessText>
+          </View>
+        </View>
+        <View style={styles.blockWrapper}>
+          <View style={styles.iconWrapper}>
+            <Call />
+          </View>
+          <View style={styles.textColumnWrapper}>
+            <NumberlessText
+              fontType={FontType.md}
+              fontSizeType={FontSizeType.l}>
+              Calls
+            </NumberlessText>
+            <NumberlessText
+              fontType={FontType.rg}
+              style={{marginTop: 2}}
+              textColor={PortColors.text.secondary}
+              fontSizeType={FontSizeType.m}>
+              Go beyond your testing and chat{'\n'}with your contact on Port.
+            </NumberlessText>
+          </View>
+        </View>
+        <GenericButton
+          onPress={() =>
+            navigation.navigate('SetupUser', {
+              name: processName(route.params.name),
+            })
+          }
+          Icon={Next}
+          buttonStyle={onboardingStylesheet.nextButtonContainer}
+        />
+      </ScrollView>
     </>
   );
 }
@@ -129,81 +130,23 @@ function PermissionsScreen({route, navigation}: Props) {
 export default PermissionsScreen;
 
 const styles = StyleSheet.create({
-  basicContainer: {
-    flex: 1,
-    flexDirection: 'column',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-  },
-  container: {
-    flexDirection: 'column',
-    height: '100%',
-    width: '100%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  contentBox: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '100%',
-  },
-  topBarContainer: {
-    width: '100%',
+  iconWrapper: {
+    backgroundColor: PortColors.primary.blue.app,
+    width: 48,
+    height: 48,
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    height: 51,
-    alignItems: 'flex-start',
-    paddingLeft: 12,
+    alignItems: 'center',
+    borderRadius: 12,
   },
-  titleText: {
-    ...FontSizes[17].regular,
-    color: PortColors.primary.black,
-    marginBottom: 10,
-    marginTop: 92,
-    textAlign: 'center',
-    paddingRight: 20,
-    paddingLeft: 20,
-  },
-  permissionBox: {
+  blockWrapper: {
     flexDirection: 'row',
-    paddingLeft: 20,
-  },
-  notificationIcon: {
-    marginRight: 20,
-  },
-  bodyText: {
-    marginTop: 50,
-    paddingRight: 20,
-    paddingLeft: 20,
-  },
-  continueBox: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  button: {
-    marginBottom: 12,
-    backgroundColor: PortColors.primary.blue.app,
-    width: '85%',
-    height: 70,
-    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 40,
   },
-  buttonText: {
-    ...FontSizes[17].medium,
-    color: '#FFFFFF',
-  },
-  nextButtonContainer: {
-    backgroundColor: PortColors.primary.blue.app,
-    height: 65,
-    width: 65,
-    marginRight: 25,
-    marginBottom: 28,
-    alignSelf: 'flex-end',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 16,
+  textColumnWrapper: {
+    flexDirection: 'column',
+    flex: 1,
+    marginLeft: 16,
   },
 });

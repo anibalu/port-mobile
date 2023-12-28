@@ -9,6 +9,7 @@ import {isIOS} from './ComponentUtils';
 export function SafeAreaView({children, style, ...rest}: ViewProps) {
   const insets = useSafeAreaInsets();
   const safeAreaStyle: ViewStyle = {
+    flex: 1,
     paddingTop: isIOS ? 0 : insets.top,
     paddingLeft: insets.left,
     paddingRight: insets.right,

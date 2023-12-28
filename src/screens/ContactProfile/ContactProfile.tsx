@@ -17,7 +17,7 @@ import ChatBackground from '@components/ChatBackground';
 import DeleteChatButton from '@components/DeleteChatButton';
 import PermissionsDropdown from '@components/PermissionsDropdown/PermissionsDropdown';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getConnection} from '@utils/Connections';
@@ -32,7 +32,7 @@ type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 function ContactProfile({route, navigation}: Props) {
   const {chatId} = route.params;
 
-  const [profileURI, setProfileURI] = useState<string>('avatar://1');
+  const [profileURI, setProfileURI] = useState<string>(DEFAULT_AVATAR);
   const [name, setName] = useState(DEFAULT_NAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
   const [editingName, setEditingName] = useState(false);

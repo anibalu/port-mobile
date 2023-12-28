@@ -1,26 +1,37 @@
 /**
  * Default chat tile displayed when there are no connections
  */
+import {PortColors} from '@components/ComponentUtils';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import {DEFAULT_AVATAR} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
-import {Image, Pressable, StyleSheet} from 'react-native';
-import DefaultImage from '../../../assets/avatars/avatar.png';
-import {NumberlessItalicText} from '@components/NumberlessText';
+import React, {ReactNode} from 'react';
+import {Pressable, StyleSheet} from 'react-native';
 
-function DefaultChatTile() {
-  const navigation = useNavigation();
-  const handleNavigate = () => {
+function DefaultChatTile(): ReactNode {
+  const navigation = useNavigation<any>();
+  const handleNavigate = (): void => {
     navigation.navigate('HomeTab', {screen: 'NewTab'});
   };
   return (
     <Pressable style={styles.defaultTileContainer} onPress={handleNavigate}>
-      <Image
-        source={{uri: Image.resolveAssetSource(DefaultImage).uri}}
-        style={styles.picture}
+      <GenericAvatar
+        onPress={handleNavigate}
+        profileUri={DEFAULT_AVATAR}
+        avatarSize={'small'}
       />
-      <NumberlessItalicText style={styles.defaultTileText}>
+      <NumberlessText
+        fontType={FontType.rg}
+        fontSizeType={FontSizeType.l}
+        textColor={PortColors.text.labels}
+        style={{fontStyle: 'italic', fontWeight: '400'}}>
         Click here to add a new contact
-      </NumberlessItalicText>
+      </NumberlessText>
     </Pressable>
   );
 }
@@ -30,28 +41,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 7,
     borderRadius: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: PortColors.primary.white,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     padding: 15,
-  },
-  picture: {
-    width: 50,
-    height: 50,
-    borderRadius: 17,
-    opacity: 0.3,
-  },
-  defaultTileText: {
-    color: '#A1A1A1',
-  },
-  newIcon: {
-    width: 50,
-    height: 50,
-    marginRight: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    opacity: 0.5,
   },
 });
 

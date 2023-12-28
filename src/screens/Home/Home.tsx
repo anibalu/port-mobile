@@ -12,26 +12,23 @@ import {useFocusEffect} from '@react-navigation/native';
 // import {getConnections} from '@utils/Connections';
 import {ConnectionInfo, ReadStatus} from '@utils/Connections/interfaces';
 import {cancelAllNotifications} from '@utils/Notifications';
-import React, {useEffect, useState} from 'react';
+import React, {ReactElement, ReactNode, useEffect, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
-import DefaultChatTile from './DefaultChatTile';
-import Topbar from './Topbar';
 import {useSelector} from 'react-redux';
+import DefaultChatTile from './DefaultChatTile';
+import HomeTopbar from './HomeTopbar';
 import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 
 //rendered chat tile of a connection
-function renderChatTile(connection: ConnectionInfo) {
+function renderChatTile(connection: ConnectionInfo): ReactElement {
   return <ChatTile {...connection} />;
 }
 
 //renders default chat tile when there are no connections to display
-function renderDefaultTile() {
+function renderDefaultTile(): ReactNode {
   return <DefaultChatTile />;
 }
-function Home() {
-  // const [connections, setConnections] = useState<Array<ConnectionInfo>>(
-  //   fetchStoreConnections(),
-  // );
+function Home(): ReactNode {
   const [viewableConnections, setViewableConnections] = useState<
     ConnectionInfo[]
   >([]);
@@ -41,12 +38,6 @@ function Home() {
   const [searchText, setSearchText] = useState('');
 
   const [totalUnread, setTotalUnread] = useState<number>(0);
-  // function fetchStoreConnections() {
-  //   const entireState = store.getState();
-  //   const storeConnections: ConnectionInfo[] =
-  //     entireState.connections.connections;
-  //   return storeConnections;
-  // }
   //focus effect to initial load connections and cancel all notifications when on home screen
   // Also attempt to send unsent messages
   useFocusEffect(
@@ -77,21 +68,6 @@ function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
-  //focus effect to reload connection whenever store changes
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     const unsubscribe = store.subscribe(async () => {
-  //       //sets new connections
-  //       const newConnections = await getConnections();
-  //       setConnections(newConnections);
-  //     });
-  //     // Clean up the subscription when the screen loses focus
-  //     return () => {
-  //       unsubscribe();
-  //     };
-  //   }, []),
-  // );
-
   //focus effect to load connections from store and count unread connections when home screen is focused
   useFocusEffect(
     React.useCallback(() => {
@@ -109,9 +85,9 @@ function Home() {
   );
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView>
       <ChatBackground />
-      <Topbar unread={totalUnread} toptitleMessage="All" />
+      <HomeTopbar unread={totalUnread} toptitleMessage="All" />
       <FlatList
         data={viewableConnections}
         renderItem={element => renderChatTile(element.item)}
@@ -129,19 +105,13 @@ function Home() {
         keyExtractor={connection => connection.chatId}
         ListEmptyComponent={renderDefaultTile}
       />
-      {/* <BottomNavigator active={Page.home} /> */}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    width: '100%',
-    height: '100%',
-  },
   chats: {
-    paddingLeft: 8,
-    paddingRight: 8,
+    paddingHorizontal: 19,
   },
 });
 

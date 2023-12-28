@@ -2,22 +2,25 @@
  * This screen sets up a user account
  * screen id: 4
  */
-import {NumberlessRegularText} from '@components/NumberlessText';
+import {PortColors} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import ProgressBar from '@components/ProgressBar';
-import {SafeAreaView} from '@components/SafeAreaView';
 import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getInitialDirectConnectionLinks} from '@utils/ConnectionLinks/direct';
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {initialiseFCM} from '@utils/Messaging/fcm';
 import {setupNewProfile} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {PortColors} from '@components/ComponentUtils';
-import {initialiseFCM} from '@utils/Messaging/fcm';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 import {useErrorModal} from 'src/context/ErrorModalContext';
-import {GenericAvatar} from '@components/GenericAvatar';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
 
@@ -32,7 +35,7 @@ function SetupUser({route, navigation}: Props) {
   //actions attached to progress
   type ThunkAction = () => Promise<boolean>;
   const setupActions: ThunkAction[] = [
-    async () => {
+    async (): Promise<boolean> => {
       //setup profile
       setLoaderText("We're setting up a safe place");
       setProfileUri(AVATAR_ARRAY[1]);
@@ -43,21 +46,21 @@ function SetupUser({route, navigation}: Props) {
       }
       return false;
     },
-    async () => {
+    async (): Promise<boolean> => {
       //get initial set of connection links
       setLoaderText('Getting you ready to connect with others');
       setProfileUri(AVATAR_ARRAY[2]);
 
       return await getInitialDirectConnectionLinks();
     },
-    async () => {
+    async (): Promise<boolean> => {
       //initialise FCM
       setLoaderText("We're almost there");
       setProfileUri('avatar://4');
       return await initialiseFCM();
     },
   ];
-  const runActions = async () => {
+  const runActions = async (): Promise<boolean> => {
     for (let i = 0; i < setupActions.length; i++) {
       const thunk = setupActions[i];
       const result = await thunk();
@@ -88,63 +91,48 @@ function SetupUser({route, navigation}: Props) {
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
       />
-      <SafeAreaView style={styles.basicContainer}>
-        <View style={styles.container}>
-          <View style={styles.avatar}>
-            <GenericAvatar avatarSize="large" profileUri={profileUri} />
-          </View>
-          <ProgressBar progress={progress} />
-          <NumberlessRegularText style={styles.loaderText}>
-            {loaderText}
-          </NumberlessRegularText>
+      <View style={styles.container}>
+        <View style={styles.avatar}>
+          <GenericAvatar avatarSize="large" profileUri={profileUri} />
         </View>
-        <View style={styles.absoluteContainer}>
-          <NumberlessRegularText>
-            This may take a few seconds. Please ensure you have an active
-            internet connection.
-          </NumberlessRegularText>
-        </View>
-      </SafeAreaView>
+        <ProgressBar progress={progress} />
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}
+          textColor={PortColors.text.secondary}
+          style={{marginTop: 11}}>
+          {loaderText}
+        </NumberlessText>
+
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}
+          textColor={PortColors.text.secondary}
+          style={{
+            textAlign: 'center',
+            position: 'absolute',
+            bottom: 44,
+          }}>
+          This may take a few seconds. Please ensure you have an active internet
+          connection.
+        </NumberlessText>
+      </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  basicContainer: {
+  container: {
     flex: 1,
     flexDirection: 'column',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-  },
-  container: {
-    width: '100%',
-    height: '100%',
-    flexDirection: 'column',
+    backgroundColor: PortColors.primary.white,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: '15%',
-  },
-  absoluteContainer: {
-    position: 'absolute',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    width: '100%',
-    height: '100%',
-    paddingBottom: 25,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingHorizontal: 22,
   },
   avatar: {
     overflow: 'hidden',
     marginBottom: 30,
-  },
-  loaderText: {
-    marginTop: '5%',
   },
 });
 

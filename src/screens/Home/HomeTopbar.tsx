@@ -1,23 +1,28 @@
 /**
  * Top Bar of the home screen containing profile picture and unread count
  */
-import React, {useState} from 'react';
-import {Pressable, StyleSheet} from 'react-native';
-import {View} from 'react-native';
-import {NumberlessSemiBoldText} from '@components/NumberlessText';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {getProfilePicture} from '@utils/Profile';
 import ProfileBackground from '@assets/backgrounds/profileBackground.svg';
 import PendingConnectionsIcon from '@assets/icons/PendingConnectionsIcon.svg';
+import {PortColors} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import {AVATAR_ARRAY, TOPBAR_HEIGHT} from '@configs/constants';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {getProfilePicture} from '@utils/Profile';
+import React, {ReactNode, useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
 
 type TopbarProps = {
   toptitleMessage: String;
   unread: Number | undefined;
 };
 
-function Topbar({unread, toptitleMessage = 'All'}: TopbarProps) {
-  const [profileURI, setProfileURI] = useState('avatar://1');
+function HomeTopbar({unread, toptitleMessage = 'All'}: TopbarProps): ReactNode {
+  const [profileURI, setProfileURI] = useState(AVATAR_ARRAY[0]);
 
   const title = unread
     ? `${toptitleMessage} (${unread})`
@@ -33,20 +38,27 @@ function Topbar({unread, toptitleMessage = 'All'}: TopbarProps) {
       })();
     }, []),
   );
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   return (
     <View style={styles.bar}>
       <Pressable
         style={styles.iconWrapper}
         onPress={() => console.log('open pending connections screen')}>
-        <NumberlessSemiBoldText style={styles.redWrapper}>
-          {/* TODO: no of pending connections come here */}2
-        </NumberlessSemiBoldText>
+        <NumberlessText
+          fontType={FontType.md}
+          textColor={PortColors.text.primaryWhite}
+          fontSizeType={FontSizeType.s}
+          style={styles.redWrapper}>
+          2
+        </NumberlessText>
         <PendingConnectionsIcon />
       </Pressable>
-      <NumberlessSemiBoldText style={styles.title}>
+      <NumberlessText
+        style={{left: 20}}
+        fontType={FontType.md}
+        fontSizeType={FontSizeType.l}>
         {title}
-      </NumberlessSemiBoldText>
+      </NumberlessText>
       <View style={styles.profileImageContainer}>
         <ProfileBackground style={styles.backgroundImage} />
         <GenericAvatar
@@ -56,24 +68,18 @@ function Topbar({unread, toptitleMessage = 'All'}: TopbarProps) {
         />
       </View>
     </View>
-  ); // TODO: Add sidebar icon when decided
+  );
 }
 
 const styles = StyleSheet.create({
   bar: {
-    width: '100%',
-    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: PortColors.primary.white,
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
-    height: 65,
-  },
-  imageNavigation: {
-    width: 42,
-    height: 42,
+    height: TOPBAR_HEIGHT,
   },
   profileImageContainer: {
     width: 80,
@@ -89,36 +95,26 @@ const styles = StyleSheet.create({
     position: 'absolute',
     resizeMode: 'cover',
   },
-  title: {
-    fontSize: 21,
-    lineHeight: 28,
-    color: 'black',
-  },
-  sidebarIcon: {
-    width: 10,
-    height: 65,
-  },
   iconWrapper: {
-    backgroundColor: '#F6F6F6',
+    backgroundColor: PortColors.primary.grey.light,
     padding: 6,
     marginLeft: 15,
     borderRadius: 8,
   },
   redWrapper: {
-    width: 16,
-    height: 16,
+    width: 18,
+    height: 18,
     borderRadius: 8,
-    backgroundColor: '#EE786B',
+    backgroundColor: PortColors.primary.red.error,
     justifyContent: 'center',
+    textAlign: 'center',
+    textAlignVertical: 'center',
     alignItems: 'center',
     position: 'absolute',
     top: -4,
     right: -4,
-    color: 'white',
-    fontSize: 10,
     paddingHorizontal: 4,
-    paddingVertical: 2,
   },
 });
 
-export default Topbar;
+export default HomeTopbar;

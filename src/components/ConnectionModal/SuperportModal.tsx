@@ -1,4 +1,15 @@
-import React, {useEffect, useState} from 'react';
+import SuperPortIcon from '@assets/icons/ActiveGateways.svg';
+import Create from '@assets/icons/Create.svg';
+import PublishSuperportIcon from '@assets/icons/PublishSuperports.svg';
+import WhiteArrowRight from '@assets/icons/WhiteArrowRight.svg';
+import Cross from '@assets/icons/cross.svg';
+import Back from '@assets/navigation/backButton.svg';
+import ChatBackground from '@components/ChatBackground';
+import {GenericButton} from '@components/GenericButton';
+import {loadGeneratedSuperports} from '@utils/Bundles/directSuperport';
+import {GeneratedDirectSuperportConnectionBundle} from '@utils/Bundles/interfaces';
+import {getChatTileTimestamp} from '@utils/Time';
+import React, {ReactNode, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -6,25 +17,15 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import Cross from '@assets/icons/cross.svg';
 import {useConnectionModal} from '../../context/ConnectionModalContext';
+import {PortColors, screen} from '../ComponentUtils';
 import GenericModal from '../GenericModal';
 import {
-  NumberlessBoldText,
+  FontSizeType,
+  FontType,
   NumberlessMediumText,
-  NumberlessRegularText,
+  NumberlessText,
 } from '../NumberlessText';
-import {PortColors, screen} from '../ComponentUtils';
-import Back from '@assets/navigation/backButton.svg';
-import {GeneratedDirectSuperportConnectionBundle} from '@utils/Bundles/interfaces';
-import {loadGeneratedSuperports} from '@utils/Bundles/directSuperport';
-import WhiteArrowRight from '@assets/icons/WhiteArrowRight.svg';
-import PublishSuperportIcon from '@assets/icons/PublishSuperports.svg';
-import ChatBackground from '@components/ChatBackground';
-import SuperPortIcon from '@assets/icons/ActiveGateways.svg';
-import {getChatTileTimestamp} from '@utils/Time';
-import Create from '@assets/icons/Create.svg';
-import {GenericButton} from '@components/GenericButton';
 
 const SuperportModal: React.FC = () => {
   const {
@@ -110,17 +111,24 @@ function ShowWelcomeScreen({
   createNewSuperport,
 }: {
   createNewSuperport: () => void;
-}) {
+}): ReactNode {
   return (
     <View style={styles.mainBox}>
-      <NumberlessBoldText style={styles.title}>
+      <NumberlessText
+        fontSizeType={FontSizeType.xl}
+        fontType={FontType.sb}
+        textColor={PortColors.text.title}>
         Publish Superports
-      </NumberlessBoldText>
-      <PublishSuperportIcon width={screen.width - 40} />
-      <NumberlessRegularText style={styles.subtitle}>
+      </NumberlessText>
+      <PublishSuperportIcon style={{marginTop: 20}} width={screen.width - 40} />
+      <NumberlessText
+        fontSizeType={FontSizeType.m}
+        fontType={FontType.rg}
+        style={{padding: 20, textAlign: 'center'}}
+        textColor={PortColors.text.secondary}>
         Publish Superports to your social channels to funnel new conversations
         to Port, or use them to port over large groups , too.
-      </NumberlessRegularText>
+      </NumberlessText>
       <GenericButton
         buttonStyle={{
           flexDirection: 'row',
@@ -147,7 +155,7 @@ function ShowActiveSuperports({
   data: GeneratedDirectSuperportConnectionBundle[];
   openExistingSuperport: (x: string) => void;
   createNewSuperport: () => void;
-}) {
+}): ReactNode {
   return (
     <View style={styles.activeSuperportBox}>
       <ChatBackground standard={false} />
@@ -286,23 +294,13 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
   },
-  title: {
-    fontSize: 21,
-    marginBottom: 20,
-  },
   activeTitle: {
     marginTop: 10,
     marginBottom: 20,
     color: PortColors.primary.black,
     fontSize: 17,
   },
-  subtitle: {
-    fontSize: 15,
-    textAlign: 'center',
-    padding: 20,
-  },
   mainBox: {
-    width: '100%',
     paddingTop: 10,
     paddingBottom: 40,
     flexDirection: 'column',

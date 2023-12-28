@@ -8,6 +8,7 @@ import CheckBox from '@react-native-community/checkbox';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {PortColors} from '@components/ComponentUtils';
+import {DEFAULT_AVATAR} from '@configs/constants';
 
 export default function ContactTile({
   member,
@@ -30,7 +31,7 @@ export default function ContactTile({
       }}>
       <GenericAvatar
         profileUri={
-          member?.pathToDisplayPic ? member.pathToDisplayPic : 'avatar://1'
+          member?.pathToDisplayPic ? member.pathToDisplayPic : DEFAULT_AVATAR
         }
         avatarSize={'small'}
       />

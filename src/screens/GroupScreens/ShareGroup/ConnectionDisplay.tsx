@@ -63,7 +63,11 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
       const linkData = await fetchLinkData();
       const shareContent = {
         title: 'Join a Group',
-        message: linkData,
+        message:
+          `${getGroupName(
+            qrCodeData,
+          )} would like to connect with you on Port! Click the link to start chatting: \n` +
+          linkData,
       };
       await Share.open(shareContent);
     } catch (error) {

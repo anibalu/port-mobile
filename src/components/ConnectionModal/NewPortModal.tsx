@@ -22,6 +22,8 @@ import {
   NumberlessRegularText,
 } from '../NumberlessText';
 import {useSelector} from 'react-redux';
+import {DEFAULT_NAME} from '@configs/constants';
+import {getProfileName} from '@utils/Profile';
 
 const NewPortModal: React.FC = () => {
   const {
@@ -30,6 +32,18 @@ const NewPortModal: React.FC = () => {
     showSuperportModal: showSuperportModal,
   } = useConnectionModal();
   const [label, setLabel] = useState('');
+  const [name, setName] = useState(DEFAULT_NAME);
+  //updates name with user set name
+  async function setUserName() {
+    setName(await getProfileName());
+  }
+
+  useEffect(() => {
+    (async () => {
+      setUserName();
+    })();
+  }, []);
+
   const [createPressed, setCreatePressed] = useState<boolean>(false);
 
   const [isLoadingBundle, setIsLoadingBundle] = useState(true);
@@ -85,14 +99,15 @@ const NewPortModal: React.FC = () => {
     }
     throw new Error('Bundle incomplete');
   };
-
   //handles sharing in link form
   const handleShare = async () => {
     try {
       const linkURL = await fetchLinkData();
       const shareContent = {
         title: 'Create a new Port',
-        message: linkURL,
+        message:
+          `${name} would like to connect with you on Port! Click the link to start chatting: \n` +
+          linkURL,
       };
       await Share.open(shareContent);
     } catch (error) {

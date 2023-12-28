@@ -1,9 +1,20 @@
+import {useNavigation} from '@react-navigation/native';
 import {ConnectionBundle} from '@utils/Bundles/interfaces';
 import {handleDeepLink} from '@utils/DeepLinking';
-import React, {ReactNode, createContext, useContext, useState} from 'react';
-import {Linking} from 'react-native';
-import {useErrorModal} from './ErrorModalContext';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {FileAttributes} from '@utils/Storage/sharedFile';
 import {wait} from '@utils/Time';
+import React, {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import {AppState, Linking} from 'react-native';
+import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+import {useErrorModal} from './ErrorModalContext';
+import {isIOS} from '@components/ComponentUtils';
 
 type ModalContextType = {
   //controls incoming connection modal
@@ -38,6 +49,9 @@ const ConnectionModalContext = createContext<ModalContextType | undefined>(
   undefined,
 );
 
+const imageRegex = /jpg|jpeg|png|gif|image$/;
+const videoRegex = /mp4|video$/;
+
 export const useConnectionModal = () => {
   const context = useContext(ConnectionModalContext);
   if (!context) {
@@ -53,6 +67,7 @@ type ModalProviderProps = {
 export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   children,
 }) => {
+  const navigation = useNavigation<any>();
   const [connectionQRData, setConnectionQRData] = useState<
     ConnectionBundle | undefined
   >(undefined);
@@ -104,14 +119,62 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   };
   const {portConnectionError} = useErrorModal();
 
+  const handleReceiveShare = () => {
+    ReceiveSharingIntent.getReceivedFiles(
+      files => {
+        // files returns as JSON Array example
+        const sharingMessageObjects = [];
+        console.log('Files are: ', files);
+
+        for (const file of files) {
+          const payloadFile: FileAttributes = {
+            fileUri: isIOS ? file.filePath : 'file://' + file.filePath || '',
+            fileType: file.mimeType || '',
+            fileName: file.fileName || '',
+          };
+
+          const msg = {
+            contentType: imageRegex.test(file.mimeType)
+              ? ContentType.image
+              : videoRegex.test(file.mimeType)
+              ? ContentType.video
+              : ContentType.file,
+            data: {...payloadFile},
+          };
+          sharingMessageObjects.push(msg);
+        }
+
+        navigation.navigate('ShareImage', {
+          shareMessages: sharingMessageObjects,
+        });
+        console.log('File received is: ', sharingMessageObjects);
+      },
+      error => {
+        console.log(error);
+      },
+      'PortShare', // share url protocol (must be unique to your app, suggest using your apple bundle id)
+    );
+  };
+
+  useEffect(() => {
+    AppState.addEventListener('change', handleReceiveShare);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const checkDeeplink = async ({url}: {url: string}) => {
-    const bundle = await handleDeepLink({url: url});
-    if (bundle) {
-      setConnectionQRData(bundle);
-      setFemaleModal(true);
-      showConnectionModal();
+    // Checking if PortShare (share into port) is being triggered
+    if (url.startsWith('PortShare')) {
+      console.log('Here');
+      return null;
     } else {
-      portConnectionError();
+      const bundle = await handleDeepLink({url: url});
+      if (bundle) {
+        setConnectionQRData(bundle);
+        setFemaleModal(true);
+        showConnectionModal();
+      } else {
+        portConnectionError();
+      }
     }
   };
   // Handle any potential deeplinks while foregrounded/backgrounded

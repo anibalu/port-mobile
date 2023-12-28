@@ -27,6 +27,8 @@ import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
 import {AppStackParamList} from './AppStackTypes';
 import BottomNavStack from './BottomNavStack';
 import ShareContact from '@screens/ShareContact/ShareContact';
+import ShareImage from '@screens/ShareImage/ShareImage';
+import GalleryConfirmation from '@screens/ShareImage/GalleryConfirmation';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -69,6 +71,11 @@ function AppStack() {
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
           <Stack.Screen name="EditAvatar" component={EditAvatar} />
           <Stack.Screen name="ShareContact" component={ShareContact} />
+          <Stack.Screen name="ShareImage" component={ShareImage} />
+          <Stack.Screen
+            name="GalleryConfirmation"
+            component={GalleryConfirmation}
+          />
         </Stack.Navigator>
         <ScannerModal />
       </ConnectionModalProvider>

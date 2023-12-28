@@ -17,17 +17,13 @@ function AddMemberTile({
 }) {
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
 
-  const onCheckboxToggle = (newValue: boolean) => {
-    setToggleCheckBox(newValue);
+  const onCheckboxToggle = () => {
+    setToggleCheckBox(val => !val);
     onToggle(member);
   };
 
   return (
-    <Pressable
-      style={styles.defaultTileContainer}
-      onPress={() => {
-        onCheckboxToggle(!toggleCheckBox);
-      }}>
+    <Pressable style={styles.defaultTileContainer} onPress={onCheckboxToggle}>
       <Image
         source={{
           uri: member?.pathToDisplayPic
@@ -39,7 +35,7 @@ function AddMemberTile({
       <NumberlessMediumText style={styles.defaultTileText} numberOfLines={1}>
         {member.name}
       </NumberlessMediumText>
-      <CheckBox value={toggleCheckBox} onValueChange={onCheckboxToggle} />
+      <CheckBox value={toggleCheckBox} />
     </Pressable>
   );
 }

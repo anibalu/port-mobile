@@ -84,9 +84,12 @@
 		<key>CFBundleURLTypes</key>
 		<array>
 			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
 				<key>CFBundleURLSchemes</key>
 				<array>
 					<string>port</string>
+					<string>PortShare</string>
 				</array>
 			</dict>
 		</array>

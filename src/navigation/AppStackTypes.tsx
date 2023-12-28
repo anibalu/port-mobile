@@ -1,3 +1,5 @@
+import {ConnectionInfo} from '@utils/Connections/interfaces';
+
 export type AppStackParamList = {
   HomeTab: undefined;
   ConnectionCentre: undefined;
@@ -36,4 +38,11 @@ export type AppStackParamList = {
     Img: any;
   };
   SuggestAFeature: undefined;
+  ShareImage: {
+    shareMessages: [];
+  };
+  GalleryConfirmation: {
+    selectedMembers: ConnectionInfo[];
+    shareMessages: [];
+  };
 };

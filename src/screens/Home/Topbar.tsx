@@ -50,7 +50,7 @@ function Topbar({unread, toptitleMessage = 'All'}: TopbarProps) {
       <View style={styles.profileImageContainer}>
         <ProfileBackground style={styles.backgroundImage} />
         <GenericAvatar
-          onPress={() => navigation.navigate('MyProfile')}
+          onPress={() => navigation.navigate('ShareImage', [])}
           profileUri={profileURI}
           avatarSize={'extraSmall'}
         />

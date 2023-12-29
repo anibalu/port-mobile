@@ -16,6 +16,8 @@ export const MESSAGE_DATA_MAX_LENGTH = 2048;
 
 //UI Definitions for elements
 export const TOPBAR_HEIGHT = 75;
+export const BOTTOMBAR_HEIGHT = 75;
+export const BOTTOMBAR_ICON_SIZE = 24;
 export const AVATAR_ARRAY = [
   'avatar://1',
   'avatar://2',

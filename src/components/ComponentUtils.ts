@@ -12,6 +12,10 @@ export const PortColors = {
     primaryWhite: '#FFFFFF',
     greenLabel: '#00340B',
     delete: '#EE786B',
+    messageBubble: {
+      timestamp: '#868686',
+      profileName: ' #7C7C7C',
+    },
   },
   primary: {
     blue: {

@@ -3,12 +3,13 @@
  */
 import React from 'react';
 import {
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextProps,
   ColorValue,
+  StyleSheet,
+  Text,
+  TextProps,
+  TouchableOpacity,
 } from 'react-native';
+import Autolink from 'react-native-autolink';
 import {PortColors} from './ComponentUtils';
 
 export enum FontType {
@@ -44,6 +45,38 @@ type TypographyProps = TextProps & {
   fontSizeType: FontSizeType;
   textColor?: ColorValue;
 };
+
+/**
+ *
+ * @param children- Only string is allowed
+ * @returns
+ */
+export const NumberlessLinkText: React.FC<
+  TypographyProps & {children: string}
+> = ({
+  children,
+  style,
+  fontType,
+  fontSizeType,
+  textColor = PortColors.text.primary,
+  ...rest
+}) => (
+  <Autolink
+    text={children}
+    url
+    email
+    renderText={text => (
+      <NumberlessText
+        fontSizeType={fontSizeType}
+        textColor={textColor}
+        fontType={fontType}
+        style={style}
+        {...rest}>
+        {text}
+      </NumberlessText>
+    )}
+  />
+);
 
 /**
  *

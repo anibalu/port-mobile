@@ -1,21 +1,20 @@
+import {
+  FontSizeType,
+  FontType,
+  NumberlessLinkText,
+} from '@components/NumberlessText';
+import {extractMemberInfo} from '@utils/Groups';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {getMessage} from '@utils/Storage/messages';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Sending from '@assets/icons/sending.svg';
-import {NumberlessRegularText} from '@components/NumberlessText';
-import {extractMemberInfo} from '@utils/Groups';
-import {
-  ContentType,
-  SavedMessageParams,
-  MessageStatus,
-} from '@utils/Messaging/interfaces';
-import {getMessage} from '@utils/Storage/messages';
-import {getTimeStamp} from '@utils/Time';
 
+import {PortColors} from '@components/ComponentUtils';
+import {renderTimeStamp} from '../BubbleUtils';
 import FileBubble from './FileBubble';
 import ImageBubble from './ImageBubble';
 import TextBubble from './TextBubble';
 import VideoBubble from './VideoBubble';
-import {PortColors} from '@components/ComponentUtils';
 
 /**
  * We get the message that needs to be shown, and the person who sent the message is the memberName.
@@ -127,10 +126,11 @@ export default function ReplyBubble({
       </View>
 
       {/* TODO add reply bubbles for other data types */}
-      <NumberlessRegularText style={styles.replyMessage}>
+      <NumberlessLinkText fontSizeType={FontSizeType.m} fontType={FontType.rg}>
         {message.data.text}
-      </NumberlessRegularText>
-      <View style={styles.timeStampContainer}>
+      </NumberlessLinkText>
+      {renderTimeStamp(message)}
+      {/* <View style={styles.timeStampContainer}>
         {message.messageStatus === MessageStatus.sent || !message.sender ? (
           <View>
             <NumberlessRegularText style={styles.timeStamp}>
@@ -160,7 +160,7 @@ export default function ReplyBubble({
             )}
           </View>
         )}
-      </View>
+      </View> */}
     </Pressable>
   );
 }

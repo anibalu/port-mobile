@@ -8,7 +8,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {DEFAULT_AVATAR} from '@configs/constants';
+import {AVATAR_ARRAY} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
@@ -22,7 +22,7 @@ function DefaultChatTile(): ReactNode {
     <Pressable style={styles.defaultTileContainer} onPress={handleNavigate}>
       <GenericAvatar
         onPress={handleNavigate}
-        profileUri={DEFAULT_AVATAR}
+        profileUri={AVATAR_ARRAY[0]}
         avatarSize={'small'}
       />
       <NumberlessText

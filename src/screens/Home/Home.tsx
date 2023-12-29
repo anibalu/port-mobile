@@ -10,14 +10,17 @@ import SearchBar from '@components/SearchBar';
 import {useFocusEffect} from '@react-navigation/native';
 // import store from '@store/appStore';
 // import {getConnections} from '@utils/Connections';
+import CenterInformationModal from '@components/CenterInformationModal';
+import {PortColors} from '@components/ComponentUtils';
+import OnboardingCarousel from '@components/InformationDisplay/OnboardingCarousel';
 import {ConnectionInfo, ReadStatus} from '@utils/Connections/interfaces';
+import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import {cancelAllNotifications} from '@utils/Notifications';
 import React, {ReactElement, ReactNode, useEffect, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import DefaultChatTile from './DefaultChatTile';
 import HomeTopbar from './HomeTopbar';
-import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: ConnectionInfo): ReactElement {
@@ -34,6 +37,9 @@ function Home(): ReactNode {
   >([]);
   const connections: ConnectionInfo[] = useSelector(
     state => state.connections.connections,
+  );
+  const showOnboardingInfo = useSelector(
+    state => state.profile.showOnboardingInfo,
   );
   const [searchText, setSearchText] = useState('');
 
@@ -105,6 +111,9 @@ function Home(): ReactNode {
         keyExtractor={connection => connection.chatId}
         ListEmptyComponent={renderDefaultTile}
       />
+      <CenterInformationModal visible={showOnboardingInfo} position="center">
+        <OnboardingCarousel />
+      </CenterInformationModal>
     </SafeAreaView>
   );
 }
@@ -112,6 +121,12 @@ function Home(): ReactNode {
 const styles = StyleSheet.create({
   chats: {
     paddingHorizontal: 19,
+  },
+  skipButton: {
+    backgroundColor: PortColors.primary.white,
+    position: 'absolute',
+    right: 31,
+    top: 20,
   },
 });
 

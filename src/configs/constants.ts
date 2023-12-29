@@ -33,3 +33,4 @@ export const AVATAR_ARRAY = [
   'avatar://12',
   'avatar://13',
 ];
+export const DEFAULT_AVATAR = AVATAR_ARRAY[0];

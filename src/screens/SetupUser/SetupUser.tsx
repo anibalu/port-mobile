@@ -21,6 +21,7 @@ import {ProfileStatus} from '@utils/Profile/interfaces';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import store from '@store/appStore';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
 
@@ -79,7 +80,10 @@ function SetupUser({route, navigation}: Props) {
         navigation.navigate('OnboardingStack', {screen: 'NameScreen'});
       } else {
         //ts-ignore
-        navigation.navigate('InformationScreen1');
+        store.dispatch({
+          type: 'ONBOARDING_COMPLETE',
+          payload: true,
+        });
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

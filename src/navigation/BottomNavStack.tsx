@@ -6,7 +6,7 @@ import NewIconActive from '@assets/icons/BottomNavNewActive.svg';
 import NewIconInactive from '@assets/icons/BottomNavNewInactive.svg';
 import ScanIconActive from '@assets/icons/BottomNavScanActive.svg';
 import ScanIconInactive from '@assets/icons/BottomNavScanInactive.svg';
-import {FontSizes} from '@components/ComponentUtils';
+import {FontSizes, isIOS} from '@components/ComponentUtils';
 import NewPortModal from '@components/ConnectionModal/NewPortModal';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '@screens/Home/Home';
@@ -46,7 +46,7 @@ function BottomNavStack() {
         initialRouteName="ChatTab"
         screenOptions={{
           headerShown: false,
-          tabBarStyle: {height: 65},
+          tabBarStyle: {height: 75},
         }}>
         <Tab.Screen
           name="ChatTab"
@@ -55,9 +55,17 @@ function BottomNavStack() {
             tabBarLabelStyle: styles.tabbarLabel,
             tabBarIcon: ({focused}) =>
               focused ? (
-                <HomeIconActive height={25} width={25} />
+                <HomeIconActive
+                  style={styles.iconStyle}
+                  height={24}
+                  width={24}
+                />
               ) : (
-                <HomeIconInactive height={25} width={25} />
+                <HomeIconInactive
+                  style={styles.iconStyle}
+                  height={24}
+                  width={24}
+                />
               ),
           }}
           component={Home}
@@ -69,9 +77,17 @@ function BottomNavStack() {
             tabBarLabelStyle: styles.tabbarLabel,
             tabBarIcon: ({focused}) =>
               focused ? (
-                <NewIconActive height={25} width={25} />
+                <NewIconActive
+                  style={styles.iconStyle}
+                  height={24}
+                  width={24}
+                />
               ) : (
-                <NewIconInactive height={25} width={25} />
+                <NewIconInactive
+                  style={styles.iconStyle}
+                  height={24}
+                  width={24}
+                />
               ),
           }}
           component={Home}
@@ -95,9 +111,17 @@ function BottomNavStack() {
             tabBarLabelStyle: styles.tabbarLabel,
             tabBarIcon: ({focused}) =>
               focused ? (
-                <ScanIconActive height={25} width={25} />
+                <ScanIconActive
+                  style={styles.iconStyle}
+                  height={24}
+                  width={24}
+                />
               ) : (
-                <ScanIconInactive height={25} width={25} />
+                <ScanIconInactive
+                  style={styles.iconStyle}
+                  height={24}
+                  width={24}
+                />
               ),
           }}
           component={Scanner}
@@ -113,8 +137,11 @@ function BottomNavStack() {
 export default BottomNavStack;
 
 const styles = StyleSheet.create({
+  iconStyle: {
+    top: isIOS ? 10 : 0,
+  },
   tabbarLabel: {
     ...FontSizes[12].regular,
-    bottom: 10,
+    bottom: isIOS ? -10 : 10,
   },
 });

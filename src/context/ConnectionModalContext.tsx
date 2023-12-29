@@ -115,7 +115,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
     setNewPortModalVisible(false);
     setSuperportModalVisible(false);
     setSuperportCreateModalVisible(false);
-    await wait(100);
+    await wait(300);
   };
   const {portConnectionError} = useErrorModal();
 

@@ -62,7 +62,7 @@ function HomeTopbar({unread, toptitleMessage = 'All'}: TopbarProps): ReactNode {
       <View style={styles.profileImageContainer}>
         <ProfileBackground style={styles.backgroundImage} />
         <GenericAvatar
-          onPress={() => navigation.navigate('ShareImage', [])}
+          onPress={() => navigation.navigate('MyProfile')}
           profileUri={profileURI}
           avatarSize={'extraSmall'}
         />
@@ -104,15 +104,17 @@ const styles = StyleSheet.create({
   redWrapper: {
     width: 18,
     height: 18,
-    borderRadius: 8,
+    borderRadius: 9,
     backgroundColor: PortColors.primary.red.error,
     justifyContent: 'center',
     textAlign: 'center',
+    overflow: 'hidden',
     textAlignVertical: 'center',
     alignItems: 'center',
     position: 'absolute',
     top: -4,
     right: -4,
+    paddingTop: 2,
     paddingHorizontal: 4,
   },
 });

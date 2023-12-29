@@ -26,9 +26,11 @@ import {checkProfile} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 import Toast from 'react-native-toast-message';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
+import BootSplash from 'react-native-bootsplash';
 
 function App(): JSX.Element {
   //check if initial setup is done, and accordingly decides which flow to render on app start
+  const [initialLoad, setInitialLoad] = useState(true);
   const [profileExists, setProfileExists] = useState(false);
   const checkProfileCreated = async () => {
     try {
@@ -46,8 +48,12 @@ function App(): JSX.Element {
         // // handle any potential inital deep links
         // handleDeepLink({url: await Linking.getInitialURL()});
       }
+      setInitialLoad(false);
     } catch (error) {
       console.error('Error checking profile:', error);
+      setInitialLoad(false);
+    } finally {
+      await BootSplash.hide({fade: true});
     }
   };
 
@@ -58,6 +64,10 @@ function App(): JSX.Element {
   }, []);
   //set up background message handler here
   registerBackgroundMessaging();
+
+  if (initialLoad) {
+    return <></>;
+  }
 
   return (
     <>

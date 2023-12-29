@@ -32,6 +32,7 @@
     "react-native": "0.71.7",
     "react-native-bidirectional-infinite-scroll": "^0.3.3",
     "react-native-blob-util": "^0.19.6",
+    "react-native-bootsplash": "^5.2.0",
     "react-native-camera-kit": "^13.0.0",
     "react-native-create-thumbnail": "^1.6.4",
     "react-native-device-info": "^10.11.0",

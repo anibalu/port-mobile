@@ -16,7 +16,6 @@
 		20D413B01ED14B91B117D4F6 /* Rubik-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EC75815A30914101AB3F1930 /* Rubik-ExtraBoldItalic.ttf */; };
 		48FC66D9347F20A5DD5EEA1A /* libPods-Port.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E84A756173A43E36847FBD5F /* libPods-Port.a */; };
 		6A4E4B436B2B4B5C9D90B42A /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7B907BA49A544CBAB8606CFB /* Rubik-Medium.ttf */; };
-		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		81F174392B0FC9F2006E6BEE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 81F174382B0FC9F2006E6BEE /* GoogleService-Info.plist */; };
 		95759D684ED244A4B8B28FAF /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2DD988CA88D9480E91B30A7B /* Rubik-Black.ttf */; };
 		98031FF711FE485E9C2A6A14 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 11B82E9A06C44E178EFC9EA6 /* Rubik-Regular.ttf */; };
@@ -28,6 +27,7 @@
 		CBF2008ED9D44389A20E9A10 /* Rubik-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BA2B26E72BA84A858CDCAD23 /* Rubik-Italic.ttf */; };
 		DAAA7AC2256F4089B12F63EF /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E9AFE7EE27D435EB17F1E39 /* Rubik-BlackItalic.ttf */; };
 		E5F96150FC2C4CAF9BB44DB3 /* Rubik-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F505A8914B4145A2B96053FC /* Rubik-LightItalic.ttf */; };
+		EF3AC8132B3EB24E004EE982 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EF3AC8122B3EB24E004EE982 /* BootSplash.storyboard */; };
 		EF6D2D3D2B287D6C004B63B1 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6D2D3C2B287D6C004B63B1 /* ShareViewController.swift */; };
 		EF6D2D402B287D6C004B63B1 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EF6D2D3E2B287D6C004B63B1 /* MainInterface.storyboard */; };
 		EF6D2D442B287D6C004B63B1 /* PortShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = EF6D2D3A2B287D6C004B63B1 /* PortShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -85,7 +85,6 @@
 		6CE2419BF3A84F09B2CF2A6E /* Rubik-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Light.ttf"; path = "../assets/fonts/Rubik-Light.ttf"; sourceTree = "<group>"; };
 		7B907BA49A544CBAB8606CFB /* Rubik-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Medium.ttf"; path = "../assets/fonts/Rubik-Medium.ttf"; sourceTree = "<group>"; };
 		81215DA32B10C2DA00BC9A87 /* Port.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Port.entitlements; path = Port/Port.entitlements; sourceTree = "<group>"; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Port/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		81F174382B0FC9F2006E6BEE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8E9AFE7EE27D435EB17F1E39 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BlackItalic.ttf"; path = "../assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = "<group>"; };
 		9A3C0CB032270A90980C4825 /* libPods-Port-PortTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Port-PortTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,6 +97,7 @@
 		E84A756173A43E36847FBD5F /* libPods-Port.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Port.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC75815A30914101AB3F1930 /* Rubik-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-ExtraBoldItalic.ttf"; path = "../assets/fonts/Rubik-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		EF3AC8122B3EB24E004EE982 /* BootSplash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = BootSplash.storyboard; path = Port/BootSplash.storyboard; sourceTree = "<group>"; };
 		EF6D2D3A2B287D6C004B63B1 /* PortShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PortShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF6D2D3C2B287D6C004B63B1 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		EF6D2D3F2B287D6C004B63B1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
@@ -156,9 +156,9 @@
 				81215DA32B10C2DA00BC9A87 /* Port.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
+				EF3AC8122B3EB24E004EE982 /* BootSplash.storyboard */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
 			name = Port;
@@ -371,9 +371,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				95759D684ED244A4B8B28FAF /* Rubik-Black.ttf in Resources */,
+				EF3AC8132B3EB24E004EE982 /* BootSplash.storyboard in Resources */,
 				DAAA7AC2256F4089B12F63EF /* Rubik-BlackItalic.ttf in Resources */,
 				CADD983D617E48E7BD04523D /* Rubik-Bold.ttf in Resources */,
 				0A5A5887D9E448CEB79A9DEC /* Rubik-BoldItalic.ttf in Resources */,

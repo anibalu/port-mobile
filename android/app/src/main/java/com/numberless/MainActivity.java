@@ -6,6 +6,8 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 import android.os.Bundle;
 import android.content.Intent;
+import com.zoontek.rnbootsplash.RNBootSplash;
+
 
 public class MainActivity extends ReactActivity {
 
@@ -38,6 +40,7 @@ public class MainActivity extends ReactActivity {
   // React navigation stack
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    RNBootSplash.init(this, R.style.BootTheme);
     super.onCreate(null);
   }
 

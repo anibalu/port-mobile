@@ -11,6 +11,8 @@ import Avatar10 from '@assets/avatarsforprofile/Avatar10.svg';
 import Avatar11 from '@assets/avatarsforprofile/Avatar11.svg';
 import Avatar12 from '@assets/avatarsforprofile/Avatar12.svg';
 import Avatar13 from '@assets/avatarsforprofile/Avatar13.svg';
+import Avatar14 from '@assets/avatarsforprofile/Avatar14.svg';
+import Avatar15 from '@assets/avatarsforprofile/Avatar15.svg';
 
 export const avatarmapping = [
   {id: '1', Icon: Avatar1},
@@ -26,4 +28,6 @@ export const avatarmapping = [
   {id: '11', Icon: Avatar11},
   {id: '12', Icon: Avatar12},
   {id: '13', Icon: Avatar13},
+  {id: '14', Icon: Avatar14},
+  {id: '15', Icon: Avatar15},
 ];

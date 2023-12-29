@@ -43,7 +43,7 @@ function HomeTopbar({unread, toptitleMessage = 'All'}: TopbarProps): ReactNode {
     <View style={styles.bar}>
       <Pressable
         style={styles.iconWrapper}
-        onPress={() => console.log('open pending connections screen')}>
+        onPress={() => navigation.navigate('PendingRequests')}>
         <NumberlessText
           fontType={FontType.md}
           textColor={PortColors.text.primaryWhite}

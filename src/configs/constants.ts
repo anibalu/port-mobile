@@ -32,5 +32,7 @@ export const AVATAR_ARRAY = [
   'avatar://11',
   'avatar://12',
   'avatar://13',
+  'avatar://14',
+  'avatar://15',
 ];
 export const DEFAULT_AVATAR = AVATAR_ARRAY[0];

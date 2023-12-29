@@ -27,6 +27,7 @@ import BottomNavStack from './BottomNavStack';
 import ShareContact from '@screens/ShareContact/ShareContact';
 import ShareImage from '@screens/ShareImage/ShareImage';
 import GalleryConfirmation from '@screens/ShareImage/GalleryConfirmation';
+import PendingRequests from '@screens/PendingRequests/PendingRequests';
 import SharedMedia from '@screens/ContactProfile/SharedMedia';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -73,6 +74,7 @@ function AppStack() {
             name="GalleryConfirmation"
             component={GalleryConfirmation}
           />
+          <Stack.Screen name="PendingRequests" component={PendingRequests} />
           <Stack.Screen name="SharedMedia" component={SharedMedia} />
         </Stack.Navigator>
         <ScannerModal />

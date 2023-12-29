@@ -58,7 +58,7 @@ const NewGroup = ({route, navigation}: Props) => {
           navigation.goBack();
         }}
       />
-      <ScrollView automaticallyAdjustKeyboardInsets={true}>
+      <ScrollView automaticallyAdjustKeyboardInsets={true} style={{flex: 1}}>
         <View style={style.groupContainer}>
           <View style={style.iconContainer}>
             {image ? (
@@ -74,12 +74,7 @@ const NewGroup = ({route, navigation}: Props) => {
             {/* <ImageIcon style={style.uploadImageICon} onPress={onImagePressed} /> */}
           </View>
           <GenericInput
-            wrapperStyle={{height: 60, paddingHorizontal: 20}}
-            inputStyle={{
-              ...FontSizes[17].medium,
-              paddingLeft: 10,
-              borderRadius: 12,
-            }}
+            inputStyle={{marginHorizontal: 14, paddingLeft: 20, height: 61}}
             text={groupName}
             setText={onChangeGroupName}
             placeholder="Group Name"
@@ -87,18 +82,7 @@ const NewGroup = ({route, navigation}: Props) => {
           />
 
           <GenericInput
-            wrapperStyle={{
-              height: screen.height / 4,
-              marginBottom: 20,
-              paddingHorizontal: 20,
-            }}
-            inputStyle={{
-              ...FontSizes[17].regular,
-              paddingLeft: 10,
-              paddingTop: 12,
-              textAlignVertical: 'top',
-              borderRadius: 12,
-            }}
+            inputStyle={style.descriptionBoxStyle}
             maxLength={200}
             multiline={true}
             text={groupDescription}
@@ -133,7 +117,6 @@ const NewGroup = ({route, navigation}: Props) => {
 
 const style = StyleSheet.create({
   mainContainer: {
-    height: '100%',
     flex: 1,
     flexDirection: 'column',
   },
@@ -153,31 +136,19 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 30,
   },
+  descriptionBoxStyle: {
+    marginHorizontal: 14,
+    marginTop: 23,
+    paddingLeft: 20,
+    paddingTop: 10,
+    textAlignVertical: 'top',
+    height: screen.height / 4,
+    maxHeight: screen.height / 4,
+  },
   uploadImageICon: {
     marginTop: -20,
     marginRight: 5,
     alignSelf: 'flex-end',
-  },
-  groupNameBox: {
-    height: 60,
-    borderRadius: 12,
-    backgroundColor: '#F6F6F6',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    width: '90%',
-    alignSelf: 'center',
-    color: '#000000',
-  },
-  groupBoxDescription: {
-    height: 150,
-    borderRadius: 12,
-    backgroundColor: '#F6F6F6',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    textAlignVertical: 'top',
-    width: '90%',
-    alignSelf: 'center',
-    color: '#000000',
   },
   activeButton: {
     backgroundColor: '#547CEF',
@@ -200,12 +171,6 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     width: '95%',
     marginBottom: 20,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
   },
 });
 export default NewGroup;

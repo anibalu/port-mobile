@@ -25,7 +25,7 @@ function ShareGroup({route, navigation}: Props) {
           navigation.navigate('HomeTab');
         }}
       />
-      <ScrollView style={styles.scrollView}>
+      <ScrollView>
         <View style={styles.mainBox}>
           <ConnectionDisplay groupId={groupId} />
           <View style={styles.educationBox}>
@@ -45,21 +45,10 @@ function ShareGroup({route, navigation}: Props) {
 
 const styles = StyleSheet.create({
   screen: {
-    width: '100%',
-    height: '100%',
-  },
-
-  topBox: {
-    position: 'absolute',
-    width: '100%',
-  },
-  scrollView: {
-    width: '100%',
+    flex: 1,
   },
   mainBox: {
-    height: '100%',
-    width: '100%',
-    paddingTop: 20,
+    flex: 1,
     paddingBottom: 40,
     alignItems: 'center',
   },

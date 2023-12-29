@@ -1,15 +1,17 @@
-import BackTopbar from '@components/BackTopBar';
-import {useNavigation} from '@react-navigation/native';
-import React from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
 import GroupsImage from '@assets/backgrounds/groups.svg';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {
-  NumberlessRegularText,
-  NumberlessSemiBoldText,
-} from '@components/NumberlessText';
+import BackTopbar from '@components/BackTopBar';
 import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessSemiBoldText,
+  NumberlessText,
+} from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {useNavigation} from '@react-navigation/native';
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
 
 // start point of groups
 const GroupOnboarding = () => {
@@ -18,28 +20,30 @@ const GroupOnboarding = () => {
     <SafeAreaView style={style.container}>
       <BackTopbar />
       <View style={style.mainContainer}>
-        <ScrollView style={style.scroll} showsVerticalScrollIndicator={false}>
-          <NumberlessSemiBoldText style={style.title}>
-            Welcome to groups
-          </NumberlessSemiBoldText>
+        <NumberlessSemiBoldText style={style.title}>
+          Welcome to groups
+        </NumberlessSemiBoldText>
 
-          <GroupsImage height={screen.height - 300} />
+        <GroupsImage height={screen.height / 1.8} />
 
-          <NumberlessRegularText style={style.subtitle}>
-            Build your tribe with Groups with fun control options
-          </NumberlessRegularText>
+        <NumberlessText
+          fontSizeType={FontSizeType.l}
+          fontType={FontType.rg}
+          textColor={PortColors.text.labels}
+          style={{textAlign: 'center', marginTop: 21}}>
+          Build your tribe with Groups with fun control options
+        </NumberlessText>
 
-          <GenericButton
-            onPress={() => navigation.navigate('NewGroup')}
-            buttonStyle={{
-              width: '100%',
-              top: 0,
-              marginTop: 10,
-              height: 70,
-            }}>
-            Create Now
-          </GenericButton>
-        </ScrollView>
+        <GenericButton
+          onPress={() => navigation.navigate('NewGroup')}
+          buttonStyle={{
+            flex: 1,
+            top: 52,
+            height: 70,
+            maxHeight: 70,
+          }}>
+          Create Now
+        </GenericButton>
       </View>
     </SafeAreaView>
   );
@@ -48,9 +52,8 @@ const GroupOnboarding = () => {
 const style = StyleSheet.create({
   mainContainer: {
     paddingHorizontal: 20,
-    width: '100%',
+    flex: 1,
     backgroundColor: 'white',
-    height: '100%',
     flexDirection: 'column',
   },
   scroll: {

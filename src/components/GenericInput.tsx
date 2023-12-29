@@ -90,6 +90,6 @@ const styles = StyleSheet.create({
   inputCounterStyle: {
     alignSelf: 'flex-end',
     top: -24,
-    right: 12,
+    right: 22,
   },
 });

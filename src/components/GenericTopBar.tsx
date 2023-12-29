@@ -1,9 +1,11 @@
-import React, {memo} from 'react';
-import {StyleSheet, TextStyle} from 'react-native';
-import {View} from 'react-native';
-import {NumberlessSemiBoldText} from '@components/NumberlessText';
 import {BackButton} from '@components/BackButton';
-import {FontSizes} from './ComponentUtils';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import React, {memo} from 'react';
+import {StyleSheet, TextStyle, View} from 'react-native';
 
 const GenericTopBar = ({
   title,
@@ -19,12 +21,14 @@ const GenericTopBar = ({
   return (
     <View style={styles.bar}>
       <BackButton style={styles.backIcon} onPress={onBackPress} />
-      <NumberlessSemiBoldText
-        style={StyleSheet.compose(styles.title, titleStyle)}
+      <NumberlessText
+        fontSizeType={FontSizeType.l}
+        fontType={FontType.sb}
+        style={StyleSheet.compose({left: 15}, titleStyle)}
         ellipsizeMode="tail"
         numberOfLines={1}>
         {title}
-      </NumberlessSemiBoldText>
+      </NumberlessText>
       {rightOptionalIcon ? (
         rightOptionalIcon
       ) : (
@@ -41,17 +45,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingRight: 10,
-    paddingLeft: 10,
+    paddingHorizontal: 10,
     backgroundColor: '#FFF',
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
     height: 65,
-  },
-  title: {
-    ...FontSizes[21].semibold,
-    lineHeight: 28,
-    color: 'black',
   },
   backIcon: {
     alignItems: 'center',

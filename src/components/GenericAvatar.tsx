@@ -12,7 +12,7 @@ export function GenericAvatar({
   onPress,
 }: {
   avatarSize: 'extraSmall' | 'small' | 'medium' | 'large'; //size - extraSmall, small, medium, large || default - large
-  profileUri: string;
+  profileUri?: string;
   onPress?: () => void;
 }) {
   //extract avatar id from profileUri

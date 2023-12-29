@@ -1,21 +1,14 @@
 import React, {useEffect, useState} from 'react';
 
 import {NumberlessRegularText} from '@components/NumberlessText';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {AppStackParamList} from '@navigation/AppStackTypes';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import {screen} from '@components/ComponentUtils';
 import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {Dimensions, Image, Pressable, StyleSheet, View} from 'react-native';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import {ReadDirItem} from 'react-native-fs';
 
-import ChatBackground from '@components/ChatBackground';
-import GenericTopBar from '@components/GenericTopBar';
-
-type Props = NativeStackScreenProps<AppStackParamList, 'ViewPhotosVideos'>;
-
-export default function ViewPhotosVideos({navigation, route}: Props) {
-  const {chatId} = route.params;
+export default function ViewPhotosVideos({chatId}: {chatId: string}) {
   const [media, setMedia] = useState<ReadDirItem[]>([]);
 
   const loadMedia = async () => {
@@ -52,44 +45,25 @@ export default function ViewPhotosVideos({navigation, route}: Props) {
   }
 
   return (
-    <SafeAreaView>
-      <ChatBackground />
-      <GenericTopBar
-        title="Photos & Videos"
-        onBackPress={() => {
-          navigation.goBack();
-        }}
-      />
-      <View style={styles.mainContainer}>
-        {media.length > 0 ? (
-          <View style={styles.container}>{rows}</View>
-        ) : (
-          <NumberlessRegularText style={styles.nocontentText}>
-            No Media yet
-          </NumberlessRegularText>
-        )}
-      </View>
-    </SafeAreaView>
+    <View>
+      {media.length > 0 ? (
+        <View style={styles.container}>{rows}</View>
+      ) : (
+        <NumberlessRegularText style={styles.nocontentText}>
+          No Media yet
+        </NumberlessRegularText>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    width: '100%',
-    height: '100%',
-    flexDirection: 'column',
-  },
-  mainContainer: {
-    height: '100%',
-    width: '100%',
-    paddingVertical: 10,
-  },
   nocontentText: {
     paddingLeft: 15,
   },
   image: {
-    width: (Dimensions.get('window').width - 30) / 3,
-    height: (Dimensions.get('window').width - 30) / 3,
+    width: (screen.width - 30) / 3,
+    height: (screen.width - 30) / 3,
     margin: 5,
     borderRadius: 8,
   },

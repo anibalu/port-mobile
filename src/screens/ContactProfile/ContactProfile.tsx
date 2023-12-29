@@ -4,35 +4,44 @@
 
 import BackTopbar from '@components/BackTopBar';
 import {
-  NumberlessRegularText,
-  NumberlessSemiBoldText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import {default as React, useEffect, useState} from 'react';
-import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
-import Files from '@assets/icons/Files.svg';
-import Gallery from '@assets/icons/Gallery.svg';
-import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
+import {
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import EditIcon from '@assets/icons/Pencil.svg';
 import ChatBackground from '@components/ChatBackground';
+import {PortColors, screen} from '@components/ComponentUtils';
 import DeleteChatButton from '@components/DeleteChatButton';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {GenericButton} from '@components/GenericButton';
+import GenericModal from '@components/GenericModal';
 import PermissionsDropdown from '@components/PermissionsDropdown/PermissionsDropdown';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
+import UpdateNamePopup from '@components/UpdateNamePopup';
+import {DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getConnection} from '@utils/Connections';
+import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import FileViewer from 'react-native-file-viewer';
+import {ReadDirItem} from 'react-native-fs';
 import DisconnectButton from './DisconnectButton';
-import GenericModal from '@components/GenericModal';
-import UpdateNamePopup from '@components/UpdateNamePopup';
-import {GenericAvatar} from '@components/GenericAvatar';
-import {screen} from '@components/ComponentUtils';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
 function ContactProfile({route, navigation}: Props) {
   const {chatId} = route.params;
 
-  const [profileURI, setProfileURI] = useState<string>(DEFAULT_AVATAR);
+  const [profileURI, setProfileURI] = useState<string>();
   const [name, setName] = useState(DEFAULT_NAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
   const [editingName, setEditingName] = useState(false);
@@ -56,6 +65,37 @@ function ContactProfile({route, navigation}: Props) {
     }
     setEditingName(false);
   }
+  const [media, setMedia] = useState<ReadDirItem[]>([]);
+
+  const loadMedia = async () => {
+    const response = await fetchFilesInMediaDir(chatId);
+    setMedia(response);
+  };
+
+  useEffect(() => {
+    loadMedia();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const renderSelectedPhoto = ({
+    item,
+    index,
+  }: {
+    item: ReadDirItem;
+    index: number;
+  }) => {
+    return (
+      <Pressable
+        key={item?.path || index}
+        onPress={() => {
+          FileViewer.open('file://' + item?.path, {
+            showOpenWithDialog: true,
+          });
+        }}>
+        <Image source={{uri: 'file://' + item?.path}} style={styles.image} />
+      </Pressable>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.profileScreen}>
@@ -66,12 +106,13 @@ function ContactProfile({route, navigation}: Props) {
           <View style={styles.profile}>
             <GenericAvatar profileUri={profileURI} avatarSize={'large'} />
             <View style={styles.nicknameArea}>
-              <NumberlessSemiBoldText
-                style={styles.nickname}
-                ellipsizeMode="tail"
-                numberOfLines={1}>
+              <NumberlessText
+                fontSizeType={FontSizeType.xl}
+                fontType={FontType.sb}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {name}
-              </NumberlessSemiBoldText>
+              </NumberlessText>
               <View style={styles.nicknameEditBox}>
                 <Pressable
                   style={styles.nicknameEditHitbox}
@@ -83,27 +124,28 @@ function ContactProfile({route, navigation}: Props) {
           </View>
           <PermissionsDropdown bold={true} chatId={chatId} />
           <View style={styles.content}>
-            <NumberlessSemiBoldText style={styles.contentTitle}>
-              Content
-            </NumberlessSemiBoldText>
-            <Pressable
-              style={styles.galleryButton}
-              onPress={() => navigation.navigate('ViewPhotosVideos', {chatId})}>
-              <Gallery />
-              <NumberlessRegularText style={styles.galleryText}>
-                Gallery
-              </NumberlessRegularText>
-              <GreyArrowRight />
-            </Pressable>
-            <Pressable
-              style={styles.galleryButton}
-              onPress={() => navigation.navigate('ViewFiles', {chatId})}>
-              <Files />
-              <NumberlessRegularText style={styles.galleryText}>
-                Files
-              </NumberlessRegularText>
-              <GreyArrowRight />
-            </Pressable>
+            <View style={styles.mediaView}>
+              <NumberlessText
+                fontSizeType={FontSizeType.m}
+                fontType={FontType.md}>
+                Shared media
+              </NumberlessText>
+              <GenericButton
+                onPress={() => navigation.navigate('SharedMedia', {chatId})}
+                textStyle={styles.seealltext}
+                buttonStyle={styles.seeall}>
+                See all
+              </GenericButton>
+            </View>
+
+            <FlatList
+              contentContainerStyle={{marginTop: 12}}
+              data={media.slice(0, 10)}
+              showsHorizontalScrollIndicator={false}
+              scrollEnabled={true}
+              horizontal={true}
+              renderItem={renderSelectedPhoto}
+            />
           </View>
           {connected ? (
             <DisconnectButton chatId={chatId} />
@@ -129,8 +171,7 @@ function ContactProfile({route, navigation}: Props) {
 
 const styles = StyleSheet.create({
   profileScreen: {
-    width: screen.width,
-    height: '100%',
+    flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -146,17 +187,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingBottom: 20,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingHorizontal: 20,
   },
-  profilePictureHitbox: {
-    width: 132,
-    height: 132,
-  },
-  profilePic: {
-    width: 132,
-    height: 132,
-    borderRadius: 44,
+  mediaView: {
+    flexDirection: 'row',
+    marginTop: 15,
   },
   nicknameArea: {
     width: '100%',
@@ -165,13 +200,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
-  },
-  nickname: {
-    fontSize: 19,
-    color: 'black',
-    overflow: 'hidden',
-    width: '60%',
-    textAlign: 'center',
   },
   nicknameEditBox: {
     width: '100%',
@@ -187,49 +215,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  nicknameEdit: {
-    width: 24,
-    height: 24,
-  },
-  empty: {
-    width: 40,
-    height: 40,
-  },
-  popUpArea: {
-    backgroundColor: '#0005',
-    width: '100%',
-    height: '100%',
-  },
-  popupPosition: {
-    position: 'absolute',
-    bottom: 0,
-  },
+
   content: {
-    width: '90%',
     alignSelf: 'center',
-  },
-  contentTitle: {
-    fontSize: 15,
-    color: 'black',
-    overflow: 'hidden',
-    marginBottom: 10,
-  },
-  galleryText: {
-    fontSize: 17,
-    color: 'black',
-    overflow: 'hidden',
-    width: '75%',
-    marginLeft: 20,
-  },
-  galleryButton: {
-    width: '100%',
-    height: 70,
-    padding: 10,
     backgroundColor: 'white',
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
+    paddingBottom: 20,
+    paddingLeft: 20,
+    width: '100%',
+    flex: 1,
+  },
+
+  image: {
+    width: (screen.width - 30) / 3,
+    height: (screen.width - 30) / 3,
+    margin: 5,
+    borderRadius: 24,
+  },
+  seeall: {
+    backgroundColor: 'white',
+    position: 'absolute',
+    right: 0,
+    top: -10,
+  },
+  seealltext: {
+    color: PortColors.text.secondary,
+    fontSize: FontSizeType.s,
+    fontWeight: '500',
   },
 });
 

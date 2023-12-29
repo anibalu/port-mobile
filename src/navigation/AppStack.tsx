@@ -6,8 +6,6 @@ import ReportIssueScreen from '@screens/BugReporting/ReportIssueScreen';
 import SuggestAFeature from '@screens/BugReporting/SuggestAFeature';
 import Chat from '@screens/Chat/Chat';
 import ContactProfile from '@screens/ContactProfile/ContactProfile';
-import ViewFiles from '@screens/ContactProfile/ViewFiles';
-import ViewPhotosVideos from '@screens/ContactProfile/ViewPhotosVideos';
 import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
 import AddMembers from '@screens/GroupScreens/AddMembers';
 import GroupOnboarding from '@screens/GroupScreens/GroupOnboarding';
@@ -29,6 +27,7 @@ import BottomNavStack from './BottomNavStack';
 import ShareContact from '@screens/ShareContact/ShareContact';
 import ShareImage from '@screens/ShareImage/ShareImage';
 import GalleryConfirmation from '@screens/ShareImage/GalleryConfirmation';
+import SharedMedia from '@screens/ContactProfile/SharedMedia';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -57,8 +56,6 @@ function AppStack() {
           <Stack.Screen name="NewGroup" component={NewGroup} />
           <Stack.Screen name="SetupGroup" component={SetupGroup} />
           <Stack.Screen name="ShareGroup" component={ShareGroup} />
-          <Stack.Screen name="ViewPhotosVideos" component={ViewPhotosVideos} />
-          <Stack.Screen name="ViewFiles" component={ViewFiles} />
           <Stack.Screen
             name="AddCategoryScreen"
             component={AddCategoryScreen}
@@ -76,6 +73,7 @@ function AppStack() {
             name="GalleryConfirmation"
             component={GalleryConfirmation}
           />
+          <Stack.Screen name="SharedMedia" component={SharedMedia} />
         </Stack.Navigator>
         <ScannerModal />
       </ConnectionModalProvider>

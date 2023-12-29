@@ -24,6 +24,7 @@ export type AppStackParamList = {
     displayPicPath: string | undefined;
   };
   ViewPhotosVideos: {chatId: string};
+  SharedMedia: {chatId: string};
   ViewFiles: {chatId: string};
   ForwardToContact: {
     messages: string[];

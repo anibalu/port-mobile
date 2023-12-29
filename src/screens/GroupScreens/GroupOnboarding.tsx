@@ -1,11 +1,10 @@
 import GroupsImage from '@assets/backgrounds/groups.svg';
 import BackTopbar from '@components/BackTopBar';
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
   FontType,
-  NumberlessSemiBoldText,
   NumberlessText,
 } from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
@@ -20,9 +19,14 @@ const GroupOnboarding = () => {
     <SafeAreaView style={style.container}>
       <BackTopbar />
       <View style={style.mainContainer}>
-        <NumberlessSemiBoldText style={style.title}>
+        <NumberlessText
+          fontSizeType={FontSizeType.xl}
+          fontType={FontType.sb}
+          style={{textAlign: 'center', marginBottom: 25}}
+          textColor={PortColors.text.title}>
           Welcome to groups
-        </NumberlessSemiBoldText>
+        </NumberlessText>
+        {/* <NumberlessSemiBoldText style={style.title}></NumberlessSemiBoldText> */}
 
         <GroupsImage height={screen.height / 1.8} />
 
@@ -56,47 +60,10 @@ const style = StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'column',
   },
-  scroll: {
-    height: '110%',
-    width: '100%',
-  },
   container: {
-    height: '100%',
+    flex: 1,
     flexDirection: 'column',
     backgroundColor: 'red',
-  },
-  image: {
-    width: '100%',
-    height: '60%',
-  },
-  title: {
-    ...FontSizes[24].bold,
-    textAlign: 'center',
-    color: PortColors.primary.blue.app,
-    marginBottom: 25,
-  },
-  subtitle: {
-    ...FontSizes[17].regular,
-    textAlign: 'center',
-    marginTop: 20,
-    color: PortColors.primary.grey.medium,
-  },
-  button: {
-    backgroundColor: '#547CEF',
-    height: 70,
-    borderRadius: 16,
-    justifyContent: 'center',
-    marginBottom: 30,
-    alignSelf: 'center',
-    position: 'absolute',
-    bottom: 30,
-    width: '100%',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
   },
 });
 export default GroupOnboarding;

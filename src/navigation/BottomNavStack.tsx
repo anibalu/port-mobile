@@ -6,7 +6,8 @@ import NewIconActive from '@assets/icons/BottomNavNewActive.svg';
 import NewIconInactive from '@assets/icons/BottomNavNewInactive.svg';
 import ScanIconActive from '@assets/icons/BottomNavScanActive.svg';
 import ScanIconInactive from '@assets/icons/BottomNavScanInactive.svg';
-import {FontSizes, PortColors, isIOS} from '@components/ComponentUtils';
+import {PortColors} from '@components/ComponentUtils';
+import CreateSuperportModal from '@components/ConnectionModal/CreateSuperportModal';
 import NewPortModal from '@components/ConnectionModal/NewPortModal';
 import SuperportModal from '@components/ConnectionModal/SuperportModal';
 import {
@@ -14,13 +15,12 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {BOTTOMBAR_ICON_SIZE} from '@configs/constants';
+import {BOTTOMBAR_HEIGHT, BOTTOMBAR_ICON_SIZE} from '@configs/constants';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '@screens/Home/Home';
 import Scanner from '@screens/Scanner/Scanner';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
-import CreateSuperportModal from '@components/ConnectionModal/CreateSuperportModal';
 
 const Tab = createBottomTabNavigator();
 
@@ -161,21 +161,6 @@ function BottomNavStack() {
           name="ChatTab"
           options={{
             title: 'Chats',
-            tabBarLabelStyle: styles.tabbarLabel,
-            tabBarIcon: ({focused}) =>
-              focused ? (
-                <HomeIconActive
-                  style={styles.iconStyle}
-                  height={24}
-                  width={24}
-                />
-              ) : (
-                <HomeIconInactive
-                  style={styles.iconStyle}
-                  height={24}
-                  width={24}
-                />
-              ),
           }}
           component={Home}
         />
@@ -183,21 +168,6 @@ function BottomNavStack() {
           name="NewTab"
           options={{
             title: 'New',
-            tabBarLabelStyle: styles.tabbarLabel,
-            tabBarIcon: ({focused}) =>
-              focused ? (
-                <NewIconActive
-                  style={styles.iconStyle}
-                  height={24}
-                  width={24}
-                />
-              ) : (
-                <NewIconInactive
-                  style={styles.iconStyle}
-                  height={24}
-                  width={24}
-                />
-              ),
           }}
           component={Home}
           listeners={() => ({
@@ -217,21 +187,6 @@ function BottomNavStack() {
           name="ScanTab"
           options={{
             title: 'Scan',
-            tabBarLabelStyle: styles.tabbarLabel,
-            tabBarIcon: ({focused}) =>
-              focused ? (
-                <ScanIconActive
-                  style={styles.iconStyle}
-                  height={24}
-                  width={24}
-                />
-              ) : (
-                <ScanIconInactive
-                  style={styles.iconStyle}
-                  height={24}
-                  width={24}
-                />
-              ),
           }}
           component={Scanner}
         />
@@ -246,12 +201,10 @@ function BottomNavStack() {
 export default BottomNavStack;
 
 const styles = StyleSheet.create({
-  iconStyle: {
-    top: isIOS ? 10 : 0,
-  },
-  tabbarLabel: {
-    ...FontSizes[12].regular,
-    bottom: isIOS ? -10 : 10,
-  },
   tabbarButtonStyle: {flex: 1, alignItems: 'center', justifyContent: 'center'},
+  tabbarContainerStyle: {
+    height: BOTTOMBAR_HEIGHT,
+    backgroundColor: PortColors.primary.white,
+    flexDirection: 'row',
+  },
 });

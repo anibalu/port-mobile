@@ -3,9 +3,9 @@ import Create from '@assets/icons/Create.svg';
 import PublishSuperportIcon from '@assets/icons/PublishSuperports.svg';
 import WhiteArrowRight from '@assets/icons/WhiteArrowRight.svg';
 import Cross from '@assets/icons/cross.svg';
-import Back from '@assets/navigation/backButton.svg';
 import ChatBackground from '@components/ChatBackground';
 import {GenericButton} from '@components/GenericButton';
+import GenericModalTopBar from '@components/GenericModalTopBar';
 import {loadGeneratedSuperports} from '@utils/Bundles/directSuperport';
 import {GeneratedDirectSuperportConnectionBundle} from '@utils/Bundles/interfaces';
 import {getChatTileTimestamp} from '@utils/Time';
@@ -31,7 +31,6 @@ const SuperportModal: React.FC = () => {
   const {
     superportModalVisible: modalVisible,
     hideSuperportModal: hideModal,
-    showNewPortModal: showNewPortModal,
     showSuperportCreateModal: showSuperportCreateModal,
     setConnectionSuperportId: setConnectionSuperportId,
     connectionSuperportId: connectionSuperportId,
@@ -44,10 +43,7 @@ const SuperportModal: React.FC = () => {
   const cleanupModal = () => {
     hideModal();
   };
-  const openNewPortModal = () => {
-    cleanupModal();
-    showNewPortModal();
-  };
+
   const openExistingSuperport = (superportId: string) => {
     cleanupModal();
     setConnectionSuperportId(superportId);
@@ -77,14 +73,10 @@ const SuperportModal: React.FC = () => {
   return (
     <GenericModal visible={modalVisible} onClose={cleanupModal}>
       <View style={styles.modalView}>
-        <View style={styles.superportTopBar}>
-          <Pressable style={styles.closeButton} onPress={openNewPortModal}>
-            <Back />
-          </Pressable>
-          <Pressable style={styles.closeButton} onPress={cleanupModal}>
-            <Cross />
-          </Pressable>
-        </View>
+        <GenericModalTopBar
+          RightOptionalIcon={Cross}
+          onBackPress={cleanupModal}
+        />
         {loadingSuperports ? (
           <View style={styles.LoaderScreen}>
             <ActivityIndicator size={'large'} color={'#000000'} />

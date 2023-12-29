@@ -1,8 +1,10 @@
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import React, {ReactNode, memo} from 'react';
-import {StyleSheet} from 'react-native';
-import {View} from 'react-native';
-import {NumberlessSemiBoldText} from '@components/NumberlessText';
-import {FontSizes} from './ComponentUtils';
+import {StyleSheet, View} from 'react-native';
 
 const GenericModalTopbar = ({
   title,
@@ -16,12 +18,13 @@ const GenericModalTopbar = ({
   return (
     <View style={styles.bar}>
       {title && (
-        <NumberlessSemiBoldText
-          style={styles.title}
+        <NumberlessText
+          fontSizeType={FontSizeType.l}
+          fontType={FontType.md}
           ellipsizeMode="tail"
           numberOfLines={1}>
           {title}
-        </NumberlessSemiBoldText>
+        </NumberlessText>
       )}
 
       {RightOptionalIcon ? (
@@ -40,11 +43,7 @@ const styles = StyleSheet.create({
   bar: {
     alignSelf: 'flex-end',
     marginRight: 15,
-  },
-  title: {
-    ...FontSizes[21].semibold,
-    lineHeight: 28,
-    color: 'black',
+    marginTop: 10,
   },
 
   rightOptionalIconStyle: {

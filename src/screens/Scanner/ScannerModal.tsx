@@ -8,6 +8,7 @@ import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
 import GenericModal from '@components/GenericModal';
+import GenericModalTopBar from '@components/GenericModalTopBar';
 import {
   NumberlessBoldText,
   NumberlessRegularText,
@@ -17,7 +18,7 @@ import {processConnectionBundle} from '@utils/Bundles';
 import {BundleReadResponse} from '@utils/Bundles/interfaces';
 import {ConnectionType} from '@utils/Connections/interfaces';
 import React, {useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 
@@ -99,9 +100,11 @@ export default function ScannerModal() {
   return (
     <GenericModal visible={modalVisible} onClose={cleanScanModal}>
       <View style={styles.successIndicatorArea}>
-        <Pressable style={styles.closeButton} onPress={() => cleanScanModal()}>
-          <Cross />
-        </Pressable>
+        <GenericModalTopBar
+          RightOptionalIcon={Cross}
+          onBackPress={() => cleanScanModal()}
+        />
+
         {femaleModal ? (
           <>
             <View

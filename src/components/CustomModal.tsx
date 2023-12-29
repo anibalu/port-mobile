@@ -3,6 +3,7 @@ import React from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import GenericModal from './GenericModal';
 import {screen} from './ComponentUtils';
+import GenericModalTopBar from './GenericModalTopBar';
 
 function CustomModal({
   openCustomModal,
@@ -34,9 +35,12 @@ function CustomModal({
             flexDirection: 'row',
           }}>
           <Text style={styles.titleStyles}>{title}</Text>
-          <Pressable style={{bottom: 5}} onPress={bottomButtonFunction}>
-            <CrossIcon />
-          </Pressable>
+          <View style={{bottom: 5}}>
+            <GenericModalTopBar
+              RightOptionalIcon={CrossIcon}
+              onBackPress={bottomButtonFunction}
+            />
+          </View>
         </View>
 
         {question != undefined && (

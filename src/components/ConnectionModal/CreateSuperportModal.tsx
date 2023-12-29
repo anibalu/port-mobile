@@ -1,8 +1,7 @@
 import Cross from '@assets/icons/cross.svg';
-import Back from '@assets/navigation/backButton.svg';
 import Logo from '@assets/icons/Logo.svg';
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {useConnectionModal} from '../../context/ConnectionModalContext';
 import {FontSizes, PortColors, screen} from '../ComponentUtils';
 import GenericInput from '../GenericInput';
@@ -25,6 +24,7 @@ import {
 import {convertBundleToLink} from '@utils/DeepLinking';
 import Share from 'react-native-share';
 import {DirectSuperportConnectionBundle} from '@utils/Bundles/interfaces';
+import GenericModalTopBar from '@components/GenericModalTopBar';
 
 const CreateSuperportModal: React.FC = () => {
   const {
@@ -135,14 +135,10 @@ const CreateSuperportModal: React.FC = () => {
   return (
     <GenericModal visible={modalVisible} onClose={cleanupModal}>
       <View style={styles.modalView}>
-        <View style={styles.superportTopBar}>
-          <Pressable style={styles.closeButton} onPress={openSuperportModal}>
-            <Back />
-          </Pressable>
-          <Pressable style={styles.closeButton} onPress={cleanupModal}>
-            <Cross />
-          </Pressable>
-        </View>
+        <GenericModalTopBar
+          RightOptionalIcon={Cross}
+          onBackPress={cleanupModal}
+        />
         {!createPressed ? (
           <View
             style={{
@@ -337,6 +333,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  crossButton: {
+    backgroundColor: 'yellow',
+  },
+
   qrBox: {
     width: '100%',
     height: '100%',

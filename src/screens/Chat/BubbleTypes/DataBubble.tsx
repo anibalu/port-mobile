@@ -2,10 +2,13 @@ import React, {ReactNode} from 'react';
 
 import {Pressable, StyleSheet} from 'react-native';
 
-import {NumberlessRegularText} from '@components/NumberlessText';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
-import {PortColors} from '@components/ComponentUtils';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 
 /**
  * @param message, message object
@@ -15,18 +18,21 @@ export default function DataBubble(message: SavedMessageParams): ReactNode {
   return (
     <Pressable style={styles.textBubbleContainer}>
       {message.contentType === ContentType.name ? (
-        <NumberlessRegularText style={styles.text}>
+        <NumberlessText fontSizeType={FontSizeType.s} fontType={FontType.rg}>
           {(message.data?.name?.toString() || DEFAULT_NAME) +
             ' has joined the chat'}
-        </NumberlessRegularText>
+        </NumberlessText>
       ) : (
+        // <NumberlessRegularText style={styles.text}>
+
+        // </NumberlessRegularText>
         <>
-          <NumberlessRegularText style={styles.text}>
+          <NumberlessText fontSizeType={FontSizeType.s} fontType={FontType.rg}>
             {'data message: ' + message.contentType.toString()}
-          </NumberlessRegularText>
-          <NumberlessRegularText style={styles.text}>
+          </NumberlessText>
+          <NumberlessText fontSizeType={FontSizeType.s} fontType={FontType.rg}>
             {JSON.stringify(message.data)}
-          </NumberlessRegularText>
+          </NumberlessText>
         </>
       )}
     </Pressable>
@@ -40,20 +46,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     marginTop: 2,
-  },
-  timeStampContainer: {
-    flexDirection: 'column',
-    width: '100%',
-    marginTop: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  timeStamp: {
-    fontSize: 10,
-    color: PortColors.primary.grey.dark,
-  },
-  text: {
-    color: '#000000',
-    fontSize: 12,
   },
 });

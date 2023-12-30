@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    width: '100%',
+    alignSelf: 'stretch',
     paddingLeft: 5,
     paddingBottom: 3,
     paddingTop: 2,

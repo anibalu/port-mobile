@@ -1,23 +1,14 @@
-import React, {useState} from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
-import Sending from '@assets/icons/sending.svg';
 import Download from '@assets/icons/Download.svg';
-import {
-  NumberlessItalicText,
-  NumberlessMediumText,
-  NumberlessRegularText,
-} from '@components/NumberlessText';
-import {DEFAULT_NAME} from '@configs/constants';
-import {SavedMessageParams, MessageStatus} from '@utils/Messaging/interfaces';
-import {getTimeStamp} from '@utils/Time';
-import ImageReplyContainer from '../ReplyContainers/ImageReplyContainer';
 import {PortColors, screen} from '@components/ComponentUtils';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import React, {useState} from 'react';
+import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
+import {
+  renderProfileName,
+  renderTimeStamp,
+  shouldRenderProfileName,
+} from '../BubbleUtils';
+import ImageReplyContainer from '../ReplyContainers/ImageReplyContainer';
 
 export default function UndownloadedImageBubble({
   message,
@@ -47,14 +38,13 @@ export default function UndownloadedImageBubble({
         <ImageReplyContainer message={message} memberName={memberName} />
       ) : (
         <>
-          <View>
-            {renderProfileName(
-              shouldRenderProfileName(memberName),
-              memberName,
-              message.sender,
-              isReply,
-            )}
-          </View>
+          {renderProfileName(
+            shouldRenderProfileName(memberName),
+            memberName,
+            message.sender,
+            isReply,
+          )}
+
           <View style={styles.image}>
             {isLoading ? <ActivityIndicator /> : <Download />}
           </View>
@@ -65,98 +55,12 @@ export default function UndownloadedImageBubble({
   );
 }
 
-function renderTimeStamp(message: SavedMessageParams) {
-  if (message.messageStatus === MessageStatus.sent || !message.sender) {
-    return (
-      <View style={styles.timeStampContainer}>
-        <NumberlessRegularText style={styles.timeStamp}>
-          {getTimeStamp(message.timestamp)}
-        </NumberlessRegularText>
-      </View>
-    );
-  } else if (message.messageStatus === MessageStatus.failed) {
-    return (
-      <View style={styles.timeStampContainer}>
-        <NumberlessItalicText style={styles.failedStamp}>
-          failed
-        </NumberlessItalicText>
-      </View>
-    );
-  } else {
-    return (
-      <View style={styles.timeStampContainer}>
-        <Sending />
-      </View>
-    );
-  }
-}
-
-function shouldRenderProfileName(memberName: string) {
-  if (memberName === '') {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function renderProfileName(
-  shouldRender: boolean,
-  name: string = DEFAULT_NAME,
-  isSender: boolean,
-  isReply: boolean,
-) {
-  return (
-    <View>
-      {shouldRender ? (
-        <NumberlessMediumText>{name}</NumberlessMediumText>
-      ) : isSender && isReply ? (
-        <NumberlessMediumText>You</NumberlessMediumText>
-      ) : (
-        <View />
-      )}
-    </View>
-  );
-}
-
-const viewWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'center',
     width: '100%',
-  },
-  timeStampContainer: {
-    flexDirection: 'column',
-    width: '100%',
-    marginTop: 5,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  timeStamp: {
-    fontSize: 10,
-    color: PortColors.primary.grey.dark,
-  },
-  failedStamp: {
-    fontSize: 10,
-    color: PortColors.primary.grey.medium,
-  },
-  text: {
-    color: '#000000',
-  },
-  replyImage: {
-    height: 65,
-    width: 65,
-
-    borderRadius: 16,
-  },
-  replyImageContainer: {
-    width: 0.7 * viewWidth - 40,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  imageText: {
-    marginTop: 10,
   },
   image: {
     height: 0.7 * screen.width - 40, // Set the maximum height you desire

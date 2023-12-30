@@ -271,6 +271,7 @@ const NewPortModal: React.FC = () => {
                   return (
                     <Tile
                       title={permission}
+                      key={permission}
                       isActive={permission === selectedPreset}
                       onPress={() => {
                         setSelectedPreset(permission);
@@ -371,7 +372,6 @@ const Tile = ({
 }): ReactNode => {
   return title === 'new' ? (
     <NumberlessText
-      key={title}
       onPress={() => {}}
       style={{
         padding: 8,

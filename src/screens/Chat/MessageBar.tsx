@@ -7,7 +7,11 @@ import {
 } from '@assets/icons/image.svg';
 import Plus from '@assets/icons/plus.svg';
 import {FontSizes, isIOS, screen} from '@components/ComponentUtils';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
 import {extractMemberInfo} from '@utils/Groups';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
@@ -25,12 +29,12 @@ import DocumentPicker, {
 } from 'react-native-document-picker';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 
+import {useNavigation} from '@react-navigation/native';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import FileReplyContainer from './ReplyContainers/FileReplyContainer';
 import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
 import TextReplyContainer from './ReplyContainers/TextReplyContainer';
 import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
-import {useNavigation} from '@react-navigation/native';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 /**
  * Renders the bottom input bar for a chat.
@@ -163,7 +167,7 @@ const MessageBar = ({
   return (
     <KeyboardAvoidingView
       behavior={isIOS ? 'padding' : 'height'}
-      keyboardVerticalOffset={isIOS ? 44 : undefined}
+      keyboardVerticalOffset={isIOS ? 54 : undefined}
       style={styles.main}>
       {isPopUpVisible ? (
         <View style={styles.aggregateContainer}>
@@ -172,25 +176,31 @@ const MessageBar = ({
               <Pressable style={styles.optionBox} onPress={onImagePressed}>
                 <ImageIcon />
               </Pressable>
-              <NumberlessMediumText style={styles.optionText}>
-                Photos
-              </NumberlessMediumText>
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.md}>
+                Images
+              </NumberlessText>
             </View>
             <View style={styles.optionContainer}>
               <Pressable style={styles.optionBox} onPress={onVideoPressed}>
                 <VideoIcon />
               </Pressable>
-              <NumberlessMediumText style={styles.optionText}>
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.md}>
                 Videos
-              </NumberlessMediumText>
+              </NumberlessText>
             </View>
             <View style={styles.optionContainer}>
               <Pressable style={styles.optionBox} onPress={onFilePressed}>
                 <FileIcon />
               </Pressable>
-              <NumberlessMediumText style={styles.optionText}>
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.md}>
                 Files
-              </NumberlessMediumText>
+              </NumberlessText>
             </View>
             {!isGroupChat && (
               <View style={styles.optionContainer}>
@@ -201,9 +211,11 @@ const MessageBar = ({
                   }}>
                   <FileIcon />
                 </Pressable>
-                <NumberlessMediumText style={styles.optionText}>
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.md}>
                   Share Contact
-                </NumberlessMediumText>
+                </NumberlessText>
               </View>
             )}
           </View>

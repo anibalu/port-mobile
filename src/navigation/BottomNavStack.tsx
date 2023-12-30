@@ -86,6 +86,7 @@ function NumberlessTabbar({
               accessibilityLabel={options.tabBarAccessibilityLabel}
               testID={options.tabBarTestID}
               onPress={onPress}
+              key={label}
               style={styles.tabbarButtonStyle}>
               {getIcon(label, isFocused)}
               <NumberlessText

@@ -117,7 +117,7 @@ export default function ReplyBubble({
       onLongPress={() => handleLongPress(message.messageId)}>
       <View
         style={
-          replyMessage.sender ? styles.senderBubble : styles.receiverBubble
+          replyMessage.sender ? styles.receiverBubble : styles.senderBubble
         }>
         <View
           style={replyMessage.sender ? styles.senderLine : styles.receiverLine}
@@ -130,37 +130,6 @@ export default function ReplyBubble({
         {message.data.text}
       </NumberlessLinkText>
       {renderTimeStamp(message)}
-      {/* <View style={styles.timeStampContainer}>
-        {message.messageStatus === MessageStatus.sent || !message.sender ? (
-          <View>
-            <NumberlessRegularText style={styles.timeStamp}>
-              {getTimeStamp(message.timestamp)}
-            </NumberlessRegularText>
-          </View>
-        ) : (
-          <View>
-            {message.messageStatus === MessageStatus.journaled ? (
-              <View>
-                <Sending />
-              </View>
-            ) : (
-              <View>
-                {true ? (
-                  <View>
-                    <Sending />
-                  </View>
-                ) : (
-                  <View>
-                    <NumberlessRegularText style={styles.failedStamp}>
-                      {'failed'}
-                    </NumberlessRegularText>
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
-        )}
-      </View> */}
     </Pressable>
   );
 }
@@ -168,20 +137,15 @@ export default function ReplyBubble({
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    width: '100%',
   },
   senderLine: {
     width: 4,
-    backgroundColor: 'white',
-    marginBottom: 5,
+    backgroundColor: PortColors.primary.white,
     borderRadius: 2,
   },
   receiverLine: {
     width: 4,
     backgroundColor: PortColors.primary.blue.app,
-    marginBottom: 5,
     borderRadius: 2,
   },
   textMessage: {
@@ -189,9 +153,11 @@ const styles = StyleSheet.create({
   },
   receiverBubble: {
     backgroundColor: PortColors.primary.blue.dull,
-    padding: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 7,
+    marginBottom: 4,
     borderTopLeftRadius: 0,
-    width: '100%',
+    alignSelf: 'stretch',
     borderTopRightRadius: 10,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
@@ -199,35 +165,14 @@ const styles = StyleSheet.create({
   },
   senderBubble: {
     backgroundColor: PortColors.primary.grey.light,
-    padding: 5,
-    width: '100%',
+    paddingHorizontal: 5,
+    paddingVertical: 7,
+    marginBottom: 4,
+    alignSelf: 'stretch',
     borderTopLeftRadius: 10,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     flexDirection: 'row',
-  },
-  replyMessage: {
-    color: 'black',
-    marginTop: 10,
-    fontSize: 15,
-  },
-  timeStampContainer: {
-    flexDirection: 'column',
-    width: '100%',
-    marginTop: 5,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  timeStamp: {
-    fontSize: 10,
-    color: PortColors.primary.grey.dark,
-  },
-  failedStamp: {
-    fontSize: 10,
-    color: PortColors.primary.grey.light,
-  },
-  text: {
-    color: '#000000',
   },
 });

@@ -2,12 +2,12 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useState} from 'react';
-import {Image, StyleSheet, Vibration} from 'react-native';
+import {StyleSheet, Vibration} from 'react-native';
 
-import DefaultImage from '@assets/avatars/avatar.png';
 import ChatBackground from '@components/ChatBackground';
 import DeleteChatButton from '@components/DeleteChatButton';
 import {
+  DEFAULT_AVATAR,
   DEFAULT_NAME,
   SELECTED_MESSAGES_LIMIT,
   START_OF_TIME,
@@ -20,20 +20,20 @@ import {ConnectionType} from '@utils/Connections/interfaces';
 import {extractMemberInfo} from '@utils/Groups';
 import {
   ContentType,
-  SavedMessageParams,
   MessageStatus,
+  SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import {getLatestMessages} from '@utils/Storage/DBCalls/lineMessage';
 import {getGroupInfo} from '@utils/Storage/group';
 import {getMessage, readPaginatedMessages} from '@utils/Storage/messages';
-import {debounce} from 'lodash';
+
+import sendJournaled from '@utils/Messaging/Send/sendJournaled';
+import {useSelector} from 'react-redux';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 import ChatList from './ChatList';
 import ChatTopbar from './ChatTopbar';
 import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
-import {useSelector} from 'react-redux';
-import {useErrorModal} from 'src/context/ErrorModalContext';
-import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 export enum SelectedMessagesSize {
@@ -53,7 +53,7 @@ function Chat({route, navigation}: Props) {
     name: '',
     isGroupChat: false,
     groupInfo: {},
-    profileURI: Image.resolveAssetSource(DefaultImage).uri,
+    profileURI: DEFAULT_AVATAR,
     connectionConnected: true,
     messagesLoaded: false,
   });
@@ -237,29 +237,26 @@ function Chat({route, navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestUpdatedSendStatus]);
 
-  const updateMessages = debounce(
-    async (msgs: SavedMessageParams[]): Promise<void> => {
-      const indices: number[] = [];
-      msgs.forEach((element, index) => {
-        if (
-          element.messageStatus !== MessageStatus.success &&
-          element.messageStatus !== null
-        ) {
-          indices.push(index);
-        }
-      });
-      for (const i of indices) {
-        const msg = await getMessage(chatId, msgs[i].messageId);
-        if (msg) {
-          msgs[i] = msg;
-        }
+  const updateMessages = async (msgs: SavedMessageParams[]): Promise<void> => {
+    const indices: number[] = [];
+    msgs.forEach((element, index) => {
+      if (
+        element.messageStatus !== MessageStatus.success &&
+        element.messageStatus !== null
+      ) {
+        indices.push(index);
       }
-      setMessages([...msgs]);
-    },
-    300,
-  );
+    });
+    for (const i of indices) {
+      const msg = await getMessage(chatId, msgs[i].messageId);
+      if (msg) {
+        msgs[i] = msg;
+      }
+    }
+    setMessages([...msgs]);
+  };
 
-  const addNewMessages = debounce(async (): Promise<void> => {
+  const addNewMessages = async (): Promise<void> => {
     if (messages.length >= 1) {
       const messageList = await getLatestMessages(
         chatId,
@@ -272,7 +269,7 @@ function Chat({route, navigation}: Props) {
       const newList = messageList.concat(messages);
       await updateMessages(newList);
     }
-  }, 300);
+  };
 
   const onStartReached = async (): Promise<void> => {
     const resp = await readPaginatedMessages(chatId, cursor);
@@ -283,6 +280,7 @@ function Chat({route, navigation}: Props) {
     }
     setCursor(resp.cursor);
   };
+
   const onSettingsPressed = (): void => {
     if (chatState.isGroupChat) {
       navigation.navigate('GroupProfile', {groupId: chatId});

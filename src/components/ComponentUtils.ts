@@ -15,7 +15,7 @@ export const PortColors = {
     delete: '#EE786B',
     messageBubble: {
       timestamp: '#868686',
-      profileName: ' #7C7C7C',
+      profileName: '#7C7C7C',
     },
   },
   primary: {

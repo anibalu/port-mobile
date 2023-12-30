@@ -56,7 +56,7 @@ export function renderProfileName(
   isReply: boolean,
 ) {
   return (
-    <View>
+    <View style={{alignSelf: 'flex-start'}}>
       {shouldRender ? (
         isReply ? (
           <NumberlessText
@@ -94,10 +94,6 @@ const styles = StyleSheet.create({
   timeStampContainer: {
     flexDirection: 'column',
     marginTop: 3,
-    justifyContent: 'center',
-  },
-  failedStamp: {
-    fontSize: 10,
-    color: PortColors.primary.grey.medium,
+    alignSelf: 'flex-end',
   },
 });

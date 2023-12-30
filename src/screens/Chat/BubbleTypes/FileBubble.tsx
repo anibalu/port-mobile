@@ -1,20 +1,21 @@
-import DefaultImage from '@assets/avatars/avatar.png';
 import File from '@assets/icons/FileClip.svg';
-import Sending from '@assets/icons/sending.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
 import {
-  NumberlessItalicText,
-  NumberlessMediumText,
-  NumberlessRegularText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
-import {DEFAULT_NAME} from '@configs/constants';
-import {SavedMessageParams, MessageStatus} from '@utils/Messaging/interfaces';
-import {getTimeStamp} from '@utils/Time';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useState} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
-import FileReplyContainer from '../ReplyContainers/FileReplyContainer';
+import {
+  renderProfileName,
+  renderTimeStamp,
+  shouldRenderProfileName,
+} from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
+import FileReplyContainer from '../ReplyContainers/FileReplyContainer';
 
 /**
  * @param message, message object
@@ -37,9 +38,7 @@ export default function FileBubble({
   memberName: string;
   isReply?: boolean;
 }): ReactNode {
-  const [fileURI, setFileURI] = useState(
-    Image.resolveAssetSource(DefaultImage).uri,
-  );
+  const [fileURI, setFileURI] = useState<string | undefined>();
   useEffect(() => {
     if (message.data.fileUri) {
       setFileURI('file://' + message.data.fileUri);
@@ -50,7 +49,10 @@ export default function FileBubble({
   };
   const handlePressFunction = () => {
     const selectedMessagesSize = handlePress(message.messageId);
-    if (selectedMessagesSize === SelectedMessagesSize.empty) {
+    if (
+      selectedMessagesSize === SelectedMessagesSize.empty &&
+      fileURI != undefined
+    ) {
       FileViewer.open(fileURI, {
         showOpenWithDialog: true,
       });
@@ -65,26 +67,29 @@ export default function FileBubble({
         <FileReplyContainer message={message} memberName={memberName} />
       ) : (
         <>
-          <View>
-            {renderProfileName(
-              shouldRenderProfileName(memberName),
-              memberName,
-              message.sender,
-              isReply,
-            )}
-          </View>
-          <View>
-            <View style={styles.fileBox}>
-              <View style={styles.fileClip}>
-                <File />
-              </View>
-              <NumberlessMediumText
-                style={styles.fileName}
-                ellipsizeMode="tail"
-                numberOfLines={1}>
-                {message.data.fileName}
-              </NumberlessMediumText>
+          {renderProfileName(
+            shouldRenderProfileName(memberName),
+            memberName,
+            message.sender,
+            isReply,
+          )}
+
+          <View style={styles.fileBox}>
+            <View style={styles.fileClip}>
+              <File />
             </View>
+            <NumberlessText
+              fontSizeType={FontSizeType.m}
+              style={{
+                marginHorizontal: 10,
+                width: 0.7 * screen.width - 100,
+                overflow: 'hidden',
+              }}
+              fontType={FontType.md}
+              ellipsizeMode="tail"
+              numberOfLines={1}>
+              {message.data.fileName}
+            </NumberlessText>
           </View>
         </>
       )}
@@ -93,83 +98,12 @@ export default function FileBubble({
   );
 }
 
-function renderTimeStamp(message: SavedMessageParams) {
-  if (message.messageStatus === MessageStatus.sent || !message.sender) {
-    return (
-      <View style={styles.timeStampContainer}>
-        <NumberlessRegularText style={styles.timeStamp}>
-          {getTimeStamp(message.timestamp)}
-        </NumberlessRegularText>
-      </View>
-    );
-  } else if (message.messageStatus === MessageStatus.failed) {
-    return (
-      <View style={styles.timeStampContainer}>
-        <NumberlessItalicText style={styles.failedStamp}>
-          failed
-        </NumberlessItalicText>
-      </View>
-    );
-  } else {
-    return (
-      <View style={styles.timeStampContainer}>
-        <Sending />
-      </View>
-    );
-  }
-}
-
-function shouldRenderProfileName(memberName: string) {
-  if (memberName === '') {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function renderProfileName(
-  shouldRender: boolean,
-  name: string = DEFAULT_NAME,
-  isSender: boolean,
-  isReply: boolean,
-) {
-  return (
-    <View>
-      {shouldRender ? (
-        <NumberlessMediumText>{name}</NumberlessMediumText>
-      ) : isSender && isReply ? (
-        <NumberlessMediumText>You</NumberlessMediumText>
-      ) : (
-        <View />
-      )}
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'center',
-    width: '100%',
-  },
-  timeStampContainer: {
-    flexDirection: 'column',
-    width: '100%',
-    marginTop: 5,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  timeStamp: {
-    fontSize: 10,
-    color: PortColors.primary.grey.dark,
-  },
-  failedStamp: {
-    fontSize: 10,
-    color: PortColors.primary.grey.medium,
-  },
-  text: {
-    color: '#000000',
+    alignSelf: 'stretch',
   },
   fileBox: {
     flexDirection: 'row',
@@ -183,12 +117,5 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.yellow.dull,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  fileName: {
-    color: 'black',
-    overflow: 'hidden',
-    width: 0.7 * screen.width - 100,
-    marginLeft: 10,
-    fontSize: 12,
   },
 });

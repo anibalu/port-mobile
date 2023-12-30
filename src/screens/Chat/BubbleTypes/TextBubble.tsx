@@ -5,7 +5,7 @@ import {
 } from '@components/NumberlessText';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
 import {
   renderProfileName,
   renderTimeStamp,
@@ -27,21 +27,22 @@ export default function TextBubble({
 }) {
   return (
     <Pressable
-      style={styles.textBubbleContainer}
+      style={StyleSheet.compose(
+        styles.textBubbleContainer,
+        isReply ? {alignItems: 'flex-start'} : {alignItems: 'flex-end'},
+      )}
       onPress={() => {
         handlePress(message.messageId);
       }}
       onLongPress={() => {
         handleLongPress(message.messageId);
       }}>
-      <View>
-        {renderProfileName(
-          shouldRenderProfileName(memberName),
-          memberName,
-          message.sender,
-          isReply,
-        )}
-      </View>
+      {renderProfileName(
+        shouldRenderProfileName(memberName),
+        memberName,
+        message.sender,
+        isReply,
+      )}
       <NumberlessLinkText
         fontSizeType={FontSizeType.m}
         fontType={FontType.rg}
@@ -56,7 +57,6 @@ export default function TextBubble({
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
-    alignItems: 'flex-end',
     justifyContent: 'center',
     flex: 1,
   },

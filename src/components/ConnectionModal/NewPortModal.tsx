@@ -1,4 +1,3 @@
-import Logo from '@assets/icons/Logo.svg';
 import ShareIcon from '@assets/icons/Share.svg';
 import WhiteArrowRight from '@assets/icons/WhiteArrowRight.svg';
 import Cross from '@assets/icons/cross.svg';
@@ -6,7 +5,6 @@ import {useNavigation} from '@react-navigation/native';
 //import store from '@store/appStore';
 import Groups from '@assets/icons/GroupsBlue.svg';
 import SuperPorts from '@assets/icons/SuperportsBlue.svg';
-import Exclamation from '@assets/icons/exclamation.svg';
 import Person from '@assets/icons/personWhite.svg';
 import {GenericButton} from '@components/GenericButton';
 import GenericModalTopBar from '@components/GenericModalTopBar';
@@ -16,7 +14,6 @@ import {convertBundleToLink} from '@utils/DeepLinking';
 import {getProfileName} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
 import {useSelector} from 'react-redux';
 import {useConnectionModal} from '../../context/ConnectionModalContext';
@@ -24,6 +21,7 @@ import {PortColors, screen} from '../ComponentUtils';
 import GenericInput from '../GenericInput';
 import GenericModal from '../GenericModal';
 import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
+import {displayQR} from './QRUtils';
 
 const NewPortModal: React.FC = () => {
   const {
@@ -406,38 +404,6 @@ const Tile = ({
       }>
       {title}
     </NumberlessText>
-  );
-};
-
-/**
- *
- * @param hasError, boolean that denotes if an error is hit
- * @param qrData, string that needs to be displayed as a QR.
- * @returns {ReactNode}, UI element
- */
-const displayQR = (hasError: boolean, qrData: string): ReactNode => {
-  return (
-    <View style={styles.qrBox}>
-      {hasError ? (
-        <View style={styles.errorBox}>
-          <Exclamation />
-          <NumberlessText
-            fontType={FontType.md}
-            style={{marginTop: 16}}
-            fontSizeType={FontSizeType.s}
-            textColor={PortColors.text.secondary}>
-            Error generating code
-          </NumberlessText>
-        </View>
-      ) : (
-        <View style={styles.qrBox}>
-          <QRCode value={qrData} size={screen.width * 0.5} />
-          <View style={styles.logoBox}>
-            <Logo width={screen.width * 0.08} height={screen.width * 0.08} />
-          </View>
-        </View>
-      )}
-    </View>
   );
 };
 

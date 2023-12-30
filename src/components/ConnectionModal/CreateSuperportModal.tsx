@@ -1,30 +1,26 @@
-import Cross from '@assets/icons/cross.svg';
-import Logo from '@assets/icons/Logo.svg';
-import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, StyleSheet, View} from 'react-native';
-import {useConnectionModal} from '../../context/ConnectionModalContext';
-import {FontSizes, PortColors, screen} from '../ComponentUtils';
-import GenericInput from '../GenericInput';
-import GenericModal from '../GenericModal';
-import {
-  NumberlessItalicText,
-  NumberlessRegularText,
-  NumberlessSemiBoldText,
-} from '../NumberlessText';
-import {GenericButton} from '@components/GenericButton';
-import WhiteArrowRight from '@assets/icons/WhiteArrowRight.svg';
 import ShareIcon from '@assets/icons/Share.svg';
-import QRCode from 'react-native-qrcode-svg';
+import Superports from '@assets/icons/SuperPorts.svg';
+import WhiteArrowRight from '@assets/icons/WhiteArrowRight.svg';
+import Cross from '@assets/icons/cross.svg';
 import Delete from '@assets/icons/redTrash.svg';
+import {GenericButton} from '@components/GenericButton';
+import GenericModalTopBar from '@components/GenericModalTopBar';
 import {
   closeGeneratedSuperport,
   generateDirectSuperportConnectionBundle,
   loadGeneratedSuperport,
 } from '@utils/Bundles/directSuperport';
-import {convertBundleToLink} from '@utils/DeepLinking';
-import Share from 'react-native-share';
 import {DirectSuperportConnectionBundle} from '@utils/Bundles/interfaces';
-import GenericModalTopBar from '@components/GenericModalTopBar';
+import {convertBundleToLink} from '@utils/DeepLinking';
+import React, {ReactNode, useEffect, useState} from 'react';
+import {ActivityIndicator, StyleSheet, View} from 'react-native';
+import Share from 'react-native-share';
+import {useConnectionModal} from '../../context/ConnectionModalContext';
+import {PortColors, screen} from '../ComponentUtils';
+import GenericInput from '../GenericInput';
+import GenericModal from '../GenericModal';
+import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
+import {displayQR} from './QRUtils';
 
 const CreateSuperportModal: React.FC = () => {
   const {
@@ -41,7 +37,10 @@ const CreateSuperportModal: React.FC = () => {
   const [qrCodeData, setQRCodeData] = useState<string>('');
   const [linkData, setLinkData] = useState<string>('');
 
-  const connectionDirectionName = 'Connects to me';
+  const [loadingOperation, setLoadingOperation] = useState(false);
+
+  //@ani use this for setting limits
+  const [linkLimit, setLinkLimit] = useState(60);
 
   const cleanupModal = () => {
     hideModal();
@@ -100,6 +99,7 @@ const CreateSuperportModal: React.FC = () => {
   };
   //handles sharing in link form
   const handleShare = async () => {
+    setLoadingOperation(true);
     try {
       const linkURL = await fetchLinkData();
       const shareContent = {
@@ -109,9 +109,12 @@ const CreateSuperportModal: React.FC = () => {
       await Share.open(shareContent);
     } catch (error) {
       console.log('Error sharing content: ', error);
+    } finally {
+      setLoadingOperation(false);
     }
   };
   const handleClose = async () => {
+    setLoadingOperation(true);
     try {
       if (superportId && superportId !== '') {
         await closeGeneratedSuperport(superportId);
@@ -122,6 +125,8 @@ const CreateSuperportModal: React.FC = () => {
     } catch (error) {
       console.log('Error closing superport: ', error);
       openSuperportModal();
+    } finally {
+      setLoadingOperation(false);
     }
   };
   useEffect(() => {
@@ -132,6 +137,27 @@ const CreateSuperportModal: React.FC = () => {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [superportId]);
+
+  const LimitInfoDisplay = (): ReactNode => {
+    return (
+      <>
+        <NumberlessText
+          fontSizeType={FontSizeType.l}
+          fontType={FontType.sb}
+          style={{marginTop: 23}}
+          textColor={PortColors.text.title}>
+          Set connect limit
+        </NumberlessText>
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.rg}
+          textColor={PortColors.text.delete}>
+          upper limit is 100
+        </NumberlessText>
+      </>
+    );
+  };
+
   return (
     <GenericModal visible={modalVisible} onClose={cleanupModal}>
       <View style={styles.modalView}>
@@ -140,89 +166,105 @@ const CreateSuperportModal: React.FC = () => {
           onBackPress={cleanupModal}
         />
         {!createPressed ? (
-          <View
-            style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <NumberlessSemiBoldText
-              style={{color: PortColors.primary.blue.app}}>
+          <>
+            <NumberlessText
+              fontSizeType={FontSizeType.l}
+              fontType={FontType.sb}
+              textColor={PortColors.text.title}>
               Open Superport
-            </NumberlessSemiBoldText>
+            </NumberlessText>
             <GenericInput
-              wrapperStyle={{
-                width: screen.width,
-                height: 60,
-                paddingHorizontal: 20,
-              }}
-              inputStyle={{...FontSizes[15].medium, borderRadius: 4}}
               text={label}
+              inputStyle={{
+                marginVertical: 12,
+              }}
               setText={setLabel}
               placeholder="Enter superport label"
               alignment="center"
             />
-            <GenericInput
-              wrapperStyle={{
-                width: screen.width,
-                height: 60,
-                marginTop: 8,
-                marginBottom: 54,
-                paddingHorizontal: 20,
-              }}
-              editable={false}
-              inputStyle={{borderRadius: 4}}
-              text={connectionDirectionName}
-              alignment="center"
-            />
+
+            <LimitInfoDisplay />
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <NumberlessText
+                onPress={() => {
+                  setLinkLimit(limit => limit - 1);
+                }}
+                style={styles.fauxButtonStyle}
+                fontSizeType={FontSizeType.xl}
+                fontType={FontType.sb}
+                textColor={PortColors.text.title}>
+                -
+              </NumberlessText>
+              <GenericInput
+                text={linkLimit.toString()}
+                inputStyle={{
+                  width: 100,
+                  marginHorizontal: 20,
+                  marginVertical: 12,
+                }}
+                type="numeric"
+                setText={(txt: string) => {
+                  setLinkLimit(parseInt(txt));
+                }}
+                alignment="center"
+              />
+              <NumberlessText
+                onPress={() => {
+                  setLinkLimit(limit => limit + 1);
+                }}
+                style={styles.fauxButtonStyle}
+                fontSizeType={FontSizeType.xl}
+                fontType={FontType.sb}
+                textColor={PortColors.text.title}>
+                +
+              </NumberlessText>
+            </View>
+
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}
+              style={{fontStyle: 'italic', textAlign: 'center', width: 230}}
+              textColor={PortColors.text.title}>
+              Only the entered number of connections can be made through this
+              superport
+            </NumberlessText>
+
             <GenericButton
               buttonStyle={{
                 flexDirection: 'row',
-                width: '80%',
                 height: 60,
-                marginBottom: 38,
+                marginVertical: 40,
               }}
-              textStyle={{flex: 1, textAlign: 'center'}}
-              iconStyleRight={{right: 20}}
+              textStyle={{textAlign: 'center'}}
+              IconLeft={Superports}
+              iconSize={40}
+              iconStyleLeft={{alignItems: 'flex-end', flex: 1}}
+              iconStyleRight={{flex: 1, alignItems: 'flex-end'}}
+              iconSizeRight={14}
               IconRight={WhiteArrowRight}
               onPress={fetchQRCodeData}>
               Create Superport
             </GenericButton>
-          </View>
+          </>
         ) : (
-          <View
-            style={{
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <NumberlessSemiBoldText
-              style={{color: PortColors.primary.blue.app}}>
+          <>
+            <NumberlessText
+              fontSizeType={FontSizeType.l}
+              fontType={FontType.sb}
+              textColor={PortColors.text.title}>
               Superport
-            </NumberlessSemiBoldText>
+            </NumberlessText>
             <GenericInput
-              wrapperStyle={{
-                width: screen.width,
-                height: 60,
-                marginTop: 20,
-                paddingHorizontal: 20,
+              inputStyle={{
+                marginVertical: 12,
               }}
               editable={false}
-              inputStyle={{borderRadius: 4}}
               text={label}
-              alignment="center"
-            />
-            <GenericInput
-              wrapperStyle={{
-                width: screen.width,
-                height: 60,
-                marginTop: 8,
-                marginBottom: 20,
-                paddingHorizontal: 20,
-              }}
-              editable={false}
-              inputStyle={{borderRadius: 4}}
-              text={connectionDirectionName}
               alignment="center"
             />
             <View
@@ -236,72 +278,65 @@ const CreateSuperportModal: React.FC = () => {
                   <ActivityIndicator size={'large'} color={'#000000'} />
                 </View>
               ) : (
-                <View style={styles.qrBox}>
-                  {bundleGenError ? (
-                    <NumberlessItalicText style={styles.errorMessage}>
-                      Error generating new Superport connection instrument.
-                      Check your network connection and try again.
-                    </NumberlessItalicText>
-                  ) : (
-                    <View style={styles.qrBox}>
-                      <QRCode value={qrCodeData} size={screen.width * 0.5} />
-                      <View style={styles.logoBox}>
-                        <Logo
-                          width={screen.width * 0.08}
-                          height={screen.width * 0.08}
-                        />
-                      </View>
-                    </View>
-                  )}
-                </View>
+                displayQR(bundleGenError, qrCodeData)
               )}
             </View>
-            <View style={styles.genericView}>
-              {!isLoadingBundle && !bundleGenError ? (
-                <View style={styles.genericView}>
-                  <NumberlessRegularText style={{marginVertical: 20}}>
-                    Or
-                  </NumberlessRegularText>
-                  <GenericButton
-                    buttonStyle={{
-                      flexDirection: 'row',
-                      width: '70%',
-                      height: 60,
-                      backgroundColor: PortColors.primary.white,
-                      borderColor: PortColors.primary.red.error,
-                      borderWidth: 1,
-                      marginBottom: 18,
-                    }}
-                    textStyle={{
-                      flex: 1,
-                      color: PortColors.primary.red.error,
-                      textAlign: 'center',
-                    }}
-                    IconLeft={Delete}
-                    iconStyleLeft={{left: '180%', bottom: 2}}
-                    onPress={handleClose}>
-                    Close Superport
-                  </GenericButton>
 
-                  <GenericButton
-                    buttonStyle={{
-                      flexDirection: 'row',
-                      width: '70%',
-                      height: 60,
-                      marginBottom: 38,
-                    }}
-                    textStyle={{flex: 1, textAlign: 'center'}}
-                    IconLeft={ShareIcon}
-                    iconStyleLeft={{left: '100%', bottom: 2}}
-                    onPress={handleShare}>
-                    Share as link instead
-                  </GenericButton>
-                </View>
-              ) : (
-                <View />
-              )}
-            </View>
-          </View>
+            {!isLoadingBundle && !bundleGenError ? (
+              <>
+                <LimitInfoDisplay />
+                <NumberlessText
+                  fontSizeType={FontSizeType.m}
+                  fontType={FontType.md}
+                  style={{
+                    overflow: 'hidden',
+                    backgroundColor: PortColors.primary.grey.light,
+                    borderRadius: 8,
+                    paddingVertical: 11,
+                    marginTop: 18,
+                    paddingHorizontal: 30,
+                  }}
+                  textColor={PortColors.text.secondary}>
+                  {linkLimit}
+                </NumberlessText>
+              </>
+            ) : (
+              <View />
+            )}
+            <NumberlessText
+              fontSizeType={FontSizeType.m}
+              style={{marginTop: 17}}
+              fontType={FontType.rg}>
+              Or
+            </NumberlessText>
+            <GenericButton
+              buttonStyle={styles.deletePortButtonStyle}
+              textStyle={{
+                color: PortColors.primary.red.error,
+                textAlign: 'center',
+              }}
+              IconLeft={Delete}
+              loading={loadingOperation}
+              iconStyleLeft={{alignItems: 'center'}}
+              onPress={handleClose}>
+              Close Superport
+            </GenericButton>
+
+            <GenericButton
+              buttonStyle={{
+                flexDirection: 'row',
+                width: screen.width - 82,
+                height: 60,
+                marginBottom: 38,
+              }}
+              textStyle={{textAlign: 'center'}}
+              IconLeft={ShareIcon}
+              loading={loadingOperation}
+              iconStyleLeft={{alignItems: 'center'}}
+              onPress={handleShare}>
+              Share as link instead
+            </GenericButton>
+          </>
         )}
       </View>
     </GenericModal>
@@ -310,55 +345,40 @@ const CreateSuperportModal: React.FC = () => {
 
 const styles = StyleSheet.create({
   modalView: {
-    backgroundColor: 'white',
+    backgroundColor: PortColors.primary.white,
     alignItems: 'center',
+    paddingTop: 12,
     justifyContent: 'center',
     flexDirection: 'column',
     width: screen.width,
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
+    paddingHorizontal: 30,
   },
-  superportTopBar: {
-    width: '100%',
+  fauxButtonStyle: {
+    borderRadius: 28,
+    padding: 8,
+    height: 40,
+    width: 40,
+    textAlign: 'center',
+    overflow: 'hidden',
+    backgroundColor: 'rgba(84, 124, 239, 0.12)',
+  },
+  deletePortButtonStyle: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  closeButton: {
     height: 60,
-    width: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  crossButton: {
-    backgroundColor: 'yellow',
+    backgroundColor: PortColors.primary.white,
+    borderColor: PortColors.primary.red.error,
+    borderWidth: 1,
+    marginTop: 13,
+    marginBottom: 18,
+    width: screen.width - 82,
   },
 
   qrBox: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  BackButton: {
-    height: 60,
-    width: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoBox: {
-    position: 'absolute',
-    backgroundColor: '#000000',
-    padding: 5,
-    borderRadius: 10,
-  },
-  errorMessage: {
-    fontSize: 14,
-    color: '#E02C2C',
-  },
-  genericView: {
-    width: '100%',
-    flexDirection: 'column',
     alignItems: 'center',
   },
 });

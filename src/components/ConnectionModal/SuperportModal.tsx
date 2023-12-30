@@ -20,12 +20,7 @@ import {
 import {useConnectionModal} from '../../context/ConnectionModalContext';
 import {PortColors, screen} from '../ComponentUtils';
 import GenericModal from '../GenericModal';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessMediumText,
-  NumberlessText,
-} from '../NumberlessText';
+import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
 
 const SuperportModal: React.FC = () => {
   const {
@@ -75,6 +70,7 @@ const SuperportModal: React.FC = () => {
       <View style={styles.modalView}>
         <GenericModalTopBar
           RightOptionalIcon={Cross}
+          title={data.length >= 1 ? 'Superports' : undefined}
           onBackPress={cleanupModal}
         />
         {loadingSuperports ? (
@@ -82,7 +78,7 @@ const SuperportModal: React.FC = () => {
             <ActivityIndicator size={'large'} color={'#000000'} />
           </View>
         ) : (
-          <View style={styles.SuperportScreen}>
+          <>
             {data.length >= 1 ? (
               <ShowActiveSuperports
                 data={data}
@@ -92,7 +88,7 @@ const SuperportModal: React.FC = () => {
             ) : (
               <ShowWelcomeScreen createNewSuperport={createNewSuperport} />
             )}
-          </View>
+          </>
         )}
       </View>
     </GenericModal>
@@ -130,6 +126,7 @@ function ShowWelcomeScreen({
         }}
         textStyle={{flex: 1, textAlign: 'center'}}
         iconStyleRight={{right: 20}}
+        iconSizeRight={18}
         IconRight={WhiteArrowRight}
         onPress={createNewSuperport}>
         Create Superport
@@ -150,12 +147,25 @@ function ShowActiveSuperports({
   return (
     <View style={styles.activeSuperportBox}>
       <ChatBackground standard={false} />
-      <NumberlessMediumText style={styles.activeTitle}>
-        Active Superports
-      </NumberlessMediumText>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          width: '100%',
+          paddingHorizontal: 16,
+          marginBottom: 13,
+          marginTop: 32,
+          justifyContent: 'flex-start',
+        }}>
+        <NumberlessText fontSizeType={FontSizeType.m} fontType={FontType.md}>
+          Active Superports
+        </NumberlessText>
+      </View>
+
       <ScrollView
         horizontal={true}
         showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{rowGap: 10, columnGap: 10}}
         style={styles.scrollContainer}>
         {data.map(superport => {
           const id = superport.data.linkId;
@@ -186,29 +196,46 @@ function ActiveSuperportComponent({
     <View style={styles.component}>
       <View style={styles.header}>
         <SuperPortIcon width={40} />
-        <NumberlessMediumText
-          style={styles.headertext}
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}
           numberOfLines={2}
-          ellipsizeMode="tail">
+          ellipsizeMode="tail"
+          style={{marginLeft: 8}}
+          textColor={PortColors.text.title}>
           {content.label || 'unlabeled'}
-        </NumberlessMediumText>
+        </NumberlessText>
       </View>
       <View style={styles.bottomView}>
-        <NumberlessMediumText style={styles.bottomText}>
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}
+          textColor={PortColors.text.title}>
           Created
-        </NumberlessMediumText>
-        <NumberlessMediumText style={styles.bottomText}>
+        </NumberlessText>
+
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}
+          textColor={PortColors.text.title}>
           {getChatTileTimestamp(content.timestamp)}
-        </NumberlessMediumText>
+        </NumberlessText>
       </View>
       {content.lastUsed && content.lastUsed !== '' && (
         <View style={styles.bottomView}>
-          <NumberlessMediumText style={styles.bottomText}>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.md}
+            textColor={PortColors.text.title}>
             Last Used
-          </NumberlessMediumText>
-          <NumberlessMediumText style={styles.bottomText}>
+          </NumberlessText>
+
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.md}
+            textColor={PortColors.text.title}>
             {getChatTileTimestamp(content.lastUsed)}
-          </NumberlessMediumText>
+          </NumberlessText>
         </View>
       )}
       {/* <GenericButton
@@ -224,9 +251,13 @@ function CreateNewSuperport() {
   return (
     <View style={styles.createComponent}>
       <Create />
-      <NumberlessMediumText style={styles.headertextNew}>
+      <NumberlessText
+        fontSizeType={FontSizeType.m}
+        fontType={FontType.md}
+        style={{marginTop: 15}}
+        textColor={PortColors.text.title}>
         Create Superport
-      </NumberlessMediumText>
+      </NumberlessText>
     </View>
   );
 }
@@ -246,31 +277,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 40,
   },
-  SuperportScreen: {
-    width: screen.width,
-  },
-  superportTopBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: PortColors.primary.white,
-    borderTopRightRadius: 32,
-    borderTopLeftRadius: 32,
-    paddingBottom: 10,
-  },
-  closeButton: {
-    height: 60,
-    width: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  BackButton: {
-    height: 60,
-    width: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   button: {
     width: '90%',
     flexDirection: 'row',
@@ -280,17 +286,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  buttonText: {
-    width: '100%',
-    color: 'white',
-    textAlign: 'center',
-  },
-  activeTitle: {
-    marginTop: 10,
-    marginBottom: 20,
-    color: PortColors.primary.black,
-    fontSize: 17,
-  },
   mainBox: {
     paddingTop: 10,
     paddingBottom: 40,
@@ -298,13 +293,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-  whiteArrow: {
-    position: 'absolute',
-    paddingRight: 30,
-  },
   activeSuperportBox: {
     width: screen.width,
     alignItems: 'center',
+    overflow: 'hidden',
     justifyContent: 'center',
   },
   component: {
@@ -312,63 +304,36 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 8,
     height: 160,
-    marginLeft: 10,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 20,
-    paddingTop: 10,
+    padding: 8,
   },
   createComponent: {
     width: 160,
     backgroundColor: 'white',
     borderRadius: 8,
     height: 160,
-    marginLeft: 10,
-    marginRight: 10,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
   },
   header: {
     borderRadius: 8,
-    backgroundColor: '#F3F3F3',
-    marginHorizontal: 8,
-    marginVertical: 8,
+    minWidth: 144,
+    backgroundColor: PortColors.primary.grey.light,
+    marginHorizontal: 16,
     flexDirection: 'row',
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
     alignItems: 'center',
-  },
-  headertext: {
-    color: '#547CEF',
-    fontSize: 13,
-    width: 85,
-    paddingLeft: 5,
-    textAlign: 'center',
-  },
-  headertextNew: {
-    color: '#547CEF',
-    fontSize: 13,
-    width: 85,
-    textAlign: 'center',
-    marginTop: 10,
   },
   bottomView: {
     flexDirection: 'row',
-    alignContent: 'space-between',
     justifyContent: 'space-between',
-    width: '90%',
-    alignSelf: 'center',
+    alignSelf: 'stretch',
     marginBottom: 3,
-    paddingLeft: 5,
-    paddingRight: 5,
-  },
-  bottomText: {
-    color: '#547CEF',
-    fontSize: 13,
+    paddingHorizontal: 8,
   },
   scrollContainer: {
     marginBottom: 50,

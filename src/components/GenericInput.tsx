@@ -1,6 +1,11 @@
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React from 'react';
-import {StyleSheet, TextInput, ViewStyle} from 'react-native';
+import {
+  KeyboardTypeOptions,
+  StyleSheet,
+  TextInput,
+  ViewStyle,
+} from 'react-native';
 import {PortColors} from './ComponentUtils';
 import {
   FontSizeType,
@@ -16,6 +21,7 @@ const GenericInput = ({
   setText,
   inputStyle,
   size = 'md',
+  type = 'default',
   alignment = 'center',
   editable = true,
   maxLength = NAME_LENGTH_LIMIT,
@@ -24,6 +30,7 @@ const GenericInput = ({
   placeholder?: string;
   text: string;
   multiline?: boolean;
+  type?: KeyboardTypeOptions;
   setText?: any;
   editable?: boolean;
   size?: 'sm' | 'md';
@@ -55,6 +62,7 @@ const GenericInput = ({
           ],
           inputStyle,
         )}
+        keyboardType={type}
         maxLength={maxLength}
         editable={editable}
         placeholder={placeholder}

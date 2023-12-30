@@ -5,6 +5,7 @@ import {
 } from '@components/NumberlessText';
 import React, {ReactNode, memo} from 'react';
 import {StyleSheet, View} from 'react-native';
+import {screen} from './ComponentUtils';
 
 const GenericModalTopbar = ({
   title,
@@ -41,14 +42,17 @@ const GenericModalTopbar = ({
 
 const styles = StyleSheet.create({
   bar: {
-    alignSelf: 'flex-end',
-    marginTop: 10,
+    marginVertical: 20,
+    width: screen.width,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
-
   rightOptionalIconStyle: {
     width: 65,
     height: 65,
-    alignSelf: 'flex-end',
+    position: 'absolute',
+    right: 24,
   },
 });
 

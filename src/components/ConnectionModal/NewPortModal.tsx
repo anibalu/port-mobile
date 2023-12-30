@@ -45,7 +45,7 @@ const NewPortModal: React.FC = () => {
   }, []);
 
   const [createPressed, setCreatePressed] = useState<boolean>(false);
-
+  const [loadingShare, setLoadingShare] = useState(false);
   const [isLoadingBundle, setIsLoadingBundle] = useState(true);
   const [bundleGenError, setBundleGenError] = useState<boolean>(false);
   const [qrCodeData, setQRCodeData] = useState<string>('');
@@ -112,6 +112,7 @@ const NewPortModal: React.FC = () => {
   };
   //handles sharing in link form
   const handleShare = async () => {
+    setLoadingShare(true);
     try {
       const linkURL = await fetchLinkData();
       const shareContent = {
@@ -123,6 +124,8 @@ const NewPortModal: React.FC = () => {
       await Share.open(shareContent);
     } catch (error) {
       console.log('Error sharing content: ', error);
+    } finally {
+      setLoadingShare(false);
     }
   };
 
@@ -210,6 +213,7 @@ const NewPortModal: React.FC = () => {
           disabled={bundleGenError}
           IconLeft={ShareIcon}
           iconStyleLeft={{alignItems: 'center'}}
+          loading={loadingShare}
           buttonStyle={StyleSheet.compose(
             [styles.button, {width: screen.width - 82}],
             bundleGenError && styles.disabledbutton,

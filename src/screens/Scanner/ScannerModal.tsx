@@ -1,23 +1,27 @@
 /**
  * QR scanner used in the App.
  */
+import Groups from '@assets/icons/GroupsBlue.svg';
+import SuperPorts from '@assets/icons/SuperportsBlue.svg';
 import Cross from '@assets/icons/cross.svg';
 import Link from '@assets/icons/linkGrey.svg';
+import Person from '@assets/icons/personBlue.svg';
 import SuccessQR from '@assets/icons/successqr.svg';
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
 import GenericModal from '@components/GenericModal';
 import GenericModalTopBar from '@components/GenericModalTopBar';
 import {
-  NumberlessBoldText,
-  NumberlessRegularText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import {processConnectionBundle} from '@utils/Bundles';
 import {BundleReadResponse} from '@utils/Bundles/interfaces';
 import {ConnectionType} from '@utils/Connections/interfaces';
-import React, {useState} from 'react';
+import React, {ReactNode, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
 import {useErrorModal} from 'src/context/ErrorModalContext';
@@ -35,6 +39,18 @@ export default function ScannerModal() {
   const {portCreationError, incorrectQRError} = useErrorModal();
 
   const [loading, setLoading] = useState(false);
+
+  //@ani convert this to a useState again.
+  const permissionPresets = [
+    'None',
+    'Friends',
+    'Family',
+    'Housing community',
+    'Instagram biz',
+    'Family group presets',
+  ];
+
+  const [selectedPreset, setSelectedPreset] = useState(permissionPresets[0]);
 
   const navigation = useNavigation<any>();
   const [label, setLabel] = useState(
@@ -98,7 +114,10 @@ export default function ScannerModal() {
     return false;
   };
   return (
-    <GenericModal visible={modalVisible} onClose={cleanScanModal}>
+    <GenericModal
+      avoidKeyboard={false}
+      visible={modalVisible}
+      onClose={cleanScanModal}>
       <View style={styles.successIndicatorArea}>
         <GenericModalTopBar
           RightOptionalIcon={Cross}
@@ -119,78 +138,154 @@ export default function ScannerModal() {
                 color={PortColors.primary.red.error}
               />
             </View>
-            <NumberlessRegularText style={styles.scanSuccessText}>
+            <NumberlessText
+              fontSizeType={FontSizeType.l}
+              fontType={FontType.rg}
+              style={styles.scanSuccessTextStyle}
+              textColor={PortColors.text.alertGreen}>
               Link successfully opened
-            </NumberlessRegularText>
+            </NumberlessText>
           </>
         ) : (
           <>
             <SuccessQR />
-            <NumberlessRegularText style={styles.scanSuccessText}>
+            <NumberlessText
+              fontSizeType={FontSizeType.l}
+              fontType={FontType.rg}
+              style={styles.scanSuccessTextStyle}
+              textColor={PortColors.text.alertGreen}>
               Scan successful
-            </NumberlessRegularText>
+            </NumberlessText>
           </>
         )}
 
         <View style={styles.newPortArea}>
-          <NumberlessBoldText>
-            {(() => {
-              if (connectionQRData) {
-                switch (connectionQRData.connectionType) {
-                  case ConnectionType.direct:
-                    return 'Connecting over Port with';
-                  case ConnectionType.group:
-                    return 'Joining group';
-                  case ConnectionType.superport:
-                    return 'Connecting over SuperPort with';
-                  default:
-                    return 'Connection type unknown';
-                }
-              } else {
-                return 'Connection type unknown';
-              }
-            })()}
-          </NumberlessBoldText>
-          {connectionQRData !== undefined &&
-            connectionQRData.connectionType === ConnectionType.group && (
-              <View style={styles.savedInput}>
-                <NumberlessBoldText style={styles.savedInputText}>
-                  {connectionQRData.data.name || 'group'}
-                </NumberlessBoldText>
+          {connectionQRData != undefined && (
+            <>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <View
+                  style={{
+                    padding: 5,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  {connectionQRData.connectionType === ConnectionType.direct ? (
+                    <Person />
+                  ) : connectionQRData.connectionType ===
+                    ConnectionType.superport ? (
+                    <SuperPorts />
+                  ) : (
+                    <Groups />
+                  )}
+                </View>
+
+                <NumberlessText
+                  fontSizeType={FontSizeType.l}
+                  fontType={FontType.sb}
+                  textColor={PortColors.text.title}>
+                  {(() => {
+                    if (connectionQRData) {
+                      switch (connectionQRData.connectionType) {
+                        case ConnectionType.direct:
+                          return 'Connected port with';
+                        case ConnectionType.group:
+                          return 'Join GroupPort';
+                        case ConnectionType.superport:
+                          return 'Connecting over SuperPort with';
+                        default:
+                          return 'Connection type unknown';
+                      }
+                    } else {
+                      return 'Connection type unknown';
+                    }
+                  })()}
+                </NumberlessText>
               </View>
-            )}
-          {connectionQRData !== undefined &&
-            connectionQRData.connectionType !== ConnectionType.group && (
-              <GenericInput
-                text={label}
-                wrapperStyle={{
-                  height: 60,
-                  marginVertical: 15,
-                  paddingHorizontal: 20,
-                }}
-                inputStyle={{...FontSizes[15].medium}}
-                setText={setLabel}
-                placeholder="Contact Name"
-              />
-            )}
-          {connectionQRData !== undefined &&
-            connectionQRData.connectionType === ConnectionType.group && (
-              <View style={styles.savedDescription}>
-                <NumberlessRegularText
-                  style={styles.savedDescriptionText}
-                  numberOfLines={5}
-                  ellipsizeMode="tail">
-                  {connectionQRData.data.description ||
-                    'No description available'}
-                </NumberlessRegularText>
+              {(connectionQRData.connectionType === ConnectionType.direct ||
+                connectionQRData.connectionType ===
+                  ConnectionType.superport) && (
+                <>
+                  <GenericInput
+                    text={label}
+                    inputStyle={{
+                      marginVertical: 19,
+                      height: 50,
+                      borderRadius: 8,
+                      paddingHorizontal: 20,
+                    }}
+                    setText={setLabel}
+                    placeholder="Contact Name"
+                  />
+                </>
+              )}
+
+              {connectionQRData.connectionType === ConnectionType.group && (
+                <>
+                  <NumberlessText
+                    fontSizeType={FontSizeType.m}
+                    fontType={FontType.md}
+                    style={StyleSheet.compose(styles.paddedTextBoxStyle, {
+                      textAlign: 'center',
+                    })}
+                    textColor={PortColors.text.title}>
+                    {connectionQRData.data.name || 'group'}
+                  </NumberlessText>
+
+                  <NumberlessText
+                    fontSizeType={FontSizeType.s}
+                    fontType={FontType.rg}
+                    style={styles.paddedTextBoxStyle}
+                    numberOfLines={3}
+                    ellipsizeMode="tail"
+                    textColor={PortColors.text.secondary}>
+                    {connectionQRData.data.description ||
+                      'No description available'}
+                  </NumberlessText>
+                </>
+              )}
+
+              <View style={styles.customiseBoxStyle}>
+                <NumberlessText
+                  fontSizeType={FontSizeType.m}
+                  fontType={FontType.md}
+                  textColor={PortColors.text.title}>
+                  Customise connections
+                </NumberlessText>
+                <NumberlessText
+                  fontSizeType={FontSizeType.m}
+                  fontType={FontType.rg}
+                  style={{marginTop: 16}}
+                  textColor={PortColors.text.secondary}>
+                  Permission preset set to:
+                </NumberlessText>
+                <View style={styles.tileContainerStyle}>
+                  {permissionPresets.map(permission => {
+                    return (
+                      <Tile
+                        title={permission}
+                        isActive={permission === selectedPreset}
+                        onPress={() => {
+                          setSelectedPreset(permission);
+                        }}
+                      />
+                    );
+                  })}
+                </View>
               </View>
-            )}
+            </>
+          )}
 
           <GenericButton
-            buttonStyle={
-              !checkSavePossible() ? styles.disabledbutton : styles.button
-            }
-            textStyle={{flex: 1, textAlign: 'center'}}
+            buttonStyle={StyleSheet.compose(
+              styles.button,
+              !checkSavePossible() ? {opacity: 0.7} : {},
+            )}
+            textStyle={{textAlign: 'center'}}
             loading={loading}
             onPress={saveNewConnection}>
             Save
@@ -201,23 +296,38 @@ export default function ScannerModal() {
   );
 }
 
+const Tile = ({
+  title,
+  isActive,
+  onPress,
+}: {
+  title: string;
+  isActive: boolean;
+  onPress: () => void;
+}): ReactNode => {
+  return (
+    <NumberlessText
+      onPress={onPress}
+      key={title}
+      style={{
+        backgroundColor: isActive
+          ? PortColors.primary.blue.app
+          : PortColors.primary.white,
+        padding: 8,
+        overflow: 'hidden',
+        borderRadius: 8,
+      }}
+      fontSizeType={FontSizeType.s}
+      fontType={FontType.md}
+      textColor={
+        isActive ? PortColors.text.primaryWhite : PortColors.text.labels
+      }>
+      {title}
+    </NumberlessText>
+  );
+};
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  permissionDenied: {
-    flex: 1,
-    backgroundColor: '#000000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingBottom: 100,
-    width: '100%',
-  },
   successIndicatorArea: {
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
@@ -226,135 +336,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scanSuccessText: {
-    color: PortColors.primary.success,
+  scanSuccessTextStyle: {
     marginTop: 20,
     alignSelf: 'center',
     marginBottom: 20,
+  },
+  tileContainerStyle: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingTop: 12,
+    columnGap: 8,
+    rowGap: 8,
   },
   newPortArea: {
     backgroundColor: PortColors.primary.white,
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    paddingTop: 30,
-    paddingBottom: 30,
+    paddingVertical: 30,
+    paddingHorizontal: 42,
   },
-  groupName: {
-    textAlign: 'center',
-    color: '#547CEF',
-  },
-  text: {
-    color: '#FFFFFF',
-  },
-  camera: {
-    height: '100%',
-    width: '100%',
-  },
-  cameraOptions: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
+  customiseBoxStyle: {
+    backgroundColor: PortColors.primary.grey.light,
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignSelf: 'stretch',
+    marginTop: 22,
+    padding: 24,
+    borderRadius: 13,
   },
-  scanArea: {
-    marginBottom: 100,
-    borderRadius: 14,
-  },
-  torch: {
-    position: 'absolute',
-    paddingBottom: 150,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  input: {
-    width: '85%',
-    height: 60,
-    ...FontSizes[17].bold,
-    backgroundColor: '#F6F6F6',
-    textAlign: 'center',
-    borderRadius: 8,
-    marginTop: 15,
-    marginBottom: 15,
-  },
-  roundButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: 'black',
-    borderRadius: 50,
-    opacity: 0.5,
-  },
-  popUpArea: {
+  paddedTextBoxStyle: {
+    padding: 20,
     width: '100%',
-    height: '100%',
-    justifyContent: 'flex-end',
-  },
-  saveButton: {
-    width: '80%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeButton: {
-    alignSelf: 'flex-end',
-    height: 60,
-    width: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginTop: 8,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: PortColors.primary.grey.light,
   },
   button: {
-    width: '85%',
     height: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
+    borderRadius: 16,
+    width: '100%',
     flexDirection: 'row',
-  },
-  disabledbutton: {
-    width: '85%',
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    opacity: 0.7,
-    flexDirection: 'row',
-  },
-  buttontext: {
-    color: 'white',
-    fontSize: 15,
-    width: '80%',
-    textAlign: 'center',
-  },
-  savedInput: {
-    width: '85%',
-    height: 60,
-    backgroundColor: '#F6F6F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    marginTop: 15,
-  },
-  savedInputText: {
-    textAlign: 'center',
-    color: '#000000',
-  },
-  savedDescription: {
-    width: '85%',
-    height: 150,
-    backgroundColor: '#F6F6F6',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    borderRadius: 8,
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  savedDescriptionText: {
-    textAlign: 'center',
-    color: '#000000',
-    height: '100%',
-    padding: 15,
+    marginTop: 32,
   },
 });

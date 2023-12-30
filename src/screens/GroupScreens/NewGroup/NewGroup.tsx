@@ -139,7 +139,7 @@ const style = StyleSheet.create({
   descriptionBoxStyle: {
     marginHorizontal: 14,
     marginTop: 23,
-    paddingLeft: 20,
+    paddingHorizontal: 20,
     paddingTop: 10,
     textAlignVertical: 'top',
     height: screen.height / 4,

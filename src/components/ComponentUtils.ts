@@ -11,6 +11,7 @@ export const PortColors = {
     labels: '#C9C9C9',
     primaryWhite: '#FFFFFF',
     greenLabel: '#00340B',
+    alertGreen: '#6FC960',
     delete: '#EE786B',
     messageBubble: {
       timestamp: '#868686',

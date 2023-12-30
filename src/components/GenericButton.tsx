@@ -29,21 +29,25 @@ export function GenericButton({
   onPress,
   buttonStyle,
   textStyle,
-  iconPosition = 'left',
-  iconStyle,
   iconSize,
-  Icon,
+  iconSizeRight,
+  IconLeft,
+  iconStyleLeft,
+  IconRight,
+  iconStyleRight,
   loading,
   disabled = false,
 }: {
   children?: React.ReactNode;
   onPress: any;
-  iconPosition?: 'left' | 'right';
-  iconStyle?: ViewStyle;
   buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: TextStyle;
   iconSize?: number;
-  Icon?: FC<SvgProps>;
+  IconLeft?: FC<SvgProps>;
+  iconStyleLeft?: ViewStyle;
+  IconRight?: FC<SvgProps>;
+  iconStyleRight?: ViewStyle;
+  iconSizeRight?: number;
   loading?: boolean;
   disabled?: boolean;
 }): ReactNode {
@@ -56,13 +60,13 @@ export function GenericButton({
         <ActivityIndicator size={'small'} color={PortColors.primary.white} />
       ) : (
         <>
-          {Icon && iconPosition == 'left' ? (
+          {IconLeft ? (
             <View
               style={StyleSheet.compose(
                 children ? {marginRight: 8} : {},
-                iconStyle,
+                iconStyleLeft,
               )}>
-              <Icon
+              <IconLeft
                 height={iconSize ? iconSize : 24}
                 width={iconSize ? iconSize : 24}
               />
@@ -76,15 +80,17 @@ export function GenericButton({
               {children}
             </NumberlessText>
           ) : null}
-          {Icon && iconPosition == 'right' ? (
+          {IconRight ? (
             <View
               style={StyleSheet.compose(
                 children ? {marginLeft: 8} : {},
-                iconStyle,
+                iconStyleRight,
               )}>
-              <Icon
-                height={iconSize ? iconSize : 24}
-                width={iconSize ? iconSize : 24}
+              <IconRight
+                height={
+                  iconSizeRight ? iconSizeRight : iconSize ? iconSize : 24
+                }
+                width={iconSizeRight ? iconSizeRight : iconSize ? iconSize : 24}
               />
             </View>
           ) : null}
@@ -98,6 +104,7 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
     backgroundColor: PortColors.primary.blue.app,
     borderRadius: 16,
     padding: 15,

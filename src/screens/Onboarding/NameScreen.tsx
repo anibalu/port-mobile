@@ -82,7 +82,7 @@ function NameScreen({navigation}: Props): ReactNode {
               name: processName(name),
             })
           }
-          Icon={Next}
+          IconLeft={Next}
           buttonStyle={onboardingStylesheet.nextButtonContainer}
         />
       </ScrollView>

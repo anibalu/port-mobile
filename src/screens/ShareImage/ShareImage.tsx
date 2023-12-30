@@ -112,7 +112,7 @@ const ShareImage = ({route, navigation}: Props) => {
           />
           <GenericButton
             onPress={navigateToPreview}
-            Icon={Send}
+            IconLeft={Send}
             buttonStyle={styles.button}
           />
         </View>

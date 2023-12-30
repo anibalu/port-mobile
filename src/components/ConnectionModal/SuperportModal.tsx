@@ -129,9 +129,8 @@ function ShowWelcomeScreen({
           marginBottom: 38,
         }}
         textStyle={{flex: 1, textAlign: 'center'}}
-        iconStyle={{right: 20}}
-        Icon={WhiteArrowRight}
-        iconPosition="right"
+        iconStyleRight={{right: 20}}
+        IconRight={WhiteArrowRight}
         onPress={createNewSuperport}>
         Create Superport
       </GenericButton>

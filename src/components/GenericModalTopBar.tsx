@@ -42,7 +42,6 @@ const GenericModalTopbar = ({
 const styles = StyleSheet.create({
   bar: {
     alignSelf: 'flex-end',
-    marginRight: 15,
     marginTop: 10,
   },
 

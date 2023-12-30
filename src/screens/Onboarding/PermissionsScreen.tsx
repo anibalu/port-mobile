@@ -119,7 +119,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
               name: processName(route.params.name),
             })
           }
-          Icon={Next}
+          IconLeft={Next}
           buttonStyle={onboardingStylesheet.nextButtonContainer}
         />
       </ScrollView>

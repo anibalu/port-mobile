@@ -5,16 +5,18 @@ const GenericModal = ({
   onClose,
   visible,
   children,
+  avoidKeyboard = true,
   position = 'flex-end',
 }: {
   onClose: any;
   visible: boolean;
   children: any;
+  avoidKeyboard?: boolean;
   position?: 'flex-end' | 'center';
 }) => {
   return (
     <Modal
-      avoidKeyboard={true}
+      avoidKeyboard={avoidKeyboard}
       onSwipeComplete={onClose}
       swipeDirection="down"
       backdropTransitionOutTiming={200}
@@ -26,7 +28,6 @@ const GenericModal = ({
         flex: 1,
         justifyContent: position,
         alignItems: 'center',
-        maxHeight: '100%',
       }}
       hideModalContentWhileAnimating={true}
       onBackButtonPress={onClose}

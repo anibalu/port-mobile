@@ -183,9 +183,8 @@ const CreateSuperportModal: React.FC = () => {
                 marginBottom: 38,
               }}
               textStyle={{flex: 1, textAlign: 'center'}}
-              iconStyle={{right: 20}}
-              Icon={WhiteArrowRight}
-              iconPosition="right"
+              iconStyleRight={{right: 20}}
+              IconRight={WhiteArrowRight}
               onPress={fetchQRCodeData}>
               Create Superport
             </GenericButton>
@@ -278,9 +277,8 @@ const CreateSuperportModal: React.FC = () => {
                       color: PortColors.primary.red.error,
                       textAlign: 'center',
                     }}
-                    Icon={Delete}
-                    iconStyle={{left: '180%', bottom: 2}}
-                    iconPosition="left"
+                    IconLeft={Delete}
+                    iconStyleLeft={{left: '180%', bottom: 2}}
                     onPress={handleClose}>
                     Close Superport
                   </GenericButton>
@@ -293,9 +291,8 @@ const CreateSuperportModal: React.FC = () => {
                       marginBottom: 38,
                     }}
                     textStyle={{flex: 1, textAlign: 'center'}}
-                    Icon={ShareIcon}
-                    iconStyle={{left: '100%', bottom: 2}}
-                    iconPosition="left"
+                    IconLeft={ShareIcon}
+                    iconStyleLeft={{left: '100%', bottom: 2}}
                     onPress={handleShare}>
                     Share as link instead
                   </GenericButton>

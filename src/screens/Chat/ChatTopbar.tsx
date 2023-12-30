@@ -67,14 +67,14 @@ function ChatTopbar({
         {selectedMessagesLength >= 1 ? (
           <GenericButton
             buttonStyle={styles.crossBox}
-            Icon={Cross}
+            IconLeft={Cross}
             iconSize={38}
             onPress={onCancelPressed}
           />
         ) : (
           <GenericButton
             buttonStyle={styles.settingsBox}
-            Icon={SettingsIcon}
+            IconLeft={SettingsIcon}
             onPress={onSettingsPressed}
           />
         )}

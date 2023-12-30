@@ -206,7 +206,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         />
         <GenericButton
           onPress={onSend}
-          Icon={Send}
+          IconLeft={Send}
           loading={isSending}
           buttonStyle={styles.button}
         />

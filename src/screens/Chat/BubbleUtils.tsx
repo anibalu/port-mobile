@@ -56,9 +56,9 @@ export function renderProfileName(
   isReply: boolean,
 ) {
   return (
-    <View style={{alignSelf: 'flex-start'}}>
+    <View style={{alignSelf: 'flex-start', marginBottom: 2}}>
       {shouldRender ? (
-        isReply ? (
+        isReply && isSender ? (
           <NumberlessText
             fontSizeType={FontSizeType.s}
             fontType={FontType.sb}
@@ -68,7 +68,7 @@ export function renderProfileName(
           </NumberlessText>
         ) : (
           <NumberlessText
-            fontSizeType={FontSizeType.l}
+            fontSizeType={FontSizeType.s}
             fontType={FontType.sb}
             ellipsizeMode="tail"
             textColor={PortColors.text.messageBubble.profileName}>

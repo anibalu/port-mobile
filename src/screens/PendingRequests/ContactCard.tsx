@@ -6,40 +6,54 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {AVATAR_ARRAY} from '@configs/constants';
+import {cleanDeletePort} from '@utils/Ports';
+import {
+  BundleTarget,
+  PendingCardInfo,
+  PortTable,
+} from '@utils/Ports/interfaces';
+import {getExpiryTag, getReadableTimestamp} from '@utils/Time';
 import React from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 
-const ContactCard = ({contactProps, onDelete}) => {
-  const {name, date, pendingStatus, expiry, chatStatus, isGroup} = contactProps;
+const ContactCard = (props: PendingCardInfo) => {
   return (
     <View style={styles.card}>
       <View style={styles.row}>
         <GenericAvatar
           avatarSize="small"
-          profileUri={isGroup ? AVATAR_ARRAY[14] : AVATAR_ARRAY[13]}
+          profileUri={
+            props.target === BundleTarget.group
+              ? AVATAR_ARRAY[14]
+              : AVATAR_ARRAY[13]
+          }
         />
         <View style={styles.textrow}>
           <NumberlessText
             fontType={FontType.md}
             fontSizeType={FontSizeType.m}
             style={styles.text}>
-            {name}
+            {props.name}
           </NumberlessText>
           <NumberlessText
             fontType={FontType.md}
-            fontSizeType={FontSizeType.m}
+            fontSizeType={FontSizeType.s}
             style={styles.subtitle}>
-            {date}
+            {getReadableTimestamp(props.usedOnTimestamp)}
           </NumberlessText>
           <NumberlessText
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}
             style={styles.infonote}>
-            {pendingStatus}
+            {props.stage}
           </NumberlessText>
         </View>
 
-        <Pressable onPress={onDelete} style={styles.declinebutton}>
+        <Pressable
+          onPress={async () => {
+            await cleanDeletePort(props.portId, props.table);
+          }}
+          style={styles.declinebutton}>
           <Text style={styles.buttonText}>DELETE</Text>
         </Pressable>
       </View>
@@ -48,15 +62,17 @@ const ContactCard = ({contactProps, onDelete}) => {
           fontType={FontType.md}
           fontSizeType={FontSizeType.s}
           style={
-            chatStatus === 'Initiated' ? styles.initiatedInfo : styles.inforight
+            props.table === PortTable.generated
+              ? styles.initiatedInfo
+              : styles.inforight
           }>
-          {chatStatus}
+          {props.channelDescription}
         </NumberlessText>
         <NumberlessText
           fontType={FontType.md}
           fontSizeType={FontSizeType.s}
           style={styles.expiry}>
-          {expiry}
+          {getExpiryTag(props.expiryTimestamp)}
         </NumberlessText>
       </View>
     </View>
@@ -77,6 +93,7 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   buttonrow: {
     flexDirection: 'row',
@@ -112,7 +129,6 @@ const styles = StyleSheet.create({
   },
 
   textrow: {
-    marginLeft: 15,
     marginRight: 5,
   },
   subtitle: {

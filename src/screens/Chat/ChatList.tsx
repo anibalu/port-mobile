@@ -3,6 +3,8 @@ import {checkDateBoundary} from '@utils/Time';
 import React, {ReactNode} from 'react';
 import {FlatList} from 'react-native-bidirectional-infinite-scroll';
 import MessageBubble from './MessageBubble';
+import Group from '@utils/Groups/Group';
+import DirectChat from '@utils/DirectChats/DirectChat';
 /**
  * Renders an inverted flatlist that displays all chat messages.
  * @param messages - messages to be displayed
@@ -23,7 +25,7 @@ function ChatList({
   handleLongPress,
   onStartReached,
   isGroupChat,
-  groupInfo,
+  dataHandler,
 }: {
   messages: SavedMessageParams[];
   allowScrollToTop: boolean;
@@ -32,7 +34,7 @@ function ChatList({
   handlePress: any;
   handleLongPress: any;
   isGroupChat: boolean;
-  groupInfo: any;
+  dataHandler: Group | DirectChat;
 }): ReactNode {
   //render function to display message bubbles
   const renderMessage = ({
@@ -64,7 +66,7 @@ function ChatList({
         handlePress={handlePress}
         handleLongPress={handleLongPress}
         isGroupChat={isGroupChat}
-        groupInfo={groupInfo}
+        dataHandler={dataHandler}
       />
     );
   };

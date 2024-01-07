@@ -3,17 +3,10 @@ import * as DBCalls from './DBCalls/lineMessage';
 
 /**
  * saves message to storage.
- * @param {string} chatId - chatId of chat
  * @param {SavedMessageParams} message - message to save
- * @param {boolean} blocking - deprecated, unused value
  */
-export async function saveMessage(
-  //chatId: string,
-  message: SavedMessageParams,
-  blocking: boolean = true,
-): Promise<void> {
-  blocking.toString();
-  await DBCalls.addMessage({...message});
+export async function saveMessage(message: SavedMessageParams): Promise<void> {
+  await DBCalls.addMessage(message);
   return;
 }
 /**
@@ -27,6 +20,20 @@ export async function getMessage(
   messageId: string,
 ): Promise<null | SavedMessageParams> {
   return await DBCalls.getMessage(chatId, messageId);
+}
+
+/**
+ * Update the data of an existing message in storage
+ * @param chatId the chatId of a message in storage
+ * @param messageId the messageId of a message in storage
+ * @param update the new data value
+ */
+export async function updateMessage(
+  chatId: string,
+  messageId: string, //with sender prefix
+  update: any, //{...data,deleted:true}
+): Promise<void> {
+  await DBCalls.updateMessage(chatId, messageId, update);
 }
 
 /**
@@ -60,11 +67,9 @@ export async function updateMessageSendStatus(
   chatId: string,
   messageId: string, //with sender prefix
   updatedStatus: MessageStatus,
-  blocking: boolean = false,
   deliveredTimestamp?: string,
   readTimestamp?: string,
 ): Promise<void> {
-  blocking.toString();
   if (updatedStatus || updatedStatus === 0) {
     if (deliveredTimestamp && updatedStatus === MessageStatus.delivered) {
       await DBCalls.updateStatusAndTimestamp(
@@ -93,18 +98,18 @@ export async function updateMessageSendStatus(
 }
 
 /**
- * Update the data of an existing message in storage
- * @param chatId the chatId of a message in storage
- * @param messageId the messageId of a message in storage
- * @param update the new data value
- * @param blocking unused, deprecated value
+ * @param chatId , chat to be loaded
+ * @param latestTimestamp , lower bound of messages that need to be fetched
+ * @returns {SavedMessageParams[]} list of messages
+ * has been directly imported without abstraction
  */
-export async function updateMessage(
+export async function getLatestMessages(
   chatId: string,
-  messageId: string, //with sender prefix
-  update: any, //{...data,deleted:true}
-  blocking: boolean = false,
-): Promise<void> {
-  blocking.toString();
-  await DBCalls.updateMessage(chatId, messageId, update);
+  latestTimestamp: string,
+): Promise<SavedMessageParams[]> {
+  return await DBCalls.getLatestMessages(chatId, latestTimestamp);
+}
+
+export async function getJournaled(): Promise<SavedMessageParams[]> {
+  return await DBCalls.getUnsent();
 }

@@ -1,12 +1,16 @@
 /**
  * Default chat tile displayed when there are no connections
  */
-import React, {useState} from 'react';
-import {Image, Pressable, StyleSheet} from 'react-native';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import CheckBox from '@react-native-community/checkbox';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
-import DefaultImage from '@assets/avatars/avatar.png';
+import React, {useState} from 'react';
+import {Pressable, StyleSheet} from 'react-native';
 
 function AddMemberTile({
   member,
@@ -23,18 +27,24 @@ function AddMemberTile({
   };
 
   return (
-    <Pressable style={styles.defaultTileContainer} onPress={onCheckboxToggle}>
-      <Image
-        source={{
-          uri: member?.pathToDisplayPic
-            ? member.pathToDisplayPic
-            : Image.resolveAssetSource(DefaultImage).uri,
-        }}
-        style={styles.newIcon}
-      />
-      <NumberlessMediumText style={styles.defaultTileText} numberOfLines={1}>
-        {member.name}
-      </NumberlessMediumText>
+    <Pressable
+      style={styles.defaultTileContainer}
+      //Prevents inner items from intercepting touches, all touches are handled by the parent.
+      pointerEvents="box-only"
+      onPress={onCheckboxToggle}>
+      <>
+        <GenericAvatar
+          avatarSize="small"
+          profileUri={member.pathToDisplayPic}
+        />
+        <NumberlessText
+          style={styles.defaultTileTextStyle}
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.md}>
+          {member.name}
+        </NumberlessText>
+      </>
+
       <CheckBox value={toggleCheckBox} />
     </Pressable>
   );
@@ -52,13 +62,9 @@ const styles = StyleSheet.create({
     padding: 15,
     justifyContent: 'space-between',
   },
-  defaultTileText: {
-    color: '#18191F',
-    marginTop: 12,
-    textAlign: 'left',
+  defaultTileTextStyle: {
     flex: 1,
     marginLeft: 19,
-    fontSize: 17,
   },
   newIcon: {
     width: 60,

@@ -8,7 +8,12 @@ export type AppStackParamList = {
   AddMembers: {groupId: string};
   Scanner: undefined;
   EditAvatar: undefined;
-  DirectChat: {chatId: string};
+  DirectChat: {
+    chatId: string;
+    isGroupChat: boolean;
+    isConnected: boolean;
+    profileUri: string | undefined | null;
+  };
   ContactProfile: {chatId: string};
   Placeholder: undefined;
   ShareGroup: {groupId: string};
@@ -17,12 +22,6 @@ export type AppStackParamList = {
   NewGroup: {errorMessage: string};
   GroupProfile: {groupId: string};
   NewContact: {groupId: string};
-  NewSuperport: {superportId: string};
-  SetupGroup: {
-    groupName: string;
-    groupDescription: string;
-    displayPicPath: string | undefined;
-  };
   ViewPhotosVideos: {chatId: string};
   SharedMedia: {chatId: string};
   ViewFiles: {chatId: string};
@@ -39,11 +38,15 @@ export type AppStackParamList = {
     Img: any;
   };
   SuggestAFeature: undefined;
-  ShareImage: {
+  SelectShareContacts: {
     shareMessages: [];
+    isText?: boolean;
   };
   GalleryConfirmation: {
     selectedMembers: ConnectionInfo[];
     shareMessages: [];
+    isChat?: boolean;
   };
+  Presets: undefined;
+  PendingRequests: undefined;
 };

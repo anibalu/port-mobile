@@ -1,8 +1,8 @@
 import {SavedServerAuthToken} from '../ServerAuth/interfaces';
 import {
-  readAuthTokenRNFS,
-  saveAuthTokenRNFS,
-} from './StorageRNFS/authTokenHandlers';
+  getTokenInfoRNSS,
+  saveTokenInfoRNSS,
+} from './RNSecure/secureTokenHandler';
 
 /**
  * saves server auth token to storage.
@@ -13,14 +13,16 @@ export async function saveAuthToken(
   savedToken: SavedServerAuthToken,
   blocking: boolean = false,
 ) {
-  await saveAuthTokenRNFS(savedToken, blocking);
+  await saveTokenInfoRNSS(savedToken, blocking);
 }
 
 /**
  * reads server auth token from storage
  * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- * @returns {Promise<SavedServerAuthToken>} - server auth token read from storage.
+ * @returns {Promise<SavedServerAuthToken | undefined>} - server auth token read from storage.
  */
-export async function readAuthToken(blocking: boolean = false) {
-  return await readAuthTokenRNFS(blocking);
+export async function readAuthToken(
+  blocking: boolean = false,
+): Promise<SavedServerAuthToken | undefined> {
+  return await getTokenInfoRNSS(blocking);
 }

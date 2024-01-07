@@ -5,7 +5,7 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "ready-all": "yarn install;echo 'Running Bundle installer...' ;cd ios;bundle install; echo 'Running pod install...';bundle exec pod install;echo 'App ready';",
+    "ready-all": "yarn install;echo 'Running Bundle installer...' ;cd ios;bundle install; echo 'Running pod install...';bundle exec pod install;echo 'App ready';yarn start;",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@notifee/react-native": "^7.8.0",
-    "@numberless/react-native-numberless-crypto": "0.1.15",
+    "@numberless/react-native-numberless-crypto": "0.1.22",
     "@react-native-clipboard/clipboard": "^1.12.1",
     "@react-native-community/checkbox": "^0.5.16",
     "@react-native-firebase/app": "^17.5.0",

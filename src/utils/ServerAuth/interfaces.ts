@@ -14,7 +14,5 @@ export interface SavedServerAuthToken {
 }
 
 export interface SolvedAuthChallenge {
-  ciphertext: string;
-  nonce: string;
-  associatedData: string;
+  signedChallenge: string;
 }

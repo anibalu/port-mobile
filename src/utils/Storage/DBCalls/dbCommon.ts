@@ -1,27 +1,26 @@
 var SQLite = require('react-native-sqlite-storage');
 SQLite.enablePromise(true);
 
-const db_singleton_helper: any[] = [];
+const dbSingletonHelper: any[] = [];
 /**
  * Connect to our SQLite Database
- * @returns a simple db connection
+ * @returns a simple db connection. returns null if there's an error opening a db.
  */
 async function getDB() {
-  if (db_singleton_helper[0]) {
-    return db_singleton_helper[0];
+  if (dbSingletonHelper[0]) {
+    return dbSingletonHelper[0];
   }
-  db_singleton_helper.push(
-    await SQLite.openDatabase(
+  try {
+    const db = await SQLite.openDatabase(
       {name: 'numberless.db', location: 'default'},
-      () => {
-        console.log('Sucessfully opened database.');
-      },
-      err => {
-        console.log('Failed to open database: ', err);
-      },
-    ),
-  );
-  return db_singleton_helper[0];
+      () => console.log('Successfully opened database.'),
+      (err: any) => console.log('Failed to open database:', err),
+    );
+    dbSingletonHelper.push(db);
+    return db;
+  } catch (error) {
+    return null;
+  }
 }
 
 /**
@@ -33,11 +32,16 @@ async function getDB() {
 export async function runSimpleQuery(
   preparedStatement: string,
   args: Array<any>,
-  onSuccess: Function,
+  onSuccess: (tx: any, results: any) => void,
 ) {
   const db = await getDB();
-  await db.transaction(tx => {
-    tx.executeSql(preparedStatement, args, onSuccess);
-  });
-  // db.close();
+  if (db) {
+    try {
+      await db.transaction((tx: any) => {
+        tx.executeSql(preparedStatement, args, onSuccess);
+      });
+    } catch (error) {
+      console.log('Error in running query: ', error);
+    }
+  }
 }

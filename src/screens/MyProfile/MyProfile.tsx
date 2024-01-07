@@ -21,10 +21,12 @@ import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {getProfileName, getProfilePicture} from '@utils/Profile';
+import {getProfileName, getProfilePictureUri} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import ReportIssueModal from '../BugReporting/ReportIssueModal';
+import PermissionIconInactive from '@assets/permissions/permissions-inactive.svg';
+import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -37,7 +39,7 @@ function MyProfile({navigation}: Props): ReactNode {
 
   //updates profile picture with user set profile picture
   async function setPicture(): Promise<void> {
-    const uri = await getProfilePicture();
+    const uri = await getProfilePictureUri();
     if (uri && uri !== '') {
       setProfileURI(uri);
     }
@@ -102,6 +104,27 @@ function MyProfile({navigation}: Props): ReactNode {
           </View>
         </View>
       </View>
+
+      <Pressable
+        style={styles.tileCardStyle}
+        onPress={() => {
+          navigation.navigate('Presets');
+        }}>
+        <PermissionIconInactive
+          style={{
+            padding: 13,
+            borderRadius: 12,
+            backgroundColor: PortColors.primary.blue.app,
+          }}
+        />
+        <NumberlessText
+          style={{textAlign: 'left', marginLeft: 18, flex: 1}}
+          fontSizeType={FontSizeType.l}
+          fontType={FontType.rg}>
+          Permission presets
+        </NumberlessText>
+        <GreyArrowRight style={{marginRight: 18}} />
+      </Pressable>
 
       <GenericButton
         buttonStyle={styles.reportIssueButton}
@@ -190,6 +213,17 @@ const styles = StyleSheet.create({
     borderRadius: 38,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  tileCardStyle: {
+    backgroundColor: PortColors.primary.white,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    marginTop: 16,
+    marginHorizontal: 24,
+    padding: 10,
+    borderRadius: 16,
   },
 });
 

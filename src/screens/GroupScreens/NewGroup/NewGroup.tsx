@@ -1,14 +1,18 @@
 import Avatar4 from '@assets/avatars/avatar4.svg';
 import ChatBackground from '@components/ChatBackground';
-import {FontSizes, screen} from '@components/ComponentUtils';
+import {screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
 import GenericTopBar from '@components/GenericTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import Group from '@utils/Groups/Group';
+import {fetchNewPorts} from '@utils/Ports';
+import {generateISOTimeStamp} from '@utils/Time';
 import React, {useCallback, useState} from 'react';
 import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewGroup'>;
 
@@ -20,6 +24,9 @@ const NewGroup = ({route, navigation}: Props) => {
   //const [image, setImage] = useState('');
   const [isButtonActive, setIsButtonActive] = useState(false);
   const {errorMessage = ''} = route.params || {};
+  const groupHandler = new Group();
+  const [setupLoading, setSetupLoading] = useState(false);
+  const {unableToCreateGroupError} = useErrorModal();
 
   const onChangeGroupName = useCallback((newText: string) => {
     setGroupName(newText);
@@ -33,6 +40,33 @@ const NewGroup = ({route, navigation}: Props) => {
   const onChangeGroupDescription = useCallback((newText: string) => {
     setGroupDescription(newText);
   }, []);
+
+  const onCreatePressed = async () => {
+    setSetupLoading(true);
+    try {
+      await groupHandler.createGroup({
+        name: groupName.trim(),
+        description: groupDescription.trim(),
+        groupPicture: image,
+        joinedAt: generateISOTimeStamp(),
+        amAdmin: true,
+      });
+      await generateLinks();
+      navigation.navigate('ShareGroup', {
+        groupId: groupHandler.getGroupIdNotNull(),
+      });
+    } catch (error) {
+      unableToCreateGroupError();
+      console.log('error in group creation: ', error);
+      return false;
+    } finally {
+      setSetupLoading(false);
+    }
+  };
+
+  const generateLinks = async () => {
+    await fetchNewPorts(groupHandler.getGroupIdNotNull());
+  };
 
   // const onImagePressed = async () => {
   //   try {
@@ -53,7 +87,6 @@ const NewGroup = ({route, navigation}: Props) => {
       <ChatBackground />
       <GenericTopBar
         title={'New Group'}
-        titleStyle={{...FontSizes[17].bold}}
         onBackPress={() => {
           navigation.goBack();
         }}
@@ -98,14 +131,9 @@ const NewGroup = ({route, navigation}: Props) => {
             buttonStyle={
               isButtonActive ? style.activeButton : style.inactiveButton
             }
+            loading={setupLoading}
             onPress={() => {
-              isButtonActive
-                ? navigation.navigate('SetupGroup', {
-                    groupName: groupName.trim(),
-                    groupDescription: groupDescription.trim(),
-                    displayPicPath: image,
-                  })
-                : null;
+              isButtonActive ? onCreatePressed() : null;
             }}>
             Next
           </GenericButton>

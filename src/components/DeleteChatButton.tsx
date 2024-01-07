@@ -1,28 +1,21 @@
 import React from 'react';
-import {useNavigation} from '@react-navigation/native';
 import {Pressable, StyleSheet} from 'react-native';
 import {NumberlessSemiBoldText} from './NumberlessText';
-import {deleteConnection} from '@utils/Connections';
 
 /**
  * When clicked, deletes the history of the chat and redirects to the home page
  * @param props Includes the lineId to delete, if the button is pressed
  */
 export default function DeleteChatButton(props: {
-  chatId: string;
+  onDelete: () => void;
   stripMargin?: boolean;
 }) {
-  const navigation = useNavigation();
-  const invokeConnectionDelete = () => {
-    deleteConnection(props.chatId);
-    navigation.navigate('HomeTab');
-  };
   const buttonStyle = StyleSheet.compose(
     styles.buttonStyle,
     props.stripMargin ? styles.stripMargin : {},
   );
   return (
-    <Pressable onPress={invokeConnectionDelete} style={buttonStyle}>
+    <Pressable onPress={props.onDelete} style={buttonStyle}>
       <NumberlessSemiBoldText style={styles.textStyle}>
         Delete history
       </NumberlessSemiBoldText>

@@ -2,23 +2,16 @@
  * A class responsible for managing message send operations.
  * The class is strictly typed so that a contentType accepts only its relevant data type.
  */
-import {checkMediaIdAndKeyValidity, generateISOTimeStamp} from '@utils/Time';
-import {generateRandomHexId} from '../idGenerator';
-import * as storage from '@utils/Storage/messages';
+import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
+import store from '@store/appStore';
 import {isGroupChat, updateConnectionOnNewMessage} from '@utils/Connections';
 import {ReadStatus} from '@utils/Connections/interfaces';
-import store from '@store/appStore';
-import {encryptMessage} from '@utils/Crypto/aes';
-import {ServerAuthToken} from '@utils/ServerAuth/interfaces';
-import {getToken} from '@utils/ServerAuth';
-import axios from 'axios';
-import {
-  DIRECT_MESSAGING_RESOURCE,
-  GROUP_MESSAGING_RESOURCE,
-} from '@configs/api';
-import {uploadLargeFile} from '../largeData';
-import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {moveToLargeFileDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import * as storage from '@utils/Storage/messages';
+import {checkMediaIdAndKeyValidity, generateISOTimeStamp} from '@utils/Time';
 import {
   ContentType,
   DataType,
@@ -31,6 +24,8 @@ import {
   SavedMessageParams,
   TextParams,
 } from '../interfaces';
+import {uploadLargeFile} from '../LargeData/largeData';
+import * as API from './APICalls';
 
 class SendMessage<T extends ContentType> {
   private chatId: string; //chatId of chat
@@ -40,7 +35,7 @@ class SendMessage<T extends ContentType> {
   private messageId: string; //messageId of message (optional)
   private savedMessage: SavedMessageParams; //message to be saved to storage
   private payload: PayloadMessageParams; //message to be encrypted and sent.
-
+  private isGroup: boolean; //whether chat is group or not.
   //construct the class.
   constructor(
     chatId: string,
@@ -71,24 +66,24 @@ class SendMessage<T extends ContentType> {
       data: this.data,
       replyId: this.replyId,
     };
+    this.isGroup = false;
   }
 
   //only public function. Handles lifecycle of send operation.
-  public async send(journal: boolean = true) {
+  public async send(journal: boolean = true, shouldEncrypt: boolean = true) {
     try {
+      //check if group
+      this.isGroup = await isGroupChat(this.chatId);
       //load up saved message in storage if it exists
       await this.loadSavedMessage();
       //perform rudimentary checks before progressing further
       this.validateMessage();
       //pre-process message appropriately.
       await this.preProcessMessage(journal);
-      //get encrypted payload. @todo: encrypt data with crypto driver.
-      const encryptedPayload = await encryptMessage(
-        this.chatId,
-        JSON.stringify(this.payload),
-      );
+      //get processed payload that can be sent.
+      const processedPayload = await this.processPayload(shouldEncrypt);
       //try sending encrypted payload
-      const newSendStatus = await this.trySending(encryptedPayload);
+      const newSendStatus = await this.trySending(processedPayload);
       //post-process large data message to update new data and timestamp in storage.
       await this.postProcessLargeDataMessage(newSendStatus);
       //update status of message based on output of try sending operation
@@ -103,37 +98,23 @@ class SendMessage<T extends ContentType> {
   //post request to API to send encrypted payload
   //return success/journaled based on post success/failure
   private async trySending(
-    encryptedPayload: string,
+    processedPayload: object,
   ): Promise<MessageStatus.sent | MessageStatus.journaled> {
-    const isGroup: boolean = await isGroupChat(this.chatId);
-    try {
-      const token: ServerAuthToken = await getToken();
-      if (isGroup) {
-        //post to group messaging resource
-        await axios.post(
-          GROUP_MESSAGING_RESOURCE,
-          {
-            type: 'group',
-            message: encryptedPayload,
-            chat: this.chatId,
-          },
-          {headers: {Authorization: `${token}`}},
-        );
-      } else {
-        //post to direct messaging resource
-        await axios.post(
-          DIRECT_MESSAGING_RESOURCE,
-          {
-            message: encryptedPayload,
-            line: this.chatId,
-          },
-          {headers: {Authorization: `${token}`}},
-        );
-      }
-      return MessageStatus.sent;
-    } catch (error) {
-      console.log('Error in try sending operation: ', error);
-      return MessageStatus.journaled;
+    return await API.sendObject(this.chatId, processedPayload, this.isGroup);
+  }
+  /**
+   * takes a payload and converts it to a string/encrypted string that can be sent.
+   * @param shouldEncrypt - whether processed payload needs to be encrypted or not.
+   */
+  private async processPayload(shouldEncrypt: boolean): Promise<object> {
+    const plaintext = JSON.stringify(this.payload);
+    if (!shouldEncrypt || this.isGroup) {
+      return {content: plaintext};
+    } else {
+      const chat = new DirectChat(this.chatId);
+      const chatData = await chat.getChatData();
+      const cryptoDriver = new CryptoDriver(chatData.cryptoId);
+      return {encryptedContent: await cryptoDriver.encrypt(plaintext)};
     }
   }
 

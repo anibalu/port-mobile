@@ -1,9 +1,12 @@
 import {
-  NumberlessBoldText,
-  NumberlessRegularText,
+  FontSizeType,
+  FontType,
+  NumberlessLinkText,
+  NumberlessText,
 } from '@components/NumberlessText';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React from 'react';
+import {View} from 'react-native';
 
 export default function TextReplyContainer({
   message,
@@ -14,12 +17,18 @@ export default function TextReplyContainer({
 }) {
   return (
     <>
-      <NumberlessBoldText style={{color: '#000'}}>
+      <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.sb}>
         {memberName}
-      </NumberlessBoldText>
-      <NumberlessRegularText numberOfLines={3}>
-        {message.data.text}
-      </NumberlessRegularText>
+      </NumberlessText>
+      <View style={{marginTop: 3, marginRight: 20}}>
+        <NumberlessLinkText
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}
+          numberOfLines={3}
+          ellipsizeMode="tail">
+          {message.data.text}
+        </NumberlessLinkText>
+      </View>
     </>
   );
 }

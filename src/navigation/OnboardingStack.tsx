@@ -12,7 +12,11 @@ function OnboardingStack() {
   return (
     <Stack.Navigator
       initialRouteName="Welcome"
-      screenOptions={{headerShown: false}}>
+      screenOptions={{
+        headerShown: false,
+        orientation: 'portrait',
+        gestureEnabled: false,
+      }}>
       <Stack.Screen name="Welcome" component={Welcome} />
       <Stack.Screen name="NameScreen" component={NameScreen} />
       <Stack.Screen name="PermissionsScreen" component={PermissionsScreen} />

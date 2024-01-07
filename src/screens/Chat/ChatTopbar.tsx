@@ -1,13 +1,17 @@
 import SettingsIcon from '@assets/icons/contact-settings.svg';
 import Cross from '@assets/icons/cross.svg';
 import {BackButton} from '@components/BackButton';
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import React, {ReactNode} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 /**
  * Handles top bar for chat
@@ -30,7 +34,7 @@ function ChatTopbar({
 }: {
   name: string;
   selectedMessagesLength: number;
-  profileURI?: string;
+  profileURI?: string | null;
   onSettingsPressed: () => void;
   onBackPress: () => void;
   onCancelPressed: () => void;
@@ -40,45 +44,50 @@ function ChatTopbar({
       <View style={styles.backAndProfile}>
         <BackButton style={styles.backIcon} onPress={onBackPress} />
         {selectedMessagesLength == 0 && (
-          <Pressable onPress={onSettingsPressed}>
-            <GenericAvatar profileUri={profileURI} avatarSize={'extraSmall'} />
-          </Pressable>
+          <GenericAvatar
+            onPress={onSettingsPressed}
+            profileUri={profileURI}
+            avatarSize={'extraSmall'}
+          />
         )}
         <View style={styles.titleBar}>
           {selectedMessagesLength >= 1 ? (
-            <NumberlessMediumText
-              style={styles.selectedCount}
+            <NumberlessText
+              fontSizeType={FontSizeType.l}
+              fontType={FontType.md}
               ellipsizeMode="tail"
+              style={styles.selectedCount}
               numberOfLines={1}>
               {selectedMessagesLength.toString() + ' selected'}
-            </NumberlessMediumText>
+            </NumberlessText>
           ) : (
-            <NumberlessMediumText
+            <NumberlessText
+              fontSizeType={FontSizeType.l}
+              fontType={FontType.md}
+              ellipsizeMode="tail"
               style={styles.title}
               onPress={onSettingsPressed}
-              ellipsizeMode="tail"
               numberOfLines={1}>
               {name}
-            </NumberlessMediumText>
+            </NumberlessText>
           )}
         </View>
       </View>
-      <View>
-        {selectedMessagesLength >= 1 ? (
-          <GenericButton
-            buttonStyle={styles.crossBox}
-            IconLeft={Cross}
-            iconSize={38}
-            onPress={onCancelPressed}
-          />
-        ) : (
-          <GenericButton
-            buttonStyle={styles.settingsBox}
-            IconLeft={SettingsIcon}
-            onPress={onSettingsPressed}
-          />
-        )}
-      </View>
+
+      {selectedMessagesLength >= 1 ? (
+        <GenericButton
+          buttonStyle={styles.crossBox}
+          IconLeft={Cross}
+          iconSize={38}
+          onPress={onCancelPressed}
+        />
+      ) : (
+        <GenericButton
+          buttonStyle={styles.settingsBox}
+          IconLeft={SettingsIcon}
+          onPress={onSettingsPressed}
+        />
+      )}
     </View>
   );
 }
@@ -102,13 +111,11 @@ const styles = StyleSheet.create({
     maxWidth: '60%',
   },
   selectedCount: {
-    ...FontSizes[17].semibold,
     color: PortColors.primary.black,
     overflow: 'hidden',
     width: screen.width / 2,
   },
   title: {
-    ...FontSizes[17].medium,
     color: PortColors.primary.black,
     overflow: 'hidden',
     width: '100%',
@@ -121,6 +128,7 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     alignItems: 'flex-end',
     height: 42,
+    top: 5,
     width: 42,
   },
   crossBox: {

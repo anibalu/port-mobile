@@ -5,21 +5,24 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import React, {memo} from 'react';
-import {StyleSheet, TextStyle, View} from 'react-native';
+import {StyleSheet, TextStyle, View, ViewStyle} from 'react-native';
+import {PortColors} from './ComponentUtils';
 
 const GenericTopBar = ({
   title,
   titleStyle,
   onBackPress,
   rightOptionalIcon,
+  barStyle,
 }: {
   title: string;
   titleStyle?: TextStyle;
+  barStyle?: ViewStyle;
   onBackPress: any;
   rightOptionalIcon?: any;
 }) => {
   return (
-    <View style={styles.bar}>
+    <View style={StyleSheet.compose(styles.bar, barStyle)}>
       <BackButton style={styles.backIcon} onPress={onBackPress} />
       <NumberlessText
         fontSizeType={FontSizeType.l}
@@ -46,7 +49,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    backgroundColor: '#FFF',
+    backgroundColor: PortColors.primary.white,
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
     height: 65,

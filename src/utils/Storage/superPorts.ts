@@ -1,0 +1,59 @@
+import * as dbCalls from './DBCalls/superPorts';
+import {SuperportData, SuperportDataUpdate} from '@utils/Ports/interfaces';
+/**
+ * Create a new super port entry
+ * Add a new super port to the list
+ * @param portId a 32 character string identifying a port
+ */
+export async function newSuperport(portId: string) {
+  await dbCalls.newSuperport(portId);
+}
+
+/**
+ * Update an existing super port
+ * @param portId a 32 character identifier for a super port
+ * @param update updates to be performed on a super port
+ */
+export async function updateSuperportData(
+  portId: string,
+  update: SuperportDataUpdate,
+) {
+  await dbCalls.updateSuperportData(portId, update);
+}
+
+/**
+ * A 32 character string identifying a superport
+ * to read a superport
+ * @param portId a 32 character string identifying a superport
+ * @returns information associated with the superport
+ */
+export async function getSuperportData(
+  portId: string,
+): Promise<SuperportDataUpdate | null> {
+  return await dbCalls.getSuperportData(portId);
+}
+
+/**
+ * Get all superports
+ * @returns information associated with the superport
+ */
+export async function getAllSuperports(): Promise<SuperportData[]> {
+  return await dbCalls.getAllSuperports();
+}
+
+/**
+ * Delete a superport entry
+ * @param portId a 32 character identifier for a superport
+ */
+export async function deleteSuperPortData(portId: string) {
+  await dbCalls.deleteSuperPortData(portId);
+}
+
+/**
+ * decrements connections possible by 1
+ * @param portId
+ */
+export async function decrementConnectionsPossible(portId: string) {
+  // Start the transaction
+  await dbCalls.decrementConnectionsPossible(portId);
+}

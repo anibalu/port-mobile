@@ -2,9 +2,13 @@
  * A reducer for connections
  */
 
-import {ConnectionInfo, Connections} from '@utils/Connections/interfaces';
+import {
+  ConnectionInfo,
+  StoreConnection,
+  StoreConnections,
+} from '@utils/Connections/interfaces';
 
-const initialState: Connections = {
+const initialState: StoreConnections = {
   connections: [],
 };
 
@@ -14,7 +18,10 @@ export default function connections(state = initialState, action: any) {
       return {
         ...state,
         connections: [
-          action.payload,
+          {
+            chatId: action.payload.chatId,
+            stringifiedConnection: JSON.stringify(action.payload),
+          },
           ...state.connections.filter(
             item => item.chatId !== action.payload.chatId,
           ),
@@ -31,7 +38,10 @@ export default function connections(state = initialState, action: any) {
       return {
         ...state,
         connections: [
-          action.payload,
+          {
+            chatId: action.payload.chatId,
+            stringifiedConnection: JSON.stringify(action.payload),
+          },
           ...state.connections.filter(
             item => item.chatId !== action.payload.chatId,
           ),
@@ -48,7 +58,12 @@ export default function connections(state = initialState, action: any) {
     case 'LOAD_CONNECTIONS':
       return {
         ...state,
-        connections: action.payload,
+        connections: (action.payload as ConnectionInfo[]).map(connection => {
+          return {
+            chatId: connection.chatId,
+            stringifiedConnection: JSON.stringify(connection),
+          };
+        }),
       };
     default:
       return state;
@@ -56,14 +71,14 @@ export default function connections(state = initialState, action: any) {
 }
 
 function updatedConnectionsWithoutPromotion(
-  oldConnections: ConnectionInfo[],
+  oldConnections: StoreConnection[],
   update: ConnectionInfo,
 ) {
   const index: number = oldConnections.findIndex(
     obj => obj.chatId === update.chatId,
   );
   if (index !== -1) {
-    oldConnections[index] = update;
+    oldConnections[index].stringifiedConnection = JSON.stringify(update);
   }
-  return oldConnections;
+  return [...oldConnections];
 }

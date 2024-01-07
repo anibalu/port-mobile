@@ -1,11 +1,14 @@
-import React, {useEffect, useState} from 'react';
-import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
-import FileViewer from 'react-native-file-viewer';
 import DefaultImage from '@assets/avatars/avatar.png';
-import {NumberlessMediumText} from '@components/NumberlessText';
-import {DEFAULT_NAME} from '@configs/constants';
+import FileIcon from '@assets/icons/FileClip.svg';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
-import FileIcon from '@assets/icons/File.svg';
+import React, {useEffect, useState} from 'react';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
+import FileViewer from 'react-native-file-viewer';
 
 export default function FileReplyContainer({
   message,
@@ -41,44 +44,22 @@ export default function FileReplyContainer({
         }}>
         <FileIcon />
       </View>
+      <View style={{marginLeft: 12}}>
+        <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.sb}>
+          {memberName}
+        </NumberlessText>
 
-      <View style={{marginLeft: 22}}>
-        {renderProfileName(
-          shouldRenderProfileName(memberName),
-          memberName,
-          message.sender,
-        )}
-        <Text style={styles.fileText}>File</Text>
+        <NumberlessText
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}
+          style={{marginTop: 3, marginRight: 20}}>
+          File
+        </NumberlessText>
       </View>
     </Pressable>
   );
 }
 
-function shouldRenderProfileName(memberName: string) {
-  if (memberName === '') {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function renderProfileName(
-  shouldRender: boolean,
-  name: string = DEFAULT_NAME,
-  isSender: boolean,
-) {
-  return (
-    <View>
-      {isSender ? (
-        <NumberlessMediumText>You</NumberlessMediumText>
-      ) : shouldRender ? (
-        <NumberlessMediumText>{name}</NumberlessMediumText>
-      ) : (
-        <View />
-      )}
-    </View>
-  );
-}
 const styles = StyleSheet.create({
   replyImageContainer: {
     minWidth: '70%',

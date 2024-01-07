@@ -17,9 +17,9 @@ import {GenericAvatar} from '@components/GenericAvatar';
 import {avatarmapping} from '@configs/avatarmapping';
 import {GenericButton} from '@components/GenericButton';
 import {launchImageLibrary} from 'react-native-image-picker';
-import {getProfilePicture, setNewProfilePicture} from '@utils/Profile';
+import {getProfilePictureUri, setNewProfilePicture} from '@utils/Profile';
 import {useNavigation} from '@react-navigation/native';
-import {FileAttributes} from '@utils/Storage/sharedFile';
+import {FileAttributes} from '@utils/Storage/interfaces';
 import {DEFAULT_AVATAR} from '@configs/constants';
 
 function EditAvatar() {
@@ -55,7 +55,7 @@ function EditAvatar() {
 
   //updates profile picture with user set profile picture
   async function setPicture() {
-    const uri = await getProfilePicture();
+    const uri = await getProfilePictureUri();
     if (uri && uri !== '') {
       setImagePath(uri);
     }
@@ -124,25 +124,23 @@ function EditAvatar() {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           style={styles.avatarAccordion}>
-          {avatarmapping.map(avatar => {
+          {avatarmapping.slice(0, 13).map(avatar => {
             const id = avatar.id;
             return (
-              <Pressable
-                style={styles.avatarmap}
-                onPress={() => {
-                  setImagePath('avatar://' + id);
-                  setProfilePicAttr({
-                    fileUri: 'avatar://' + id,
-                    fileName: id,
-                    fileType: 'avatar',
-                  });
-                }}
-                key={id}>
+              <View style={styles.avatarmap} key={id}>
                 <GenericAvatar
                   profileUri={'avatar://' + id}
                   avatarSize="medium"
+                  onPress={() => {
+                    setImagePath('avatar://' + id);
+                    setProfilePicAttr({
+                      fileUri: 'avatar://' + id,
+                      fileName: id,
+                      fileType: 'avatar',
+                    });
+                  }}
                 />
-              </Pressable>
+              </View>
             );
           })}
         </ScrollView>

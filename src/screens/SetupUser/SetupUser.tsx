@@ -14,14 +14,14 @@ import ProgressBar from '@components/ProgressBar';
 import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {getInitialDirectConnectionLinks} from '@utils/ConnectionLinks/direct';
-import {initialiseFCM} from '@utils/Messaging/fcm';
-import {setupNewProfile} from '@utils/Profile';
+import store from '@store/appStore';
+import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
+import {fetchNewPorts} from '@utils/Ports';
+import {setupProfile} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useErrorModal} from 'src/context/ErrorModalContext';
-import store from '@store/appStore';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
 
@@ -41,7 +41,7 @@ function SetupUser({route, navigation}: Props) {
       setLoaderText("We're setting up a safe place");
       setProfileUri(AVATAR_ARRAY[1]);
 
-      const response = await setupNewProfile(processedName);
+      const response = await setupProfile(processedName);
       if (response === ProfileStatus.created) {
         return true;
       }
@@ -51,13 +51,13 @@ function SetupUser({route, navigation}: Props) {
       //get initial set of connection links
       setLoaderText('Getting you ready to connect with others');
       setProfileUri(AVATAR_ARRAY[2]);
-
-      return await getInitialDirectConnectionLinks();
+      await fetchNewPorts();
+      return true;
     },
     async (): Promise<boolean> => {
       //initialise FCM
       setLoaderText("We're almost there");
-      setProfileUri('avatar://4');
+      setProfileUri(AVATAR_ARRAY[3]);
       return await initialiseFCM();
     },
   ];

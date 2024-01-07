@@ -11,7 +11,7 @@ Our react native codebase for our end to end encrypted, authenticated, identifie
 	d. Run "rbenv install 2.7.6"
 	e. Run "rbenv local 2.7.6"
     f. Run "ruby --version" to ensure the right verion of ruby is being used (ruby 2.7.6)
-2. npm install (//use react-native-numberless-crypto module version 0.1.15 for actual iphone and 0.1.16 for iphone emulator. if you have 1.15, remove the ^ symbol so that RN doesn't use the newer library)
+2. npm install (//use react-native-numberless-crypto module version 0.1.19 for actual iphone and 0.1.18 for iphone emulator. if you have 1.18, remove the ^ symbol so that RN doesn't use the newer library)
 3. cd ios
 4. bundle install
 5. bundle exec pod install

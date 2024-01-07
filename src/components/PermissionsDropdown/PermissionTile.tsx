@@ -2,11 +2,16 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {NumberlessRegularText} from '@components/NumberlessText';
 import ToggleSwitch from 'toggle-switch-react-native';
-import {getConnection, updateConnection} from '@utils/Connections';
 import {screen} from '@components/ComponentUtils';
+import {
+  getChatPermissions,
+  updateChatPermissions,
+} from '@utils/ChatPermissions';
+import {Permissions} from '@utils/ChatPermissions/interfaces';
+import {ChatType} from '@utils/Connections/interfaces';
 
 export default function PermissionTile(props: {
-  permissionValue: string;
+  permissionValue: keyof Permissions;
   permissionName: string;
   currentState: boolean;
   chatId: string;
@@ -24,26 +29,17 @@ export default function PermissionTile(props: {
         isOn={currentState}
         onColor={'#547CEF'}
         offColor={'#B7B6B6'}
-        onToggle={newState => {
-          updatePermission(props.chatId, props.permissionValue, newState);
+        onToggle={async (newState: boolean) => {
+          const update: Permissions = {};
+          update[props.permissionValue] = newState;
           setCurrentState(newState);
+          console.log('toggled to new state: ', update);
+          await updateChatPermissions(props.chatId, update);
+          console.log(await getChatPermissions(props.chatId, ChatType.direct));
         }}
       />
     </View>
   );
-}
-
-async function updatePermission(
-  chatId: string,
-  permissionValue: string,
-  newState: boolean,
-) {
-  let permissionsObject = (await getConnection(chatId)).permissions;
-  permissionsObject[permissionValue].toggled = newState;
-  await updateConnection({
-    chatId: chatId,
-    permissions: permissionsObject,
-  });
 }
 
 const styles = StyleSheet.create({

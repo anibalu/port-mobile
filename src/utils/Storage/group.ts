@@ -1,71 +1,38 @@
-import {GroupInfo} from '../Groups/interfaces';
-import {
-  deleteGroupDisplayPicRNFS,
-  getGroupInfoRNFS,
-  readGroupDisplayPicAttributesRNFS,
-  saveGroupInfoRNFS,
-  writeGroupDisplayPicAttributesRNFS,
-} from './StorageRNFS/groupsHandlers';
-
-import {FileAttributes} from './sharedFile';
+import {GroupData, GroupDataStrict} from '@utils/Groups/interfaces';
+import * as dbCalls from './DBCalls/group';
 
 /**
- * saves group info to storage
- * @param {GroupInfo} group - group info to be saved
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
+ * Create a new group entry
+ * @param id a 32 character string identifying a group
  */
-export async function saveGroupInfo(
-  group: GroupInfo,
-  blocking: boolean = false,
-) {
-  await saveGroupInfoRNFS(group, blocking);
+export async function newGroup(id: string) {
+  await dbCalls.newGroup(id);
 }
 
 /**
- * returns saved group info
- * @param {string} groupId - group id who's information is to be fetched
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- * @returns {GroupInfo} - group info saved
+ * A 32 character string identifying a group
+ * @param id a 32 character string identifying a group
+ * @returns information associated with the group
  */
-export async function getGroupInfo(groupId: string, blocking: boolean = false) {
-  return await getGroupInfoRNFS(blocking, groupId);
+export async function getGroupData(
+  id: string,
+): Promise<GroupDataStrict | null> {
+  return await dbCalls.getGroupData(id);
 }
 
 /**
- * returns group display picture attributes
- * @param {string} groupId - groupId of the group.
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- * @returns {Promise<FileAttributes>} - profile picture file attributes
+ * Update an existing group
+ * @param id a 32 character identifier for a group
+ * @param update updates to be performed on a group
  */
-export async function getGroupDisplayPicAttributes(
-  groupId: string,
-  blocking: boolean = false,
-): Promise<FileAttributes> {
-  return await readGroupDisplayPicAttributesRNFS(groupId, blocking);
+export async function updateGroupData(id: string, update: GroupData) {
+  await dbCalls.updateGroupData(id, update);
 }
 
 /**
- * saves group display picture attributes
- * @param {string} groupId - groupId of the group.
- * @param {FileAttributes} file - profile picture file attributes
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
+ * Delete a group entry
+ * @param id a 32 character identifier for a group
  */
-export async function saveGroupProfilePicAttributes(
-  groupId: string,
-  file: FileAttributes,
-  blocking: boolean = false,
-) {
-  await writeGroupDisplayPicAttributesRNFS(groupId, file, blocking);
-}
-
-/**
- * deletes group display picture
- * @param {string} groupId - groupId of the group.
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- */
-export async function deleteGroupDisplayPicture(
-  groupId: string,
-  blocking: boolean = false,
-) {
-  await deleteGroupDisplayPicRNFS(groupId, blocking);
+export async function deleteGroupData(id: string) {
+  await dbCalls.deleteGroupData(id);
 }

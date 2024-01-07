@@ -6,21 +6,28 @@ import Delete from '@assets/icons/redTrash.svg';
 import {GenericButton} from '@components/GenericButton';
 import GenericModalTopBar from '@components/GenericModalTopBar';
 import {
-  closeGeneratedSuperport,
-  generateDirectSuperportConnectionBundle,
-  loadGeneratedSuperport,
-} from '@utils/Bundles/directSuperport';
-import {DirectSuperportConnectionBundle} from '@utils/Bundles/interfaces';
-import {convertBundleToLink} from '@utils/DeepLinking';
+  cleanDeletePort,
+  fetchSuperport,
+  getBundleClickableLink,
+} from '@utils/Ports';
+import {
+  BundleTarget,
+  DirectSuperportBundle,
+  PortTable,
+} from '@utils/Ports/interfaces';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import Share from 'react-native-share';
+import {useSelector} from 'react-redux';
 import {useConnectionModal} from '../../context/ConnectionModalContext';
 import {PortColors, screen} from '../ComponentUtils';
 import GenericInput from '../GenericInput';
 import GenericModal from '../GenericModal';
 import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
 import {displayQR} from './QRUtils';
+import {useErrorModal} from 'src/context/ErrorModalContext';
+
+const LINK_ARRAY_LIMIT = [null, 5, 10, 50, 100];
 
 const CreateSuperportModal: React.FC = () => {
   const {
@@ -37,11 +44,13 @@ const CreateSuperportModal: React.FC = () => {
   const [qrCodeData, setQRCodeData] = useState<string>('');
   const [linkData, setLinkData] = useState<string>('');
 
+  const latestNewConnection = useSelector(state => state.latestNewConnection);
+
   const [loadingOperation, setLoadingOperation] = useState(false);
 
-  //@ani use this for setting limits
-  const [linkLimit, setLinkLimit] = useState(60);
-
+  //Is null if the incoming limit after creation is null, which means that the user has unlimited scans.
+  const [linkLimit, setLinkLimit] = useState<number | null>(2);
+  const {unableToSharelinkError} = useErrorModal();
   const cleanupModal = () => {
     hideModal();
     setSuperportId('');
@@ -63,18 +72,18 @@ const CreateSuperportModal: React.FC = () => {
       setBundleGenError(false);
       setIsLoadingBundle(true);
       if (superportId && superportId !== '') {
-        const fullBundle = await loadGeneratedSuperport(superportId);
-        const bundle: DirectSuperportConnectionBundle = fullBundle;
+        const {bundle, superport} = await fetchSuperport(superportId);
         setQRCodeData(JSON.stringify(bundle));
-        const newLabel =
-          fullBundle.label && fullBundle.label !== ''
-            ? fullBundle.label
-            : 'unlabeled';
-        setLabel(newLabel);
-      } else {
+        setLabel(superport.label ? superport.label : 'unlabeled');
+        setLinkLimit(superport.connectionsPossible);
+      } else if (linkLimit != null) {
         const newLabel = label.trim() !== '' ? label.trim() : 'unlabeled';
         setLabel(newLabel);
-        const bundle = await generateDirectSuperportConnectionBundle(label);
+        const {bundle} = await fetchSuperport(
+          null,
+          newLabel,
+          LINK_ARRAY_LIMIT[Math.abs(linkLimit) % 5],
+        );
         setQRCodeData(JSON.stringify(bundle));
       }
     } catch (error) {
@@ -84,11 +93,40 @@ const CreateSuperportModal: React.FC = () => {
       setIsLoadingBundle(false);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (modalVisible && latestNewConnection) {
+          const latestUsedConnectionLinkId =
+            latestNewConnection.connectionLinkId;
+
+          if (qrCodeData !== '') {
+            const {superport} = await fetchSuperport(
+              latestUsedConnectionLinkId,
+            );
+            console.log('Updating data: ', superport.connectionsPossible);
+            setLinkLimit(superport.connectionsPossible);
+          }
+        }
+      } catch (error) {
+        console.log('error autoclosing modal: ', error);
+      }
+    })();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestNewConnection]);
+
   //converts qr bundle into link.
   const fetchLinkData = async () => {
     if (!isLoadingBundle && !bundleGenError && qrCodeData !== '') {
       if (linkData === '') {
-        const link = await convertBundleToLink(qrCodeData);
+        const bundle: DirectSuperportBundle = JSON.parse(qrCodeData);
+        const link = await getBundleClickableLink(
+          BundleTarget.superportDirect,
+          bundle.portId,
+          qrCodeData,
+        );
         setLinkData(link);
         return link;
       }
@@ -99,15 +137,19 @@ const CreateSuperportModal: React.FC = () => {
   };
   //handles sharing in link form
   const handleShare = async () => {
-    setLoadingOperation(true);
     try {
-      const linkURL = await fetchLinkData();
-      const shareContent = {
-        title: 'Share a new Superport',
-        message: linkURL,
-      };
-      await Share.open(shareContent);
+      setLoadingOperation(true);
+      let linkURL = null;
+      linkURL = await fetchLinkData();
+      if (linkURL != null) {
+        const shareContent = {
+          title: 'Share a new Superport',
+          message: linkURL,
+        };
+        await Share.open(shareContent);
+      }
     } catch (error) {
+      unableToSharelinkError();
       console.log('Error sharing content: ', error);
     } finally {
       setLoadingOperation(false);
@@ -117,9 +159,12 @@ const CreateSuperportModal: React.FC = () => {
     setLoadingOperation(true);
     try {
       if (superportId && superportId !== '') {
-        await closeGeneratedSuperport(superportId);
+        await cleanDeletePort(superportId, PortTable.superport);
       } else {
-        await closeGeneratedSuperport(JSON.parse(qrCodeData).data.linkId);
+        await cleanDeletePort(
+          JSON.parse(qrCodeData).data.linkId,
+          PortTable.superport,
+        );
       }
       openSuperportModal();
     } catch (error) {
@@ -146,13 +191,7 @@ const CreateSuperportModal: React.FC = () => {
           fontType={FontType.sb}
           style={{marginTop: 23}}
           textColor={PortColors.text.title}>
-          Set connect limit
-        </NumberlessText>
-        <NumberlessText
-          fontSizeType={FontSizeType.s}
-          fontType={FontType.rg}
-          textColor={PortColors.text.delete}>
-          upper limit is 100
+          Set connections limit
         </NumberlessText>
       </>
     );
@@ -177,6 +216,7 @@ const CreateSuperportModal: React.FC = () => {
               text={label}
               inputStyle={{
                 marginVertical: 12,
+                height: 50,
               }}
               setText={setLabel}
               placeholder="Enter superport label"
@@ -192,7 +232,7 @@ const CreateSuperportModal: React.FC = () => {
               }}>
               <NumberlessText
                 onPress={() => {
-                  setLinkLimit(limit => limit - 1);
+                  setLinkLimit(val => val! - 1);
                 }}
                 style={styles.fauxButtonStyle}
                 fontSizeType={FontSizeType.xl}
@@ -201,21 +241,24 @@ const CreateSuperportModal: React.FC = () => {
                 -
               </NumberlessText>
               <GenericInput
-                text={linkLimit.toString()}
+                text={
+                  //Cannot be null here, as linkLimit is not set to null if the user is creating a port
+                  Math.abs(linkLimit!) % 5 === 0
+                    ? 'Unlimited'
+                    : LINK_ARRAY_LIMIT[Math.abs(linkLimit!) % 5]!.toString()
+                }
                 inputStyle={{
                   width: 100,
                   marginHorizontal: 20,
                   marginVertical: 12,
+                  height: 50,
                 }}
-                type="numeric"
-                setText={(txt: string) => {
-                  setLinkLimit(parseInt(txt));
-                }}
+                editable={false}
                 alignment="center"
               />
               <NumberlessText
                 onPress={() => {
-                  setLinkLimit(limit => limit + 1);
+                  setLinkLimit(val => val! + 1);
                 }}
                 style={styles.fauxButtonStyle}
                 fontSizeType={FontSizeType.xl}
@@ -262,6 +305,7 @@ const CreateSuperportModal: React.FC = () => {
             <GenericInput
               inputStyle={{
                 marginVertical: 12,
+                height: 50,
               }}
               editable={false}
               text={label}
@@ -297,7 +341,13 @@ const CreateSuperportModal: React.FC = () => {
                     paddingHorizontal: 30,
                   }}
                   textColor={PortColors.text.secondary}>
-                  {linkLimit}
+                  {superportId
+                    ? linkLimit != null
+                      ? linkLimit
+                      : 'Unlimited'
+                    : Math.abs(linkLimit!) % 5 === 0
+                    ? 'Unlimited'
+                    : LINK_ARRAY_LIMIT[Math.abs(linkLimit!) % 5]!.toString()}
                 </NumberlessText>
               </>
             ) : (

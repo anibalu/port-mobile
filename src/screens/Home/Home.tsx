@@ -11,11 +11,15 @@ import {useFocusEffect} from '@react-navigation/native';
 // import store from '@store/appStore';
 // import {getConnections} from '@utils/Connections';
 import CenterInformationModal from '@components/CenterInformationModal';
-import {PortColors} from '@components/ComponentUtils';
 import OnboardingCarousel from '@components/InformationDisplay/OnboardingCarousel';
-import {ConnectionInfo, ReadStatus} from '@utils/Connections/interfaces';
+import {
+  ConnectionInfo,
+  ReadStatus,
+  StoreConnection,
+} from '@utils/Connections/interfaces';
 import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import {cancelAllNotifications} from '@utils/Notifications';
+import {useReadBundles} from '@utils/Ports';
 import React, {ReactElement, ReactNode, useEffect, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
@@ -23,8 +27,15 @@ import DefaultChatTile from './DefaultChatTile';
 import HomeTopbar from './HomeTopbar';
 
 //rendered chat tile of a connection
-function renderChatTile(connection: ConnectionInfo): ReactElement {
-  return <ChatTile {...connection} />;
+function renderChatTile(connection: StoreConnection): ReactElement {
+  try {
+    const newConnection: ConnectionInfo = JSON.parse(
+      connection.stringifiedConnection,
+    );
+    return <ChatTile {...newConnection} />;
+  } catch (error) {
+    return <></>;
+  }
 }
 
 //renders default chat tile when there are no connections to display
@@ -33,9 +44,9 @@ function renderDefaultTile(): ReactNode {
 }
 function Home(): ReactNode {
   const [viewableConnections, setViewableConnections] = useState<
-    ConnectionInfo[]
+    StoreConnection[]
   >([]);
-  const connections: ConnectionInfo[] = useSelector(
+  const connections: StoreConnection[] = useSelector(
     state => state.connections.connections,
   );
   const showOnboardingInfo = useSelector(
@@ -50,7 +61,9 @@ function Home(): ReactNode {
     React.useCallback(() => {
       (async () => {
         await sendJournaled();
-        //setConnections(await getConnections());
+
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        await useReadBundles();
       })();
       // Cancel all notifications when I land on the home screen
       cancelAllNotifications();
@@ -67,7 +80,9 @@ function Home(): ReactNode {
     } else {
       setViewableConnections(
         connections.filter(member =>
-          member?.name?.toLowerCase().includes(searchText.toLowerCase()),
+          JSON.parse(member.stringifiedConnection)
+            ?.name?.toLowerCase()
+            .includes(searchText.toLowerCase()),
         ),
       );
     }
@@ -81,7 +96,10 @@ function Home(): ReactNode {
         //sets new unread count when store experiences a change.
         let count = 0;
         for (const connection of connections) {
-          if (connection.readStatus === ReadStatus.new) {
+          if (
+            JSON.parse(connection.stringifiedConnection).readStatus ===
+            ReadStatus.new
+          ) {
             count++;
           }
         }
@@ -94,6 +112,7 @@ function Home(): ReactNode {
     <SafeAreaView>
       <ChatBackground />
       <HomeTopbar unread={totalUnread} toptitleMessage="All" />
+
       <FlatList
         data={viewableConnections}
         renderItem={element => renderChatTile(element.item)}
@@ -121,12 +140,6 @@ function Home(): ReactNode {
 const styles = StyleSheet.create({
   chats: {
     paddingHorizontal: 19,
-  },
-  skipButton: {
-    backgroundColor: PortColors.primary.white,
-    position: 'absolute',
-    right: 31,
-    top: 20,
   },
 });
 

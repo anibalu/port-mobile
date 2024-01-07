@@ -1,77 +1,63 @@
-import {Permissions} from '../ChatPermissions/interfaces';
 import {ContentType} from '../Messaging/interfaces';
 
-export enum ConnectionType {
-  'direct',
-  'group',
-  'superport',
+export enum ChatType {
+  direct,
+  group,
 }
 
 export enum ReadStatus {
-  new = 'new',
-  read = 'read',
-  sent = 'sent',
-  journaled = 'journaled',
+  new,
+  read,
+  sent,
+  journaled,
 }
-
-export type ConnectionInfo = {
+export interface ConnectionInfoUpdate {
   chatId: string;
-  connectionType: ConnectionType | number;
-  name: string;
-  permissions: Permissions | object;
-  text?: string;
-  recentMessageType: ContentType | number;
-  pathToDisplayPic?: string;
-  readStatus: ReadStatus | number;
-  authenticated: boolean;
-  timestamp: string;
-  newMessageCount: number;
-  disconnected?: boolean;
-};
-/**
- * flattened version of ConnectionInfo for DB operations
- */
-export type ConnectionEntry = {
-  chatId: string;
-  connectionType: number;
-  name: string;
-  permissions: object;
-  text?: string;
-  recentMessageType?: number;
-  pathToDisplayPic?: string;
-  readStatus?: number;
-  authenticated?: boolean;
-  timestamp?: string;
-  newMessageCount?: number;
-  disconnected?: boolean;
-};
-
-export type ConnectionInfoUpdate = {
-  chatId: string;
-  connectionType?: ConnectionType;
+  connectionType?: ChatType;
   name?: string;
-  permissions?: Permissions;
-  text?: string;
+  text?: string | null;
   recentMessageType?: ContentType;
-  pathToDisplayPic?: string;
+  pathToDisplayPic?: string | null;
   readStatus?: ReadStatus;
   authenticated?: boolean;
   timestamp?: string;
   newMessageCount?: number;
   disconnected?: boolean;
-};
+}
 
-export type ConnectionInfoUpdateOnNewMessage = {
+export interface ConnectionInfo extends ConnectionInfoUpdate {
+  chatId: string;
+  connectionType: ChatType;
+  name: string;
+  text?: string | null;
+  recentMessageType: ContentType;
+  pathToDisplayPic?: string | null;
+  readStatus: ReadStatus;
+  authenticated: boolean;
+  timestamp: string;
+  newMessageCount: number;
+  disconnected?: boolean;
+}
+
+export interface ConnectionInfoUpdateOnNewMessage extends ConnectionInfoUpdate {
   chatId: string;
   name?: string;
-  permissions?: Permissions;
   text?: string;
   recentMessageType: ContentType;
   pathToDisplayPic?: string;
   readStatus: ReadStatus;
   authenticated?: boolean;
-};
+}
 
 export interface Connections {
   connections: ConnectionInfo[];
+}
+
+export interface StoreConnection {
+  chatId: string;
+  stringifiedConnection: string;
+}
+
+export interface StoreConnections {
+  connections: StoreConnection[];
 }

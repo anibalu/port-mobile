@@ -1,6 +1,10 @@
 import {PAGINATION_LIMIT} from '@configs/constants';
 import {runSimpleQuery} from './dbCommon';
-import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {
+  DataType,
+  MessageStatus,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
 
 function toBool(a: number) {
   if (a) {
@@ -8,20 +12,7 @@ function toBool(a: number) {
   }
   return false;
 }
-
-export type MessageEntry = {
-  messageId: string;
-  chatId: string;
-  contentType: number;
-  data: object;
-  replyId: string;
-  sender: boolean;
-  memberId: string;
-  messageStatus: number;
-  timestamp: string;
-};
-
-export async function addMessage(message: MessageEntry) {
+export async function addMessage(message: SavedMessageParams) {
   await runSimpleQuery(
     `
     INSERT INTO lineMessages (
@@ -55,7 +46,7 @@ export async function addMessage(message: MessageEntry) {
 export async function updateMessage(
   chatId: string,
   messageId: string,
-  data: object,
+  data: DataType,
 ) {
   await runSimpleQuery(
     `
@@ -68,6 +59,34 @@ export async function updateMessage(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
+}
+
+/**
+ * Get a message
+ * @param chatId The chat id of the message you seek
+ * @param messageId the message id of the message you seek
+ * @returns the message you seek, if it exists
+ */
+export async function getMessage(
+  chatId: string,
+  messageId: string,
+): Promise<null | SavedMessageParams> {
+  let entry = null;
+  await runSimpleQuery(
+    `
+    SELECT * FROM lineMessages
+    WHERE chatId = ? and messageId = ? ;
+    `,
+    [chatId, messageId],
+    (tx, results) => {
+      if (results.rows.length) {
+        entry = results.rows.item(0);
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+      }
+    },
+  );
+  return entry;
 }
 
 /**
@@ -133,30 +152,10 @@ export async function updateStatusAndTimestamp(
 }
 
 /**
- * Get the list of messages for a chatId
- * @param chatId the chat id to get messages for
- * @returns the list of chat ids to get messages for
- */
-export async function getMessageIterator(chatId: string) {
-  let messageIterator = {};
-  await runSimpleQuery(
-    `
-    SELECT * FROM lineMessages
-    WHERE chatId = ? 
-    ORDER BY timestamp ASC;
-    `,
-    [chatId],
-    (tx, results) => {
-      messageIterator = results;
-    },
-  );
-  return messageIterator;
-}
-
-/**
  * @param chatId , chat to be loaded
  * @param latestTimestamp , lower bound of messages that need to be fetched
  * @returns {SavedMessageParams[]} list of messages
+ * has been directly imported without abstraction
  */
 export async function getLatestMessages(
   chatId: string,
@@ -182,6 +181,27 @@ export async function getLatestMessages(
     },
   );
   return messageList;
+}
+
+/**
+ * Get the list of messages for a chatId
+ * @param chatId the chat id to get messages for
+ * @returns the list of chat ids to get messages for
+ */
+async function getMessageIterator(chatId: string) {
+  let messageIterator = {};
+  await runSimpleQuery(
+    `
+    SELECT * FROM lineMessages
+    WHERE chatId = ? 
+    ORDER BY timestamp ASC;
+    `,
+    [chatId],
+    (tx, results) => {
+      messageIterator = results;
+    },
+  );
+  return messageIterator;
 }
 
 //Is reversed, fetches messages from end of list.
@@ -225,31 +245,6 @@ export async function getPaginatedMessages(chatId: string, cursor?: number) {
   const newCursor = Math.max(0, startFetchIndex);
 
   return {messages: messages, cursor: newCursor, maxLength: len};
-}
-
-/**
- * Get a message
- * @param chatId The chat id of the message you seek
- * @param messageId the message id of the message you seek
- * @returns the message you seek, if it exists
- */
-export async function getMessage(chatId: string, messageId: string) {
-  let entry = null;
-  await runSimpleQuery(
-    `
-    SELECT * FROM lineMessages
-    WHERE chatId = ? and messageId = ? ;
-    `,
-    [chatId, messageId],
-    (tx, results) => {
-      if (results.rows.length) {
-        entry = results.rows.item(0);
-        entry.data = JSON.parse(entry.data);
-        entry.sender = toBool(entry.sender);
-      }
-    },
-  );
-  return entry;
 }
 
 /**

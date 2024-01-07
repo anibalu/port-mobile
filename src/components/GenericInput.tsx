@@ -1,9 +1,10 @@
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React from 'react';
 import {
-  KeyboardTypeOptions,
+  StyleProp,
   StyleSheet,
   TextInput,
+  TextInputProps,
   ViewStyle,
 } from 'react-native';
 import {PortColors} from './ComponentUtils';
@@ -15,30 +16,23 @@ import {
 } from './NumberlessText';
 
 const GenericInput = ({
-  placeholder,
   text,
-  multiline = false,
   setText,
   inputStyle,
   size = 'md',
-  type = 'default',
   alignment = 'center',
-  editable = true,
   maxLength = NAME_LENGTH_LIMIT,
   showLimit = false,
+  ...rest
 }: {
-  placeholder?: string;
   text: string;
-  multiline?: boolean;
-  type?: KeyboardTypeOptions;
   setText?: any;
-  editable?: boolean;
   size?: 'sm' | 'md';
-  inputStyle?: ViewStyle;
+  inputStyle?: ViewStyle | StyleProp<ViewStyle>;
   alignment?: 'center' | 'left' | 'right';
-  maxLength?: number;
+  maxLength?: number | 'inf';
   showLimit?: boolean;
-}) => {
+} & TextInputProps) => {
   const onChangeText = (text: string) => {
     setText(text);
   };
@@ -62,15 +56,12 @@ const GenericInput = ({
           ],
           inputStyle,
         )}
-        keyboardType={type}
-        maxLength={maxLength}
-        editable={editable}
-        placeholder={placeholder}
+        maxLength={maxLength === 'inf' ? undefined : maxLength}
         textAlign={alignment}
-        multiline={multiline}
         placeholderTextColor={PortColors.primary.grey.medium}
         onChangeText={onChangeText}
         value={text}
+        {...rest}
       />
       {showLimit && (
         <NumberlessText

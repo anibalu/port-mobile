@@ -2,8 +2,8 @@ import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {Pressable, StyleSheet} from 'react-native';
 import {NumberlessSemiBoldText} from '@components/NumberlessText';
-import {disconnectConnection} from '@utils/Connections';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import DirectChat from '@utils/DirectChats/DirectChat';
 
 /**
  * When clicked, marks the line as disconnected and redirects to the home page
@@ -13,7 +13,8 @@ export default function DisconnectButton(props: {chatId: string}) {
   const navigation = useNavigation();
   const {unableToDisconnectError} = useErrorModal();
   const invokeConnectionDisconnect = async () => {
-    const resp = await disconnectConnection(props.chatId);
+    const chat = new DirectChat(props.chatId);
+    const resp = await chat.disconnect();
     if (!resp) {
       //show error modal for failure to disconnect
       unableToDisconnectError();

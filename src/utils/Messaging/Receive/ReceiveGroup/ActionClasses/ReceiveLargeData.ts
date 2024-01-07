@@ -1,12 +1,16 @@
 import {LargeDataParams} from '@utils/Messaging/interfaces';
 import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
-import {downloadData} from '@utils/Messaging/largeData';
-import {decryptFile} from '@utils/Crypto/aes';
-import {saveToMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {Permissions} from '@utils/ChatPermissions/interfaces';
-import {ConnectionInfo, ReadStatus} from '@utils/Connections/interfaces';
+
+import {
+  ChatType,
+  ConnectionInfo,
+  ReadStatus,
+} from '@utils/Connections/interfaces';
 import {displaySimpleNotification} from '@utils/Notifications';
 import GroupReceiveAction from '../GroupReceiveAction';
+import {getChatPermissions} from '@utils/ChatPermissions';
+import {GroupPermissions} from '@utils/ChatPermissions/interfaces';
+import {handleAsyncMediaDownload} from '../HandleMediaDownload';
 
 class ReceiveLargeData extends GroupReceiveAction {
   async performAction(): Promise<void> {
@@ -20,41 +24,32 @@ class ReceiveLargeData extends GroupReceiveAction {
     }
     //get connection info
     const connection = await getConnection(this.chatId);
-    //autodownload or not based on permission
-    if ((connection.permissions as Permissions).autoDownload.toggled) {
-      await this.autoDownloadOn();
-    } else {
-      await this.autoDownloadOff();
-    }
+    const permissions = await getChatPermissions(this.chatId, ChatType.group);
+
+    await this.downloadMessage(permissions);
     //update connection
     await this.updateConnection();
     //notify user
-    this.notify(connection);
+    this.notify(permissions.notifications, connection);
   }
-  async autoDownloadOn(): Promise<void> {
+  async downloadMessage(permissions: GroupPermissions): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    //try to download media
-    const mediaId =
-      (this.decryptedMessageContent.data as LargeDataParams).mediaId || '';
-    const key =
-      (this.decryptedMessageContent.data as LargeDataParams).key || '';
-    const ciphertext = await downloadData(mediaId);
-    //decrypt media with key
-    const plaintext = await decryptFile(ciphertext, key);
-    //save media to dir
-    const fileUri = await this.saveToDir(plaintext);
-    //save message to storage
-    await this.saveMessage({
+
+    const data: LargeDataParams = {
       ...(this.decryptedMessageContent.data as LargeDataParams),
-      fileUri: fileUri,
-      mediaId: null,
-      key: null,
-    });
-  }
-  async autoDownloadOff(): Promise<void> {
-    this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    //save message to storage
-    await this.saveMessage();
+      shouldDownload: permissions.autoDownload,
+    };
+
+    //By default, we add in a message to the DB without waiting to download media
+    await this.saveMessage(data);
+
+    //If autodownload is on, we do the following async
+    if (permissions.autoDownload) {
+      handleAsyncMediaDownload(
+        this.chatId,
+        this.decryptedMessageContent.messageId,
+      );
+    }
   }
   generatePreviewText(): string {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
@@ -64,16 +59,7 @@ class ReceiveLargeData extends GroupReceiveAction {
         (this.decryptedMessageContent.data as LargeDataParams).fileName
     );
   }
-  async saveToDir(plaintext: string): Promise<string> {
-    this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    //save image to chat storage and update fileUri
-    const fileUri = await saveToMediaDir(
-      this.chatId,
-      plaintext,
-      (this.decryptedMessageContent.data as LargeDataParams).fileName,
-    );
-    return fileUri;
-  }
+
   async updateConnection(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     await updateConnectionOnNewMessage({
@@ -83,8 +69,8 @@ class ReceiveLargeData extends GroupReceiveAction {
       text: this.generatePreviewText(),
     });
   }
-  notify(connection: ConnectionInfo): void {
-    if ((connection.permissions as Permissions).notifications.toggled) {
+  notify(shouldNotify: boolean, connection: ConnectionInfo): void {
+    if (shouldNotify) {
       this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
       const notificationData = {
         title: connection.name,

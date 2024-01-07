@@ -82,4 +82,5 @@ export const cryptoDir = '/crypto';
 /**
  * Key to user profile storage
  */
-export const sessionKey = 'USER_SESSION_KEY';
+export const sessionKey = 'PORT_USER_SESSION_KEY';
+export const tokenKey = 'PORT_TOKEN_KEY';

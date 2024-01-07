@@ -9,16 +9,22 @@ import Scan from '@assets/icons/Scan.svg';
 import ShareIcon from '@assets/icons/Share.svg';
 import Nfc from '@assets/icons/nfc.svg';
 //component imports
+import {PortColors, screen} from '@components/ComponentUtils';
 import {
   NumberlessItalicText,
   NumberlessMediumText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
-import {generateGroupConnectionBundle} from '@utils/Bundles/group';
-import {convertBundleToLink} from '@utils/DeepLinking';
+import {DEFAULT_NAME} from '@configs/constants';
+import Group from '@utils/Groups/Group';
+import {generateBundle, getBundleClickableLink} from '@utils/Ports';
+import {BundleTarget, GroupBundle} from '@utils/Ports/interfaces';
+import {getProfileName} from '@utils/Profile';
+import {expiryOptions} from '@utils/Time/interfaces';
 import Share from 'react-native-share';
-import {screen} from '@components/ComponentUtils';
 import {useSelector} from 'react-redux';
+import {useErrorModal} from 'src/context/ErrorModalContext';
+import {GenericButton} from '@components/GenericButton';
 
 function ConnectionDisplay({groupId}: {groupId: string}) {
   const navigation = useNavigation();
@@ -26,8 +32,25 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
   const [generate, setGenerate] = useState(0);
   const [bundleGenError, setBundleGenError] = useState(false);
   const [qrCodeData, setQRCodeData] = useState<string>('');
+  const [selectedTime] = useState(expiryOptions[0]);
   const latestNewConnection = useSelector(state => state.latestNewConnection);
+  const [linkData, setLinkData] = useState<string>('');
+  const [loadingShare, setLoadingShare] = useState(false);
+  const [name, setName] = useState(DEFAULT_NAME);
+  const [groupData, setGroupData] = useState({name: DEFAULT_NAME});
+  const {unableToSharelinkError} = useErrorModal();
 
+  useEffect(() => {
+    (async () => {
+      setName(await getProfileName());
+      const group = new Group(groupId);
+      const fetchedGroupData = await group.getData();
+      if (fetchedGroupData) {
+        setGroupData(fetchedGroupData);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   //initial effect that generates initial connection bundle and displays it.
   useEffect(() => {
     const fetchQRCodeData = async () => {
@@ -35,9 +58,15 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
         setBundleGenError(false);
         setIsLoadingBundle(true);
         //use this function to generate and fetch QR code data.
-        const bundle = await generateGroupConnectionBundle(groupId);
+        const bundle = await generateBundle(
+          BundleTarget.group,
+          groupId,
+          null,
+          selectedTime,
+        );
         setQRCodeData(JSON.stringify(bundle));
       } catch (error) {
+        console.log('Error in QR generation: ', error);
         //set bundle generated error
         setBundleGenError(true);
       } finally {
@@ -50,54 +79,45 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
 
   //converts qr bundle into link.
   const fetchLinkData = async () => {
-    if (!isLoadingBundle && !bundleGenError) {
-      const link = await convertBundleToLink(qrCodeData);
+    if (!isLoadingBundle && !bundleGenError && qrCodeData !== '') {
+      if (linkData === '') {
+        const bundle: GroupBundle = JSON.parse(qrCodeData);
+        const link = await getBundleClickableLink(
+          BundleTarget.group,
+          bundle.portId,
+          qrCodeData,
+        );
+        setLinkData(link);
+        return link;
+      }
+      const link = linkData;
       return link;
     }
     throw new Error('Bundle incomplete');
   };
-
   //handles sharing in link form
   const handleShare = async () => {
     try {
-      const linkData = await fetchLinkData();
-      const shareContent = {
-        title: 'Join a Group',
-        message:
-          `${getGroupName(
-            qrCodeData,
-          )} would like to connect with you on Port! Click the link to start chatting: \n` +
-          linkData,
-      };
-      await Share.open(shareContent);
+      setLoadingShare(true);
+      let linkURL;
+      linkURL = await fetchLinkData();
+      if (linkURL != null) {
+        const shareContent = {
+          title: 'Join a Group on Port',
+          message:
+            `${name} would like to add you to the group ${groupData.name} with you on Port! Click the link to start chatting: \n` +
+            linkURL,
+        };
+        await Share.open(shareContent);
+      }
     } catch (error) {
+      unableToSharelinkError();
       console.log('Error sharing content: ', error);
+    } finally {
+      setLoadingShare(false);
     }
   };
 
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     const unsubscribe = store.subscribe(() => {
-  //       setStoreChange(storeChange + 1);
-  //     });
-  //     // Clean up the subscription when the screen loses focus
-  //     return () => {
-  //       unsubscribe();
-  //     };
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   }, []),
-  // );
-  //navigates to home if a qr is scanned while on new connection screen and device is connected to the internet.
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     const state = store.getState();
-  //     // generate new qr code if a member successfully gets added to the group.
-  //     if (state.latestNewConnection.chatId === groupId) {
-  //       setGenerate(generate + 1);
-  //     }
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   }, [storeChange]),
-  // );
   useEffect(() => {
     if (latestNewConnection) {
       if (latestNewConnection.chatId === groupId) {
@@ -155,7 +175,7 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
             }}>
             <View style={styles.labelInput}>
               <NumberlessMediumText>
-                {isLoadingBundle ? '' : getGroupName(qrCodeData)}
+                {isLoadingBundle ? '' : groupData.name}
               </NumberlessMediumText>
             </View>
           </View>
@@ -195,24 +215,20 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
           connect.
         </NumberlessRegularText>
       </View>
-      <Pressable style={styles.generateButton} onPress={handleShare}>
-        <ShareIcon width={24} height={24} />
-        <NumberlessMediumText style={styles.generateText}>
-          Share as a link
-        </NumberlessMediumText>
-      </Pressable>
+      <GenericButton
+        onPress={handleShare}
+        disabled={bundleGenError}
+        IconLeft={ShareIcon}
+        iconStyleLeft={{alignItems: 'center'}}
+        loading={loadingShare}
+        buttonStyle={StyleSheet.compose(
+          [styles.buttonShare, {width: screen.width - 82}],
+          bundleGenError && styles.disabledbutton,
+        )}>
+        Share as a link
+      </GenericButton>
     </View>
   );
-}
-
-function getGroupName(qrCodeData: string) {
-  try {
-    const bundle = JSON.parse(qrCodeData);
-    return bundle.data.name || '';
-  } catch (error) {
-    console.log('Error in getting group name: ', error);
-    return '';
-  }
 }
 
 const styles = StyleSheet.create({
@@ -224,6 +240,9 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 24,
     marginTop: 20,
+  },
+  disabledbutton: {
+    opacity: 0.7,
   },
   labelInput: {
     width: '100%',
@@ -251,6 +270,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#F6F6F6',
     borderRadius: 16,
     width: 100,
+  },
+  buttonShare: {
+    backgroundColor: PortColors.primary.blue.app,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 17,
+    borderRadius: 16,
+    flexDirection: 'row',
   },
   buttonText: {
     marginLeft: 5,

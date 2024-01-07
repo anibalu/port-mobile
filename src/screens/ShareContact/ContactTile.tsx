@@ -26,9 +26,8 @@ export default function ContactTile({
   return (
     <Pressable
       style={styles.defaultTileContainer}
-      onPress={() => {
-        onCheckboxToggle();
-      }}>
+      pointerEvents="box-only"
+      onPress={onCheckboxToggle}>
       <GenericAvatar
         profileUri={
           member?.pathToDisplayPic ? member.pathToDisplayPic : DEFAULT_AVATAR
@@ -38,7 +37,7 @@ export default function ContactTile({
       <NumberlessMediumText style={styles.defaultTileText} numberOfLines={1}>
         {member.name}
       </NumberlessMediumText>
-      <CheckBox value={toggleCheckBox} onValueChange={onCheckboxToggle} />
+      <CheckBox value={toggleCheckBox} />
     </Pressable>
   );
 }

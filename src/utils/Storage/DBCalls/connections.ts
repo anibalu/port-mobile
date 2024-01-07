@@ -1,11 +1,22 @@
 import {runSimpleQuery} from './dbCommon';
-import {ConnectionEntry} from '@utils/Connections/interfaces';
+import {
+  ConnectionInfo,
+  ConnectionInfoUpdate,
+} from '@utils/Connections/interfaces';
+
+function toBool(a: number | boolean | null | undefined): boolean {
+  if (a) {
+    return true;
+  } else {
+    return false;
+  }
+}
 /**
  * Get all of the user's connections
  * @returns All current connections
  */
-export async function getConnections() {
-  const connections = [];
+export async function getConnections(): Promise<ConnectionInfo[]> {
+  const connections: ConnectionInfo[] = [];
   await runSimpleQuery(
     `SELECT * FROM connections
     ORDER BY timestamp DESC;`,
@@ -15,7 +26,8 @@ export async function getConnections() {
       let entry;
       for (let i = 0; i < len; i++) {
         entry = results.rows.item(i);
-        entry.permissions = JSON.parse(entry.permissions);
+        entry.authenticated = toBool(entry.authenticated);
+        entry.disconnected = toBool(entry.disconnected);
         connections.push(results.rows.item(i));
       }
     },
@@ -30,8 +42,8 @@ export async function getConnections() {
  */
 export async function getConnection(
   chatId: string,
-): Promise<ConnectionEntry | null> {
-  let connection: ConnectionEntry | null = null;
+): Promise<ConnectionInfo | null> {
+  let connection: ConnectionInfo | null = null;
   await runSimpleQuery(
     `
     SELECT * FROM connections
@@ -40,12 +52,13 @@ export async function getConnection(
     [chatId],
 
     (tx, results) => {
-      try {
-        const con = results.rows.item(0);
-        con.permissions = JSON.parse(con.permissions);
-        connection = con;
-      } catch {
-        connection = null;
+      const len = results.rows.length;
+      let entry;
+      if (len > 0) {
+        entry = results.rows.item(0);
+        entry.authenticated = toBool(entry.authenticated);
+        entry.disconnected = toBool(entry.disconnected);
+        connection = entry;
       }
     },
   );
@@ -56,14 +69,13 @@ export async function getConnection(
  * Add a new connection for a user
  * @param connection The connection to add
  */
-export async function addConnection(connection: ConnectionEntry) {
+export async function addConnection(connection: ConnectionInfo) {
   await runSimpleQuery(
     `
     INSERT INTO connections (
       chatId,
       connectionType,
       name,
-      permissions,
       text,
       recentMessageType,
       pathToDisplayPic,
@@ -72,12 +84,11 @@ export async function addConnection(connection: ConnectionEntry) {
       timestamp,
       newMessageCount,
       disconnected
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);`,
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?);`,
     [
       connection.chatId,
       connection.connectionType,
       connection.name,
-      JSON.stringify(connection.permissions),
       connection.text,
       connection.recentMessageType,
       connection.pathToDisplayPic,
@@ -106,46 +117,14 @@ export async function deleteConnection(chatId: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, result) => {},
   );
-
-  await runSimpleQuery(
-    `
-    DELETE FROM connections
-    WHERE chatId = ?;
-    `,
-    [chatId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, result) => {},
-  );
 }
 
-export type ConnectionUpdate = {
-  name?: string;
-  permissions?: object;
-  text?: string;
-  recentMessageType?: number;
-  pathToDisplayPic?: string;
-  readStatus?: number;
-  authenticated?: boolean;
-  timestamp?: string;
-  newMessageCount?: number;
-  disconnected?: boolean;
-};
-
-export async function updateConnection(
-  chatId: string,
-  update: ConnectionUpdate,
-) {
-  const connection: ConnectionEntry | null = await getConnection(chatId);
-  if (!connection) {
-    return;
-  }
-
+export async function updateConnection(update: ConnectionInfoUpdate) {
   await runSimpleQuery(
     `
     UPDATE connections
     SET
     name = COALESCE(?, name),
-    permissions = COALESCE(?, permissions),
     text = COALESCE(?, text),
     recentMessageType = COALESCE(?, recentMessageType),
     pathToDisplayPic = COALESCE(?, pathToDisplayPic),
@@ -158,7 +137,6 @@ export async function updateConnection(
     ;`,
     [
       update.name,
-      JSON.stringify(update.permissions),
       update.text,
       update.recentMessageType,
       update.pathToDisplayPic,
@@ -167,7 +145,7 @@ export async function updateConnection(
       update.timestamp,
       update.newMessageCount,
       update.disconnected,
-      chatId,
+      update.chatId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, result) => {},

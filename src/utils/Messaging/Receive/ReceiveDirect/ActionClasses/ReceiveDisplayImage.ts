@@ -1,9 +1,10 @@
 import {DisplayImageParams} from '@utils/Messaging/interfaces';
 import DirectReceiveAction from '../DirectReceiveAction';
-import {updateConnection} from '@utils/Connections';
-import {downloadData} from '@utils/Messaging/largeData';
+import {downloadData} from '@utils/Messaging/LargeData/largeData';
 import {decryptFile} from '@utils/Crypto/aes';
 import {saveToMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {DEFAULT_AVATAR} from '@configs/constants';
 
 class ReceiveDisplayImage extends DirectReceiveAction {
   async performAction(): Promise<void> {
@@ -20,6 +21,9 @@ class ReceiveDisplayImage extends DirectReceiveAction {
     const key = (this.decryptedMessageContent.data as DisplayImageParams)
       .key as string;
     const ciphertext = await downloadData(mediaId);
+    if (!ciphertext) {
+      throw new Error('NoMediaAvailable');
+    }
     //decrypt file with key
     const plaintext = await decryptFile(ciphertext, key);
     //save file to chat storage and update fileUri
@@ -35,11 +39,8 @@ class ReceiveDisplayImage extends DirectReceiveAction {
       mediaId: null,
       key: null,
     });
-    //update connection
-    await updateConnection({
-      chatId: this.chatId,
-      pathToDisplayPic: 'file://' + fileUri,
-    });
+    const chat = new DirectChat(this.chatId);
+    await chat.updateDisplayPic(fileUri || DEFAULT_AVATAR);
   }
 }
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import Modal from 'react-native-modal';
+import {isIOS, screen} from './ComponentUtils';
 
 const GenericModal = ({
   onClose,
@@ -26,6 +27,13 @@ const GenericModal = ({
       style={{
         margin: 0,
         flex: 1,
+        // On Android, keyboard pushes up the modal by default. In order to prevent this, we absolutely position the element.
+        ...(!avoidKeyboard &&
+          !isIOS && {
+            position: 'absolute',
+            height: screen.height,
+          }),
+
         justifyContent: position,
         alignItems: 'center',
       }}

@@ -6,9 +6,9 @@ import Cross from '@assets/icons/cross.svg';
 import ChatBackground from '@components/ChatBackground';
 import {GenericButton} from '@components/GenericButton';
 import GenericModalTopBar from '@components/GenericModalTopBar';
-import {loadGeneratedSuperports} from '@utils/Bundles/directSuperport';
-import {GeneratedDirectSuperportConnectionBundle} from '@utils/Bundles/interfaces';
-import {getChatTileTimestamp} from '@utils/Time';
+import {getAllCreatedSuperports} from '@utils/Ports';
+import {SuperportData} from '@utils/Ports/interfaces';
+import {getReadableTimestamp} from '@utils/Time';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
@@ -31,9 +31,7 @@ const SuperportModal: React.FC = () => {
     connectionSuperportId: connectionSuperportId,
   } = useConnectionModal();
   const [loadingSuperports, setLoadingSuperports] = useState<boolean>(true);
-  const [data, setData] = useState<
-    Array<GeneratedDirectSuperportConnectionBundle>
-  >([]);
+  const [data, setData] = useState<SuperportData[]>([]);
 
   const cleanupModal = () => {
     hideModal();
@@ -53,7 +51,7 @@ const SuperportModal: React.FC = () => {
     if (modalVisible) {
       try {
         const fetchData = async () => {
-          const result = await loadGeneratedSuperports();
+          const result = await getAllCreatedSuperports();
           setData(result);
           setLoadingSuperports(false);
           console.log('fetched new data');
@@ -140,7 +138,7 @@ function ShowActiveSuperports({
   openExistingSuperport,
   createNewSuperport,
 }: {
-  data: GeneratedDirectSuperportConnectionBundle[];
+  data: SuperportData[];
   openExistingSuperport: (x: string) => void;
   createNewSuperport: () => void;
 }): ReactNode {
@@ -153,8 +151,7 @@ function ShowActiveSuperports({
           flexDirection: 'row',
           width: '100%',
           paddingHorizontal: 16,
-          marginBottom: 13,
-          marginTop: 32,
+          marginVertical: 13,
           justifyContent: 'flex-start',
         }}>
         <NumberlessText fontSizeType={FontSizeType.m} fontType={FontType.md}>
@@ -165,10 +162,10 @@ function ShowActiveSuperports({
       <ScrollView
         horizontal={true}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{rowGap: 10, columnGap: 10}}
+        contentContainerStyle={{rowGap: 10, columnGap: 10, paddingLeft: 10}}
         style={styles.scrollContainer}>
         {data.map(superport => {
-          const id = superport.data.linkId;
+          const id = superport.portId;
           return (
             <Pressable
               onPress={() => {
@@ -187,11 +184,7 @@ function ShowActiveSuperports({
   );
 }
 
-function ActiveSuperportComponent({
-  content,
-}: {
-  content: GeneratedDirectSuperportConnectionBundle;
-}) {
+function ActiveSuperportComponent({content}: {content: SuperportData}) {
   return (
     <View style={styles.component}>
       <View style={styles.header}>
@@ -218,10 +211,10 @@ function ActiveSuperportComponent({
           fontSizeType={FontSizeType.s}
           fontType={FontType.md}
           textColor={PortColors.text.title}>
-          {getChatTileTimestamp(content.timestamp)}
+          {getReadableTimestamp(content.createdOnTimestamp)}
         </NumberlessText>
       </View>
-      {content.lastUsed && content.lastUsed !== '' && (
+      {content.usedOnTimestamp && content.usedOnTimestamp !== '' && (
         <View style={styles.bottomView}>
           <NumberlessText
             fontSizeType={FontSizeType.s}
@@ -234,10 +227,26 @@ function ActiveSuperportComponent({
             fontSizeType={FontSizeType.s}
             fontType={FontType.md}
             textColor={PortColors.text.title}>
-            {getChatTileTimestamp(content.lastUsed)}
+            {getReadableTimestamp(content.usedOnTimestamp)}
           </NumberlessText>
         </View>
       )}
+
+      <View style={styles.bottomView}>
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}
+          textColor={PortColors.text.title}>
+          Remaining ports
+        </NumberlessText>
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}
+          textColor={PortColors.text.title}>
+          {content.connectionsPossible ? content.connectionsPossible : '∞'}
+        </NumberlessText>
+      </View>
+
       {/* <GenericButton
                 onPress={() => console.log('edit')}
                 buttonStyle={styles.button}>
@@ -271,6 +280,8 @@ const styles = StyleSheet.create({
     width: screen.width,
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
+    paddingHorizontal: 30,
+    paddingTop: 20,
   },
   LoaderScreen: {
     width: '100%',
@@ -295,7 +306,6 @@ const styles = StyleSheet.create({
   },
   activeSuperportBox: {
     width: screen.width,
-    alignItems: 'center',
     overflow: 'hidden',
     justifyContent: 'center',
   },

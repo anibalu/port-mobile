@@ -1,59 +1,73 @@
 /**
  * Default chat tile displayed when there are no connections
  */
-import React, {useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import Cross from '@assets/icons/cross.svg';
+import {PortColors, screen} from '@components/ComponentUtils';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {GenericButton} from '@components/GenericButton';
+import GenericModal from '@components/GenericModal';
 import {
   NumberlessBoldText,
   NumberlessRegularText,
 } from '@components/NumberlessText';
-import Cross from '@assets/icons/cross.svg';
-import {GroupMember} from '@utils/Groups/interfaces';
-import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
-import GenericModal from '@components/GenericModal';
-import {PortColors, screen} from '@components/ComponentUtils';
-import {GenericButton} from '@components/GenericButton';
-import {GenericAvatar} from '@components/GenericAvatar';
-import {attemptRemoveMember} from '@utils/Groups';
+import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
+import {GroupMember, GroupMemberStrict} from '@utils/Groups/interfaces';
+import React, {useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+function hashHexToNumber(hexString: string): number {
+  // Ensure the string is 32 characters long
+  if (hexString.length !== 32) {
+    throw new Error('Hex string must be 32 characters long.');
+  }
+
+  // Initialize a variable to accumulate our result
+  let hash = 0;
+
+  // Process the string in chunks of characters
+  for (let i = 0; i < hexString.length; i++) {
+    // Convert each character into a decimal
+    const value = parseInt(hexString[i], 16);
+
+    // Accumulate the value into the hash (mod 15 at each step to keep it in range)
+    hash = (hash * 16 + value) % 15;
+  }
+
+  return hash;
+}
 
 function UserTile({
   member,
-  groupId,
   isAdmin,
+  onPress,
 }: {
-  member: GroupMember;
-  groupId: string;
+  member: GroupMemberStrict;
   isAdmin: boolean;
+  onPress: (member: GroupMember) => Promise<void>;
 }) {
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const avatar = AVATAR_ARRAY[hashHexToNumber(member.memberId!)];
   return (
     <>
-      <Pressable
-        style={styles.defaultTileContainer}
-        onPress={() => setVisible(true)}>
+      <View style={styles.defaultTileContainer}>
         <GenericAvatar
-          profileUri={
-            member.profilePicture && member.profilePicture !== ''
-              ? member.profilePicture
-              : DEFAULT_AVATAR
-          }
+          profileUri={avatar}
           avatarSize={'small'}
+          onPress={() => {
+            setVisible(true);
+          }}
         />
         <NumberlessRegularText style={styles.defaultTileText} numberOfLines={1}>
           {member?.name ? member.name : DEFAULT_NAME}
         </NumberlessRegularText>
-      </Pressable>
+      </View>
       <GenericModal
         onClose={() => setVisible(false)}
         visible={visible && isAdmin}>
         <View style={styles.modal}>
           <View style={styles.row}>
-            <GenericAvatar
-              profileUri={
-                member.profilePicture ? member.profilePicture : DEFAULT_AVATAR
-              }
-              avatarSize={'small'}
-            />
+            <GenericAvatar profileUri={avatar} avatarSize={'small'} />
             <View style={styles.textColumn}>
               <NumberlessBoldText style={styles.bold}>
                 {member?.name ? member.name : DEFAULT_NAME}
@@ -66,10 +80,13 @@ function UserTile({
           {member.memberId !== 'self' && (
             <GenericButton
               onPress={async () => {
-                await attemptRemoveMember(groupId, member.memberId);
+                setLoading(true);
+                await onPress(member);
+                setLoading(false);
                 setVisible(false);
               }}
-              buttonStyle={styles.button}>
+              buttonStyle={styles.button}
+              loading={loading}>
               Remove Member
             </GenericButton>
           )}

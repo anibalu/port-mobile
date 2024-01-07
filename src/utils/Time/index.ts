@@ -2,6 +2,7 @@ import {
   ARTIFICIAL_LOADER_INTERVAL,
   MEDIA_ID_AND_KEY_VALIDITY_INTERVAL,
 } from '../../configs/constants';
+import {expiryDuration, expiryOptionsTypes} from './interfaces';
 
 /**
  * converts an ISO timestamp into a user-readable timestamp string.
@@ -34,7 +35,9 @@ export function getTimeStamp(ISOTime: string | undefined): string {
  * @param {string|undefined} ISOTime - ISO timestamp or undefined
  * @returns {string} - user-readable timestamp string
  */
-export function getChatTileTimestamp(ISOTime: string | undefined): string {
+export function getReadableTimestamp(
+  ISOTime: string | undefined | null,
+): string {
   if (!ISOTime) {
     return '';
   }
@@ -50,7 +53,6 @@ export function getChatTileTimestamp(ISOTime: string | undefined): string {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (today > date) {
-      console.log('Is older messages');
       const options: Intl.DateTimeFormatOptions = {
         day: 'numeric', // Day of the month
         month: 'numeric', // Full month name
@@ -114,11 +116,6 @@ export function createDateBoundaryStamp(isoString: string | undefined): string {
   return formattedDate;
 }
 
-export function generateId() {
-  const date = new Date();
-  return date.getTime().toString();
-}
-
 /**
  * Creates an ISO time stamp of current time.
  * @returns {string} - ISO time stamp as a string
@@ -126,11 +123,6 @@ export function generateId() {
 export function generateISOTimeStamp() {
   const now: Date = new Date();
   return now.toISOString();
-}
-
-export function timeStringToObject(timestamp: string) {
-  const timeObj = new Date(timestamp);
-  return timeObj;
 }
 
 //if you want to add artificial wait anywhere
@@ -206,6 +198,93 @@ export function checkMediaIdAndKeyValidity(timestamp: string) {
       return false;
     }
   } catch (error) {
+    return false;
+  }
+}
+
+export function getExpiryTimestamp(
+  currentTimestamp: string,
+  expiry: expiryOptionsTypes,
+): string | null {
+  const date = new Date(currentTimestamp);
+  const addTime = expiryDuration[expiry];
+  if (addTime) {
+    date.setTime(date.getTime() + addTime);
+    return date.toISOString();
+  }
+  return null;
+}
+
+export function hasExpired(expiryTimestamp: string | null): boolean {
+  try {
+    if (!expiryTimestamp) {
+      return false;
+    }
+    const timeStamp: Date = new Date(expiryTimestamp);
+    const now: Date = new Date();
+    const timeDiff = timeStamp.getTime() - now.getTime();
+    if (timeDiff > 0) {
+      return false;
+    } else {
+      return true;
+    }
+  } catch (error) {
+    console.log('Error checking time stamp validity: ', error);
+    return true;
+  }
+}
+
+export function getExpiryTag(expiryTimestamp: string | null): string {
+  if (!expiryTimestamp) {
+    return 'Does not expire';
+  } else {
+    try {
+      const currentTime = new Date();
+      const expiryTime = new Date(expiryTimestamp);
+      const timeDifference = expiryTime.getTime() - currentTime.getTime();
+      return formatTimeUntilExpiry(timeDifference);
+    } catch (error) {
+      return 'unknown expiry';
+    }
+  }
+}
+
+function formatTimeUntilExpiry(difference: number): string {
+  const seconds = Math.floor(difference / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    return `Expires in ${days} day${days > 1 ? 's' : ''}`;
+  } else if (hours > 0) {
+    return `Expires in ${hours} hour${hours > 1 ? 's' : ''}`;
+  } else if (minutes > 0) {
+    return `Expires in ${minutes} minute${minutes > 1 ? 's' : ''}`;
+  } else {
+    return 'Expires in a minute';
+  }
+}
+
+export function checkTimeout(
+  timestamp: string | null | undefined,
+  acceptedDuration: number,
+): boolean {
+  try {
+    if (!timestamp) {
+      console.log('NoTimestampToCheckTimeout: return expired');
+      return false;
+    }
+    const timeStamp: Date = new Date(timestamp);
+    const now: Date = new Date();
+    const timeDiff = now.getTime() - timeStamp.getTime();
+    if (timeDiff <= acceptedDuration) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.log('error checking timeout: ', error);
     return false;
   }
 }

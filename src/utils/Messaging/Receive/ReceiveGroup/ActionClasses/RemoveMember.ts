@@ -1,6 +1,6 @@
 import GroupReceiveAction from '../GroupReceiveAction';
-import {getMemberInfo, removeMember} from '@utils/Groups';
 import {DEFAULT_NAME} from '@configs/constants';
+import Group from '@utils/Groups/Group';
 
 class RemoveMember extends GroupReceiveAction {
   async performAction(): Promise<void> {
@@ -9,13 +9,17 @@ class RemoveMember extends GroupReceiveAction {
       throw new Error('NoRemovedMemberId');
     }
     const removedMemberId = removedMember as string;
-    const removedMemberInfo = await getMemberInfo(this.chatId, removedMemberId);
+    const groupHandler = new Group(this.chatId);
+    const removedMemberInfo = await groupHandler.getMember(removedMemberId);
+    if (!removedMemberInfo) {
+      throw new Error('NoSuchMember');
+    }
     await this.saveMessage({
       info: `${
         removedMemberInfo.name || DEFAULT_NAME
       } is no longer in the group`,
     });
-    await removeMember(this.chatId, removedMemberId);
+    await groupHandler.markMemberRemoved(removedMemberId);
   }
 }
 

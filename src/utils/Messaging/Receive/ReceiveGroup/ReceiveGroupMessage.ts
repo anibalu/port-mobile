@@ -1,7 +1,6 @@
 import {PayloadMessageParams} from '@utils/Messaging/interfaces';
 import GroupReceiveAction from './GroupReceiveAction';
 import {groupReceiveActionPicker} from './possibleActions';
-import {decryptMessage} from '@utils/Crypto/aes';
 
 class ReceiveGroupMessage {
   private message: any;
@@ -23,6 +22,7 @@ class ReceiveGroupMessage {
     this.chatId = chatId;
     this.receiveClass = null;
     this.senderId = senderId;
+    this.decryptedMessageContent = null;
   }
   //make sure sender id isn't null
   private senderIdNotNullRule(): string {
@@ -48,12 +48,14 @@ class ReceiveGroupMessage {
       if (!this.message.content) {
         this.decryptedMessageContent = null;
         return;
+      } else {
+        this.extractContent();
+        if (this.content.content) {
+          const parsedAndProcessed = JSON.parse(this.content.content);
+          this.decryptedMessageContent =
+            parsedAndProcessed as PayloadMessageParams;
+        }
       }
-      const decryptedAndProcessed = JSON.parse(
-        await decryptMessage(this.chatId, this.message.content),
-      );
-      this.decryptedMessageContent =
-        decryptedAndProcessed as PayloadMessageParams;
     } catch (error) {
       console.log('Error in extracting decrypted message content: ', error);
       this.decryptedMessageContent = null;

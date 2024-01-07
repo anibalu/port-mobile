@@ -1,10 +1,12 @@
-import axios from 'axios';
-
-import {checkConnectionBundleDataFormat} from '@utils/Bundles';
-import {ConnectionBundle} from '@utils/Bundles/interfaces';
-import {BUNDLE_MANAGEMENT_RESOURCE} from '../../configs/api';
-import {getToken} from '../ServerAuth';
 import {connectionFsSync} from '../Synchronization';
+import {checkBundleValidity} from '@utils/Ports';
+import {
+  DirectSuperportBundle,
+  GroupBundle,
+  GroupSuperportBundle,
+  PortBundle,
+} from '@utils/Ports/interfaces';
+import * as API from './APICalls';
 
 interface urlObject {
   url: string | null;
@@ -13,65 +15,38 @@ interface urlObject {
 /**
  *
  * @param urlObj , url to be processed
- * @returns {ConnectionBundle|undefined}, connection bundle if successful, undefined on failure
+ * @returns bundle if successful, undefined on failure
  */
 export async function handleDeepLink(
   urlObj: urlObject,
-): Promise<ConnectionBundle | undefined> {
+): Promise<
+  | PortBundle
+  | GroupBundle
+  | DirectSuperportBundle
+  | GroupSuperportBundle
+  | undefined
+> {
   const synced = async () => {
     const url = urlObj.url;
     console.log('URL is: ', url);
     if (url) {
       let regex = /[?&]([^=#]+)=([^&#]*)/g,
-        params = {},
-        match;
+        params: any = {},
+        match: any;
       while ((match = regex.exec(url))) {
         params[match[1]] = match[2];
       }
       const bundleId = params.bundleId;
-      const bundle = await getBundle(bundleId);
+      const bundle = await API.getBundle(bundleId);
       return bundle;
     }
     return undefined;
   };
   try {
-    const bundle: ConnectionBundle = checkConnectionBundleDataFormat(
-      await connectionFsSync(synced),
-    );
+    const bundle = checkBundleValidity(await connectionFsSync(synced));
     return bundle;
   } catch (error) {
     console.log('Error with deep linking: ', error);
     return undefined;
   }
-}
-
-export async function getBundle(bundleId: string): Promise<string | null> {
-  try {
-    const response = await axios.get(
-      `${BUNDLE_MANAGEMENT_RESOURCE}?bundleId=${encodeURIComponent(bundleId)}`,
-    );
-    return response.data.bundle;
-  } catch (error) {
-    console.error('Error getting bundle:', error);
-    return null;
-  }
-}
-
-export async function convertBundleToLink(bundleData: string) {
-  const bundleId = await postBundle(bundleData);
-  const url = 'https://it.numberless.tech/connect?bundleId=' + bundleId;
-
-  return url;
-}
-
-export async function postBundle(bundleString: string): Promise<string | null> {
-  const token = await getToken();
-  const response = await axios.post(
-    BUNDLE_MANAGEMENT_RESOURCE,
-    {
-      bundle: bundleString,
-    },
-    {headers: {Authorization: `${token}`}},
-  );
-  return response.data.bundleId;
 }

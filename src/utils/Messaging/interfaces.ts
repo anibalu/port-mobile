@@ -1,3 +1,5 @@
+import {PortBundle} from '@utils/Ports/interfaces';
+
 /**
  * Enum representing the promise resolve values of the sendMessage function.
  * Modifying these when the app is live is not advised. It'd require migration of number values, which is why these enums are hardcoded.
@@ -5,12 +7,13 @@
  * @enum {number}
  */
 export enum MessageStatus {
+  // DO NOT MODIFY THESE NUMBERS. ADD STATUSES WITH EXTREME CAUTION!!!
   read = 1,
   delivered = 0,
   sent = -1,
-  journaled = -2,
-  failed = -3,
-  unassigned = -4,
+  failed = -2,
+  unassigned = -3,
+  journaled = -32,
 }
 /**
  * Enum representing content types supported by the sendMessage and receiveMessage functions.
@@ -31,6 +34,8 @@ export enum ContentType {
   contactBundle,
   contactBundleRequest,
   contactBundleResponse,
+  initialInfoRequest,
+  contactBundleDenialResponse,
 }
 export const LargeDataMessageContentTypes = [
   ContentType.image,
@@ -55,7 +60,9 @@ export type DataType =
   | InfoParams
   | ContactBundleParams
   | ContactBundleRequestParams
-  | ContactBundleResponseParams;
+  | ContactBundleResponseParams
+  | ContactBundleDenialResponseParams
+  | InitialInfoRequestParams;
 
 export interface TextParams {
   text: string;
@@ -75,6 +82,7 @@ export interface LargeDataParams {
   mediaId?: string | null;
   key?: string | null;
   text?: string;
+  shouldDownload?: boolean;
 }
 export interface LargeDataParamsStrict extends LargeDataParams {
   fileUri: string;
@@ -88,20 +96,26 @@ export interface HandshakeA1Params {
 }
 export interface HandshakeB2Params {
   pubKey: string;
-  encryptedNonce: string;
+  encryptedRad: string;
 }
 export interface InfoParams {
   info: string;
 }
-export interface ContactBundleParams {
-  bundle: string;
+export interface ContactBundleParams extends PortBundle {
+  accepeted?: boolean;
+  goToChatId?: string;
 }
+
 export interface ContactBundleRequestParams {
-  bundleId: string;
+  destinationName?: string | null;
 }
-export interface ContactBundleResponseParams {
-  bundleId: string;
-  bundle: string;
+export interface ContactBundleResponseParams extends PortBundle {}
+
+export interface ContactBundleDenialResponseParams {}
+
+export interface InitialInfoRequestParams {
+  sendName: boolean;
+  sendProfilePicture: boolean;
 }
 
 export type MessageDataTypeBasedOnContentType<T extends ContentType> =
@@ -133,6 +147,10 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? ContactBundleRequestParams
     : T extends ContentType.contactBundleResponse
     ? ContactBundleResponseParams
+    : T extends ContentType.contactBundleDenialResponse
+    ? ContactBundleDenialResponseParams
+    : T extends ContentType.initialInfoRequest
+    ? InitialInfoRequestParams
     : never;
 
 /**
@@ -145,7 +163,7 @@ export interface SavedMessageParams {
   data: DataType;
   timestamp: string;
   sender: boolean; //true if user is sender. false if user is receiver
-  messageStatus?: MessageStatus | number | null; //not null for sent messages
+  messageStatus?: MessageStatus | null; //not null for sent messages
   replyId?: string | null; //not null if message is a reply message
   memberId?: string | null; //not null for received group messages
 }
@@ -158,76 +176,8 @@ export interface PayloadMessageParams {
   data: DataType;
   replyId?: string | null;
 }
-/**
- * @deprecated
- * Enum representing the promise resolve values of the receiveMessage function.
- * @enum {number}
- */
-export enum ReceiveStatus {
-  success,
-  failed,
-}
-/**
- * @deprecated
- * Params associated with a message sent or received.
- */
-export interface SendMessageParams {
-  messageId?: string;
-  contentType: ContentType;
-  data:
-    | TextParams
-    | NameParams
-    | FileParams
-    | ImageParams
-    | VideoParams
-    | DisplayImageParams
-    | HandshakeA1Params
-    | HandshakeB2Params
-    | object;
-  replyId?: string;
-}
-/**
- * @deprecated
- */
-export interface SendMessageParamsStrict extends SendMessageParams {
-  messageId: string;
-}
-/**
- * @deprecated
- * Params associated with a journaled message
- */
-export interface JournaledMessageParams extends SendMessageParamsStrict {
-  chatId: string;
-}
-/**
- * @deprecated
- */
-export interface SendingMessageParams {
-  chatId: string;
-  messageId: string; //with sender prefix
-}
-/**
- * @deprecated
- */
-export interface JournaledMessages {
-  journal: JournaledMessageParams[];
-}
-/**
- * @deprecated
- */
-export interface SendMessageOutput {
-  sendStatus: MessageStatus;
-  message: SendMessageParams | SavedMessageParams | JournaledMessageParams;
-}
-/**
- * @deprecated
- */
-export interface DownloadingMedia {
-  media: string[];
-}
-/**
- * @deprecated
- */
-export interface SendingMessages {
-  sending: SendingMessageParams[];
+
+export interface DownloadParams {
+  mediaId: string;
+  key: string;
 }

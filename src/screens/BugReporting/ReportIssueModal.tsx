@@ -8,6 +8,7 @@ import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
 import {useNavigation} from '@react-navigation/native';
 import {NumberlessMediumText} from '@components/NumberlessText';
 import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import GenericModalTopBar from '@components/GenericModalTopBar';
 
 interface reportIssueProps {
   setReportBugModalOpen: Function;
@@ -27,14 +28,14 @@ export default function ReportIssueModal(props: reportIssueProps) {
 
   return (
     <View style={styles.editRegion}>
+      <GenericModalTopBar
+        RightOptionalIcon={CrossIcon}
+        onBackPress={() => setReportBugModalOpen(p => !p)}
+      />
       <View style={styles.rowStyles}>
         <NumberlessMediumText style={styles.titleText}>
           Need help?
         </NumberlessMediumText>
-        <CrossIcon
-          style={{top: -8}}
-          onPress={() => setReportBugModalOpen(p => !p)}
-        />
       </View>
       <Pressable style={styles.button} onPress={onClickReportProblem}>
         <InfoIcon />
@@ -61,14 +62,13 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
     paddingTop: 25,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingHorizontal: 30,
   },
   titleText: {
     ...FontSizes[15].medium,
     color: 'black',
-    paddingHorizontal: 20,
     width: 330,
+    marginTop: -10,
   },
   rowStyles: {
     flexDirection: 'row',

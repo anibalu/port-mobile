@@ -1,28 +1,25 @@
-import axios from 'axios';
+import {signMessage} from '@utils/Crypto/ed25519';
 import {TOKEN_VALIDITY_INTERVAL} from '../../configs/constants';
-import {AUTH_SERVER_CHALLENGE_RESOURCE} from '../../configs/api';
+import store from '../../store/appStore';
+import {getProfileInfo} from '../Profile';
+import {ProfileInfo} from '../Profile/interfaces';
+import {readAuthToken, saveAuthToken} from '../Storage/authToken';
+import {connectionFsSync} from '../Synchronization';
+import {checkTimeout, generateISOTimeStamp} from '../Time';
 import {
   SavedServerAuthToken,
   ServerAuthToken,
   SolvedAuthChallenge,
 } from './interfaces';
-import {ProfileInfo} from '../Profile/interfaces';
-import {symmetricEncrypt} from '@numberless/react-native-numberless-crypto';
-import store from '../../store/appStore';
-import {readAuthToken, saveAuthToken} from '../Storage/authToken';
-import {generateISOTimeStamp} from '../Time';
-import {connectionFsSync} from '../Synchronization';
-import {getProfileInfo} from '../Profile';
+import * as API from './APICalls';
 
 /**
  * Steps to authenticate oneself to the server:
  * 1. make sure client's public key is posted to server
- * 2. make sure client has received server's public key.
- * 3. make sure client has generated a shared secret using user's private key and server's public key
- * 4. Request authentication challenge string
- * 5. Encrypt authentication challenge string using shared secret and with it send over associated data and nonce to server.
- * 6. Server verifies the encrypted string by checking if it decrypts to the correct encryption challenge.
- * 7. If verification succeeds, server issues an authentication token valid for a small interval. After this, another token needs to be requested using the above steps.
+ * 2. Request authentication challenge string
+ * 3. sign authentication challenge string using private key
+ * 4. Server verifies the signed challenge.
+ * 5. If verification succeeds, server issues an authentication token valid for a small interval. After this, another token needs to be requested using the above steps.
  */
 
 /**
@@ -32,47 +29,10 @@ import {getProfileInfo} from '../Profile';
  * @returns {boolean} - true if token is still valid
  */
 function checkAuthTokenTimeout(
-  timestamp: string,
+  timestamp: string | null | undefined,
   acceptedDuration: number = TOKEN_VALIDITY_INTERVAL,
 ): boolean {
-  const timeStamp: Date = new Date(timestamp);
-  const now: Date = new Date();
-  const timeDiff = now.getTime() - timeStamp.getTime();
-  if (timeDiff <= acceptedDuration) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-/**
- * Gets an authentication challenge from the server
- * @param {string} clientId - Id assigned to the client by the server (this is non-permanent and changes frequently).
- * @throws {Error} - If it fails to get a challenge.
- * @returns {string} - authentication challenge issued.
- */
-async function getNewAuthChallenge(clientId: string) {
-  const response = await axios.get(
-    `${AUTH_SERVER_CHALLENGE_RESOURCE}/${clientId}`,
-  );
-  return response.data;
-}
-
-/**
- * Post the solved authentication challenge to the server.
- * @param {string} clientId - Id assigned to the client by the server (this is non-permanent and changes frequently).
- * @param {SolvedAuthChallenge} solvedChallenge - an object containing the solved authentication challenge.
- * @returns - response of the server to the solved challenge.
- */
-async function postSolvedAuthChallenge(
-  clientId: string,
-  solvedChallenge: SolvedAuthChallenge,
-) {
-  const response = await axios.post(
-    `${AUTH_SERVER_CHALLENGE_RESOURCE}/${clientId}`,
-    solvedChallenge,
-  );
-  return response.data;
+  return checkTimeout(timestamp, acceptedDuration);
 }
 
 /**
@@ -84,14 +44,10 @@ async function postSolvedAuthChallenge(
 async function generateNewAuthToken(
   profile: ProfileInfo,
 ): Promise<ServerAuthToken> {
-  const challenge = await getNewAuthChallenge(profile.clientId);
-  const encChallenge: string = await symmetricEncrypt(
-    profile.sharedSecret,
-    challenge.challenge,
-    profile.clientId,
-  );
-  const cipher: SolvedAuthChallenge = JSON.parse(encChallenge);
-  const token: ServerAuthToken = await postSolvedAuthChallenge(
+  const challenge = await API.getNewAuthChallenge(profile.clientId);
+  const encChallenge: string = await signMessage(challenge, profile.privateKey);
+  const cipher: SolvedAuthChallenge = {signedChallenge: encChallenge};
+  const token: ServerAuthToken = await API.postSolvedAuthChallenge(
     profile.clientId,
     cipher,
   );
@@ -110,11 +66,15 @@ export async function getToken(
   const synced = async () => {
     //read token from cache
     const entireState = store.getState();
-    const cachedToken = entireState.authToken.savedToken;
-    if (cachedToken.timestamp === undefined) {
-      //token is in initial state, so load token from file
+    const storeToken = entireState.authToken.savedToken;
+    //case1 : no token in store
+    if (!storeToken.timestamp || !storeToken.token) {
       try {
+        //try loading token from file
         const savedToken = await readAuthToken(false);
+        if (!savedToken) {
+          throw new Error('NoTokenInFile');
+        }
         if (checkAuthTokenTimeout(savedToken.timestamp)) {
           //returns token and updates cache if token is found in file and is still valid.
           store.dispatch({
@@ -124,12 +84,15 @@ export async function getToken(
           return savedToken.token;
         } else {
           //throw an error is token is not valid
-          throw new Error('TokenNotValid');
+          throw new Error('TokenExpired');
         }
       } catch (error) {
         //if token is not valid or if there is no token found in file:
         //try generating a new token
-        const profile: ProfileInfo = await getProfileInfo(false);
+        const profile = await getProfileInfo(false);
+        if (!profile) {
+          throw new Error('NoProfileWhileGetToken');
+        }
         const token = await generateNewAuthToken(profile);
         const timestamp = generateISOTimeStamp();
         const newSavedToken: SavedServerAuthToken = {timestamp, token};
@@ -143,14 +106,17 @@ export async function getToken(
         return token;
       }
     } else {
-      //if token found in cache:
+      //case2 : token found in store
       //check validity
-      if (checkAuthTokenTimeout(cachedToken.timestamp)) {
+      if (checkAuthTokenTimeout(storeToken.timestamp)) {
         //return the token
-        return cachedToken.token;
+        return storeToken.token;
       } else {
         //try generating a new token
-        const profile: ProfileInfo = await getProfileInfo(false);
+        const profile = await getProfileInfo(false);
+        if (!profile) {
+          throw new Error('NoProfileWhileGetToken');
+        }
         const token = await generateNewAuthToken(profile);
         const timestamp = generateISOTimeStamp();
         const newSavedToken: SavedServerAuthToken = {timestamp, token};

@@ -29,7 +29,9 @@ export default function TextBubble({
     <Pressable
       style={StyleSheet.compose(
         styles.textBubbleContainer,
-        isReply ? {alignItems: 'flex-start'} : {alignItems: 'flex-end'},
+        isReply
+          ? {alignItems: 'flex-start'}
+          : {alignItems: 'flex-end', paddingHorizontal: 8},
       )}
       onPress={() => {
         handlePress(message.messageId);

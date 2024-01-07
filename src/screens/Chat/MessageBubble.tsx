@@ -1,20 +1,30 @@
 import React, {ReactNode, memo, useEffect, useState} from 'react';
 
-import {Image, StyleSheet, View, ViewStyle} from 'react-native';
 import DefaultImage from '@assets/avatars/avatar.png';
-import {NumberlessRegularText} from '@components/NumberlessText';
+import {PortColors} from '@components/ComponentUtils';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
-import {extractMemberInfo} from '@utils/Groups';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import Group from '@utils/Groups/Group';
+import {
+  ContentType,
+  LargeDataParams,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
 import {createDateBoundaryStamp} from '@utils/Time';
+import {Image, StyleSheet, View, ViewStyle} from 'react-native';
+import ContactSharingBubble from './BubbleTypes/ContactSharingBubble';
 import DataBubble from './BubbleTypes/DataBubble';
 import FileBubble from './BubbleTypes/FileBubble';
 import ImageBubble from './BubbleTypes/ImageBubble';
+import InfoBubble from './BubbleTypes/InfoBubble';
 import ReplyBubble from './BubbleTypes/ReplyBubble';
 import TextBubble from './BubbleTypes/TextBubble';
 import VideoBubble from './BubbleTypes/VideoBubble';
-import InfoBubble from './BubbleTypes/InfoBubble';
-import ContactSharingBubble from './BubbleTypes/ContactSharingBubble';
 
 /**
  * Props that a message bubble takes
@@ -26,7 +36,7 @@ interface MessageBubbleProps {
   handlePress: any;
   handleLongPress: any;
   isGroupChat: boolean;
-  groupInfo: any;
+  dataHandler: Group | DirectChat;
 }
 
 /**
@@ -37,7 +47,7 @@ interface MessageBubbleProps {
  * @param handlePress
  * @param handleLongPress
  * @param isGroupChat
- * @param groupInfo
+ * @param dataHandler
  * @returns {ReactNode} bubble component
  */
 const MessageBubble = ({
@@ -47,18 +57,39 @@ const MessageBubble = ({
   handlePress,
   handleLongPress,
   isGroupChat,
-  groupInfo,
+  dataHandler,
 }: MessageBubbleProps): ReactNode => {
   const [intitialContainerType, initialBlobType] = initialStylePicker(
     message.contentType,
     message.sender,
   );
   const [containerType] = useState(intitialContainerType);
+
+  //Assume that member name is empty, which implies it is the sender themselves
+  const [memberName, setMemberName] = useState('');
   const [blobType, setBlobType] = useState(initialBlobType);
-  const memberInfo =
-    isGroupChat && !message.sender
-      ? extractMemberInfo(groupInfo, message.memberId)
-      : {};
+
+  useEffect(() => {
+    (async () => {
+      //If it is not a group chat, name doesnt need to be rendered which is why it is left as is
+      if (isGroupChat) {
+        //This checks if the message being rendered was sent by the user themselves.
+        if (message.memberId) {
+          const name = (
+            await (dataHandler as Group).getMember(message.memberId)
+          )?.name;
+          setMemberName(name ? name : DEFAULT_NAME);
+        }
+      } else {
+        if (message.replyId) {
+          const name = (await (dataHandler as DirectChat).getChatData()).name;
+          setMemberName(name ? name : DEFAULT_NAME);
+        }
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (selected.includes(message.messageId)) {
       setBlobType(
@@ -86,11 +117,13 @@ const MessageBubble = ({
   return (
     <View style={styles.parentContainer}>
       {isDateBoundary ? (
-        <View style={styles.dateContainer}>
-          <NumberlessRegularText style={styles.dateStamp}>
-            {createDateBoundaryStamp(message.timestamp)}
-          </NumberlessRegularText>
-        </View>
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}
+          style={styles.dateContainer}
+          textColor={PortColors.text.messageBubble.timestamp}>
+          {createDateBoundaryStamp(message.timestamp)}
+        </NumberlessText>
       ) : (
         <View />
       )}
@@ -112,8 +145,8 @@ const MessageBubble = ({
             isGroupChat,
             handlePress,
             handleLongPress,
-            findMemberName(memberInfo),
-            groupInfo,
+            memberName,
+            dataHandler,
           )}
         </View>
       </View>
@@ -161,12 +194,6 @@ function initialStylePicker(
     }
   }
 }
-function findMemberName(memberInfo: any): string {
-  if (memberInfo.memberId) {
-    return memberInfo.name || DEFAULT_NAME;
-  }
-  return '';
-}
 function selectedMessageBackgroundStylePicker(
   contentType: ContentType,
   sender: boolean,
@@ -204,7 +231,7 @@ function unselectedMessageBackgroundStylePicker(
  * @param handlePress
  * @param handleLongPress
  * @param memberName
- * @param groupInfo
+ * @param dataHandler
  * @returns the right kind of message bubble
  */
 function renderBubbleType(
@@ -213,7 +240,7 @@ function renderBubbleType(
   handlePress: any,
   handleLongPress: any,
   memberName: string = '',
-  groupInfo: any,
+  dataHandler: Group | DirectChat,
 ) {
   switch (message.contentType) {
     case ContentType.text: {
@@ -223,7 +250,7 @@ function renderBubbleType(
             message={message}
             memberName={memberName}
             isGroup={isGroup}
-            groupInfo={groupInfo}
+            dataHandler={dataHandler}
             handlePress={handlePress}
             handleLongPress={handleLongPress}
           />
@@ -291,13 +318,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   dateContainer: {
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#EDEDED',
     maxWidth: '80%',
     borderRadius: 32,
-    padding: 2,
+    marginTop: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 13,
   },
   dateStamp: {
     fontSize: 12,
@@ -308,7 +336,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
-    width: '100%',
+    alignSelf: 'stretch',
     paddingRight: 5,
     paddingBottom: 3,
     paddingTop: 2,
@@ -326,7 +354,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '100%',
+    alignSelf: 'stretch',
     paddingBottom: 3,
     paddingTop: 2,
   },
@@ -339,10 +367,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    paddingLeft: 20,
-    paddingTop: 10,
-    paddingBottom: 5,
-    paddingRight: 20,
+    padding: 6,
     borderWidth: 0.5,
     marginRight: 5,
     borderColor: '#E5E5E5',
@@ -357,10 +382,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    paddingLeft: 20,
-    paddingTop: 10,
-    paddingBottom: 5,
-    paddingRight: 20,
+    padding: 6,
     borderWidth: 0.5,
     marginLeft: 5,
     borderColor: '#E5E5E5',
@@ -390,10 +412,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    paddingLeft: 20,
-    paddingTop: 10,
-    paddingBottom: 5,
-    paddingRight: 20,
+    padding: 6,
     borderWidth: 2,
     marginRight: 5,
     borderColor: '#547CEF',
@@ -408,10 +427,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    paddingLeft: 20,
-    paddingTop: 10,
-    paddingBottom: 5,
-    paddingRight: 20,
+    padding: 6,
     borderWidth: 2,
     marginLeft: 5,
     borderColor: '#547CEF',
@@ -435,6 +451,8 @@ const styles = StyleSheet.create({
 export default memo(MessageBubble, (prevProps, nextProps) => {
   return (
     prevProps.message.messageStatus === nextProps.message.messageStatus &&
+    (prevProps.message.data as LargeDataParams).fileUri ===
+      (nextProps.message.data as LargeDataParams).fileUri &&
     prevProps.isGroupChat === nextProps.isGroupChat &&
     prevProps.selected === nextProps.selected &&
     prevProps.isDateBoundary === nextProps.isDateBoundary

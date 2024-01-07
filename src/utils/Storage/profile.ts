@@ -4,11 +4,10 @@ import {
   saveProfileInfoRNSS,
 } from './RNSecure/secureProfileHandler';
 import {
-  deleteProfilePictureRNFS,
-  readProfilePicAttributesRNFS,
-  writeProfilePicAttributesRNFS,
+  moveProfilePictureToProfileDirRNFS,
+  removeProfilePictureRNFS,
 } from './StorageRNFS/profileHandlers';
-import {FileAttributes} from './sharedFile';
+import {FileAttributes} from './interfaces';
 
 /**
  * saves profile info to storage
@@ -34,32 +33,19 @@ export async function getProfileInfo(
 }
 
 /**
- * returns profile picture attributes
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- * @returns {Promise<FileAttributes>} - profile picture file attributes
+ * makes a copy of the chosen profile picture in the profile dir.
+ * @param {FileAttributes} file - file to make a copy of in profile dir
+ * @returns {FileAttributes} - new destination of the profile picture.
  */
-export async function getProfilePicAttributes(
-  blocking: boolean = false,
-): Promise<FileAttributes> {
-  return await readProfilePicAttributesRNFS(blocking);
-}
-
-/**
- * saves profile picture attributes
- * @param {FileAttributes} file - profile picture file attributes
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- */
-export async function saveProfilePicAttributes(
+export async function moveProfilePictureToProfileDir(
   file: FileAttributes,
-  blocking: boolean = false,
-) {
-  await writeProfilePicAttributesRNFS(file, blocking);
+): Promise<FileAttributes> {
+  return await moveProfilePictureToProfileDirRNFS(file);
 }
 
-/**
- * deletes profile picture
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
- */
-export async function deleteProfilePicture(blocking: boolean = false) {
-  await deleteProfilePictureRNFS(blocking);
+export async function removeProfilePicture(
+  file: FileAttributes,
+  blocking: boolean = true,
+) {
+  await removeProfilePictureRNFS(file, blocking);
 }

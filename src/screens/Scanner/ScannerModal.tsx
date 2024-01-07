@@ -18,13 +18,16 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
-import {processConnectionBundle} from '@utils/Bundles';
-import {BundleReadResponse} from '@utils/Bundles/interfaces';
-import {ConnectionType} from '@utils/Connections/interfaces';
-import React, {ReactNode, useState} from 'react';
+import {
+  getAllPermissionPresets,
+  getDefaultPermissionPreset,
+} from '@utils/ChatPermissionPresets';
+import {PermissionPreset} from '@utils/ChatPermissionPresets/interfaces';
+import {readBundle} from '@utils/Ports';
+import {BundleTarget} from '@utils/Ports/interfaces';
+import React, {ReactNode, useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 
 export default function ScannerModal() {
   const {
@@ -34,75 +37,65 @@ export default function ScannerModal() {
     femaleModal,
     connectionQRData,
     setConnectionQRData,
+    setConnectionChannel,
+    connectionChannel,
   } = useConnectionModal();
-
-  const {portCreationError, incorrectQRError} = useErrorModal();
 
   const [loading, setLoading] = useState(false);
 
-  //@ani convert this to a useState again.
-  const permissionPresets = [
-    'None',
-    'Friends',
-    'Family',
-    'Housing community',
-    'Instagram biz',
-    'Family group presets',
-  ];
-
-  const [selectedPreset, setSelectedPreset] = useState(permissionPresets[0]);
+  const [availablePresets, setAvailablePresets] = useState<PermissionPreset[]>(
+    [],
+  );
+  const [selectedPreset, setSelectedPreset] = useState<PermissionPreset | null>(
+    null,
+  );
 
   const navigation = useNavigation<any>();
-  const [label, setLabel] = useState(
-    connectionQRData?.data.name ? connectionQRData?.data.name : '',
-  );
+  const [label, setLabel] = useState('');
+
+  useEffect(() => {
+    if (connectionQRData) {
+      setLabel(connectionQRData.name);
+      (async () => {
+        setSelectedPreset(await getDefaultPermissionPreset());
+        setAvailablePresets(await getAllPermissionPresets());
+      })();
+    }
+  }, [connectionQRData]);
 
   const cleanScanModal = () => {
     setLabel('');
     setFemaleModal(false);
     setConnectionQRData(undefined);
     hideConnectionModal();
-  };
-  //shows an alert if there is an issue creating a new Port after scanning a QR code.
-  const showAlertAndWait = (bundleReadResponse: BundleReadResponse) => {
-    if (bundleReadResponse === BundleReadResponse.networkError) {
-      portCreationError();
-    } else {
-      incorrectQRError();
-    }
-    cleanScanModal();
+    setConnectionChannel(null);
   };
 
   const saveNewConnection = async () => {
     setLoading(true);
     if (connectionQRData) {
-      const saveResponse = await processConnectionBundle(
+      connectionQRData.name = label;
+      await readBundle(
         connectionQRData,
-        label,
+        connectionChannel,
+        selectedPreset ? selectedPreset.presetId : null,
       );
-      if (saveResponse === BundleReadResponse.networkError) {
-        showAlertAndWait(BundleReadResponse.networkError);
-      }
-      if (saveResponse === BundleReadResponse.success) {
-        navigation.navigate('HomeTab', {screen: 'ChatTab'});
-        cleanScanModal();
-      }
-    } else {
-      showAlertAndWait(BundleReadResponse.formatError);
+      navigation.navigate('HomeTab', {screen: 'ChatTab'});
+      cleanScanModal();
     }
     setLoading(false);
   };
   const checkSavePossible = () => {
     if (connectionQRData) {
-      switch (connectionQRData.connectionType) {
-        case ConnectionType.direct:
+      switch (connectionQRData.target) {
+        case BundleTarget.direct:
           if (label.trim().length > 0) {
             return true;
           }
           return false;
-        case ConnectionType.group:
+        case BundleTarget.group:
           return true;
-        case ConnectionType.superport:
+        case BundleTarget.superportDirect:
           if (label.trim().length > 0) {
             return true;
           }
@@ -174,10 +167,11 @@ export default function ScannerModal() {
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
-                  {connectionQRData.connectionType === ConnectionType.direct ? (
+                  {connectionQRData.target === BundleTarget.direct ? (
                     <Person />
-                  ) : connectionQRData.connectionType ===
-                    ConnectionType.superport ? (
+                  ) : connectionQRData.target ===
+                      BundleTarget.superportDirect ||
+                    connectionQRData.target === BundleTarget.superportGroup ? (
                     <SuperPorts />
                   ) : (
                     <Groups />
@@ -190,13 +184,14 @@ export default function ScannerModal() {
                   textColor={PortColors.text.title}>
                   {(() => {
                     if (connectionQRData) {
-                      switch (connectionQRData.connectionType) {
-                        case ConnectionType.direct:
-                          return 'Connected port with';
-                        case ConnectionType.group:
-                          return 'Join GroupPort';
-                        case ConnectionType.superport:
-                          return 'Connecting over SuperPort with';
+                      switch (connectionQRData.target) {
+                        case BundleTarget.direct:
+                          return 'Connecting with';
+                        case BundleTarget.group:
+                          return 'Join Group';
+                        case BundleTarget.superportDirect:
+                        case BundleTarget.superportGroup:
+                          return 'Connecting over Superport with';
                         default:
                           return 'Connection type unknown';
                       }
@@ -206,45 +201,41 @@ export default function ScannerModal() {
                   })()}
                 </NumberlessText>
               </View>
-              {(connectionQRData.connectionType === ConnectionType.direct ||
-                connectionQRData.connectionType ===
-                  ConnectionType.superport) && (
-                <>
-                  <GenericInput
-                    text={label}
-                    inputStyle={{
-                      marginVertical: 19,
-                      height: 50,
-                      borderRadius: 8,
-                      paddingHorizontal: 20,
-                    }}
-                    setText={setLabel}
-                    placeholder="Contact Name"
-                  />
-                </>
+              {(connectionQRData.target === BundleTarget.direct ||
+                connectionQRData.target === BundleTarget.superportDirect ||
+                connectionQRData.target === BundleTarget.superportGroup) && (
+                <GenericInput
+                  text={label}
+                  inputStyle={{
+                    marginVertical: 19,
+                    height: 50,
+                    borderRadius: 8,
+                    paddingHorizontal: 20,
+                  }}
+                  setText={setLabel}
+                  placeholder="Contact Name"
+                />
               )}
 
-              {connectionQRData.connectionType === ConnectionType.group && (
+              {connectionQRData.target === BundleTarget.group && (
                 <>
                   <NumberlessText
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.md}
-                    style={StyleSheet.compose(styles.paddedTextBoxStyle, {
-                      textAlign: 'center',
-                    })}
+                    style={styles.paddedTextBoxStyle}
                     textColor={PortColors.text.title}>
-                    {connectionQRData.data.name || 'group'}
+                    {connectionQRData.name || 'group'}
                   </NumberlessText>
 
                   <NumberlessText
                     fontSizeType={FontSizeType.s}
                     fontType={FontType.rg}
-                    style={styles.paddedTextBoxStyle}
-                    numberOfLines={3}
+                    style={styles.paddedDescriptionBoxStyle}
+                    numberOfLines={4}
                     ellipsizeMode="tail"
                     textColor={PortColors.text.secondary}>
-                    {connectionQRData.data.description ||
-                      'No description available'}
+                    {/* Existence of description is implied by target above */}
+                    {connectionQRData.description || 'No description available'}
                   </NumberlessText>
                 </>
               )}
@@ -264,17 +255,21 @@ export default function ScannerModal() {
                   Permission preset set to:
                 </NumberlessText>
                 <View style={styles.tileContainerStyle}>
-                  {permissionPresets.map(permission => {
-                    return (
-                      <Tile
-                        title={permission}
-                        isActive={permission === selectedPreset}
-                        onPress={() => {
-                          setSelectedPreset(permission);
-                        }}
-                      />
-                    );
-                  })}
+                  {availablePresets.length > 0 &&
+                    availablePresets.map(permission => {
+                      return (
+                        <Tile
+                          key={permission.presetId}
+                          title={permission.name}
+                          isActive={
+                            permission.presetId === selectedPreset?.presetId
+                          }
+                          onPress={() => {
+                            setSelectedPreset(permission);
+                          }}
+                        />
+                      );
+                    })}
                 </View>
               </View>
             </>
@@ -308,7 +303,6 @@ const Tile = ({
   return (
     <NumberlessText
       onPress={onPress}
-      key={title}
       style={{
         backgroundColor: isActive
           ? PortColors.primary.blue.app
@@ -332,7 +326,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
     backgroundColor: PortColors.primary.grey.light,
-    width: screen.width,
+    paddingTop: 12,
+    alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -352,25 +347,36 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
-    paddingVertical: 30,
-    paddingHorizontal: 42,
+    width: screen.width,
+    padding: 30,
   },
   customiseBoxStyle: {
     backgroundColor: PortColors.primary.grey.light,
     flexDirection: 'column',
     alignSelf: 'stretch',
-    marginTop: 22,
+    marginTop: 8,
     padding: 24,
     borderRadius: 13,
   },
   paddedTextBoxStyle: {
-    padding: 20,
+    paddingTop: 15,
     width: '100%',
     marginTop: 8,
+    height: 50,
     borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: PortColors.primary.grey.light,
+    textAlign: 'center',
+  },
+  paddedDescriptionBoxStyle: {
+    padding: 15,
+    width: '100%',
+    marginTop: 8,
+    maxHeight: 100,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: PortColors.primary.grey.light,
+    textAlign: 'center',
   },
   button: {
     height: 60,

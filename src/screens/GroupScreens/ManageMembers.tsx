@@ -10,20 +10,20 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 // import NamePopup from './UpdateNamePopup';
 import ChatBackground from '@components/ChatBackground';
+import {GenericButton} from '@components/GenericButton';
 import GenericTopBar from '@components/GenericTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
 import {AppStackParamList} from '@navigation/AppStackTypes';
-import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {GroupInfo, GroupMember} from '@utils/Groups/interfaces';
-import {getGroupInfo} from '@utils/Storage/group';
-import {FontSizes} from '@components/ComponentUtils';
-import {GenericButton} from '@components/GenericButton';
-import {getProfileName, getProfilePicture} from '@utils/Profile';
-import UserTile from './UserTile';
+import Group from '@utils/Groups/Group';
+import {
+  GroupDataStrict,
+  GroupMember,
+  GroupMemberStrict,
+} from '@utils/Groups/interfaces';
 import {useErrorModal} from 'src/context/ErrorModalContext';
-import {DEFAULT_AVATAR} from '@configs/constants';
+import UserTile from './UserTile';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ManageMembers'>;
 
@@ -33,21 +33,32 @@ function ManageMembers({route, navigation}: Props) {
 
   const {groupId} = route.params;
 
-  const [groupInfo, setGroupInfo] = useState<GroupInfo>({
-    groupId: groupId,
-    name: '',
-    amAdmin: false,
-    members: [],
-  });
-  const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
-  const [viewableMembers, setViewableMembers] = useState<GroupMember[]>([]);
+  const groupHandler = new Group(groupId);
+  const [members, setMembers] = useState<GroupMemberStrict[]>([]);
 
+  const [groupData, setGroupData] = useState<GroupDataStrict | null>(null);
+
+  const [viewableMembers, setViewableMembers] = useState<GroupMemberStrict[]>(
+    [],
+  );
   useEffect(() => {
-    if (searchText === '' || searchText === undefined) {
-      setViewableMembers(groupMembers);
+    (async () => {
+      const newGroupData = await groupHandler.getData();
+      console.log('groupdata: ', newGroupData);
+      setGroupData(newGroupData);
+      const membersInGroup = await groupHandler.getMembers();
+      setMembers(membersInGroup);
+      setViewableMembers(membersInGroup ? membersInGroup : []);
+      setSearchText('');
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (searchText === '' || !searchText) {
+      setViewableMembers(members);
     } else {
       setViewableMembers(
-        groupMembers.filter(member =>
+        members!.filter(member =>
           member?.name?.toLowerCase().includes(searchText.toLowerCase()),
         ),
       );
@@ -55,52 +66,50 @@ function ManageMembers({route, navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      (async () => {
-        const name = await getProfileName();
-        const uri = await getProfilePicture();
-        const selfConnectionInfo: GroupMember = {
-          name: name,
-          profilePicture: uri || DEFAULT_AVATAR,
-          memberId: 'self',
-          joinedAt: '',
-        };
-        const localGroupInfo = await getGroupInfo(groupId);
-        setGroupInfo(localGroupInfo);
-        setGroupMembers(localGroupInfo.members);
-        setViewableMembers([selfConnectionInfo, ...localGroupInfo.members]);
-      })();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
-  );
-
   // const renderItems = useCallback(({item}: {item: GroupMember}) => {
   //   return <UserTile member={item} />;
   // }, []);
 
-  const rows = [];
-  for (let i = 0; i < viewableMembers.length; i += 4) {
-    const rowMembers = viewableMembers.slice(i, i + 4);
-    rows.push(
-      <View
-        key={i}
-        style={{
-          flexDirection: 'row',
-          width: '100%',
-          justifyContent:
-            rowMembers.length == 4 ? 'space-between' : 'flex-start',
-        }}>
-        {rowMembers.map((item, index) => (
-          <UserTile
-            key={index}
-            member={item}
-            groupId={groupId}
-            isAdmin={groupInfo.amAdmin}
-          />
-        ))}
-      </View>,
-    );
+  const onUserTilePress = async (member: GroupMember) => {
+    try {
+      await groupHandler.removeMember(member.memberId!);
+      const newGroupData = await groupHandler.getData();
+      const membersInGroup = await groupHandler.getMembers();
+      setGroupData(newGroupData);
+      setMembers(membersInGroup);
+      setViewableMembers(membersInGroup);
+    } catch (error) {
+      console.log('error removing member: ', error);
+    }
+  };
+
+  function generateNewRows(members: GroupMemberStrict[]) {
+    const rows = [];
+    if (members && groupData) {
+      for (let i = 0; i < members.length; i += 4) {
+        const rowMembers = members.slice(i, i + 4);
+        rows.push(
+          <View
+            key={i}
+            style={{
+              flexDirection: 'row',
+              width: '100%',
+              justifyContent:
+                rowMembers.length == 4 ? 'space-between' : 'flex-start',
+            }}>
+            {rowMembers.map((item, index) => (
+              <UserTile
+                key={index}
+                member={item}
+                isAdmin={groupData.amAdmin}
+                onPress={onUserTilePress}
+              />
+            ))}
+          </View>,
+        );
+      }
+    }
+    return rows;
   }
 
   return (
@@ -108,12 +117,11 @@ function ManageMembers({route, navigation}: Props) {
       <ChatBackground />
       <GenericTopBar
         title={'Members'}
-        titleStyle={{...FontSizes[17].semibold}}
         onBackPress={() => {
           navigation.goBack();
         }}
       />
-      {groupInfo?.amAdmin && (
+      {groupData && groupData.amAdmin ? (
         <View
           style={{
             flexDirection: 'row',
@@ -140,6 +148,8 @@ function ManageMembers({route, navigation}: Props) {
             Group invite
           </GenericButton>
         </View>
+      ) : (
+        <View />
       )}
 
       <View style={styles.section}>
@@ -148,10 +158,10 @@ function ManageMembers({route, navigation}: Props) {
             style={styles.content}
             ellipsizeMode="tail"
             numberOfLines={1}>
-            Members
+            Other members
           </NumberlessMediumText>
           <NumberlessRegularText style={{fontSize: 15, marginRight: 14}}>
-            {groupInfo.members.length + 1} participants
+            {members ? members.length : 0} other participants
           </NumberlessRegularText>
         </View>
 
@@ -161,7 +171,7 @@ function ManageMembers({route, navigation}: Props) {
           setSearchText={setSearchText}
         />
       </View>
-      <View style={styles.container}>{rows}</View>
+      <View style={styles.container}>{generateNewRows(viewableMembers)}</View>
       {/* <FlatList
         numColumns={4}
         style={{width: '100%'}}

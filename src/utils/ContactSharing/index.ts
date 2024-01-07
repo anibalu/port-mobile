@@ -1,77 +1,115 @@
-import {DEFAULT_NAME} from '@configs/constants';
-import {generateDirectConnectionBundle} from '@utils/Bundles/direct';
-import {DirectConnectionBundle} from '@utils/Bundles/interfaces';
-import {getConnection} from '@utils/Connections';
-import {generateRandomHexId} from '@utils/Messaging/idGenerator';
+import {getChatPermissions} from '@utils/ChatPermissions';
+import {ChatType} from '@utils/Connections/interfaces';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
-import {sendMessage} from '@utils/Messaging/sendMessage';
-import {addNewBundleMap, getChatIdforBundleId} from '@utils/Storage/bundleMap';
 import {saveMessage} from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';
+import * as storage from '@utils/Storage/contactSharing';
+import {ContactSharingMap} from './interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {generateBundle} from '@utils/Ports';
+import {BundleTarget, PortBundle} from '@utils/Ports/interfaces';
+import {expiryOptions} from '@utils/Time/interfaces';
 
-export async function requestContactShareBundle(
-  fromChatId: string,
-  toChatId: string,
-) {
+export async function requestToShareContact(map: ContactSharingMap) {
   //create bundle map
-  const bundleId = generateRandomHexId();
-  await addNewBundleMap({bundleId: bundleId, chatId: toChatId});
+  await storage.newContactSharingEntry(map);
   //send request message
-  await sendMessage(fromChatId, {
-    contentType: ContentType.contactBundleRequest,
-    data: {bundleId: bundleId},
-  });
-  //save info message
-  const savedMessage1: SavedMessageParams = {
+  const destinationChat = new DirectChat(map.destination);
+  const destinationChatData = await destinationChat.getChatData();
+  const sourceChat = new DirectChat(map.source);
+  const sourceChatData = await sourceChat.getChatData();
+  const sendBundleRequest = new SendMessage(
+    map.source,
+    ContentType.contactBundleRequest,
+    {destinationName: destinationChatData.name},
+  );
+  await sendBundleRequest.send();
+  const savedMessage: SavedMessageParams = {
+    chatId: map.destination,
     messageId: generateRandomHexId(),
     contentType: ContentType.info,
     data: {
-      info: 'You requested to share their contact',
+      info: `You are trying to share ${sourceChatData.name}'s contact. Contact will be shared if you are authorised`,
     },
-    chatId: fromChatId,
     sender: true,
     timestamp: generateISOTimeStamp(),
   };
-  const savedMessage2: SavedMessageParams = {
-    messageId: generateRandomHexId(),
-    contentType: ContentType.info,
-    data: {
-      info: 'You are trying to share a contact. Contact will be shared if you are authorised',
-    },
-    chatId: toChatId,
-    sender: true,
-    timestamp: generateISOTimeStamp(),
-  };
-  await saveMessage(savedMessage1);
-  await saveMessage(savedMessage2);
+  await saveMessage(savedMessage);
 }
 
-export async function provideContactShareBundle(
+export async function respondToShareContactRequest(
   requester: string,
-  bundleId: string,
+  destinationName?: string | null,
 ) {
-  //check if requester has permission
-  const connection = await getConnection(requester);
-  if (connection.permissions.contactSharing?.toggled) {
-    //if yes, generate bundle
-    const bundle = await generateDirectConnectionBundle(
-      'via ' + connection.name,
-      bundleId,
-      requester,
+  //save info message
+  const savedMessage: SavedMessageParams = {
+    chatId: requester,
+    messageId: generateRandomHexId(),
+    contentType: ContentType.info,
+    data: {
+      info: `Contact has requested to connect you with ${
+        destinationName ? destinationName : 'someone'
+      }. Your contact will be shared if they are authorised`,
+    },
+    sender: true,
+    timestamp: generateISOTimeStamp(),
+  };
+  await saveMessage(savedMessage);
+  //check if permissions exist
+
+  const chatPermisson = await getChatPermissions(requester, ChatType.direct);
+  //if permissions exist, send bundle
+
+  if (chatPermisson.contactSharing) {
+    const requesterChat = new DirectChat(requester);
+    const requesterChatData = await requesterChat.getChatData();
+    const label = `Via ${requesterChatData.name}`;
+
+    const bundle = await generateBundle(
+      BundleTarget.direct,
+      null,
+      label,
+      expiryOptions[0],
+      'shared://' + requester,
     );
-    //send bundle to requester
-    await sendMessage(requester, {
-      contentType: ContentType.contactBundleResponse,
-      data: {...bundle},
-    });
-    //save info message
+    const sender = new SendMessage(
+      requester,
+      ContentType.contactBundleResponse,
+      {...bundle},
+    );
+    await sender.send();
+    //save info message for success
     const savedMessage: SavedMessageParams = {
+      chatId: requester,
       messageId: generateRandomHexId(),
       contentType: ContentType.info,
       data: {
-        info: 'You shared a contact bundle that connects to you',
+        info: 'Your contact shared successfully',
       },
+      sender: true,
+      timestamp: generateISOTimeStamp(),
+    };
+    await saveMessage(savedMessage);
+  } else {
+    //else send denial
+
+    // send denial message
+    const sender = new SendMessage(
+      requester,
+      ContentType.contactBundleDenialResponse,
+      {},
+    );
+    await sender.send();
+    //save info message for denial
+    const savedMessage: SavedMessageParams = {
       chatId: requester,
+      messageId: generateRandomHexId(),
+      contentType: ContentType.info,
+      data: {
+        info: 'Request denied because you have disabled contact sharing permissions',
+      },
       sender: true,
       timestamp: generateISOTimeStamp(),
     };
@@ -79,30 +117,51 @@ export async function provideContactShareBundle(
   }
 }
 
-export async function relayContactShareBundle(
-  fromChatId: string,
-  bundle: DirectConnectionBundle,
-) {
-  //respond to getting a valid bundle
+export async function relayContactBundle(source: string, bundle: PortBundle) {
+  const destinations = await storage.getEntriesForSource(source);
+  if (destinations.length > 0) {
+    const destination = destinations[0].destination;
+    await storage.deleteContactSharingEntry({source, destination});
+    const sender = new SendMessage(destination, ContentType.contactBundle, {
+      ...bundle,
+    });
+    await sender.send();
+  }
+}
+
+export async function handleContactShareDenial(source: string) {
+  const maps = await storage.getEntriesForSource(source);
+  const sourceChat = new DirectChat(source);
+  const sourceChatData = await sourceChat.getChatData();
+  //save info message for denial
+
   const savedMessage: SavedMessageParams = {
+    chatId: source,
     messageId: generateRandomHexId(),
     contentType: ContentType.info,
     data: {
-      info: 'You received a contact bundle to share',
+      info: `${sourceChatData.name} has denied contact sharing request`,
     },
-    chatId: fromChatId,
     sender: true,
     timestamp: generateISOTimeStamp(),
   };
   await saveMessage(savedMessage);
-  //find right person
-  const toChatId = await getChatIdforBundleId(bundle.data.bundleId || '');
-  if (toChatId !== null) {
-    const connection = await getConnection(fromChatId);
-    //send bundle to right person
-    await sendMessage(toChatId, {
-      contentType: ContentType.contactBundle,
-      data: {...bundle, fromName: connection.name || DEFAULT_NAME},
-    });
+
+  if (maps.length > 0) {
+    for (let index = 0; index < maps.length; index++) {
+      const destination = maps[index].destination;
+      await storage.deleteContactSharingEntry({source, destination});
+      const savedMessage: SavedMessageParams = {
+        chatId: destination,
+        messageId: generateRandomHexId(),
+        contentType: ContentType.info,
+        data: {
+          info: `${sourceChatData.name} has denied contact sharing request`,
+        },
+        sender: true,
+        timestamp: generateISOTimeStamp(),
+      };
+      await saveMessage(savedMessage);
+    }
   }
 }

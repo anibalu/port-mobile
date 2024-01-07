@@ -1,57 +1,54 @@
 import {
-  createKeyPair,
-  generateSharedSecret,
+  generateX25519Keys,
+  deriveX25519SharedSecret,
+  encryptWithX25519SharedSecret,
+  decryptWithX25519SharedSecret,
+  KeyPair,
 } from '@numberless/react-native-numberless-crypto';
-import {KeyPair, SharedSecret} from './interfaces';
 
 /**
- * returns x25519 key pair as url-safe base64 encoded strings.
- * @returns {KeyPair} - generated x25519 key pair as url-safe base64 encoded strings.
+ * generator for x25519 key pair in hex encoded format
+ * @returns {KeyPair} - hex encoded public key and private key
  */
-export async function generateKeyPair(): Promise<KeyPair> {
-  const keyString: string = await createKeyPair();
-  const keyPair: KeyPair = JSON.parse(keyString);
-  return keyPair;
+export async function generateKeys(): Promise<KeyPair> {
+  return await generateX25519Keys();
 }
 
 /**
- * Calculates the DH shared secret of two x25519 keys.
- * @param {string} privKey - user's private key in url-safe base64 encoding
- * @param {string} peerPubKey - peer's public key in url-safe base64 encoding
- * @returns {SharedSecret} - calculated shared secret in url-safe base64 encoding
+ * derives shared secret using private key and peer's public key
+ * @param privateKey - user's private key
+ * @param peerPublicKey - peer's public key
+ * @returns - hex encoded shared secret key
  */
-export async function generateSharedKey(
-  privKey: string,
-  peerPubKey: string,
-): Promise<SharedSecret> {
-  const sh: string = await generateSharedSecret(privKey, peerPubKey);
-  const sharedSecret: SharedSecret = JSON.parse(sh);
-  return sharedSecret;
+export async function deriveSharedSecret(
+  privateKey: string,
+  peerPublicKey: string,
+): Promise<string> {
+  return await deriveX25519SharedSecret(privateKey, peerPublicKey);
 }
 
 /**
- * @todo a function to generate a random nonce compatible with x25519 operations
+ * encrypts using AES CBC with random initialisation vector
+ * @param plaintext - plaintext to encrypt
+ * @param sharedSecret - shared key
+ * @returns - ciphertext as a url-safe base64 encoded string
  */
-export async function generateRandomNonce() {
-  return 'placeholder_nonce';
+export async function encrypt(
+  plaintext: string,
+  sharedSecret: string,
+): Promise<string> {
+  return await encryptWithX25519SharedSecret(plaintext, sharedSecret);
 }
 
 /**
- * PEM encodes a public key which is already in the form of a url-safe base64 encoded string.
- * @param {string} pubKey -  public key in the form of a url-safe base64 encoded string.
- * @returns - a PEM encoded public key
+ * decrypts AES CBC with random initialisation vector
+ * @param ciphertext - ciphertext as a url-safe base64 encoded string to decrypt
+ * @param sharedSecret - shared key
+ * @returns - plaintext as a string
  */
-export function publicKeyPEMencode(pubKey: string) {
-  const pemKey =
-    '-----BEGIN PUBLIC KEY-----\n' + pubKey + '\n-----END PUBLIC KEY-----\n';
-  return pemKey;
-}
-
-/**
- * decodes a PEM encoded public key into a url-safe base64 encoded version.
- * @param {string} pemKey - publik key in PEM encoding
- * @returns - a url-safe base64 encoded public key.
- */
-export function publicKeyPEMdecode(pemKey: string) {
-  return pemKey.slice(27, -26);
+export async function decrypt(
+  ciphertext: string,
+  sharedSecret: string,
+): Promise<string> {
+  return await decryptWithX25519SharedSecret(ciphertext, sharedSecret);
 }

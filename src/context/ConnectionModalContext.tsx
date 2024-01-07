@@ -1,8 +1,14 @@
+import {isIOS} from '@components/ComponentUtils';
 import {useNavigation} from '@react-navigation/native';
-import {ConnectionBundle} from '@utils/Bundles/interfaces';
 import {handleDeepLink} from '@utils/DeepLinking';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {FileAttributes} from '@utils/Storage/sharedFile';
+import {
+  DirectSuperportBundle,
+  GroupBundle,
+  GroupSuperportBundle,
+  PortBundle,
+} from '@utils/Ports/interfaces';
+import {FileAttributes} from '@utils/Storage/interfaces';
 import {wait} from '@utils/Time';
 import React, {
   ReactNode,
@@ -14,15 +20,28 @@ import React, {
 import {AppState, Linking} from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import {useErrorModal} from './ErrorModalContext';
-import {isIOS} from '@components/ComponentUtils';
 
 type ModalContextType = {
   //controls incoming connection modal
   femaleModal: boolean;
   setFemaleModal: (x: boolean) => void;
   connectionModalVisible: boolean;
-  connectionQRData: ConnectionBundle | undefined;
-  setConnectionQRData: (x: ConnectionBundle | undefined) => void;
+  connectionQRData:
+    | PortBundle
+    | GroupBundle
+    | DirectSuperportBundle
+    | GroupSuperportBundle
+    | undefined;
+  setConnectionQRData: (
+    x:
+      | PortBundle
+      | GroupBundle
+      | DirectSuperportBundle
+      | GroupSuperportBundle
+      | undefined,
+  ) => void;
+  connectionChannel: string | null;
+  setConnectionChannel: (x: string | null) => void;
   showConnectionModal: () => void;
   hideConnectionModal: () => void;
   toggleConnectionModal: () => void;
@@ -69,8 +88,15 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
 }) => {
   const navigation = useNavigation<any>();
   const [connectionQRData, setConnectionQRData] = useState<
-    ConnectionBundle | undefined
+    | PortBundle
+    | GroupBundle
+    | DirectSuperportBundle
+    | GroupSuperportBundle
+    | undefined
   >(undefined);
+  const [connectionChannel, setConnectionChannel] = useState<string | null>(
+    null,
+  );
   const [connectionModalVisible, setConnectionModalVisible] = useState(false);
   const [femaleModal, setFemaleModal] = useState(false);
   const showConnectionModal = async () => {
@@ -125,6 +151,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
         // files returns as JSON Array example
         const sharingMessageObjects = [];
         console.log('Files are: ', files);
+        let isText = false;
 
         for (const file of files) {
           const payloadFile: FileAttributes = {
@@ -133,21 +160,28 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
             fileName: file.fileName || '',
           };
 
-          const msg = {
-            contentType: imageRegex.test(file.mimeType)
-              ? ContentType.image
-              : videoRegex.test(file.mimeType)
-              ? ContentType.video
-              : ContentType.file,
-            data: {...payloadFile},
-          };
-          sharingMessageObjects.push(msg);
+          //Text has been shared
+          if (payloadFile.fileUri === 'file://null') {
+            sharingMessageObjects.push(file.text);
+            isText = true;
+            console.log('File received is: ', sharingMessageObjects);
+          } else {
+            const msg = {
+              contentType: imageRegex.test(file.mimeType)
+                ? ContentType.image
+                : videoRegex.test(file.mimeType)
+                ? ContentType.video
+                : ContentType.file,
+              data: {...payloadFile},
+            };
+            sharingMessageObjects.push(msg);
+            console.log('File received is: ', sharingMessageObjects);
+          }
         }
-
-        navigation.navigate('ShareImage', {
+        navigation.navigate('SelectShareContacts', {
           shareMessages: sharingMessageObjects,
+          isText,
         });
-        console.log('File received is: ', sharingMessageObjects);
       },
       error => {
         console.log(error);
@@ -158,6 +192,10 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
 
   useEffect(() => {
     AppState.addEventListener('change', handleReceiveShare);
+    Linking.addEventListener('url', checkDeeplink);
+    return () => {
+      Linking.removeAllListeners('url');
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -177,8 +215,8 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       }
     }
   };
+
   // Handle any potential deeplinks while foregrounded/backgrounded
-  Linking.addEventListener('url', checkDeeplink);
 
   return (
     <ConnectionModalContext.Provider
@@ -187,6 +225,8 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
         setFemaleModal: setFemaleModal,
         connectionQRData: connectionQRData,
         setConnectionQRData: setConnectionQRData,
+        connectionChannel: connectionChannel,
+        setConnectionChannel: setConnectionChannel,
         connectionModalVisible: connectionModalVisible,
         showConnectionModal: showConnectionModal,
         hideConnectionModal: hideConnectionModal,

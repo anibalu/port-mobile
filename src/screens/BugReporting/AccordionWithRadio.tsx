@@ -92,6 +92,8 @@ const AccordionWithRadio = ({
           paddingTop: 10,
           textAlignVertical: 'top',
           borderRadius: 12,
+          width: '95%',
+          alignSelf: 'center',
         }}
         maxLength={350}
         multiline={true}

@@ -1,17 +1,15 @@
-export interface KeyPair {
-  privKey: string;
-  pubKey: string;
+export interface CryptoData {
+  privateKey?: string | null;
+  publicKey?: string | null;
+  sharedSecret?: string | null;
+  peerPublicKeyHash?: string | null;
+  rad?: string | null;
 }
 
-export interface SharedSecret {
-  sharedSecret: string;
-}
-
-export interface ChatCrypto {
-  nonce?: string;
-  pubKeyHash?: string;
-  peerPubKey?: string;
-  privKey?: string;
-  pubKey?: string;
-  sharedSecret?: string;
+export interface CryptoDataStrict extends CryptoData {
+  privateKey: string;
+  publicKey: string;
+  sharedSecret: string | null;
+  peerPublicKeyHash: string | null;
+  rad: string | null;
 }

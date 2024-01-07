@@ -9,8 +9,6 @@ import Person from '@assets/icons/personWhite.svg';
 import {GenericButton} from '@components/GenericButton';
 import GenericModalTopBar from '@components/GenericModalTopBar';
 import {DEFAULT_NAME} from '@configs/constants';
-import {generateDirectConnectionBundle} from '@utils/Bundles/direct';
-import {convertBundleToLink} from '@utils/DeepLinking';
 import {getProfileName} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
@@ -22,6 +20,15 @@ import GenericInput from '../GenericInput';
 import GenericModal from '../GenericModal';
 import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
 import {displayQR} from './QRUtils';
+import {expiryOptions} from '@utils/Time/interfaces';
+import {generateBundle, getBundleClickableLink} from '@utils/Ports';
+import {BundleTarget, PortBundle} from '@utils/Ports/interfaces';
+import {useErrorModal} from 'src/context/ErrorModalContext';
+import {PermissionPreset} from '@utils/ChatPermissionPresets/interfaces';
+import {
+  getAllPermissionPresets,
+  getDefaultPermissionPreset,
+} from '@utils/ChatPermissionPresets';
 
 const NewPortModal: React.FC = () => {
   const {
@@ -29,18 +36,13 @@ const NewPortModal: React.FC = () => {
     hideNewPortModal: hideModal,
     showSuperportModal: showSuperportModal,
   } = useConnectionModal();
+  const {unableToSharelinkError} = useErrorModal();
   const [label, setLabel] = useState('');
   const [name, setName] = useState(DEFAULT_NAME);
   //updates name with user set name
   async function setUserName() {
     setName(await getProfileName());
   }
-
-  useEffect(() => {
-    (async () => {
-      setUserName();
-    })();
-  }, []);
 
   const [createPressed, setCreatePressed] = useState<boolean>(false);
   const [loadingShare, setLoadingShare] = useState(false);
@@ -49,20 +51,25 @@ const NewPortModal: React.FC = () => {
   const [qrCodeData, setQRCodeData] = useState<string>('');
   const [linkData, setLinkData] = useState<string>('');
 
-  //@ani Convert the below into states, removed cuz linting fucks up
-  const permissionPresets = [
-    'none',
-    'work',
-    'new', // @ani make sure to include this at the end so that the new tile is rendered.
-  ];
-  const [selectedPreset, setSelectedPreset] = useState(permissionPresets[0]);
+  const [availablePresets, setAvailablePresets] = useState<PermissionPreset[]>(
+    [],
+  );
+  const [selectedPreset, setSelectedPreset] = useState<PermissionPreset | null>(
+    null,
+  );
+  const [selectedTime, setSelectedTime] = useState(expiryOptions[0]);
 
-  const timePresets = ['1 hour', '12 hours', '1 day', '1 week', 'Forever'];
-  const [selectedTime, setSelectedTime] = useState(timePresets[4]);
+  useEffect(() => {
+    (async () => {
+      setUserName();
+      setSelectedPreset(await getDefaultPermissionPreset());
+      setAvailablePresets(await getAllPermissionPresets());
+    })();
+  }, []);
 
   const latestNewConnection = useSelector(state => state.latestNewConnection);
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   const cleanupModal = () => {
     hideModal();
@@ -84,10 +91,19 @@ const NewPortModal: React.FC = () => {
       setCreatePressed(true);
       setBundleGenError(false);
       setIsLoadingBundle(true);
+
       //use this function to generate and fetch QR code data.
-      const bundle = await generateDirectConnectionBundle(label);
+      const bundle = await generateBundle(
+        BundleTarget.direct,
+        null,
+        label,
+        selectedTime,
+        null,
+        selectedPreset ? selectedPreset.presetId : null,
+      );
       setQRCodeData(JSON.stringify(bundle));
     } catch (error) {
+      console.log('Error in QR generation: ', error);
       //set bundle generated error
       setBundleGenError(true);
     } finally {
@@ -99,7 +115,12 @@ const NewPortModal: React.FC = () => {
   const fetchLinkData = async () => {
     if (!isLoadingBundle && !bundleGenError && qrCodeData !== '') {
       if (linkData === '') {
-        const link = await convertBundleToLink(qrCodeData);
+        const bundle: PortBundle = JSON.parse(qrCodeData);
+        const link = await getBundleClickableLink(
+          BundleTarget.direct,
+          bundle.portId,
+          qrCodeData,
+        );
         setLinkData(link);
         return link;
       }
@@ -110,17 +131,21 @@ const NewPortModal: React.FC = () => {
   };
   //handles sharing in link form
   const handleShare = async () => {
-    setLoadingShare(true);
     try {
-      const linkURL = await fetchLinkData();
-      const shareContent = {
-        title: 'Create a new Port',
-        message:
-          `${name} would like to connect with you on Port! Click the link to start chatting: \n` +
-          linkURL,
-      };
-      await Share.open(shareContent);
+      setLoadingShare(true);
+      let linkURL = null;
+      linkURL = await fetchLinkData();
+      if (linkURL != null) {
+        const shareContent = {
+          title: 'Create a new Port',
+          message:
+            `${name} would like to connect with you on Port! Click the link to start chatting: \n` +
+            linkURL,
+        };
+        await Share.open(shareContent);
+      }
     } catch (error) {
+      unableToSharelinkError();
       console.log('Error sharing content: ', error);
     } finally {
       setLoadingShare(false);
@@ -128,16 +153,21 @@ const NewPortModal: React.FC = () => {
   };
 
   useEffect(() => {
-    if (modalVisible && latestNewConnection) {
-      const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
-      if (qrCodeData !== '') {
-        const displayData = JSON.parse(qrCodeData);
-        if (displayData.data.linkId === latestUsedConnectionLinkId) {
-          cleanupModal();
-          navigation.navigate('HomeTab');
+    try {
+      if (modalVisible && latestNewConnection) {
+        const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
+        if (qrCodeData !== '') {
+          const displayData: PortBundle = JSON.parse(qrCodeData);
+          if (displayData.portId === latestUsedConnectionLinkId) {
+            cleanupModal();
+            navigation.navigate('HomeTab');
+          }
         }
       }
+    } catch (error) {
+      console.log('error autoclosing modal: ', error);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestNewConnection]);
 
@@ -153,35 +183,65 @@ const NewPortModal: React.FC = () => {
         </NumberlessText>
 
         <View style={styles.customisePreviewStyle}>
-          {selectedPreset != undefined && (
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              alignSelf: 'stretch',
+            }}>
             <NumberlessText
-              style={{
-                backgroundColor: PortColors.primary.white,
-                padding: 8,
-                borderRadius: 8,
-                marginRight: 8,
-                overflow: 'hidden',
-              }}
-              textColor={PortColors.text.title}
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.md}>
-              {selectedPreset}
+              fontSizeType={FontSizeType.s}
+              textColor={PortColors.text.secondary}
+              fontType={FontType.rg}>
+              Permission preset
             </NumberlessText>
-          )}
-          {selectedTime != undefined && (
+            {selectedPreset && (
+              <NumberlessText
+                style={{
+                  backgroundColor: PortColors.primary.white,
+                  padding: 8,
+                  borderRadius: 8,
+                  marginLeft: 18,
+                  overflow: 'hidden',
+                }}
+                textColor={PortColors.text.title}
+                fontSizeType={FontSizeType.m}
+                fontType={FontType.md}>
+                {selectedPreset.name}
+              </NumberlessText>
+            )}
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: 5,
+              alignSelf: 'stretch',
+            }}>
             <NumberlessText
-              style={{
-                backgroundColor: PortColors.primary.white,
-                padding: 8,
-                overflow: 'hidden',
-                borderRadius: 8,
-              }}
-              textColor={PortColors.text.title}
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.md}>
-              {selectedTime}
+              fontSizeType={FontSizeType.s}
+              textColor={PortColors.text.secondary}
+              fontType={FontType.rg}>
+              Request expires
             </NumberlessText>
-          )}
+            {selectedTime != undefined && (
+              <NumberlessText
+                style={{
+                  backgroundColor: PortColors.primary.white,
+                  padding: 8,
+                  overflow: 'hidden',
+                  marginLeft: 29,
+                  borderRadius: 8,
+                }}
+                textColor={PortColors.text.title}
+                fontSizeType={FontSizeType.m}
+                fontType={FontType.md}>
+                {selectedTime}
+              </NumberlessText>
+            )}
+          </View>
         </View>
 
         <View
@@ -247,7 +307,10 @@ const NewPortModal: React.FC = () => {
             <GenericInput
               inputStyle={{
                 marginVertical: 12,
+                paddingLeft: 20,
+                height: 50,
               }}
+              alignment="left"
               text={label}
               setText={setLabel}
               placeholder="Contact Name"
@@ -267,18 +330,23 @@ const NewPortModal: React.FC = () => {
                 Permission preset set to:
               </NumberlessText>
               <View style={styles.tileContainerStyle}>
-                {permissionPresets.map(permission => {
-                  return (
-                    <Tile
-                      title={permission}
-                      key={permission}
-                      isActive={permission === selectedPreset}
-                      onPress={() => {
-                        setSelectedPreset(permission);
-                      }}
-                    />
-                  );
-                })}
+                {availablePresets.length > 0 &&
+                  availablePresets.map(permission => {
+                    return (
+                      <Tile
+                        key={permission.presetId}
+                        title={permission.name}
+                        cleanup={cleanupModal}
+                        navigation={navigation}
+                        isActive={
+                          permission.presetId === selectedPreset?.presetId
+                        }
+                        onPress={() => {
+                          setSelectedPreset(permission);
+                        }}
+                      />
+                    );
+                  })}
               </View>
               <NumberlessText
                 fontSizeType={FontSizeType.m}
@@ -288,10 +356,13 @@ const NewPortModal: React.FC = () => {
                 Request is valid for:
               </NumberlessText>
               <View style={styles.tileContainerStyle}>
-                {timePresets.map(time => {
+                {expiryOptions.map(time => {
                   return (
                     <Tile
+                      key={time}
                       title={time}
+                      cleanup={cleanupModal}
+                      navigation={navigation}
                       isActive={time === selectedTime}
                       onPress={() => {
                         setSelectedTime(time);
@@ -324,14 +395,14 @@ const NewPortModal: React.FC = () => {
           fontType={FontType.rg}
           fontSizeType={FontSizeType.m}
           textColor={PortColors.text.secondary}>
-          Open other port type:
+          Other options:
         </NumberlessText>
 
         <View style={styles.buttonArea}>
           <GenericButton
             onPress={() => {
-              navigation.navigate('GroupOnboarding');
               cleanupModal();
+              navigation.navigate('GroupOnboarding');
             }}
             buttonStyle={styles.morePortButton}
             IconLeft={Groups}
@@ -339,7 +410,7 @@ const NewPortModal: React.FC = () => {
               textAlign: 'center',
               color: PortColors.text.title,
             }}>
-            GroupPort
+            Group
           </GenericButton>
           <GenericButton
             onPress={() => {
@@ -353,7 +424,7 @@ const NewPortModal: React.FC = () => {
               textAlign: 'center',
               color: PortColors.text.title,
             }}>
-            SuperPort
+            Superport
           </GenericButton>
         </View>
       </View>
@@ -365,14 +436,21 @@ const Tile = ({
   title,
   isActive,
   onPress,
+  navigation,
+  cleanup,
 }: {
   title: string;
   isActive: boolean;
   onPress: () => void;
+  navigation: any;
+  cleanup: any;
 }): ReactNode => {
   return title === 'new' ? (
     <NumberlessText
-      onPress={() => {}}
+      onPress={() => {
+        cleanup();
+        navigation.navigate('Presets');
+      }}
       style={{
         padding: 8,
         borderRadius: 8,
@@ -417,21 +495,20 @@ const styles = StyleSheet.create({
     width: screen.width,
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
   },
   customiseBoxStyle: {
     backgroundColor: PortColors.primary.grey.light,
     flexDirection: 'column',
     alignSelf: 'stretch',
-    marginTop: 22,
+    marginTop: 8,
     padding: 24,
     borderRadius: 13,
   },
   customisePreviewStyle: {
     backgroundColor: PortColors.primary.grey.light,
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+    flexDirection: 'column',
+    padding: 10,
     borderRadius: 13,
     marginBottom: 32,
   },

@@ -1,7 +1,8 @@
 import {PayloadMessageParams} from '@utils/Messaging/interfaces';
 import DirectReceiveAction from './DirectReceiveAction';
 import {directReceiveActionPicker} from './possibleActions';
-import {decryptMessage} from '@utils/Crypto/aes';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
 
 class ReceiveDirectMessage {
   private message: any;
@@ -23,12 +24,29 @@ class ReceiveDirectMessage {
       if (!this.message.messageContent) {
         this.decryptedMessageContent = null;
         return;
+      } else if (
+        this.message.messageContent &&
+        this.message.messageContent.content
+      ) {
+        const parsedAndProcessed = JSON.parse(
+          this.message.messageContent.content,
+        );
+        this.decryptedMessageContent =
+          parsedAndProcessed as PayloadMessageParams;
+      } else if (
+        this.message.messageContent &&
+        this.message.messageContent.encryptedContent
+      ) {
+        const chat = new DirectChat(this.chatId);
+        const cryptoDriver = new CryptoDriver(await chat.getCryptoId());
+        const decryptedAndProcessed = JSON.parse(
+          await cryptoDriver.decrypt(
+            this.message.messageContent.encryptedContent,
+          ),
+        );
+        this.decryptedMessageContent =
+          decryptedAndProcessed as PayloadMessageParams;
       }
-      const decryptedAndProcessed = JSON.parse(
-        await decryptMessage(this.chatId, this.message.messageContent),
-      );
-      this.decryptedMessageContent =
-        decryptedAndProcessed as PayloadMessageParams;
     } catch (error) {
       console.log('Error in extracting decrypted message content: ', error);
       this.decryptedMessageContent = null;

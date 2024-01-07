@@ -5,12 +5,11 @@ import {Pressable, StyleSheet, View} from 'react-native';
 
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
+import {NumberlessRegularText} from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {categories} from '@configs/bugCategories';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {FontSizes} from '@components/ComponentUtils';
-import {NumberlessRegularText} from '@components/NumberlessText';
-import {categories} from '@configs/bugCategories';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AddCategoryScreen'>;
 
@@ -19,7 +18,6 @@ export default function AddCategoryScreen({navigation}: Props) {
     <SafeAreaView style={styles.screen}>
       <ChatBackground />
       <GenericTopBar
-        titleStyle={{...FontSizes[17].medium}}
         title={'Add Category '}
         onBackPress={() => {
           navigation.goBack();

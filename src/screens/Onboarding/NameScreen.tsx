@@ -49,6 +49,7 @@ function NameScreen({navigation}: Props): ReactNode {
       />
 
       <ScrollView
+        style={{backgroundColor: PortColors.primary.white}}
         contentContainerStyle={onboardingStylesheet.scrollViewContainer}
         automaticallyAdjustKeyboardInsets={true}
         showsVerticalScrollIndicator={false}>

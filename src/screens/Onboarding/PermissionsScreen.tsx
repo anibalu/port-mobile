@@ -51,6 +51,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
       />
 
       <ScrollView
+        style={{backgroundColor: PortColors.primary.white}}
         contentContainerStyle={onboardingStylesheet.scrollViewContainer}
         showsVerticalScrollIndicator={false}>
         <NumberlessText

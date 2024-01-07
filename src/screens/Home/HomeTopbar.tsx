@@ -12,9 +12,11 @@ import {
 } from '@components/NumberlessText';
 import {AVATAR_ARRAY, TOPBAR_HEIGHT} from '@configs/constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {getProfilePicture} from '@utils/Profile';
+import {numberOfPendingRequests} from '@utils/Ports';
+import {getProfilePictureUri} from '@utils/Profile';
 import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+import {useSelector} from 'react-redux';
 
 type TopbarProps = {
   toptitleMessage: String;
@@ -31,7 +33,7 @@ function HomeTopbar({unread, toptitleMessage = 'All'}: TopbarProps): ReactNode {
     React.useCallback(() => {
       //updates profile picture with user set profile picture
       (async () => {
-        const profilePictureURI = await getProfilePicture();
+        const profilePictureURI = await getProfilePictureUri();
         if (profilePictureURI) {
           setProfileURI(profilePictureURI);
         }
@@ -39,22 +41,42 @@ function HomeTopbar({unread, toptitleMessage = 'All'}: TopbarProps): ReactNode {
     }, []),
   );
   const navigation = useNavigation<any>();
+
+  const reloadTrigger = useSelector(
+    state => state.triggerPendingRequestsReload.change,
+  );
+
+  const [pendingRequestsLength, setPendingRequestsLength] = useState(0);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      (async () => {
+        setPendingRequestsLength(await numberOfPendingRequests());
+      })();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reloadTrigger]),
+  );
+
   return (
     <View style={styles.bar}>
       <Pressable
         style={styles.iconWrapper}
         onPress={() => navigation.navigate('PendingRequests')}>
-        <NumberlessText
-          fontType={FontType.md}
-          textColor={PortColors.text.primaryWhite}
-          fontSizeType={FontSizeType.s}
-          style={styles.redWrapper}>
-          2
-        </NumberlessText>
+        {pendingRequestsLength > 0 && (
+          <NumberlessText
+            fontType={FontType.md}
+            textColor={PortColors.text.primaryWhite}
+            fontSizeType={FontSizeType.s}
+            style={styles.redWrapper}>
+            {pendingRequestsLength}
+          </NumberlessText>
+        )}
         <PendingConnectionsIcon />
       </Pressable>
       <NumberlessText
-        style={{left: 20}}
+        style={styles.maintitle}
+        numberOfLines={1}
+        ellipsizeMode="tail"
         fontType={FontType.md}
         fontSizeType={FontSizeType.l}>
         {title}
@@ -82,12 +104,12 @@ const styles = StyleSheet.create({
     height: TOPBAR_HEIGHT,
   },
   profileImageContainer: {
-    width: 80,
-    height: 65,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
   },
   backgroundImage: {
     width: 50,
@@ -95,9 +117,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     resizeMode: 'cover',
   },
+  maintitle: {
+    flex: 1,
+    textAlign: 'center',
+    left: 7,
+    marginHorizontal: 10,
+  },
   iconWrapper: {
     backgroundColor: PortColors.primary.grey.light,
-    padding: 6,
+    padding: 8,
     marginLeft: 15,
     borderRadius: 8,
   },

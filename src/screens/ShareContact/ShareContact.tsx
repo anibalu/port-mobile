@@ -13,13 +13,12 @@ import React, {useEffect, useState} from 'react';
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 import ContactTile from './ContactTile';
 import {getDirectChats} from '@utils/DirectChats';
-import {requestContactShareBundle} from '@utils/ContactSharing';
+import {requestToShareContact} from '@utils/ContactSharing';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ShareContact'>;
 
 export default function ShareContact({route, navigation}: Props) {
   const {chatId} = route.params;
-  console.log('chatid:L ', chatId);
   const [searchText, setSearchText] = useState('');
 
   //Members that have been selected via the checkbox
@@ -78,7 +77,10 @@ export default function ShareContact({route, navigation}: Props) {
 
   const onShareContact = async () => {
     if (selectedMembers.length === 1) {
-      await requestContactShareBundle(selectedMembers[0].chatId, chatId);
+      await requestToShareContact({
+        source: selectedMembers[0].chatId,
+        destination: chatId,
+      });
       setSelectedMembers([]);
       navigation.goBack();
     }

@@ -8,8 +8,7 @@ import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 import {NumberlessRegularText} from '@components/NumberlessText';
 import {useIsFocused} from '@react-navigation/native';
 import {checkCameraPermission} from '@utils/AppPermissions';
-import {checkConnectionBundleDataFormat} from '@utils/Bundles';
-import {BundleReadResponse} from '@utils/Bundles/interfaces';
+import {checkBundleValidity} from '@utils/Ports';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {Camera} from 'react-native-camera-kit';
@@ -23,7 +22,7 @@ export default function QRScanner() {
     connectionModalVisible,
     setConnectionQRData,
   } = useConnectionModal();
-  const {portCreationError, incorrectQRError} = useErrorModal();
+  const {incorrectQRError} = useErrorModal();
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
     useState(false);
   useEffect(() => {
@@ -41,12 +40,9 @@ export default function QRScanner() {
     setScanCode(true);
   };
   //shows an alert if there is an issue creating a new Port after scanning a QR code.
-  const showAlertAndWait = (bundleReadResponse: BundleReadResponse) => {
-    if (bundleReadResponse === BundleReadResponse.networkError) {
-      portCreationError();
-    } else {
-      incorrectQRError();
-    }
+  const showAlertAndWait = () => {
+    incorrectQRError();
+
     cleanScreen();
   };
   //navigate to back to home screen is scan succeeds and an unauthenticated port is created.
@@ -54,11 +50,11 @@ export default function QRScanner() {
     if (qrData !== '') {
       //this makes scan happen only once
       try {
-        const newBundle = checkConnectionBundleDataFormat(qrData);
+        const newBundle = checkBundleValidity(qrData);
         setConnectionQRData(newBundle);
         showConnectionModal();
       } catch (error) {
-        showAlertAndWait(BundleReadResponse.formatError);
+        showAlertAndWait();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,7 +66,7 @@ export default function QRScanner() {
       cleanScreen();
     }
   }, [connectionModalVisible]);
-  const onLayout = event => {
+  const onLayout = (event: any) => {
     const {width} = event.nativeEvent.layout;
     setViewWidth(width);
   };

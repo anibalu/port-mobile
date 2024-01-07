@@ -24,23 +24,24 @@ import DeleteChatButton from '@components/DeleteChatButton';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
 import GenericModal from '@components/GenericModal';
-import PermissionsDropdown from '@components/PermissionsDropdown/PermissionsDropdown';
+import DirectChatPermissionDropdown from '@components/PermissionsDropdown/DirectChatPermissionDropdown';
 import {SafeAreaView} from '@components/SafeAreaView';
 import UpdateNamePopup from '@components/UpdateNamePopup';
 import {DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {getConnection} from '@utils/Connections';
 import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import FileViewer from 'react-native-file-viewer';
 import {ReadDirItem} from 'react-native-fs';
 import DisconnectButton from './DisconnectButton';
+import DirectChat from '@utils/DirectChats/DirectChat';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
 function ContactProfile({route, navigation}: Props) {
   const {chatId} = route.params;
 
+  const chatHandler = new DirectChat(chatId);
   const [profileURI, setProfileURI] = useState<string>();
   const [name, setName] = useState(DEFAULT_NAME);
   const [updatedCounter, setUpdatedCounter] = useState(0);
@@ -49,12 +50,14 @@ function ContactProfile({route, navigation}: Props) {
 
   useEffect(() => {
     (async () => {
-      const connection = await getConnection(chatId);
-      setName(connection.name);
-      if (connection.pathToDisplayPic) {
-        setProfileURI(connection.pathToDisplayPic);
+      const chat = new DirectChat(chatId);
+      const chatData = await chat.getChatData();
+
+      setName(chatData.name);
+      if (chatData.displayPic) {
+        setProfileURI(chatData.displayPic);
       }
-      setConnected(!connection.disconnected);
+      setConnected(!chatData.disconnected);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updatedCounter]);
@@ -97,6 +100,11 @@ function ContactProfile({route, navigation}: Props) {
     );
   };
 
+  const onDelete = async () => {
+    await chatHandler.delete();
+    navigation.navigate('HomeTab');
+  };
+
   return (
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
@@ -122,7 +130,7 @@ function ContactProfile({route, navigation}: Props) {
               </View>
             </View>
           </View>
-          <PermissionsDropdown bold={true} chatId={chatId} />
+          <DirectChatPermissionDropdown bold={true} chatId={chatId} />
           <View style={styles.content}>
             <View style={styles.mediaView}>
               <NumberlessText
@@ -145,12 +153,25 @@ function ContactProfile({route, navigation}: Props) {
               scrollEnabled={true}
               horizontal={true}
               renderItem={renderSelectedPhoto}
+              ListEmptyComponent={
+                <NumberlessText
+                  fontSizeType={FontSizeType.l}
+                  fontType={FontType.sb}
+                  textColor={PortColors.text.secondary}
+                  style={{
+                    textAlign: 'center',
+                    width: screen.width,
+                    right: 20,
+                  }}>
+                  No shared media
+                </NumberlessText>
+              }
             />
           </View>
           {connected ? (
             <DisconnectButton chatId={chatId} />
           ) : (
-            <DeleteChatButton chatId={chatId} stripMargin={true} />
+            <DeleteChatButton onDelete={onDelete} stripMargin={true} />
           )}
         </View>
       </ScrollView>

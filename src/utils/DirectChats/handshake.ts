@@ -1,295 +1,95 @@
-/**
- * handshake protocols for direct connections.
- * For the purposes of this module, we call bundle generator Alice(A) and the bundle reader Bob(B).
- */
-import {
-  AttemptNewDirectChat,
-  AttemptNewDirectChatFromSuperport,
-} from '../DirectChats';
-import store from '../../store/appStore';
-import {
-  deleteGeneratedDirectConnectionBundle,
-  getGeneratedDirectConnectionBundle,
-} from '../Bundles/direct';
-import {loadGeneratedSuperport} from '../Bundles/directSuperport';
-import {
-  BundleReadResponse,
-  DirectConnectionBundle,
-  DirectSuperportConnectionBundle,
-} from '../Bundles/interfaces';
-import {defaultDirectPermissions} from '../ChatPermissions/default';
-import {
-  addConnection,
-  deleteConnection,
-  getConnection,
-  toggleAuthenticated,
-} from '../Connections';
-import {ConnectionType, ReadStatus} from '../Connections/interfaces';
-import {decryptMessage, encryptMessage} from '../Crypto/aes';
-import {sha256} from '../Crypto/sha';
-import {generateKeyPair, generateSharedKey} from '../Crypto/x25519';
-import {ContentType} from '../Messaging/interfaces';
-import {getProfileName, getProfilePictureAttributes} from '../Profile';
-import {getChatCrypto, saveChatCrypto} from '../Storage/crypto';
-import {generateISOTimeStamp} from '../Time';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import DirectChat from './DirectChat';
+import {hash} from '@utils/Crypto/hash';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-
-/**
- * Actions performed when a connection bundle is read by Bob.
- * @param {DirectConnectionBundle} bundle - direct connection bundle that is read.
- * @returns {Promise<BundleReadResponse>} - based on whether actions succeeded or failed or encountered a format error. If failed becuase of network reasons, actions need to be triggered again.
- */
-export async function handshakeActionsB1(
-  bundle: DirectConnectionBundle | DirectSuperportConnectionBundle,
-  name: string = '',
-): Promise<BundleReadResponse> {
-  try {
-    if (bundle.connectionType === ConnectionType.superport) {
-      //try creating a chatId by posting the direct connection link id.
-      const chatId: string = await AttemptNewDirectChatFromSuperport(
-        bundle.data.linkId,
-      );
-      //if chatId received, add an unauthenticated connection.
-      await addConnection({
-        chatId: chatId,
-        connectionType: ConnectionType.direct,
-        name: name,
-        permissions: defaultDirectPermissions,
-        recentMessageType: ContentType.newChat,
-        readStatus: ReadStatus.new,
-        authenticated: false,
-        timestamp: generateISOTimeStamp(),
-        newMessageCount: 0,
-      });
-      //save the nonce and pubkey hash from bundle into crypto storage.
-      await saveChatCrypto(
-        chatId,
-        {nonce: bundle.data.nonce, pubKeyHash: bundle.data.pubkeyHash},
-        true,
-      );
-      return BundleReadResponse.success;
-    } else {
-      //try creating a chatId by posting the direct connection link id.
-      const chatId: string = await AttemptNewDirectChat(bundle.data.linkId);
-      //if chatId received, add an unauthenticated connection.
-      await addConnection({
-        chatId: chatId,
-        connectionType: ConnectionType.direct,
-        name: name,
-        permissions: defaultDirectPermissions,
-        recentMessageType: ContentType.newChat,
-        readStatus: ReadStatus.new,
-        authenticated: false,
-        timestamp: generateISOTimeStamp(),
-        newMessageCount: 0,
-      });
-      //save the nonce and pubkey hash from bundle into crypto storage.
-      await saveChatCrypto(
-        chatId,
-        {nonce: bundle.data.nonce, pubKeyHash: bundle.data.pubkeyHash},
-        true,
-      );
-      return BundleReadResponse.success;
-    }
-  } catch (error) {
-    console.log('Network issue in creating chatId', error);
-    //if network issue, save the read bundle to bundle storage and try again later.
-    //await saveReadDirectConnectionBundle(bundle);
-    return BundleReadResponse.networkError;
-  }
-}
-
-/**
- * Actions performed after Alice receives a ChatId indicating Bob has successfully read her bundle.
- * @param {string} chatId - Id of the connection
- * @param {string} connectionLinkId - direct connection link Id used to form the connection.
- */
-export async function handshakeActionsA1(
-  chatId: string,
-  connectionLinkId: string,
-) {
-  try {
-    //add an unauthenticated connection and update store that a new connection has been created.
-    store.dispatch({
-      type: 'NEW_CONNECTION',
-      payload: {
-        chatId: chatId,
-        connectionLinkId: connectionLinkId,
-      },
-    });
-    let bundle = {};
-    try {
-      //load up corresponding generated bundle and delete it.
-      bundle = await getGeneratedDirectConnectionBundle(connectionLinkId);
-      await deleteGeneratedDirectConnectionBundle(connectionLinkId);
-      await addConnection({
-        chatId: chatId,
-        connectionType: ConnectionType.direct,
-        name: bundle.label || '',
-        permissions: defaultDirectPermissions,
-        recentMessageType: ContentType.newChat,
-        readStatus: ReadStatus.new,
-        authenticated: false,
-        timestamp: generateISOTimeStamp(),
-        newMessageCount: 0,
-      });
-    } catch (error) {
-      //if bundle cannot be found, it's a superport bundle
-      bundle = await loadGeneratedSuperport(connectionLinkId);
-      await addConnection({
-        chatId: chatId,
-        connectionType: ConnectionType.direct,
-        name: '',
-        permissions: defaultDirectPermissions,
-        recentMessageType: ContentType.newChat,
-        readStatus: ReadStatus.new,
-        authenticated: false,
-        timestamp: generateISOTimeStamp(),
-        newMessageCount: 0,
-      });
-    }
-    //save nonce and keys from generated bundle to crypto storage
-    await saveChatCrypto(
-      chatId,
-      {
-        nonce: bundle.data.nonce,
-        pubKeyHash: bundle.data.pubkeyHash,
-        privKey: bundle.keys.privKey,
-        pubKey: bundle.keys.pubKey,
-      },
-      true,
-    );
-    //send public key.
-    const sender = new SendMessage(chatId, ContentType.handshakeA1, {
-      pubKey: bundle.keys.pubKey,
-    });
-    await sender.send();
-  } catch (error) {
-    console.log('Handshake A1 error', error);
-  }
-}
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getChatPermissions} from '@utils/ChatPermissions';
+import {ChatType} from '@utils/Connections/interfaces';
+import {getProfilePicture} from '@utils/Profile';
 
 /**
  * Actions performed by Bob after Alice's public key is received.
  * @param {string} chatId
- * @param {string} peerPubKey
+ * @param {string} peerPublicKey
  */
-export async function handshakeActionsB2(chatId: string, peerPubKey: string) {
+export async function handshakeActionsB2(
+  chatId: string,
+  peerPublicKey: string,
+) {
   try {
-    //when public key is received, compare it with the saved hash.
-    const cryptoData = await getChatCrypto(chatId, true);
-    console.log('cryptodata: ', cryptoData);
-    console.log('hash: ', peerPubKey);
-    const compareHash = cryptoData.pubKeyHash === (await sha256(peerPubKey));
-    //if hashes match, mark connection as authenticated. else destroy the connection and residuals.
-    if (compareHash) {
-      await toggleAuthenticated(chatId);
-    } else {
-      await deleteConnection(chatId);
-      throw new Error('Hash Authentication Failed');
+    const chat = new DirectChat(chatId);
+    const chatData = await chat.getChatData();
+    const cryptoDriver = new CryptoDriver(chatData.cryptoId);
+    //check if peerPublicKey is validated
+    const keyHash = await cryptoDriver.getPeerPublicKeyHash();
+    if (!keyHash) {
+      throw new Error('NullPeerPublicKeyHash');
     }
-    //generate your key pair
-    const keys = await generateKeyPair();
-    //generate shared secret
-    const sharedSecret = await generateSharedKey(keys.privKey, peerPubKey);
-    //save these to crypto storage
-    await saveChatCrypto(
-      chatId,
-      {
-        ...cryptoData,
-        peerPubKey: peerPubKey,
-        privKey: keys.privKey,
-        pubKey: keys.pubKey,
-        sharedSecret: sharedSecret.sharedSecret,
-      },
-      true,
-    );
-    //encrypt saved nonce
-    const encryptedNonce = await encryptMessage(chatId, cryptoData.nonce || '');
-    //send a message with your pubkey and encrypted nonce
-    const sender1 = new SendMessage(chatId, ContentType.handshakeB2, {
-      pubKey: keys.pubKey,
-      encryptedNonce: encryptedNonce,
-    });
-    await sender1.send();
-    //send a message with your name.
-    const sender2 = new SendMessage(chatId, ContentType.name, {
-      name: await getProfileName(),
-    });
-    await sender2.send();
-    //send your profile picture if that permission is given
-    const connection = await getConnection(chatId);
-    if (connection.permissions.displayPicture?.toggled) {
-      const file = await getProfilePictureAttributes();
-      if (file) {
-        const sender = new SendMessage(chatId, ContentType.displayImage, {
-          ...file,
-        });
-        await sender.send();
-      }
+    if (keyHash !== (await hash(peerPublicKey))) {
+      throw new Error('AuthenticationFailed');
     }
+    await cryptoDriver.updateSharedSecret(peerPublicKey);
+    await chat.toggleAuthenticated();
+    const rad = await cryptoDriver.getRad();
+    const encryptedRad = await cryptoDriver.encrypt(rad);
+    //send public key and encryptedRad
+    const sender = new SendMessage(chat.getChatId(), ContentType.handshakeB2, {
+      pubKey: await cryptoDriver.getPublicKey(),
+      encryptedRad: encryptedRad,
+    });
+    await sender.send(true, false);
   } catch (error) {
-    console.log('Handshake B2 error', error);
+    console.log('HandshakeActionsB2 error: ', error);
   }
 }
 
 /**
  * Actions performed by Alice after Bob's public key and encrypted nonce are received.
  * @param {string} chatId
- * @param {string} peerPubKey
- * @param {string} ciphertextNonce
+ * @param {string} peerPublicKey
+ * @param {string} encryptedRad
  */
 export async function handshakeActionsA2(
   chatId: string,
-  peerPubKey: string,
-  encryptedNonce: string,
+  peerPublicKey: string,
+  encryptedRad: string,
 ) {
   try {
-    //generate shared secret
-    const cryptoData = await getChatCrypto(chatId);
-    if (cryptoData.privKey === undefined) {
-      throw new Error('No private key generated');
+    const chat = new DirectChat(chatId);
+    const chatData = await chat.getChatData();
+    const fromSuperport = await chat.didConnectUsingSuperport();
+    const cryptoDriver = new CryptoDriver(chatData.cryptoId);
+    //check if rad is validated
+    const rad = await cryptoDriver.getRad();
+    await cryptoDriver.updateSharedSecret(peerPublicKey);
+    const decryptedRad = await cryptoDriver.decrypt(encryptedRad);
+    if (rad !== decryptedRad) {
+      throw new Error('AuthenticationFailed');
     }
-    const sharedSecret = await generateSharedKey(
-      cryptoData.privKey,
-      peerPubKey,
-    );
-    //decrypt nonce and compare
-    const nonce = await decryptMessage(chatId, encryptedNonce);
-    const compareNonce = nonce === cryptoData.nonce;
-    //if succeeds, mark connection as authenticated and save key to crypto storage. else destroy the connection and residuals.
-    if (compareNonce) {
-      await saveChatCrypto(
-        chatId,
-        {
-          ...cryptoData,
-          peerPubKey: peerPubKey,
-          sharedSecret: sharedSecret.sharedSecret,
-        },
-        true,
-      );
-      await toggleAuthenticated(chatId);
-    } else {
-      await deleteConnection(chatId);
-      throw new Error('Encrypted Nonce Authentication Failed');
-    }
-    //send a message with your name.
-    const sender = new SendMessage(chatId, ContentType.name, {
-      name: await getProfileName(),
+    await chat.toggleAuthenticated();
+    //send profile picture request
+    const sender = new SendMessage(chatId, ContentType.initialInfoRequest, {
+      sendName: fromSuperport,
+      sendProfilePicture: true,
     });
     await sender.send();
-    //send your profile picture if that permission is given
-    const connection = await getConnection(chatId);
-    if (connection.permissions.displayPicture?.toggled) {
-      const file = await getProfilePictureAttributes();
-      if (file) {
-        const sender1 = new SendMessage(chatId, ContentType.displayImage, {
-          ...file,
-        });
-        await sender1.send();
+    //send profile picture if that permission is given
+    const chatPermissions = await getChatPermissions(chatId, ChatType.direct);
+    if (chatPermissions.displayPicture) {
+      const profilePictureAttributes = await getProfilePicture();
+      if (!profilePictureAttributes) {
+        return;
       }
+      const contentType =
+        profilePictureAttributes.fileType === 'avatar'
+          ? ContentType.displayAvatar
+          : ContentType.displayImage;
+      const sendDisplayPicture = new SendMessage(chatId, contentType, {
+        ...profilePictureAttributes,
+      });
+      await sendDisplayPicture.send();
     }
   } catch (error) {
-    console.log('Handshake A2 error', error);
+    console.log('HandshakeActionsA2 error: ', error);
   }
 }

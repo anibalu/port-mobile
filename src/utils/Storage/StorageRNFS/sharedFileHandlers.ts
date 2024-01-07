@@ -1,16 +1,53 @@
 import RNFS from 'react-native-fs';
-import {initialiseChatIdDirAsync} from './messagesHandlers';
-import {filesDir, mediaDir, tempDir} from '../../../configs/paths';
-import {generateRandomHexId} from '@utils/Messaging/idGenerator';
+import {
+  conversationsDir,
+  filesDir,
+  mediaDir,
+  tempDir,
+} from '../../../configs/paths';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
 
 const DEFAULT_ENCODING = 'base64';
 const WRITE_ENCODING = 'utf8';
+
+/**
+ * Creates a conversations directory if it doesn't exist and returns the path to it.
+ * @returns {Promise<string>} The path to the conversations directory.
+ */
+async function makeConversationsDirAsync(): Promise<string> {
+  const conversationsDirPath =
+    RNFS.DocumentDirectoryPath + `${conversationsDir}`;
+  const folderExists = await RNFS.exists(conversationsDirPath);
+  if (folderExists) {
+    return conversationsDirPath;
+  } else {
+    await RNFS.mkdir(conversationsDirPath);
+    return conversationsDirPath;
+  }
+}
+
+/**
+ * Creates a chatId directory if it doesn't exist and returns the path to it.
+ * @returns {Promise<string>} The path to the chatId directory.
+ */
+async function initialiseChatIdDirAsync(chatId: string): Promise<string> {
+  const conversationsDirPath = await makeConversationsDirAsync();
+  const path = conversationsDirPath + '/' + chatId;
+  const folderExists = await RNFS.exists(path);
+  if (folderExists) {
+    return path;
+  } else {
+    await RNFS.mkdir(path);
+    return path;
+  }
+}
+
 /**
  * Initializes the directories to store large files.
  * @returns {Promise<string>} A Promise that resolves to the path to the chatId directory.
  */
-async function initialiseLargeFileDirAsync(chatId: string) {
+async function initialiseLargeFileDirAsync(chatId: string): Promise<string> {
   const chatIdDir = await initialiseChatIdDirAsync(chatId);
   const folderExists = await RNFS.exists(chatIdDir);
   if (!folderExists) {
@@ -34,7 +71,7 @@ export async function moveToLargeFileDir(
   fileUri: string,
   fileName: string,
   contentType: ContentType,
-) {
+): Promise<string> {
   if (contentType === ContentType.displayImage) {
     return fileUri;
   }
@@ -53,7 +90,7 @@ export async function moveToFilesDir(
   chatId: string,
   fileUri: string,
   fileName: string,
-) {
+): Promise<string> {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath =
     chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
@@ -69,7 +106,7 @@ export async function moveToMediaDir(
   chatId: string,
   fileUri: string,
   fileName: string,
-) {
+): Promise<string> {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath =
     chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
@@ -86,12 +123,12 @@ export async function saveToFilesDir(
   plaintext: string,
   fileName: string,
   encoding: string = DEFAULT_ENCODING,
-) {
+): Promise<string> {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath =
     chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
   await RNFS.writeFile(destinationPath, plaintext, encoding);
-  return destinationPath;
+  return 'file://' + destinationPath;
 }
 
 /**
@@ -103,12 +140,12 @@ export async function saveToMediaDir(
   plaintext: string,
   fileName: string,
   encoding: string = DEFAULT_ENCODING,
-) {
+): Promise<string> {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath =
     chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
   await RNFS.writeFile(destinationPath, plaintext, encoding);
-  return destinationPath;
+  return 'file://' + destinationPath;
 }
 
 /**
@@ -116,7 +153,7 @@ export async function saveToMediaDir(
  * @param {string} fileUri - Uri of the binary file to read
  * @returns {Promise<string>} A Promise that resolves to the base64 encoded string.
  */
-export async function readFileBase64(fileUri: string) {
+export async function readFileBase64(fileUri: string): Promise<string> {
   return await RNFS.readFile(fileUri, 'base64');
 }
 
@@ -131,12 +168,12 @@ async function initialiseTempDirAsync() {
   }
 }
 
-export async function createTempFileUpload(data: string) {
+export async function createTempFileUpload(data: string): Promise<string> {
   const tempDirPath = await initialiseTempDirAsync();
   const tempName = getTempFileId() + '.txt';
   const tempFilePath = tempDirPath + '/' + tempName;
   await RNFS.writeFile(tempFilePath, data, WRITE_ENCODING);
-  return {path: tempFilePath, name: tempName};
+  return tempFilePath;
 }
 
 export async function deleteTempFileUpload(tempFilePath: string) {

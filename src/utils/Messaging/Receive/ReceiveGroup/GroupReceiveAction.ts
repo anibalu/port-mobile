@@ -1,4 +1,4 @@
-import {generateRandomHexId} from '@utils/Messaging/idGenerator';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContentType,
   DataType,

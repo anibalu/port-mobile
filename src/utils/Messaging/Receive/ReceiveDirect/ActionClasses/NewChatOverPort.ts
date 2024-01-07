@@ -1,9 +1,15 @@
+import {useCreatedBundle} from '@utils/Ports';
 import DirectReceiveAction from '../DirectReceiveAction';
-import {handshakeActionsA1} from '@utils/DirectChats/handshake';
+import {BundleTarget} from '@utils/Ports/interfaces';
 
 class NewChatOverPort extends DirectReceiveAction {
   async performAction(): Promise<void> {
-    await handshakeActionsA1(this.chatId, this.message.lineLinkId);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    await useCreatedBundle(
+      this.chatId,
+      this.message.lineLinkId,
+      BundleTarget.direct,
+    );
   }
 }
 

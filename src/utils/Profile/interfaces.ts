@@ -1,16 +1,14 @@
-export interface ProfileInfo {
+import {FileAttributes} from '@utils/Storage/interfaces';
+
+export interface ProfileInfo extends ProfileInfoUpdate {
   //name chosen by user
   name: string;
   //Id assigned by the server to client. this is not permanent and will change frequently.
   clientId: string;
-  //server's public key
-  serverKey: string;
   //user's private key for commmunication with server
-  privKey: string;
-  //user's public key for communication with server
-  pubKey: string;
-  //shared secret generated using server's public key and user's private key
-  sharedSecret: string;
+  privateKey: string;
+  //details of user's profile picture
+  profilePicInfo: FileAttributes;
 }
 
 export interface ProfileInfoUpdate {
@@ -18,14 +16,10 @@ export interface ProfileInfoUpdate {
   name?: string;
   //Id assigned by the server to client. this is not permanent and will change frequently.
   clientId?: string;
-  //server's public key
-  serverKey?: string;
   //user's private key for commmunication with server
-  privKey?: string;
-  //user's public key for communication with server
-  pubKey?: string;
-  //shared secret generated using server's public key and user's private key
-  sharedSecret?: string;
+  privateKey?: string;
+  //details of user's profile picture
+  profilePicInfo?: FileAttributes;
 }
 
 /**
@@ -41,5 +35,4 @@ export enum ProfileStatus {
  */
 export interface ProfileServerGenerated {
   clientId: string;
-  serverKey: string;
 }

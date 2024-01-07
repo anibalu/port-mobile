@@ -6,37 +6,34 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {DEFAULT_AVATAR} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import {
+  ChatType,
   ConnectionInfo,
-  ConnectionType,
   ReadStatus,
 } from '@utils/Connections/interfaces';
-import {getChatTileTimestamp} from '@utils/Time';
-import React, {ReactNode, memo} from 'react';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getReadableTimestamp} from '@utils/Time';
+import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import PendingChatTile from './PendingChatTile';
 
 function ChatTile(props: ConnectionInfo): ReactNode {
   const navigation = useNavigation<any>();
-  //sets profile picture URI
-  function chooseProfileURI(): string {
-    if (props.pathToDisplayPic && props.pathToDisplayPic !== '') {
-      return props.pathToDisplayPic;
-    }
-    return DEFAULT_AVATAR;
-  }
 
   //handles navigation to a chat screen and toggles chat to read.
   const handleNavigate = (): void => {
-    navigation.navigate('DirectChat', {chatId: props.chatId});
+    navigation.navigate('DirectChat', {
+      chatId: props.chatId,
+      isGroupChat: props.connectionType === ChatType.group,
+      isConnected: !props.disconnected,
+      profileUri: props.pathToDisplayPic,
+    });
   };
-
   const isNewMessage = props.readStatus === ReadStatus.new;
+  const isNewConnection = props.recentMessageType === ContentType.newChat;
 
-  return props.authenticated ||
-    props.connectionType === ConnectionType.group ? (
+  return props.authenticated || props.connectionType === ChatType.group ? (
     <Pressable
       style={StyleSheet.compose(
         styles.tile,
@@ -45,7 +42,7 @@ function ChatTile(props: ConnectionInfo): ReactNode {
           : {backgroundColor: '#FFF9'},
       )}
       onPress={handleNavigate}>
-      <GenericAvatar profileUri={chooseProfileURI()} avatarSize="small" />
+      <GenericAvatar profileUri={props.pathToDisplayPic} avatarSize="small" />
 
       <View style={styles.textInfoContainer}>
         <NumberlessText
@@ -57,7 +54,7 @@ function ChatTile(props: ConnectionInfo): ReactNode {
           {props.name}
         </NumberlessText>
 
-        {props.readStatus === ReadStatus.new ? (
+        {isNewConnection ? (
           <NumberlessText
             ellipsizeMode="tail"
             numberOfLines={1}
@@ -98,7 +95,7 @@ function ChatTile(props: ConnectionInfo): ReactNode {
               fontSizeType={FontSizeType.s}
               fontType={FontType.md}
               textColor={PortColors.text.labels}>
-              {getChatTileTimestamp(props.timestamp)}
+              {getReadableTimestamp(props.timestamp)}
             </NumberlessText>
             <DisplayStatus {...props} />
           </View>
@@ -190,13 +187,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(ChatTile, (prevProps, nextProps) => {
-  return (
-    prevProps.readStatus === nextProps.readStatus &&
-    prevProps.text === nextProps.text &&
-    prevProps.newMessageCount === nextProps.newMessageCount &&
-    prevProps.authenticated === nextProps.authenticated &&
-    prevProps.disconnected === nextProps.disconnected &&
-    prevProps.connectionType === nextProps.connectionType
-  );
-});
+export default ChatTile;

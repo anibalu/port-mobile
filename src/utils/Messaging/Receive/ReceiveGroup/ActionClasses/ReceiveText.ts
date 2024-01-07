@@ -1,9 +1,9 @@
 import {TextParams} from '@utils/Messaging/interfaces';
 import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
 import {displaySimpleNotification} from '@utils/Notifications';
-import {Permissions} from '@utils/ChatPermissions/interfaces';
-import {ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
 import GroupReceiveAction from '../GroupReceiveAction';
+import {getChatPermissions} from '@utils/ChatPermissions';
 
 class ReceiveText extends GroupReceiveAction {
   async performAction(): Promise<void> {
@@ -18,12 +18,13 @@ class ReceiveText extends GroupReceiveAction {
       recentMessageType: this.decryptedMessageContent.contentType,
     });
     //notify user if notifications are ON
-    await this.notify();
+    const permissions = await getChatPermissions(this.chatId, ChatType.group);
+    await this.notify(permissions.notifications);
   }
-  async notify() {
-    this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    const connection = await getConnection(this.chatId);
-    if ((connection.permissions as Permissions).notifications.toggled) {
+  async notify(shouldNotify: boolean) {
+    if (shouldNotify) {
+      this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+      const connection = await getConnection(this.chatId);
       const notificationData = {
         title: connection.name,
         body: (this.decryptedMessageContent.data as TextParams).text || '',

@@ -1,21 +1,15 @@
-import axios from 'axios';
 import store from '../../store/appStore';
-import {getToken} from '../ServerAuth';
 import * as storage from '../Storage/connections';
 import {generateISOTimeStamp} from '../Time';
 import {
   ConnectionInfo,
   ConnectionInfoUpdate,
   ConnectionInfoUpdateOnNewMessage,
-  ConnectionType,
+  ChatType,
   ReadStatus,
 } from './interfaces';
-import {LINE_MANAGEMENT_RESOURCE} from '../../configs/api';
 import {connectionFsSync} from '../Synchronization';
-import {Permissions} from '../ChatPermissions/interfaces';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
-import {generateRandomHexId} from '@utils/Messaging/idGenerator';
-import {saveMessage} from '@utils/Storage/messages';
+import {processName} from '@utils/Profile';
 
 /**
  * Checks if chat is a group
@@ -23,9 +17,9 @@ import {saveMessage} from '@utils/Storage/messages';
 export async function isGroupChat(chatId: string) {
   const connection = await storage.getConnection(chatId);
   if (connection === null) {
-    throw new Error('No such connection');
+    return false;
   } else {
-    const isGroup = connection.connectionType === ConnectionType.group;
+    const isGroup = connection.connectionType === ChatType.group;
     return isGroup;
   }
 }
@@ -35,7 +29,7 @@ export async function isGroupChat(chatId: string) {
  */
 export async function loadConnectionsToStore() {
   try {
-    const connections = await storage.getConnections(true);
+    const connections = await storage.getConnections();
     if (connections.length >= 1) {
       store.dispatch({
         type: 'LOAD_CONNECTIONS',
@@ -56,16 +50,13 @@ export async function loadConnectionsToStore() {
  */
 export async function addConnection(connection: ConnectionInfo) {
   try {
-    const synced = async () => {
-      //add connection in cache
-      store.dispatch({
-        type: 'ADD_CONNECTION',
-        payload: connection,
-      });
-      //add connection to storage
-      await storage.addConnection(connection, false);
-    };
-    await connectionFsSync(synced);
+    //add connection to storage
+    await storage.addConnection(connection);
+    //add connection in cache
+    store.dispatch({
+      type: 'ADD_CONNECTION',
+      payload: connection,
+    });
   } catch (error) {
     console.log('Error adding a connection: ', error);
   }
@@ -78,45 +69,42 @@ export async function addConnection(connection: ConnectionInfo) {
 export async function updateConnectionOnNewMessage(
   update: ConnectionInfoUpdateOnNewMessage,
 ) {
-  const synced = async () => {
-    try {
-      //read current connections from store
-      const entireState = store.getState();
-      const connections: ConnectionInfo[] = entireState.connections.connections;
-      const index: number = connections.findIndex(
-        obj => obj.chatId === update.chatId,
+  try {
+    //read current connections from store
+    const entireState = store.getState();
+    const connections: ConnectionInfo[] =
+      entireState.connections.connections.map(conn =>
+        JSON.parse(conn.stringifiedConnection),
       );
-      if (index !== -1) {
-        const updatedConnection = {
-          ...connections[index],
-          ...update,
-          timestamp: generateISOTimeStamp(),
-          newMessageCount:
-            update.readStatus === ReadStatus.new
-              ? connections[index].newMessageCount + 1
-              : connections[index].newMessageCount,
-        };
-        store.dispatch({
-          type: 'UPDATE_CONNECTION',
-          payload: updatedConnection,
-        });
-      }
-      await storage.updateConnection(
-        {
-          ...update,
-          timestamp: generateISOTimeStamp(),
-          newMessageCount:
-            update.readStatus === ReadStatus.new
-              ? connections[index].newMessageCount + 1
-              : connections[index].newMessageCount,
-        },
-        false,
-      );
-    } catch (error) {
-      console.log('Error updating a connection: ', error);
+    const index: number = connections.findIndex(
+      obj => obj.chatId === update.chatId,
+    );
+    if (index !== -1) {
+      const updatedConnection = {
+        ...connections[index],
+        ...update,
+        timestamp: generateISOTimeStamp(),
+        newMessageCount:
+          update.readStatus === ReadStatus.new
+            ? connections[index].newMessageCount + 1
+            : connections[index].newMessageCount,
+      };
+      store.dispatch({
+        type: 'UPDATE_CONNECTION',
+        payload: updatedConnection,
+      });
     }
-  };
-  await connectionFsSync(synced);
+    await storage.updateConnection({
+      ...update,
+      timestamp: generateISOTimeStamp(),
+      newMessageCount:
+        update.readStatus === ReadStatus.new
+          ? connections[index].newMessageCount + 1
+          : connections[index].newMessageCount,
+    });
+  } catch (error) {
+    console.log('Error updating a connection: ', error);
+  }
 }
 
 /**
@@ -124,11 +112,41 @@ export async function updateConnectionOnNewMessage(
  * @param {ConnectionInfoUpdate} update - connection info to update with
  */
 export async function updateConnection(update: ConnectionInfoUpdate) {
+  try {
+    //read current connections from store
+    const entireState = store.getState();
+    let connections: ConnectionInfo[] = entireState.connections.connections.map(
+      conn => JSON.parse(conn.stringifiedConnection),
+    );
+    const index: number = connections.findIndex(
+      obj => obj.chatId === update.chatId,
+    );
+    if (index !== -1) {
+      connections[index] = {
+        ...connections[index],
+        ...update,
+      };
+      store.dispatch({
+        type: 'UPDATE_CONNECTION',
+        payload: connections[index],
+      });
+    }
+    await storage.updateConnection(update);
+  } catch (error) {
+    console.log('Error updating a connection: ', error);
+  }
+}
+export async function updateConnectionWithoutPromotion(
+  update: ConnectionInfoUpdate,
+) {
   const synced = async () => {
     try {
       //read current connections from store
       const entireState = store.getState();
-      let connections: ConnectionInfo[] = entireState.connections.connections;
+      let connections: ConnectionInfo[] =
+        entireState.connections.connections.map(conn =>
+          JSON.parse(conn.stringifiedConnection),
+        );
       const index: number = connections.findIndex(
         obj => obj.chatId === update.chatId,
       );
@@ -138,41 +156,11 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
           ...update,
         };
         store.dispatch({
-          type: 'UPDATE_CONNECTION',
+          type: 'UPDATE_CONNECTION_WITHOUT_PROMOTING',
           payload: connections[index],
         });
       }
-      await storage.updateConnection(update, false);
-    } catch (error) {
-      console.log('Error updating a connection: ', error);
-    }
-  };
-  await connectionFsSync(synced);
-}
-export async function updateConnectionWithoutPromotion(
-  update: ConnectionInfoUpdate,
-) {
-  const synced = async () => {
-    try {
-      //read current connections from store
-      const entireState = store.getState();
-      let connections: ConnectionInfo[] = entireState.connections.connections;
-      const index: number = connections.findIndex(
-        obj => obj.chatId === update.chatId,
-      );
-      if (index !== -1) {
-        connections = [
-          ...connections.slice(0, index),
-          {...connections[index], ...update},
-          ...connections.slice(index + 1),
-        ];
-
-        store.dispatch({
-          type: 'LOAD_CONNECTIONS',
-          payload: connections,
-        });
-      }
-      await storage.updateConnection(update, false);
+      await storage.updateConnection(update);
     } catch (error) {
       console.log('Error updating a connection: ', error);
     }
@@ -196,23 +184,36 @@ export async function toggleRead(chatId: string) {
  * Toggles a connection as authenticated.
  * @param {string} chatId - connection to toggle authenticated
  */
-export async function toggleAuthenticated(chatId: string) {
-  const savedMessage: SavedMessageParams = {
-    messageId: generateRandomHexId(),
-    contentType: ContentType.info,
-    data: {
-      info: 'Handshake complete',
-    },
-    chatId: chatId,
-    sender: false,
-    timestamp: generateISOTimeStamp(),
-  };
-  await saveMessage(savedMessage);
+export async function toggleConnectionAuthenticated(chatId: string) {
   await updateConnection({
     chatId: chatId,
     authenticated: true,
     newMessageCount: 0,
     readStatus: ReadStatus.new,
+  });
+}
+
+export async function setConnectionDisconnected(chatId: string) {
+  await updateConnectionWithoutPromotion({
+    chatId: chatId,
+    disconnected: true,
+  });
+}
+
+export async function updateConnectionName(chatId: string, name: string) {
+  await updateConnectionWithoutPromotion({
+    chatId: chatId,
+    name: processName(name),
+  });
+}
+
+export async function updateConnectionDisplayPic(
+  chatId: string,
+  pathToDisplayPic: string,
+) {
+  await updateConnectionWithoutPromotion({
+    chatId: chatId,
+    pathToDisplayPic: pathToDisplayPic,
   });
 }
 
@@ -228,7 +229,7 @@ export async function deleteConnection(chatId: string) {
       payload: chatId,
     });
     //delete from storage
-    await storage.deleteConnection(chatId, true);
+    await storage.deleteConnection(chatId);
   } catch (error) {
     console.log('Error deleting a connection: ', error);
   }
@@ -244,14 +245,7 @@ export async function deleteConnection(chatId: string) {
  */
 export async function getConnections(): Promise<ConnectionInfo[]> {
   try {
-    //try getting connections from store
-    const entireState = store.getState();
-    let connections: ConnectionInfo[] = entireState.connections.connections;
-    //If store is empty, try loading from storage
-    if (connections.length === 0) {
-      connections = await storage.getConnections(true);
-    }
-    return connections;
+    return await storage.getConnections();
   } catch (error) {
     console.log('Error loading connections: ', error);
     return [];
@@ -268,39 +262,4 @@ export async function getConnection(chatId: string): Promise<ConnectionInfo> {
     throw new Error('No such connection');
   }
   return connection as ConnectionInfo;
-}
-
-/**
- * Gets a permissions associated with a connection
- * @param {string} chatId - chatId of connection
- */
-export async function getConnectionPermissions(
-  chatId: string,
-): Promise<Permissions> {
-  const connection = await getConnection(chatId);
-  return connection.permissions;
-}
-
-export async function disconnectConnection(chatId: string) {
-  try {
-    const token = await getToken();
-    await axios.patch(
-      LINE_MANAGEMENT_RESOURCE,
-      {
-        lineId: chatId,
-      },
-      {headers: {Authorization: `${token}`}},
-    );
-    await updateConnection({chatId: chatId, disconnected: true});
-    return true;
-  } catch (error) {
-    if (typeof error === 'object' && error.response) {
-      if (error.response.status === 404) {
-        console.log('failed to disconnect asdf: ', error.code);
-        await updateConnection({chatId: chatId, disconnected: true});
-        return true;
-      }
-    }
-    return false;
-  }
 }

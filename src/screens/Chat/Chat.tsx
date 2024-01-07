@@ -1,32 +1,34 @@
 import {SafeAreaView} from '@components/SafeAreaView';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {StyleSheet, Vibration} from 'react-native';
 
 import ChatBackground from '@components/ChatBackground';
 import DeleteChatButton from '@components/DeleteChatButton';
 import {
   DEFAULT_AVATAR,
-  DEFAULT_NAME,
   SELECTED_MESSAGES_LIMIT,
   START_OF_TIME,
 } from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import Clipboard from '@react-native-clipboard/clipboard';
 //import store from '@store/appStore';
-import {getConnection, toggleRead} from '@utils/Connections';
-import {ConnectionType} from '@utils/Connections/interfaces';
-import {extractMemberInfo} from '@utils/Groups';
+import {toggleRead} from '@utils/Connections';
 import {
   ContentType,
+  LargeDataParams,
   MessageStatus,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
-import {getLatestMessages} from '@utils/Storage/DBCalls/lineMessage';
-import {getGroupInfo} from '@utils/Storage/group';
-import {getMessage, readPaginatedMessages} from '@utils/Storage/messages';
+import {
+  getMessage,
+  readPaginatedMessages,
+  getLatestMessages,
+} from '@utils/Storage/messages';
 
+import DirectChat from '@utils/DirectChats/DirectChat';
+import Group from '@utils/Groups/Group';
 import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import {useSelector} from 'react-redux';
 import {useErrorModal} from 'src/context/ErrorModalContext';
@@ -46,15 +48,20 @@ export enum SelectedMessagesSize {
  */
 function Chat({route, navigation}: Props) {
   //gets lineId of chat
-  const {chatId} = route.params;
+  const {chatId, isGroupChat, isConnected, profileUri} = route.params;
+
+  //Datahandler contains functions about the group, if it is a group, else the DM.
+  const dataHandler = useMemo(() => {
+    return isGroupChat ? new Group(chatId) : new DirectChat(chatId);
+  }, [isGroupChat, chatId]);
 
   const [cursor, setCursor] = useState(0);
+
   const [chatState, setChatState] = useState({
     name: '',
-    isGroupChat: false,
     groupInfo: {},
-    profileURI: DEFAULT_AVATAR,
-    connectionConnected: true,
+    profileURI: profileUri,
+    connectionConnected: isConnected,
     messagesLoaded: false,
   });
 
@@ -77,7 +84,10 @@ function Chat({route, navigation}: Props) {
     state => state.latestSentMessage.message,
   );
   const latestUpdatedSendStatus: any = useSelector(
-    state => state.latestSendStatusUpdate.updated,
+    state => state.latestMessageUpdate.updatedStatus,
+  );
+  const latestUpdatedMediaStatus: any = useSelector(
+    state => state.latestMessageUpdate.updatedMedia,
   );
 
   //handles toggling the select messages flow.
@@ -137,10 +147,9 @@ function Chat({route, navigation}: Props) {
         case ContentType.text: {
           //Formatting multiple messages into a single string.
           copyString += `[${msg?.timestamp}] : [${
-            chatState.isGroupChat
-              ? findMemberName(
-                  extractMemberInfo(chatState.groupInfo, msg.memberId),
-                )
+            //If group chat, dataHandler will only be of type Group
+            isGroupChat
+              ? (await (dataHandler as Group).getMember(msg.memberId!))?.name
               : chatState.name
           }] : [${msg?.data.text}]`;
           break;
@@ -151,7 +160,14 @@ function Chat({route, navigation}: Props) {
       }
     }
     Clipboard.setString(copyString);
-  }, [selectedMessages, chatState, chatId, messageCopied]);
+  }, [
+    selectedMessages,
+    chatState,
+    chatId,
+    messageCopied,
+    dataHandler,
+    isGroupChat,
+  ]);
 
   const onForward = () => {
     navigation.navigate('ForwardToContact', {
@@ -173,19 +189,23 @@ function Chat({route, navigation}: Props) {
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        const connection = await getConnection(chatId);
         const localState: any = {};
-        if (connection.pathToDisplayPic && connection.pathToDisplayPic !== '') {
-          localState.profileURI = connection.pathToDisplayPic;
-          console.log('profile pic: ', localState.profileURI);
-        }
-        localState.name = connection.name;
-        if (connection.connectionType === ConnectionType.group) {
+        if (isGroupChat) {
           localState.isGroupChat = true;
-          localState.groupInfo = await getGroupInfo(chatId);
+          const groupData = await (dataHandler as Group).getData();
+          localState.groupInfo = groupData;
+          localState.name = groupData?.name;
+          localState.profileURI = groupData?.groupPicture
+            ? groupData?.groupPicture
+            : DEFAULT_AVATAR;
+        } else {
+          localState.isGroupChat = false;
+          const chatData = await (dataHandler as DirectChat).getChatData();
+          localState.name = chatData.name;
+          localState.profileURI = chatData.displayPic
+            ? chatData.displayPic
+            : DEFAULT_AVATAR;
         }
-        //sets connection connected state
-        localState.connectionConnected = !connection.disconnected;
 
         //toggle chat as read
         await toggleRead(chatId);
@@ -206,8 +226,9 @@ function Chat({route, navigation}: Props) {
   //runs every time a new message is recieved.
   useEffect(() => {
     (async () => {
-      if (chatState.isGroupChat) {
-        updateChatState({groupInfo: await getGroupInfo(chatId)});
+      if (isGroupChat) {
+        const groupHandler = new Group(chatId);
+        updateChatState({groupInfo: await groupHandler.getData()});
       }
       //If messages have been loaded and the check fails, we need to fetch the latest messages only.
       if (chatState.messagesLoaded) {
@@ -237,11 +258,45 @@ function Chat({route, navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestUpdatedSendStatus]);
 
+  //Runs every time a sent message's media status is updated.
+  useEffect(() => {
+    (async () => {
+      if (chatState.messagesLoaded) {
+        await updateMedia(messages);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestUpdatedMediaStatus]);
+
+  const updateMedia = async (msgs: SavedMessageParams[]): Promise<void> => {
+    const indices: number[] = [];
+    msgs.forEach((element, index) => {
+      if (
+        element.contentType === ContentType.file ||
+        element.contentType === ContentType.video ||
+        element.contentType === ContentType.image
+      ) {
+        indices.push(index);
+      }
+    });
+    for (const i of indices) {
+      const msg = await getMessage(chatId, msgs[i].messageId);
+      if (
+        msg &&
+        (msgs[i].data as LargeDataParams).fileUri !=
+          (msg.data as LargeDataParams).fileUri
+      ) {
+        msgs[i] = msg;
+      }
+    }
+    setMessages([...msgs]);
+  };
+
   const updateMessages = async (msgs: SavedMessageParams[]): Promise<void> => {
     const indices: number[] = [];
     msgs.forEach((element, index) => {
       if (
-        element.messageStatus !== MessageStatus.success &&
+        element.messageStatus !== MessageStatus.sent &&
         element.messageStatus !== null
       ) {
         indices.push(index);
@@ -282,7 +337,7 @@ function Chat({route, navigation}: Props) {
   };
 
   const onSettingsPressed = (): void => {
-    if (chatState.isGroupChat) {
+    if (isGroupChat) {
       navigation.navigate('GroupProfile', {groupId: chatId});
     } else {
       navigation.navigate('ContactProfile', {chatId: chatId});
@@ -297,6 +352,15 @@ function Chat({route, navigation}: Props) {
 
   const onCancelPressed = () => {
     setSelectedMessages([]);
+  };
+
+  const onDelete = () => {
+    if (isGroupChat) {
+      (dataHandler as Group).deleteGroup();
+    } else {
+      (dataHandler as DirectChat).delete();
+    }
+    navigation.navigate('HomeTab');
   };
 
   return (
@@ -317,8 +381,8 @@ function Chat({route, navigation}: Props) {
         selectedMessages={selectedMessages}
         handlePress={handleMessageBubbleShortPress}
         handleLongPress={handleMessageBubbleLongPress}
-        isGroupChat={chatState.isGroupChat}
-        groupInfo={chatState.groupInfo}
+        isGroupChat={isGroupChat}
+        dataHandler={dataHandler}
       />
       {chatState.connectionConnected ? (
         <>
@@ -338,27 +402,15 @@ function Chat({route, navigation}: Props) {
               chatId={chatId}
               replyTo={replyToMessage}
               setReplyTo={setReplyToMessage}
-              isGroupChat={chatState.isGroupChat}
-              groupInfo={chatState.groupInfo}
+              isGroupChat={isGroupChat}
             />
           )}
         </>
       ) : (
-        <DeleteChatButton chatId={chatId} />
+        <DeleteChatButton onDelete={onDelete} />
       )}
     </SafeAreaView>
   );
-}
-
-/**
- * @param memberInfo, object containing details about a member
- * @returns {string}, member name if present
- */
-function findMemberName(memberInfo: any): string {
-  if (memberInfo.memberId) {
-    return memberInfo.name || DEFAULT_NAME;
-  }
-  return '';
 }
 
 const styles = StyleSheet.create({

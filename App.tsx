@@ -12,7 +12,7 @@ import store from './src/store/appStore';
 import {
   foregroundMessageHandler,
   registerBackgroundMessaging,
-} from '@utils/Messaging/fcm';
+} from '@utils/Messaging/FCM/fcm';
 
 import runMigrations from './src/utils/Storage/Migrations';
 
@@ -22,46 +22,69 @@ import ErrorModal from '@components/ErrorModal';
 import LoginStack from '@navigation/LoginStack';
 import {loadConnectionsToStore} from '@utils/Connections';
 import pullBacklog from '@utils/Messaging/pullBacklog';
-import {checkProfile} from '@utils/Profile';
+import {checkProfileCreated} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 import Toast from 'react-native-toast-message';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
 import BootSplash from 'react-native-bootsplash';
+import {Text, TextInput} from 'react-native';
+// import DeviceInfo from 'react-native-device-info';
+
+// This prevents any and all Text and TextInput from being scaled beyond 1.2X their current size on Android and iOS
+interface TextWithDefaultProps extends Text {
+  defaultProps?: {maxFontSizeMultiplier?: number};
+}
+
+interface TextInputWithDefaultProps extends TextInput {
+  defaultProps?: {maxFontSizeMultiplier?: number};
+}
+
+(Text as unknown as TextWithDefaultProps).defaultProps =
+  (Text as unknown as TextWithDefaultProps).defaultProps || {};
+(
+  Text as unknown as TextWithDefaultProps
+).defaultProps!.maxFontSizeMultiplier = 1.2;
+(TextInput as unknown as TextInputWithDefaultProps).defaultProps =
+  (TextInput as unknown as TextInputWithDefaultProps).defaultProps || {};
+(
+  TextInput as unknown as TextInputWithDefaultProps
+).defaultProps!.maxFontSizeMultiplier = 1.2;
 
 function App(): JSX.Element {
   //check if initial setup is done, and accordingly decides which flow to render on app start
   const [initialLoad, setInitialLoad] = useState(true);
   const [profileExists, setProfileExists] = useState(false);
-  const checkProfileCreated = async () => {
+  const profileCheck = async () => {
     try {
-      const result = await checkProfile();
+      const result = await checkProfileCreated();
       if (result === ProfileStatus.created) {
         setProfileExists(true);
-        //load up to store
-        //load connections to store
         await loadConnectionsToStore();
         await pullBacklog();
-        //load read bundles to store
-        //await loadReadDirectConnectionBundlesToStore();
-        //load journaled messages to store
-        //await loadJournalToStore();
-        // // handle any potential inital deep links
-        // handleDeepLink({url: await Linking.getInitialURL()});
       }
       setInitialLoad(false);
     } catch (error) {
-      console.error('Error checking profile:', error);
+      console.log('Error checking profile:', error);
       setInitialLoad(false);
     } finally {
       await BootSplash.hide({fade: true});
     }
   };
-
   useEffect(() => {
-    checkProfileCreated();
+    profileCheck();
     // default way to handle new messages in the foreground
     foregroundMessageHandler();
   }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const isEmu = await DeviceInfo.isEmulator();
+  //     if (isEmu) {
+  //       const interval = setInterval(()=> {pullBacklog()}, 2000);
+  //       // Clear the interval on component unmount
+  //       return () => clearInterval(interval);
+  //     }
+  //   })()
+  // }, []);
   //set up background message handler here
   registerBackgroundMessaging();
 

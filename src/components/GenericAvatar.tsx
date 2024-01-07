@@ -12,15 +12,9 @@ export function GenericAvatar({
   onPress,
 }: {
   avatarSize: 'extraSmall' | 'small' | 'medium' | 'large'; //size - extraSmall, small, medium, large || default - large
-  profileUri?: string;
+  profileUri?: string | null;
   onPress?: () => void;
 }) {
-  //extract avatar id from profileUri
-  const avatarId =
-    profileUri?.substring(0, 9) === 'avatar://'
-      ? profileUri.replace('avatar://', '')
-      : '0';
-
   // set size of avatar according to specs
   function avatarSizeStylePicker(avatarSize?: string): ImageStyle {
     if (avatarSize === 'small') {
@@ -35,15 +29,25 @@ export function GenericAvatar({
       return styles.large;
     }
   }
-
+  const getAvatarId = (uri?: string | null) => {
+    const avatarId =
+      uri?.substring(0, 9) === 'avatar://' ? uri.replace('avatar://', '') : '0';
+    if (!uri) {
+      return '1';
+    }
+    return avatarId;
+  };
   // Function to retrieve Icon based on id
   const getIconById = (id: string): FC<SvgProps> | null => {
     const avatarMappingEntry = avatarmapping.find(entry => entry.id === id);
     return avatarMappingEntry ? avatarMappingEntry.Icon : null;
   };
-
-  const Icon = getIconById(avatarId);
-
+  // Function to retrieve Icon based on id
+  const getIconByUri = (uri?: string | null): FC<SvgProps> | null => {
+    const id = getAvatarId(uri);
+    return getIconById(id);
+  };
+  const Icon = getIconByUri(profileUri);
   return (
     <Pressable
       onPress={onPress}
@@ -51,7 +55,7 @@ export function GenericAvatar({
         styles.container,
         avatarSizeStylePicker(avatarSize),
       )}>
-      {profileUri && avatarId === '0' && (
+      {profileUri && getAvatarId(profileUri) === '0' && (
         <Image
           source={{uri: profileUri}}
           style={avatarSizeStylePicker(avatarSize)}

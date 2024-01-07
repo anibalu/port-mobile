@@ -8,20 +8,14 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {deleteGeneratedDirectConnectionBundle} from '@utils/Bundles/direct';
 import {deleteConnection} from '@utils/Connections';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
-import {getChatTileTimestamp} from '@utils/Time';
+import {getReadableTimestamp} from '@utils/Time';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
 const handleDelete = async (chatId: string): Promise<void> => {
-  if (chatId.substring(0, 9) === 'linkId://') {
-    const linkId = chatId.substring(9);
-    await deleteGeneratedDirectConnectionBundle(linkId);
-  } else {
-    deleteConnection(chatId);
-  }
+  deleteConnection(chatId);
 };
 
 function PendingChatTile(props: ConnectionInfo): ReactNode {
@@ -41,7 +35,7 @@ function PendingChatTile(props: ConnectionInfo): ReactNode {
           fontType={FontType.md}
           style={{marginTop: 2}}
           textColor={PortColors.text.secondary}>
-          {getChatTileTimestamp(props.timestamp)}
+          {getReadableTimestamp(props.timestamp)}
         </NumberlessText>
 
         <NumberlessText

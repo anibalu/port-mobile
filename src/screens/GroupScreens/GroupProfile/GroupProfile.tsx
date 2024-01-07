@@ -2,66 +2,67 @@
  * The screen to view a group's profile
  * screen Id: N/A
  */
-import DefaultImage from '@assets/avatars/avatar.png';
 import {
   NumberlessMediumText,
   NumberlessRegularText,
   NumberlessSemiBoldText,
 } from '@components/NumberlessText';
 import React, {useEffect, useState} from 'react';
-import {Image, Pressable, ScrollView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 // import NamePopup from './UpdateNamePopup';
 import BackTopbar from '@components/BackTopBar';
-import PermissionsDropdown from '@components/PermissionsDropdown/PermissionsDropdown';
+import GroupChatPermissionDropdown from '@components/PermissionsDropdown/GroupChatPermissionDropdown';
 import {SafeAreaView} from '@components/SafeAreaView';
 
-import {GroupInfo} from '@utils/Groups/interfaces';
+import {GroupDataStrict, GroupMemberStrict} from '@utils/Groups/interfaces';
 
 //import {getConnection} from '@utils/Connections';
 import ChatBackground from '@components/ChatBackground';
+import {PortColors} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {getGroupInfo} from '@utils/Storage/group';
+import Group from '@utils/Groups/Group';
 import {getTimeStamp} from '@utils/Time';
-import {FontSizes, PortColors} from '@components/ComponentUtils';
-import {leaveGroup} from '@utils/Groups';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {DEFAULT_AVATAR} from '@configs/constants';
+import {getConnection} from '@utils/Connections';
+import DeleteChatButton from '@components/DeleteChatButton';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GroupProfile'>;
 
 function GroupProfile({route, navigation}: Props) {
   const {groupId} = route.params;
+  const groupHandler = new Group(groupId);
+  const [members, setMembers] = useState<GroupMemberStrict[] | null>([]);
 
-  const [groupInfo, setGroupInfo] = useState<GroupInfo>({
-    groupId: groupId,
-    name: '',
-    amAdmin: false,
-    members: [],
-  });
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [profileURI, setProfileURI] = useState(
-    Image.resolveAssetSource(DefaultImage).uri,
-  );
-  //const [connected, setConnected] = useState(true);
+  const [groupData, setGroupData] = useState<GroupDataStrict | null>();
 
+  const [profileURI, setProfileURI] = useState(DEFAULT_AVATAR);
+  const [connected, setConnected] = useState(true);
+  const onDelete = async () => {
+    await groupHandler.deleteGroup();
+    navigation.navigate('HomeTab');
+  };
   useEffect(() => {
     (async () => {
-      //const connection = await getConnection(groupId);
-      const groupData = await getGroupInfo(groupId);
-      if (
-        groupData.pathToGroupProfilePic !== '' &&
-        groupData.pathToGroupProfilePic
-      ) {
-        setProfileURI(`file://${groupData.pathToGroupProfilePic}`);
+      const groupData = await groupHandler.getData();
+      if (groupData?.groupPicture !== '' && groupData?.groupPicture) {
+        setProfileURI(groupData.groupPicture);
       }
-      setIsAdmin(groupData.amAdmin);
-      setGroupInfo(groupData);
-      //setConnected(!connection.disconnected);
+      try {
+        const connection = await getConnection(groupId);
+        setConnected(!connection.disconnected);
+      } catch (error) {
+        console.log('error getting connected:', error);
+      }
+      setMembers(await groupHandler.getMembers());
+      setGroupData(groupData);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
+  return groupData ? (
     <SafeAreaView style={styles.mainContainer}>
       <BackTopbar />
       <ScrollView
@@ -69,79 +70,73 @@ function GroupProfile({route, navigation}: Props) {
         showsVerticalScrollIndicator={false}>
         <ChatBackground />
         <View style={styles.profile}>
-          <Pressable
-            style={styles.profilePictureHitbox}
-            onPress={() => {
-              navigation.navigate('ImageView', {
-                imageURI: profileURI,
-                title: groupInfo.name,
-              });
-            }}>
-            <Image source={{uri: profileURI}} style={styles.profilePic} />
-          </Pressable>
+          <GenericAvatar profileUri={profileURI} avatarSize={'large'} />
           <View style={styles.groupNameArea}>
             <NumberlessSemiBoldText
               style={styles.groupName}
               ellipsizeMode="tail"
               numberOfLines={1}>
-              {groupInfo.name}
+              {groupData.name}
             </NumberlessSemiBoldText>
             <NumberlessMediumText
               style={styles.groupDetails}
               ellipsizeMode="tail"
               numberOfLines={1}>
-              Group | {groupInfo.members.length + 1} participants
+              Group | {members ? members.length + 1 : 1} participants
             </NumberlessMediumText>
             <NumberlessRegularText
               style={styles.groupDetails}
               ellipsizeMode="tail"
               numberOfLines={1}>
-              Created {getTimeStamp(groupInfo.joinedAt)}
+              Created {getTimeStamp(groupData.joinedAt)}
             </NumberlessRegularText>
             <NumberlessRegularText
               style={styles.groupDescription}
               ellipsizeMode="tail"
               numberOfLines={3}>
-              {groupInfo.description || ''}
+              {groupData.description || ''}
             </NumberlessRegularText>
             <View>
-              {isAdmin ? (
+              {groupData.amAdmin ? (
                 <GenericButton
                   onPress={() => {
                     navigation.navigate('ManageMembers', {groupId: groupId});
-                  }}
-                  buttonStyle={{width: '80%'}}>
+                  }}>
                   Manage members
                 </GenericButton>
               ) : (
                 <GenericButton
                   onPress={() => {
                     navigation.navigate('ManageMembers', {groupId: groupId});
-                  }}
-                  buttonStyle={{width: '80%'}}>
+                  }}>
                   View members
                 </GenericButton>
               )}
             </View>
           </View>
         </View>
-        <PermissionsDropdown bold={false} chatId={groupId} />
-        <GenericButton
-          onPress={() => {
-            leaveGroup(groupInfo.groupId);
-            navigation.goBack();
-          }}
-          textStyle={{...FontSizes[17].medium}}
-          buttonStyle={{
-            width: '90%',
-            marginTop: 38,
-            height: 70,
-            backgroundColor: PortColors.primary.red.error,
-          }}>
-          Exit group
-        </GenericButton>
+        <GroupChatPermissionDropdown bold={false} chatId={groupId} />
+        {connected ? (
+          <GenericButton
+            onPress={async () => {
+              await groupHandler.leaveGroup();
+              navigation.navigate('HomeTab');
+            }}
+            buttonStyle={{
+              width: '90%',
+              marginTop: 38,
+              height: 70,
+              backgroundColor: PortColors.primary.red.error,
+            }}>
+            Exit group
+          </GenericButton>
+        ) : (
+          <DeleteChatButton onDelete={onDelete} stripMargin={true} />
+        )}
       </ScrollView>
     </SafeAreaView>
+  ) : (
+    <></>
   );
 }
 

@@ -17,15 +17,11 @@ function LoginStack({startOnboarding}: {startOnboarding: boolean}): ReactNode {
       initialRouteName={
         startOnboarding || onboardingStatus ? 'AppStack' : 'OnboardingStack'
       }
-      screenOptions={{headerShown: false}}>
+      screenOptions={{headerShown: false, orientation: 'portrait'}}>
       {startOnboarding || onboardingStatus ? (
         <Stack.Screen name="AppStack" component={AppStack} />
       ) : (
-        <Stack.Screen
-          name="OnboardingStack"
-          options={{gestureEnabled: false}}
-          component={OnboardingStack}
-        />
+        <Stack.Screen name="OnboardingStack" component={OnboardingStack} />
       )}
     </Stack.Navigator>
   );

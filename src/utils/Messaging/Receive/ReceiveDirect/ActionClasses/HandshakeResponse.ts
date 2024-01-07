@@ -24,7 +24,7 @@ export class HandshakeResponseB2 extends DirectReceiveAction {
     await handshakeActionsA2(
       this.chatId,
       (this.decryptedMessageContent.data as HandshakeB2Params).pubKey,
-      (this.decryptedMessageContent.data as HandshakeB2Params).encryptedNonce,
+      (this.decryptedMessageContent.data as HandshakeB2Params).encryptedRad,
     );
   }
 }

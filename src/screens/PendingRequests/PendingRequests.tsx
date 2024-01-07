@@ -2,68 +2,64 @@ import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import ContactCard from './ContactCard';
-import {FlatList} from 'react-native';
+import {FlatList, Text} from 'react-native';
+import {useSelector} from 'react-redux';
+import {PendingCardInfo} from '@utils/Ports/interfaces';
+import {getPendingRequests, numberOfPendingRequests} from '@utils/Ports';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import {PortColors} from '@components/ComponentUtils';
+
+//rendered chat tile of a connection
+function renderPendingRequest(pendingRequest: PendingCardInfo): ReactElement {
+  return <ContactCard {...pendingRequest} />;
+}
 
 const PendingRequests = () => {
   const navigation = useNavigation();
-  const exampleProps = [
-    {
-      name: 'Contact Name',
-      date: '14/12/2023',
-      pendingStatus: 'Pending authentication',
-      expiry: 'Expires in 6h',
-      chatStatus: 'Initiated',
-      isGroup: false,
-    },
-    {
-      name: 'Contact Name',
-      date: '14/12/2023',
-      pendingStatus: 'Pending authentication',
-      expiry: 'Expires in 1h',
-      chatStatus: 'Scanned',
-      isGroup: false,
-    },
-    {
-      name: 'Contact Name',
-      date: '14/12/2023',
-      pendingStatus: 'Pending authentication',
-      expiry: 'Expires in 1h',
-      chatStatus: 'Scanned',
-      isGroup: false,
-    },
-    {
-      name: 'Contact Name',
-      date: '14/12/2023',
-      pendingStatus: 'Pending authentication',
-      expiry: 'Expires in 1h',
-      chatStatus: 'Scanned',
-      isGroup: true,
-    },
-  ];
-
-  const onDelete = () => console.log('delete comeshere');
-
-  const renderItem = ({item, index}) => (
-    <ContactCard contactProps={item} key={index} onDelete={onDelete} />
+  const reloadTrigger = useSelector(
+    state => state.triggerPendingRequestsReload.change,
   );
+  const [pendingRequests, setPendingRequests] = useState<PendingCardInfo[]>([]);
+  const [pendingRequestsLength, setPendingRequestsLength] = useState(0);
+  useEffect(() => {
+    (async () => {
+      setPendingRequests(await getPendingRequests());
+      setPendingRequestsLength(await numberOfPendingRequests());
+    })();
+  }, [reloadTrigger]);
   return (
     <SafeAreaView>
       <ChatBackground />
       <GenericTopBar
         onBackPress={() => navigation.goBack()}
-        title="Pending Requests"
+        title={`Pending Requests (${pendingRequestsLength})`}
       />
+
       <FlatList
         style={{width: '100%'}}
         contentContainerStyle={{marginTop: 12}}
-        data={exampleProps}
+        data={pendingRequests}
         showsVerticalScrollIndicator={false}
         scrollEnabled={true}
-        keyExtractor={item => item.index}
-        renderItem={renderItem}
+        keyExtractor={item => item.portId}
+        renderItem={element => renderPendingRequest(element.item)}
+        ListEmptyComponent={
+          <NumberlessText
+            fontSizeType={FontSizeType.l}
+            fontType={FontType.sb}
+            textColor={PortColors.text.secondary}
+            style={{flex: 1, textAlign: 'center'}}>
+            No pending requests
+          </NumberlessText>
+        }
       />
+      <Text>{pendingRequestsLength}</Text>
     </SafeAreaView>
   );
 };

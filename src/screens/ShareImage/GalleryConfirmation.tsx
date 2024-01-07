@@ -1,16 +1,24 @@
 import Send from '@assets/icons/NewSend.svg';
 import Whitecross from '@assets/icons/Whitecross.svg';
 import Delete from '@assets/icons/Whitedelete.svg';
-import {PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
+import GenericInput from '@components/GenericInput';
 import {NumberlessMediumText} from '@components/NumberlessText';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {sendMessage} from '@utils/Messaging/sendMessage';
 import React, {useEffect, useRef, useState} from 'react';
-import {FlatList, Image, Pressable, StyleSheet, View} from 'react-native';
+import {
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {createThumbnail} from 'react-native-create-thumbnail';
 import Pdf from 'react-native-pdf';
 import Carousel from 'react-native-snap-carousel';
@@ -18,12 +26,13 @@ import Carousel from 'react-native-snap-carousel';
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
 const GalleryConfirmation = ({navigation, route}: Props) => {
-  const {selectedMembers, shareMessages} = route.params;
+  const {selectedMembers, shareMessages, isChat = false} = route.params;
   const carousel = useRef<any>();
-
+  const [isFocused, setIsFocused] = useState(false);
   const [isSending, setSending] = useState(false);
   const [dataList, setDataList] = useState<any[]>(shareMessages);
   const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [message, setMessage] = useState<string>('');
 
   // On receiving messages, we need to generate thumbnails if videos
   useEffect(() => {
@@ -49,10 +58,16 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
 
   const renderCarouselItem = ({item, index}: {item: any; index: number}) => {
     return item.contentType === ContentType.image ? (
-      <Image key={index} style={{flex: 1}} source={{uri: item.data.fileUri}} />
+      <Image
+        key={index}
+        style={{flex: 1}}
+        resizeMode="contain"
+        source={{uri: item.data.fileUri}}
+      />
     ) : item.contentType === ContentType.video ? (
       <Image
         key={index}
+        resizeMode="contain"
         style={{
           flex: 1,
         }}
@@ -144,19 +159,20 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     setSending(true);
     for (const mbr of selectedMembers) {
       for (const data of dataList) {
-        await sendMessage(
-          mbr.chatId,
-          {
-            contentType: data.contentType,
-            data: data.data,
-          },
-          true,
-          false,
-        );
+        //If there are multiple messages and this has entered from chat, attach text to the last image that is sent.
+        if (isChat && dataList.indexOf(data) === dataList.length - 1) {
+          data.data.text = message;
+        }
+        const sender = new SendMessage(mbr.chatId, data.contentType, data.data);
+        await sender.send();
       }
     }
     setSending(false);
-    navigation.popToTop();
+    if (isChat) {
+      navigation.goBack();
+    } else {
+      navigation.popToTop();
+    }
   };
 
   const renderMembers = ({item}: {item: ConnectionInfo}) => {
@@ -170,9 +186,12 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   };
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView
+      behavior={isIOS ? 'padding' : 'height'}
+      keyboardVerticalOffset={isIOS ? 54 : undefined}
+      style={styles.screen}>
       <Whitecross
-        style={{position: 'absolute', zIndex: 10, top: 30, left: 10}}
+        style={{position: 'absolute', zIndex: 10, top: 50, left: 20}}
         disabled={isSending}
         onPress={() => navigation.goBack()}
       />
@@ -195,15 +214,37 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         style={styles.imagescroll}
         renderItem={renderThumbnails}
       />
-      <View style={styles.bottombar}>
-        <FlatList
-          data={selectedMembers}
-          horizontal={true}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={true}
-          keyExtractor={item => item.chatId}
-          renderItem={renderMembers}
-        />
+      <View
+        style={StyleSheet.compose(
+          styles.bottombar,
+          isChat && {
+            backgroundColor: PortColors.primary.black,
+            marginBottom: 10,
+          },
+        )}>
+        {isChat ? (
+          <GenericInput
+            inputStyle={styles.messageInputStyle}
+            text={message}
+            maxLength={'inf'}
+            multiline={true}
+            setText={setMessage}
+            placeholder={isFocused ? '' : 'Type your message here'}
+            alignment="left"
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+        ) : (
+          <FlatList
+            data={selectedMembers}
+            horizontal={true}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+            keyExtractor={item => item.chatId}
+            renderItem={renderMembers}
+          />
+        )}
+
         <GenericButton
           onPress={onSend}
           IconLeft={Send}
@@ -211,7 +252,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
           buttonStyle={styles.button}
         />
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -233,11 +274,10 @@ const styles = StyleSheet.create({
     height: 90,
     width: screen.width,
     backgroundColor: PortColors.primary.white,
-    position: 'absolute',
-    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
     flexDirection: 'row',
     paddingVertical: 15,
-    paddingBottom: 20,
     paddingLeft: 15,
   },
   imagescroll: {
@@ -255,12 +295,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 10,
   },
+  messageInputStyle: {
+    width: screen.width - 72,
+    height: 60,
+    backgroundColor: PortColors.primary.white,
+    overflow: 'hidden',
+    paddingRight: 5,
+    paddingLeft: 30,
+    ...(isIOS && {paddingTop: 20}),
+    marginRight: 10,
+  },
   itemtext: {
     fontSize: 12,
     color: PortColors.primary.grey.dark,
   },
   button: {
-    alignSelf: 'flex-end',
+    alignItems: 'flex-end',
     marginRight: 15,
   },
   bottomimageContainer: {

@@ -2,7 +2,7 @@
  * Tries to empty journal by sending messages.
  * unsent messages get re-journaled.
  */
-import {getJournaled} from '@utils/Storage/journal';
+import {getJournaled} from '@utils/Storage/messages';
 import SendMessage from './SendMessage';
 
 async function sendJournaled() {

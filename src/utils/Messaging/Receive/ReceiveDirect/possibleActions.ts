@@ -14,6 +14,11 @@ import Deletion from './ActionClasses/Deletion';
 import ReceiveName from './ActionClasses/ReceiveName';
 import DirectReceiveAction from './DirectReceiveAction';
 import {ContentType, PayloadMessageParams} from '@utils/Messaging/interfaces';
+import InitialInfoResponse from './ActionClasses/InitialInfoResponse';
+import ReceiveContactBundleRequest from './ActionClasses/ReceiveContactBundleRequest';
+import ReceiveContactBundleResponseDenial from './ActionClasses/ReceiveContactBundleResponseDenial';
+import ReceiveContactBundleResponse from './ActionClasses/ReceiveContactBundleResponse';
+import ReceiveContactBundle from './ActionClasses/ReceiveContactBundle';
 
 export enum PossibleDirectReceiveActions {
   deletion,
@@ -28,6 +33,8 @@ export enum PossibleDirectReceiveActions {
   receiveFile,
   handshakeResponseA1,
   handshakeResponseB2,
+  InitialInfoResponse,
+  contactBundleRequest,
 }
 
 export async function directReceiveActionPicker(
@@ -119,6 +126,41 @@ export async function directReceiveActionPicker(
         );
       case ContentType.handshakeB2:
         return new HandshakeResponseB2(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.initialInfoRequest:
+        return new InitialInfoResponse(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.contactBundleRequest:
+        return new ReceiveContactBundleRequest(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.contactBundleDenialResponse:
+        return new ReceiveContactBundleResponseDenial(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.contactBundleResponse:
+        return new ReceiveContactBundleResponse(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.contactBundle:
+        return new ReceiveContactBundle(
           chatId,
           message,
           receiveTime,

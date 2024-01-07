@@ -1,31 +1,32 @@
-export interface GroupMember {
-  profilePicture?: string;
+export interface GroupData {
   name?: string;
-  memberId: string;
-  joinedAt: string;
-  chatId?: string;
-  isAdmin?: boolean;
-}
-
-export interface GroupInfo {
-  //Id assigned by the server to group.
-  groupId: string;
-  //name given to group
-  name: string;
   joinedAt?: string;
-  description?: string;
-  pathToGroupProfilePic?: string;
+  description?: string | null;
+  groupPicture?: string | null;
+  amAdmin?: boolean;
+}
+export interface GroupDataStrict extends GroupData {
+  name: string;
+  joinedAt: string;
+  description?: string | null;
+  groupPicture?: string | null;
   amAdmin: boolean;
-  members: GroupMember[];
 }
 
-export interface GroupInfoUpdate {
-  //Id assigned by the server to group.
-  groupId: string;
-  //name given to group
-  name?: string;
-  pathToGroupProfilePic?: string;
-  description?: string;
-  amAdmin?: boolean;
-  members?: GroupMember[];
+export interface GroupMemberUpdate {
+  name?: string | null;
+  joinedAt?: string | null;
+  cryptoId?: string | null;
+  isAdmin?: boolean | null;
+}
+
+export interface GroupMember extends GroupMemberUpdate {
+  memberId?: string;
+}
+export interface GroupMemberStrict extends GroupMember {
+  memberId: string;
+  name: string | null;
+  joinedAt: string | null;
+  cryptoId: string | null;
+  isAdmin: boolean | null;
 }

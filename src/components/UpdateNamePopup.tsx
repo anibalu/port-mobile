@@ -9,8 +9,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {updateConnection} from '@utils/Connections';
-import {updateProfileInfo} from '@utils/Profile';
+import {updateProfileName} from '@utils/Profile';
 import React, {ReactNode, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {PortColors, screen} from './ComponentUtils';
@@ -18,6 +17,7 @@ import {GenericButton} from './GenericButton';
 import GenericInput from './GenericInput';
 import GenericModalTopBar from './GenericModalTopBar';
 import Cross from '../../assets/icons/cross.svg';
+import DirectChat from '@utils/DirectChats/DirectChat';
 
 interface updateNameProps {
   setUpdated: Function;
@@ -35,16 +35,10 @@ export default function UpdateNamePopup({
   const onSavePressed = (): void => {
     (async () => {
       if (chatId) {
-        const payload = {
-          chatId: chatId,
-          name: newName,
-        };
-        await updateConnection(payload);
+        const chat = new DirectChat(chatId);
+        await chat.updateName(newName);
       } else {
-        const payload = {
-          name: newName,
-        };
-        await updateProfileInfo(payload);
+        await updateProfileName(newName);
       }
 
       setUpdated(true);
@@ -53,7 +47,12 @@ export default function UpdateNamePopup({
 
   return (
     <View style={styles.editRegion}>
-      <GenericModalTopBar RightOptionalIcon={Cross} />
+      <View style={{right: 30}}>
+        <GenericModalTopBar
+          RightOptionalIcon={Cross}
+          onBackPress={() => setUpdated(p => !p)}
+        />
+      </View>
       <NumberlessText fontType={FontType.sb} fontSizeType={FontSizeType.l}>
         {chatId ? "Update this contact's name" : 'Update your name'}
       </NumberlessText>
@@ -73,12 +72,6 @@ export default function UpdateNamePopup({
         alignment="left"
       />
       <View style={styles.buttonContainer}>
-        <GenericButton
-          buttonStyle={styles.cancel}
-          textStyle={styles.cancelTextStyle}
-          onPress={() => setUpdated(false)}>
-          Cancel
-        </GenericButton>
         <GenericButton buttonStyle={styles.save} onPress={onSavePressed}>
           Save
         </GenericButton>
@@ -96,7 +89,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingBottom: 20,
     paddingTop: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
     borderTopStartRadius: 32,
     borderTopEndRadius: 32,
   },
@@ -122,7 +115,7 @@ const styles = StyleSheet.create({
     marginBottom: 38,
   },
   save: {
-    flex: 1,
+    flex: 0.8,
   },
   saveText: {
     fontSize: 15,

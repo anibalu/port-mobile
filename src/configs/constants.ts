@@ -1,10 +1,10 @@
+import {FileAttributes} from '@utils/Storage/interfaces';
+
 export const NAME_LENGTH_LIMIT = 30;
-export const LABEL_INPUT_LIMIT = 20;
 export const PAGINATION_LIMIT = 30;
 export const ARTIFICIAL_LOADER_INTERVAL = 300;
 export const TOKEN_VALIDITY_INTERVAL = 4 * 60 * 1000;
-export const IDEAL_LINE_LINKS_NUMBER = 5;
-export const SOFT_ALERT_DURATION = 500;
+export const IDEAL_UNUSED_PORTS_NUMBER = 5;
 export const DEFAULT_NAME = 'Numberless';
 
 export const BUNDLE_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;
@@ -36,3 +36,9 @@ export const AVATAR_ARRAY = [
   'avatar://15',
 ];
 export const DEFAULT_AVATAR = AVATAR_ARRAY[0];
+export const DEFAULT_PROFILE_AVATAR_INFO: FileAttributes = {
+  fileUri: 'avatar://1',
+  fileName: '1',
+  fileType: 'avatar',
+};
+export const MAX_PERMISSION_PRESETS = 5;

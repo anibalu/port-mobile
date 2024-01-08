@@ -172,6 +172,23 @@ function OnboardingCarousel(): ReactNode {
         renderItem={renderCarouselItem}
       />
       {renderPagination()}
+      {activeIndex > 0 && (
+        <RightArrow
+          onPress={() => {
+            if (activeIndex > 0) {
+              carouselRef.current.snapToItem(activeIndex - 1);
+            }
+          }}
+          style={{
+            position: 'absolute',
+            left: 34,
+            bottom: 30,
+            transform: [{rotateY: '180deg'}],
+          }}
+          width={15}
+          height={14}
+        />
+      )}
       <RightArrow
         onPress={() => {
           if (activeIndex >= 2) {

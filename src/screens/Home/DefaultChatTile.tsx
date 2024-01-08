@@ -9,14 +9,14 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {AVATAR_ARRAY} from '@configs/constants';
-import {useNavigation} from '@react-navigation/native';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
+import {useConnectionModal} from 'src/context/ConnectionModalContext';
 
 function DefaultChatTile(): ReactNode {
-  const navigation = useNavigation<any>();
+  const {showNewPortModal: showModal} = useConnectionModal();
   const handleNavigate = (): void => {
-    navigation.navigate('HomeTab', {screen: 'NewTab'});
+    showModal();
   };
   return (
     <Pressable style={styles.defaultTileContainer} onPress={handleNavigate}>

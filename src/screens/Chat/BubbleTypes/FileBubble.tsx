@@ -1,4 +1,4 @@
-import File from '@assets/icons/FileClip.svg';
+import {default as File, default as FileIcon} from '@assets/icons/FileClip.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
@@ -16,7 +16,6 @@ import {
   shouldRenderProfileName,
 } from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
-import FileReplyContainer from '../ReplyContainers/FileReplyContainer';
 
 /**
  * @param message, message object
@@ -65,7 +64,34 @@ export default function FileBubble({
       onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
       {isReply ? (
-        <FileReplyContainer message={message} memberName={memberName} />
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View
+            style={{
+              backgroundColor: '#FEB95A',
+              width: 39,
+              height: 39,
+              borderRadius: 10,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <FileIcon />
+          </View>
+          <View style={{marginLeft: 12}}>
+            {renderProfileName(
+              shouldRenderProfileName(memberName),
+              memberName,
+              message.sender,
+              isReply,
+            )}
+
+            <NumberlessText
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}
+              style={{marginTop: 3, marginRight: 20}}>
+              File
+            </NumberlessText>
+          </View>
+        </View>
       ) : (
         <>
           {renderProfileName(

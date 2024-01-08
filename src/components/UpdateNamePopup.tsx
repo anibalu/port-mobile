@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-end',
     paddingBottom: 20,
-    paddingTop: 20,
+    paddingTop: 12,
     paddingHorizontal: 30,
     borderTopStartRadius: 32,
     borderTopEndRadius: 32,

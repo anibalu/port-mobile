@@ -173,14 +173,11 @@ const styles = StyleSheet.create({
   },
   receiverBubble: {
     backgroundColor: '#B7B6B64D',
-    paddingHorizontal: 5,
+    paddingHorizontal: 7,
     paddingVertical: 7,
     marginBottom: 4,
-    borderTopLeftRadius: 0,
     alignSelf: 'stretch',
-    borderTopRightRadius: 10,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
+    borderRadius: 10,
     flexDirection: 'row',
   },
   senderBubble: {
@@ -189,10 +186,7 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     marginBottom: 4,
     alignSelf: 'stretch',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 0,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
+    borderRadius: 10,
     flexDirection: 'row',
   },
 });

@@ -320,6 +320,7 @@ const MessageBar = ({
             <GenericInput
               inputStyle={styles.inputText}
               text={text}
+              size="sm"
               maxLength={'inf'}
               multiline={true}
               setText={onChangeText}
@@ -398,6 +399,7 @@ const styles = StyleSheet.create({
   textInput: {
     flexDirection: 'row',
     backgroundColor: '#FFF',
+    overflow: 'hidden',
     borderRadius: 24,
   },
   plus: {
@@ -425,6 +427,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxHeight: 110,
     height: undefined,
+    color: PortColors.text.primary,
     minHeight: 50,
     backgroundColor: PortColors.primary.white,
     overflow: 'hidden',

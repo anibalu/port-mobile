@@ -63,7 +63,6 @@ const style = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: 'red',
   },
 });
 export default GroupOnboarding;

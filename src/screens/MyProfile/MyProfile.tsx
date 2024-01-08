@@ -114,6 +114,7 @@ function MyProfile({navigation}: Props): ReactNode {
           style={{
             padding: 13,
             borderRadius: 12,
+            overflow: 'hidden',
             backgroundColor: PortColors.primary.blue.app,
           }}
         />

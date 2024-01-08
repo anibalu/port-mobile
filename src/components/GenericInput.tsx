@@ -53,6 +53,7 @@ const GenericInput = ({
                   fontSize: FontSizeType.m,
                   fontWeight: getWeight(FontType.rg),
                 },
+            showLimit && {height: 96, paddingBottom: 25},
           ],
           inputStyle,
         )}

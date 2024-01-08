@@ -1,6 +1,7 @@
 import messaging from '@react-native-firebase/messaging';
 import pullBacklog from '../pullBacklog';
 import * as API from './APICalls';
+import _ from 'lodash';
 
 export const getFCMToken = async () => {
   const token = await messaging().getToken();
@@ -28,7 +29,8 @@ export const foregroundMessageHandler = () => {
 export async function initialiseFCM(): Promise<boolean> {
   const tokenFCM = await getFCMToken();
   const response = await API.patchFCMToken(tokenFCM);
-  if (response === null) {
+  console.log('Response is: ', response);
+  if (_.isNil(response)) {
     return false;
   }
   return true;

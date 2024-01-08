@@ -219,13 +219,13 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
           styles.bottombar,
           isChat && {
             backgroundColor: PortColors.primary.black,
-            marginBottom: 10,
           },
         )}>
         {isChat ? (
           <GenericInput
             inputStyle={styles.messageInputStyle}
             text={message}
+            size="sm"
             maxLength={'inf'}
             multiline={true}
             setText={setMessage}
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     height: screen.height - 130,
   },
   bottombar: {
-    height: 90,
+    maxHeight: 110,
     width: screen.width,
     backgroundColor: PortColors.primary.white,
     alignItems: 'center',
@@ -297,12 +297,16 @@ const styles = StyleSheet.create({
   },
   messageInputStyle: {
     width: screen.width - 72,
-    height: 60,
+    minHeight: 50,
+    maxHeight: 110,
+    height: undefined,
     backgroundColor: PortColors.primary.white,
+    borderRadius: 24,
+    color: PortColors.text.primary,
     overflow: 'hidden',
     paddingRight: 5,
-    paddingLeft: 30,
-    ...(isIOS && {paddingTop: 20}),
+    paddingLeft: 20,
+    ...(isIOS && {paddingTop: 15}),
     marginRight: 10,
   },
   itemtext: {

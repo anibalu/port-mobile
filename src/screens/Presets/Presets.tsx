@@ -395,6 +395,7 @@ const styles = StyleSheet.create({
   categoryStyle: {
     borderRadius: 8,
     padding: 8,
+    overflow: 'hidden',
   },
   categoryTileActive: {
     backgroundColor: PortColors.primary.blue.app,
@@ -409,6 +410,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 8,
     alignItems: 'center',
+    overflow: 'hidden',
     justifyContent: 'center',
     paddingHorizontal: 12,
   },

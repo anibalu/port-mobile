@@ -22,7 +22,6 @@ import {
   shouldRenderProfileName,
 } from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
-import ImageReplyContainer from '../ReplyContainers/ImageReplyContainer';
 //import store from '@store/appStore';
 
 const imageDimensions = 0.7 * screen.width - 40;
@@ -82,7 +81,39 @@ export default function ImageBubble({
       onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
       {isReply ? (
-        <ImageReplyContainer message={message} memberName={memberName} />
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{flexDirection: 'column'}}>
+            {renderProfileName(
+              shouldRenderProfileName(memberName),
+              memberName,
+              message.sender,
+              isReply,
+            )}
+            <View
+              style={{
+                marginRight: 8,
+              }}>
+              {/* TODO add in text that can was attached to the message */}
+              <NumberlessLinkText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                Image
+              </NumberlessLinkText>
+            </View>
+          </View>
+          {messageURI != undefined ? (
+            <Image
+              source={{uri: messageURI}}
+              style={{
+                height: 60, // Set the maximum height you desire
+                width: 60, // Set the maximum width you desire
+                borderRadius: 16,
+              }}
+            />
+          ) : (
+            <View />
+          )}
+        </View>
       ) : (
         <>
           {renderProfileName(

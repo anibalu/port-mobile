@@ -24,7 +24,6 @@ import {
   shouldRenderProfileName,
 } from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
-import VideoReplyContainer from '../ReplyContainers/VideoReplyContainer';
 //import store from '@store/appStore';
 
 export default function VideoBubble({
@@ -98,7 +97,39 @@ export default function VideoBubble({
       onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
       {isReply ? (
-        <VideoReplyContainer message={message} memberName={memberName} />
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{flexDirection: 'column'}}>
+            {renderProfileName(
+              shouldRenderProfileName(memberName),
+              memberName,
+              message.sender,
+              isReply,
+            )}
+            <View
+              style={{
+                marginRight: 8,
+              }}>
+              {/* TODO add in text that can was attached to the message */}
+              <NumberlessLinkText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                Video
+              </NumberlessLinkText>
+            </View>
+          </View>
+          {thumbnail != undefined ? (
+            <Image
+              source={{uri: thumbnail}}
+              style={{
+                height: 60, // Set the maximum height you desire
+                width: 60, // Set the maximum width you desire
+                borderRadius: 16,
+              }}
+            />
+          ) : (
+            <View />
+          )}
+        </View>
       ) : (
         <>
           {renderProfileName(

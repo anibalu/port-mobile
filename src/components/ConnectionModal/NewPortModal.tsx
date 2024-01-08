@@ -490,7 +490,6 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     alignItems: 'center',
     paddingTop: 12,
-    justifyContent: 'center',
     flexDirection: 'column',
     width: screen.width,
     borderTopRightRadius: 32,

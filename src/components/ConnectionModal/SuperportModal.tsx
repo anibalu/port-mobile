@@ -275,13 +275,12 @@ const styles = StyleSheet.create({
   modalView: {
     backgroundColor: 'white',
     alignItems: 'center',
-    justifyContent: 'center',
     flexDirection: 'column',
     width: screen.width,
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
     paddingHorizontal: 30,
-    paddingTop: 20,
+    paddingTop: 12,
   },
   LoaderScreen: {
     width: '100%',

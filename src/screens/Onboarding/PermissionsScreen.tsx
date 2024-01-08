@@ -10,7 +10,7 @@ import {
 } from '@components/NumberlessText';
 import React, {ReactNode, useEffect} from 'react';
 import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
-
+import notifee from '@notifee/react-native';
 import Call from '@assets/icons/call.svg';
 import Notification from '@assets/icons/notificationBell.svg';
 import {PortColors} from '@components/ComponentUtils';
@@ -115,11 +115,20 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
           </View>
         </View>
         <GenericButton
-          onPress={() =>
+          onPress={async () => {
+            // Needed for iOS
+            await notifee.requestPermission();
+
+            // Needed for Android
+            await notifee.createChannel({
+              id: 'default',
+              name: 'Default Channel',
+            });
+
             navigation.navigate('SetupUser', {
               name: processName(route.params.name),
-            })
-          }
+            });
+          }}
           IconLeft={Next}
           buttonStyle={onboardingStylesheet.nextButtonContainer}
         />

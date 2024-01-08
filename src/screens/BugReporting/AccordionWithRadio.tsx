@@ -80,20 +80,13 @@ const AccordionWithRadio = ({
       )}
 
       <GenericInput
-        wrapperStyle={{
-          height: screen.height / 4,
-          marginBottom: 20,
-          marginTop: 0,
-          paddingHorizontal: 20,
-        }}
         inputStyle={{
-          ...FontSizes[15].regular,
           paddingLeft: 15,
-          paddingTop: 10,
-          textAlignVertical: 'top',
+          paddingVertical: 10,
+          width: screen.width - 72,
           borderRadius: 12,
-          width: '95%',
           alignSelf: 'center',
+          textAlignVertical: 'top',
         }}
         maxLength={350}
         multiline={true}

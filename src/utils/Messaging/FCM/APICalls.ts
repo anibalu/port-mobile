@@ -1,11 +1,12 @@
 import {INITIAL_POST_MANAGEMENT_RESOURCE} from '@configs/api';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+import _ from 'lodash';
 
 export const patchFCMToken = async (tokenFCM: string) => {
   try {
     const token = await getToken();
-    if (token === null) {
+    if (_.isNil(token)) {
       throw new Error('tokenGenerationError');
     } else {
       const response = await axios.patch(

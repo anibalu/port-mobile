@@ -177,11 +177,6 @@ function BottomNavStack() {
               e.preventDefault();
               showModal();
             },
-
-            focus: () => {
-              //When navigated to, autonav to the component.
-              showModal();
-            },
           })}
         />
         <Tab.Screen

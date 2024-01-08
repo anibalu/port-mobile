@@ -40,11 +40,11 @@ export default function ImageBubble({
   memberName: string;
   isReply?: boolean;
 }) {
-  const [messageURI, setMessageURI] = useState<string | undefined>();
+  const [messageURI, setMessageURI] = useState<string | null>();
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   useEffect(() => {
     if ((message.data as LargeDataParams).fileUri) {
-      setMessageURI('file://' + (message.data as LargeDataParams).fileUri);
+      setMessageURI((message.data as LargeDataParams).fileUri);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message, message.data, (message.data as LargeDataParams).fileUri]);
@@ -54,6 +54,7 @@ export default function ImageBubble({
   };
   const handlePressFunction = () => {
     const selectedMessagesSize = handlePress(message.messageId);
+    console.log('Message uri is: ', messageURI);
     if (
       selectedMessagesSize === SelectedMessagesSize.empty &&
       messageURI != undefined

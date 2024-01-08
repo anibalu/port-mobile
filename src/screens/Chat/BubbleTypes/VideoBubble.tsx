@@ -40,7 +40,7 @@ export default function VideoBubble({
   memberName: string;
   isReply?: boolean;
 }): ReactNode {
-  const [videoURI, setVideoURI] = useState<string | undefined>();
+  const [videoURI, setVideoURI] = useState<string | null>();
   const [loading, setLoading] = useState<boolean>(false);
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   const [thumbnail, setThumbnail] = useState<string | undefined>();
@@ -59,7 +59,7 @@ export default function VideoBubble({
           ).path,
         );
 
-        setVideoURI('file://' + (message.data as LargeDataParams).fileUri);
+        setVideoURI((message.data as LargeDataParams).fileUri);
       }
       setLoading(false);
     })();

@@ -153,38 +153,41 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
         console.log('Files are: ', files);
         let isText = false;
 
-        for (const file of files) {
-          const payloadFile: FileAttributes = {
-            fileUri: isIOS ? file.filePath : 'file://' + file.filePath || '',
-            fileType: file.mimeType || '',
-            fileName: file.fileName || '',
-          };
-
-          //Text has been shared
-          if (payloadFile.fileUri === 'file://null') {
-            sharingMessageObjects.push(file.text);
-            isText = true;
-            console.log('File received is: ', sharingMessageObjects);
-          } else {
-            const msg = {
-              contentType: imageRegex.test(file.mimeType)
-                ? ContentType.image
-                : videoRegex.test(file.mimeType)
-                ? ContentType.video
-                : ContentType.file,
-              data: {...payloadFile},
+        if (files) {
+          for (const file of files) {
+            const payloadFile: FileAttributes = {
+              fileUri: isIOS ? file.filePath : 'file://' + file.filePath || '',
+              fileType: file.mimeType || '',
+              fileName: file.fileName || '',
             };
-            sharingMessageObjects.push(msg);
-            console.log('File received is: ', sharingMessageObjects);
+
+            //Text has been shared
+            if (payloadFile.fileUri === 'file://null') {
+              sharingMessageObjects.push(file.text);
+              isText = true;
+              console.log('File received is: ', sharingMessageObjects);
+            } else {
+              const msg = {
+                contentType: imageRegex.test(file.mimeType)
+                  ? ContentType.image
+                  : videoRegex.test(file.mimeType)
+                  ? ContentType.video
+                  : ContentType.file,
+                data: {...payloadFile},
+              };
+              sharingMessageObjects.push(msg);
+              console.log('File received is: ', sharingMessageObjects);
+            }
           }
+
+          navigation.navigate('SelectShareContacts', {
+            shareMessages: sharingMessageObjects,
+            isText,
+          });
         }
-        navigation.navigate('SelectShareContacts', {
-          shareMessages: sharingMessageObjects,
-          isText,
-        });
       },
       error => {
-        console.log(error);
+        console.log('Error sharing into RN:', error);
       },
       'PortShare', // share url protocol (must be unique to your app, suggest using your apple bundle id)
     );

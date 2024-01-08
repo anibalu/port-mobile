@@ -118,7 +118,6 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
           onPress={async () => {
             // Needed for iOS
             await notifee.requestPermission();
-
             // Needed for Android
             await notifee.createChannel({
               id: 'default',

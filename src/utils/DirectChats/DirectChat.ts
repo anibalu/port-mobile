@@ -49,10 +49,11 @@ class DirectChat {
     lineId: string | null = null,
     isSuperport: boolean = false,
     permissionPresetId: string | null = null,
+    channel: string | null = null,
   ) {
     const newUpdate = isSuperport
-      ? {...update, connectedUsing: 'superport://' + update.name}
-      : update;
+      ? {...update, connectedUsing: 'superport://' + linkId}
+      : {...update, connectedUsing: channel};
     if (lineId) {
       const newChatId = lineId;
       await storage.newLine(newChatId);
@@ -132,7 +133,7 @@ class DirectChat {
     await this.updateChatData({authenticated: true});
     await toggleConnectionAuthenticated(this.chatId);
   }
-  public async didConnectUsingSuperport() {
+  public async didConnectUsingSuperport(): Promise<string | null> {
     await this.loadChatData();
     this.chatId = this.checkChatIdNotNull();
     this.chatData = this.checkChatDataNotNull();
@@ -140,9 +141,27 @@ class DirectChat {
       this.chatData.connectedUsing &&
       this.chatData.connectedUsing.substring(0, 12) === 'superport://'
     ) {
-      return true;
+      const fromSuperport = this.chatData.connectedUsing.substring(12, 12 + 32);
+      if (fromSuperport.length === 32) {
+        return fromSuperport;
+      }
     }
-    return false;
+    return null;
+  }
+  public async didConnectUsingContactSharing(): Promise<string | null> {
+    await this.loadChatData();
+    this.chatId = this.checkChatIdNotNull();
+    this.chatData = this.checkChatDataNotNull();
+    if (
+      this.chatData.connectedUsing &&
+      this.chatData.connectedUsing.substring(0, 9) === 'shared://'
+    ) {
+      const fromChatId = this.chatData.connectedUsing.substring(9, 9 + 32);
+      if (fromChatId.length === 32) {
+        return fromChatId;
+      }
+    }
+    return null;
   }
   public async disconnect() {
     this.chatId = this.checkChatIdNotNull();

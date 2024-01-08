@@ -139,6 +139,18 @@ export async function acceptPortBundle(
     cryptoId: cryptoId,
     permissionPresetId: presetId,
   });
+  if (channel) {
+    if (channel.substring(0, 9) === 'shared://') {
+      const fromChatId = channel.substring(9, 9 + 32);
+      const messsageId = channel.substring(9 + 32 + 3, 9 + 32 + 3 + 32);
+      const message = await getMessage(fromChatId, messsageId);
+      if (message) {
+        const update = message.data as ContactBundleParams;
+        update.accepeted = true;
+        await updateMessage(fromChatId, messsageId, update);
+      }
+    }
+  }
 }
 
 export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
@@ -205,6 +217,7 @@ export async function newChatOverGeneratedPortBundle(
     await cryptoDriver.deleteCryptoData();
     return;
   }
+  const channel = generatedPort.channel;
   //create direct chat
   await chat.createChat(
     {
@@ -218,6 +231,7 @@ export async function newChatOverGeneratedPortBundle(
     chatId,
     false,
     generatedPort.permissionPresetId ? generatedPort.permissionPresetId : null,
+    channel,
   );
   await storageMyPorts.deletePortData(generatedPort.portId);
   const sender = new SendMessage(chatId, ContentType.handshakeA1, {

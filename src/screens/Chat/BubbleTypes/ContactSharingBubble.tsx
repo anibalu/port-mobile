@@ -11,10 +11,11 @@ import {GenericButton} from '@components/GenericButton';
 // import {useConnectionModal} from 'src/context/ConnectionModalContext';
 // import {useErrorModal} from 'src/context/ErrorModalContext';
 import {PortBundle} from '@utils/Ports/interfaces';
-import {getReadPort, readBundle} from '@utils/Ports';
-import {updateMessage} from '@utils/Storage/messages';
+import {getReadPort} from '@utils/Ports';
 import {useNavigation} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
+import {useConnectionModal} from 'src/context/ConnectionModalContext';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 enum ButtonState {
   undecided,
@@ -30,13 +31,13 @@ export default function ContactSharingBubble({
   message: SavedMessageParams;
 }) {
   const navigation = useNavigation<any>();
-  // const {
-  //   setFemaleModal,
-  //   setConnectionQRData,
-  //   showConnectionModal,
-  //   setConnectionChannel,
-  // } = useConnectionModal();
-  // const {portConnectionError} = useErrorModal();
+  const {
+    setFemaleModal,
+    setConnectionQRData,
+    showConnectionModal,
+    setConnectionChannel,
+  } = useConnectionModal();
+  const {portConnectionError} = useErrorModal();
   const [buttonType, setButtonType] = useState<ButtonState>(
     ButtonState.undecided,
   );
@@ -46,27 +47,24 @@ export default function ContactSharingBubble({
     if (goToChatId) {
       const chat = new DirectChat(goToChatId);
       const chatData = await chat.getChatData();
-      navigation.push('DirectChat', {
-        chatId: goToChatId,
-        isGroupChat: false,
-        isConnected: !chatData.disconnected,
-      });
+      if (chatData.authenticated) {
+        navigation.push('DirectChat', {
+          chatId: goToChatId,
+          isGroupChat: false,
+          isConnected: !chatData.disconnected,
+        });
+      }
     } else {
       const bundle: PortBundle = message.data as ContactBundleParams;
       const channel = 'shared://' + message.chatId + '://' + message.messageId;
-      await readBundle(bundle, channel);
-      setAccepted(true);
-      const update: ContactBundleParams = message.data as ContactBundleParams;
-      update.accepeted = true;
-      await updateMessage(message.chatId, message.messageId, update);
-      // if (bundle) {
-      //   setConnectionQRData(bundle);
-      //   setFemaleModal(true);
-      //   setConnectionChannel("shared://"+message.chatId+"://"+message.messageId)
-      //   showConnectionModal();
-      // } else {
-      //   portConnectionError();
-      // }
+      if (bundle) {
+        setConnectionQRData(bundle);
+        setFemaleModal(true);
+        setConnectionChannel(channel);
+        showConnectionModal();
+      } else {
+        portConnectionError();
+      }
     }
   };
   const setButtonState = async () => {
@@ -76,7 +74,13 @@ export default function ContactSharingBubble({
         return;
       }
       if (goToChatId) {
-        setButtonType(ButtonState.message);
+        const chat = new DirectChat(goToChatId);
+        const chatData = await chat.getChatData();
+        if (chatData.authenticated) {
+          setButtonType(ButtonState.message);
+        } else {
+          setButtonType(ButtonState.connecting);
+        }
         return;
       }
       const getBundle = await getReadPort(

@@ -35,6 +35,7 @@ export enum PossibleDirectReceiveActions {
   handshakeResponseB2,
   InitialInfoResponse,
   contactBundleRequest,
+  ReceiveContactBundle,
 }
 
 export async function directReceiveActionPicker(

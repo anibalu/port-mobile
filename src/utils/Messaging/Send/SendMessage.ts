@@ -13,6 +13,7 @@ import {moveToLargeFileDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers'
 import * as storage from '@utils/Storage/messages';
 import {checkMediaIdAndKeyValidity, generateISOTimeStamp} from '@utils/Time';
 import {
+  ContactBundleParams,
   ContentType,
   DataType,
   LargeDataMessageContentTypes,
@@ -303,6 +304,14 @@ class SendMessage<T extends ContentType> {
         await updateConnectionOnNewMessage({
           chatId: this.chatId,
           text: 'sent file: ' + (this.data as LargeDataParams).text || '',
+          readStatus: readStatus,
+          recentMessageType: this.contentType,
+        });
+        break;
+      case ContentType.contactBundle:
+        await updateConnectionOnNewMessage({
+          chatId: this.chatId,
+          text: 'shared contact of ' + (this.data as ContactBundleParams).name,
           readStatus: readStatus,
           recentMessageType: this.contentType,
         });

@@ -36,12 +36,25 @@ export enum ContentType {
   contactBundleResponse,
   initialInfoRequest,
   contactBundleDenialResponse,
+  deleted,
 }
 export const LargeDataMessageContentTypes = [
   ContentType.image,
   ContentType.video,
   ContentType.file,
   ContentType.displayImage,
+];
+export const DisappearMessageExemptContentTypes = [
+  ContentType.newChat,
+  ContentType.displayAvatar,
+  ContentType.handshakeA1,
+  ContentType.handshakeB2,
+  ContentType.info,
+  ContentType.contactBundle,
+  ContentType.contactBundleRequest,
+  ContentType.contactBundleResponse,
+  ContentType.initialInfoRequest,
+  ContentType.contactBundleDenialResponse,
 ];
 /**
  * Data interfaces corresponding to various content types.
@@ -166,6 +179,7 @@ export interface SavedMessageParams {
   messageStatus?: MessageStatus | null; //not null for sent messages
   replyId?: string | null; //not null if message is a reply message
   memberId?: string | null; //not null for received group messages
+  expiresOn?: string | null; //when should the message expire.
 }
 /**
  * Interface describing the payload being encrypted and sent/received
@@ -175,6 +189,7 @@ export interface PayloadMessageParams {
   contentType: ContentType;
   data: DataType;
   replyId?: string | null;
+  expiresOn?: string | null; //when should the message expire.
 }
 
 export interface DownloadParams {

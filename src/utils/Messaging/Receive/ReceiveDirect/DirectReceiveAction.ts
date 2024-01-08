@@ -40,6 +40,7 @@ class DirectReceiveAction {
       sender: false,
       messageStatus: MessageStatus.delivered,
       replyId: this.decryptedMessageContent.replyId,
+      expiresOn: this.decryptedMessageContent.expiresOn,
     };
     await storage.saveMessage(savedMessage);
   }

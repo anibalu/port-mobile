@@ -1,5 +1,12 @@
-import {MessageStatus, SavedMessageParams} from '../Messaging/interfaces';
+import {generateISOTimeStamp} from '@utils/Time';
+import {
+  LargeDataMessageContentTypes,
+  LargeDataParams,
+  MessageStatus,
+  SavedMessageParams,
+} from '../Messaging/interfaces';
 import * as DBCalls from './DBCalls/lineMessage';
+import {deleteMediaOrFile} from './StorageRNFS/sharedFileHandlers';
 
 /**
  * saves message to storage.
@@ -112,4 +119,55 @@ export async function getLatestMessages(
 
 export async function getJournaled(): Promise<SavedMessageParams[]> {
   return await DBCalls.getUnsent();
+}
+
+/**
+ * Get a list of all saved messages that have expired
+ * @param currentTimestamp The current time in ISOString format
+ * @returns a list of all expired messages
+ */
+export async function getExpiredMessages(
+  currentTimestamp: string,
+): Promise<SavedMessageParams[]> {
+  return await DBCalls.getExpiredMessages(currentTimestamp);
+}
+
+/**
+ * Delete a message permanently.
+ * Not intended for use with deleting a regular message.
+ * Intended for use with disappearing messages.
+ * @param chatId 32 char id
+ * @param messageId 32 char id
+ */
+export async function permanentlyDeleteMessage(
+  chatId: string,
+  messageId: string,
+) {
+  await DBCalls.permanentlyDeleteMessage(chatId, messageId);
+}
+
+export async function cleanDeleteMessage(chatId: string, messageId: string) {
+  const message = await getMessage(chatId, messageId);
+  if (message) {
+    const contentType = message.contentType;
+    if (LargeDataMessageContentTypes.includes(contentType)) {
+      const data = message.data as LargeDataParams;
+      const fileUri = data.fileUri;
+      if (fileUri) {
+        await deleteMediaOrFile(fileUri);
+      }
+    }
+    await permanentlyDeleteMessage(chatId, messageId);
+  }
+}
+
+export async function deleteExpiredMessages() {
+  const currentTimestamp = generateISOTimeStamp();
+  const expiredMessages = await getExpiredMessages(currentTimestamp);
+  for (let index = 0; index < expiredMessages.length; index++) {
+    await cleanDeleteMessage(
+      expiredMessages[index].chatId,
+      expiredMessages[index].messageId,
+    );
+  }
 }

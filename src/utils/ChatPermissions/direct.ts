@@ -2,7 +2,8 @@ import {defaultMasterDirectChatPermissions} from '@utils/ChatPermissionPresets';
 import {
   DirectPermissions,
   Permissions,
-  keysOfDirectPermissions,
+  booleanKeysOfDirectPermissions,
+  numberKeysOfDirectPermissions,
 } from './interfaces';
 import * as storage from '@utils/Storage/permissions';
 
@@ -11,6 +12,7 @@ const defaultDirectChatPermissions: DirectPermissions = {
   autoDownload: defaultMasterDirectChatPermissions.autoDownload,
   displayPicture: defaultMasterDirectChatPermissions.displayPicture,
   contactSharing: defaultMasterDirectChatPermissions.contactSharing,
+  disappearingMessages: defaultMasterDirectChatPermissions.disappearingMessages,
 };
 export function getDefaultPermissions(): DirectPermissions {
   return {...defaultDirectChatPermissions};
@@ -18,8 +20,13 @@ export function getDefaultPermissions(): DirectPermissions {
 
 function directPermissionsMask(permissions: Permissions): DirectPermissions {
   const directPermissions: DirectPermissions = getDefaultPermissions();
-  keysOfDirectPermissions.forEach(key => {
+  booleanKeysOfDirectPermissions.forEach(key => {
     directPermissions[key] = permissions[key] ? true : false;
+  });
+  numberKeysOfDirectPermissions.forEach(key => {
+    if (permissions[key]) {
+      directPermissions[key] = permissions[key] as number;
+    }
   });
   return directPermissions;
 }

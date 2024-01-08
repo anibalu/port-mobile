@@ -198,3 +198,11 @@ export async function fetchFilesInFileDir(chatId: string) {
   const files = await RNFS.readDir(pathToFileDir);
   return files;
 }
+
+export async function deleteMediaOrFile(fileUri: string) {
+  try {
+    await RNFS.unlink(fileUri);
+  } catch (error) {
+    console.log('error deleting file: ', fileUri);
+  }
+}

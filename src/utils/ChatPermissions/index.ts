@@ -10,6 +10,11 @@ import * as direct from './direct';
 import {ChatType} from '@utils/Connections/interfaces';
 import * as storage from '@utils/Storage/permissions';
 import {getPermissionPresetPermissions} from '@utils/ChatPermissionPresets';
+import {
+  disappearDuration,
+  disappearOptions,
+  disappearOptionsTypes,
+} from '@utils/Time/interfaces';
 
 export function getDefaultPermissions<T extends ChatType>(
   chatType: T,
@@ -70,4 +75,21 @@ export async function updateChatPermissions(
   update: Permissions,
 ) {
   await storage.updatePermissions(chatId, update);
+}
+
+export function getLabelByTimeDiff(
+  duration?: number | null,
+): disappearOptionsTypes {
+  if (!duration) {
+    return 'Off';
+  }
+  for (let index = 0; index < disappearOptions.length; index++) {
+    const label = disappearOptions[index];
+    const diff: number = disappearDuration[label];
+    if (diff === duration) {
+      return label as disappearOptionsTypes;
+    }
+  }
+
+  return 'Off'; // If no matching label is found
 }

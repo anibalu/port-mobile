@@ -1,7 +1,6 @@
 import {PortColors} from '@components/ComponentUtils';
 import {SafeAreaView} from '@components/SafeAreaView';
 import React, {useEffect, useState} from 'react';
-import ToggleSwitch from 'toggle-switch-react-native';
 
 import Delete from '@assets/icons/deleteRed.svg';
 import {GenericButton} from '@components/GenericButton';
@@ -12,17 +11,8 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {MAX_PERMISSION_PRESETS} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
-import {StyleSheet, View} from 'react-native';
-import AddNew from './AddNew';
-import DeleteModal from './DeleteModal';
-import {PermissionPreset} from '@utils/ChatPermissionPresets/interfaces';
-import {
-  keysOfDirectPermissions,
-  keysOfGroupPermissions,
-  keysOfPermissions,
-  masterPermissionsName,
-} from '@utils/ChatPermissions/interfaces';
 import {
   addNewPermissionPreset,
   deletePermissionPreset,
@@ -33,9 +23,21 @@ import {
   getPermissionPreset,
   updatePermissionPreset,
 } from '@utils/ChatPermissionPresets';
-import {deepEqual} from './deepEqual';
-import {MAX_PERMISSION_PRESETS} from '@configs/constants';
+import {PermissionPreset} from '@utils/ChatPermissionPresets/interfaces';
+import {getLabelByTimeDiff} from '@utils/ChatPermissions';
+import {
+  booleanKeysOfDirectPermissions,
+  booleanKeysOfGroupPermissions,
+  booleanKeysOfPermissions,
+  numberKeysOfPermissions,
+} from '@utils/ChatPermissions/interfaces';
 import {processName} from '@utils/Profile';
+import {StyleSheet, View} from 'react-native';
+import AddNew from './AddNew';
+import DeleteModal from './DeleteModal';
+import DisappearingMessage from './DisappearingMessage';
+import Permissions from './Permissions';
+import {deepEqual} from './deepEqual';
 
 const Presets = () => {
   const navigation = useNavigation();
@@ -95,9 +97,9 @@ const Presets = () => {
   };
 
   // list of filters
-  // const {addNewPreset, availablePresets, filters} = useAvailablePresets();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isDisappearClicked, setIsDisappearClicked] = useState(false);
 
   // if edit(long press) is pressed
   const [isEdit, setIsEdit] = useState(false);
@@ -132,13 +134,16 @@ const Presets = () => {
   // util for mapping over particular filters
   const mappingObject = () => {
     if (selectedFilter === 'All') {
-      return keysOfPermissions;
+      return [...booleanKeysOfPermissions, ...numberKeysOfPermissions];
     } else if (selectedFilter === 'Direct Chats') {
-      return keysOfDirectPermissions;
+      return [...booleanKeysOfDirectPermissions, ...numberKeysOfPermissions];
     } else if (selectedFilter === 'Groups') {
-      return keysOfGroupPermissions;
+      return [...booleanKeysOfGroupPermissions, ...numberKeysOfPermissions];
     }
   };
+
+  const duration = modifiedPreset?.disappearingMessages;
+  const timelabel = getLabelByTimeDiff(duration);
 
   // util for rendering the toggle settings for the particular category
   // and subcategory
@@ -148,34 +153,15 @@ const Presets = () => {
     }
 
     const masterKeys = mappingObject();
-    return masterKeys?.map(key => {
-      return (
-        <View style={styles.permissiontile} key={key}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
-            style={styles.textStyle}>
-            {masterPermissionsName[key]}
-          </NumberlessText>
-          <ToggleSwitch
-            isOn={preset[key]}
-            onColor={PortColors.text.title}
-            offColor={'#B7B6B6'}
-            onToggle={() => {
-              setModifiedPreset((p: PermissionPreset | null) => {
-                if (!p) {
-                  return null;
-                }
-                return {
-                  ...p,
-                  [key]: !p[key],
-                };
-              });
-            }}
-          />
-        </View>
-      );
-    });
+    return (
+      <Permissions
+        masterKeys={masterKeys}
+        setIsDisappearClicked={setIsDisappearClicked}
+        timelabel={timelabel}
+        preset={preset}
+        setModifiedPreset={setModifiedPreset}
+      />
+    );
   };
 
   return (
@@ -337,9 +323,21 @@ const Presets = () => {
           setIsDeleteModalVisible={setIsDeleteModalVisible}
         />
       </GenericModal>
+      <GenericModal
+        visible={isDisappearClicked}
+        onClose={() => {
+          setIsDisappearClicked(p => !p);
+        }}>
+        <DisappearingMessage
+          setModifiedPreset={setModifiedPreset}
+          selected={timelabel}
+          setIsDisappearClicked={setIsDisappearClicked}
+        />
+      </GenericModal>
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: PortColors.primary.white,

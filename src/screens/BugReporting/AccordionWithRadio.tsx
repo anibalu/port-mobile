@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const RadioButton = ({selected}) => (
+export const RadioButton = ({selected}) => (
   <View
     style={{
       width: 20,

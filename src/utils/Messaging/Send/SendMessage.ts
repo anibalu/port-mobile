@@ -5,17 +5,22 @@
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import store from '@store/appStore';
 import {isGroupChat, updateConnectionOnNewMessage} from '@utils/Connections';
-import {ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {moveToLargeFileDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import * as storage from '@utils/Storage/messages';
-import {checkMediaIdAndKeyValidity, generateISOTimeStamp} from '@utils/Time';
+import {
+  checkMediaIdAndKeyValidity,
+  generateExpiresOnISOTimestamp,
+  generateISOTimeStamp,
+} from '@utils/Time';
 import {
   ContactBundleParams,
   ContentType,
   DataType,
+  DisappearMessageExemptContentTypes,
   LargeDataMessageContentTypes,
   LargeDataParams,
   LargeDataParamsStrict,
@@ -27,6 +32,7 @@ import {
 } from '../interfaces';
 import {uploadLargeFile} from '../LargeData/largeData';
 import * as API from './APICalls';
+import {getChatPermissions} from '@utils/ChatPermissions';
 
 class SendMessage<T extends ContentType> {
   private chatId: string; //chatId of chat
@@ -37,6 +43,7 @@ class SendMessage<T extends ContentType> {
   private savedMessage: SavedMessageParams; //message to be saved to storage
   private payload: PayloadMessageParams; //message to be encrypted and sent.
   private isGroup: boolean; //whether chat is group or not.
+  private expiresOn: string | null;
   //construct the class.
   constructor(
     chatId: string,
@@ -60,14 +67,17 @@ class SendMessage<T extends ContentType> {
       memberId: null,
       messageStatus: MessageStatus.unassigned,
       replyId: this.replyId,
+      expiresOn: null,
     };
     this.payload = {
       messageId: this.messageId,
       contentType: this.contentType,
       data: this.data,
       replyId: this.replyId,
+      expiresOn: null,
     };
     this.isGroup = false;
+    this.expiresOn = null;
   }
 
   //only public function. Handles lifecycle of send operation.
@@ -75,6 +85,8 @@ class SendMessage<T extends ContentType> {
     try {
       //check if group
       this.isGroup = await isGroupChat(this.chatId);
+      //get expires on timestamp
+      await this.getExpiresOnTimestamp();
       //load up saved message in storage if it exists
       await this.loadSavedMessage();
       //perform rudimentary checks before progressing further
@@ -153,6 +165,21 @@ class SendMessage<T extends ContentType> {
   //check if message is a large file message
   private isLargeDataMessage() {
     return LargeDataMessageContentTypes.includes(this.contentType);
+  }
+  private isExpiryExemptMessage() {
+    return DisappearMessageExemptContentTypes.includes(this.contentType);
+  }
+
+  private async getExpiresOnTimestamp() {
+    if (!this.isExpiryExemptMessage()) {
+      const chatType = this.isGroup ? ChatType.group : ChatType.direct;
+      const chatPermissions = await getChatPermissions(this.chatId, chatType);
+      this.expiresOn = generateExpiresOnISOTimestamp(
+        chatPermissions.disappearingMessages,
+      );
+      this.savedMessage.expiresOn = this.expiresOn;
+      this.payload.expiresOn = this.expiresOn;
+    }
   }
 
   private async preProcessMessage(journal: boolean) {

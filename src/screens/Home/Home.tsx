@@ -25,6 +25,7 @@ import {FlatList, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import DefaultChatTile from './DefaultChatTile';
 import HomeTopbar from './HomeTopbar';
+import {deleteExpiredMessages} from '@utils/Storage/messages';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: StoreConnection): ReactElement {
@@ -64,6 +65,8 @@ function Home(): ReactNode {
 
         // eslint-disable-next-line react-hooks/rules-of-hooks
         await useReadBundles();
+
+        await deleteExpiredMessages();
       })();
       // Cancel all notifications when I land on the home screen
       cancelAllNotifications();

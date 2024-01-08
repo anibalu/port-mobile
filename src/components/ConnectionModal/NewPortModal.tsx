@@ -65,7 +65,7 @@ const NewPortModal: React.FC = () => {
       setSelectedPreset(await getDefaultPermissionPreset());
       setAvailablePresets(await getAllPermissionPresets());
     })();
-  }, []);
+  }, [modalVisible]);
 
   const latestNewConnection = useSelector(state => state.latestNewConnection);
 

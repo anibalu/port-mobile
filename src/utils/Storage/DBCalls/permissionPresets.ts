@@ -3,7 +3,7 @@ import {
   PermissionPresetUpdate,
 } from '@utils/ChatPermissionPresets/interfaces';
 import {runSimpleQuery} from './dbCommon';
-import {keysOfPermissions} from '@utils/ChatPermissions/interfaces';
+import {booleanKeysOfPermissions} from '@utils/ChatPermissions/interfaces';
 
 function toBoolOrNull(a: number | null): boolean | null {
   if (a) {
@@ -30,8 +30,9 @@ export async function addNewPreset(preset: PermissionPreset) {
       notifications,
       autoDownload,
       displayPicture,
-      contactSharing
-    ) VALUES (?,?,?,?,?,?,?);
+      contactSharing,
+      disappearingMessages
+    ) VALUES (?,?,?,?,?,?,?,?);
     `,
     [
       preset.presetId,
@@ -41,6 +42,7 @@ export async function addNewPreset(preset: PermissionPreset) {
       preset.autoDownload,
       preset.displayPicture,
       preset.contactSharing,
+      preset.disappearingMessages,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
@@ -64,7 +66,8 @@ export async function editPreset(
     notifications = COALESCE(?, notifications),
     autoDownload = COALESCE(?, autoDownload),
     displayPicture = COALESCE(?, displayPicture),
-    contactSharing = COALESCE(?, contactSharing)
+    contactSharing = COALESCE(?, contactSharing),
+    disappearingMessages = COALESCE(?, disappearingMessages)
     WHERE presetId = ? ;
     `,
     [
@@ -73,6 +76,7 @@ export async function editPreset(
       updated.autoDownload,
       updated.displayPicture,
       updated.contactSharing,
+      updated.disappearingMessages,
       presetId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -95,7 +99,7 @@ export async function getPermissionPresets(): Promise<Array<PermissionPreset>> {
     (tx, results) => {
       for (let i = 0; i < results.rows.length; i++) {
         const obj = results.rows.item(i);
-        keysOfPermissions.forEach(key => {
+        booleanKeysOfPermissions.forEach(key => {
           obj[key] = toBoolOrNull(obj[key]);
         });
         obj.isDefault = toBoolOrNull(obj.isDefault);
@@ -122,7 +126,7 @@ export async function getDefaultPreset(): Promise<PermissionPreset | null> {
     (tx, results) => {
       if (results.rows.length > 0) {
         const obj = results.rows.item(0);
-        keysOfPermissions.forEach(key => {
+        booleanKeysOfPermissions.forEach(key => {
           obj[key] = toBoolOrNull(obj[key]);
         });
         obj.isDefault = toBoolOrNull(obj.isDefault);
@@ -152,7 +156,7 @@ export async function getPermissionPreset(
     (tx, results) => {
       if (results.rows.length > 0) {
         const obj = results.rows.item(0);
-        keysOfPermissions.forEach(key => {
+        booleanKeysOfPermissions.forEach(key => {
           obj[key] = toBoolOrNull(obj[key]);
         });
         obj.isDefault = toBoolOrNull(obj.isDefault);

@@ -17,11 +17,20 @@ import TextBubble from './TextBubble';
 import VideoBubble from './VideoBubble';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {DEFAULT_NAME} from '@configs/constants';
+import DeletedReplyContainer from '../ReplyContainers/DeletedReplyContainer';
 
 /**
  * We get the message that needs to be shown, and the person who sent the message is the memberName.
  * We need to get the message that is being replied to from INSIDE the message object. If it is not group, then we just need 'You' or member name
  */
+const DEFAULT_DELETED_MESSAGE: SavedMessageParams = {
+  chatId: '000000000000000000000000000001',
+  messageId: '000000000000000000000000000001',
+  contentType: ContentType.deleted,
+  data: {text: 'Message no longer exists'},
+  timestamp: '0',
+  sender: true,
+};
 
 const ReplyBubble = ({
   message,
@@ -44,7 +53,9 @@ const ReplyBubble = ({
   const getReply = async () => {
     try {
       //If a reply bubble is being rendered, it implies the existence of the replyId, which in turn implies the existence of a message
-      const messageData = await getMessage(message.chatId, message.replyId!);
+      const messageData =
+        (await getMessage(message.chatId, message.replyId!)) ||
+        DEFAULT_DELETED_MESSAGE;
       setReplyMessage(messageData);
       if (isGroup && messageData?.memberId) {
         const name = (
@@ -58,6 +69,7 @@ const ReplyBubble = ({
       //If the chat is a DM, then name is already present in replyMember
     } catch (error) {
       //If there is no reply, it means that the message has been deleted.
+
       console.error('Error getting reply:', error);
     }
   };
@@ -75,6 +87,9 @@ const ReplyBubble = ({
         : ''
       : memberName;
     switch (replyMessage.contentType) {
+      case ContentType.deleted: {
+        return <DeletedReplyContainer />;
+      }
       case ContentType.text: {
         return (
           <TextBubble

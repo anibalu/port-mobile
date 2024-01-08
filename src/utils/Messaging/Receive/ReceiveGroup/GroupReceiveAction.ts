@@ -63,6 +63,7 @@ class GroupReceiveAction {
         memberId: this.senderId,
         messageStatus: MessageStatus.delivered,
         replyId: this.decryptedMessageContent.replyId,
+        expiresOn: this.decryptedMessageContent.expiresOn,
       };
       await storage.saveMessage(savedMessage);
     }

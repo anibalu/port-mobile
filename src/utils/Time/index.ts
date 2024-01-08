@@ -288,3 +288,14 @@ export function checkTimeout(
     return false;
   }
 }
+
+export function generateExpiresOnISOTimestamp(
+  timeDiffMilliseconds: number | null,
+): string | null {
+  if (timeDiffMilliseconds === 0 || timeDiffMilliseconds === null) {
+    return null; //no expiry
+  }
+  const currentTime = Date.now(); // Current time in milliseconds
+  const expiresTime = new Date(currentTime + timeDiffMilliseconds); // Expiration time as a Date object
+  return expiresTime.toISOString(); // Convert to ISO string
+}

@@ -1,7 +1,8 @@
 import {runSimpleQuery} from './dbCommon';
 import {
   Permissions,
-  keysOfPermissions,
+  booleanKeysOfPermissions,
+  numberKeysOfPermissions,
 } from '@utils/ChatPermissions/interfaces';
 
 /**
@@ -44,7 +45,7 @@ export async function getPermissions(chatId: string): Promise<Permissions> {
   let match: Permissions = {};
   await runSimpleQuery(
     `
-    SELECT notifications, autoDownload, displayPicture, contactSharing
+    SELECT notifications, autoDownload, displayPicture, contactSharing, disappearingMessages
     FROM permissions
     WHERE chatId = ? ;
     `,
@@ -52,8 +53,11 @@ export async function getPermissions(chatId: string): Promise<Permissions> {
     (tx, results) => {
       if (results.rows.length > 0) {
         const obj = results.rows.item(0);
-        keysOfPermissions.forEach(key => {
+        booleanKeysOfPermissions.forEach(key => {
           match[key] = toBoolOrNull(obj[key]);
+        });
+        numberKeysOfPermissions.forEach(key => {
+          match[key] = obj[key];
         });
       }
     },
@@ -74,7 +78,8 @@ export async function updatePermissions(chatId: string, update: Permissions) {
     notifications = COALESCE(?, notifications),
     autoDownload = COALESCE(?, autoDownload),
     displayPicture = COALESCE(?, displayPicture),
-    contactSharing = COALESCE(?, contactSharing)
+    contactSharing = COALESCE(?, contactSharing),
+    disappearingMessages = COALESCE(?, disappearingMessages)
     WHERE chatId = ? ;
     `,
     [
@@ -82,6 +87,7 @@ export async function updatePermissions(chatId: string, update: Permissions) {
       update.autoDownload,
       update.displayPicture,
       update.contactSharing,
+      update.disappearingMessages,
       chatId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

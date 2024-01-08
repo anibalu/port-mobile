@@ -24,8 +24,9 @@ export async function addMessage(message: SavedMessageParams) {
       sender,
       memberId,
       timestamp,
-      messageStatus
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+      messageStatus,
+      expiresOn
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
     `,
     [
       message.messageId,
@@ -37,6 +38,7 @@ export async function addMessage(message: SavedMessageParams) {
       message.memberId,
       message.timestamp,
       message.messageStatus,
+      message.expiresOn,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
@@ -52,8 +54,7 @@ export async function updateMessage(
     `
     UPDATE lineMessages
     SET data = ?
-    WHERE chatId = ? AND messageId = ?
-    ;
+    WHERE chatId = ? AND messageId = ? ;
     `,
     [JSON.stringify(data), chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -109,8 +110,7 @@ export async function updateStatus(
     `
     UPDATE lineMessages
     SET messageStatus = ?
-    WHERE chatId = ? AND messageId = ?
-    ;
+    WHERE chatId = ? AND messageId = ? ;
     `,
     [messageStatus, chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -142,8 +142,7 @@ export async function updateStatusAndTimestamp(
     messageStatus = ?,
     deliveredTimestamp = COALESCE(?, deliveredTimestamp),
     readTimestamp = COALESCE(?, readTimestamp),
-    WHERE chatId = ? AND messageId = ?
-    ;
+    WHERE chatId = ? AND messageId = ? ;
     `,
     [messageStatus, deliveredTimestamp, readTimestamp, chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -166,7 +165,7 @@ export async function getLatestMessages(
     `
     SELECT * FROM lineMessages
     WHERE chatId = ? AND timestamp > ?
-    ORDER BY timestamp ASC;
+    ORDER BY timestamp ASC ;
     `,
     [chatId, latestTimestamp],
     (tx, results) => {
@@ -194,7 +193,7 @@ async function getMessageIterator(chatId: string) {
     `
     SELECT * FROM lineMessages
     WHERE chatId = ? 
-    ORDER BY timestamp ASC;
+    ORDER BY timestamp ASC ;
     `,
     [chatId],
     (tx, results) => {
@@ -258,8 +257,7 @@ export async function setSent(chatId: string, messageId: string) {
     `
     UPDATE lineMessages
     SET messageStatus = ?
-    WHERE chatId = ? AND messageId = ?
-    ;
+    WHERE chatId = ? AND messageId = ? ;
     `,
     [MessageStatus.sent, chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -275,8 +273,7 @@ export async function getUnsent(): Promise<SavedMessageParams[]> {
   await runSimpleQuery(
     `
     SELECT * FROM lineMessages 
-    WHERE messageStatus = ?
-    ;
+    WHERE messageStatus = ? ;
     `,
     [MessageStatus.journaled],
     (tx, results) => {
@@ -291,4 +288,55 @@ export async function getUnsent(): Promise<SavedMessageParams[]> {
     },
   );
   return unsent;
+}
+
+/**
+ * Get a list of all saved messages that have expired
+ * @param currentTimestamp The current time in ISOString format
+ * @returns a list of all expired messages
+ */
+export async function getExpiredMessages(
+  currentTimestamp: string,
+): Promise<SavedMessageParams[]> {
+  let expired: SavedMessageParams[] = [];
+  await runSimpleQuery(
+    `
+    SELECT * FROM lineMessages 
+    WHERE expiresOn < ? ;
+    `,
+    [currentTimestamp],
+    (tx, results) => {
+      const len = results.rows.length;
+      let entry;
+      for (let i = 0; i < len; i++) {
+        entry = results.rows.item(i);
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+        expired.push(entry);
+      }
+    },
+  );
+  return expired;
+}
+
+/**
+ * Delete a message permanently.
+ * Not intended for use with deleting a regular message.
+ * Intended for use with disappearing messages.
+ * @param chatId 32 char id
+ * @param messageId 32 char id
+ */
+export async function permanentlyDeleteMessage(
+  chatId: string,
+  messageId: string,
+) {
+  await runSimpleQuery(
+    `
+    DELETE FROM lineMessages 
+    WHERE chatId = ? AND messageId = ? ;
+    `,
+    [chatId, messageId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
 }

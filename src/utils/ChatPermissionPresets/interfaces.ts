@@ -12,4 +12,5 @@ export interface PermissionPresetUpdate {
   autoDownload?: boolean;
   displayPicture?: boolean;
   contactSharing?: boolean;
+  disappearingMessages?: number;
 }

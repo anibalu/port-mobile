@@ -1,24 +1,32 @@
-import React, {useEffect, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import SingleUp from '@assets/icons/BlueSingleUp.svg';
+import SingleDown from '@assets/icons/single-down.svg';
 import PermissionIconActive from '@assets/permissions/permissions-active.svg';
 import PermissionIconInactive from '@assets/permissions/permissions-inactive.svg';
+import {screen} from '@components/ComponentUtils';
+import {GenericButton} from '@components/GenericButton';
+import GenericModal from '@components/GenericModal';
 import {
   NumberlessBoldText,
   NumberlessMediumText,
 } from '@components/NumberlessText';
-import SingleDown from '@assets/icons/single-down.svg';
-import SingleUp from '@assets/icons/BlueSingleUp.svg';
-import PermissionTile from './PermissionTile';
-import {screen} from '@components/ComponentUtils';
-import {
-  GroupPermissions,
-  keysOfGroupPermissions,
-} from '@utils/ChatPermissions/interfaces';
+import DisappearingMessage from '@screens/Presets/DisappearingMessage';
+import Permissions from '@screens/Presets/Permissions';
+import {deepEqual} from '@screens/Presets/deepEqual';
 import {
   getChatPermissions,
   getDefaultPermissions,
+  getLabelByTimeDiff,
+  updateChatPermissions,
 } from '@utils/ChatPermissions';
+import {
+  GroupPermissions,
+  MasterPermissions,
+  booleanKeysOfGroupPermissions,
+  numberKeysOfGroupPermissions,
+} from '@utils/ChatPermissions/interfaces';
 import {ChatType} from '@utils/Connections/interfaces';
+import React, {useEffect, useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
 
 export default function GroupChatPermissionDropdown(props: {
   bold: boolean;
@@ -30,12 +38,20 @@ export default function GroupChatPermissionDropdown(props: {
   const [permissionsObj, setPermissionsObj] = useState<GroupPermissions>(
     getDefaultPermissions(ChatType.group),
   );
+  const [selected, setSelected] = useState<number>(0);
+  const [modifiedPreset, setModifiedPreset] =
+    useState<MasterPermissions | null>(getDefaultPermissions(ChatType.direct));
+  const [isDisappearClicked, setIsDisappearClicked] = useState(false);
+  const duration = modifiedPreset?.disappearingMessages;
+  const timelabel = getLabelByTimeDiff(duration);
+
   const togglePermission = () => {
     setShowPermissions(!showPermissions);
   };
   useEffect(() => {
     (async () => {
       setPermissionsObj(await getChatPermissions(chatId, ChatType.group));
+      setModifiedPreset(await getChatPermissions(chatId, ChatType.direct));
     })();
   }, [chatId]);
   return (
@@ -64,27 +80,53 @@ export default function GroupChatPermissionDropdown(props: {
         {showPermissions ? <SingleUp /> : <SingleDown />}
       </Pressable>
       {showPermissions ? (
-        <ShowPermissionTiles permissions={permissionsObj} chatId={chatId} />
+        <View style={{marginTop: 30}}>
+          <Permissions
+            masterKeys={[
+              ...booleanKeysOfGroupPermissions,
+              ...numberKeysOfGroupPermissions,
+            ]}
+            timelabel={timelabel}
+            selected={selected}
+            preset={modifiedPreset}
+            setIsDisappearClicked={setIsDisappearClicked}
+            setModifiedPreset={setModifiedPreset}
+          />
+          <GenericButton
+            disabled={deepEqual(permissionsObj, modifiedPreset)}
+            buttonStyle={
+              deepEqual(permissionsObj, modifiedPreset)
+                ? styles.disabled
+                : styles.save
+            }
+            onPress={async () => {
+              await updateChatPermissions(chatId, {
+                ...modifiedPreset,
+              });
+              setPermissionsObj({...modifiedPreset});
+            }}>
+            Save
+          </GenericButton>
+        </View>
       ) : (
         <></>
       )}
+
+      <GenericModal
+        visible={isDisappearClicked}
+        onClose={() => {
+          setIsDisappearClicked(p => !p);
+        }}>
+        <DisappearingMessage
+          setModifiedPreset={setModifiedPreset}
+          selected={timelabel}
+          timelabel={timelabel}
+          setSelected={setSelected}
+          setIsDisappearClicked={setIsDisappearClicked}
+        />
+      </GenericModal>
     </View>
   );
-}
-
-function ShowPermissionTiles(props: {
-  permissions: GroupPermissions;
-  chatId: string;
-}) {
-  return keysOfGroupPermissions.map(value => (
-    <PermissionTile
-      key={value}
-      currentState={props.permissions[value]}
-      permissionValue={value}
-      permissionName={value}
-      chatId={props.chatId}
-    />
-  ));
 }
 
 const styles = StyleSheet.create({
@@ -112,5 +154,14 @@ const styles = StyleSheet.create({
   titleBox: {
     alignItems: 'center',
     flexDirection: 'row',
+  },
+  save: {
+    width: '90%',
+    alignSelf: 'center',
+  },
+  disabled: {
+    width: '90%',
+    alignSelf: 'center',
+    backgroundColor: '#C9C9C9',
   },
 });

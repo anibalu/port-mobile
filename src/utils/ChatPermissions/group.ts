@@ -2,7 +2,8 @@ import {defaultMasterDirectChatPermissions} from '@utils/ChatPermissionPresets';
 import {
   GroupPermissions,
   Permissions,
-  keysOfGroupPermissions,
+  booleanKeysOfGroupPermissions,
+  numberKeysOfGroupPermissions,
 } from './interfaces';
 import * as storage from '@utils/Storage/permissions';
 
@@ -10,6 +11,7 @@ const defaultGroupChatPermissions: GroupPermissions = {
   notifications: defaultMasterDirectChatPermissions.notifications,
   autoDownload: defaultMasterDirectChatPermissions.autoDownload,
   displayPicture: defaultMasterDirectChatPermissions.displayPicture,
+  disappearingMessages: defaultMasterDirectChatPermissions.disappearingMessages,
 };
 export function getDefaultPermissions(): GroupPermissions {
   return {...defaultGroupChatPermissions};
@@ -17,8 +19,13 @@ export function getDefaultPermissions(): GroupPermissions {
 
 function groupPermissionsMask(permissions: Permissions): GroupPermissions {
   const groupPermission: GroupPermissions = getDefaultPermissions();
-  keysOfGroupPermissions.forEach(key => {
+  booleanKeysOfGroupPermissions.forEach(key => {
     groupPermission[key] = permissions[key] ? true : false;
+  });
+  numberKeysOfGroupPermissions.forEach(key => {
+    if (permissions[key]) {
+      groupPermission[key] = permissions[key] as number;
+    }
   });
   return groupPermission;
 }

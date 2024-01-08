@@ -3,18 +3,25 @@ import {ChatType} from '@utils/Connections/interfaces';
 /**
  * superset of all permissions.
  */
-
-export interface Permissions {
+export interface BooleanPermissions {
   notifications?: boolean | null;
   autoDownload?: boolean | null;
   displayPicture?: boolean | null;
   contactSharing?: boolean | null;
 }
-export const keysOfPermissions: (keyof Permissions)[] = [
+export interface NumberPermissions {
+  disappearingMessages?: number | null;
+}
+
+export interface Permissions extends BooleanPermissions, NumberPermissions {}
+export const booleanKeysOfPermissions: (keyof BooleanPermissions)[] = [
   'notifications',
   'autoDownload',
   'displayPicture',
   'contactSharing',
+];
+export const numberKeysOfPermissions: (keyof NumberPermissions)[] = [
+  'disappearingMessages',
 ];
 
 export interface MasterPermissions extends Permissions {
@@ -22,6 +29,7 @@ export interface MasterPermissions extends Permissions {
   autoDownload: boolean;
   displayPicture: boolean;
   contactSharing: boolean;
+  disappearingMessages: number;
 }
 
 export interface PermissionKeyDictionaryParams {
@@ -29,49 +37,60 @@ export interface PermissionKeyDictionaryParams {
   name: string;
 }
 
-export const PermissionKeyDictionary: PermissionKeyDictionaryParams[] = [
-  {key: 'notifications', name: 'Notifications'},
-  {key: 'autoDownload', name: 'Media auto download'},
-  {key: 'displayPicture', name: 'Display Picture'},
-  {key: 'contactSharing', name: 'Contact Sharing'},
-];
-
 export const masterPermissionsName = {
   notifications: 'Notifications',
   autoDownload: 'Media auto download',
-  displayPicture: 'Display Picture',
-  contactSharing: 'Contact Sharing',
+  displayPicture: 'Display picture',
+  contactSharing: 'Contact sharing',
+  disappearingMessages: 'Disappearing messages',
 };
 
 /**
  * All direct chat permissions. must be a subset of keys in the Permissions object.
  */
-export interface DirectPermissions extends Permissions {
+export interface BooleanDirectPermissions {
   notifications: boolean;
   autoDownload: boolean;
   displayPicture: boolean;
   contactSharing: boolean;
 }
-export const keysOfDirectPermissions: (keyof DirectPermissions)[] = [
-  'notifications',
-  'autoDownload',
-  'displayPicture',
-  'contactSharing',
-];
+export interface NumberDirectPermissions {
+  disappearingMessages: number;
+}
+export interface DirectPermissions extends Permissions {
+  notifications: boolean;
+  autoDownload: boolean;
+  displayPicture: boolean;
+  contactSharing: boolean;
+  disappearingMessages: number;
+}
+export const booleanKeysOfDirectPermissions: (keyof BooleanDirectPermissions)[] =
+  ['notifications', 'autoDownload', 'displayPicture', 'contactSharing'];
+export const numberKeysOfDirectPermissions: (keyof NumberDirectPermissions)[] =
+  ['disappearingMessages'];
 
 /**
  * All group chat permissions. must be a subset of keys in the Permissions object.
  */
-interface GroupPermissionsInit extends Permissions {
+export interface BooleanGroupPermissions {
   notifications: boolean;
   autoDownload: boolean;
   displayPicture: boolean;
 }
+export interface NumberGroupPermissions {
+  disappearingMessages: number;
+}
+interface GroupPermissionsInit extends Permissions {
+  notifications: boolean;
+  autoDownload: boolean;
+  displayPicture: boolean;
+  disappearingMessages: number;
+}
 export type GroupPermissions = Omit<GroupPermissionsInit, 'contactSharing'>;
-export const keysOfGroupPermissions: (keyof GroupPermissions)[] = [
-  'notifications',
-  'autoDownload',
-  'displayPicture',
+export const booleanKeysOfGroupPermissions: (keyof BooleanGroupPermissions)[] =
+  ['notifications', 'autoDownload', 'displayPicture'];
+export const numberKeysOfGroupPermissions: (keyof NumberGroupPermissions)[] = [
+  'disappearingMessages',
 ];
 
 export type ChatPermissions<T extends ChatType> = T extends ChatType.direct

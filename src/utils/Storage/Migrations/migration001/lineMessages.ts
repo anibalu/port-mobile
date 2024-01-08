@@ -23,6 +23,7 @@ export default async function lineMessages() {
       messageStatus INT,
       deliveredTimestamp VARCHAR(27),
       readTimestamp VARCHAR(27),
+      expiresOn VARCHAR(27),
       FOREIGN KEY (chatID) REFERENCES connections(chatId),
       UNIQUE(chatID, messageId)
     );
@@ -78,6 +79,20 @@ export default async function lineMessages() {
     (tx, results) => {
       console.log(
         '[DB MIGRATION] Successfully created a partial index on messageStatus to track journaled messages',
+      );
+    },
+  );
+  await runSimpleQuery(
+    `
+    CREATE INDEX IF NOT EXISTS expired_messages
+    ON lineMessages(expiresOn)
+    WHERE expiresOn IS NOT NULL ;
+    `,
+    [],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {
+      console.log(
+        '[DB MIGRATION] Successfully created a partial index on lineMessages for expiresOn is not null',
       );
     },
   );

@@ -90,12 +90,15 @@ function GroupProfile({route, navigation}: Props) {
               numberOfLines={1}>
               Created {getTimeStamp(groupData.joinedAt)}
             </NumberlessRegularText>
-            <NumberlessRegularText
-              style={styles.groupDescription}
-              ellipsizeMode="tail"
-              numberOfLines={3}>
-              {groupData.description || ''}
-            </NumberlessRegularText>
+            {groupData.description && (
+              <NumberlessRegularText
+                style={styles.groupDescription}
+                ellipsizeMode="tail"
+                numberOfLines={3}>
+                {groupData.description || ''}
+              </NumberlessRegularText>
+            )}
+
             <View>
               {groupData.amAdmin ? (
                 <GenericButton
@@ -115,6 +118,7 @@ function GroupProfile({route, navigation}: Props) {
             </View>
           </View>
         </View>
+
         <GroupChatPermissionDropdown bold={false} chatId={groupId} />
         {connected ? (
           <GenericButton
@@ -124,7 +128,6 @@ function GroupProfile({route, navigation}: Props) {
             }}
             buttonStyle={{
               width: '90%',
-              marginTop: 38,
               height: 70,
               backgroundColor: PortColors.primary.red.error,
             }}>

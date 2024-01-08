@@ -7,7 +7,7 @@ import Info from '@assets/icons/info.svg';
 import Reply from '@assets/icons/reply.svg';
 import CustomModal from '@components/CustomModal';
 import {NumberlessMediumText} from '@components/NumberlessText';
-import {getMessage, updateMessage} from '@utils/Storage/messages';
+import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
 import {PortColors} from '@components/ComponentUtils';
 
 /**
@@ -40,11 +40,7 @@ export function MessageActionsBar({
   };
   const performDelete = async (): Promise<void> => {
     for (const msg of selectedMessages) {
-      const message = await getMessage(chatId, msg);
-      await updateMessage(chatId, msg, {
-        ...message?.data,
-        deleted: true,
-      });
+      await cleanDeleteMessage(chatId, msg);
     }
     postDelete(selectedMessages);
     setOpenCustomModal(false);

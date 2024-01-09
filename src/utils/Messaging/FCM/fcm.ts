@@ -14,7 +14,7 @@ export const registerBackgroundMessaging = () => {
     console.log('[NEW BACKGROUND MESSAGE]');
     await pullBacklog();
     if (remoteMessage.messageId) {
-      console.log(remoteMessage.messageId);
+      // Remove the notification that triggered this pull
       await notifee.cancelNotification(remoteMessage.messageId);
     }
   });
@@ -23,7 +23,7 @@ export const registerBackgroundMessaging = () => {
 export const foregroundMessageHandler = () => {
   messaging().onMessage(async remoteMessage => {
     console.log('[NEW FOREGROUND MESSAGE] ', remoteMessage);
-    await notifee.cancelAllNotifications();
+    await notifee.cancelDisplayedNotifications();
     await pullBacklog();
     await notifee.cancelAllNotifications();
   });

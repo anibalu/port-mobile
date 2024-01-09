@@ -32,8 +32,12 @@ export default function ImageReplyContainer({
           showOpenWithDialog: true,
         });
       }}>
-      <View>
-        <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.sb}>
+      <View style={{overflow: 'hidden', flexShrink: 1}}>
+        <NumberlessText
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.sb}
+          ellipsizeMode="tail"
+          numberOfLines={1}>
           {memberName}
         </NumberlessText>
 
@@ -41,7 +45,7 @@ export default function ImageReplyContainer({
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}
           numberOfLines={3}
-          style={{marginTop: 3, marginRight: 20}}
+          style={{marginTop: 3, overflow: 'hidden'}}
           ellipsizeMode="tail">
           Image
         </NumberlessText>
@@ -55,15 +59,16 @@ const styles = StyleSheet.create({
   replyImage: {
     height: 65,
     width: 65,
-    right: 15,
     borderRadius: 16,
+    flexShrink: 0,
   },
   replyImageContainer: {
     width: '80%',
+    // height: 70,
     flexDirection: 'row',
     alignItems: 'center',
-
     justifyContent: 'space-between',
+    padding: 5,
   },
   imageText: {
     marginTop: 10,

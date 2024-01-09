@@ -432,6 +432,7 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
     paddingRight: 5,
+    borderRadius: 0,
     ...(isIOS && {paddingTop: 15}),
   },
   optionContainer: {

@@ -32,7 +32,7 @@ import {
   numberKeysOfPermissions,
 } from '@utils/ChatPermissions/interfaces';
 import {processName} from '@utils/Profile';
-import {StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import AddNew from './AddNew';
 import DeleteModal from './DeleteModal';
 import DisappearingMessage from './DisappearingMessage';
@@ -174,98 +174,99 @@ const Presets = () => {
         barStyle={{backgroundColor: PortColors.primary.grey.light}}
         titleStyle={{color: PortColors.text.title}}
       />
-
-      <View
-        style={{
-          backgroundColor: PortColors.primary.grey.light,
-          paddingBottom: 20,
-          paddingHorizontal: 25,
-        }}>
-        <View style={styles.tabcontainer}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.rg}
-            style={styles.presetext}>
-            Permission preset set to:
-          </NumberlessText>
-          {availablePresets.length < MAX_PERMISSION_PRESETS && (
-            <GenericButton
-              buttonStyle={styles.addnewbutton}
-              textStyle={styles.addnewtext}
-              onPress={() => {
-                if (availablePresets.length < MAX_PERMISSION_PRESETS) {
-                  setIsEdit(false);
-                  setIsModalVisible(true);
-                }
-              }}>
-              + Add new
-            </GenericButton>
-          )}
-        </View>
+      <ScrollView style={{marginBottom: 60}}>
         <View
           style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            rowGap: 8,
-            columnGap: 8,
+            backgroundColor: PortColors.primary.grey.light,
+            paddingBottom: 20,
+            paddingHorizontal: 25,
           }}>
-          {availablePresets.map(preset => {
+          <View style={styles.tabcontainer}>
+            <NumberlessText
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}
+              style={styles.presetext}>
+              Permission preset set to:
+            </NumberlessText>
+            {availablePresets.length < MAX_PERMISSION_PRESETS && (
+              <GenericButton
+                buttonStyle={styles.addnewbutton}
+                textStyle={styles.addnewtext}
+                onPress={() => {
+                  if (availablePresets.length < MAX_PERMISSION_PRESETS) {
+                    setIsEdit(false);
+                    setIsModalVisible(true);
+                  }
+                }}>
+                + Add new
+              </GenericButton>
+            )}
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              rowGap: 8,
+              columnGap: 8,
+            }}>
+            {availablePresets.map(preset => {
+              return (
+                <NumberlessText
+                  key={preset.presetId}
+                  onLongPress={() => {
+                    setIsEdit(true);
+                    setIsModalVisible(true);
+                  }}
+                  onPress={() => {
+                    setModifiedPreset(preset);
+                    setSelectedPreset(preset);
+                  }}
+                  fontSizeType={FontSizeType.m}
+                  fontType={FontType.md}
+                  style={StyleSheet.compose(
+                    styles.categoryStyle,
+                    getPresetStyle(preset.presetId),
+                  )}>
+                  {preset.name}
+                </NumberlessText>
+              );
+            })}
+          </View>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.rg}
+            style={styles.longpresstext}>
+            *long press preset to edit name
+          </NumberlessText>
+        </View>
+
+        <NumberlessText
+          style={styles.filtertext}
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}>
+          Filter by
+        </NumberlessText>
+
+        <View style={styles.subcategorycontainer}>
+          {filters.map(subcategory => {
             return (
               <NumberlessText
-                key={preset.presetId}
-                onLongPress={() => {
-                  setIsEdit(true);
-                  setIsModalVisible(true);
-                }}
-                onPress={() => {
-                  setModifiedPreset(preset);
-                  setSelectedPreset(preset);
-                }}
+                key={subcategory}
+                onPress={() => setSelectedFilter(subcategory)}
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.md}
                 style={StyleSheet.compose(
-                  styles.categoryStyle,
-                  getPresetStyle(preset.presetId),
+                  styles.subcategoryStyle,
+                  getSubcategoryStyle(subcategory),
                 )}>
-                {preset.name}
+                {subcategory}
               </NumberlessText>
             );
           })}
         </View>
-        <NumberlessText
-          fontSizeType={FontSizeType.s}
-          fontType={FontType.rg}
-          style={styles.longpresstext}>
-          *long press preset to edit name
-        </NumberlessText>
-      </View>
 
-      <NumberlessText
-        style={styles.filtertext}
-        fontType={FontType.rg}
-        fontSizeType={FontSizeType.m}>
-        Filter by
-      </NumberlessText>
-      <View style={styles.subcategorycontainer}>
-        {filters.map(subcategory => {
-          return (
-            <NumberlessText
-              key={subcategory}
-              onPress={() => setSelectedFilter(subcategory)}
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.md}
-              style={StyleSheet.compose(
-                styles.subcategoryStyle,
-                getSubcategoryStyle(subcategory),
-              )}>
-              {subcategory}
-            </NumberlessText>
-          );
-        })}
-      </View>
-
-      {renderPermissionValues(modifiedPreset)}
-
+        {renderPermissionValues(modifiedPreset)}
+      </ScrollView>
       <View style={styles.buttonrow}>
         {selectedPreset && !selectedPreset.isDefault && (
           <GenericButton
@@ -354,7 +355,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'space-between',
     position: 'absolute',
-    bottom: 30,
+    bottom: 10,
   },
   deletebutton: {
     flex: 1,

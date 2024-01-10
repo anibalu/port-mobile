@@ -31,6 +31,8 @@ const ContactCard = (props: PendingCardInfo) => {
         <View style={styles.textrow}>
           <NumberlessText
             fontType={FontType.md}
+            ellipsizeMode="tail"
+            numberOfLines={1}
             fontSizeType={FontSizeType.m}
             style={styles.text}>
             {props.name}
@@ -90,6 +92,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: 'black',
+    overflow: 'hidden',
   },
   row: {
     flexDirection: 'row',
@@ -130,6 +133,8 @@ const styles = StyleSheet.create({
 
   textrow: {
     marginRight: 5,
+    width: '60%',
+    marginLeft: 5,
   },
   subtitle: {
     color: '#868686',

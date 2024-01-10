@@ -138,12 +138,16 @@ function ContactProfile({route, navigation}: Props) {
                 fontType={FontType.md}>
                 Shared media
               </NumberlessText>
-              <GenericButton
-                onPress={() => navigation.navigate('SharedMedia', {chatId})}
-                textStyle={styles.seealltext}
-                buttonStyle={styles.seeall}>
-                See all
-              </GenericButton>
+              {media.length > 0 && (
+                <GenericButton
+                  onPress={() =>
+                    navigation.navigate('SharedMedia', {chatId: chatId})
+                  }
+                  textStyle={styles.seealltext}
+                  buttonStyle={styles.seeall}>
+                  See all
+                </GenericButton>
+              )}
             </View>
 
             <FlatList

@@ -138,10 +138,8 @@ export default function DirectChatPermissionDropdown(props: {
 
 const styles = StyleSheet.create({
   permissionDropDown: {
-    marginTop: 15,
     width: screen.width,
     backgroundColor: 'white',
-    borderRadius: 16,
     marginBottom: 15,
   },
   dropdownHitbox: {
@@ -165,10 +163,12 @@ const styles = StyleSheet.create({
   save: {
     width: '90%',
     alignSelf: 'center',
+    marginBottom: 10,
   },
   disabled: {
     width: '90%',
     alignSelf: 'center',
     backgroundColor: '#C9C9C9',
+    marginBottom: 10,
   },
 });

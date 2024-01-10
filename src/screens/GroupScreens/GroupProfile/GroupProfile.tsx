@@ -3,22 +3,33 @@
  * screen Id: N/A
  */
 import {
+  FontSizeType,
+  FontType,
   NumberlessMediumText,
   NumberlessRegularText,
   NumberlessSemiBoldText,
+  NumberlessText,
 } from '@components/NumberlessText';
 import React, {useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 // import NamePopup from './UpdateNamePopup';
 import BackTopbar from '@components/BackTopBar';
 import GroupChatPermissionDropdown from '@components/PermissionsDropdown/GroupChatPermissionDropdown';
 import {SafeAreaView} from '@components/SafeAreaView';
+import FileViewer from 'react-native-file-viewer';
 
 import {GroupDataStrict, GroupMemberStrict} from '@utils/Groups/interfaces';
 
 //import {getConnection} from '@utils/Connections';
 import ChatBackground from '@components/ChatBackground';
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -28,6 +39,8 @@ import {GenericAvatar} from '@components/GenericAvatar';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {getConnection} from '@utils/Connections';
 import DeleteChatButton from '@components/DeleteChatButton';
+import {ReadDirItem} from 'react-native-fs';
+import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GroupProfile'>;
 
@@ -40,6 +53,17 @@ function GroupProfile({route, navigation}: Props) {
 
   const [profileURI, setProfileURI] = useState(DEFAULT_AVATAR);
   const [connected, setConnected] = useState(true);
+  const [media, setMedia] = useState<ReadDirItem[]>([]);
+  const loadMedia = async () => {
+    const response = await fetchFilesInMediaDir(groupId);
+    setMedia(response);
+  };
+
+  useEffect(() => {
+    loadMedia();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onDelete = async () => {
     await groupHandler.deleteGroup();
     navigation.navigate('HomeTab');
@@ -61,6 +85,26 @@ function GroupProfile({route, navigation}: Props) {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const renderSelectedPhoto = ({
+    item,
+    index,
+  }: {
+    item: ReadDirItem;
+    index: number;
+  }) => {
+    return (
+      <Pressable
+        key={item?.path || index}
+        onPress={() => {
+          FileViewer.open('file://' + item?.path, {
+            showOpenWithDialog: true,
+          });
+        }}>
+        <Image source={{uri: 'file://' + item?.path}} style={styles.image} />
+      </Pressable>
+    );
+  };
 
   return groupData ? (
     <SafeAreaView style={styles.mainContainer}>
@@ -120,6 +164,48 @@ function GroupProfile({route, navigation}: Props) {
         </View>
 
         <GroupChatPermissionDropdown bold={false} chatId={groupId} />
+
+        <View style={styles.content}>
+          <View style={styles.mediaView}>
+            <NumberlessText
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.md}>
+              Shared media
+            </NumberlessText>
+            {media.length > 0 && (
+              <GenericButton
+                onPress={() =>
+                  navigation.navigate('SharedMedia', {chatId: groupId})
+                }
+                textStyle={styles.seealltext}
+                buttonStyle={styles.seeall}>
+                See all
+              </GenericButton>
+            )}
+          </View>
+
+          <FlatList
+            contentContainerStyle={{marginTop: 12}}
+            data={media.slice(0, 10)}
+            showsHorizontalScrollIndicator={false}
+            scrollEnabled={true}
+            horizontal={true}
+            renderItem={renderSelectedPhoto}
+            ListEmptyComponent={
+              <NumberlessText
+                fontSizeType={FontSizeType.l}
+                fontType={FontType.sb}
+                textColor={PortColors.text.secondary}
+                style={{
+                  textAlign: 'center',
+                  width: screen.width,
+                  right: 20,
+                }}>
+                No shared media
+              </NumberlessText>
+            }
+          />
+        </View>
         {connected ? (
           <GenericButton
             onPress={async () => {
@@ -147,12 +233,33 @@ const styles = StyleSheet.create({
   mainContainer: {
     height: '100%',
   },
+  mediaView: {
+    flexDirection: 'row',
+    marginTop: 15,
+  },
   itemCard: {
     marginTop: 15,
     backgroundColor: 'white',
     borderRadius: 16,
     marginLeft: 14,
     width: '93%',
+  },
+  image: {
+    width: (screen.width - 30) / 3,
+    height: (screen.width - 30) / 3,
+    margin: 5,
+    borderRadius: 24,
+  },
+  seeall: {
+    backgroundColor: 'white',
+    position: 'absolute',
+    right: 0,
+    top: -10,
+  },
+  seealltext: {
+    color: PortColors.text.secondary,
+    fontSize: FontSizeType.s,
+    fontWeight: '500',
   },
   exitButton: {
     width: '90%',
@@ -278,8 +385,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: 'black',
     textAlign: 'center',
-    marginVertical: 8,
-    marginLeft: 14,
+    marginVertical: 10,
+    paddingBottom: 15,
+    backgroundColor: 'white',
+    width: screen.width - 20,
+    marginBottom: 20,
   },
   empty: {
     width: 40,

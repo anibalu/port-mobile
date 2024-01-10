@@ -146,12 +146,8 @@ function Chat({route, navigation}: Props) {
       switch (msg?.contentType) {
         case ContentType.text: {
           //Formatting multiple messages into a single string.
-          copyString += `[${msg?.timestamp}] : [${
-            //If group chat, dataHandler will only be of type Group
-            isGroupChat
-              ? (await (dataHandler as Group).getMember(msg.memberId!))?.name
-              : chatState.name
-          }] : [${msg?.data.text}]`;
+          copyString += msg?.data.text;
+          setSelectedMessages([]);
           break;
         }
         default:
@@ -160,6 +156,7 @@ function Chat({route, navigation}: Props) {
       }
     }
     Clipboard.setString(copyString);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedMessages,
     chatState,

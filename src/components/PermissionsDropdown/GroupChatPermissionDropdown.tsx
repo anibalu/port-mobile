@@ -131,14 +131,12 @@ export default function GroupChatPermissionDropdown(props: {
 
 const styles = StyleSheet.create({
   permissionDropDown: {
-    marginTop: 15,
-    width: '90%',
-    backgroundColor: 'white',
-    borderRadius: 16,
+    width: screen.width,
     marginBottom: 15,
+    backgroundColor: 'white',
   },
   dropdownHitbox: {
-    width: screen.width - 40,
+    width: screen.width,
     height: 70,
     flexDirection: 'row',
     alignItems: 'center',
@@ -158,10 +156,12 @@ const styles = StyleSheet.create({
   save: {
     width: '90%',
     alignSelf: 'center',
+    marginBottom: 10,
   },
   disabled: {
     width: '90%',
     alignSelf: 'center',
     backgroundColor: '#C9C9C9',
+    marginBottom: 10,
   },
 });

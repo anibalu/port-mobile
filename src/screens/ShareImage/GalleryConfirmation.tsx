@@ -163,6 +163,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         if (isChat && dataList.indexOf(data) === dataList.length - 1) {
           data.data.text = message;
         }
+        if (data.contentType === ContentType.video) {
+          data.data.previewUri = data.thumbnailUri;
+        }
         const sender = new SendMessage(mbr.chatId, data.contentType, data.data);
         await sender.send();
       }
@@ -272,17 +275,14 @@ const styles = StyleSheet.create({
   },
   bottombar: {
     maxHeight: 110,
-    width: screen.width,
     backgroundColor: PortColors.primary.white,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     paddingVertical: 15,
-    paddingLeft: 15,
   },
   imagescroll: {
-    position: 'absolute',
-    bottom: 90,
+    maxHeight: 90,
     paddingVertical: 10,
     backgroundColor: PortColors.primary.black,
     width: screen.width,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   messageInputStyle: {
-    width: screen.width - 72,
+    width: screen.width - 92,
     minHeight: 50,
     maxHeight: 110,
     height: undefined,
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingRight: 5,
     paddingLeft: 20,
-    ...(isIOS && {paddingTop: 15}),
+    ...(isIOS && {paddingTop: 15, paddingBottom: 5}),
     marginRight: 10,
   },
   itemtext: {
@@ -330,7 +330,6 @@ const styles = StyleSheet.create({
   bottomImage: {
     width: 60,
     height: 60,
-    borderRadius: 8,
   },
 });
 

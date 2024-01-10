@@ -1,38 +1,34 @@
-import DefaultImage from '@assets/avatars/avatar.png';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
-import React, {useEffect, useState} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import React from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 
 export default function ImageReplyContainer({
-  message,
+  // message,
   memberName,
+  URI,
 }: {
-  message: SavedMessageParams;
-  memberName: string;
+  // message: SavedMessageParams;
+  memberName: string | null | undefined;
+  URI: string;
 }) {
-  const [imageUri, setImageURI] = useState(
-    Image.resolveAssetSource(DefaultImage).uri,
-  );
-  useEffect(() => {
-    if (message.data.fileUri) {
-      setImageURI('file://' + message.data.fileUri);
-    }
-  }, [message]);
   return (
     <Pressable
       style={styles.replyImageContainer}
       onPress={() => {
-        FileViewer.open(imageUri, {
+        FileViewer.open(URI, {
           showOpenWithDialog: true,
         });
       }}>
-      <View style={{overflow: 'hidden', flexShrink: 1}}>
+      <View
+        style={{
+          overflow: 'hidden',
+          width: '100%',
+        }}>
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.sb}
@@ -50,24 +46,15 @@ export default function ImageReplyContainer({
           Image
         </NumberlessText>
       </View>
-      <Image source={{uri: imageUri}} style={styles.replyImage} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  replyImage: {
-    height: 65,
-    width: 65,
-    borderRadius: 16,
-    flexShrink: 0,
-  },
   replyImageContainer: {
     width: '80%',
-    // height: 70,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 5,
   },
   imageText: {

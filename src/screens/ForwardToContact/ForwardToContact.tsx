@@ -34,10 +34,14 @@ export default function ForwardToContact({route, navigation}: Props) {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        setAllMembers(await getConnections());
+        loadConnections();
       })();
     }, []),
   );
+
+  async function loadConnections() {
+    setAllMembers(await getConnections());
+  }
 
   //Updates list of viewable members if new members are added to the list.
   useEffect(() => {
@@ -87,7 +91,6 @@ export default function ForwardToContact({route, navigation}: Props) {
       <ChatBackground />
       {/* TopBar */}
       <GenericTopBar
-        titleStyle={{...FontSizes[17].semibold}}
         title={'Forward to'}
         onBackPress={() => {
           navigation.goBack();

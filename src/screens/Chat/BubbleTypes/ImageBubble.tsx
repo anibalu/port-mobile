@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import {
+  renderMediaReplyBubble,
   renderProfileName,
   renderTimeStamp,
   shouldRenderProfileName,
@@ -81,39 +82,7 @@ export default function ImageBubble({
       onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
       {isReply ? (
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <View style={{flexDirection: 'column'}}>
-            {renderProfileName(
-              shouldRenderProfileName(memberName),
-              memberName,
-              message.sender,
-              isReply,
-            )}
-            <View
-              style={{
-                marginRight: 8,
-              }}>
-              {/* TODO add in text that can was attached to the message */}
-              <NumberlessLinkText
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                Image
-              </NumberlessLinkText>
-            </View>
-          </View>
-          {messageURI != undefined ? (
-            <Image
-              source={{uri: messageURI}}
-              style={{
-                height: 60, // Set the maximum height you desire
-                width: 60, // Set the maximum width you desire
-                borderRadius: 16,
-              }}
-            />
-          ) : (
-            <View />
-          )}
-        </View>
+        renderMediaReplyBubble(memberName, message, messageURI, 'Image')
       ) : (
         <>
           {renderProfileName(
@@ -170,7 +139,7 @@ const Loader = () => {
 // - if shouldDownload is true and no thumbnail exists
 // - if shouldDownload is false on and no thumbnail exists
 const renderDisplay = (
-  messageURI: string | undefined,
+  messageURI: string | undefined | null,
   data: LargeDataParams,
   onDownloadPressed: () => void,
 ) => {
@@ -178,7 +147,7 @@ const renderDisplay = (
   if (messageURI) {
     return (
       messageURI != undefined && (
-        <Image source={{uri: messageURI}} style={styles.image} />
+        <Image source={{uri: 'file://' + messageURI}} style={styles.image} />
       )
     );
   }

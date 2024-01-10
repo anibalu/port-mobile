@@ -108,13 +108,13 @@ function GroupProfile({route, navigation}: Props) {
 
   return groupData ? (
     <SafeAreaView style={styles.mainContainer}>
+      <ChatBackground />
       <BackTopbar />
       <ScrollView
         contentContainerStyle={styles.profileScreen}
         showsVerticalScrollIndicator={false}>
-        <ChatBackground />
         <View style={styles.profile}>
-          <GenericAvatar profileUri={profileURI} avatarSize={'large'} />
+          <GenericAvatar profileUri={profileURI} avatarSize={'medium'} />
           <View style={styles.groupNameArea}>
             <NumberlessSemiBoldText
               style={styles.groupName}
@@ -302,9 +302,8 @@ const styles = StyleSheet.create({
 
   profileScreen: {
     flexDirection: 'column',
-    justifyContent: 'flex-start',
     alignItems: 'center',
-    height: '100%',
+    paddingBottom: 32,
   },
   profile: {
     backgroundColor: 'white',
@@ -362,25 +361,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 26,
   },
-  groupNameEditBox: {
-    width: '100%',
-    position: 'absolute',
-    display: 'flex',
-    top: 0,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  groupNameEdit: {
-    width: 24,
-    height: 24,
-  },
-  groupNameEditHitbox: {
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   content: {
     fontSize: 15,
     color: 'black',
@@ -388,30 +368,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     paddingBottom: 15,
     backgroundColor: 'white',
-    width: screen.width - 20,
+    width: screen.width,
+    paddingLeft: 10,
     marginBottom: 20,
-  },
-  empty: {
-    width: 40,
-    height: 40,
-  },
-  popUpArea: {
-    backgroundColor: '#0005',
-    width: '100%',
-    height: '100%',
-  },
-  popupPosition: {
-    position: 'absolute',
-    bottom: 0,
-  },
-  updatePicture: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#547CEF',
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
   },
 });
 

@@ -27,6 +27,8 @@ export default function ContactTile({
   return (
     <Pressable
       style={styles.defaultTileContainer}
+      //Prevents inner items from intercepting touches, all touches are handled by the parent.
+      pointerEvents="box-only"
       onPress={() => {
         onCheckboxToggle(!toggleCheckBox);
       }}>
@@ -39,7 +41,7 @@ export default function ContactTile({
       <NumberlessMediumText style={styles.defaultTileText} numberOfLines={1}>
         {member.name}
       </NumberlessMediumText>
-      <CheckBox value={toggleCheckBox} onValueChange={onCheckboxToggle} />
+      <CheckBox value={toggleCheckBox} />
     </Pressable>
   );
 }

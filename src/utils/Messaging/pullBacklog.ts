@@ -8,7 +8,6 @@ export default async function pullBacklog() {
   try {
     const messages = await API.getMessages();
     for (const message of messages) {
-      console.log('invoking receiver for: ', message);
       const receiver = new ReceiveMessage(message);
       await receiver.receive();
     }

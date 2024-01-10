@@ -183,13 +183,14 @@ export async function useCreatedBundle(
   bundleTarget: BundleTarget,
 ) {
   try {
-    triggerNewChatStoreUpdate(chatId, portId);
     switch (bundleTarget) {
       case BundleTarget.direct:
+        triggerNewChatStoreUpdate(chatId, portId);
         await direct.newChatOverGeneratedPortBundle(portId, chatId);
         break;
       case BundleTarget.superportDirect:
         await superport.newChatOverCreatedSuperportBundle(portId, chatId);
+        triggerNewChatStoreUpdate(chatId, portId);
         break;
       default:
         break;

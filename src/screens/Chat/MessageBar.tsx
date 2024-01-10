@@ -1,19 +1,30 @@
+import DefaultImage from '@assets/avatars/avatar.png';
 import FileIcon from '@assets/icons/File.svg';
 import Send from '@assets/icons/NewSend.svg';
+import ShareContactIcon from '@assets/icons/ShareContact.svg';
+import VideoIcon from '@assets/icons/Video.svg';
 import {default as ImageIcon} from '@assets/icons/image.svg';
 import Plus from '@assets/icons/plus.svg';
-import VideoIcon from '@assets/icons/Video.svg';
-import ShareContactIcon from '@assets/icons/ShareContact.svg';
 import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  LargeDataParams,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
 import React, {ReactNode, memo, useEffect, useState} from 'react';
-import {KeyboardAvoidingView, Pressable, StyleSheet, View} from 'react-native';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 import DocumentPicker, {
   DocumentPickerResponse,
 } from 'react-native-document-picker';
@@ -46,13 +57,11 @@ const MessageBar = ({
   chatId,
   isGroupChat,
   replyTo,
-  setReplyTo,
   name,
   onSend,
 }: {
   chatId: string;
   replyTo: SavedMessageParams | undefined;
-  setReplyTo: any;
   isGroupChat: boolean;
   name: string;
   onSend: any;
@@ -66,6 +75,20 @@ const MessageBar = ({
   const [replyName, setReplyName] = useState<string | null | undefined>(
     DEFAULT_NAME,
   );
+
+  const [replyImageUri, setReplyImageURI] = useState(
+    Image.resolveAssetSource(DefaultImage).uri,
+  );
+  useEffect(() => {
+    const reply = replyTo?.data as LargeDataParams;
+    if (reply?.fileUri) {
+      setReplyImageURI('file://' + reply?.fileUri);
+    }
+    if (reply?.previewUri) {
+      setReplyImageURI('file://' + reply?.previewUri);
+    }
+    console.log('Reply to is: ', reply);
+  }, [replyTo]);
 
   const togglePopUp = (): void => {
     setPopUpVisible(!isPopUpVisible);
@@ -205,7 +228,7 @@ const MessageBar = ({
   return (
     <KeyboardAvoidingView
       behavior={isIOS ? 'padding' : 'height'}
-      keyboardVerticalOffset={isIOS ? 54 : undefined}
+      keyboardVerticalOffset={isIOS ? 60 : undefined}
       style={styles.main}>
       {isPopUpVisible ? (
         <View style={styles.popUpContainer}>
@@ -278,7 +301,7 @@ const MessageBar = ({
                     width: 6,
                     marginLeft: 10,
                     borderRadius: 16,
-                    height: '70%',
+                    height: 53,
                     backgroundColor: !replyTo?.sender ? '#547CEF' : '#fff',
                   }}
                 />
@@ -287,15 +310,31 @@ const MessageBar = ({
                     marginLeft: 11,
                     flexDirection: 'column',
                   }}>
-                  {renderReplyBar(replyTo, replyName)}
+                  {renderReplyBar(replyTo, replyName, replyImageUri)}
                 </View>
+                {(replyTo.contentType === ContentType.image ||
+                  replyTo.contentType === ContentType.video) && (
+                  <Image
+                    source={{uri: replyImageUri}}
+                    style={{
+                      height: 65,
+                      width: 70,
+                      borderTopRightRadius: 16,
+                      borderBottomRightRadius: 16,
+                      position: 'absolute',
+                      right: 0,
+                    }}
+                  />
+                )}
               </View>
               <Pressable
-                onPress={() => setReplyTo(undefined)}
+                onPress={onSend}
                 style={{
                   position: 'absolute',
                   right: 17,
                   top: 16,
+                  borderRadius: 12,
+                  backgroundColor: '#F2F2F2',
                 }}>
                 <Plus
                   style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
@@ -345,19 +384,38 @@ const MessageBar = ({
 function renderReplyBar(
   replyTo: SavedMessageParams,
   replyName: string | null | undefined,
+  URI: string,
 ): ReactNode {
   switch (replyTo.contentType) {
     case ContentType.text: {
       return <TextReplyContainer message={replyTo} memberName={replyName} />;
     }
     case ContentType.image: {
-      return <ImageReplyContainer message={replyTo} memberName={replyName} />;
+      return (
+        <ImageReplyContainer
+          // message={replyTo}
+          memberName={replyName}
+          URI={URI}
+        />
+      );
     }
     case ContentType.file: {
-      return <FileReplyContainer message={replyTo} memberName={replyName} />;
+      return (
+        <FileReplyContainer
+          // message={replyTo}
+          memberName={replyName}
+          URI={URI}
+        />
+      );
     }
     case ContentType.video: {
-      return <VideoReplyContainer message={replyTo} memberName={replyName} />;
+      return (
+        <VideoReplyContainer
+          // message={replyTo}
+          memberName={replyName}
+          URI={URI}
+        />
+      );
     }
   }
 }
@@ -425,7 +483,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   inputText: {
-    width: '100%',
+    width: '97%',
     maxHeight: 110,
     height: undefined,
     color: PortColors.text.primary,
@@ -434,7 +492,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingRight: 5,
     borderRadius: 0,
-    ...(isIOS && {paddingTop: 15}),
+    ...(isIOS && {paddingTop: 15, paddingBottom: 5}),
   },
   optionContainer: {
     flexDirection: 'column',

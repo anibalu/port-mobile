@@ -112,12 +112,13 @@ function ContactProfile({route, navigation}: Props) {
       <ScrollView>
         <View style={styles.scrollContainer}>
           <View style={styles.profile}>
-            <GenericAvatar profileUri={profileURI} avatarSize={'large'} />
+            <GenericAvatar profileUri={profileURI} avatarSize={'medium'} />
             <View style={styles.nicknameArea}>
               <NumberlessText
                 fontSizeType={FontSizeType.xl}
                 fontType={FontType.sb}
                 numberOfLines={1}
+                style={{maxWidth: '80%'}}
                 ellipsizeMode="tail">
                 {name}
               </NumberlessText>

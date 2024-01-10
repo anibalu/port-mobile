@@ -1,5 +1,5 @@
-import {runSimpleQuery} from './dbCommon';
 import {SuperportData, SuperportDataUpdate} from '@utils/Ports/interfaces';
+import {runSimpleQuery} from './dbCommon';
 /**
  * Create a new super port entry
  * Add a new super port to the list

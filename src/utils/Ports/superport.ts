@@ -1,19 +1,19 @@
-import * as API from './APICalls';
+import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
+import {DEFAULT_NAME} from '@configs/constants';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {ContentType} from '@utils/Messaging/interfaces';
 import * as storageReadPorts from '@utils/Storage/readPorts';
 import * as storageSuperports from '@utils/Storage/superPorts';
+import {generateISOTimeStamp, hasExpired} from '@utils/Time';
+import * as API from './APICalls';
 import {
   BundleTarget,
   DirectSuperportBundle,
   ReadPortData,
   SuperportData,
 } from './interfaces';
-import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import {generateISOTimeStamp, hasExpired} from '@utils/Time';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
-import {DEFAULT_NAME} from '@configs/constants';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
 
 function getCurrentSuperportVersion() {
   return '0.0.1';

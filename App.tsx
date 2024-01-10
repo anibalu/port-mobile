@@ -62,12 +62,12 @@ function App(): JSX.Element {
         await loadConnectionsToStore();
         await pullBacklog();
       }
-      setInitialLoad(false);
     } catch (error) {
       console.log('Error checking profile:', error);
-      setInitialLoad(false);
     } finally {
-      await BootSplash.hide({fade: true});
+      await BootSplash.hide({fade: true}).then(() => {
+        setInitialLoad(false);
+      });
     }
   };
   useEffect(() => {

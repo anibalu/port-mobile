@@ -92,6 +92,7 @@ function MyProfile({navigation}: Props): ReactNode {
             fontSizeType={FontSizeType.xl}
             fontType={FontType.sb}
             ellipsizeMode="tail"
+            style={{maxWidth: '80%'}}
             numberOfLines={1}>
             {name}
           </NumberlessText>

@@ -4,7 +4,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import React, {ReactNode, memo} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import {screen} from './ComponentUtils';
 
 const GenericModalTopbar = ({
@@ -23,16 +23,19 @@ const GenericModalTopbar = ({
           fontSizeType={FontSizeType.l}
           fontType={FontType.md}
           ellipsizeMode="tail"
+          style={{maxWidth: '80%'}}
           numberOfLines={1}>
           {title}
         </NumberlessText>
       )}
 
       {RightOptionalIcon ? (
-        <RightOptionalIcon
-          onPress={onBackPress}
-          style={styles.rightOptionalIconStyle}
-        />
+        <Pressable
+          style={{position: 'absolute', right: 30}}
+          hitSlop={{top: 15, right: 15, left: 15, bottom: 15}}
+          onPress={onBackPress}>
+          <RightOptionalIcon style={styles.rightOptionalIconStyle} />
+        </Pressable>
       ) : (
         <View />
       )}
@@ -51,8 +54,6 @@ const styles = StyleSheet.create({
   rightOptionalIconStyle: {
     width: 65,
     height: 65,
-    position: 'absolute',
-    right: 30,
   },
 });
 

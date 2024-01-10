@@ -398,7 +398,6 @@ function Chat({route, navigation}: Props) {
               onSend={clearSelected}
               chatId={chatId}
               replyTo={replyToMessage}
-              setReplyTo={setReplyToMessage}
               isGroupChat={isGroupChat}
             />
           )}

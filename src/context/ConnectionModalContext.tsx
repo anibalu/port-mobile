@@ -162,7 +162,10 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
             };
 
             //Text has been shared
-            if (payloadFile.fileUri === 'file://null') {
+            if (
+              payloadFile.fileUri === 'file://null' ||
+              payloadFile.fileUri === null
+            ) {
               sharingMessageObjects.push(file.text);
               isText = true;
               console.log('File received is: ', sharingMessageObjects);

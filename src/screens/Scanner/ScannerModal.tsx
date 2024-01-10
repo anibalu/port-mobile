@@ -107,10 +107,7 @@ export default function ScannerModal() {
     return false;
   };
   return (
-    <GenericModal
-      avoidKeyboard={false}
-      visible={modalVisible}
-      onClose={cleanScanModal}>
+    <GenericModal visible={modalVisible} onClose={cleanScanModal}>
       <View style={styles.successIndicatorArea}>
         <GenericModalTopBar
           RightOptionalIcon={Cross}

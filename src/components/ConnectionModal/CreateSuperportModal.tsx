@@ -19,13 +19,13 @@ import React, {ReactNode, useEffect, useState} from 'react';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import Share from 'react-native-share';
 import {useSelector} from 'react-redux';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 import {useConnectionModal} from '../../context/ConnectionModalContext';
 import {PortColors, screen} from '../ComponentUtils';
 import GenericInput from '../GenericInput';
 import GenericModal from '../GenericModal';
 import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
 import {displayQR} from './QRUtils';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 
 const LINK_ARRAY_LIMIT = [null, 5, 10, 50, 100];
 
@@ -94,25 +94,23 @@ const CreateSuperportModal: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        if (modalVisible && latestNewConnection) {
-          const latestUsedConnectionLinkId =
-            latestNewConnection.connectionLinkId;
+  const updateConnectionCount = async () => {
+    try {
+      if (modalVisible && latestNewConnection) {
+        const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
 
-          if (qrCodeData !== '') {
-            const {superport} = await fetchSuperport(
-              latestUsedConnectionLinkId,
-            );
-            console.log('Updating data: ', superport.connectionsPossible);
-            setLinkLimit(superport.connectionsPossible);
-          }
+        if (qrCodeData !== '') {
+          const {superport} = await fetchSuperport(latestUsedConnectionLinkId);
+          setLinkLimit(superport.connectionsPossible);
         }
-      } catch (error) {
-        console.log('error autoclosing modal: ', error);
       }
-    })();
+    } catch (error) {
+      console.log('error autoclosing modal: ', error);
+    }
+  };
+
+  useEffect(() => {
+    updateConnectionCount();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestNewConnection]);

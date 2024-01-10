@@ -16,9 +16,9 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {createThumbnail} from 'react-native-create-thumbnail';
 import FileViewer from 'react-native-file-viewer';
 import {
+  renderMediaReplyBubble,
   renderProfileName,
   renderTimeStamp,
   shouldRenderProfileName,
@@ -42,22 +42,12 @@ export default function VideoBubble({
   const [videoURI, setVideoURI] = useState<string | null>();
   const [loading, setLoading] = useState<boolean>(false);
   const [startedManualDownload, setStartedManualDownload] = useState(false);
-  const [thumbnail, setThumbnail] = useState<string | undefined>();
 
   //Thumbnail generation for videos
   useEffect(() => {
     (async () => {
       setLoading(true);
       if ((message.data as LargeDataParams).fileUri != null) {
-        setThumbnail(
-          (
-            await createThumbnail({
-              url: 'file://' + (message.data as LargeDataParams).fileUri!,
-              timeStamp: 0,
-            })
-          ).path,
-        );
-
         setVideoURI((message.data as LargeDataParams).fileUri);
       }
       setLoading(false);
@@ -97,39 +87,12 @@ export default function VideoBubble({
       onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
       {isReply ? (
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <View style={{flexDirection: 'column'}}>
-            {renderProfileName(
-              shouldRenderProfileName(memberName),
-              memberName,
-              message.sender,
-              isReply,
-            )}
-            <View
-              style={{
-                marginRight: 8,
-              }}>
-              {/* TODO add in text that can was attached to the message */}
-              <NumberlessLinkText
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                Video
-              </NumberlessLinkText>
-            </View>
-          </View>
-          {thumbnail != undefined ? (
-            <Image
-              source={{uri: thumbnail}}
-              style={{
-                height: 60, // Set the maximum height you desire
-                width: 60, // Set the maximum width you desire
-                borderRadius: 16,
-              }}
-            />
-          ) : (
-            <View />
-          )}
-        </View>
+        renderMediaReplyBubble(
+          memberName,
+          message,
+          (message.data as LargeDataParams).previewUri,
+          'Video',
+        )
       ) : (
         <>
           {renderProfileName(
@@ -143,7 +106,7 @@ export default function VideoBubble({
             <Loader />
           ) : (
             renderDisplay(
-              thumbnail,
+              (message.data as LargeDataParams).previewUri,
               message.data as LargeDataParams,
               triggerDownload,
             )
@@ -182,7 +145,7 @@ const Loader = () => {
 // - if shouldDownload is true and no thumbnail exists
 // - if shouldDownload is false on and no thumbnail exists
 const renderDisplay = (
-  thumbnail: string | undefined,
+  thumbnail: string | null | undefined,
   data: LargeDataParams,
   onDownloadPressed: () => void,
 ) => {

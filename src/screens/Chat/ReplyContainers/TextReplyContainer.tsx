@@ -1,7 +1,7 @@
+import {screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
-  NumberlessLinkText,
   NumberlessText,
 } from '@components/NumberlessText';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
@@ -13,21 +13,26 @@ export default function TextReplyContainer({
   memberName,
 }: {
   message: SavedMessageParams;
-  memberName: string;
+  memberName: string | null | undefined;
 }) {
   return (
     <>
-      <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.sb}>
+      <NumberlessText
+        fontSizeType={FontSizeType.l}
+        fontType={FontType.sb}
+        numberOfLines={1}
+        style={{maxWidth: screen.width - 160}}
+        ellipsizeMode="tail">
         {memberName}
       </NumberlessText>
       <View style={{marginTop: 3, marginRight: 20}}>
-        <NumberlessLinkText
+        <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}
           numberOfLines={3}
           ellipsizeMode="tail">
           {message.data.text}
-        </NumberlessLinkText>
+        </NumberlessText>
       </View>
     </>
   );

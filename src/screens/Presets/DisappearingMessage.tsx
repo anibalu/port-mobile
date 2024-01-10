@@ -112,13 +112,12 @@ const styles = StyleSheet.create({
   },
   title1: {
     color: PortColors.text.title,
-    alignSelf: 'flex-start',
     marginBottom: 20,
   },
   title2: {
     color: PortColors.primary.grey.dark,
-    alignSelf: 'flex-start',
     marginBottom: 30,
+    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',

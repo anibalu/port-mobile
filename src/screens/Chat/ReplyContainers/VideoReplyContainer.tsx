@@ -1,39 +1,39 @@
-import DefaultImage from '@assets/avatars/avatar.png';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
-import React, {useEffect, useState} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import React from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 
 export default function VideoReplyContainer({
-  message,
+  // message,
   memberName,
+  URI,
 }: {
-  message: SavedMessageParams;
-  memberName: string;
+  // message: SavedMessageParams;
+  memberName: string | null | undefined;
+  URI: string;
 }) {
-  const [videoUri, setVideoURI] = useState(
-    Image.resolveAssetSource(DefaultImage).uri,
-  );
-  useEffect(() => {
-    if (message.data.fileUri) {
-      setVideoURI('file://' + message.data.fileUri);
-    }
-  }, [message]);
   return (
     <Pressable
       style={styles.replyImageContainer}
       onPress={() => {
-        FileViewer.open(videoUri, {
+        FileViewer.open(URI, {
           showOpenWithDialog: true,
         });
       }}>
-      <View>
-        <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.sb}>
+      <View
+        style={{
+          overflow: 'hidden',
+          width: '100%',
+        }}>
+        <NumberlessText
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          fontSizeType={FontSizeType.l}
+          fontType={FontType.sb}>
           {memberName}
         </NumberlessText>
 
@@ -46,18 +46,11 @@ export default function VideoReplyContainer({
           Video
         </NumberlessText>
       </View>
-      <Image source={{uri: videoUri}} style={styles.replyImage} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  replyImage: {
-    height: 65,
-    width: 65,
-    right: 15,
-    borderRadius: 16,
-  },
   replyImageContainer: {
     width: '80%',
     flexDirection: 'row',

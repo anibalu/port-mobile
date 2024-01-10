@@ -10,7 +10,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import React, {ReactNode, useRef, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import Carousel, {Pagination} from 'react-native-snap-carousel';
 import store from '@store/appStore';
 
@@ -173,34 +173,38 @@ function OnboardingCarousel(): ReactNode {
       />
       {renderPagination()}
       {activeIndex > 0 && (
+        <Pressable
+          hitSlop={{top: 15, left: 15, bottom: 15, right: 15}}
+          style={{position: 'absolute', left: 34, bottom: 30}}>
+          <RightArrow
+            onPress={() => {
+              if (activeIndex > 0) {
+                carouselRef.current.snapToItem(activeIndex - 1);
+              }
+            }}
+            style={{
+              transform: [{rotateY: '180deg'}],
+            }}
+            width={15}
+            height={14}
+          />
+        </Pressable>
+      )}
+      <Pressable
+        hitSlop={{top: 15, left: 15, bottom: 15, right: 15}}
+        style={{position: 'absolute', right: 34, bottom: 30}}>
         <RightArrow
           onPress={() => {
-            if (activeIndex > 0) {
-              carouselRef.current.snapToItem(activeIndex - 1);
+            if (activeIndex >= 2) {
+              onSkip();
+            } else {
+              carouselRef.current.snapToItem(activeIndex + 1);
             }
-          }}
-          style={{
-            position: 'absolute',
-            left: 34,
-            bottom: 30,
-            transform: [{rotateY: '180deg'}],
           }}
           width={15}
           height={14}
         />
-      )}
-      <RightArrow
-        onPress={() => {
-          if (activeIndex >= 2) {
-            onSkip();
-          } else {
-            carouselRef.current.snapToItem(activeIndex + 1);
-          }
-        }}
-        style={{position: 'absolute', right: 34, bottom: 30}}
-        width={15}
-        height={14}
-      />
+      </Pressable>
     </View>
   );
 }

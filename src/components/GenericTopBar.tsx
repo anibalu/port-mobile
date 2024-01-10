@@ -27,7 +27,7 @@ const GenericTopBar = ({
       <NumberlessText
         fontSizeType={FontSizeType.l}
         fontType={FontType.sb}
-        style={StyleSheet.compose({left: 15}, titleStyle)}
+        style={StyleSheet.compose({left: 15, maxWidth: '65%'}, titleStyle)}
         ellipsizeMode="tail"
         numberOfLines={1}>
         {title}

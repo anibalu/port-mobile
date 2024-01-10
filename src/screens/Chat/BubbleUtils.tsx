@@ -2,12 +2,13 @@ import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
+  NumberlessLinkText,
   NumberlessText,
 } from '@components/NumberlessText';
 import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {getTimeStamp} from '@utils/Time';
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, View} from 'react-native';
 import Sending from '@assets/icons/sending.svg';
 import {DEFAULT_NAME} from '@configs/constants';
 
@@ -63,6 +64,7 @@ export function renderProfileName(
             fontSizeType={FontSizeType.s}
             fontType={FontType.sb}
             ellipsizeMode="tail"
+            numberOfLines={1}
             textColor={PortColors.text.messageBubble.profileName}>
             You
           </NumberlessText>
@@ -71,6 +73,7 @@ export function renderProfileName(
             fontSizeType={FontSizeType.s}
             fontType={FontType.sb}
             ellipsizeMode="tail"
+            numberOfLines={1}
             textColor={PortColors.text.messageBubble.profileName}>
             {name}
           </NumberlessText>
@@ -79,6 +82,7 @@ export function renderProfileName(
         <NumberlessText
           fontSizeType={FontSizeType.s}
           fontType={FontType.sb}
+          numberOfLines={1}
           ellipsizeMode="tail"
           textColor={PortColors.text.messageBubble.profileName}>
           You
@@ -89,6 +93,58 @@ export function renderProfileName(
     </View>
   );
 }
+
+export const renderMediaReplyBubble = (
+  memberName: string,
+  message: SavedMessageParams,
+  mediaURI: string | undefined | null,
+  type: 'Video' | 'Image',
+) => {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}>
+      <View
+        style={{
+          flexDirection: 'column',
+          maxWidth: '72%',
+          marginRight: 22,
+        }}>
+        {renderProfileName(
+          shouldRenderProfileName(memberName),
+          memberName,
+          message.sender,
+          true,
+        )}
+        <View
+          style={{
+            marginRight: 8,
+          }}>
+          {/* TODO add in text that can was attached to the message */}
+          <NumberlessLinkText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.rg}>
+            {type}
+          </NumberlessLinkText>
+        </View>
+      </View>
+      {mediaURI != undefined && mediaURI != null ? (
+        <Image
+          source={{uri: mediaURI}}
+          style={{
+            height: 60, // Set the maximum height you desire
+            width: 60, // Set the maximum width you desire
+            borderRadius: 16,
+          }}
+        />
+      ) : (
+        <View />
+      )}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   timeStampContainer: {

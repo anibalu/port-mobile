@@ -96,6 +96,7 @@ export interface LargeDataParams {
   key?: string | null;
   text?: string;
   shouldDownload?: boolean;
+  previewUri?: string | null;
 }
 export interface LargeDataParamsStrict extends LargeDataParams {
   fileUri: string;

@@ -93,7 +93,7 @@ function Chat({route, navigation}: Props) {
   //handles toggling the select messages flow.
   const handleMessageBubbleLongPress = (messageId: string): void => {
     //adds messageId to selected messages on long press and vibrates
-    Vibration.vibrate(50);
+    Vibration.vibrate(30);
     if (!selectedMessages.includes(messageId)) {
       setSelectedMessages([...selectedMessages, messageId]);
     }

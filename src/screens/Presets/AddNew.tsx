@@ -34,6 +34,7 @@ const AddNew = ({
         setText={setNewPreset}
         placeholder="Reddit circle"
         alignment="center"
+        maxLength={16}
       />
       <GenericButton
         buttonStyle={styles.save}

@@ -27,6 +27,10 @@ import GenericModal from '@components/GenericModal';
 import DisappearingMessage from '@screens/Presets/DisappearingMessage';
 import {GenericButton} from '@components/GenericButton';
 import {deepEqual} from '@screens/Presets/deepEqual';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {generateISOTimeStamp} from '@utils/Time';
+import {saveMessage} from '@utils/Storage/messages';
 
 export default function DirectChatPermissionDropdown(props: {
   bold: boolean;
@@ -60,6 +64,20 @@ export default function DirectChatPermissionDropdown(props: {
   const [isDisappearClicked, setIsDisappearClicked] = useState(false);
   const duration = modifiedPreset?.disappearingMessages;
   const timelabel = getLabelByTimeDiff(duration);
+
+  const sendInfoMessage = async () => {
+    const savedMessage: SavedMessageParams = {
+      chatId: chatId,
+      messageId: generateRandomHexId(),
+      contentType: ContentType.info,
+      data: {
+        info: `You turned on disappearing messages. New messages will disappear from this chat ${timelabel} after they’re sent`,
+      },
+      sender: true,
+      timestamp: generateISOTimeStamp(),
+    };
+    await saveMessage(savedMessage);
+  };
 
   return (
     <View style={styles.permissionDropDown}>
@@ -111,6 +129,13 @@ export default function DirectChatPermissionDropdown(props: {
                 ...modifiedPreset,
               });
               setPermissionsObj({...modifiedPreset});
+              if (
+                modifiedPreset?.disappearingMessages !== 0 &&
+                modifiedPreset?.disappearingMessages !==
+                  permissionsObj.disappearingMessages
+              ) {
+                await sendInfoMessage();
+              }
             }}>
             Save
           </GenericButton>

@@ -20,6 +20,7 @@ import {
 } from '@utils/ChatPermissions';
 import * as API from './APICalls';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
+import {getRandomAvatarInfo} from '@utils/Profile';
 
 class Group {
   private groupId: string | null;
@@ -197,6 +198,7 @@ class Group {
       disconnected: false,
       timestamp: this.groupData.joinedAt,
       newMessageCount: 0,
+      pathToDisplayPic: getRandomAvatarInfo().fileUri,
     });
   }
 

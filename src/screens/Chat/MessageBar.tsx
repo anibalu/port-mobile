@@ -201,6 +201,7 @@ const MessageBar = ({
       console.log('Nothing selected', error);
     }
   };
+
   return (
     <KeyboardAvoidingView
       behavior={isIOS ? 'padding' : 'height'}

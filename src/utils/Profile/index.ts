@@ -12,7 +12,7 @@ import {pickRandomAvatarId} from '@utils/IdGenerator';
 function getDefaultAvatarInfo(): FileAttributes {
   return {...DEFAULT_PROFILE_AVATAR_INFO};
 }
-function getRandomAvatarInfo(): FileAttributes {
+export function getRandomAvatarInfo(): FileAttributes {
   const randomAvatarId = pickRandomAvatarId();
   const randomInfo: FileAttributes = {
     fileUri: 'avatar://' + randomAvatarId,

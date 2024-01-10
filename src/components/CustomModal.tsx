@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     color: 'black',
     textAlign: 'center',
     marginBottom: 20,
-    width: '90%',
+    width: '100%',
   },
   questionStyles: {
     fontSize: 15,

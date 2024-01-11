@@ -54,7 +54,6 @@ export default function ImageBubble({
   };
   const handlePressFunction = () => {
     const selectedMessagesSize = handlePress(message.messageId);
-    console.log('Message uri is: ', messageURI);
     if (
       selectedMessagesSize === SelectedMessagesSize.empty &&
       messageURI != undefined
@@ -143,7 +142,6 @@ const renderDisplay = (
   data: LargeDataParams,
   onDownloadPressed: () => void,
 ) => {
-  console.log('Data is:', data);
   if (messageURI) {
     return (
       messageURI != undefined && (

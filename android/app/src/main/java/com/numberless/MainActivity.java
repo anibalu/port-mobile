@@ -46,6 +46,7 @@ public class MainActivity extends ReactActivity {
 
   @Override
   public void onNewIntent(Intent intent) {
+
     if(intent!=null){
     super.onNewIntent(intent);
     setIntent(intent);

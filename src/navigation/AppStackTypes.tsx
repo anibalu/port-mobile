@@ -39,7 +39,7 @@ export type AppStackParamList = {
   };
   SuggestAFeature: undefined;
   SelectShareContacts: {
-    shareMessages: [];
+    shareMessages: any[];
     isText?: boolean;
   };
   GalleryConfirmation: {

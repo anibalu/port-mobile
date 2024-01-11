@@ -17,7 +17,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import {AppState, Linking} from 'react-native';
+import {Linking} from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import {useErrorModal} from './ErrorModalContext';
 
@@ -86,7 +86,6 @@ type ModalProviderProps = {
 export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   children,
 }) => {
-  const navigation = useNavigation<any>();
   const [connectionQRData, setConnectionQRData] = useState<
     | PortBundle
     | GroupBundle
@@ -145,60 +144,58 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   };
   const {portConnectionError} = useErrorModal();
 
-  const handleReceiveShare = () => {
-    ReceiveSharingIntent.getReceivedFiles(
-      files => {
-        // files returns as JSON Array example
-        const sharingMessageObjects = [];
-        console.log('Files are: ', files);
-        let isText = false;
+  const navigation = useNavigation<any>();
 
-        if (files) {
-          for (const file of files) {
-            const payloadFile: FileAttributes = {
-              fileUri: isIOS ? file.filePath : 'file://' + file.filePath || '',
-              fileType: file.mimeType || '',
-              fileName: file.fileName || '',
-            };
+  const handleFilesOps = (files: any) => {
+    const sharingMessageObjects = [];
+    let isText = false;
 
-            //Text has been shared
-            if (
-              payloadFile.fileUri === 'file://null' ||
-              payloadFile.fileUri === null
-            ) {
-              sharingMessageObjects.push(file.text);
-              isText = true;
-              console.log('File received is: ', sharingMessageObjects);
-            } else {
-              const msg = {
-                contentType: imageRegex.test(file.mimeType)
-                  ? ContentType.image
-                  : videoRegex.test(file.mimeType)
-                  ? ContentType.video
-                  : ContentType.file,
-                data: {...payloadFile},
-              };
-              sharingMessageObjects.push(msg);
-              console.log('File received is: ', sharingMessageObjects);
-            }
-          }
+    if (files) {
+      for (const file of files) {
+        const payloadFile: FileAttributes = {
+          fileUri: isIOS ? file.filePath : 'file://' + file.filePath || '',
+          fileType: file.mimeType || '',
+          fileName: file.fileName || '',
+        };
 
-          navigation.navigate('SelectShareContacts', {
-            shareMessages: sharingMessageObjects,
-            isText,
-          });
+        //Text has been shared
+        if (
+          payloadFile.fileUri === 'file://null' ||
+          payloadFile.fileUri === null
+        ) {
+          sharingMessageObjects.push(file.text);
+          isText = true;
+          console.log('File received is: ', sharingMessageObjects);
+        } else {
+          const msg = {
+            contentType: imageRegex.test(file.mimeType)
+              ? ContentType.image
+              : videoRegex.test(file.mimeType)
+              ? ContentType.video
+              : ContentType.file,
+            data: {...payloadFile},
+          };
+          sharingMessageObjects.push(msg);
         }
-      },
-      error => {
+      }
+
+      navigation.navigate('SelectShareContacts', {
+        shareMessages: sharingMessageObjects,
+        isText,
+      });
+    }
+  };
+
+  useEffect(() => {
+    ReceiveSharingIntent.getReceivedFiles(
+      handleFilesOps,
+      (error: any) => {
         console.log('Error sharing into RN:', error);
       },
       'PortShare', // share url protocol (must be unique to your app, suggest using your apple bundle id)
     );
-  };
-
-  useEffect(() => {
-    AppState.addEventListener('change', handleReceiveShare);
     Linking.addEventListener('url', checkDeeplink);
+
     return () => {
       Linking.removeAllListeners('url');
     };

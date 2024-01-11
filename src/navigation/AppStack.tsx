@@ -32,6 +32,7 @@ import Presets from '@screens/Presets/Presets';
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 function AppStack() {
+  console.log('Rendering stack in');
   return (
     <>
       <CustomStatusBar

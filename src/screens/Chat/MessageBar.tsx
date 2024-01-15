@@ -199,7 +199,18 @@ const MessageBar = ({
   const onFilePressed = async (): Promise<void> => {
     try {
       const selected: DocumentPickerResponse[] = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
+        type: [
+          DocumentPicker.types.audio,
+          DocumentPicker.types.csv,
+          DocumentPicker.types.doc,
+          DocumentPicker.types.docx,
+          DocumentPicker.types.pdf,
+          DocumentPicker.types.ppt,
+          DocumentPicker.types.pptx,
+          DocumentPicker.types.xls,
+          DocumentPicker.types.xlsx,
+          DocumentPicker.types.zip,
+        ],
         //We need to copy documents to a directory locally before sharing on newer Android.
         ...(!isIOS && {copyTo: 'cachesDirectory'}),
       });

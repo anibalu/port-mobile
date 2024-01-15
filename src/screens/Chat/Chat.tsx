@@ -36,6 +36,8 @@ import ChatList from './ChatList';
 import ChatTopbar from './ChatTopbar';
 import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
+import {handleAsyncMediaDownload as groupMedia} from '@utils/Messaging/Receive/ReceiveGroup/HandleMediaDownload';
+import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 export enum SelectedMessagesSize {
@@ -65,7 +67,8 @@ function Chat({route, navigation}: Props) {
     messagesLoaded: false,
   });
 
-  const {copyingMessageError, messageCopied} = useErrorModal();
+  const {copyingMessageError, messageCopied, mediaDownloadError} =
+    useErrorModal();
 
   const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
 
@@ -341,6 +344,19 @@ function Chat({route, navigation}: Props) {
     }
   };
 
+  const handleDownload = async (messageId: string) => {
+    try {
+      if (isGroupChat) {
+        await groupMedia(chatId, messageId);
+      } else {
+        await directMedia(chatId, messageId);
+      }
+    } catch (e) {
+      console.log('Error handling manual download:', e);
+      mediaDownloadError();
+    }
+  };
+
   const onBackPress = async (): Promise<void> => {
     setSelectedMessages([]);
     await toggleRead(chatId);
@@ -378,6 +394,7 @@ function Chat({route, navigation}: Props) {
         selectedMessages={selectedMessages}
         handlePress={handleMessageBubbleShortPress}
         handleLongPress={handleMessageBubbleLongPress}
+        handleDownload={handleDownload}
         isGroupChat={isGroupChat}
         dataHandler={dataHandler}
       />

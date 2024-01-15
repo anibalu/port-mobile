@@ -1,9 +1,9 @@
-import React from 'react';
+import {PortColors} from '@components/ComponentUtils';
+import {GenericButton} from '@components/GenericButton';
 import {useNavigation} from '@react-navigation/native';
-import {Pressable, StyleSheet} from 'react-native';
-import {NumberlessSemiBoldText} from '@components/NumberlessText';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import DirectChat from '@utils/DirectChats/DirectChat';
+import React, {useState} from 'react';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 /**
  * When clicked, marks the line as disconnected and redirects to the home page
@@ -11,8 +11,10 @@ import DirectChat from '@utils/DirectChats/DirectChat';
  */
 export default function DisconnectButton(props: {chatId: string}) {
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
   const {unableToDisconnectError} = useErrorModal();
   const invokeConnectionDisconnect = async () => {
+    setLoading(true);
     const chat = new DirectChat(props.chatId);
     const resp = await chat.disconnect();
     if (!resp) {
@@ -21,30 +23,22 @@ export default function DisconnectButton(props: {chatId: string}) {
     } else {
       navigation.navigate('HomeTab');
     }
+    setLoading(false);
   };
 
   return (
-    <Pressable onPress={invokeConnectionDisconnect} style={styles.buttonStyle}>
-      <NumberlessSemiBoldText style={styles.textStyle}>
-        Disconnect
-      </NumberlessSemiBoldText>
-    </Pressable>
+    <GenericButton
+      loading={loading}
+      buttonStyle={{
+        flexDirection: 'row',
+        height: 60,
+        marginHorizontal: 32,
+        alignSelf: 'stretch',
+        backgroundColor: PortColors.primary.red.error,
+      }}
+      textStyle={{textAlign: 'center', color: PortColors.text.primaryWhite}}
+      onPress={invokeConnectionDisconnect}>
+      Disconnect
+    </GenericButton>
   );
 }
-
-const styles = StyleSheet.create({
-  buttonStyle: {
-    width: '90%',
-    height: 70,
-    backgroundColor: '#EE786B',
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: '500',
-    fontSize: 17,
-  },
-});

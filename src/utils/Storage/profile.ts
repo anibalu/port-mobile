@@ -11,11 +11,11 @@ import {FileAttributes} from './interfaces';
 
 /**
  * saves profile info to storage
- * @param {ProfileInfo} profile - profile info to be saved
+ * @param {ProfileInfo | undefined} profile - profile info to be saved
  * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
  */
 export async function saveProfileInfo(
-  profile: ProfileInfo,
+  profile: ProfileInfo | undefined,
   blocking: boolean = false,
 ) {
   await saveProfileInfoRNSS(profile, blocking);

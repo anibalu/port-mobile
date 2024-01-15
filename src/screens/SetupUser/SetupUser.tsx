@@ -17,7 +17,7 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import store from '@store/appStore';
 import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
 import {fetchNewPorts} from '@utils/Ports';
-import {setupProfile} from '@utils/Profile';
+import {deleteProfile, setupProfile} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
@@ -77,7 +77,9 @@ function SetupUser({route, navigation}: Props) {
     runActions().then(ret => {
       if (!ret) {
         onboardingFailureError();
-        navigation.navigate('OnboardingStack', {screen: 'NameScreen'});
+        deleteProfile().then(() => {
+          navigation.navigate('OnboardingStack', {screen: 'NameScreen'});
+        });
       } else {
         //ts-ignore
         store.dispatch({

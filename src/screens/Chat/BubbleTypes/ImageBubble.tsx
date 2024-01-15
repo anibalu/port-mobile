@@ -5,7 +5,6 @@ import {
   FontType,
   NumberlessLinkText,
 } from '@components/NumberlessText';
-import {handleAsyncMediaDownload} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
 import React, {useEffect, useState} from 'react';
 import {
@@ -30,12 +29,14 @@ const imageDimensions = 0.7 * screen.width - 40;
 export default function ImageBubble({
   message,
   handlePress,
+  handleDownload,
   handleLongPress,
   memberName,
   isReply = false,
 }: {
   message: SavedMessageParams;
   handlePress: any;
+  handleDownload: (x: string) => Promise<void>;
   handleLongPress: any;
   memberName: string;
   isReply?: boolean;
@@ -52,26 +53,23 @@ export default function ImageBubble({
   const handleLongPressFunction = () => {
     handleLongPress(message.messageId);
   };
-  const handlePressFunction = () => {
-    const selectedMessagesSize = handlePress(message.messageId);
-    if (
-      selectedMessagesSize === SelectedMessagesSize.empty &&
-      messageURI != undefined
-    ) {
-      FileViewer.open(messageURI, {
-        showOpenWithDialog: true,
-      });
-    }
-  };
 
   const triggerDownload = async () => {
     setStartedManualDownload(true);
-    try {
-      await handleAsyncMediaDownload(message.chatId, message.messageId);
-    } catch (e) {
-      console.log('Error downloading media: ', e);
-    } finally {
-      setStartedManualDownload(false);
+    await handleDownload(message.messageId);
+    setStartedManualDownload(false);
+  };
+
+  const handlePressFunction = () => {
+    const selectedMessagesSize = handlePress(message.messageId);
+    if (selectedMessagesSize === SelectedMessagesSize.empty) {
+      if (messageURI) {
+        FileViewer.open(messageURI, {
+          showOpenWithDialog: true,
+        });
+      } else {
+        triggerDownload();
+      }
     }
   };
 
@@ -93,11 +91,7 @@ export default function ImageBubble({
           {startedManualDownload ? (
             <Loader />
           ) : (
-            renderDisplay(
-              messageURI,
-              message.data as LargeDataParams,
-              triggerDownload,
-            )
+            renderDisplay(messageURI, message.data as LargeDataParams)
           )}
 
           {(message.data as LargeDataParams).text ? (
@@ -140,7 +134,6 @@ const Loader = () => {
 const renderDisplay = (
   messageURI: string | undefined | null,
   data: LargeDataParams,
-  onDownloadPressed: () => void,
 ) => {
   if (messageURI) {
     return (
@@ -157,7 +150,7 @@ const renderDisplay = (
   //If we're here, this means no thumbnail and no autodownload
   if (!data.shouldDownload) {
     return (
-      <Pressable onPress={onDownloadPressed}>
+      <>
         <View
           style={StyleSheet.compose(styles.image, {
             backgroundColor: PortColors.primary.black,
@@ -170,7 +163,7 @@ const renderDisplay = (
             left: 0.37 * screen.width - 40,
           }}
         />
-      </Pressable>
+      </>
     );
   }
 };

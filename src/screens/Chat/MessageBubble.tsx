@@ -36,6 +36,7 @@ interface MessageBubbleProps {
   handlePress: any;
   handleLongPress: any;
   isGroupChat: boolean;
+  handleDownload: (x: string) => Promise<void>;
   dataHandler: Group | DirectChat;
 }
 
@@ -55,6 +56,7 @@ const MessageBubble = ({
   isDateBoundary,
   selected,
   handlePress,
+  handleDownload,
   handleLongPress,
   isGroupChat,
   dataHandler,
@@ -145,6 +147,7 @@ const MessageBubble = ({
             isGroupChat,
             handlePress,
             handleLongPress,
+            handleDownload,
             memberName,
             dataHandler,
           )}
@@ -230,6 +233,7 @@ function unselectedMessageBackgroundStylePicker(
  * @param isGroup
  * @param handlePress
  * @param handleLongPress
+ * @param handleDownload
  * @param memberName
  * @param dataHandler
  * @returns the right kind of message bubble
@@ -239,6 +243,7 @@ function renderBubbleType(
   isGroup: boolean,
   handlePress: any,
   handleLongPress: any,
+  handleDownload: (x: string) => Promise<void>,
   memberName: string = '',
   dataHandler: Group | DirectChat,
 ) {
@@ -270,6 +275,7 @@ function renderBubbleType(
       return (
         <ImageBubble
           message={message}
+          handleDownload={handleDownload}
           memberName={memberName}
           handlePress={handlePress}
           handleLongPress={handleLongPress}
@@ -279,6 +285,7 @@ function renderBubbleType(
       return (
         <VideoBubble
           message={message}
+          handleDownload={handleDownload}
           memberName={memberName}
           handlePress={handlePress}
           handleLongPress={handleLongPress}
@@ -288,6 +295,7 @@ function renderBubbleType(
       return (
         <FileBubble
           message={message}
+          handleDownload={handleDownload}
           memberName={memberName}
           handlePress={handlePress}
           handleLongPress={handleLongPress}
@@ -454,8 +462,11 @@ export default memo(MessageBubble, (prevProps, nextProps) => {
     prevProps.message.messageStatus === nextProps.message.messageStatus &&
     (prevProps.message.data as LargeDataParams).fileUri ===
       (nextProps.message.data as LargeDataParams).fileUri &&
+    (prevProps.message.data as LargeDataParams).previewUri ===
+      (nextProps.message.data as LargeDataParams).previewUri &&
     prevProps.isGroupChat === nextProps.isGroupChat &&
     prevProps.selected === nextProps.selected &&
+    prevProps.message.memberId === nextProps.message.memberId &&
     prevProps.isDateBoundary === nextProps.isDateBoundary
   );
 });

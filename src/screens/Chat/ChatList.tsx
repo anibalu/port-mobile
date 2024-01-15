@@ -23,6 +23,7 @@ function ChatList({
   selectedMessages,
   handlePress,
   handleLongPress,
+  handleDownload,
   onStartReached,
   isGroupChat,
   dataHandler,
@@ -33,6 +34,7 @@ function ChatList({
   onStartReached: any;
   handlePress: any;
   handleLongPress: any;
+  handleDownload: (x: string) => Promise<void>;
   isGroupChat: boolean;
   dataHandler: Group | DirectChat;
 }): ReactNode {
@@ -45,7 +47,6 @@ function ChatList({
     index: number;
   }) => {
     if (
-      item.data?.deleted ||
       item.contentType === ContentType.displayImage ||
       item.contentType === ContentType.contactBundleRequest ||
       item.contentType === ContentType.contactBundleResponse
@@ -64,6 +65,7 @@ function ChatList({
         isDateBoundary={isDateBoundary}
         selected={selectedMessages}
         handlePress={handlePress}
+        handleDownload={handleDownload}
         handleLongPress={handleLongPress}
         isGroupChat={isGroupChat}
         dataHandler={dataHandler}

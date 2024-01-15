@@ -39,6 +39,7 @@ class ReceiveLargeData extends DirectReceiveAction {
     const data: LargeDataParams = {
       ...(this.decryptedMessageContent.data as LargeDataParams),
       shouldDownload: permissions.autoDownload,
+      previewUri: undefined,
     };
 
     //By default, we add in a message to the DB without waiting to download media

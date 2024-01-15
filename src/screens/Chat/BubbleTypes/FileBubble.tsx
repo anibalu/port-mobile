@@ -1,4 +1,5 @@
-import {default as File, default as FileIcon} from '@assets/icons/FileClip.svg';
+import Download from '@assets/icons/Download.svg';
+import {default as FileIcon} from '@assets/icons/FileClip.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
@@ -8,7 +9,7 @@ import {
 } from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import {
   renderProfileName,
@@ -16,6 +17,7 @@ import {
   shouldRenderProfileName,
 } from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 /**
  * @param message, message object
@@ -30,32 +32,47 @@ export default function FileBubble({
   handlePress,
   handleLongPress,
   memberName,
+  handleDownload,
   isReply = false,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
   memberName: string;
+  handleDownload: (x: string) => Promise<void>;
   isReply?: boolean;
 }): ReactNode {
-  const [fileURI, setFileURI] = useState<string | undefined>();
+  const [fileURI, setFileURI] = useState<string | null>();
+  const {mediaLoadError} = useErrorModal();
+  const [startedManualDownload, setStartedManualDownload] = useState(false);
   useEffect(() => {
     if ((message.data as LargeDataParams).fileUri) {
-      setFileURI('file://' + (message.data as LargeDataParams).fileUri);
+      setFileURI((message.data as LargeDataParams).fileUri);
     }
   }, [message]);
   const handleLongPressFunction = () => {
     handleLongPress(message.messageId);
   };
+
+  const triggerDownload = async () => {
+    setStartedManualDownload(true);
+    await handleDownload(message.messageId);
+    setStartedManualDownload(false);
+  };
+
   const handlePressFunction = () => {
     const selectedMessagesSize = handlePress(message.messageId);
-    if (
-      selectedMessagesSize === SelectedMessagesSize.empty &&
-      fileURI != undefined
-    ) {
-      FileViewer.open(fileURI, {
-        showOpenWithDialog: true,
-      });
+    if (selectedMessagesSize === SelectedMessagesSize.empty) {
+      if (fileURI) {
+        FileViewer.open(fileURI, {
+          showOpenWithDialog: true,
+        }).catch(e => {
+          console.log('Error in opening file: ', e);
+          mediaLoadError();
+        });
+      } else {
+        triggerDownload();
+      }
     }
   };
   return (
@@ -74,7 +91,7 @@ export default function FileBubble({
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <FileIcon />
+            {fileURI != undefined ? <FileIcon /> : <Download />}
           </View>
           <View style={{marginLeft: 12}}>
             {renderProfileName(
@@ -103,7 +120,16 @@ export default function FileBubble({
 
           <View style={styles.fileBox}>
             <View style={styles.fileClip}>
-              <File />
+              {startedManualDownload ? (
+                <ActivityIndicator
+                  size={'small'}
+                  color={PortColors.primary.white}
+                />
+              ) : fileURI != undefined ? (
+                <FileIcon />
+              ) : (
+                <Download />
+              )}
             </View>
             <NumberlessText
               fontSizeType={FontSizeType.m}

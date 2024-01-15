@@ -1,6 +1,7 @@
 import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
-import {NumberlessSemiBoldText} from './NumberlessText';
+import {StyleSheet} from 'react-native';
+import {PortColors} from './ComponentUtils';
+import {GenericButton} from './GenericButton';
 
 /**
  * When clicked, deletes the history of the chat and redirects to the home page
@@ -15,31 +16,26 @@ export default function DeleteChatButton(props: {
     props.stripMargin ? styles.stripMargin : {},
   );
   return (
-    <Pressable onPress={props.onDelete} style={buttonStyle}>
-      <NumberlessSemiBoldText style={styles.textStyle}>
-        Delete history
-      </NumberlessSemiBoldText>
-    </Pressable>
+    <GenericButton
+      buttonStyle={buttonStyle}
+      textStyle={{textAlign: 'center', color: PortColors.text.delete}}
+      onPress={props.onDelete}>
+      Delete history
+    </GenericButton>
   );
 }
 
 const styles = StyleSheet.create({
   buttonStyle: {
-    width: '90%',
-    height: 70,
-    borderColor: '#EE786B',
-    backgroundColor: '#FFF9',
+    flexDirection: 'row',
+    height: 60,
+    marginHorizontal: 32,
+    alignSelf: 'stretch',
+    backgroundColor: 'transparent',
     borderWidth: 3,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-    marginLeft: '5%',
-  },
-  textStyle: {
-    color: '#EE786B',
-    fontWeight: '500',
-    fontSize: 17,
+    borderColor: PortColors.primary.red.error,
+    marginBottom: 25,
   },
   stripMargin: {
     marginLeft: 0,

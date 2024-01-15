@@ -38,10 +38,16 @@ async function readProfileInfoAsync(): Promise<ProfileInfo | undefined> {
 
 /**
  * Overwrites profile file with new info
- * @param {ProfileInfo} profile - the profile information to overwrite with
+ * @param {ProfileInfo|undefined} profile - the profile information to overwrite with
  */
-async function writeProfileInfoAsync(profile: ProfileInfo): Promise<void> {
-  await EncryptedStorage.setItem(sessionKey, JSON.stringify(profile));
+async function writeProfileInfoAsync(
+  profile: ProfileInfo | undefined,
+): Promise<void> {
+  if (profile) {
+    await EncryptedStorage.setItem(sessionKey, JSON.stringify(profile));
+  } else {
+    await EncryptedStorage.clear();
+  }
 }
 
 /**
@@ -50,7 +56,7 @@ async function writeProfileInfoAsync(profile: ProfileInfo): Promise<void> {
  * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
  */
 export async function saveProfileInfoRNSS(
-  profile: ProfileInfo,
+  profile: ProfileInfo | undefined,
   blocking: boolean = false,
 ): Promise<void> {
   if (blocking) {

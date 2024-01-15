@@ -61,6 +61,22 @@ export async function setupProfile(
 }
 
 /**
+ * Deletes a user's profile info. Used to clear failed onboarding.
+ * @returns {Promise<void>} .
+ */
+export async function deleteProfile(): Promise<void> {
+  try {
+    store.dispatch({
+      type: 'UPDATE_PROFILE',
+      payload: undefined,
+    });
+    await storage.saveProfileInfo(undefined, true);
+  } catch (error) {
+    console.log('error deleting profile:', error);
+  }
+}
+
+/**
  * gets the profile info of the user
  * @param {boolean} blocking - whether the function should block fs operations until completed. default = true.
  * @returns {Promise<ProfileInfo|undefined>} - profile info of the user, undefined if none exist

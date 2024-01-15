@@ -1,10 +1,13 @@
 import store from '@store/appStore';
 import {decryptFile} from '@utils/Crypto/aes';
-import {LargeDataParams} from '@utils/Messaging/interfaces';
 import {downloadData} from '@utils/Messaging/LargeData/largeData';
-import {saveToMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {getMessage} from '@utils/Storage/messages';
+import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
+import {
+  saveToFilesDir,
+  saveToMediaDir,
+} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import * as storage from '@utils/Storage/messages';
+import {getMessage} from '@utils/Storage/messages';
 import {createThumbnail} from 'react-native-create-thumbnail';
 
 /**
@@ -17,7 +20,6 @@ export const handleAsyncMediaDownload = async (
   messageId: string,
 ): Promise<void> => {
   const message = await getMessage(chatId, messageId);
-
   if (message?.data) {
     const mediaId = (message.data as LargeDataParams).mediaId;
     const key = (message.data as LargeDataParams).key;
@@ -29,24 +31,34 @@ export const handleAsyncMediaDownload = async (
       //decrypt media with key
       const plaintext = await decryptFile(ciphertext, key);
 
-      const fileUri = await saveToMediaDir(
-        chatId,
-        plaintext,
-        (message.data as LargeDataParams).fileName,
-      );
+      const fileUri =
+        message.contentType === ContentType.file
+          ? await saveToFilesDir(
+              chatId,
+              plaintext,
+              (message.data as LargeDataParams).fileName,
+            )
+          : await saveToMediaDir(
+              chatId,
+              plaintext,
+              (message.data as LargeDataParams).fileName,
+            );
 
-      const previewPath = await createThumbnail({
-        url: fileUri,
-        timeStamp: 0,
-        cacheName: mediaId,
-      });
+      const previewPath =
+        message.contentType === ContentType.video
+          ? await createThumbnail({
+              url: fileUri,
+              timeStamp: 0,
+              cacheName: mediaId,
+            })
+          : undefined;
 
       const data = {
         ...(message.data as LargeDataParams),
         fileUri: fileUri,
         mediaId: null,
         key: null,
-        previewUri: previewPath.path ? previewPath.path : undefined,
+        previewUri: previewPath?.path ? previewPath.path : undefined,
       };
 
       await storage.updateMessage(chatId, messageId, data);

@@ -18,6 +18,8 @@ type ModalContextType = {
   checkingProfileError: () => void;
   portConnectionError: () => void;
   imageSelectionError: () => void;
+  mediaDownloadError: () => void;
+  mediaLoadError: () => void;
   copyingMessageError: () => void;
   somethingWentWrongError: () => void;
   networkError: () => void;
@@ -30,7 +32,6 @@ type ModalContextType = {
   messageCopied: () => void;
   componentNotSupportedyetError: () => void;
   errorToShow: ErrorObject;
-  showGreen: boolean;
 };
 type ErrorObject = {
   text: string;
@@ -71,6 +72,12 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
       Icon: Info,
     });
   };
+  const mediaDownloadError = () => {
+    setErrorToShow({
+      text: 'Error downloading media, please try again later!',
+      Icon: Info,
+    });
+  };
   const componentNotSupportedyetError = () => {
     setErrorToShow({
       text: 'This is not supported yet!',
@@ -81,6 +88,12 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
   const onboardingFailureError = () => {
     setErrorToShow({
       text: 'Error in setting you up, please check your network.',
+      Icon: Error,
+    });
+  };
+  const mediaLoadError = () => {
+    setErrorToShow({
+      text: 'Error loading media, please check if you have the necessary apps for the media.',
       Icon: Error,
     });
   };
@@ -198,8 +211,10 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         copyingMessageError,
         somethingWentWrongError,
         networkError,
+        mediaDownloadError,
         personOfflineError,
         unableToDisconnectError,
+        mediaLoadError,
         unableToSharelinkError,
         portCreationError,
         incorrectQRError,

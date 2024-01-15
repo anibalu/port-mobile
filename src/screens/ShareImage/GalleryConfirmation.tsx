@@ -1,17 +1,28 @@
 import Send from '@assets/icons/NewSend.svg';
 import Whitecross from '@assets/icons/Whitecross.svg';
 import Delete from '@assets/icons/Whitedelete.svg';
+import Play from '@assets/icons/videoPlay.svg';
 import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessMediumText,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {
+  compressImage,
+  compressVideo,
+} from '@utils/Compressor/graphicCompressors';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import React, {useEffect, useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -20,8 +31,10 @@ import {
   View,
 } from 'react-native';
 import {createThumbnail} from 'react-native-create-thumbnail';
+import FileViewer from 'react-native-file-viewer';
 import Pdf from 'react-native-pdf';
 import Carousel from 'react-native-snap-carousel';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -33,31 +46,53 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   const [dataList, setDataList] = useState<any[]>(shareMessages);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [message, setMessage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const {compressionError} = useErrorModal();
 
   // On receiving messages, we need to generate thumbnails if videos
   useEffect(() => {
-    handleThumbnailGeneration();
+    preprocessMedia();
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleThumbnailGeneration = async (): Promise<void> => {
+  const preprocessMedia = async () => {
+    setLoading(true);
     const newList = [];
     for (let item of dataList) {
       if (item.contentType === ContentType.video) {
+        const compressedUri = await compressVideo(
+          item.data.fileUri,
+          compressionError,
+        );
+        item.data.fileUri = compressedUri ? compressedUri : item.data.fileUri;
         item.thumbnailUri = (
           await createThumbnail({
             url: item.data.fileUri,
             timeStamp: 0,
           })
         ).path;
+        console.log();
+      }
+      if (item.contentType === ContentType.image) {
+        const compressedUri = await compressImage(
+          item.data.fileUri,
+          compressionError,
+        );
+        item.data.fileUri = compressedUri ? compressedUri : item.data.fileUri;
       }
       newList.push(item);
     }
     setDataList(newList);
+    setLoading(false);
   };
 
   const renderCarouselItem = ({item, index}: {item: any; index: number}) => {
-    return item.contentType === ContentType.image ? (
+    return loading ? (
+      <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
+        <ActivityIndicator size={'large'} />
+      </View>
+    ) : item.contentType === ContentType.image ? (
       <Image
         key={index}
         style={{flex: 1}}
@@ -65,29 +100,48 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         source={{uri: item.data.fileUri}}
       />
     ) : item.contentType === ContentType.video ? (
-      <Image
-        key={index}
-        resizeMode="contain"
-        style={{
-          flex: 1,
-        }}
-        source={{
-          uri: item.thumbnailUri,
-        }}
-      />
+      <Pressable
+        style={{flex: 1}}
+        onPress={() => {
+          onVideoPressed(item.data.fileUri);
+        }}>
+        <Image
+          key={index}
+          resizeMode="contain"
+          style={{
+            flex: 1,
+          }}
+          source={{
+            uri: item.thumbnailUri,
+          }}
+        />
+        <Play
+          style={{
+            position: 'absolute',
+            top: 0.34 * screen.height,
+            left: 0.4 * screen.width,
+          }}
+        />
+      </Pressable>
     ) : (
       <>
         <View
           style={{
-            flex: 1,
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
-            top: 10,
+            alignSelf: 'center',
+            top: 60,
+            zIndex: 10,
+            maxWidth: '70%',
           }}>
-          <NumberlessMediumText style={styles.pdfname}>
+          <NumberlessText
+            fontSizeType={FontSizeType.l}
+            fontType={FontType.sb}
+            numberOfLines={1}
+            textColor={PortColors.primary.white}>
             {item.data.fileName}
-          </NumberlessMediumText>
+          </NumberlessText>
         </View>
 
         <Pdf
@@ -102,7 +156,11 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   };
 
   const renderThumbnails = ({item, index}: {item: any; index: number}) => {
-    return (
+    return loading ? (
+      <View style={{height: 60, width: 60}}>
+        <ActivityIndicator size={'small'} />
+      </View>
+    ) : (
       <Pressable
         key={index}
         onPress={() => {
@@ -178,16 +236,6 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     }
   };
 
-  const renderMembers = ({item}: {item: ConnectionInfo}) => {
-    return (
-      <View style={styles.item}>
-        <NumberlessMediumText style={styles.itemtext} numberOfLines={1}>
-          {item.name}
-        </NumberlessMediumText>
-      </View>
-    );
-  };
-
   return (
     <KeyboardAvoidingView
       behavior={isIOS ? 'padding' : 'height'}
@@ -259,6 +307,22 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   );
 };
 
+const onVideoPressed = (uri: string) => {
+  FileViewer.open(uri, {
+    showOpenWithDialog: true,
+  });
+};
+
+const renderMembers = ({item}: {item: ConnectionInfo}) => {
+  return (
+    <View style={styles.item}>
+      <NumberlessMediumText style={styles.itemtext} numberOfLines={1}>
+        {item.name}
+      </NumberlessMediumText>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -320,11 +384,13 @@ const styles = StyleSheet.create({
   bottomimageContainer: {
     marginRight: 10,
     borderRadius: 8,
+    overflow: 'hidden',
   },
   selectedImageContainer: {
     borderColor: PortColors.primary.blue.app,
     marginRight: 10,
     borderWidth: 4,
+    overflow: 'hidden',
     borderRadius: 8,
   },
   bottomImage: {

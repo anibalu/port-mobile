@@ -133,12 +133,14 @@ const MessageBar = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [replyTo]);
 
-  const goToConfirmation = (msg: any) => {
-    navigation.navigate('GalleryConfirmation', {
-      selectedMembers: [{chatId: chatId}],
-      shareMessages: [msg],
-      isChat: true,
-    });
+  const goToConfirmation = (lst: any[]) => {
+    if (lst.length > 0) {
+      navigation.navigate('GalleryConfirmation', {
+        selectedMembers: [{chatId: chatId}],
+        shareMessages: lst,
+        isChat: true,
+      });
+    }
     setPopUpVisible(false);
   };
 
@@ -147,9 +149,11 @@ const MessageBar = ({
       const response = await launchImageLibrary({
         mediaType: 'photo',
         includeBase64: false,
+        selectionLimit: 6,
       });
       //images are selected
       const selected: Asset[] = response.assets || [];
+      const fileList = [];
       for (let index = 0; index < selected.length; index++) {
         const file: FileAttributes = {
           fileUri: selected[index].uri || '',
@@ -161,8 +165,9 @@ const MessageBar = ({
           contentType: ContentType.image,
           data: {...file},
         };
-        goToConfirmation(msg);
+        fileList.push(msg);
       }
+      goToConfirmation(fileList);
     } catch (error) {
       console.log('Nothing selected', error);
     }
@@ -173,7 +178,9 @@ const MessageBar = ({
       const response = await launchImageLibrary({
         mediaType: 'video',
         includeBase64: false,
+        selectionLimit: 6,
       });
+      const fileList = [];
       //videos are selected
       const selected: Asset[] = response.assets || [];
       for (let index = 0; index < selected.length; index++) {
@@ -187,9 +194,9 @@ const MessageBar = ({
           contentType: ContentType.video,
           data: {...file},
         };
-
-        goToConfirmation(msg);
+        fileList.push(msg);
       }
+      goToConfirmation(fileList);
       //send media message
     } catch (error) {
       console.log('Nothing selected', error);
@@ -214,6 +221,7 @@ const MessageBar = ({
         //We need to copy documents to a directory locally before sharing on newer Android.
         ...(!isIOS && {copyTo: 'cachesDirectory'}),
       });
+      const fileList = [];
       for (let index = 0; index < selected.length; index++) {
         const file: FileAttributes = {
           fileUri: selected[index].fileCopyUri
@@ -227,10 +235,10 @@ const MessageBar = ({
           contentType: ContentType.file,
           data: {...file},
         };
-
-        goToConfirmation(msg);
+        fileList.push(msg);
       }
       //send file message
+      goToConfirmation(fileList);
     } catch (error) {
       console.log('Nothing selected', error);
     }
@@ -503,7 +511,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingRight: 5,
     borderRadius: 0,
-    ...(isIOS && {paddingTop: 15, paddingBottom: 5}),
+    ...(isIOS && {paddingTop: 15, paddingBottom: 5, paddingLeft: 5}),
   },
   optionContainer: {
     flexDirection: 'column',

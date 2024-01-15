@@ -19,6 +19,7 @@ type ModalContextType = {
   portConnectionError: () => void;
   imageSelectionError: () => void;
   mediaDownloadError: () => void;
+  compressionError: () => void;
   mediaLoadError: () => void;
   copyingMessageError: () => void;
   somethingWentWrongError: () => void;
@@ -75,6 +76,12 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
   const mediaDownloadError = () => {
     setErrorToShow({
       text: 'Error downloading media, please try again later!',
+      Icon: Info,
+    });
+  };
+  const compressionError = () => {
+    setErrorToShow({
+      text: 'Error compressing media, your media will be sent as is.',
       Icon: Info,
     });
   };
@@ -207,6 +214,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         establishingConnectionError,
         checkingProfileError,
         portConnectionError,
+        compressionError,
         imageSelectionError,
         copyingMessageError,
         somethingWentWrongError,

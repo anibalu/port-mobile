@@ -11,7 +11,7 @@ import {
 } from '@components/NumberlessText';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 
 /**
  * Handles top bar for chat
@@ -39,55 +39,60 @@ function ChatTopbar({
   onBackPress: () => void;
   onCancelPressed: () => void;
 }): ReactNode {
+  const handlePress = () => {
+    if (selectedMessagesLength >= 1) {
+      return;
+    } else {
+      onSettingsPressed();
+    }
+  };
+
+  const handleCancellation = () => {
+    if (selectedMessagesLength >= 1) {
+      onCancelPressed();
+    } else {
+      onSettingsPressed();
+    }
+  };
+
   return (
     <View style={styles.bar}>
-      <View style={styles.backAndProfile}>
-        <BackButton style={styles.backIcon} onPress={onBackPress} />
-        {selectedMessagesLength == 0 && (
-          <GenericAvatar
-            onPress={onSettingsPressed}
-            profileUri={profileURI}
-            avatarSize={'extraSmall'}
-          />
-        )}
+      <BackButton style={styles.backIcon} onPress={onBackPress} />
+      <Pressable style={styles.profileBar} onPress={handlePress}>
         <View style={styles.titleBar}>
-          {selectedMessagesLength >= 1 ? (
-            <NumberlessText
-              fontSizeType={FontSizeType.l}
-              fontType={FontType.md}
-              ellipsizeMode="tail"
-              style={styles.selectedCount}
-              numberOfLines={1}>
-              {selectedMessagesLength.toString() + ' selected'}
-            </NumberlessText>
-          ) : (
-            <NumberlessText
-              fontSizeType={FontSizeType.l}
-              fontType={FontType.md}
-              ellipsizeMode="tail"
-              style={styles.title}
-              onPress={onSettingsPressed}
-              numberOfLines={1}>
-              {name}
-            </NumberlessText>
+          {selectedMessagesLength == 0 && (
+            <View style={styles.profile}>
+              <GenericAvatar
+                onPress={handlePress}
+                profileUri={profileURI}
+                avatarSize={'extraSmall'}
+              />
+            </View>
           )}
+          <NumberlessText
+            fontSizeType={FontSizeType.l}
+            fontType={FontType.md}
+            ellipsizeMode="tail"
+            style={
+              selectedMessagesLength >= 1 ? styles.selectedCount : styles.title
+            }
+            numberOfLines={1}>
+            {selectedMessagesLength >= 1
+              ? selectedMessagesLength.toString() + ' selected'
+              : name}
+          </NumberlessText>
         </View>
-      </View>
-
-      {selectedMessagesLength >= 1 ? (
-        <GenericButton
-          buttonStyle={styles.crossBox}
-          IconLeft={Cross}
-          iconSize={38}
-          onPress={onCancelPressed}
-        />
-      ) : (
-        <GenericButton
-          buttonStyle={styles.settingsBox}
-          IconLeft={SettingsIcon}
-          onPress={onSettingsPressed}
-        />
-      )}
+        <View>
+          <GenericButton
+            buttonStyle={
+              selectedMessagesLength >= 1 ? styles.crossBox : styles.settingsBox
+            }
+            IconLeft={selectedMessagesLength >= 1 ? Cross : SettingsIcon}
+            iconSize={selectedMessagesLength >= 1 ? 38 : 0}
+            onPress={handleCancellation}
+          />
+        </View>
+      </Pressable>
     </View>
   );
 }
@@ -97,7 +102,7 @@ const styles = StyleSheet.create({
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingRight: 18,
     paddingLeft: 18,
@@ -106,9 +111,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     height: 65,
   },
+  profileBar: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   titleBar: {
+    flex: 1,
     marginLeft: 10,
     maxWidth: '60%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    gap: 7,
   },
   selectedCount: {
     color: PortColors.primary.black,
@@ -118,8 +134,6 @@ const styles = StyleSheet.create({
   title: {
     color: PortColors.primary.black,
     overflow: 'hidden',
-    width: '100%',
-    textAlign: 'center',
   },
   backIcon: {
     alignItems: 'flex-start',
@@ -140,12 +154,12 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     borderRadius: 20,
-    marginLeft: -20,
-  },
-  backAndProfile: {
+    marginLeft: -14,
+    display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    // backgroundColor: 'yellow',
     alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

@@ -13,7 +13,7 @@ export function GenericAvatar({
 }: {
   avatarSize: 'extraSmall' | 'small' | 'medium' | 'large'; //size - extraSmall, small, medium, large || default - large
   profileUri?: string | null;
-  onPress?: () => void;
+  onPress?: (() => void) | null;
 }) {
   // set size of avatar according to specs
   function avatarSizeStylePicker(avatarSize?: string): ImageStyle {

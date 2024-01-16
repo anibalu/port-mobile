@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     padding: 6,
     borderWidth: 0.5,
     marginLeft: 5,
-    borderColor: '#E5E5E5',
+    borderColor: '#C5DDF1',
     maxWidth: '70%',
   },
   DataBlob: {

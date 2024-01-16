@@ -17,13 +17,16 @@ import {
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
-import React, {ReactNode, memo, useEffect, useState} from 'react';
+import React, {ReactNode, memo, useEffect, useRef, useState} from 'react';
 import {
   Image,
   KeyboardAvoidingView,
   Pressable,
   StyleSheet,
   View,
+  Animated,
+  Easing,
+  ViewStyle,
 } from 'react-native';
 import DocumentPicker, {
   DocumentPickerResponse,
@@ -67,6 +70,7 @@ const MessageBar = ({
   onSend: any;
 }): ReactNode => {
   const navigation = useNavigation<any>();
+  const rotationValue = useRef(new Animated.Value(0)).current;
 
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -92,6 +96,24 @@ const MessageBar = ({
 
   const togglePopUp = (): void => {
     setPopUpVisible(!isPopUpVisible);
+
+    // Rotate animation
+    Animated.timing(rotationValue, {
+      toValue: isPopUpVisible ? 0 : 1,
+      duration: 100,
+      easing: Easing.ease,
+      useNativeDriver: false, // false because 'rotate' is not supported by native driver
+    }).start();
+  };
+
+  // Interpolate the rotation value to determine the degree of rotation
+  const rotateInterpolation = rotationValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '45deg'],
+  });
+
+  const animatedStyle: Animated.AnimatedProps<ViewStyle> = {
+    transform: [{rotate: rotateInterpolation}],
   };
 
   const onChangeText = (newText: string): void => {
@@ -371,9 +393,11 @@ const MessageBar = ({
             styles.textInput,
             replyTo ? {borderTopLeftRadius: 0, borderTopRightRadius: 0} : {},
           )}>
-          <Pressable style={styles.plus} onPress={togglePopUp}>
-            <Plus height={24} width={24} />
-          </Pressable>
+          <Animated.View style={[styles.plus, animatedStyle]}>
+            <Pressable onPress={togglePopUp}>
+              <Plus height={24} width={24} />
+            </Pressable>
+          </Animated.View>
 
           <View style={styles.textBox}>
             <GenericInput

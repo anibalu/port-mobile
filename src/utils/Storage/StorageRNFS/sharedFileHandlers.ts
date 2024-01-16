@@ -7,9 +7,8 @@ import {
 } from '../../../configs/paths';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
-
-const DEFAULT_ENCODING = 'base64';
-const WRITE_ENCODING = 'utf8';
+import {SHARED_FILE_SIZE_LIMIT_IN_BYTES} from '@configs/constants';
+import {decryptFile} from '@utils/Crypto/aesFile';
 
 /**
  * Creates a conversations directory if it doesn't exist and returns the path to it.
@@ -76,9 +75,9 @@ export async function moveToLargeFileDir(
     return fileUri;
   }
   if (contentType === ContentType.image || contentType === ContentType.video) {
-    return await moveToMediaDir(chatId, fileUri, fileName);
+    return addFilePrefix(await moveToMediaDir(chatId, fileUri, fileName));
   } else {
-    return await moveToFilesDir(chatId, fileUri, fileName);
+    return addFilePrefix(await moveToFilesDir(chatId, fileUri, fileName));
   }
 }
 
@@ -86,7 +85,7 @@ export async function moveToLargeFileDir(
  * Creates a copy of the large file in the files directory of a chat.
  * @returns {Promise<string>} A Promise that resolves to the destination path.
  */
-export async function moveToFilesDir(
+async function moveToFilesDir(
   chatId: string,
   fileUri: string,
   fileName: string,
@@ -102,7 +101,7 @@ export async function moveToFilesDir(
  * Creates a copy of the large file in the media directory of a chat.
  * @returns {Promise<string>} A Promise that resolves to the destination path.
  */
-export async function moveToMediaDir(
+async function moveToMediaDir(
   chatId: string,
   fileUri: string,
   fileName: string,
@@ -114,49 +113,6 @@ export async function moveToMediaDir(
   return destinationPath;
 }
 
-/**
- * Saves the large file in the files directory of a chat.
- * @returns {Promise<string>} A Promise that resolves to the destination path.
- */
-export async function saveToFilesDir(
-  chatId: string,
-  plaintext: string,
-  fileName: string,
-  encoding: string = DEFAULT_ENCODING,
-): Promise<string> {
-  const chatIdDir = await initialiseLargeFileDirAsync(chatId);
-  const destinationPath =
-    chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
-  await RNFS.writeFile(destinationPath, plaintext, encoding);
-  return 'file://' + destinationPath;
-}
-
-/**
- * Saves the large file in the media directory of a chat.
- * @returns {Promise<string>} A Promise that resolves to the destination path.
- */
-export async function saveToMediaDir(
-  chatId: string,
-  plaintext: string,
-  fileName: string,
-  encoding: string = DEFAULT_ENCODING,
-): Promise<string> {
-  const chatIdDir = await initialiseLargeFileDirAsync(chatId);
-  const destinationPath =
-    chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
-  await RNFS.writeFile(destinationPath, plaintext, encoding);
-  return 'file://' + destinationPath;
-}
-
-/**
- * Read a binary file and output its contents as a base64 encoded string.
- * @param {string} fileUri - Uri of the binary file to read
- * @returns {Promise<string>} A Promise that resolves to the base64 encoded string.
- */
-export async function readFileBase64(fileUri: string): Promise<string> {
-  return await RNFS.readFile(fileUri, 'base64');
-}
-
 async function initialiseTempDirAsync() {
   const tempDirPath = RNFS.DocumentDirectoryPath + `${tempDir}`;
   const folderExists = await RNFS.exists(tempDirPath);
@@ -166,23 +122,6 @@ async function initialiseTempDirAsync() {
     await RNFS.mkdir(tempDirPath);
     return tempDirPath;
   }
-}
-
-export async function createTempFileUpload(data: string): Promise<string> {
-  const tempDirPath = await initialiseTempDirAsync();
-  const tempName = getTempFileId() + '.txt';
-  const tempFilePath = tempDirPath + '/' + tempName;
-  await RNFS.writeFile(tempFilePath, data, WRITE_ENCODING);
-  return tempFilePath;
-}
-
-export async function deleteTempFileUpload(tempFilePath: string) {
-  await RNFS.unlink(tempFilePath);
-}
-
-async function getTempFileId() {
-  const date = new Date();
-  return date.getTime().toString();
 }
 
 //use this function to fetch media files of a particular chat
@@ -199,10 +138,114 @@ export async function fetchFilesInFileDir(chatId: string) {
   return files;
 }
 
-export async function deleteMediaOrFile(fileUri: string) {
+export async function checkFileSizeWithinLimits(fileUri: string) {
   try {
-    await RNFS.unlink(fileUri);
+    const fileSize = (await RNFS.stat(fileUri)).size;
+    if (fileSize && fileSize < SHARED_FILE_SIZE_LIMIT_IN_BYTES) {
+      return true;
+    }
+    return false;
   } catch (error) {
-    console.log('error deleting file: ', fileUri);
+    console.log('Error checking if file size within limits: ', error);
+    return false;
+  }
+}
+
+export async function initialiseEncryptedTempFile(
+  fileName: string = '',
+): Promise<string> {
+  const tempDirPath = await initialiseTempDirAsync();
+  const tempName = fileName + '_' + generateRandomHexId() + '.enc';
+  const tempFilePath = tempDirPath + '/' + tempName;
+  await RNFS.writeFile(tempFilePath, '');
+  return tempFilePath;
+}
+
+export async function deleteFile(tempFilePath: string) {
+  try {
+    await RNFS.unlink(tempFilePath);
+  } catch (error) {
+    console.log('Error deleting file: ', error);
+  }
+}
+
+export async function decryptToLargeFileDir(
+  chatId: string,
+  contentType: ContentType,
+  encryptedFilePath: string,
+  key: string,
+  fileName: string,
+): Promise<string> {
+  if (
+    contentType === ContentType.image ||
+    contentType === ContentType.video ||
+    contentType === ContentType.displayImage
+  ) {
+    return await decryptToMediaDir(chatId, encryptedFilePath, key, fileName);
+  } else {
+    return await decryptToFilesDir(chatId, encryptedFilePath, key, fileName);
+  }
+}
+
+async function decryptToMediaDir(
+  chatId: string,
+  encryptedFilePath: string,
+  key: string,
+  fileName: string,
+): Promise<string> {
+  const chatIdDir = await initialiseLargeFileDirAsync(chatId);
+  const destinationPath =
+    chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
+  await decryptFile(encryptedFilePath, destinationPath, key);
+  return addFilePrefix(destinationPath);
+}
+
+async function decryptToFilesDir(
+  chatId: string,
+  encryptedFilePath: string,
+  key: string,
+  fileName: string,
+): Promise<string> {
+  const chatIdDir = await initialiseLargeFileDirAsync(chatId);
+  const destinationPath =
+    chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
+  await decryptFile(encryptedFilePath, destinationPath, key);
+  return addFilePrefix(destinationPath);
+}
+
+export async function downloadResource(fromUrl: string) {
+  const encryptedFilePath = await initialiseEncryptedTempFile();
+  try {
+    const downloadOptions = {
+      fromUrl: fromUrl,
+      toFile: encryptedFilePath,
+    };
+    const response = await RNFS.downloadFile(downloadOptions).promise;
+    if (response.statusCode === 200) {
+      console.log('file downloaded successfully');
+      return encryptedFilePath;
+    }
+    console.log('response code: ', response.statusCode);
+    throw new Error('ResponseError');
+  } catch (error) {
+    console.log('error downloading resource: ', error);
+    await deleteFile(encryptedFilePath);
+    throw new Error('DownloadError');
+  }
+}
+
+export function addFilePrefix(fileUri: string) {
+  if (fileUri.substring(0, 7) === 'file://') {
+    return fileUri;
+  } else {
+    return 'file://' + fileUri;
+  }
+}
+
+export function removeFilePrefix(fileUri: string) {
+  if (fileUri.substring(0, 7) === 'file://') {
+    return fileUri.substring(7);
+  } else {
+    return fileUri;
   }
 }

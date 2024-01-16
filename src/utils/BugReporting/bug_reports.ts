@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {BUG_REPORTING_ENDPOINT} from '@configs/api';
-import {uploadRawMedia} from '../Messaging/LargeData/largeData';
+import {uploadRawMedia} from '../Messaging/LargeData';
 
 async function submitBugReport(
   category: string,

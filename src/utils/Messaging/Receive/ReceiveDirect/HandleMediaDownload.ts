@@ -1,11 +1,8 @@
+import {DEFAULT_AVATAR} from '@configs/constants';
 import store from '@store/appStore';
-import {decryptFile} from '@utils/Crypto/aes';
-import {downloadData} from '@utils/Messaging/LargeData/largeData';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
 import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
-import {
-  saveToFilesDir,
-  saveToMediaDir,
-} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import * as storage from '@utils/Storage/messages';
 import {getMessage} from '@utils/Storage/messages';
 import {createThumbnail} from 'react-native-create-thumbnail';
@@ -24,26 +21,15 @@ export const handleAsyncMediaDownload = async (
     const mediaId = (message.data as LargeDataParams).mediaId;
     const key = (message.data as LargeDataParams).key;
     if (mediaId && key) {
-      const ciphertext = await downloadData(mediaId);
-      if (!ciphertext) {
-        throw new Error('NoMediaAvailable');
-      }
-      //decrypt media with key
-      const plaintext = await decryptFile(ciphertext, key);
-
-      const fileUri =
-        message.contentType === ContentType.file
-          ? await saveToFilesDir(
-              chatId,
-              plaintext,
-              (message.data as LargeDataParams).fileName,
-            )
-          : await saveToMediaDir(
-              chatId,
-              plaintext,
-              (message.data as LargeDataParams).fileName,
-            );
-
+      const downloader = new LargeDataDownload(
+        chatId,
+        message.contentType,
+        mediaId,
+        key,
+        (message.data as LargeDataParams).fileName,
+      );
+      await downloader.download();
+      const fileUri = downloader.getDownloadedFilePath();
       const previewPath =
         message.contentType === ContentType.video
           ? await createThumbnail({
@@ -60,7 +46,10 @@ export const handleAsyncMediaDownload = async (
         key: null,
         previewUri: previewPath?.path ? previewPath.path : undefined,
       };
-
+      if (message.contentType === ContentType.displayImage) {
+        const chat = new DirectChat(chatId);
+        await chat.updateDisplayPic(fileUri || DEFAULT_AVATAR);
+      }
       await storage.updateMessage(chatId, messageId, data);
       store.dispatch({
         type: 'NEW_MEDIA_STATUS_UPDATE',

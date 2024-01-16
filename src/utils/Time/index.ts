@@ -1,7 +1,4 @@
-import {
-  ARTIFICIAL_LOADER_INTERVAL,
-  MEDIA_ID_AND_KEY_VALIDITY_INTERVAL,
-} from '../../configs/constants';
+import {ARTIFICIAL_LOADER_INTERVAL} from '../../configs/constants';
 import {expiryDuration, expiryOptionsTypes} from './interfaces';
 
 /**
@@ -181,24 +178,6 @@ export function getDateStamp(isoString: string | undefined): string {
     // Format date
     const formattedDate = inputDate.toLocaleDateString('en-US');
     return `${formattedDate}`;
-  }
-}
-
-/**
- * Checks if media Id and key are still valid or if they've expired.
- */
-export function checkMediaIdAndKeyValidity(timestamp: string) {
-  try {
-    const timeStamp: Date = new Date(timestamp);
-    const now: Date = new Date();
-    const timeDiff = now.getTime() - timeStamp.getTime();
-    if (timeDiff <= MEDIA_ID_AND_KEY_VALIDITY_INTERVAL) {
-      return true;
-    } else {
-      return false;
-    }
-  } catch (error) {
-    return false;
   }
 }
 

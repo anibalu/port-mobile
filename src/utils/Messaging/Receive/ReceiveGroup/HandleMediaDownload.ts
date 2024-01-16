@@ -1,14 +1,9 @@
 import store from '@store/appStore';
-import {decryptFile} from '@utils/Crypto/aes';
 import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
-import {downloadData} from '@utils/Messaging/LargeData/largeData';
-import {
-  saveToFilesDir,
-  saveToMediaDir,
-} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {getMessage} from '@utils/Storage/messages';
 import * as storage from '@utils/Storage/messages';
 import {createThumbnail} from 'react-native-create-thumbnail';
+import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
 /**
  * Function to handle media download for a message. Can be called asynchronosly, or awaited.
  * @param chatId
@@ -23,25 +18,15 @@ export const handleAsyncMediaDownload = async (
     const mediaId = (message.data as LargeDataParams).mediaId;
     const key = (message.data as LargeDataParams).key;
     if (mediaId && key) {
-      const ciphertext = await downloadData(mediaId);
-      if (!ciphertext) {
-        throw new Error('NoMediaAvailable');
-      }
-      //decrypt media with key
-      const plaintext = await decryptFile(ciphertext, key);
-
-      const fileUri =
-        message.contentType === ContentType.file
-          ? await saveToFilesDir(
-              chatId,
-              plaintext,
-              (message.data as LargeDataParams).fileName,
-            )
-          : await saveToMediaDir(
-              chatId,
-              plaintext,
-              (message.data as LargeDataParams).fileName,
-            );
+      const downloader = new LargeDataDownload(
+        chatId,
+        message.contentType,
+        mediaId,
+        key,
+        (message.data as LargeDataParams).fileName,
+      );
+      await downloader.download();
+      const fileUri = downloader.getDownloadedFilePath();
 
       const previewPath =
         message.contentType === ContentType.video
@@ -51,7 +36,6 @@ export const handleAsyncMediaDownload = async (
               cacheName: mediaId,
             })
           : undefined;
-
       const data = {
         ...(message.data as LargeDataParams),
         fileUri: fileUri,

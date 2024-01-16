@@ -20,6 +20,7 @@ import {
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
+import {moveToLargeFileDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
@@ -224,8 +225,17 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         if (data.contentType === ContentType.video) {
           data.data.previewUri = data.thumbnailUri;
         }
-        const sender = new SendMessage(mbr.chatId, data.contentType, data.data);
-        await sender.send();
+        const newData = {
+          ...data.data,
+          fileUri: await moveToLargeFileDir(
+            mbr.chatId,
+            data.data.fileUri,
+            data.data.fileName,
+            data.contentType,
+          ),
+        };
+        const sender = new SendMessage(mbr.chatId, data.contentType, newData);
+        sender.send();
       }
     }
     setSending(false);

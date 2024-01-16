@@ -6,7 +6,7 @@ import {
   SavedMessageParams,
 } from '../Messaging/interfaces';
 import * as DBCalls from './DBCalls/lineMessage';
-import {deleteMediaOrFile} from './StorageRNFS/sharedFileHandlers';
+import {deleteFile} from './StorageRNFS/sharedFileHandlers';
 
 /**
  * saves message to storage.
@@ -154,7 +154,7 @@ export async function cleanDeleteMessage(chatId: string, messageId: string) {
       const data = message.data as LargeDataParams;
       const fileUri = data.fileUri;
       if (fileUri) {
-        await deleteMediaOrFile(fileUri);
+        await deleteFile(fileUri);
       }
     }
     await permanentlyDeleteMessage(chatId, messageId);

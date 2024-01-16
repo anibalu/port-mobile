@@ -11,7 +11,6 @@ export const BUNDLE_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;
 export const ERROR_MODAL_VALIDITY_TIMEOUT = 3000;
 export const SELECTED_MESSAGES_LIMIT = 20;
 export const START_OF_TIME = '2023-11-30T09:47:11Z';
-export const MEDIA_ID_AND_KEY_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;
 export const MESSAGE_DATA_MAX_LENGTH = 2048;
 
 //UI Definitions for elements
@@ -42,3 +41,5 @@ export const DEFAULT_PROFILE_AVATAR_INFO: FileAttributes = {
   fileType: 'avatar',
 };
 export const MAX_PERMISSION_PRESETS = 5;
+export const SHARED_FILE_SIZE_LIMIT_IN_BYTES = 10000000; //10MB limit
+export const FILE_ENCRYPTION_KEY_LENGTH = 160;

@@ -9,13 +9,9 @@ import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {moveToLargeFileDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {checkFileSizeWithinLimits} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import * as storage from '@utils/Storage/messages';
-import {
-  checkMediaIdAndKeyValidity,
-  generateExpiresOnISOTimestamp,
-  generateISOTimeStamp,
-} from '@utils/Time';
+import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
 import {
   ContactBundleParams,
   ContentType,
@@ -30,9 +26,9 @@ import {
   SavedMessageParams,
   TextParams,
 } from '../interfaces';
-import {uploadLargeFile} from '../LargeData/largeData';
 import * as API from './APICalls';
 import {getChatPermissions} from '@utils/ChatPermissions';
+import LargeDataUpload from '../LargeData/LargeDataUpload';
 
 class SendMessage<T extends ContentType> {
   private chatId: string; //chatId of chat
@@ -90,15 +86,13 @@ class SendMessage<T extends ContentType> {
       //load up saved message in storage if it exists
       await this.loadSavedMessage();
       //perform rudimentary checks before progressing further
-      this.validateMessage();
+      await this.validateMessage();
       //pre-process message appropriately.
       await this.preProcessMessage(journal);
       //get processed payload that can be sent.
       const processedPayload = await this.processPayload(shouldEncrypt);
       //try sending encrypted payload
       const newSendStatus = await this.trySending(processedPayload);
-      //post-process large data message to update new data and timestamp in storage.
-      await this.postProcessLargeDataMessage(newSendStatus);
       //update status of message based on output of try sending operation
       await this.updateSendStatus(newSendStatus);
       //update connection with relevant information
@@ -140,7 +134,7 @@ class SendMessage<T extends ContentType> {
   }
 
   //do rudimentary checks
-  private validateMessage() {
+  private async validateMessage() {
     try {
       if (this.savedMessage.messageStatus === MessageStatus.sent) {
         throw new Error('MessageAlreadySentError');
@@ -152,8 +146,12 @@ class SendMessage<T extends ContentType> {
         throw new Error('MessageDataTooBigError');
       }
       if (this.isLargeDataMessage()) {
-        if (!(this.data as LargeDataParams).fileUri) {
+        const fileUri = (this.data as LargeDataParams).fileUri;
+        if (!fileUri) {
           throw new Error('LargeDataFileUriNullError');
+        }
+        if (!(await checkFileSizeWithinLimits(fileUri))) {
+          throw new Error('FileTooLarge');
         }
       }
     } catch (error) {
@@ -183,99 +181,59 @@ class SendMessage<T extends ContentType> {
   }
 
   private async preProcessMessage(journal: boolean) {
-    const isLargeDataMessage = this.isLargeDataMessage();
-    if (isLargeDataMessage) {
-      await this.preProcessLargeDataMessage(journal);
-    } else {
+    if (journal) {
       //save message to storage if journaling is on
-      await this.saveMessage(journal);
+      await this.saveMessage();
+      //preprocesses large data message if message is large data message
+      await this.preProcessLargeDataMessage();
     }
   }
+
   //we would like this process to:
-  //1. ensure large data file is in local chat storage
-  //2. valid media Id and key are part of message data
-  //3. payload is prepped properly to be encrypted and sent
-  private async preProcessLargeDataMessage(journal: boolean) {
+  //1. valid media Id and key are part of message data
+  //2. payload is prepped properly to be encrypted and sent
+  private async preProcessLargeDataMessage() {
     const isLargeDataMessage = this.isLargeDataMessage();
     //only run if message is large data message
     if (isLargeDataMessage) {
+      //create valid media Id and key.
       const largeData = this.data as LargeDataParamsStrict;
-      if (largeData.mediaId && largeData.key) {
-        //if media Id and key exist:
-        //1. make sure they are still valid
-        //2. If not valid, create valid media Id and key again.
-        await this.saveMessage(journal);
-        if (!checkMediaIdAndKeyValidity(this.savedMessage.timestamp)) {
-          const newMediaIdAndKey = await uploadLargeFile(largeData.fileUri);
-          largeData.mediaId = newMediaIdAndKey.mediaId;
-          largeData.key = newMediaIdAndKey.key;
-        }
-      } else {
-        //if media Id and key don't exist:
-        //1. create a copy of file in chat storage and save message if journal is ON
-        const localCopyPath = await moveToLargeFileDir(
-          this.chatId,
-          largeData.fileUri,
-          largeData.fileName,
-          this.contentType,
-        );
-        largeData.fileUri = localCopyPath;
-        this.data = {...this.data, ...largeData};
-        this.savedMessage.data = this.data;
-        await this.saveMessage(journal);
-        //2. create valid media Id and key.
-        const newMediaIdAndKey = await uploadLargeFile(largeData.fileUri);
-        largeData.mediaId = newMediaIdAndKey.mediaId;
-        largeData.key = newMediaIdAndKey.key;
-      }
-      //data now contains valid local fileUri, mediaId and key
-      this.data = {...this.data, ...largeData};
-      //update saved message
-      this.savedMessage.data = this.data;
-      this.savedMessage.timestamp = generateISOTimeStamp();
+      const uploader = new LargeDataUpload(
+        largeData.fileUri,
+        largeData.fileName,
+        largeData.fileType,
+      );
+      await uploader.upload();
+      const newMediaIdAndKey = uploader.getMediaIdAndKey();
       //prep payload
       this.payload.data = {
-        ...(this.data as LargeDataParams),
         ...this.data,
         fileUri: null,
+        mediaId: newMediaIdAndKey.mediaId,
+        key: newMediaIdAndKey.key,
       };
     }
   }
 
-  //We would like this process to:
-  //1. If new send status is journaled, update stored message data so it contains latest media Id and key.
-  //2. otherwise, update stored message data so it doesn't contain a media Id and key.
-  private async postProcessLargeDataMessage(newSendStatus: MessageStatus) {
-    const isLargeDataMessage = this.isLargeDataMessage();
-    //only run if message is large data message
-    if (isLargeDataMessage) {
-      if (newSendStatus === MessageStatus.journaled) {
-        await storage.updateMessage(this.chatId, this.messageId, this.data);
-      } else {
-        await storage.updateMessage(this.chatId, this.messageId, {
-          ...this.data,
-          mediaId: null,
-          key: null,
-        });
-      }
-    }
-  }
-
   //save message to storage
-  private async saveMessage(shouldSave: boolean) {
-    if (shouldSave) {
-      //save message to storage with "unassigned" sendStatus
-      await storage.saveMessage(this.savedMessage);
-      //update redux store that a new message will be sent
-      store.dispatch({
-        type: 'NEW_SENT_MESSAGE',
-        payload: this.payload,
-      });
-    }
+  private async saveMessage() {
+    //save message to storage with "unassigned" sendStatus
+    await storage.saveMessage(this.savedMessage);
+    //update redux store that a new message will be sent
+    store.dispatch({
+      type: 'NEW_SENT_MESSAGE',
+      payload: this.payload,
+    });
   }
 
   //update message send status
   private async updateSendStatus(newSendStatus: MessageStatus) {
+    //Large data message cannot be journaled
+    if (newSendStatus === MessageStatus.journaled) {
+      if (this.isLargeDataMessage()) {
+        throw new Error('LargeDataMessageCannotBeJournaled');
+      }
+    }
     //update send status
     await storage.updateMessageSendStatus(
       this.chatId,
@@ -314,7 +272,9 @@ class SendMessage<T extends ContentType> {
       case ContentType.image:
         await updateConnectionOnNewMessage({
           chatId: this.chatId,
-          text: 'sent image: ' + (this.data as LargeDataParams).text || '',
+          text:
+            (this.data as LargeDataParams).text ||
+            'sent image: ' + (this.data as LargeDataParams).fileName,
           readStatus: readStatus,
           recentMessageType: this.contentType,
         });
@@ -322,7 +282,9 @@ class SendMessage<T extends ContentType> {
       case ContentType.video:
         await updateConnectionOnNewMessage({
           chatId: this.chatId,
-          text: 'sent video: ' + (this.data as LargeDataParams).text || '',
+          text:
+            (this.data as LargeDataParams).text ||
+            'sent video: ' + (this.data as LargeDataParams).fileName,
           readStatus: readStatus,
           recentMessageType: this.contentType,
         });
@@ -330,7 +292,9 @@ class SendMessage<T extends ContentType> {
       case ContentType.file:
         await updateConnectionOnNewMessage({
           chatId: this.chatId,
-          text: 'sent file: ' + (this.data as LargeDataParams).text || '',
+          text:
+            (this.data as LargeDataParams).text ||
+            'sent file: ' + (this.data as LargeDataParams).fileName,
           readStatus: readStatus,
           recentMessageType: this.contentType,
         });

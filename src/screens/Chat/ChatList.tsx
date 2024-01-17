@@ -1,10 +1,10 @@
+import DirectChat from '@utils/DirectChats/DirectChat';
+import Group from '@utils/Groups/Group';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {checkDateBoundary} from '@utils/Time';
 import React, {ReactNode} from 'react';
 import {FlatList} from 'react-native-bidirectional-infinite-scroll';
 import MessageBubble from './MessageBubble';
-import Group from '@utils/Groups/Group';
-import DirectChat from '@utils/DirectChats/DirectChat';
 /**
  * Renders an inverted flatlist that displays all chat messages.
  * @param messages - messages to be displayed
@@ -46,11 +46,8 @@ function ChatList({
     item: SavedMessageParams;
     index: number;
   }) => {
-    if (
-      item.contentType === ContentType.displayImage ||
-      item.contentType === ContentType.contactBundleRequest ||
-      item.contentType === ContentType.contactBundleResponse
-    ) {
+    //Putting this first skips all initialisation for the component, more efficient
+    if (shouldNotRender(item.contentType)) {
       return null;
     }
     //Checks if a date bubbled needs to be displayed.
@@ -84,6 +81,28 @@ function ChatList({
       onEndReached={onStartReached}
     />
   );
+}
+
+/**
+ * Determines if nothing should be rendered. Is defined here to prevent any bubble state initialisation.
+ * @param contentType - message content type
+ */
+function shouldNotRender(contentType: ContentType) {
+  if (
+    contentType === ContentType.handshakeA1 ||
+    contentType === ContentType.handshakeB2 ||
+    contentType === ContentType.newChat ||
+    contentType === ContentType.displayImage ||
+    contentType === ContentType.displayAvatar ||
+    contentType === ContentType.contactBundleRequest ||
+    contentType === ContentType.contactBundleDenialResponse ||
+    contentType === ContentType.contactBundleResponse ||
+    contentType === ContentType.initialInfoRequest
+  ) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 export default ChatList;

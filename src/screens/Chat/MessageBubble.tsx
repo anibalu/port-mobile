@@ -110,12 +110,7 @@ const MessageBubble = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
-  if (
-    message.contentType === ContentType.handshakeA1 ||
-    message.contentType === ContentType.handshakeB2
-  ) {
-    return null;
-  }
+
   return (
     <View style={styles.parentContainer}>
       {isDateBoundary ? (
@@ -163,14 +158,7 @@ const MessageBubble = ({
  * @returns {boolean} - whether message is a data message
  */
 function isDataMessage(contentType: ContentType) {
-  if (
-    contentType === ContentType.newChat ||
-    contentType === ContentType.displayImage ||
-    contentType === ContentType.handshakeA1 ||
-    contentType === ContentType.handshakeB2 ||
-    contentType === ContentType.name ||
-    contentType === ContentType.info
-  ) {
+  if (contentType === ContentType.name || contentType === ContentType.info) {
     return true;
   }
   return false;

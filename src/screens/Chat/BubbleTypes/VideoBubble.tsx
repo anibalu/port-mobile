@@ -16,12 +16,7 @@ import {
   View,
 } from 'react-native';
 import FileViewer from 'react-native-file-viewer';
-import {
-  renderMediaReplyBubble,
-  renderProfileName,
-  renderTimeStamp,
-  shouldRenderProfileName,
-} from '../BubbleUtils';
+import {renderProfileName, shouldRenderProfileName} from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
 //import store from '@store/appStore';
 
@@ -31,14 +26,12 @@ export default function VideoBubble({
   handleLongPress,
   handleDownload,
   memberName,
-  isReply = false,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
   handleDownload: (x: string) => Promise<void>;
   memberName: string;
-  isReply?: boolean;
 }): ReactNode {
   const [videoURI, setVideoURI] = useState<string | null>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -84,47 +77,35 @@ export default function VideoBubble({
       style={styles.textBubbleContainer}
       onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
-      {isReply ? (
-        renderMediaReplyBubble(
-          memberName,
-          message,
-          (message.data as LargeDataParams).previewUri,
-          'Video',
-        )
-      ) : (
-        <>
-          {renderProfileName(
-            shouldRenderProfileName(memberName),
-            memberName,
-            message.sender,
-            isReply,
-          )}
-
-          {loading || startedManualDownload ? (
-            <Loader />
-          ) : (
-            renderDisplay(
-              (message.data as LargeDataParams).previewUri,
-              message.data as LargeDataParams,
-            )
-          )}
-
-          {(message.data as LargeDataParams).text ? (
-            <View
-              style={{
-                marginTop: 8,
-                marginHorizontal: 8,
-              }}>
-              <NumberlessLinkText
-                fontSizeType={FontSizeType.m}
-                fontType={FontType.rg}>
-                {(message.data as LargeDataParams).text || ''}
-              </NumberlessLinkText>
-            </View>
-          ) : null}
-        </>
+      {renderProfileName(
+        shouldRenderProfileName(memberName),
+        memberName,
+        message.sender,
+        false,
       )}
-      {!isReply && renderTimeStamp(message)}
+
+      {loading || startedManualDownload ? (
+        <Loader />
+      ) : (
+        renderDisplay(
+          (message.data as LargeDataParams).previewUri,
+          message.data as LargeDataParams,
+        )
+      )}
+
+      {(message.data as LargeDataParams).text ? (
+        <View
+          style={{
+            marginTop: 8,
+            marginHorizontal: 8,
+          }}>
+          <NumberlessLinkText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}>
+            {(message.data as LargeDataParams).text || ''}
+          </NumberlessLinkText>
+        </View>
+      ) : null}
     </Pressable>
   );
 }

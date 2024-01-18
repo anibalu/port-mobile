@@ -94,6 +94,14 @@ export function renderProfileName(
   );
 }
 
+/**
+ * Handles rendering of both Image and Video reply bubble components.
+ * @param memberName
+ * @param message
+ * @param mediaURI
+ * @param type - Video or Image
+ * @returns
+ */
 export const renderMediaReplyBubble = (
   memberName: string,
   message: SavedMessageParams,
@@ -101,15 +109,10 @@ export const renderMediaReplyBubble = (
   type: 'Video' | 'Image',
 ) => {
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}>
+    <View style={styles.mediaReplyContainer}>
       <View
         style={{
           flexDirection: 'column',
-          maxWidth: '72%',
           marginRight: 22,
         }}>
         {renderProfileName(
@@ -140,7 +143,14 @@ export const renderMediaReplyBubble = (
           }}
         />
       ) : (
-        <View />
+        <View
+          style={{
+            height: 60, // Set the maximum height you desire
+            width: 60, // Set the maximum width you desire
+            borderRadius: 16,
+            backgroundColor: PortColors.primary.black,
+          }}
+        />
       )}
     </View>
   );
@@ -151,5 +161,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     marginTop: 3,
     alignSelf: 'flex-end',
+  },
+  mediaReplyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexGrow: 1,
+    justifyContent: 'space-between',
   },
 });

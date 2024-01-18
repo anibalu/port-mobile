@@ -3,21 +3,23 @@ import {
   FontType,
   NumberlessLinkText,
 } from '@components/NumberlessText';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  LargeDataParams,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
 import {getMessage} from '@utils/Storage/messages';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
 import {PortColors} from '@components/ComponentUtils';
-import Group from '@utils/Groups/Group';
-import {renderTimeStamp} from '../BubbleUtils';
-import FileBubble from './FileBubble';
-import ImageBubble from './ImageBubble';
-import TextBubble from './TextBubble';
-import VideoBubble from './VideoBubble';
-import DirectChat from '@utils/DirectChats/DirectChat';
 import {DEFAULT_NAME} from '@configs/constants';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import Group from '@utils/Groups/Group';
+import {renderMediaReplyBubble, renderTimeStamp} from '../BubbleUtils';
 import DeletedReplyContainer from '../ReplyContainers/DeletedReplyContainer';
+import FileBubble from './FileBubble';
+import TextBubble from './TextBubble';
 
 /**
  * We get the message that needs to be shown, and the person who sent the message is the memberName.
@@ -102,14 +104,11 @@ const ReplyBubble = ({
         );
       }
       case ContentType.image: {
-        return (
-          <ImageBubble
-            message={replyMessage}
-            memberName={displayMemberName}
-            handlePress={handlePress}
-            handleLongPress={handleLongPress}
-            isReply={true}
-          />
+        return renderMediaReplyBubble(
+          memberName,
+          message,
+          (replyMessage.data as LargeDataParams).fileUri,
+          'Image',
         );
       }
       case ContentType.file: {
@@ -118,20 +117,18 @@ const ReplyBubble = ({
             message={replyMessage}
             memberName={displayMemberName}
             handlePress={handlePress}
+            handleDownload={async () => {}}
             handleLongPress={handleLongPress}
             isReply={true}
           />
         );
       }
       case ContentType.video: {
-        return (
-          <VideoBubble
-            message={replyMessage}
-            memberName={displayMemberName}
-            handlePress={handlePress}
-            handleLongPress={handleLongPress}
-            isReply={true}
-          />
+        return renderMediaReplyBubble(
+          memberName,
+          message,
+          (replyMessage.data as LargeDataParams).fileUri,
+          'Video',
         );
       }
       default: {
@@ -151,7 +148,8 @@ const ReplyBubble = ({
         <View
           style={replyMessage.sender ? styles.senderLine : styles.receiverLine}
         />
-        <View style={styles.textMessage}>{getBubble()}</View>
+
+        {getBubble()}
       </View>
 
       {/* TODO add reply bubbles for other data types */}
@@ -177,14 +175,13 @@ const styles = StyleSheet.create({
     width: 4,
     backgroundColor: PortColors.primary.white,
     borderRadius: 2,
+    marginRight: 10,
   },
   receiverLine: {
     width: 4,
     backgroundColor: PortColors.primary.blue.app,
     borderRadius: 2,
-  },
-  textMessage: {
-    paddingLeft: 10,
+    marginRight: 10,
   },
   receiverBubble: {
     backgroundColor: '#B7B6B64D',

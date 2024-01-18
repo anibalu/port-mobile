@@ -15,12 +15,7 @@ import {
   View,
 } from 'react-native';
 import FileViewer from 'react-native-file-viewer';
-import {
-  renderMediaReplyBubble,
-  renderProfileName,
-  renderTimeStamp,
-  shouldRenderProfileName,
-} from '../BubbleUtils';
+import {renderProfileName, shouldRenderProfileName} from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
 //import store from '@store/appStore';
 
@@ -32,14 +27,12 @@ export default function ImageBubble({
   handleDownload,
   handleLongPress,
   memberName,
-  isReply = false,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleDownload: (x: string) => Promise<void>;
   handleLongPress: any;
   memberName: string;
-  isReply?: boolean;
 }) {
   const [messageURI, setMessageURI] = useState<string | null>();
   const [startedManualDownload, setStartedManualDownload] = useState(false);
@@ -78,38 +71,33 @@ export default function ImageBubble({
       style={styles.textBubbleContainer}
       onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
-      {isReply ? (
-        renderMediaReplyBubble(memberName, message, messageURI, 'Image')
-      ) : (
-        <>
-          {renderProfileName(
-            shouldRenderProfileName(memberName),
-            memberName,
-            message.sender,
-            isReply,
-          )}
-          {startedManualDownload ? (
-            <Loader />
-          ) : (
-            renderDisplay(messageURI, message.data as LargeDataParams)
-          )}
+      <>
+        {renderProfileName(
+          shouldRenderProfileName(memberName),
+          memberName,
+          message.sender,
+          false,
+        )}
+        {startedManualDownload ? (
+          <Loader />
+        ) : (
+          renderDisplay(messageURI, message.data as LargeDataParams)
+        )}
 
-          {(message.data as LargeDataParams).text ? (
-            <View
-              style={{
-                marginTop: 8,
-                marginHorizontal: 8,
-              }}>
-              <NumberlessLinkText
-                fontSizeType={FontSizeType.m}
-                fontType={FontType.rg}>
-                {(message.data as LargeDataParams).text || ''}
-              </NumberlessLinkText>
-            </View>
-          ) : null}
-        </>
-      )}
-      {!isReply && renderTimeStamp(message)}
+        {(message.data as LargeDataParams).text ? (
+          <View
+            style={{
+              marginTop: 8,
+              marginHorizontal: 8,
+            }}>
+            <NumberlessLinkText
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}>
+              {(message.data as LargeDataParams).text || ''}
+            </NumberlessLinkText>
+          </View>
+        ) : null}
+      </>
     </Pressable>
   );
 }

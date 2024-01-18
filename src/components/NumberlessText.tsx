@@ -59,11 +59,13 @@ export const NumberlessLinkText: React.FC<
   fontType,
   fontSizeType,
   textColor = PortColors.text.primary,
+  numberOfLines = 3,
   ...rest
 }) => (
   <Autolink
     text={children}
     url
+    numberOfLines={numberOfLines}
     email
     renderText={text => (
       <NumberlessText

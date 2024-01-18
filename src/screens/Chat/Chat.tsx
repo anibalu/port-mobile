@@ -207,8 +207,6 @@ function Chat({route, navigation}: Props) {
             : DEFAULT_AVATAR;
         }
 
-        //toggle chat as read
-        await toggleRead(chatId);
         await sendJournaled();
         //set saved messages
         const resp = await readPaginatedMessages(chatId);

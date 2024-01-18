@@ -5,6 +5,7 @@ import {checkDateBoundary} from '@utils/Time';
 import React, {ReactNode} from 'react';
 import {FlatList} from 'react-native-bidirectional-infinite-scroll';
 import MessageBubble from './MessageBubble';
+import {toggleRead} from '@utils/Connections';
 /**
  * Renders an inverted flatlist that displays all chat messages.
  * @param messages - messages to be displayed
@@ -77,7 +78,9 @@ function ChatList({
       inverted
       keyExtractor={message => message.messageId}
       enableAutoscrollToTop={allowScrollToTop}
-      onStartReached={async () => {}}
+      onStartReached={() => {
+        toggleRead(chatId);
+      }}
       onEndReached={onStartReached}
     />
   );

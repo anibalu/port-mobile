@@ -163,7 +163,7 @@ const MessageBar = ({
         isChat: true,
       });
     }
-    setPopUpVisible(false);
+    togglePopUp();
   };
 
   const onImagePressed = async (): Promise<void> => {

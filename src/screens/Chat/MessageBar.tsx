@@ -328,7 +328,8 @@ const MessageBar = ({
               style={{
                 backgroundColor: '#fff',
                 width: MESSAGE_INPUT_TEXT_WIDTH + 48,
-                padding: 8,
+                paddingTop: 8,
+                paddingHorizontal: 8,
                 borderTopRightRadius: 24,
                 borderTopLeftRadius: 24,
                 marginLeft: 10,

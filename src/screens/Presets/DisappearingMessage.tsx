@@ -15,7 +15,6 @@ import {Pressable, StyleSheet, View} from 'react-native';
 const DisappearingMessage = ({
   setIsDisappearClicked,
   selected,
-
   setModifiedPreset,
 }) => {
   return (

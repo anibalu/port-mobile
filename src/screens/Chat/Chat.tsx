@@ -387,6 +387,8 @@ function Chat({route, navigation}: Props) {
       />
       <ChatList
         messages={messages}
+        setReplyTo={setReplyToMessage}
+        chatId={chatId}
         allowScrollToTop={enableAutoscrollToTop}
         onStartReached={onStartReached}
         selectedMessages={selectedMessages}

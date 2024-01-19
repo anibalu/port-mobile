@@ -59,7 +59,7 @@ export const NumberlessLinkText: React.FC<
   fontType,
   fontSizeType,
   textColor = PortColors.text.primary,
-  numberOfLines = 3,
+  numberOfLines = 0,
   ...rest
 }) => (
   <Autolink

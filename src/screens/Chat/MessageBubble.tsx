@@ -1,7 +1,7 @@
-import React, {ReactNode, memo, useEffect, useState} from 'react';
+import React, {ReactNode, memo, useEffect, useRef, useState} from 'react';
 
 import DefaultImage from '@assets/avatars/avatar.png';
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -15,8 +15,16 @@ import {
   LargeDataParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
+import {getMessage} from '@utils/Storage/messages';
 import {createDateBoundaryStamp} from '@utils/Time';
-import {Image, StyleSheet, View, ViewStyle} from 'react-native';
+import {
+  Animated,
+  Image,
+  PanResponder,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 import ContactSharingBubble from './BubbleTypes/ContactSharingBubble';
 import DataBubble from './BubbleTypes/DataBubble';
 import FileBubble from './BubbleTypes/FileBubble';
@@ -38,7 +46,12 @@ interface MessageBubbleProps {
   isGroupChat: boolean;
   handleDownload: (x: string) => Promise<void>;
   dataHandler: Group | DirectChat;
+  swipingCheck?: any;
+  chatId: string;
+  setReplyTo: Function;
 }
+
+const SWIPE_UPPER_THRESHOLD = screen.width / 5;
 
 /**
  * Individual chat bubbles
@@ -60,7 +73,67 @@ const MessageBubble = ({
   handleLongPress,
   isGroupChat,
   dataHandler,
+  swipingCheck,
+  chatId,
+  setReplyTo,
 }: MessageBubbleProps): ReactNode => {
+  const positionX = useRef(new Animated.Value(0)).current;
+  const scrollStopped = useRef(false);
+
+  const resetPosition = () => {
+    Animated.spring(positionX, {
+      toValue: 0,
+      useNativeDriver: true,
+      speed: 100,
+    }).start();
+  };
+
+  const performReply = async (): Promise<void> => {
+    setReplyTo(await getMessage(chatId, message.messageId));
+  };
+  const enableScrollView = (isEnabled: boolean) => {
+    if (scrollStopped.current !== isEnabled) {
+      swipingCheck(isEnabled);
+      scrollStopped.current = isEnabled;
+    }
+  };
+
+  const constrainedX = positionX.interpolate({
+    inputRange: [0, SWIPE_UPPER_THRESHOLD],
+    outputRange: [0, SWIPE_UPPER_THRESHOLD],
+    extrapolate: 'clamp',
+  });
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      //Determines when the pan responder should take control of any gesture. Used to allow longpresses and taps to pass through.
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        const {dx, dy} = gestureState;
+        return dx > 10 || dx < -10 || dy > 10 || dy < -10;
+      },
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderGrant: () => {
+        enableScrollView(true);
+      },
+      onPanResponderMove: Animated.event(
+        [
+          null,
+          {
+            dx: positionX,
+          },
+        ],
+        {useNativeDriver: false},
+      ),
+      onPanResponderRelease: (_, gesture) => {
+        resetPosition();
+        if (gesture.dx > 100) {
+          performReply();
+        }
+      },
+    }),
+  ).current;
+
   const [intitialContainerType, initialBlobType] = initialStylePicker(
     message.contentType,
     message.sender,
@@ -111,45 +184,65 @@ const MessageBubble = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
-  return (
-    <View style={styles.parentContainer}>
-      {isDateBoundary ? (
-        <NumberlessText
-          fontSizeType={FontSizeType.s}
-          fontType={FontType.md}
-          style={styles.dateContainer}
-          textColor={PortColors.text.messageBubble.timestamp}>
-          {createDateBoundaryStamp(message.timestamp)}
-        </NumberlessText>
-      ) : (
-        <View />
-      )}
-      <View style={containerType}>
-        {/**
-         * Profile image added if message is a received, non-data group message
-         */}
-        {!isDataMessage(message.contentType) &&
-          isGroupChat &&
-          !message.sender && (
-            <Image
-              source={{uri: chooseProfileURI()}}
-              style={styles.displayPicContainer}
-            />
-          )}
-        <View style={blobType}>
-          {renderBubbleType(
-            message,
-            isGroupChat,
-            handlePress,
-            handleLongPress,
-            handleDownload,
-            memberName,
-            dataHandler,
-          )}
+  //Any kind of data bubble shouldn't be replied to
+  if (isDataMessage(message.contentType)) {
+    return (
+      <View style={styles.parentContainer}>
+        {isDateBoundary ? renderTimestampBubble(message) : null}
+        <View style={containerType}>
+          <View style={blobType}>
+            {renderBubbleType(
+              message,
+              isGroupChat,
+              handlePress,
+              handleLongPress,
+              handleDownload,
+              memberName,
+              dataHandler,
+            )}
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  } else {
+    return (
+      <>
+        {isDateBoundary ? renderTimestampBubble(message) : null}
+
+        <Animated.View
+          {...panResponder.panHandlers}
+          style={{
+            transform: [{translateX: constrainedX}],
+            // position.getTranslateTransform(),
+          }}>
+          <View style={styles.parentContainer}>
+            <View style={containerType}>
+              {/**
+               * Profile image added if message is a received, non-data group message
+               */}
+              {isGroupChat && !message.sender && (
+                <Image
+                  source={{uri: chooseProfileURI()}}
+                  style={styles.displayPicContainer}
+                />
+              )}
+              <View style={blobType}>
+                {renderBubbleType(
+                  message,
+                  isGroupChat,
+                  handlePress,
+                  handleLongPress,
+                  handleDownload,
+                  memberName,
+                  dataHandler,
+                )}
+              </View>
+            </View>
+          </View>
+        </Animated.View>
+      </>
+    );
+  }
 };
 
 /**
@@ -214,6 +307,25 @@ function unselectedMessageBackgroundStylePicker(
       return styles.ReceiverBlob;
   }
 }
+
+/**
+ * Renders timestamp for bubbles
+ * @param message contains timestamp info
+ * @returns {ReactNode} for the timestamp
+ */
+const renderTimestampBubble = (message: SavedMessageParams): ReactNode => {
+  return (
+    <View style={styles.parentContainer}>
+      <NumberlessText
+        fontSizeType={FontSizeType.s}
+        fontType={FontType.md}
+        style={styles.dateContainer}
+        textColor={PortColors.text.messageBubble.timestamp}>
+        {createDateBoundaryStamp(message.timestamp)}
+      </NumberlessText>
+    </View>
+  );
+};
 
 /**
  * Responsible for displaying the right kind of message bubble for a message.

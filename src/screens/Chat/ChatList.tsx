@@ -2,10 +2,11 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {checkDateBoundary} from '@utils/Time';
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useState} from 'react';
 import {FlatList} from 'react-native-bidirectional-infinite-scroll';
 import MessageBubble from './MessageBubble';
 import {toggleRead} from '@utils/Connections';
+
 /**
  * Renders an inverted flatlist that displays all chat messages.
  * @param messages - messages to be displayed
@@ -28,6 +29,8 @@ function ChatList({
   onStartReached,
   isGroupChat,
   dataHandler,
+  chatId,
+  setReplyTo,
 }: {
   messages: SavedMessageParams[];
   allowScrollToTop: boolean;
@@ -38,6 +41,8 @@ function ChatList({
   handleDownload: (x: string) => Promise<void>;
   isGroupChat: boolean;
   dataHandler: Group | DirectChat;
+  chatId: string;
+  setReplyTo: Function;
 }): ReactNode {
   //render function to display message bubbles
   const renderMessage = ({
@@ -57,8 +62,14 @@ function ChatList({
         ? true
         : checkDateBoundary(item.timestamp, messages[index + 1].timestamp);
 
+    const onSwipe = () => {
+      setSwiping(p => !p);
+    };
+
     return (
       <MessageBubble
+        chatId={chatId}
+        swipingCheck={onSwipe}
         message={item}
         isDateBoundary={isDateBoundary}
         selected={selectedMessages}
@@ -67,19 +78,22 @@ function ChatList({
         handleLongPress={handleLongPress}
         isGroupChat={isGroupChat}
         dataHandler={dataHandler}
+        setReplyTo={setReplyTo}
       />
     );
   };
+  const [swiping, setSwiping] = useState(false);
 
   return (
     <FlatList
+      scrollEnabled={!swiping}
       data={messages}
       renderItem={renderMessage}
       inverted
       keyExtractor={message => message.messageId}
       enableAutoscrollToTop={allowScrollToTop}
-      onStartReached={() => {
-        toggleRead(chatId);
+      onStartReached={async () => {
+        await toggleRead(chatId);
       }}
       onEndReached={onStartReached}
     />

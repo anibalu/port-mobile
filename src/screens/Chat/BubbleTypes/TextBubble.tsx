@@ -30,7 +30,7 @@ export default function TextBubble({
       style={StyleSheet.compose(
         styles.textBubbleContainer,
         isReply
-          ? {alignItems: 'flex-start'}
+          ? {alignItems: 'flex-start', maxWidth: '95%'}
           : {alignItems: 'flex-end', paddingHorizontal: 8},
       )}
       onPress={() => {
@@ -60,6 +60,5 @@ const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
-    flex: 1,
   },
 });

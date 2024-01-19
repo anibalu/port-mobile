@@ -81,13 +81,15 @@ const ReplyBubble = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const displayMemberName = isGroup
+    ? replyMemberName != ''
+      ? replyMemberName
+      : ''
+    : memberName;
+
   const getBubble = () => {
     //This local check forces names to be updated when the replyMemberName state changes. Weird bug which requires this to be present
-    const displayMemberName = isGroup
-      ? replyMemberName != ''
-        ? replyMemberName
-        : ''
-      : memberName;
+
     switch (replyMessage.contentType) {
       case ContentType.deleted: {
         return <DeletedReplyContainer />;
@@ -148,7 +150,6 @@ const ReplyBubble = ({
         <View
           style={replyMessage.sender ? styles.senderLine : styles.receiverLine}
         />
-
         {getBubble()}
       </View>
 

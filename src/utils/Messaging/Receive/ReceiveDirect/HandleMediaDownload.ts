@@ -3,6 +3,7 @@ import store from '@store/appStore';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
 import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
+import {getRelativeURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import * as storage from '@utils/Storage/messages';
 import {getMessage} from '@utils/Storage/messages';
 import {createThumbnail} from 'react-native-create-thumbnail';
@@ -39,16 +40,23 @@ export const handleAsyncMediaDownload = async (
             })
           : undefined;
 
+      console.log('Downloaded file path: ', fileUri);
+
       const data = {
         ...(message.data as LargeDataParams),
-        fileUri: fileUri,
+        fileUri: getRelativeURI(fileUri, 'doc'),
         mediaId: null,
         key: null,
-        previewUri: previewPath?.path ? previewPath.path : undefined,
+        previewUri: previewPath?.path
+          ? getRelativeURI(previewPath.path, 'cache')
+          : undefined,
       };
+
       if (message.contentType === ContentType.displayImage) {
         const chat = new DirectChat(chatId);
-        await chat.updateDisplayPic(fileUri || DEFAULT_AVATAR);
+        await chat.updateDisplayPic(
+          getRelativeURI(fileUri, 'doc') || DEFAULT_AVATAR,
+        );
       }
       await storage.updateMessage(chatId, messageId, data);
       store.dispatch({

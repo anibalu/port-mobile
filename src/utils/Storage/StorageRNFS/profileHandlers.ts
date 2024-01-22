@@ -2,6 +2,7 @@ import {profileDir} from '@configs/paths';
 import RNFS from 'react-native-fs';
 import {connectionFsSync} from '../../Synchronization';
 import {FileAttributes} from '../interfaces';
+import {getRelativeURI} from './sharedFileHandlers';
 
 /**
  * Creates a profile directory if it doesn't exist and returns the path to it.
@@ -30,7 +31,7 @@ export async function moveProfilePictureToProfileDirRNFS(
   const destinationPath = localProfDir + '/' + file.fileName;
   await RNFS.moveFile(file.fileUri, destinationPath);
   return {
-    fileUri: 'file://' + destinationPath,
+    fileUri: getRelativeURI(destinationPath, 'doc'),
     fileName: file.fileName,
     fileType: file.fileType,
   };

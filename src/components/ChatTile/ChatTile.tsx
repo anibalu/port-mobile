@@ -13,6 +13,7 @@ import {
   ReadStatus,
 } from '@utils/Connections/interfaces';
 import {ContentType} from '@utils/Messaging/interfaces';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {getReadableTimestamp} from '@utils/Time';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
@@ -42,7 +43,10 @@ function ChatTile(props: ConnectionInfo): ReactNode {
           : {backgroundColor: '#FFF9'},
       )}
       onPress={handleNavigate}>
-      <GenericAvatar profileUri={props.pathToDisplayPic} avatarSize="small" />
+      <GenericAvatar
+        profileUri={getProfileURI(props.pathToDisplayPic)}
+        avatarSize="small"
+      />
 
       <View style={styles.textInfoContainer}>
         <NumberlessText
@@ -105,6 +109,18 @@ function ChatTile(props: ConnectionInfo): ReactNode {
   ) : (
     <PendingChatTile {...props} />
   );
+}
+
+function getProfileURI(fileURI?: string | null) {
+  if (fileURI) {
+    if (fileURI.includes('avatar://')) {
+      return fileURI;
+    } else {
+      return getSafeAbsoluteURI(fileURI, 'doc');
+    }
+  } else {
+    return undefined;
+  }
 }
 
 function DisplayStatus(props: ConnectionInfo): ReactNode {

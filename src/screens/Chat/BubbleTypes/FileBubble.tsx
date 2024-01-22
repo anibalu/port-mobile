@@ -18,6 +18,7 @@ import {
 } from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 /**
  * @param message, message object
@@ -46,8 +47,9 @@ export default function FileBubble({
   const {mediaLoadError} = useErrorModal();
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   useEffect(() => {
-    if ((message.data as LargeDataParams).fileUri) {
-      setFileURI((message.data as LargeDataParams).fileUri);
+    const uri = (message.data as LargeDataParams).fileUri;
+    if (uri) {
+      setFileURI(getSafeAbsoluteURI(uri, 'doc'));
     }
   }, [message]);
   const handleLongPressFunction = () => {

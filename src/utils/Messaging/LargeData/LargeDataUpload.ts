@@ -1,8 +1,9 @@
 import {encryptFile} from '@utils/Crypto/aesFile';
 import * as API from './APICalls';
 import {
-  deleteFile,
   addFilePrefix,
+  deleteFile,
+  getSafeAbsoluteURI,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 class LargeDataUpload {
@@ -14,7 +15,7 @@ class LargeDataUpload {
   private encryptedTempFilePath: string | null;
   constructor(fileUri: string, fileName: string, fileType: string) {
     //we can assume this file uri is correctly prepended with "file://"
-    this.fileUri = addFilePrefix(fileUri);
+    this.fileUri = getSafeAbsoluteURI(fileUri, 'doc');
     this.fileName = fileName;
     this.fileType = fileType;
     this.key = null;

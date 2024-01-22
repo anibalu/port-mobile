@@ -17,6 +17,8 @@ import {
 import FileViewer from 'react-native-file-viewer';
 import {renderProfileName, shouldRenderProfileName} from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
 //import store from '@store/appStore';
 
 const imageDimensions = 0.7 * screen.width - 40;
@@ -37,8 +39,10 @@ export default function ImageBubble({
   const [messageURI, setMessageURI] = useState<string | null>();
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   useEffect(() => {
-    if ((message.data as LargeDataParams).fileUri) {
-      setMessageURI((message.data as LargeDataParams).fileUri);
+    const uri = (message.data as LargeDataParams).fileUri;
+    if (uri) {
+      console.log('File uri is: ', uri);
+      setMessageURI(getSafeAbsoluteURI(uri, 'doc'));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message, message.data, (message.data as LargeDataParams).fileUri]);

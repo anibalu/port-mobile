@@ -20,7 +20,10 @@ import {
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {moveToLargeFileDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {
+  getRelativeURI,
+  moveToLargeFileDir,
+} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
@@ -223,7 +226,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
           data.data.text = message;
         }
         if (data.contentType === ContentType.video) {
-          data.data.previewUri = data.thumbnailUri;
+          data.data.previewUri = getRelativeURI(data.thumbnailUri, 'cache');
         }
         const newData = {
           ...data.data,
@@ -234,6 +237,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
             data.contentType,
           ),
         };
+
         const sender = new SendMessage(mbr.chatId, data.contentType, newData);
         sender.send();
       }
@@ -309,7 +313,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         <GenericButton
           onPress={onSend}
           IconLeft={Send}
-          loading={isSending}
+          loading={isSending || loading}
           buttonStyle={styles.button}
         />
       </View>

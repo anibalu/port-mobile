@@ -9,6 +9,7 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {SHARED_FILE_SIZE_LIMIT_IN_BYTES} from '@configs/constants';
 import {decryptFile} from '@utils/Crypto/aesFile';
+import {isIOS} from '@components/ComponentUtils';
 
 /**
  * Creates a conversations directory if it doesn't exist and returns the path to it.
@@ -75,9 +76,15 @@ export async function moveToLargeFileDir(
     return fileUri;
   }
   if (contentType === ContentType.image || contentType === ContentType.video) {
-    return addFilePrefix(await moveToMediaDir(chatId, fileUri, fileName));
+    return getRelativeURI(
+      await moveToMediaDir(chatId, fileUri, fileName),
+      'doc',
+    );
   } else {
-    return addFilePrefix(await moveToFilesDir(chatId, fileUri, fileName));
+    return getRelativeURI(
+      await moveToFilesDir(chatId, fileUri, fileName),
+      'doc',
+    );
   }
 }
 
@@ -94,6 +101,7 @@ async function moveToFilesDir(
   const destinationPath =
     chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
   await RNFS.moveFile(fileUri, destinationPath);
+  console.log('Destination: ', destinationPath);
   return destinationPath;
 }
 
@@ -140,7 +148,9 @@ export async function fetchFilesInFileDir(chatId: string) {
 
 export async function checkFileSizeWithinLimits(fileUri: string) {
   try {
-    const fileSize = (await RNFS.stat(fileUri)).size;
+    const absoluteURI = getSafeAbsoluteURI(fileUri, 'doc');
+    console.log('Absolute: ', absoluteURI);
+    const fileSize = (await RNFS.stat(absoluteURI)).size;
     if (fileSize && fileSize < SHARED_FILE_SIZE_LIMIT_IN_BYTES) {
       return true;
     }
@@ -247,5 +257,70 @@ export function removeFilePrefix(fileUri: string) {
     return fileUri.substring(7);
   } else {
     return fileUri;
+  }
+}
+
+/**
+ * Returns a safely accessible URI that can be used for any media operation in the app.
+ * @param fileURI
+ * @param location storage location (can be documents or cache)
+ * @returns {string} absolute file path that can be accessed.
+ */
+export function getSafeAbsoluteURI(
+  fileURI: string,
+  location: 'doc' | 'cache',
+): string {
+  switch (location) {
+    case 'doc':
+      if (
+        fileURI.includes('Documents/') ||
+        fileURI.includes('com.numberless/')
+      ) {
+        console.log(
+          'Entered an absolute file path when a relative one was required',
+        );
+        return addFilePrefix(fileURI);
+      } else {
+        return addFilePrefix(RNFS.DocumentDirectoryPath + '/' + fileURI);
+      }
+    case 'cache':
+      if (fileURI.includes('Caches/') || fileURI.includes('com.numberless/')) {
+        console.warn(
+          'Entered an absolute cache path when a relative one was required',
+        );
+        return addFilePrefix(fileURI);
+      } else {
+        return addFilePrefix(RNFS.CachesDirectoryPath + '/' + fileURI);
+      }
+  }
+}
+
+/**
+ * Returns a safe relative URI that can accessed anywhere irrespective of file system changes unless the underlying storage is cleared
+ * @param fileURI
+ * @param location storage location (can be documents, files and cache)
+ * @returns {string} relative file URI
+ */
+export function getRelativeURI(
+  fileURI: string,
+  location: 'doc' | 'cache',
+): string {
+  switch (location) {
+    case 'doc':
+      if (isIOS) {
+        const documentsIndex = fileURI.indexOf('Documents/');
+        return fileURI.substring(documentsIndex + 'Documents/'.length);
+      } else {
+        const documentsIndex = fileURI.indexOf('files/');
+        return fileURI.substring(documentsIndex + 'files/'.length);
+      }
+    case 'cache':
+      if (isIOS) {
+        const cachesIndex = fileURI.indexOf('Caches/');
+        return fileURI.substring(cachesIndex + 'Caches/'.length);
+      } else {
+        const cachesIndex = fileURI.indexOf('cache/');
+        return fileURI.substring(cachesIndex + 'cache/'.length);
+      }
   }
 }

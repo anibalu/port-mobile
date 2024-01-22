@@ -44,7 +44,6 @@ function ManageMembers({route, navigation}: Props) {
   useEffect(() => {
     (async () => {
       const newGroupData = await groupHandler.getData();
-      console.log('groupdata: ', newGroupData);
       setGroupData(newGroupData);
       const membersInGroup = await groupHandler.getMembers();
       setMembers(membersInGroup);

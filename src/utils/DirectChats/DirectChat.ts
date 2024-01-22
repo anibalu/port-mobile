@@ -15,6 +15,7 @@ import {generateISOTimeStamp} from '@utils/Time';
 import {createChatPermissions} from '@utils/ChatPermissions';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {saveMessage} from '@utils/Storage/messages';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 class DirectChat {
   private chatId: string | null;
@@ -38,6 +39,12 @@ class DirectChat {
   private async loadChatData() {
     this.chatId = this.checkChatIdNotNull();
     const newChatData = await storage.readLineData(this.chatId);
+    if (newChatData?.displayPic) {
+      newChatData.displayPic = getSafeAbsoluteURI(
+        newChatData.displayPic,
+        'doc',
+      );
+    }
     if (!newChatData) {
       throw new Error('NullChatData');
     }

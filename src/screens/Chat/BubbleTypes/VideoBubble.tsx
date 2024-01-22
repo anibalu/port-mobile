@@ -18,7 +18,7 @@ import {
 import FileViewer from 'react-native-file-viewer';
 import {renderProfileName, shouldRenderProfileName} from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
-//import store from '@store/appStore';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 export default function VideoBubble({
   message,
@@ -41,8 +41,9 @@ export default function VideoBubble({
   useEffect(() => {
     (async () => {
       setLoading(true);
-      if ((message.data as LargeDataParams).fileUri != null) {
-        setVideoURI((message.data as LargeDataParams).fileUri);
+      const uri = (message.data as LargeDataParams).fileUri;
+      if (uri != null) {
+        setVideoURI(getSafeAbsoluteURI(uri, 'doc'));
       }
       setLoading(false);
     })();
@@ -129,7 +130,10 @@ const renderDisplay = (
   if (thumbnail) {
     return (
       <>
-        <Image source={{uri: thumbnail}} style={styles.image} />
+        <Image
+          source={{uri: getSafeAbsoluteURI(thumbnail, 'cache')}}
+          style={styles.image}
+        />
         <Play
           style={{
             position: 'absolute',

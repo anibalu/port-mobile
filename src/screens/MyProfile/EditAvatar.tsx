@@ -11,16 +11,16 @@ import ChatBackground from '@components/ChatBackground';
 import {NumberlessMediumText} from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
 
+import {GenericAvatar} from '@components/GenericAvatar';
+import {GenericButton} from '@components/GenericButton';
+import {avatarmapping} from '@configs/avatarmapping';
+import {DEFAULT_AVATAR} from '@configs/constants';
+import {useNavigation} from '@react-navigation/native';
+import {getProfilePictureUri, setNewProfilePicture} from '@utils/Profile';
+import {FileAttributes} from '@utils/Storage/interfaces';
 import React, {useEffect, useState} from 'react';
 import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
-import {GenericAvatar} from '@components/GenericAvatar';
-import {avatarmapping} from '@configs/avatarmapping';
-import {GenericButton} from '@components/GenericButton';
 import {launchImageLibrary} from 'react-native-image-picker';
-import {getProfilePictureUri, setNewProfilePicture} from '@utils/Profile';
-import {useNavigation} from '@react-navigation/native';
-import {FileAttributes} from '@utils/Storage/interfaces';
-import {DEFAULT_AVATAR} from '@configs/constants';
 
 function EditAvatar() {
   const navigation = useNavigation();
@@ -36,7 +36,6 @@ function EditAvatar() {
     try {
       const selectedAssets = await launchImageLibrary({
         mediaType: 'photo',
-        includeBase64: true,
         selectionLimit: 1,
       });
       // setting profile uri for display
@@ -57,6 +56,7 @@ function EditAvatar() {
   async function setPicture() {
     const uri = await getProfilePictureUri();
     if (uri && uri !== '') {
+      console.log('URI is: ', uri);
       setImagePath(uri);
     }
   }
@@ -90,17 +90,7 @@ function EditAvatar() {
         </Pressable>
         <GenericAvatar profileUri={imagePath} avatarSize="medium" />
         <View style={styles.iconholder}>
-          {/* <Pressable style={styles.selectOption}>
-            <Camera />
-            <NumberlessMediumText style={styles.iconName}>
-              Camera
-            </NumberlessMediumText>
-          </Pressable> */}
-          <Pressable
-            onPress={() => {
-              setNewPicture();
-            }}
-            style={styles.selectOption}>
+          <Pressable onPress={setNewPicture} style={styles.selectOption}>
             <ImageIcon />
             <NumberlessMediumText style={styles.iconName}>
               Select Image

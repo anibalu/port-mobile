@@ -8,6 +8,7 @@ import {generateKeys} from '@utils/Crypto/ed25519';
 import * as API from './APICalls';
 import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {pickRandomAvatarId} from '@utils/IdGenerator';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 function getDefaultAvatarInfo(): FileAttributes {
   return {...DEFAULT_PROFILE_AVATAR_INFO};
@@ -199,7 +200,12 @@ export async function getProfilePicture(): Promise<FileAttributes> {
  * @returns {Promise<string | null>} - path to profile picture file (with file:// prefix) or null.
  */
 export async function getProfilePictureUri(): Promise<string> {
-  return (await getProfilePicture()).fileUri;
+  const file = await getProfilePicture();
+  if (file.fileType === 'avatar') {
+    return file.fileUri;
+  } else {
+    return getSafeAbsoluteURI(file.fileUri, 'doc');
+  }
 }
 
 /**

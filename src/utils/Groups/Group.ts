@@ -21,6 +21,7 @@ import {
 import * as API from './APICalls';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import {getRandomAvatarInfo} from '@utils/Profile';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 class Group {
   private groupId: string | null;
@@ -52,6 +53,12 @@ class Group {
   private async loadGroupAttributes() {
     if (this.groupId) {
       this.groupData = await groupStorage.getGroupData(this.groupId);
+      if (this.groupData?.groupPicture) {
+        this.groupData.groupPicture = getSafeAbsoluteURI(
+          this.groupData.groupPicture,
+          'doc',
+        );
+      }
       this.groupMembers = await memberStorage.getMembers(this.groupId);
     }
   }

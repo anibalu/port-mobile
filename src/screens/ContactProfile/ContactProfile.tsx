@@ -35,6 +35,7 @@ import FileViewer from 'react-native-file-viewer';
 import {ReadDirItem} from 'react-native-fs';
 import DisconnectButton from './DisconnectButton';
 import DirectChat from '@utils/DirectChats/DirectChat';
+import Play from '@assets/icons/videoPlay.svg';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -95,7 +96,19 @@ function ContactProfile({route, navigation}: Props) {
             showOpenWithDialog: true,
           });
         }}>
-        <Image source={{uri: 'file://' + item?.path}} style={styles.image} />
+        {item?.path.includes('.mp4') ? (
+          <View style={styles.blackimage}>
+            <Play
+              style={{
+                position: 'absolute',
+                top: 0.25 * screen.width - 65,
+                left: 0.25 * screen.width - 60,
+              }}
+            />
+          </View>
+        ) : (
+          <Image source={{uri: 'file://' + item?.path}} style={styles.image} />
+        )}
       </Pressable>
     );
   };
@@ -251,6 +264,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  blackimage: {
+    width: (screen.width - 30) / 3,
+    height: (screen.width - 30) / 3,
+    margin: 5,
+    borderRadius: 24,
+    backgroundColor: 'black',
+  },
   image: {
     width: (screen.width - 30) / 3,
     height: (screen.width - 30) / 3,

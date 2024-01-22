@@ -7,6 +7,7 @@ import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandler
 import {Image, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import {ReadDirItem} from 'react-native-fs';
+import Play from '@assets/icons/videoPlay.svg';
 
 export default function ViewPhotosVideos({chatId}: {chatId: string}) {
   const [media, setMedia] = useState<ReadDirItem[]>([]);
@@ -34,10 +35,22 @@ export default function ViewPhotosVideos({chatId}: {chatId: string}) {
                 showOpenWithDialog: true,
               });
             }}>
-            <Image
-              source={{uri: 'file://' + media?.path}}
-              style={styles.image}
-            />
+            {media?.path.includes('.mp4') ? (
+              <View style={styles.blackimage}>
+                <Play
+                  style={{
+                    position: 'absolute',
+                    top: 0.25 * screen.width - 65,
+                    left: 0.25 * screen.width - 60,
+                  }}
+                />
+              </View>
+            ) : (
+              <Image
+                source={{uri: 'file://' + media?.path}}
+                style={styles.image}
+              />
+            )}
           </Pressable>
         ))}
       </View>,
@@ -75,5 +88,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     width: '100%',
+  },
+  blackimage: {
+    width: (screen.width - 30) / 3,
+    height: (screen.width - 30) / 3,
+    margin: 5,
+    borderRadius: 24,
+    backgroundColor: 'black',
   },
 });

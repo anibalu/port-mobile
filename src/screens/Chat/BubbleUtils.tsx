@@ -1,3 +1,4 @@
+import Sending from '@assets/icons/sending.svg';
 import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
@@ -5,20 +6,25 @@ import {
   NumberlessLinkText,
   NumberlessText,
 } from '@components/NumberlessText';
+import {DEFAULT_NAME} from '@configs/constants';
 import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {getTimeStamp} from '@utils/Time';
 import React from 'react';
 import {Image, StyleSheet, View} from 'react-native';
-import Sending from '@assets/icons/sending.svg';
-import {DEFAULT_NAME} from '@configs/constants';
+import FileViewer from 'react-native-file-viewer';
 
 export function renderTimeStamp(message: SavedMessageParams) {
   if (message.messageStatus === MessageStatus.sent || !message.sender) {
     return (
       <NumberlessText
-        fontSizeType={FontSizeType.xs}
-        fontType={FontType.md}
-        textColor={PortColors.text.messageBubble.timestamp}
+        fontSizeType={FontSizeType.s}
+        fontType={FontType.rg}
+        textColor={
+          message.sender
+            ? PortColors.text.messageBubble.senderTimestamp
+            : PortColors.text.messageBubble.receiverTimestamp
+        }
         style={styles.timeStampContainer}>
         {getTimeStamp(message.timestamp)}
       </NumberlessText>
@@ -41,6 +47,28 @@ export function renderTimeStamp(message: SavedMessageParams) {
     );
   }
 }
+
+/**
+ * Handles operations for when any media object is pressed in chat.
+ * @param fileURI
+ * @param onFailure
+ */
+export const handleMediaOpen = (
+  fileURI: string | undefined | null,
+  onUndefined: () => void,
+  onError: () => void,
+) => {
+  if (fileURI != undefined && fileURI != null) {
+    FileViewer.open(getSafeAbsoluteURI(fileURI, 'doc'), {
+      showOpenWithDialog: true,
+    }).catch(e => {
+      console.log('Error opening file: ', e);
+      onError();
+    });
+  } else {
+    onUndefined();
+  }
+};
 
 export function shouldRenderProfileName(memberName: string) {
   if (memberName === '') {
@@ -159,7 +187,6 @@ export const renderMediaReplyBubble = (
 const styles = StyleSheet.create({
   timeStampContainer: {
     flexDirection: 'column',
-    marginTop: 3,
     alignSelf: 'flex-end',
   },
   mediaReplyContainer: {

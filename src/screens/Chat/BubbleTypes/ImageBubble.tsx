@@ -6,7 +6,7 @@ import {
   NumberlessLinkText,
 } from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -14,11 +14,14 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import FileViewer from 'react-native-file-viewer';
-import {renderProfileName, shouldRenderProfileName} from '../BubbleUtils';
+import {
+  handleMediaOpen,
+  renderProfileName,
+  shouldRenderProfileName,
+} from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-
 //import store from '@store/appStore';
 
 const imageDimensions = 0.7 * screen.width - 40;
@@ -36,17 +39,8 @@ export default function ImageBubble({
   handleLongPress: any;
   memberName: string;
 }) {
-  const [messageURI, setMessageURI] = useState<string | null>();
   const [startedManualDownload, setStartedManualDownload] = useState(false);
-  useEffect(() => {
-    const uri = (message.data as LargeDataParams).fileUri;
-    if (uri) {
-      console.log('File uri is: ', uri);
-      setMessageURI(getSafeAbsoluteURI(uri, 'doc'));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [message, message.data, (message.data as LargeDataParams).fileUri]);
-
+  const {mediaDownloadError} = useErrorModal();
   const handleLongPressFunction = () => {
     handleLongPress(message.messageId);
   };
@@ -60,13 +54,11 @@ export default function ImageBubble({
   const handlePressFunction = () => {
     const selectedMessagesSize = handlePress(message.messageId);
     if (selectedMessagesSize === SelectedMessagesSize.empty) {
-      if (messageURI) {
-        FileViewer.open(messageURI, {
-          showOpenWithDialog: true,
-        });
-      } else {
-        triggerDownload();
-      }
+      handleMediaOpen(
+        (message.data as LargeDataParams).fileUri,
+        triggerDownload,
+        mediaDownloadError,
+      );
     }
   };
 
@@ -85,7 +77,10 @@ export default function ImageBubble({
         {startedManualDownload ? (
           <Loader />
         ) : (
-          renderDisplay(messageURI, message.data as LargeDataParams)
+          renderDisplay(
+            (message.data as LargeDataParams).fileUri,
+            message.data as LargeDataParams,
+          )
         )}
 
         {(message.data as LargeDataParams).text ? (
@@ -130,7 +125,10 @@ const renderDisplay = (
   if (messageURI) {
     return (
       messageURI != undefined && (
-        <Image source={{uri: 'file://' + messageURI}} style={styles.image} />
+        <Image
+          source={{uri: getSafeAbsoluteURI(messageURI, 'doc')}}
+          style={styles.image}
+        />
       )
     );
   }

@@ -14,7 +14,8 @@ export const PortColors = {
     alertGreen: '#6FC960',
     delete: '#EE786B',
     messageBubble: {
-      timestamp: '#868686',
+      senderTimestamp: '#868686',
+      receiverTimestamp: '#71899C',
       profileName: '#7C7C7C',
     },
   },
@@ -36,6 +37,25 @@ export const PortColors = {
       dull: '#FEB95A',
     },
     success: '#6FC960',
+    messageBubble: {
+      dateBoundary: '#EDEDED',
+      data: {
+        blobBackground: '#EFFEE0',
+        blobBorder: '#E5E5E5',
+      },
+      receiver: {
+        blobBackground: '#D4EBFF',
+        blobBorder: '#C5DDF1',
+      },
+      sender: {
+        blobBorder: '#E5E5E5',
+        blobBackground: '#FFFFFF',
+      },
+      selected: {
+        blobBackground: '#81C2FF',
+        blobBorder: '#547CEF',
+      },
+    },
   },
 };
 

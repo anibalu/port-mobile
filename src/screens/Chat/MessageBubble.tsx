@@ -21,6 +21,7 @@ import {
   Animated,
   Image,
   PanResponder,
+  StyleProp,
   StyleSheet,
   View,
   ViewStyle,
@@ -42,6 +43,7 @@ interface MessageBubbleProps {
   isDateBoundary: boolean;
   selected: string[];
   handlePress: any;
+  hasExtraPadding: boolean;
   handleLongPress: any;
   isGroupChat: boolean;
   handleDownload: (x: string) => Promise<void>;
@@ -54,7 +56,7 @@ interface MessageBubbleProps {
 const SWIPE_UPPER_THRESHOLD = screen.width / 5;
 
 /**
- * Individual chat bubbles
+ * Individual chat bubbles. Controls all paddings, blobs and wrappers for every type of bubble.
  * @param message
  * @param isDateBoundary , if message should have a date bubble before it.
  * @param selected
@@ -70,6 +72,7 @@ const MessageBubble = ({
   selected,
   handlePress,
   handleDownload,
+  hasExtraPadding,
   handleLongPress,
   isGroupChat,
   dataHandler,
@@ -108,9 +111,15 @@ const MessageBubble = ({
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
       //Determines when the pan responder should take control of any gesture. Used to allow longpresses and taps to pass through.
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        const {dx, dy} = gestureState;
-        return dx > 10 || dx < -10 || dy > 10 || dy < -10;
+      onMoveShouldSetPanResponder: (_, gesture) => {
+        const absx = Math.abs(gesture.dx);
+        const absy = Math.abs(gesture.dy);
+
+        //If horizontal travel > vertical travel & travel distance > 10 px, then we need to consider it to be a reply gesture
+        if (absx > absy && (absx > 10 || absy > 10)) {
+          return true;
+        }
+        return false;
       },
       onPanResponderTerminationRequest: () => false,
       onPanResponderGrant: () => {
@@ -125,6 +134,9 @@ const MessageBubble = ({
         ],
         {useNativeDriver: false},
       ),
+      onPanResponderTerminate: () => {
+        resetPosition();
+      },
       onPanResponderRelease: (_, gesture) => {
         resetPosition();
         if (gesture.dx > 100) {
@@ -136,6 +148,7 @@ const MessageBubble = ({
 
   const [intitialContainerType, initialBlobType] = initialStylePicker(
     message.contentType,
+    hasExtraPadding,
     message.sender,
   );
   const [containerType] = useState(intitialContainerType);
@@ -187,27 +200,33 @@ const MessageBubble = ({
   //Any kind of data bubble shouldn't be replied to
   if (isDataMessage(message.contentType)) {
     return (
-      <View style={styles.parentContainer}>
-        {isDateBoundary ? renderTimestampBubble(message) : null}
-        <View style={containerType}>
-          <View style={blobType}>
-            {renderBubbleType(
-              message,
-              isGroupChat,
-              handlePress,
-              handleLongPress,
-              handleDownload,
-              memberName,
-              dataHandler,
-            )}
+      <View>
+        {isDateBoundary
+          ? renderDateBoundaryBubble(message, hasExtraPadding)
+          : null}
+        <View style={styles.parentContainer}>
+          <View style={containerType}>
+            <View style={blobType}>
+              {renderBubbleType(
+                message,
+                isGroupChat,
+                handlePress,
+                handleLongPress,
+                handleDownload,
+                memberName,
+                dataHandler,
+              )}
+            </View>
           </View>
         </View>
       </View>
     );
   } else {
     return (
-      <>
-        {isDateBoundary ? renderTimestampBubble(message) : null}
+      <View>
+        {isDateBoundary
+          ? renderDateBoundaryBubble(message, hasExtraPadding)
+          : null}
 
         <Animated.View
           {...panResponder.panHandlers}
@@ -240,7 +259,7 @@ const MessageBubble = ({
             </View>
           </View>
         </Animated.View>
-      </>
+      </View>
     );
   }
 };
@@ -250,7 +269,7 @@ const MessageBubble = ({
  * @param contentType
  * @returns {boolean} - whether message is a data message
  */
-function isDataMessage(contentType: ContentType) {
+export function isDataMessage(contentType: ContentType) {
   if (contentType === ContentType.name || contentType === ContentType.info) {
     return true;
   }
@@ -265,16 +284,37 @@ function isDataMessage(contentType: ContentType) {
  */
 function initialStylePicker(
   contentType: ContentType,
+  hasExtraPadding: boolean,
   sender: boolean,
-): ViewStyle[] {
+): StyleProp<ViewStyle>[] {
   if (isDataMessage(contentType)) {
-    return [styles.DataContainer, styles.DataBlob];
+    return [
+      StyleSheet.compose(
+        styles.DataContainer,
+        hasExtraPadding ? styles.majorSpacing : styles.minorSpacing,
+      ),
+      ,
+      styles.DataBlob,
+    ];
   } else {
     switch (sender) {
       case true:
-        return [styles.SenderContainer, styles.SenderBlob];
+        return [
+          StyleSheet.compose(
+            styles.SenderContainer,
+            hasExtraPadding ? styles.majorSpacing : styles.minorSpacing,
+          ),
+          styles.SenderBlob,
+        ];
       case false:
-        return [styles.RecieverContainer, styles.ReceiverBlob];
+        return [
+          StyleSheet.compose(
+            styles.RecieverContainer,
+            hasExtraPadding ? styles.majorSpacing : styles.minorSpacing,
+          ),
+          ,
+          styles.ReceiverBlob,
+        ];
     }
   }
 }
@@ -313,14 +353,20 @@ function unselectedMessageBackgroundStylePicker(
  * @param message contains timestamp info
  * @returns {ReactNode} for the timestamp
  */
-const renderTimestampBubble = (message: SavedMessageParams): ReactNode => {
+export const renderDateBoundaryBubble = (
+  message: SavedMessageParams,
+  hasExtraPadding: boolean,
+): ReactNode => {
   return (
     <View style={styles.parentContainer}>
       <NumberlessText
         fontSizeType={FontSizeType.s}
         fontType={FontType.md}
-        style={styles.dateContainer}
-        textColor={PortColors.text.messageBubble.timestamp}>
+        style={StyleSheet.compose(
+          styles.dateContainer,
+          hasExtraPadding ? styles.majorSpacing : styles.minorSpacing,
+        )}
+        textColor={PortColors.text.messageBubble.senderTimestamp}>
         {createDateBoundaryStamp(message.timestamp)}
       </NumberlessText>
     </View>
@@ -428,47 +474,45 @@ const styles = StyleSheet.create({
   dateContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#EDEDED',
+    backgroundColor: PortColors.primary.messageBubble.dateBoundary,
     maxWidth: '80%',
     overflow: 'hidden',
     borderRadius: 12,
-    marginTop: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 13,
+    padding: 10,
   },
-  dateStamp: {
-    fontSize: 12,
-    color: '#83868E',
-    padding: 8,
+
+  majorSpacing: {
+    marginTop: 8,
   },
+  minorSpacing: {
+    marginTop: 0,
+  },
+
   SenderContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
     alignSelf: 'stretch',
-    paddingRight: 5,
-    paddingBottom: 3,
-    paddingTop: 2,
+    marginRight: 16,
+    marginBottom: 4,
   },
   RecieverContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     alignSelf: 'stretch',
-    paddingLeft: 5,
-    paddingBottom: 3,
-    paddingTop: 2,
+    marginLeft: 16,
+    marginBottom: 4,
   },
   DataContainer: {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
     alignSelf: 'stretch',
-    paddingBottom: 3,
-    paddingTop: 2,
+    marginBottom: 4,
   },
   SenderBlob: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: PortColors.primary.messageBubble.sender.blobBackground,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 16,
@@ -476,14 +520,13 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    padding: 6,
+    padding: 10,
     borderWidth: 0.5,
-    marginRight: 5,
-    borderColor: '#E5E5E5',
+    borderColor: PortColors.primary.messageBubble.sender.blobBorder,
     maxWidth: '70%',
   },
   ReceiverBlob: {
-    backgroundColor: '#D4EBFF',
+    backgroundColor: PortColors.primary.messageBubble.receiver.blobBackground,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 16,
     borderBottomLeftRadius: 16,
@@ -491,14 +534,13 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    padding: 6,
+    padding: 10,
     borderWidth: 0.5,
-    marginLeft: 5,
-    borderColor: '#C5DDF1',
+    borderColor: PortColors.primary.messageBubble.receiver.blobBorder,
     maxWidth: '70%',
   },
   DataBlob: {
-    backgroundColor: '#EFFEE0',
+    backgroundColor: PortColors.primary.messageBubble.data.blobBackground,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderBottomLeftRadius: 16,
@@ -509,11 +551,11 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingRight: 20,
     borderWidth: 0.5,
-    borderColor: '#E5E5E5',
+    borderColor: PortColors.primary.messageBubble.data.blobBorder,
     maxWidth: '70%',
   },
   SenderSelectedBlob: {
-    backgroundColor: '#81C2FF',
+    backgroundColor: PortColors.primary.messageBubble.selected.blobBackground,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 16,
@@ -521,14 +563,14 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    padding: 6,
+    padding: 10,
     borderWidth: 2,
     marginRight: 5,
-    borderColor: '#547CEF',
+    borderColor: PortColors.primary.messageBubble.selected.blobBorder,
     maxWidth: '70%',
   },
   ReceiverSelectedBlob: {
-    backgroundColor: '#81C2FF',
+    backgroundColor: PortColors.primary.messageBubble.selected.blobBackground,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 16,
     borderBottomLeftRadius: 16,
@@ -536,14 +578,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    padding: 6,
+    padding: 10,
     borderWidth: 2,
     marginLeft: 5,
-    borderColor: '#547CEF',
+    borderColor: PortColors.primary.messageBubble.selected.blobBorder,
     maxWidth: '70%',
-  },
-  text: {
-    color: '#000000',
   },
   displayPicContainer: {
     width: 36,
@@ -567,6 +606,7 @@ export default memo(MessageBubble, (prevProps, nextProps) => {
     prevProps.isGroupChat === nextProps.isGroupChat &&
     prevProps.selected === nextProps.selected &&
     prevProps.message.memberId === nextProps.message.memberId &&
-    prevProps.isDateBoundary === nextProps.isDateBoundary
+    prevProps.isDateBoundary === nextProps.isDateBoundary &&
+    prevProps.hasExtraPadding === nextProps.hasExtraPadding
   );
 });

@@ -8,17 +8,16 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode, useEffect, useState} from 'react';
+import React, {ReactNode, useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
-import FileViewer from 'react-native-file-viewer';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 import {
+  handleMediaOpen,
   renderProfileName,
   renderTimeStamp,
   shouldRenderProfileName,
 } from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
-import {useErrorModal} from 'src/context/ErrorModalContext';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 /**
  * @param message, message object
@@ -43,15 +42,8 @@ export default function FileBubble({
   handleDownload: (x: string) => Promise<void>;
   isReply?: boolean;
 }): ReactNode {
-  const [fileURI, setFileURI] = useState<string | null>();
-  const {mediaLoadError} = useErrorModal();
   const [startedManualDownload, setStartedManualDownload] = useState(false);
-  useEffect(() => {
-    const uri = (message.data as LargeDataParams).fileUri;
-    if (uri) {
-      setFileURI(getSafeAbsoluteURI(uri, 'doc'));
-    }
-  }, [message]);
+  const {mediaDownloadError} = useErrorModal();
   const handleLongPressFunction = () => {
     handleLongPress(message.messageId);
   };
@@ -65,16 +57,11 @@ export default function FileBubble({
   const handlePressFunction = () => {
     const selectedMessagesSize = handlePress(message.messageId);
     if (selectedMessagesSize === SelectedMessagesSize.empty) {
-      if (fileURI) {
-        FileViewer.open(fileURI, {
-          showOpenWithDialog: true,
-        }).catch(e => {
-          console.log('Error in opening file: ', e);
-          mediaLoadError();
-        });
-      } else {
-        triggerDownload();
-      }
+      handleMediaOpen(
+        (message.data as LargeDataParams).fileUri,
+        triggerDownload,
+        mediaDownloadError,
+      );
     }
   };
   return (
@@ -93,7 +80,11 @@ export default function FileBubble({
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            {fileURI != undefined ? <FileIcon /> : <Download />}
+            {(message.data as LargeDataParams).fileUri != null ? (
+              <FileIcon />
+            ) : (
+              <Download />
+            )}
           </View>
           <View style={{marginLeft: 12}}>
             {renderProfileName(
@@ -127,7 +118,7 @@ export default function FileBubble({
                   size={'small'}
                   color={PortColors.primary.white}
                 />
-              ) : fileURI != undefined ? (
+              ) : (message.data as LargeDataParams).fileUri != null ? (
                 <FileIcon />
               ) : (
                 <Download />

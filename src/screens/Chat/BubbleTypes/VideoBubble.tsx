@@ -7,7 +7,7 @@ import {
   NumberlessLinkText,
 } from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode, useEffect, useState} from 'react';
+import React, {ReactNode, useState} from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -15,10 +15,15 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import FileViewer from 'react-native-file-viewer';
-import {renderProfileName, shouldRenderProfileName} from '../BubbleUtils';
+import {
+  handleMediaOpen,
+  renderProfileName,
+  shouldRenderProfileName,
+} from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+//import store from '@store/appStore';
 
 export default function VideoBubble({
   message,
@@ -33,23 +38,8 @@ export default function VideoBubble({
   handleDownload: (x: string) => Promise<void>;
   memberName: string;
 }): ReactNode {
-  const [videoURI, setVideoURI] = useState<string | null>();
-  const [loading, setLoading] = useState<boolean>(false);
   const [startedManualDownload, setStartedManualDownload] = useState(false);
-
-  //Thumbnail generation for videos
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const uri = (message.data as LargeDataParams).fileUri;
-      if (uri != null) {
-        setVideoURI(getSafeAbsoluteURI(uri, 'doc'));
-      }
-      setLoading(false);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [message, message.data, (message.data as LargeDataParams).fileUri]);
-
+  const {mediaDownloadError} = useErrorModal();
   const handleLongPressFunction = (): void => {
     handleLongPress(message.messageId);
   };
@@ -63,13 +53,11 @@ export default function VideoBubble({
   const handlePressFunction = (): void => {
     const selectedMessagesSize = handlePress(message.messageId);
     if (selectedMessagesSize === SelectedMessagesSize.empty) {
-      if (videoURI != undefined) {
-        FileViewer.open(videoURI, {
-          showOpenWithDialog: true,
-        });
-      } else {
-        triggerDownload();
-      }
+      handleMediaOpen(
+        (message.data as LargeDataParams).fileUri,
+        triggerDownload,
+        mediaDownloadError,
+      );
     }
   };
 
@@ -85,7 +73,7 @@ export default function VideoBubble({
         false,
       )}
 
-      {loading || startedManualDownload ? (
+      {startedManualDownload ? (
         <Loader />
       ) : (
         renderDisplay(
@@ -174,7 +162,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   image: {
-    marginTop: 4,
     height: 0.5 * screen.width - 40, // Set the maximum height you desire
     width: 0.5 * screen.width - 40, // Set the maximum width you desire
     borderRadius: 16,

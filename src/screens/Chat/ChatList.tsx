@@ -1,11 +1,11 @@
+import {toggleRead} from '@utils/Connections';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import {checkDateBoundary} from '@utils/Time';
 import React, {ReactNode, useState} from 'react';
 import {FlatList} from 'react-native-bidirectional-infinite-scroll';
-import MessageBubble from './MessageBubble';
-import {toggleRead} from '@utils/Connections';
+import MessageBubble, {isDataMessage} from './MessageBubble';
 
 /**
  * Renders an inverted flatlist that displays all chat messages.
@@ -52,15 +52,15 @@ function ChatList({
     item: SavedMessageParams;
     index: number;
   }) => {
-    //Putting this first skips all initialisation for the component, more efficient
-    if (shouldNotRender(item.contentType)) {
-      return null;
-    }
     //Checks if a date bubbled needs to be displayed.
     const isDateBoundary =
       index >= messages.length - 1
         ? true
         : checkDateBoundary(item.timestamp, messages[index + 1].timestamp);
+
+    //Should have spacing when: data bubble was previous, previous message was not own, timestamp is different
+    const shouldHaveExtraPadding =
+      isDateBoundary || determineSpacing(item, messages[index + 1]);
 
     const onSwipe = () => {
       setSwiping(p => !p);
@@ -71,6 +71,7 @@ function ChatList({
         chatId={chatId}
         swipingCheck={onSwipe}
         message={item}
+        hasExtraPadding={shouldHaveExtraPadding}
         isDateBoundary={isDateBoundary}
         selected={selectedMessages}
         handlePress={handlePress}
@@ -101,26 +102,27 @@ function ChatList({
 }
 
 /**
- * Determines if nothing should be rendered. Is defined here to prevent any bubble state initialisation.
- * @param contentType - message content type
+ * Determines the padding between two messages, based on conditions defined by design. Adds margin to the TOP of every message tile ONLY.
+ * @param message
+ * @param nextMessage
+ * @returns {boolean} whether spacing should be added
  */
-function shouldNotRender(contentType: ContentType) {
+const determineSpacing = (
+  message: SavedMessageParams,
+  nextMessage: SavedMessageParams,
+): boolean => {
   if (
-    contentType === ContentType.handshakeA1 ||
-    contentType === ContentType.handshakeB2 ||
-    contentType === ContentType.newChat ||
-    contentType === ContentType.displayImage ||
-    contentType === ContentType.displayAvatar ||
-    contentType === ContentType.contactBundleRequest ||
-    contentType === ContentType.contactBundleDenialResponse ||
-    contentType === ContentType.contactBundleResponse ||
-    contentType === ContentType.initialInfoRequest
+    isDataMessage(message.contentType) !==
+    isDataMessage(nextMessage.contentType)
   ) {
+    return true;
+  } else if (message.sender !== nextMessage.sender) {
+    //Comparing if the message and the next message don't have the same sender
     return true;
   } else {
     return false;
   }
-}
+};
 
 export default ChatList;
 

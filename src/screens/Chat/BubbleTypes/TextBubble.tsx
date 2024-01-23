@@ -5,7 +5,7 @@ import {
 } from '@components/NumberlessText';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import {
   renderProfileName,
   renderTimeStamp,
@@ -28,10 +28,10 @@ export default function TextBubble({
   return (
     <Pressable
       style={StyleSheet.compose(
-        styles.textBubbleContainer,
+        styles.textBubbleColumnContainer,
         isReply
           ? {alignItems: 'flex-start', maxWidth: '95%'}
-          : {alignItems: 'flex-end', paddingHorizontal: 8},
+          : {alignItems: 'flex-end'},
       )}
       onPress={() => {
         handlePress(message.messageId);
@@ -45,20 +45,35 @@ export default function TextBubble({
         message.sender,
         isReply,
       )}
-      <NumberlessLinkText
-        fontSizeType={FontSizeType.m}
-        fontType={FontType.rg}
-        numberOfLines={isReply ? 3 : 0}>
-        {message.data.text || ''}
-      </NumberlessLinkText>
-      {!isReply && renderTimeStamp(message)}
+      <View style={getBubbleLayoutStyle(message.data.text || '')}>
+        <NumberlessLinkText
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}
+          numberOfLines={isReply ? 3 : 0}>
+          {message.data.text || ''}
+        </NumberlessLinkText>
+        {!isReply && renderTimeStamp(message)}
+      </View>
     </Pressable>
   );
 }
 
+const getBubbleLayoutStyle = (text: string) => {
+  if (text.length > 27) {
+    return styles.textBubbleColumnContainer;
+  } else {
+    return styles.textBubbleRowContainer;
+  }
+};
+
 const styles = StyleSheet.create({
-  textBubbleContainer: {
+  textBubbleColumnContainer: {
     flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  textBubbleRowContainer: {
+    flexDirection: 'row',
+    columnGap: 4,
     justifyContent: 'center',
   },
 });

@@ -72,6 +72,11 @@ function Chat({route, navigation}: Props) {
 
   const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
 
+  //Filtered list that only holds messages that can be rendered. This is needed for efficient rendering and UI cohesiveness based on previous message bubbles
+  const [visibleMessages, setVisibleMessages] = useState<
+    Array<SavedMessageParams>
+  >([]);
+
   //Allows for message auto-scrolling in the list. Set to true as list is INVERTED.
   const [enableAutoscrollToTop, setEnableAutoscrollToTop] = useState(true);
 
@@ -92,6 +97,12 @@ function Chat({route, navigation}: Props) {
   const latestUpdatedMediaStatus: any = useSelector(
     state => state.latestMessageUpdate.updatedMedia,
   );
+
+  useEffect(() => {
+    setVisibleMessages(
+      messages.filter(item => !shouldNotRender(item.contentType)),
+    );
+  }, [messages]);
 
   //handles toggling the select messages flow.
   const handleMessageBubbleLongPress = (messageId: string): void => {
@@ -386,7 +397,7 @@ function Chat({route, navigation}: Props) {
         onCancelPressed={onCancelPressed}
       />
       <ChatList
-        messages={messages}
+        messages={visibleMessages}
         setReplyTo={setReplyToMessage}
         chatId={chatId}
         allowScrollToTop={enableAutoscrollToTop}
@@ -424,6 +435,28 @@ function Chat({route, navigation}: Props) {
       )}
     </SafeAreaView>
   );
+}
+
+/**
+ * Determines if nothing should be rendered. Is defined here to prevent any bubble state initialisation.
+ * @param contentType - message content type
+ */
+export function shouldNotRender(contentType: ContentType) {
+  if (
+    contentType === ContentType.handshakeA1 ||
+    contentType === ContentType.handshakeB2 ||
+    contentType === ContentType.newChat ||
+    contentType === ContentType.displayImage ||
+    contentType === ContentType.displayAvatar ||
+    contentType === ContentType.contactBundleRequest ||
+    contentType === ContentType.contactBundleDenialResponse ||
+    contentType === ContentType.contactBundleResponse ||
+    contentType === ContentType.initialInfoRequest
+  ) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 const styles = StyleSheet.create({

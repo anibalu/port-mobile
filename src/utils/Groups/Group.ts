@@ -54,10 +54,11 @@ class Group {
     if (this.groupId) {
       this.groupData = await groupStorage.getGroupData(this.groupId);
       if (this.groupData?.groupPicture) {
-        this.groupData.groupPicture = getSafeAbsoluteURI(
-          this.groupData.groupPicture,
-          'doc',
-        );
+        this.groupData.groupPicture = this.groupData.groupPicture.includes(
+          'avatar://',
+        )
+          ? this.groupData.groupPicture
+          : getSafeAbsoluteURI(this.groupData.groupPicture, 'doc');
       }
       this.groupMembers = await memberStorage.getMembers(this.groupId);
     }

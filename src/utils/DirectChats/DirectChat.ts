@@ -39,11 +39,12 @@ class DirectChat {
   private async loadChatData() {
     this.chatId = this.checkChatIdNotNull();
     const newChatData = await storage.readLineData(this.chatId);
+
+    //Profile pictures can be avatars or DPs. We check and return URIs conditionally on this.
     if (newChatData?.displayPic) {
-      newChatData.displayPic = getSafeAbsoluteURI(
-        newChatData.displayPic,
-        'doc',
-      );
+      newChatData.displayPic = newChatData?.displayPic.includes('avatar://')
+        ? newChatData.displayPic
+        : getSafeAbsoluteURI(newChatData.displayPic, 'doc');
     }
     if (!newChatData) {
       throw new Error('NullChatData');

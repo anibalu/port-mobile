@@ -1,13 +1,11 @@
 import ShareIcon from '@assets/icons/Share.svg';
 import WhiteArrowRight from '@assets/icons/WhiteArrowRight.svg';
-import Cross from '@assets/icons/cross.svg';
 import {useNavigation} from '@react-navigation/native';
 //import store from '@store/appStore';
 import Groups from '@assets/icons/GroupsBlue.svg';
 import SuperPorts from '@assets/icons/SuperportsBlue.svg';
 import Person from '@assets/icons/personWhite.svg';
 import {GenericButton} from '@components/GenericButton';
-import GenericModalTopBar from '@components/GenericModalTopBar';
 import {DEFAULT_NAME} from '@configs/constants';
 import {getProfileName} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
@@ -29,6 +27,7 @@ import {
   getAllPermissionPresets,
   getDefaultPermissionPreset,
 } from '@utils/ChatPermissionPresets';
+import Notch from './Notch';
 
 const NewPortModal: React.FC = () => {
   const {
@@ -288,10 +287,8 @@ const NewPortModal: React.FC = () => {
       visible={modalVisible}
       onClose={cleanupModal}>
       <View style={styles.modalView}>
-        <GenericModalTopBar
-          RightOptionalIcon={Cross}
-          onBackPress={cleanupModal}
-        />
+        <Notch />
+
         <NumberlessText
           fontType={FontType.sb}
           fontSizeType={FontSizeType.l}
@@ -489,7 +486,7 @@ const styles = StyleSheet.create({
   modalView: {
     backgroundColor: PortColors.primary.white,
     alignItems: 'center',
-    paddingTop: 12,
+    paddingTop: 8,
     flexDirection: 'column',
     width: screen.width,
     borderTopRightRadius: 32,

@@ -1,23 +1,21 @@
 import {PortColors, screen} from '@components/ComponentUtils';
 import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import Cross from '@assets/icons/cross.svg';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import {GenericButton} from '@components/GenericButton';
+import Notch from '@components/ConnectionModal/Notch';
 
 const DeleteModal = ({setIsDeleteModalVisible, deletePreset}) => {
   const [loading, setLoading] = useState(false);
 
   return (
     <View style={styles.modal}>
-      <Cross
-        style={styles.icon}
-        onPress={() => setIsDeleteModalVisible(p => !p)}
-      />
+      <Notch />
+
       <NumberlessText
         style={styles.heading}
         fontSizeType={FontSizeType.l}
@@ -51,9 +49,10 @@ const styles = StyleSheet.create({
     width: screen.width,
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 20,
+    paddingBottom: 20,
     borderTopStartRadius: 32,
     borderTopEndRadius: 32,
+    paddingTop: 8,
   },
   icon: {
     alignSelf: 'flex-end',

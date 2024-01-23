@@ -1,10 +1,8 @@
 import ShareIcon from '@assets/icons/Share.svg';
 import Superports from '@assets/icons/SuperPorts.svg';
 import WhiteArrowRight from '@assets/icons/WhiteArrowRight.svg';
-import Cross from '@assets/icons/cross.svg';
 import Delete from '@assets/icons/redTrash.svg';
 import {GenericButton} from '@components/GenericButton';
-import GenericModalTopBar from '@components/GenericModalTopBar';
 import {
   cleanDeletePort,
   fetchSuperport,
@@ -26,6 +24,7 @@ import GenericInput from '../GenericInput';
 import GenericModal from '../GenericModal';
 import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
 import {displayQR} from './QRUtils';
+import Notch from './Notch';
 
 const LINK_ARRAY_LIMIT = [null, 5, 10, 50, 100];
 
@@ -198,10 +197,8 @@ const CreateSuperportModal: React.FC = () => {
   return (
     <GenericModal visible={modalVisible} onClose={cleanupModal}>
       <View style={styles.modalView}>
-        <GenericModalTopBar
-          RightOptionalIcon={Cross}
-          onBackPress={cleanupModal}
-        />
+        <Notch />
+
         {!createPressed ? (
           <>
             <NumberlessText
@@ -395,7 +392,7 @@ const styles = StyleSheet.create({
   modalView: {
     backgroundColor: PortColors.primary.white,
     alignItems: 'center',
-    paddingTop: 12,
+    paddingTop: 8,
     justifyContent: 'center',
     flexDirection: 'column',
     width: screen.width,

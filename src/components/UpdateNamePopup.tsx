@@ -15,9 +15,9 @@ import {StyleSheet, View} from 'react-native';
 import {PortColors, screen} from './ComponentUtils';
 import {GenericButton} from './GenericButton';
 import GenericInput from './GenericInput';
-import GenericModalTopBar from './GenericModalTopBar';
-import Cross from '../../assets/icons/cross.svg';
+
 import DirectChat from '@utils/DirectChats/DirectChat';
+import Notch from './ConnectionModal/Notch';
 
 interface updateNameProps {
   setUpdated: Function;
@@ -47,12 +47,8 @@ export default function UpdateNamePopup({
 
   return (
     <View style={styles.editRegion}>
-      <View style={{right: 30}}>
-        <GenericModalTopBar
-          RightOptionalIcon={Cross}
-          onBackPress={() => setUpdated(p => !p)}
-        />
-      </View>
+      <Notch />
+
       <NumberlessText fontType={FontType.sb} fontSizeType={FontSizeType.l}>
         {chatId ? "Update this contact's name" : 'Update your name'}
       </NumberlessText>
@@ -88,7 +84,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-end',
     paddingBottom: 20,
-    paddingTop: 12,
+    paddingTop: 8,
     paddingHorizontal: 30,
     borderTopStartRadius: 32,
     borderTopEndRadius: 32,

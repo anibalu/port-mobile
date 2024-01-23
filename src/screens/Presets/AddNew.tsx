@@ -6,9 +6,9 @@ import {
 } from '@components/NumberlessText';
 import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import Cross from '@assets/icons/cross.svg';
 import GenericInput from '@components/GenericInput';
 import {GenericButton} from '@components/GenericButton';
+import Notch from '@components/ConnectionModal/Notch';
 
 const AddNew = ({
   selectedCategory,
@@ -24,10 +24,11 @@ const AddNew = ({
   const [loading, setLoading] = useState(false);
   return (
     <View style={styles.modal}>
+      <Notch />
+
       <NumberlessText fontSizeType={FontSizeType.m} fontType={FontType.md}>
         {isEdit ? 'Edit preset' : 'Add new preset'}
       </NumberlessText>
-      <Cross style={styles.icon} onPress={() => setIsModalVisible(p => !p)} />
       <GenericInput
         inputStyle={styles.nameInputStyle}
         text={newPreset}
@@ -59,10 +60,11 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     width: screen.width,
     alignItems: 'center',
-    paddingVertical: 30,
+    paddingTop: 8,
     paddingHorizontal: 50,
     borderTopStartRadius: 32,
     borderTopEndRadius: 32,
+    paddingBottom: 30,
   },
   icon: {
     position: 'absolute',

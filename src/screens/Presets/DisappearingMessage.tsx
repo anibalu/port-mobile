@@ -1,6 +1,6 @@
-import Cross from '@assets/icons/cross.svg';
 import Timer from '@assets/icons/timer.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
+import Notch from '@components/ConnectionModal/Notch';
 import {
   FontSizeType,
   FontType,
@@ -12,17 +12,11 @@ import {disappearDuration, disappearOptions} from '@utils/Time/interfaces';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
-const DisappearingMessage = ({
-  setIsDisappearClicked,
-  selected,
-  setModifiedPreset,
-}) => {
+const DisappearingMessage = ({selected, setModifiedPreset}) => {
   return (
     <View style={styles.modal}>
-      <Cross
-        style={styles.icon}
-        onPress={() => setIsDisappearClicked(p => !p)}
-      />
+      <Notch />
+
       <NumberlessText
         style={{
           color: PortColors.text.title,
@@ -91,9 +85,10 @@ const styles = StyleSheet.create({
     width: screen.width,
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingBottom: 20,
     borderTopStartRadius: 32,
     borderTopEndRadius: 32,
+    paddingTop: 8,
   },
   icon: {
     alignSelf: 'flex-end',

@@ -1,14 +1,13 @@
 import React from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 
-import CrossIcon from '@assets/icons/cross.svg';
 import InfoIcon from '@assets/icons/Information.svg';
 import WorldIcon from '@assets/icons/WorldIcon.svg';
 import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
 import {useNavigation} from '@react-navigation/native';
 import {NumberlessMediumText} from '@components/NumberlessText';
 import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
-import GenericModalTopBar from '@components/GenericModalTopBar';
+import Notch from '@components/ConnectionModal/Notch';
 
 interface reportIssueProps {
   setReportBugModalOpen: Function;
@@ -28,10 +27,8 @@ export default function ReportIssueModal(props: reportIssueProps) {
 
   return (
     <View style={styles.editRegion}>
-      <GenericModalTopBar
-        RightOptionalIcon={CrossIcon}
-        onBackPress={() => setReportBugModalOpen(p => !p)}
-      />
+      <Notch />
+
       <View style={styles.rowStyles}>
         <NumberlessMediumText style={styles.titleText}>
           Need help?
@@ -61,7 +58,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
-    paddingTop: 25,
+    paddingTop: 8,
     paddingHorizontal: 30,
   },
   titleText: {

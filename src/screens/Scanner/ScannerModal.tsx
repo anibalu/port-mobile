@@ -3,15 +3,14 @@
  */
 import Groups from '@assets/icons/GroupsBlue.svg';
 import SuperPorts from '@assets/icons/SuperportsBlue.svg';
-import Cross from '@assets/icons/cross.svg';
 import Link from '@assets/icons/linkGrey.svg';
 import Person from '@assets/icons/personBlue.svg';
 import SuccessQR from '@assets/icons/successqr.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
+import Notch from '@components/ConnectionModal/Notch';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
 import GenericModal from '@components/GenericModal';
-import GenericModalTopBar from '@components/GenericModalTopBar';
 import {
   FontSizeType,
   FontType,
@@ -109,10 +108,7 @@ export default function ScannerModal() {
   return (
     <GenericModal visible={modalVisible} onClose={cleanScanModal}>
       <View style={styles.successIndicatorArea}>
-        <GenericModalTopBar
-          RightOptionalIcon={Cross}
-          onBackPress={() => cleanScanModal()}
-        />
+        <Notch />
 
         {femaleModal ? (
           <>
@@ -323,7 +319,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
     backgroundColor: PortColors.primary.grey.light,
-    paddingTop: 12,
+    paddingTop: 8,
     alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',

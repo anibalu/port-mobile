@@ -2,10 +2,8 @@ import SuperPortIcon from '@assets/icons/ActiveGateways.svg';
 import Create from '@assets/icons/Create.svg';
 import PublishSuperportIcon from '@assets/icons/PublishSuperports.svg';
 import WhiteArrowRight from '@assets/icons/WhiteArrowRight.svg';
-import Cross from '@assets/icons/cross.svg';
 import ChatBackground from '@components/ChatBackground';
 import {GenericButton} from '@components/GenericButton';
-import GenericModalTopBar from '@components/GenericModalTopBar';
 import {getAllCreatedSuperports} from '@utils/Ports';
 import {SuperportData} from '@utils/Ports/interfaces';
 import {getReadableTimestamp} from '@utils/Time';
@@ -21,6 +19,7 @@ import {useConnectionModal} from '../../context/ConnectionModalContext';
 import {PortColors, screen} from '../ComponentUtils';
 import GenericModal from '../GenericModal';
 import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
+import Notch from './Notch';
 
 const SuperportModal: React.FC = () => {
   const {
@@ -66,11 +65,8 @@ const SuperportModal: React.FC = () => {
   return (
     <GenericModal visible={modalVisible} onClose={cleanupModal}>
       <View style={styles.modalView}>
-        <GenericModalTopBar
-          RightOptionalIcon={Cross}
-          title={data.length >= 1 ? 'Superports' : undefined}
-          onBackPress={cleanupModal}
-        />
+        <Notch />
+
         {loadingSuperports ? (
           <View style={styles.LoaderScreen}>
             <ActivityIndicator size={'large'} color={'#000000'} />
@@ -280,7 +276,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 32,
     borderTopLeftRadius: 32,
     paddingHorizontal: 30,
-    paddingTop: 12,
+    paddingTop: 8,
   },
   LoaderScreen: {
     width: '100%',

@@ -2,18 +2,22 @@ import React, {useEffect, useState} from 'react';
 
 import {NumberlessRegularText} from '@components/NumberlessText';
 
+import Play from '@assets/icons/videoPlay.svg';
 import {screen} from '@components/ComponentUtils';
+import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
+import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
 import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {Image, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import {ReadDirItem} from 'react-native-fs';
-import Play from '@assets/icons/videoPlay.svg';
 
-export default function ViewPhotosVideos({chatId}: {chatId: string}) {
+type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewPhotosVideos'>;
+
+const ViewPhotosVideos = ({route}: Props) => {
   const [media, setMedia] = useState<ReadDirItem[]>([]);
 
   const loadMedia = async () => {
-    const response = await fetchFilesInMediaDir(chatId);
+    const response = await fetchFilesInMediaDir(route.params.chatId);
     setMedia(response);
   };
 
@@ -68,7 +72,7 @@ export default function ViewPhotosVideos({chatId}: {chatId: string}) {
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   nocontentText: {
@@ -97,3 +101,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
 });
+
+export default ViewPhotosVideos;

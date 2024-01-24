@@ -353,6 +353,9 @@ PODS:
   - react-native-numberless-crypto (0.1.25):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
+  - react-native-pager-view (6.2.3):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - react-native-pdf (6.7.3):
     - React-Core
   - react-native-receive-sharing-intent (2.0.0):
@@ -516,6 +519,7 @@ DEPENDENCIES:
   - react-native-encrypted-storage (from `../node_modules/react-native-encrypted-storage`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-numberless-crypto (from `../node_modules/@numberless/react-native-numberless-crypto`)"
+  - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-receive-sharing-intent (from `../node_modules/react-native-receive-sharing-intent`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -620,6 +624,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-numberless-crypto:
     :path: "../node_modules/@numberless/react-native-numberless-crypto"
+  react-native-pager-view:
+    :path: "../node_modules/react-native-pager-view"
   react-native-pdf:
     :path: "../node_modules/react-native-pdf"
   react-native-receive-sharing-intent:
@@ -726,6 +732,7 @@ SPEC CHECKSUMS:
   react-native-encrypted-storage: db300a3f2f0aba1e818417c1c0a6be549038deb7
   react-native-image-picker: 3269f75c251cdcd61ab51b911dd30d6fff8c6169
   react-native-numberless-crypto: 53df0971b95975ff6f951979a5d04cb030c1f649
+  react-native-pager-view: e26d35e382d86950c936f8917e3beb9188115ccc
   react-native-pdf: b4ca3d37a9a86d9165287741c8b2ef4d8940c00e
   react-native-receive-sharing-intent: 62ab28c50e6ae56d32b9e841d7452091312a0bc7
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89

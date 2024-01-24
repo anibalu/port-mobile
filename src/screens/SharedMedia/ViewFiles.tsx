@@ -5,13 +5,17 @@ import {fetchFilesInFileDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers
 import {StyleSheet, View} from 'react-native';
 import {ReadDirItem} from 'react-native-fs';
 
-import FileComponent from './FileComponent';
+import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
+import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
+import FileComponent from '../ContactProfile/FileComponent';
 
-export default function ViewFiles({chatId}: {chatId: string}) {
+type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewFiles'>;
+
+export default function ViewFiles({route}: Props) {
   const [media, setMedia] = useState<ReadDirItem[]>([]);
 
   const loadMedia = async () => {
-    const response = await fetchFilesInFileDir(chatId);
+    const response = await fetchFilesInFileDir(route.params.chatId);
     setMedia(response);
   };
 

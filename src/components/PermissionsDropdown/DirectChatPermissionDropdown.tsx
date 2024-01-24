@@ -25,12 +25,12 @@ import {ChatType} from '@utils/Connections/interfaces';
 import Permissions from '@screens/Presets/Permissions';
 import GenericModal from '@components/GenericModal';
 import DisappearingMessage from '@screens/Presets/DisappearingMessage';
-import {GenericButton} from '@components/GenericButton';
 import {deepEqual} from '@screens/Presets/deepEqual';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
 import {saveMessage} from '@utils/Storage/messages';
+import {SaveButton} from '@components/SaveButton';
 
 export default function DirectChatPermissionDropdown(props: {
   bold: boolean;
@@ -117,9 +117,9 @@ export default function DirectChatPermissionDropdown(props: {
             setIsDisappearClicked={setIsDisappearClicked}
             setModifiedPreset={setModifiedPreset}
           />
-          <GenericButton
+          <SaveButton
             disabled={deepEqual(permissionsObj, modifiedPreset)}
-            buttonStyle={
+            style={
               deepEqual(permissionsObj, modifiedPreset)
                 ? styles.disabled
                 : styles.save
@@ -136,9 +136,8 @@ export default function DirectChatPermissionDropdown(props: {
               ) {
                 await sendInfoMessage();
               }
-            }}>
-            Save
-          </GenericButton>
+            }}
+          />
         </View>
       ) : (
         <></>

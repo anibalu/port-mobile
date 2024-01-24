@@ -12,7 +12,6 @@ import {NumberlessMediumText} from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
 
 import {GenericAvatar} from '@components/GenericAvatar';
-import {GenericButton} from '@components/GenericButton';
 import {avatarmapping} from '@configs/avatarmapping';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
@@ -21,6 +20,7 @@ import {FileAttributes} from '@utils/Storage/interfaces';
 import React, {useEffect, useState} from 'react';
 import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
+import {SaveButton} from '@components/SaveButton';
 
 function EditAvatar() {
   const navigation = useNavigation();
@@ -135,9 +135,7 @@ function EditAvatar() {
           })}
         </ScrollView>
       </View>
-      <GenericButton onPress={onSavePicture} buttonStyle={styles.button}>
-        Save
-      </GenericButton>
+      <SaveButton onPress={onSavePicture} style={styles.button} />
     </SafeAreaView>
   );
 }
@@ -192,10 +190,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
   },
   button: {
-    borderRadius: 8,
-    height: 60,
-    width: '70%',
-    alignSelf: 'center',
+    width: '90%',
     position: 'absolute',
     bottom: 20,
   },

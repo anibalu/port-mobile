@@ -8,7 +8,6 @@ import Person from '@assets/icons/personBlue.svg';
 import SuccessQR from '@assets/icons/successqr.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
 import Notch from '@components/ConnectionModal/Notch';
-import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
 import GenericModal from '@components/GenericModal';
 import {
@@ -16,6 +15,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {SaveButton} from '@components/SaveButton';
 import {useNavigation} from '@react-navigation/native';
 import {
   getAllPermissionPresets,
@@ -268,8 +268,8 @@ export default function ScannerModal() {
             </>
           )}
 
-          <GenericButton
-            buttonStyle={StyleSheet.compose(
+          <SaveButton
+            style={StyleSheet.compose(
               styles.button,
               !checkSavePossible() ? {opacity: 0.7} : {},
             )}
@@ -277,7 +277,7 @@ export default function ScannerModal() {
             loading={loading}
             onPress={saveNewConnection}>
             Save
-          </GenericButton>
+          </SaveButton>
         </View>
       </View>
     </GenericModal>

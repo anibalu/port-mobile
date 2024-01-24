@@ -13,11 +13,11 @@ import {updateProfileName} from '@utils/Profile';
 import React, {ReactNode, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {PortColors, screen} from './ComponentUtils';
-import {GenericButton} from './GenericButton';
 import GenericInput from './GenericInput';
 
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Notch from './ConnectionModal/Notch';
+import {SaveButton} from './SaveButton';
 
 interface updateNameProps {
   setUpdated: Function;
@@ -68,9 +68,7 @@ export default function UpdateNamePopup({
         alignment="left"
       />
       <View style={styles.buttonContainer}>
-        <GenericButton buttonStyle={styles.save} onPress={onSavePressed}>
-          Save
-        </GenericButton>
+        <SaveButton onPress={onSavePressed} />
       </View>
     </View>
   );
@@ -109,12 +107,5 @@ const styles = StyleSheet.create({
     height: 58,
     marginTop: 24,
     marginBottom: 38,
-  },
-  save: {
-    flex: 0.8,
-  },
-  saveText: {
-    fontSize: 15,
-    color: 'white',
   },
 });

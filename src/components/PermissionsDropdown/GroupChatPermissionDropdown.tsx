@@ -3,12 +3,13 @@ import SingleDown from '@assets/icons/single-down.svg';
 import PermissionIconActive from '@assets/permissions/permissions-active.svg';
 import PermissionIconInactive from '@assets/permissions/permissions-inactive.svg';
 import {screen} from '@components/ComponentUtils';
-import {GenericButton} from '@components/GenericButton';
+
 import GenericModal from '@components/GenericModal';
 import {
   NumberlessBoldText,
   NumberlessMediumText,
 } from '@components/NumberlessText';
+import {SaveButton} from '@components/SaveButton';
 import DisappearingMessage from '@screens/Presets/DisappearingMessage';
 import Permissions from '@screens/Presets/Permissions';
 import {deepEqual} from '@screens/Presets/deepEqual';
@@ -92,9 +93,9 @@ export default function GroupChatPermissionDropdown(props: {
             setIsDisappearClicked={setIsDisappearClicked}
             setModifiedPreset={setModifiedPreset}
           />
-          <GenericButton
+          <SaveButton
             disabled={deepEqual(permissionsObj, modifiedPreset)}
-            buttonStyle={
+            style={
               deepEqual(permissionsObj, modifiedPreset)
                 ? styles.disabled
                 : styles.save
@@ -104,9 +105,8 @@ export default function GroupChatPermissionDropdown(props: {
                 ...modifiedPreset,
               });
               setPermissionsObj({...modifiedPreset});
-            }}>
-            Save
-          </GenericButton>
+            }}
+          />
         </View>
       ) : (
         <></>

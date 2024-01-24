@@ -38,6 +38,7 @@ import DeleteModal from './DeleteModal';
 import DisappearingMessage from './DisappearingMessage';
 import Permissions from './Permissions';
 import {deepEqual} from './deepEqual';
+import {SaveButton} from '@components/SaveButton';
 
 const Presets = () => {
   const navigation = useNavigation();
@@ -277,9 +278,9 @@ const Presets = () => {
             Delete preset
           </GenericButton>
         )}
-        <GenericButton
+        <SaveButton
           disabled={deepEqual(selectedPreset, modifiedPreset)}
-          buttonStyle={
+          style={
             deepEqual(selectedPreset, modifiedPreset)
               ? styles.disabled
               : styles.save
@@ -295,9 +296,8 @@ const Presets = () => {
               setAvailablePresets(await getAllPermissionPresets());
               setLoading(false);
             }
-          }}>
-          Save
-        </GenericButton>
+          }}
+        />
       </View>
 
       <GenericModal

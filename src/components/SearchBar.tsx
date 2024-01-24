@@ -22,7 +22,7 @@ const SearchBar = ({
     <View style={style ? style : styles.searchBarStyle}>
       <Search color={'grey'} />
       <TextInput
-        style={{marginLeft: 20, flex: 1}}
+        style={{marginLeft: 12, flex: 1, fontSize: 15}}
         textAlign="left"
         maxLength={NAME_LENGTH_LIMIT}
         placeholder={isFocused ? '' : 'Search'}
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flexDirection: 'row',
     marginTop: 4,
-    paddingLeft: 20,
+    paddingHorizontal: 16,
     height: 46,
     alignItems: 'center',
     backgroundColor: '#FFFFFF',

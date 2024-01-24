@@ -120,6 +120,9 @@ function Home(): ReactNode {
         data={viewableConnections}
         renderItem={element => renderChatTile(element.item)}
         style={styles.chats}
+        contentContainerStyle={{
+          rowGap: 8,
+        }}
         ListHeaderComponent={
           connections.length >= 2 ? (
             /**

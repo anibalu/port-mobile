@@ -2,16 +2,15 @@
  * Default chat tile displayed when there are no connections
  */
 import {PortColors} from '@components/ComponentUtils';
-import {GenericAvatar} from '@components/GenericAvatar';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {AVATAR_ARRAY} from '@configs/constants';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
+import BluePlus from '../../../assets/icons/Blueplus.svg';
 
 function DefaultChatTile(): ReactNode {
   const {showNewPortModal: showModal} = useConnectionModal();
@@ -20,17 +19,13 @@ function DefaultChatTile(): ReactNode {
   };
   return (
     <Pressable style={styles.defaultTileContainer} onPress={handleNavigate}>
-      <GenericAvatar
-        onPress={handleNavigate}
-        profileUri={AVATAR_ARRAY[0]}
-        avatarSize={'small'}
-      />
+      <BluePlus />
       <NumberlessText
         fontType={FontType.rg}
         fontSizeType={FontSizeType.l}
         textColor={PortColors.text.labels}
-        style={{fontStyle: 'italic', fontWeight: '400'}}>
-        Click here to add a new contact
+        style={{fontStyle: 'italic', fontWeight: '400', marginLeft: 17}}>
+        Add new contact
       </NumberlessText>
     </Pressable>
   );
@@ -39,12 +34,10 @@ function DefaultChatTile(): ReactNode {
 const styles = StyleSheet.create({
   defaultTileContainer: {
     flex: 1,
-    marginTop: 7,
     borderRadius: 14,
     backgroundColor: PortColors.primary.white,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
     padding: 15,
   },
 });

@@ -14,7 +14,7 @@ export const START_OF_TIME = '2023-11-30T09:47:11Z';
 export const MESSAGE_DATA_MAX_LENGTH = 2048;
 
 //UI Definitions for elements
-export const TOPBAR_HEIGHT = 75;
+export const TOPBAR_HEIGHT = 56;
 export const BOTTOMBAR_HEIGHT = 75;
 export const BOTTOMBAR_ICON_SIZE = 24;
 export const AVATAR_ARRAY = [

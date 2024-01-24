@@ -47,63 +47,79 @@ function ChatTile(props: ConnectionInfo): ReactNode {
         profileUri={getProfileURI(props.pathToDisplayPic)}
         avatarSize="small"
       />
-
-      <View style={styles.textInfoContainer}>
-        <NumberlessText
-          ellipsizeMode="tail"
-          numberOfLines={1}
-          fontType={FontType.md}
-          style={{marginBottom: 4}}
-          fontSizeType={FontSizeType.l}>
-          {props.name}
-        </NumberlessText>
-
-        {isNewConnection ? (
+      <View style={{flex: 1}}>
+        <View style={styles.textInfoContainer}>
           <NumberlessText
             ellipsizeMode="tail"
             numberOfLines={1}
-            fontType={FontType.md}
-            fontSizeType={FontSizeType.m}
-            textColor={PortColors.text.title}>
-            New connection
-          </NumberlessText>
-        ) : (
-          <NumberlessText
-            ellipsizeMode="tail"
-            numberOfLines={1}
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}
-            textColor={isNewMessage ? undefined : PortColors.text.secondary}>
-            {props.text}
-          </NumberlessText>
-        )}
-      </View>
-      <View style={styles.metadataContainer}>
-        {props.disconnected ? (
-          <NumberlessText
-            fontSizeType={FontSizeType.s}
             fontType={FontType.md}
             style={{
-              backgroundColor: PortColors.primary.grey.light,
-              marginHorizontal: 6,
-              paddingHorizontal: 4,
-              borderRadius: 4,
-              paddingVertical: 3,
+              marginBottom: 4,
+              flex: 1,
+              alignSelf: 'stretch',
+              marginRight: 10,
             }}
-            textColor={PortColors.text.delete}>
-            Disconnected
+            fontSizeType={FontSizeType.l}>
+            {props.name}
           </NumberlessText>
-        ) : (
-          <View style={styles.dateAndStatusBox}>
+
+          {props.disconnected ? (
             <NumberlessText
               fontSizeType={FontSizeType.s}
-              fontType={FontType.md}
-              textColor={PortColors.text.labels}>
-              {getReadableTimestamp(props.timestamp)}
+              fontType={FontType.rg}
+              style={{
+                borderRadius: 4,
+                paddingVertical: 3,
+              }}
+              textColor={PortColors.text.delete}>
+              Disconnected
             </NumberlessText>
-            <DisplayStatus {...props} />
-          </View>
-        )}
+          ) : (
+            <View style={styles.dateAndStatusBox}>
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}
+                textColor={PortColors.text.labels}>
+                {getReadableTimestamp(props.timestamp)}
+              </NumberlessText>
+            </View>
+          )}
+        </View>
+        <View style={styles.columnview}>
+          {isNewConnection ? (
+            <NumberlessText
+              ellipsizeMode="tail"
+              numberOfLines={1}
+              fontType={FontType.md}
+              style={{
+                flex: 1,
+                alignSelf: 'stretch',
+                marginRight: 10,
+              }}
+              fontSizeType={FontSizeType.m}
+              textColor={PortColors.text.title}>
+              New connection
+            </NumberlessText>
+          ) : (
+            <>
+              <NumberlessText
+                ellipsizeMode="tail"
+                numberOfLines={1}
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.m}
+                style={{
+                  flex: 1,
+                  alignSelf: 'stretch',
+                }}
+                textColor={
+                  isNewMessage ? undefined : PortColors.text.secondary
+                }>
+                {props.text}
+              </NumberlessText>
+              <DisplayStatus {...props} />
+            </>
+          )}
+        </View>
       </View>
     </Pressable>
   ) : (
@@ -162,19 +178,18 @@ function displayNumber(newMsgCount: number): string {
 
 const styles = StyleSheet.create({
   tile: {
-    marginTop: 7,
     borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    height: 89,
-    paddingLeft: 15,
+    paddingVertical: 16,
+    height: 82,
+    paddingHorizontal: 16,
   },
   textInfoContainer: {
-    alignContent: 'flex-start',
+    marginLeft: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     flex: 1,
-    marginLeft: 19,
   },
   metadataContainer: {
     flexDirection: 'column',
@@ -185,21 +200,28 @@ const styles = StyleSheet.create({
   },
   dateAndStatusBox: {
     flexDirection: 'column',
-    flex: 1,
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    paddingRight: 15,
+    paddingTop: 3,
   },
   new: {
     backgroundColor: PortColors.primary.red.error,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 12,
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   newTextDot: {
-    fontSize: 10,
+    fontSize: 12,
     textAlign: 'center',
     color: '#FFF',
+  },
+  columnview: {
+    alignSelf: 'stretch',
+    marginLeft: 12,
+    flex: 1,
+    flexDirection: 'row',
   },
 });
 

@@ -1,7 +1,6 @@
 /**
  * Top Bar of the home screen containing profile picture and unread count
  */
-import ProfileBackground from '@assets/backgrounds/profileBackground.svg';
 import PendingConnectionsIcon from '@assets/icons/PendingConnectionsIcon.svg';
 import {PortColors} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
@@ -82,11 +81,10 @@ function HomeTopbar({unread, toptitleMessage = 'All'}: TopbarProps): ReactNode {
         {title}
       </NumberlessText>
       <View style={styles.profileImageContainer}>
-        <ProfileBackground style={styles.backgroundImage} />
         <GenericAvatar
           onPress={() => navigation.navigate('MyProfile')}
           profileUri={profileURI}
-          avatarSize={'extraSmall'}
+          avatarSize={'xxsmall'}
         />
       </View>
     </View>
@@ -128,6 +126,8 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 15,
     borderRadius: 8,
+    height: 40,
+    width: 40,
   },
   redWrapper: {
     width: 18,

@@ -11,7 +11,7 @@ export function GenericAvatar({
   profileUri = AVATAR_ARRAY[0],
   onPress,
 }: {
-  avatarSize: 'extraSmall' | 'small' | 'medium' | 'large'; //size - extraSmall, small, medium, large || default - large
+  avatarSize: 'xxsmall' | 'extraSmall' | 'small' | 'medium' | 'large'; //size - extraSmall, small, medium, large || default - large
   profileUri?: string | null;
   onPress?: (() => void) | null;
 }) {
@@ -25,6 +25,8 @@ export function GenericAvatar({
       return styles.large;
     } else if (avatarSize === 'extraSmall') {
       return styles.extraSmall;
+    } else if (avatarSize === 'xxsmall') {
+      return styles.xxsmall;
     } else {
       return styles.large;
     }
@@ -81,6 +83,11 @@ const styles = StyleSheet.create({
     height: 42,
     width: 42,
     borderRadius: 14,
+  },
+  xxsmall: {
+    height: 40,
+    width: 40,
+    borderRadius: 16,
   },
   small: {
     height: 50,

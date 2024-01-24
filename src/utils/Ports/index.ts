@@ -139,18 +139,21 @@ export async function readBundle(
   switch (bundle.target) {
     case BundleTarget.direct:
       await direct.acceptPortBundle(bundle as PortBundle, channel, presetId);
+      break;
     case BundleTarget.group:
       await group.acceptGroupPortBundle(
         bundle as GroupBundle,
         channel,
         presetId,
       );
+      break;
     case BundleTarget.superportDirect:
       await superport.acceptSuperportBundle(
         bundle as DirectSuperportBundle,
         channel,
         presetId,
       );
+      break;
     default:
       break;
   }

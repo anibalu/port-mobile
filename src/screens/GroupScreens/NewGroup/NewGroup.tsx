@@ -180,7 +180,7 @@ const style = StyleSheet.create({
   },
   activeButton: {
     backgroundColor: '#547CEF',
-    height: 70,
+    height: 60,
     borderRadius: 16,
     justifyContent: 'center',
     marginHorizontal: 10,
@@ -191,7 +191,7 @@ const style = StyleSheet.create({
   },
   inactiveButton: {
     backgroundColor: '#868686',
-    height: 70,
+    height: 60,
     marginTop: 40,
     borderRadius: 16,
     justifyContent: 'center',

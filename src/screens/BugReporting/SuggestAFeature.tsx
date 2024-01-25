@@ -99,7 +99,7 @@ export default function SuggestAFeature({navigation}: Props) {
           setOpenModal(p => !p);
         }}
         buttonStyle={{
-          height: 70,
+          height: 60,
           width: '90%',
           position: 'absolute',
           bottom: 15,

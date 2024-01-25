@@ -105,7 +105,7 @@ export default function ReportIssueScreen({navigation, route}: Props) {
             sendBugReport(category, selected.content, reviewText, [image]);
           }}
           buttonStyle={{
-            height: 70,
+            height: 60,
             width: '90%',
             position: 'absolute',
             bottom: 15,

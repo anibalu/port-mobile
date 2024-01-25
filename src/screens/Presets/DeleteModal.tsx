@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.red.error,
     width: '90%',
     marginTop: 30,
+    height: 60,
   },
 });
 

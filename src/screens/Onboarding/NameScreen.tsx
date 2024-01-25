@@ -101,7 +101,7 @@ export const onboardingStylesheet = StyleSheet.create({
   },
   nextButtonContainer: {
     backgroundColor: PortColors.primary.blue.app,
-    height: 65,
+    height: 60,
     width: 65,
     position: 'absolute',
     bottom: 18,

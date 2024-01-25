@@ -43,8 +43,8 @@ const GroupOnboarding = () => {
           buttonStyle={{
             flex: 1,
             top: 52,
-            height: 70,
-            maxHeight: 70,
+            height: 60,
+            maxHeight: 60,
           }}>
           Create Now
         </GenericButton>

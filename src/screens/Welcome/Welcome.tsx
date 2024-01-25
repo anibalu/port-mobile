@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   button: {
     marginBottom: 32,
     backgroundColor: PortColors.primary.white,
-    height: 70,
+    height: 60,
     flexDirection: 'row',
     borderRadius: 16,
     alignItems: 'center',

@@ -163,6 +163,7 @@ function GroupProfile({route, navigation}: Props) {
             <View>
               {groupData.amAdmin ? (
                 <GenericButton
+                  buttonStyle={{height: 60}}
                   onPress={() => {
                     navigation.navigate('ManageMembers', {groupId: groupId});
                   }}>
@@ -170,6 +171,7 @@ function GroupProfile({route, navigation}: Props) {
                 </GenericButton>
               ) : (
                 <GenericButton
+                  buttonStyle={{height: 60}}
                   onPress={() => {
                     navigation.navigate('ManageMembers', {groupId: groupId});
                   }}>
@@ -231,7 +233,7 @@ function GroupProfile({route, navigation}: Props) {
             }}
             buttonStyle={{
               width: '90%',
-              height: 70,
+              height: 60,
               backgroundColor: PortColors.primary.red.error,
             }}>
             Exit group

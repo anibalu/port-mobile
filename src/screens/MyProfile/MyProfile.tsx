@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   reportIssueButton: {
     position: 'absolute',
     bottom: 30,
-    height: 55,
+    height: 60,
     width: 250,
     borderRadius: 38,
     justifyContent: 'center',

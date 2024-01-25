@@ -1,10 +1,5 @@
 import RNFS from 'react-native-fs';
-import {
-  conversationsDir,
-  filesDir,
-  mediaDir,
-  tempDir,
-} from '../../../configs/paths';
+import {conversationsDir, filesDir, mediaDir, tempDir} from '@configs/paths';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {SHARED_FILE_SIZE_LIMIT_IN_BYTES} from '@configs/constants';
@@ -130,20 +125,6 @@ async function initialiseTempDirAsync() {
     await RNFS.mkdir(tempDirPath);
     return tempDirPath;
   }
-}
-
-//use this function to fetch media files of a particular chat
-export async function fetchFilesInMediaDir(chatId: string) {
-  const chatIdDir = await initialiseLargeFileDirAsync(chatId);
-  const pathToMediaDir = chatIdDir + mediaDir;
-  const files = await RNFS.readDir(pathToMediaDir);
-  return files;
-}
-export async function fetchFilesInFileDir(chatId: string) {
-  const chatIdDir = await initialiseLargeFileDirAsync(chatId);
-  const pathToFileDir = chatIdDir + filesDir;
-  const files = await RNFS.readDir(pathToFileDir);
-  return files;
 }
 
 export async function checkFileSizeWithinLimits(fileUri: string) {

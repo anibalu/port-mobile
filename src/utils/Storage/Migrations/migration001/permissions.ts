@@ -1,7 +1,7 @@
 import {runSimpleQuery} from '@utils/Storage/DBCalls/dbCommon';
 
 /**
- * Sety up storage for permissions
+ * Set up storage for permissions
  * - Set up the permissions table
  * - Set up the permission presets table
  */

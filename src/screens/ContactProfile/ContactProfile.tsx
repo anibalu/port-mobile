@@ -2,12 +2,32 @@
  * The screen to a contact's profile and associated features
  */
 
+import EditIcon from '@assets/icons/Pencil.svg';
+import Play from '@assets/icons/videoPlay.svg';
 import BackTopbar from '@components/BackTopBar';
+import ChatBackground from '@components/ChatBackground';
+import {PortColors, screen} from '@components/ComponentUtils';
+import DeleteChatButton from '@components/DeleteChatButton';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {GenericButton} from '@components/GenericButton';
+import GenericModal from '@components/GenericModal';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import DirectChatPermissionDropdown from '@components/PermissionsDropdown/DirectChatPermissionDropdown';
+import {SafeAreaView} from '@components/SafeAreaView';
+import UpdateNamePopup from '@components/UpdateNamePopup';
+import {DEFAULT_NAME} from '@configs/constants';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {MediaEntry} from '@utils/Media/interfaces';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {getImagesAndVideos} from '@utils/Storage/media';
 import {default as React, useEffect, useState} from 'react';
 import {
   FlatList,
@@ -17,25 +37,8 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import EditIcon from '@assets/icons/Pencil.svg';
-import ChatBackground from '@components/ChatBackground';
-import {PortColors, screen} from '@components/ComponentUtils';
-import DeleteChatButton from '@components/DeleteChatButton';
-import {GenericAvatar} from '@components/GenericAvatar';
-import {GenericButton} from '@components/GenericButton';
-import GenericModal from '@components/GenericModal';
-import DirectChatPermissionDropdown from '@components/PermissionsDropdown/DirectChatPermissionDropdown';
-import {SafeAreaView} from '@components/SafeAreaView';
-import UpdateNamePopup from '@components/UpdateNamePopup';
-import {DEFAULT_NAME} from '@configs/constants';
-import {AppStackParamList} from '@navigation/AppStackTypes';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import FileViewer from 'react-native-file-viewer';
-import {ReadDirItem} from 'react-native-fs';
 import DisconnectButton from './DisconnectButton';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import Play from '@assets/icons/videoPlay.svg';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -69,46 +72,47 @@ function ContactProfile({route, navigation}: Props) {
     }
     setEditingName(false);
   }
-  const [media, setMedia] = useState<ReadDirItem[]>([]);
+  const [media, setMedia] = useState<MediaEntry[]>([]);
 
   const loadMedia = async () => {
-    const response = await fetchFilesInMediaDir(chatId);
+    const response = await getImagesAndVideos(chatId);
     setMedia(response);
   };
 
-  useEffect(() => {
+  //Fetching media on profile open. Callback isn't made, as fetch can happen as many times as needed.
+  useFocusEffect(() => {
     loadMedia();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  });
 
-  const renderSelectedPhoto = ({
-    item,
-    index,
-  }: {
-    item: ReadDirItem;
-    index: number;
-  }) => {
+  const renderSelectedPhoto = ({item}: {item: MediaEntry}) => {
     return (
       <Pressable
-        key={item?.path || index}
+        key={item.mediaId}
         onPress={() => {
-          FileViewer.open('file://' + item?.path, {
+          FileViewer.open(getSafeAbsoluteURI(item.filePath, 'doc'), {
             showOpenWithDialog: true,
           });
         }}>
-        {item?.path.includes('.mp4') ? (
-          <View style={styles.blackimage}>
+        <>
+          <Image
+            source={{
+              uri:
+                item.type === ContentType.video && item.previewPath != undefined
+                  ? getSafeAbsoluteURI(item.previewPath, 'cache')
+                  : getSafeAbsoluteURI(item.filePath, 'doc'),
+            }}
+            style={styles.image}
+          />
+          {item.type === ContentType.video && (
             <Play
               style={{
                 position: 'absolute',
-                top: 0.25 * screen.width - 65,
-                left: 0.25 * screen.width - 60,
+                top: 0.25 * screen.width - 55,
+                left: 0.25 * screen.width - 55,
               }}
             />
-          </View>
-        ) : (
-          <Image source={{uri: 'file://' + item?.path}} style={styles.image} />
-        )}
+          )}
+        </>
       </Pressable>
     );
   };

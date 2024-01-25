@@ -1,21 +1,18 @@
 import React, {useEffect, useState} from 'react';
 
 import {NumberlessRegularText} from '@components/NumberlessText';
-import {fetchFilesInFileDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {StyleSheet, View} from 'react-native';
-import {ReadDirItem} from 'react-native-fs';
 
-import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
-import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
-import FileComponent from '../ContactProfile/FileComponent';
+import {MediaEntry} from '@utils/Media/interfaces';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getMedia} from '@utils/Storage/media';
+import FileComponent from './FileComponent';
 
-type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewFiles'>;
-
-export default function ViewFiles({route}: Props) {
-  const [media, setMedia] = useState<ReadDirItem[]>([]);
+export default function ViewFiles({chatId}: {chatId: string}) {
+  const [media, setMedia] = useState<MediaEntry[]>([]);
 
   const loadMedia = async () => {
-    const response = await fetchFilesInFileDir(route.params.chatId);
+    const response = await getMedia(chatId, ContentType.file);
     setMedia(response);
   };
 

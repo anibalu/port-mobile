@@ -4,6 +4,7 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
 import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
 import {getRelativeURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {updateMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
 import {getMessage} from '@utils/Storage/messages';
 import {createThumbnail} from 'react-native-create-thumbnail';
@@ -58,6 +59,15 @@ export const handleAsyncMediaDownload = async (
           getRelativeURI(fileUri, 'doc') || DEFAULT_AVATAR,
         );
       }
+
+      //Saves relative URIs for the paths
+      await updateMedia(mediaId, {
+        type: message.contentType,
+        name: data.fileName,
+        filePath: data.fileUri,
+        previewPath: data.previewUri,
+      });
+
       await storage.updateMessage(chatId, messageId, data);
       store.dispatch({
         type: 'NEW_MEDIA_STATUS_UPDATE',

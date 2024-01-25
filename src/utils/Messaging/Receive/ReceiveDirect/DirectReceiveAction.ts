@@ -1,9 +1,12 @@
 import {
   DataType,
+  LargeDataMessageContentTypes,
+  LargeDataParams,
   MessageStatus,
   PayloadMessageParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
+import {saveNewMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
 
 class DirectReceiveAction {
@@ -42,6 +45,19 @@ class DirectReceiveAction {
       replyId: this.decryptedMessageContent.replyId,
       expiresOn: this.decryptedMessageContent.expiresOn,
     };
+    if (
+      LargeDataMessageContentTypes.includes(
+        this.decryptedMessageContent.contentType,
+      )
+    ) {
+      //Create a media entry in DB for the same
+      await saveNewMedia(
+        (this.decryptedMessageContent.data as LargeDataParams).mediaId!,
+        this.chatId,
+        this.decryptedMessageContent.messageId,
+        this.receiveTime,
+      );
+    }
     await storage.saveMessage(savedMessage);
   }
 }

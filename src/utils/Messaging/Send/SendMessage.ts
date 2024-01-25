@@ -29,6 +29,7 @@ import {
 import * as API from './APICalls';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import LargeDataUpload from '../LargeData/LargeDataUpload';
+import {saveNewMedia, updateMedia} from '@utils/Storage/media';
 
 class SendMessage<T extends ContentType> {
   private chatId: string; //chatId of chat
@@ -205,6 +206,15 @@ class SendMessage<T extends ContentType> {
       );
       await uploader.upload();
       const newMediaIdAndKey = uploader.getMediaIdAndKey();
+
+      //Add entry into media table
+      await saveNewMedia(
+        newMediaIdAndKey.mediaId,
+        this.chatId,
+        this.messageId,
+        this.savedMessage.timestamp,
+      );
+
       //prep payload
       this.payload.data = {
         ...this.data,
@@ -212,6 +222,19 @@ class SendMessage<T extends ContentType> {
         mediaId: newMediaIdAndKey.mediaId,
         key: newMediaIdAndKey.key,
       };
+
+      console.log('Saving path as: ', largeData.fileUri);
+
+      //Saves relative URIs for the paths
+      await updateMedia(newMediaIdAndKey.mediaId, {
+        type: this.contentType,
+        filePath: largeData.fileUri,
+        name: largeData.fileName,
+        previewPath:
+          this.contentType === ContentType.video
+            ? largeData.previewUri || undefined
+            : undefined,
+      });
     }
   }
 
@@ -234,6 +257,7 @@ class SendMessage<T extends ContentType> {
         throw new Error('LargeDataMessageCannotBeJournaled');
       }
     }
+
     //update send status
     await storage.updateMessageSendStatus(
       this.chatId,

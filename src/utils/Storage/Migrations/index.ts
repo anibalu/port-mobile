@@ -3,10 +3,14 @@ import {runSimpleQuery} from '../DBCalls/dbCommon';
 // If this file has been modified, hopefully this counter has ticked.
 // MOST_RECENT_MIGRATION_NUMBER = 001
 import migration001 from './migration001';
+import migration002 from './migration002';
 
 // To run a migration, write a suitible callback and add it to the list.
 // Make sure to increment the counter above to make sure we don't do weird things.
-const migrations: [number, () => Promise<void>][] = [[1, migration001]];
+const migrations: [number, () => Promise<void>][] = [
+  [1, migration001],
+  [2, migration002],
+];
 
 export default async function runMigrations() {
   await createMigrationsTable();

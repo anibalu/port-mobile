@@ -5,7 +5,7 @@ import groups from './groups';
 import permissions from './permissions';
 import lines from './lines';
 import ports from './ports';
-import contactSharing from './contactaSharing';
+import contactSharing from './contactSharing';
 /**
  * Migration 001, setting up the initial version of our app storage
  * Good from version 1.0.x

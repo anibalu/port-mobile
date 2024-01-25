@@ -4,20 +4,19 @@ import {NumberlessRegularText} from '@components/NumberlessText';
 
 import Play from '@assets/icons/videoPlay.svg';
 import {screen} from '@components/ComponentUtils';
-import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
-import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
-import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {MediaEntry} from '@utils/Media/interfaces';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {getImagesAndVideos} from '@utils/Storage/media';
 import {Image, Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
-import {ReadDirItem} from 'react-native-fs';
 
-type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewPhotosVideos'>;
-
-const ViewPhotosVideos = ({route}: Props) => {
-  const [media, setMedia] = useState<ReadDirItem[]>([]);
+const ViewPhotosVideos = ({chatId}: {chatId: string}) => {
+  const [media, setMedia] = useState<MediaEntry[]>([]);
 
   const loadMedia = async () => {
-    const response = await fetchFilesInMediaDir(route.params.chatId);
+    const response = await getImagesAndVideos(chatId);
+    console.log('Response is: ', response);
     setMedia(response);
   };
 
@@ -31,30 +30,35 @@ const ViewPhotosVideos = ({route}: Props) => {
     const rowImages = media.slice(i, i + 3);
     rows.push(
       <View key={i} style={styles.row}>
-        {rowImages.map((media, index) => (
+        {rowImages.map(media => (
           <Pressable
-            key={media?.path || index.toString()}
+            key={media.mediaId}
             onPress={() => {
-              FileViewer.open('file://' + media?.path, {
+              FileViewer.open(getSafeAbsoluteURI(media.filePath, 'doc'), {
                 showOpenWithDialog: true,
               });
             }}>
-            {media?.path.includes('.mp4') ? (
-              <View style={styles.blackimage}>
+            <>
+              <Image
+                source={{
+                  uri:
+                    media.type === ContentType.video &&
+                    media.previewPath != undefined
+                      ? getSafeAbsoluteURI(media.previewPath, 'cache')
+                      : getSafeAbsoluteURI(media.filePath, 'doc'),
+                }}
+                style={styles.image}
+              />
+              {media.type === ContentType.video && (
                 <Play
                   style={{
                     position: 'absolute',
-                    top: 0.25 * screen.width - 65,
-                    left: 0.25 * screen.width - 60,
+                    top: 0.25 * screen.width - 55,
+                    left: 0.25 * screen.width - 55,
                   }}
                 />
-              </View>
-            ) : (
-              <Image
-                source={{uri: 'file://' + media?.path}}
-                style={styles.image}
-              />
-            )}
+              )}
+            </>
           </Pressable>
         ))}
       </View>,

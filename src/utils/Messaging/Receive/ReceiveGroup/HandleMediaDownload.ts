@@ -4,10 +4,8 @@ import {getMessage} from '@utils/Storage/messages';
 import * as storage from '@utils/Storage/messages';
 import {createThumbnail} from 'react-native-create-thumbnail';
 import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
-import {
-  cleanPreviewURI,
-  getRelativeURI,
-} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {getRelativeURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {updateMedia} from '@utils/Storage/media';
 /**
  * Function to handle media download for a message. Can be called asynchronosly, or awaited.
  * @param chatId
@@ -46,9 +44,17 @@ export const handleAsyncMediaDownload = async (
         mediaId: null,
         key: null,
         previewUri: previewPath?.path
-          ? cleanPreviewURI(previewPath.path)
+          ? getRelativeURI(previewPath.path, 'cache')
           : undefined,
       };
+
+      //Saves relative URIs for the paths
+      await updateMedia(mediaId, {
+        type: message.contentType,
+        name: data.fileName,
+        filePath: data.fileUri,
+        previewPath: data.previewUri,
+      });
 
       await storage.updateMessage(chatId, messageId, data);
       store.dispatch({

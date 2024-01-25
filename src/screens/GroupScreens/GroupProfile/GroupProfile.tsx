@@ -2,6 +2,7 @@
  * The screen to view a group's profile
  * screen Id: N/A
  */
+import Play from '@assets/icons/videoPlay.svg';
 import {
   FontSizeType,
   FontType,
@@ -30,17 +31,20 @@ import {GroupDataStrict, GroupMemberStrict} from '@utils/Groups/interfaces';
 //import {getConnection} from '@utils/Connections';
 import ChatBackground from '@components/ChatBackground';
 import {PortColors, screen} from '@components/ComponentUtils';
-import {GenericButton} from '@components/GenericButton';
-import {AppStackParamList} from '@navigation/AppStackTypes';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import Group from '@utils/Groups/Group';
-import {getTimeStamp} from '@utils/Time';
-import {GenericAvatar} from '@components/GenericAvatar';
-import {DEFAULT_AVATAR} from '@configs/constants';
-import {getConnection} from '@utils/Connections';
 import DeleteChatButton from '@components/DeleteChatButton';
-import {ReadDirItem} from 'react-native-fs';
-import {fetchFilesInMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {GenericAvatar} from '@components/GenericAvatar';
+import {GenericButton} from '@components/GenericButton';
+import {DEFAULT_AVATAR} from '@configs/constants';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {getConnection} from '@utils/Connections';
+import Group from '@utils/Groups/Group';
+import {MediaEntry} from '@utils/Media/interfaces';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {getImagesAndVideos} from '@utils/Storage/media';
+import {getTimeStamp} from '@utils/Time';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GroupProfile'>;
 
@@ -53,16 +57,16 @@ function GroupProfile({route, navigation}: Props) {
 
   const [profileURI, setProfileURI] = useState(DEFAULT_AVATAR);
   const [connected, setConnected] = useState(true);
-  const [media, setMedia] = useState<ReadDirItem[]>([]);
+  const [media, setMedia] = useState<MediaEntry[]>([]);
   const loadMedia = async () => {
-    const response = await fetchFilesInMediaDir(groupId);
+    const response = await getImagesAndVideos(groupId);
     setMedia(response);
   };
 
-  useEffect(() => {
+  //Fetching media on profile open. Callback isn't made, as fetch can happen as many times as needed.
+  useFocusEffect(() => {
     loadMedia();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  });
 
   const onDelete = async () => {
     await groupHandler.deleteGroup();
@@ -86,22 +90,35 @@ function GroupProfile({route, navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderSelectedPhoto = ({
-    item,
-    index,
-  }: {
-    item: ReadDirItem;
-    index: number;
-  }) => {
+  const renderSelectedPhoto = ({item}: {item: MediaEntry}) => {
     return (
       <Pressable
-        key={item?.path || index}
+        key={item.mediaId}
         onPress={() => {
-          FileViewer.open('file://' + item?.path, {
+          FileViewer.open(getSafeAbsoluteURI(item.filePath, 'doc'), {
             showOpenWithDialog: true,
           });
         }}>
-        <Image source={{uri: 'file://' + item?.path}} style={styles.image} />
+        <>
+          <Image
+            source={{
+              uri:
+                item.type === ContentType.video && item.previewPath != undefined
+                  ? getSafeAbsoluteURI(item.previewPath, 'cache')
+                  : getSafeAbsoluteURI(item.filePath, 'doc'),
+            }}
+            style={styles.image}
+          />
+          {item.type === ContentType.video && (
+            <Play
+              style={{
+                position: 'absolute',
+                top: 0.25 * screen.width - 55,
+                left: 0.25 * screen.width - 55,
+              }}
+            />
+          )}
+        </>
       </Pressable>
     );
   };

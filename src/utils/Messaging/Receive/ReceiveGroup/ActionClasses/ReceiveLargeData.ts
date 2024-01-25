@@ -1,6 +1,8 @@
-import {LargeDataParams} from '@utils/Messaging/interfaces';
 import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
+import {LargeDataParams} from '@utils/Messaging/interfaces';
 
+import {getChatPermissions} from '@utils/ChatPermissions';
+import {GroupPermissions} from '@utils/ChatPermissions/interfaces';
 import {
   ChatType,
   ConnectionInfo,
@@ -8,8 +10,6 @@ import {
 } from '@utils/Connections/interfaces';
 import {displaySimpleNotification} from '@utils/Notifications';
 import GroupReceiveAction from '../GroupReceiveAction';
-import {getChatPermissions} from '@utils/ChatPermissions';
-import {GroupPermissions} from '@utils/ChatPermissions/interfaces';
 import {handleAsyncMediaDownload} from '../HandleMediaDownload';
 
 class ReceiveLargeData extends GroupReceiveAction {

@@ -1,50 +1,45 @@
 import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Copy from '@assets/icons/copy.svg';
+
 import Delete from '@assets/icons/delete.svg';
 import Forward from '@assets/icons/forward.svg';
 import Info from '@assets/icons/info.svg';
-import Reply from '@assets/icons/reply.svg';
+
 import CustomModal from '@components/CustomModal';
 import {NumberlessMediumText} from '@components/NumberlessText';
-import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
+import {cleanDeleteMessage} from '@utils/Storage/messages';
 import {PortColors} from '@components/ComponentUtils';
+import {MediaEntry} from '@utils/Media/interfaces';
 
 /**
  * Renders action bar based on messages that are selected
  * @param chatId,
  * @param selectedMessages, messages selected
- * @param setReplyTo, message being replied to (only useful if one message is selected)
  * @param postDelete,
- * @param onCopy,
  * @param onForward,
  * @returns {ReactNode} action bar that sits above the message bar
  */
-export function MessageActionsBar({
+
+export function MediaActionsBar({
   chatId,
-  selectedMessages,
-  setReplyTo,
-  postDelete,
-  onCopy,
+  selectedMedia,
+  setSelectedMedia,
   onForward,
-  isSharedMedia,
 }: {
   chatId: string;
-  selectedMessages: string[];
-  setReplyTo: any;
-  postDelete: any;
-  onCopy: any;
+  selectedMedia: MediaEntry[];
+  setSelectedMedia: any;
   onForward: any;
-  isSharedMedia?: boolean;
 }): ReactNode {
-  const performReply = async (): Promise<void> => {
-    setReplyTo(await getMessage(chatId, selectedMessages[0]));
-  };
   const performDelete = async (): Promise<void> => {
-    for (const msg of selectedMessages) {
-      await cleanDeleteMessage(chatId, msg);
+    for (const media of selectedMedia) {
+      if (media.chatId) {
+        await cleanDeleteMessage(chatId, media.chatId);
+        setSelectedMedia((old: MediaEntry[]) =>
+          old.filter(item => item.mediaId !== media.mediaId),
+        );
+      }
     }
-    postDelete(selectedMessages);
     setOpenCustomModal(false);
   };
 
@@ -62,7 +57,7 @@ export function MessageActionsBar({
           setOpenCustomModal(false);
         }}
       />
-      {selectedMessages.length > 1 ? (
+      {selectedMedia.length > 1 ? (
         <View style={styles.multiSelectedContainer}>
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onForward}>
@@ -72,14 +67,7 @@ export function MessageActionsBar({
               Forward
             </NumberlessMediumText>
           </View>
-          <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onCopy}>
-              <Copy />
-            </Pressable>
-            <NumberlessMediumText style={styles.optionText}>
-              Copy
-            </NumberlessMediumText>
-          </View>
+
           <View style={styles.optionContainer}>
             <Pressable
               style={styles.optionBox}
@@ -95,17 +83,6 @@ export function MessageActionsBar({
         </View>
       ) : (
         <View style={styles.singleSelectedContainer}>
-          {!isSharedMedia && (
-            <View style={styles.optionContainer}>
-              <Pressable style={styles.optionBox} onPress={performReply}>
-                <Reply />
-              </Pressable>
-              <NumberlessMediumText style={styles.optionText}>
-                Reply
-              </NumberlessMediumText>
-            </View>
-          )}
-
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onForward}>
               <Forward />
@@ -114,16 +91,6 @@ export function MessageActionsBar({
               Forward
             </NumberlessMediumText>
           </View>
-          {!isSharedMedia && (
-            <View style={styles.optionContainer}>
-              <Pressable style={styles.optionBox} onPress={onCopy}>
-                <Copy />
-              </Pressable>
-              <NumberlessMediumText style={styles.optionText}>
-                Copy
-              </NumberlessMediumText>
-            </View>
-          )}
 
           <View style={styles.optionContainer}>
             <Pressable

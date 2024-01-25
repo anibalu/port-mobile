@@ -200,7 +200,7 @@ function ContactProfile({route, navigation}: Props) {
       <GenericModal
         visible={editingName}
         onClose={() => {
-          setUpdated(p => !p);
+          setUpdated(false);
         }}>
         <UpdateNamePopup
           setUpdated={setUpdated}

@@ -4,6 +4,7 @@ export interface MediaEntry extends MediaUpdate {
   mediaId: string;
   createdOn: string;
   chatId?: string;
+  messageId?: string;
 }
 
 export interface MediaUpdate {

@@ -23,7 +23,7 @@ export type TabStackParamList = {
 
 const Tab = createMaterialTopTabNavigator<TabStackParamList>();
 
-function MyTabBar({
+function NumberlessTopTabBar({
   state,
   descriptors,
   navigation,
@@ -68,6 +68,7 @@ function MyTabBar({
           return (
             <TouchableOpacity
               onPress={onPress}
+              key={label}
               onLongPress={onLongPress}
               style={StyleSheet.compose(
                 styles.tabbarItemStyle,
@@ -110,7 +111,7 @@ const SharedMedia = ({navigation, route}: Props) => {
 
       <Tab.Navigator
         initialRouteName="ViewPhotosVideos"
-        tabBar={props => <MyTabBar {...props} />}>
+        tabBar={(props: any) => <NumberlessTopTabBar {...props} />}>
         <Tab.Screen
           name="ViewPhotosVideos"
           initialParams={{chatId: chatId}}

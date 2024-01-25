@@ -1,8 +1,13 @@
-import BlueForwardIcon from '@assets/icons/BlueForwardIcon.svg';
+import Send from '@assets/icons/NewSend.svg';
 import ChatBackground from '@components/ChatBackground';
-import {FontSizes, screen} from '@components/ComponentUtils';
+import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {GenericButton} from '@components/GenericButton';
 import GenericTopBar from '@components/GenericTopBar';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -10,11 +15,11 @@ import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getConnections} from '@utils/Connections';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {getMessage} from '@utils/Storage/messages';
 import React, {useEffect, useState} from 'react';
-import {FlatList, Pressable, StyleSheet, View} from 'react-native';
+import {FlatList, ScrollView, StyleSheet, View} from 'react-native';
 import ContactTile from './ContactTile';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ForwardToContact'>;
 
@@ -30,6 +35,8 @@ export default function ForwardToContact({route, navigation}: Props) {
 
   //Members that have been searched for
   const [viewableMembers, setViewableMembers] = useState<ConnectionInfo[]>([]);
+
+  const [loading, setLoading] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -71,15 +78,17 @@ export default function ForwardToContact({route, navigation}: Props) {
   }, [searchText]);
 
   const onForward = async () => {
+    setLoading(true);
     for (const mbr of selectedMembers) {
       for (const id of messages) {
         const msg = await getMessage(chatId, id);
         if (msg) {
           const sender = new SendMessage(mbr.chatId, msg.contentType, msg.data);
-          await sender.send();
+          sender.send();
         }
       }
     }
+    setLoading(false);
     //clearing selection so that chat bar returns
     setSelectedMessages([]);
     navigation.goBack();
@@ -113,21 +122,34 @@ export default function ForwardToContact({route, navigation}: Props) {
 
       {selectedMembers.length > 0 && (
         <View style={styles.selectedMembers}>
-          <View
+          <ScrollView
+            horizontal
+            contentContainerStyle={{
+              columnGap: 8,
+            }}
+            showsHorizontalScrollIndicator={false}
             style={{
               width: screen.width - 130,
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginHorizontal: 20,
+              marginRight: 16,
             }}>
-            <NumberlessMediumText numberOfLines={1} style={styles.memberName}>
-              {selectedMembers.map(m => m.name).join(',')}
-            </NumberlessMediumText>
-          </View>
+            {selectedMembers.map(m => (
+              <NumberlessText
+                key={m.chatId}
+                style={styles.selectedItemDisplay}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.md}
+                textColor={PortColors.text.secondary}>
+                {m.name}
+              </NumberlessText>
+            ))}
+          </ScrollView>
 
-          <Pressable style={styles.iconStyles} onPress={onForward}>
-            <BlueForwardIcon />
-          </Pressable>
+          <GenericButton
+            buttonStyle={styles.send}
+            IconRight={Send}
+            loading={loading}
+            onPress={onForward}
+          />
         </View>
       )}
     </SafeAreaView>
@@ -144,6 +166,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     flex: 1,
     flexDirection: 'row',
+  },
+  selectedItemDisplay: {
+    backgroundColor: PortColors.primary.grey.light,
+    borderRadius: 11,
+    height: 36,
+    overflow: 'hidden',
+    marginTop: 5,
+    padding: 10,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -210,6 +240,14 @@ const styles = StyleSheet.create({
     borderRadius: 44,
     marginBottom: 10,
     marginRight: 10,
+  },
+  send: {
+    width: 50,
+    height: 50,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: PortColors.primary.blue.app,
   },
   content: {
     fontSize: 15,

@@ -19,7 +19,7 @@ const ChatBackground = ({standard = true}): ReactNode => {
 const styles = StyleSheet.create({
   background: {
     width: screen.width,
-    height: screen.height + 15,
+    height: screen.height + 30,
     position: 'absolute',
     resizeMode: 'cover',
     backgroundColor: '#FFF',
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   },
   background2: {
     width: screen.width,
-    height: screen.height + 15,
+    height: screen.height + 30,
     position: 'absolute',
     resizeMode: 'cover',
     backgroundColor: '#EEE',

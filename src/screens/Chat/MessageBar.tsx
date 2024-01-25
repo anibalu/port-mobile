@@ -1,6 +1,7 @@
 import DefaultImage from '@assets/avatars/avatar.png';
 import FileIcon from '@assets/icons/File.svg';
-import Send from '@assets/icons/NewSend.svg';
+import Send from '@assets/icons/WhiteArrowUp.svg';
+import SendDisabled from '@assets/icons/WhiteArrowUpDisabled.svg';
 import ShareContactIcon from '@assets/icons/ShareContact.svg';
 import VideoIcon from '@assets/icons/Video.svg';
 import {default as ImageIcon} from '@assets/icons/image.svg';
@@ -44,7 +45,7 @@ import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
 import TextReplyContainer from './ReplyContainers/TextReplyContainer';
 import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
 
-const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 126;
+const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
 /**
  * Renders the bottom input bar for a chat.
  * @param chatId , active chat
@@ -416,8 +417,10 @@ const MessageBar = ({
           </View>
         </View>
         <GenericButton
+          disabled={text.length < 0}
+          iconSizeRight={14}
           buttonStyle={styles.send}
-          IconRight={Send}
+          IconRight={text.length > 0 ? Send : SendDisabled}
           onPress={sendText}
         />
       </View>
@@ -498,23 +501,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     marginHorizontal: 10,
+    paddingBottom: 10,
   },
   textInput: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
+    backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
     borderRadius: 24,
+    borderWidth: 0.5,
+    borderColor: '#E5E5E5',
   },
   plus: {
     width: 48,
     borderRadius: 8,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 12,
+    ...(isIOS && {paddingBottom: 7}),
   },
   send: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
+    width: 40,
+    height: 40,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#547CEF',
@@ -531,12 +539,13 @@ const styles = StyleSheet.create({
     maxHeight: 110,
     height: undefined,
     color: PortColors.text.primary,
-    minHeight: 50,
-    backgroundColor: PortColors.primary.white,
+    minHeight: 40,
     overflow: 'hidden',
     paddingRight: 5,
     borderRadius: 0,
-    ...(isIOS && {paddingTop: 15, paddingBottom: 5, paddingLeft: 5}),
+    justifyContent: 'center',
+    backgroundColor: PortColors.primary.white,
+    ...(isIOS && {paddingTop: 12, paddingBottom: 10, paddingLeft: 5}),
   },
   optionContainer: {
     flexDirection: 'column',

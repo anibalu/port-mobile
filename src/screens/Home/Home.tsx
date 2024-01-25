@@ -3,11 +3,12 @@
  * a few other neat features.
  * screen id: 5
  */
+import notifee, {EventDetail, EventType} from '@notifee/react-native';
 import ChatBackground from '@components/ChatBackground';
 import ChatTile from '@components/ChatTile/ChatTile';
 import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 // import store from '@store/appStore';
 // import {getConnections} from '@utils/Connections';
 import CenterInformationModal from '@components/CenterInformationModal';
@@ -39,11 +40,41 @@ function renderChatTile(connection: StoreConnection): ReactElement {
   }
 }
 
+/**
+ * Handles notification routing on tap
+ * @param type
+ * @param detail
+ * @param navigation
+ */
+const performNotificationRouting = (
+  type: EventType,
+  detail: EventDetail,
+  navigation: any,
+) => {
+  if (type === EventType.PRESS && detail.notification?.data) {
+    const {chatId, isGroup, isConnected} = detail.notification.data;
+
+    if (
+      chatId != undefined &&
+      isGroup != undefined &&
+      isConnected != undefined
+    ) {
+      navigation.push('DirectChat', {
+        chatId: chatId,
+        isGroupChat: (isGroup as string).toLowerCase() === 'true',
+        isConnected: (isConnected as string).toLowerCase() === 'true',
+        profileUri: '',
+      });
+    }
+  }
+};
+
 //renders default chat tile when there are no connections to display
 function renderDefaultTile(): ReactNode {
   return <DefaultChatTile />;
 }
 function Home(): ReactNode {
+  const navigation = useNavigation<any>();
   const [viewableConnections, setViewableConnections] = useState<
     StoreConnection[]
   >([]);
@@ -72,6 +103,24 @@ function Home(): ReactNode {
       cancelAllNotifications();
     }, []),
   );
+
+  //Sets up handlers to route notifications
+  useEffect(() => {
+    const foregroundHandler = notifee.onForegroundEvent(({type, detail}) => {
+      //If data exists for the notification
+      performNotificationRouting(type, detail, navigation);
+    });
+
+    notifee.onBackgroundEvent(async ({type, detail}) => {
+      //If data exists for the notification
+      performNotificationRouting(type, detail, navigation);
+    });
+
+    return () => {
+      foregroundHandler();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     setViewableConnections(connections);

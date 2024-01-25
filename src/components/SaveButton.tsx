@@ -2,21 +2,31 @@
  * Styled save button
  */
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleProp, StyleSheet, TextStyle, ViewStyle} from 'react-native';
 import {GenericButton} from './GenericButton';
 
 export const SaveButton = ({
   onPress,
   style,
+  textStyle,
+  loading,
+  disabled,
   ...rest
 }: {
   onPress: () => void;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: TextStyle;
+  loading?: boolean;
+  disabled?: boolean;
 }) => {
+  console.log('Rendering this');
   return (
     <GenericButton
       buttonStyle={StyleSheet.compose(styles.save, style)}
       onPress={onPress}
+      textStyle={textStyle}
+      loading={loading}
+      disabled={disabled}
       {...rest}>
       Save
     </GenericButton>
@@ -26,7 +36,6 @@ export const SaveButton = ({
 const styles = StyleSheet.create({
   save: {
     flex: 1,
-    fontSize: 15,
     borderRadius: 16,
     height: 60,
     padding: 0,
@@ -34,6 +43,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    color: 'white',
   },
 });

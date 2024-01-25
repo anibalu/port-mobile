@@ -34,7 +34,12 @@ class ReceiveContactBundle extends DirectReceiveAction {
           (this.decryptedMessageContent.data as ContactBundleParams).name +
           ' shared',
       };
-      displaySimpleNotification(notificationData.title, notificationData.body);
+      displaySimpleNotification(
+        notificationData.title,
+        notificationData.body,
+        !connection.disconnected,
+        this.chatId,
+      );
     }
   }
 }

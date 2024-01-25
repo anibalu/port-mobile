@@ -6,6 +6,7 @@ const initialState = {
   profile: {},
   onboardingComplete: false,
   showOnboardingInfo: false,
+  activeChat: undefined,
 };
 
 export default function profile(state = initialState, action: any) {
@@ -25,6 +26,11 @@ export default function profile(state = initialState, action: any) {
       return {
         ...state,
         showOnboardingInfo: false,
+      };
+    case 'ACTIVE_CHAT_CHANGED':
+      return {
+        ...state,
+        activeChat: action.payload,
       };
     default:
       return state;

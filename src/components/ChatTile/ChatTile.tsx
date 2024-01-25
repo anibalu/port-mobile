@@ -47,14 +47,13 @@ function ChatTile(props: ConnectionInfo): ReactNode {
         profileUri={getProfileURI(props.pathToDisplayPic)}
         avatarSize="small"
       />
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, marginTop: 4}}>
         <View style={styles.textInfoContainer}>
           <NumberlessText
             ellipsizeMode="tail"
             numberOfLines={1}
             fontType={FontType.md}
             style={{
-              marginBottom: 4,
               flex: 1,
               alignSelf: 'stretch',
               marginRight: 10,
@@ -94,7 +93,6 @@ function ChatTile(props: ConnectionInfo): ReactNode {
               style={{
                 flex: 1,
                 alignSelf: 'stretch',
-                marginRight: 10,
               }}
               fontSizeType={FontSizeType.m}
               textColor={PortColors.text.title}>
@@ -180,7 +178,6 @@ const styles = StyleSheet.create({
   tile: {
     borderRadius: 14,
     flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 16,
     height: 82,
     paddingHorizontal: 16,
@@ -189,6 +186,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
+
     flex: 1,
   },
   metadataContainer: {
@@ -220,6 +218,7 @@ const styles = StyleSheet.create({
   columnview: {
     alignSelf: 'stretch',
     marginLeft: 12,
+    marginTop: 6,
     flex: 1,
     flexDirection: 'row',
   },

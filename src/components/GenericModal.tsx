@@ -33,7 +33,6 @@ const GenericModal = ({
             position: 'absolute',
             height: screen.height,
           }),
-
         justifyContent: position,
         alignItems: 'center',
       }}

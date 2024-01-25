@@ -38,6 +38,7 @@ import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
 import {handleAsyncMediaDownload as groupMedia} from '@utils/Messaging/Receive/ReceiveGroup/HandleMediaDownload';
 import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
+import store from '@store/appStore';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 export enum SelectedMessagesSize {
@@ -195,12 +196,15 @@ function Chat({route, navigation}: Props) {
 
   //effect runs when screen is focused
   //retrieves name of connection
-  //toggles messages as read
   //reads intial messages from messages storage.
   useFocusEffect(
     useCallback(() => {
       (async () => {
         const localState: any = {};
+        store.dispatch({
+          type: 'ACTIVE_CHAT_CHANGED',
+          payload: chatId,
+        });
         if (isGroupChat) {
           localState.isGroupChat = true;
           const groupData = await (dataHandler as Group).getData();
@@ -228,6 +232,14 @@ function Chat({route, navigation}: Props) {
         localState.messagesLoaded = true;
         updateChatState(localState);
       })();
+
+      return () => {
+        //On losing focus, call this
+        store.dispatch({
+          type: 'ACTIVE_CHAT_CHANGED',
+          payload: undefined,
+        });
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );

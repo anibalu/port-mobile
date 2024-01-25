@@ -79,7 +79,12 @@ class ReceiveLargeData extends DirectReceiveAction {
         title: connection.name,
         body: this.generatePreviewText(),
       };
-      displaySimpleNotification(notificationData.title, notificationData.body);
+      displaySimpleNotification(
+        notificationData.title,
+        notificationData.body,
+        !connection.disconnected,
+        this.chatId,
+      );
     }
   }
 }

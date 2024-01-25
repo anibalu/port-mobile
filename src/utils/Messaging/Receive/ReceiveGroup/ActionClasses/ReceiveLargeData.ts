@@ -76,7 +76,13 @@ class ReceiveLargeData extends GroupReceiveAction {
         title: connection.name,
         body: this.generatePreviewText(),
       };
-      displaySimpleNotification(notificationData.title, notificationData.body);
+      displaySimpleNotification(
+        notificationData.title,
+        notificationData.body,
+        !connection.disconnected,
+        this.chatId,
+        true,
+      );
     }
   }
 }

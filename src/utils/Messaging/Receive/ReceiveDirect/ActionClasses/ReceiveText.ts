@@ -29,7 +29,12 @@ class ReceiveText extends DirectReceiveAction {
         title: connection.name,
         body: (this.decryptedMessageContent.data as TextParams).text || '',
       };
-      displaySimpleNotification(notificationData.title, notificationData.body);
+      displaySimpleNotification(
+        notificationData.title,
+        notificationData.body,
+        !connection.disconnected,
+        this.chatId,
+      );
     }
   }
 }

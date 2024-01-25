@@ -35,7 +35,12 @@ class ReceiveName extends DirectReceiveAction {
           (this.decryptedMessageContent.data as NameParams).name ||
           DEFAULT_NAME + ' has connected with you.',
       };
-      displaySimpleNotification(notificationData.title, notificationData.body);
+      displaySimpleNotification(
+        notificationData.title,
+        notificationData.body,
+        !connection.disconnected,
+        this.chatId,
+      );
     }
   }
 }

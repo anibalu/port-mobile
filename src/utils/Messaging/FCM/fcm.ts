@@ -1,31 +1,38 @@
 import messaging from '@react-native-firebase/messaging';
-import notifee from '@notifee/react-native';
+import {showDefaultNotification} from '@utils/Notifications';
+import _ from 'lodash';
 import pullBacklog from '../pullBacklog';
 import * as API from './APICalls';
-import _ from 'lodash';
 
 export const getFCMToken = async () => {
   const token = await messaging().getToken();
   return token;
 };
 
-export const registerBackgroundMessaging = () => {
-  messaging().setBackgroundMessageHandler(async remoteMessage => {
+/**
+ * Background FCM handler.
+ * Payload is ignored, as pullBacklog is used to make an API call to fetch relevant messages
+ */
+export const registerBackgroundMessaging = (): void => {
+  messaging().setBackgroundMessageHandler(async () => {
     console.log('[NEW BACKGROUND MESSAGE]');
-    await pullBacklog();
-    if (remoteMessage.messageId) {
-      // Remove the notification that triggered this pull
-      await notifee.cancelNotification(remoteMessage.messageId);
-    }
+    await pullBacklog().catch((e: any) => {
+      console.log('Error in background message handler: ', e);
+      showDefaultNotification();
+    });
   });
 };
 
+/**
+ * Foreground FCM handler, does the same as background.
+ */
 export const foregroundMessageHandler = () => {
   messaging().onMessage(async remoteMessage => {
     console.log('[NEW FOREGROUND MESSAGE] ', remoteMessage);
-    await notifee.cancelDisplayedNotifications();
-    await pullBacklog();
-    await notifee.cancelAllNotifications();
+    await pullBacklog().catch((e: any) => {
+      console.log('Error in background message handler: ', e);
+      showDefaultNotification();
+    });
   });
 };
 

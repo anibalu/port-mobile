@@ -22,23 +22,23 @@ import {
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import {
+  getLatestMessages,
   getMessage,
   readPaginatedMessages,
-  getLatestMessages,
 } from '@utils/Storage/messages';
 
+import store from '@store/appStore';
+import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
-import sendJournaled from '@utils/Messaging/Send/sendJournaled';
+import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
+import {handleAsyncMediaDownload as groupMedia} from '@utils/Messaging/Receive/ReceiveGroup/HandleMediaDownload';
 import {useSelector} from 'react-redux';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import ChatList from './ChatList';
 import ChatTopbar from './ChatTopbar';
 import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
-import {handleAsyncMediaDownload as groupMedia} from '@utils/Messaging/Receive/ReceiveGroup/HandleMediaDownload';
-import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
-import store from '@store/appStore';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 export enum SelectedMessagesSize {
@@ -221,8 +221,7 @@ function Chat({route, navigation}: Props) {
             ? chatData.displayPic
             : DEFAULT_AVATAR;
         }
-
-        await sendJournaled();
+        debouncedPeriodicOperations();
         //set saved messages
         const resp = await readPaginatedMessages(chatId);
         setMessages(resp.messages);

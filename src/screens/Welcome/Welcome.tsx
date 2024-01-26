@@ -11,7 +11,6 @@ import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import store from '@store/appStore';
 import {loadConnectionsToStore} from '@utils/Connections';
-import pullBacklog from '@utils/Messaging/pullBacklog';
 import {checkProfileCreated} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 import React, {useEffect} from 'react';
@@ -28,7 +27,6 @@ function Welcome({navigation}: Props) {
       const result = await checkProfileCreated();
       if (result === ProfileStatus.created) {
         await loadConnectionsToStore();
-        await pullBacklog();
         store.dispatch({
           type: 'ONBOARDING_COMPLETE',
           payload: true,

@@ -3,30 +3,28 @@
  * a few other neat features.
  * screen id: 5
  */
-import notifee, {EventDetail, EventType} from '@notifee/react-native';
 import ChatBackground from '@components/ChatBackground';
 import ChatTile from '@components/ChatTile/ChatTile';
 import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
+import notifee, {EventDetail, EventType} from '@notifee/react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 // import store from '@store/appStore';
 // import {getConnections} from '@utils/Connections';
 import CenterInformationModal from '@components/CenterInformationModal';
 import OnboardingCarousel from '@components/InformationDisplay/OnboardingCarousel';
+import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import {
   ConnectionInfo,
   ReadStatus,
   StoreConnection,
 } from '@utils/Connections/interfaces';
-import sendJournaled from '@utils/Messaging/Send/sendJournaled';
-import {cancelAllNotifications} from '@utils/Notifications';
-import {useReadBundles} from '@utils/Ports';
 import React, {ReactElement, ReactNode, useEffect, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import DefaultChatTile from './DefaultChatTile';
 import HomeTopbar from './HomeTopbar';
-import {deleteExpiredMessages} from '@utils/Storage/messages';
+import {useReadBundles} from '@utils/Ports';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: StoreConnection): ReactElement {
@@ -73,6 +71,7 @@ const performNotificationRouting = (
 function renderDefaultTile(): ReactNode {
   return <DefaultChatTile />;
 }
+
 function Home(): ReactNode {
   const navigation = useNavigation<any>();
   const [viewableConnections, setViewableConnections] = useState<
@@ -87,20 +86,16 @@ function Home(): ReactNode {
   const [searchText, setSearchText] = useState('');
 
   const [totalUnread, setTotalUnread] = useState<number>(0);
+
   //focus effect to initial load connections and cancel all notifications when on home screen
   // Also attempt to send unsent messages
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        await sendJournaled();
-
         // eslint-disable-next-line react-hooks/rules-of-hooks
         await useReadBundles();
-
-        await deleteExpiredMessages();
       })();
-      // Cancel all notifications when I land on the home screen
-      cancelAllNotifications();
+      debouncedPeriodicOperations();
     }, []),
   );
 
@@ -155,6 +150,7 @@ function Home(): ReactNode {
             count++;
           }
         }
+        debouncedPeriodicOperations();
         setTotalUnread(count);
       })();
     }, [connections]),

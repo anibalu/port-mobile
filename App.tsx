@@ -3,7 +3,7 @@
  */
 
 import {NavigationContainer} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Provider} from 'react-redux';
@@ -14,16 +14,23 @@ import {foregroundMessageHandler} from '@utils/Messaging/FCM/fcm';
 import ErrorModal from '@components/ErrorModal';
 import LoginStack from '@navigation/LoginStack';
 import {loadConnectionsToStore} from '@utils/Connections';
-import pullBacklog from '@utils/Messaging/pullBacklog';
 import {checkProfileCreated} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 
+import {AppState} from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import Toast from 'react-native-toast-message';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
+import {
+  debouncedBtFOperations,
+  debouncedPeriodicOperations,
+} from '@utils/AppOperations';
+
 // import DeviceInfo from 'react-native-device-info';
 
 function App(): JSX.Element {
+  const appState = useRef(AppState.currentState);
+
   //check if initial setup is done, and accordingly decides which flow to render on app start
   const [initialLoad, setInitialLoad] = useState(true);
   const [profileExists, setProfileExists] = useState(false);
@@ -33,7 +40,8 @@ function App(): JSX.Element {
       if (result === ProfileStatus.created) {
         setProfileExists(true);
         await loadConnectionsToStore();
-        await pullBacklog();
+
+        debouncedPeriodicOperations();
       }
     } catch (error) {
       console.log('Error checking profile:', error);
@@ -48,6 +56,25 @@ function App(): JSX.Element {
     // default way to handle new messages in the foreground
     foregroundMessageHandler();
   }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      //If app has come to the foreground.
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        debouncedBtFOperations();
+      }
+
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   // useEffect(() => {
   //   (async () => {
   //     const isEmu = await DeviceInfo.isEmulator();

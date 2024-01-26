@@ -130,7 +130,6 @@ async function initialiseTempDirAsync() {
 export async function checkFileSizeWithinLimits(fileUri: string) {
   try {
     const absoluteURI = getSafeAbsoluteURI(fileUri, 'doc');
-    console.log('Absolute: ', absoluteURI);
     const fileSize = (await RNFS.stat(absoluteURI)).size;
     if (fileSize && fileSize < SHARED_FILE_SIZE_LIMIT_IN_BYTES) {
       return true;

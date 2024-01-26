@@ -1,9 +1,9 @@
 import {MediaEntry, MediaUpdate} from '@utils/Media/interfaces';
-import {runSimpleQuery} from './dbCommon';
 import {
   ContentType,
   LargeDataMessageContentTypes,
 } from '@utils/Messaging/interfaces';
+import {runSimpleQuery} from './dbCommon';
 
 /**
  * Create a new media entry
@@ -50,12 +50,14 @@ export async function updateMedia(mediaId: string, update: MediaUpdate) {
     UPDATE media
     SET
     type = COALESCE(?, type),
+    name = COALESCE(?, name),
     filePath = COALESCE(?, filePath),
     previewPath = COALESCE(?, previewPath)
     WHERE mediaId = ? ;
     `,
     [
       update.type,
+      update.name ? update.name.slice(0, 256) : null,
       update.filePath ? update.filePath.slice(0, 256) : null,
       update.previewPath ? update.previewPath.slice(0, 256) : null,
       mediaId,

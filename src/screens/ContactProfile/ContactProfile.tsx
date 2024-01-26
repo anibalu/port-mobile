@@ -21,14 +21,13 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import UpdateNamePopup from '@components/UpdateNamePopup';
 import {DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
-import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {MediaEntry} from '@utils/Media/interfaces';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {getImagesAndVideos} from '@utils/Storage/media';
-import {default as React, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -39,6 +38,7 @@ import {
 } from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import DisconnectButton from './DisconnectButton';
+import {useFocusEffect} from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -79,10 +79,14 @@ function ContactProfile({route, navigation}: Props) {
     setMedia(response);
   };
 
-  //Fetching media on profile open. Callback isn't made, as fetch can happen as many times as needed.
-  useFocusEffect(() => {
-    loadMedia();
-  });
+  useFocusEffect(
+    useCallback(() => {
+      (() => {
+        loadMedia();
+      })();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
 
   const renderSelectedPhoto = ({item}: {item: MediaEntry}) => {
     return (

@@ -11,7 +11,7 @@ import {
   NumberlessSemiBoldText,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -64,9 +64,14 @@ function GroupProfile({route, navigation}: Props) {
   };
 
   //Fetching media on profile open. Callback isn't made, as fetch can happen as many times as needed.
-  useFocusEffect(() => {
-    loadMedia();
-  });
+  useFocusEffect(
+    useCallback(() => {
+      (() => {
+        loadMedia();
+      })();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
 
   const onDelete = async () => {
     await groupHandler.deleteGroup();

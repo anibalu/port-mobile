@@ -1,9 +1,9 @@
 import {MediaEntry, MediaUpdate} from '@utils/Media/interfaces';
+import {runSimpleQuery} from './dbCommon';
 import {
   ContentType,
   LargeDataMessageContentTypes,
 } from '@utils/Messaging/interfaces';
-import {runSimpleQuery} from './dbCommon';
 
 /**
  * Create a new media entry

@@ -8,7 +8,7 @@ import {
 } from '@components/NumberlessText';
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {MediaActionsBar} from '@screens/Chat/ReplyContainers/MediaActionsBar';
+import {MediaActionsBar} from '@screens/SharedMedia/MediaActionsBar';
 import {MediaEntry} from '@utils/Media/interfaces';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -38,6 +38,7 @@ const ViewPhotosVideos = ({route}: Props) => {
     useCallback(() => {
       (() => {
         loadMedia();
+        setSelectedMedia([]);
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
@@ -77,11 +78,15 @@ const ViewPhotosVideos = ({route}: Props) => {
               source={{
                 uri:
                   mediaItem.type === ContentType.video &&
-                  mediaItem.previewPath != undefined
+                  mediaItem.previewPath !== undefined
                     ? getSafeAbsoluteURI(mediaItem.previewPath, 'cache')
                     : getSafeAbsoluteURI(mediaItem.filePath, 'doc'),
               }}
-              style={styles.image}
+              style={
+                selectedMedia.includes(mediaItem)
+                  ? StyleSheet.compose(styles.image, styles.selectedImage)
+                  : styles.image
+              }
             />
             {mediaItem.type === ContentType.video && (
               <Play
@@ -151,7 +156,8 @@ const ViewPhotosVideos = ({route}: Props) => {
 
 const styles = StyleSheet.create({
   nocontentText: {
-    paddingLeft: 15,
+    paddingLeft: 30,
+    paddingVertical: 15,
   },
   image: {
     width: (screen.width - 70) / 3,

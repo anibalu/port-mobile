@@ -223,6 +223,8 @@ class SendMessage<T extends ContentType> {
         key: newMediaIdAndKey.key,
       };
 
+      console.log('Saving path as: ', largeData.fileUri);
+
       //Saves relative URIs for the paths
       await updateMedia(newMediaIdAndKey.mediaId, {
         type: this.contentType,

@@ -159,25 +159,31 @@ export function getTimeAndDateStamp(isoString: string | undefined): string {
 }
 
 export function getDateStamp(isoString: string | undefined): string {
+  console.log(isoString);
   if (!isoString) {
     return '';
   }
   const inputDate = new Date(isoString);
   const currentDate = new Date();
 
+  console.log(currentDate.toDateString());
+
   if (inputDate.toDateString() === currentDate.toDateString()) {
     // Format time only for today
     return 'Today';
-  } else if (
-    inputDate.toDateString() ===
-    currentDate.setDate(currentDate.getDate() - 1).toDateString()
-  ) {
-    // Format time only for yesterday
-    return 'Yesterday';
   } else {
-    // Format date
-    const formattedDate = inputDate.toLocaleDateString('en-US');
-    return `${formattedDate}`;
+    currentDate.setDate(currentDate.getDate() - 1);
+
+    if (inputDate.toDateString() === currentDate.toDateString()) {
+      console.log('1');
+      // Format time only for yesterday
+      return 'Yesterday';
+    } else {
+      console.log('2');
+      // Format date
+      const formattedDate = inputDate.toLocaleDateString('en-US');
+      return `${formattedDate}`;
+    }
   }
 }
 

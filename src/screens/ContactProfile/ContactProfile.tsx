@@ -20,13 +20,16 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import UpdateNamePopup from '@components/UpdateNamePopup';
 import {DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
+
+import GenericTopBar from '@components/GenericTopBar';
+import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {MediaEntry} from '@utils/Media/interfaces';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {getImagesAndVideos} from '@utils/Storage/media';
-import React, {useCallback, useEffect, useState} from 'react';
+import {default as React, useCallback, useEffect, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -37,8 +40,6 @@ import {
 } from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import DisconnectButton from './DisconnectButton';
-import {useFocusEffect} from '@react-navigation/native';
-import GenericTopBar from '@components/GenericTopBar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 

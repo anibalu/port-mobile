@@ -4,7 +4,7 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {useNavigation} from '@react-navigation/native';
 import React, {ReactElement, useEffect, useState} from 'react';
 import ContactCard from './ContactCard';
-import {FlatList, Text} from 'react-native';
+import {FlatList, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import {PendingCardInfo} from '@utils/Ports/interfaces';
 import {getPendingRequests, numberOfPendingRequests} from '@utils/Ports';
@@ -13,7 +13,6 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {PortColors} from '@components/ComponentUtils';
 
 //rendered chat tile of a connection
 function renderPendingRequest(pendingRequest: PendingCardInfo): ReactElement {
@@ -40,26 +39,47 @@ const PendingRequests = () => {
         onBackPress={() => navigation.goBack()}
         title={`Pending Requests (${pendingRequestsLength})`}
       />
-
-      <FlatList
-        style={{width: '100%'}}
-        contentContainerStyle={{marginTop: 12}}
-        data={pendingRequests}
-        showsVerticalScrollIndicator={false}
-        scrollEnabled={true}
-        keyExtractor={item => item.portId}
-        renderItem={element => renderPendingRequest(element.item)}
-        ListEmptyComponent={
-          <NumberlessText
-            fontSizeType={FontSizeType.l}
-            fontType={FontType.sb}
-            textColor={PortColors.text.secondary}
-            style={{flex: 1, textAlign: 'center'}}>
-            No pending requests
-          </NumberlessText>
-        }
-      />
-      <Text>{pendingRequestsLength}</Text>
+      {pendingRequests.length > 0 ? (
+        <FlatList
+          style={{
+            width: '100%',
+          }}
+          contentContainerStyle={{
+            marginTop: 16,
+          }}
+          data={pendingRequests}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={true}
+          keyExtractor={item => item.portId}
+          renderItem={element => renderPendingRequest(element.item)}
+        />
+      ) : (
+        <View
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1,
+          }}>
+          <View
+            style={{
+              borderRadius: 8,
+              width: 150,
+              borderWidth: 1,
+              borderColor: '#DBDBDB',
+            }}>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.md}
+              textColor="#555555"
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+              }}>
+              No pending requests
+            </NumberlessText>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

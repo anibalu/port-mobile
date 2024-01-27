@@ -15,40 +15,61 @@ import {
 import {getExpiryTag, getReadableTimestamp} from '@utils/Time';
 import React from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
+import Delete from '../../../assets/icons/Trashwhite.svg';
 
 const ContactCard = (props: PendingCardInfo) => {
   return (
     <View style={styles.card}>
       <View style={styles.row}>
-        <GenericAvatar
-          avatarSize="small"
-          profileUri={
-            props.target === BundleTarget.group
-              ? AVATAR_ARRAY[14]
-              : AVATAR_ARRAY[13]
-          }
-        />
-        <View style={styles.textrow}>
-          <NumberlessText
-            fontType={FontType.md}
-            ellipsizeMode="tail"
-            numberOfLines={1}
-            fontSizeType={FontSizeType.m}
-            style={styles.text}>
-            {props.name}
-          </NumberlessText>
-          <NumberlessText
-            fontType={FontType.md}
-            fontSizeType={FontSizeType.s}
-            style={styles.subtitle}>
-            {getReadableTimestamp(props.usedOnTimestamp)}
-          </NumberlessText>
-          <NumberlessText
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}
-            style={styles.infonote}>
-            {props.stage}
-          </NumberlessText>
+        <View style={{flexDirection: 'row'}}>
+          <GenericAvatar
+            avatarSize="small"
+            profileUri={
+              props.target === BundleTarget.group
+                ? AVATAR_ARRAY[14]
+                : AVATAR_ARRAY[13]
+            }
+          />
+          <View style={styles.textrow}>
+            <NumberlessText
+              fontType={FontType.md}
+              ellipsizeMode="tail"
+              numberOfLines={1}
+              fontSizeType={FontSizeType.m}
+              style={styles.text}>
+              {props.name}
+            </NumberlessText>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.s}
+              style={styles.subtitle}>
+              {getReadableTimestamp(props.usedOnTimestamp)}
+            </NumberlessText>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.m}
+              style={styles.infonote}>
+              {props.stage}
+            </NumberlessText>
+            <View style={styles.buttonrow}>
+              <NumberlessText
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.s}
+                style={
+                  props.table === PortTable.generated
+                    ? styles.initiatedInfo
+                    : styles.inforight
+                }>
+                {props.channelDescription}
+              </NumberlessText>
+              <NumberlessText
+                fontType={FontType.md}
+                fontSizeType={FontSizeType.s}
+                style={styles.expiry}>
+                {getExpiryTag(props.expiryTimestamp)}
+              </NumberlessText>
+            </View>
+          </View>
         </View>
 
         <Pressable
@@ -56,26 +77,9 @@ const ContactCard = (props: PendingCardInfo) => {
             await cleanDeletePort(props.portId, props.table);
           }}
           style={styles.declinebutton}>
-          <Text style={styles.buttonText}>DELETE</Text>
+          <Delete />
+          <Text style={styles.buttonText}>Delete</Text>
         </Pressable>
-      </View>
-      <View style={styles.buttonrow}>
-        <NumberlessText
-          fontType={FontType.md}
-          fontSizeType={FontSizeType.s}
-          style={
-            props.table === PortTable.generated
-              ? styles.initiatedInfo
-              : styles.inforight
-          }>
-          {props.channelDescription}
-        </NumberlessText>
-        <NumberlessText
-          fontType={FontType.md}
-          fontSizeType={FontSizeType.s}
-          style={styles.expiry}>
-          {getExpiryTag(props.expiryTimestamp)}
-        </NumberlessText>
       </View>
     </View>
   );
@@ -86,9 +90,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 16,
     backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    marginBottom: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginBottom: 8,
+    justifyContent: 'center',
   },
   text: {
     color: 'black',
@@ -100,13 +105,9 @@ const styles = StyleSheet.create({
   },
   buttonrow: {
     flexDirection: 'row',
-    marginLeft: 65,
-    marginTop: 5,
   },
   initiatedInfo: {
     color: PortColors.primary.blue.app,
-    backgroundColor: '#F6F6F6',
-    paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
     height: 25,
@@ -114,8 +115,6 @@ const styles = StyleSheet.create({
   },
   inforight: {
     color: '#868686',
-    backgroundColor: '#F6F6F6',
-    paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
     height: 25,
@@ -123,18 +122,16 @@ const styles = StyleSheet.create({
   },
   expiry: {
     color: '#EE786B',
-    backgroundColor: '#F6F6F6',
-    paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
     height: 25,
     marginRight: 2,
+    paddingLeft: 8,
   },
 
   textrow: {
     marginRight: 5,
-    width: '60%',
-    marginLeft: 5,
+    marginLeft: 12,
   },
   subtitle: {
     color: '#868686',
@@ -144,14 +141,17 @@ const styles = StyleSheet.create({
   },
   declinebutton: {
     backgroundColor: '#EE786B',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    justifyContent: 'center',
     borderRadius: 4,
-    height: 25,
+    height: 32,
+    width: 74,
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 4,
   },
   buttonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
   },
 });

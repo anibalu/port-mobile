@@ -1,4 +1,4 @@
-import SettingsIcon from '@assets/icons/contact-settings.svg';
+import SettingsIcon from '@assets/icons/Settings.svg';
 import Cross from '@assets/icons/cross.svg';
 import {BackButton} from '@components/BackButton';
 import {PortColors, screen} from '@components/ComponentUtils';
@@ -68,7 +68,7 @@ function ChatTopbar({
               <GenericAvatar
                 onPress={handlePress}
                 profileUri={profileURI}
-                avatarSize={'extraSmall'}
+                avatarSize={'xxsmall'}
               />
             </View>
           )}
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
-    height: 65,
+    height: 56,
   },
   profileBar: {
     flexDirection: 'row',
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    gap: 7,
+    gap: 10,
   },
   selectedCount: {
     color: PortColors.primary.black,
@@ -139,14 +139,18 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   backIcon: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    height: 40,
+    width: 40,
+    paddingTop: 13,
+    marginRight: 12,
   },
   settingsBox: {
     backgroundColor: PortColors.primary.white,
     alignItems: 'flex-end',
-    height: 42,
-    top: 5,
-    width: 42,
+    height: 40,
+    top: 7,
+    width: 40,
   },
   crossBox: {
     backgroundColor: PortColors.primary.white,

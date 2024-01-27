@@ -4,7 +4,6 @@
 
 import EditIcon from '@assets/icons/Pencil.svg';
 import Play from '@assets/icons/videoPlay.svg';
-import BackTopbar from '@components/BackTopBar';
 import ChatBackground from '@components/ChatBackground';
 import {PortColors, screen} from '@components/ComponentUtils';
 import DeleteChatButton from '@components/DeleteChatButton';
@@ -39,6 +38,7 @@ import {
 import FileViewer from 'react-native-file-viewer';
 import DisconnectButton from './DisconnectButton';
 import {useFocusEffect} from '@react-navigation/native';
+import GenericTopBar from '@components/GenericTopBar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -129,7 +129,12 @@ function ContactProfile({route, navigation}: Props) {
   return (
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
-      <BackTopbar />
+      <GenericTopBar
+        title={'Contact profile'}
+        onBackPress={() => {
+          navigation.goBack();
+        }}
+      />
       <ScrollView>
         <View style={styles.scrollContainer}>
           <View style={styles.profile}>
@@ -211,7 +216,9 @@ function ContactProfile({route, navigation}: Props) {
             {connected ? (
               <DisconnectButton chatId={chatId} />
             ) : (
-              <DeleteChatButton onDelete={onDelete} stripMargin={true} />
+              <View style={styles.deleteHistoryContainer}>
+                <DeleteChatButton onDelete={onDelete} />
+              </View>
             )}
           </View>
         </View>
@@ -262,6 +269,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
+  },
+  deleteHistoryContainer: {
+    alignSelf: 'center',
+    width: '100%',
   },
   nicknameEditBox: {
     width: '100%',

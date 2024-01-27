@@ -7,7 +7,7 @@
 #import <React/RCTLinkingManager.h>
 
 #import "RNFBMessagingModule.h"
-
+#import <TSBackgroundFetch/TSBackgroundFetch.h>
 
 /**
  Deletes all Keychain items accessible by this app if this is the first time the user launches the app
@@ -45,6 +45,8 @@ static void ClearKeychainIfNecessary() {
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = [RNFBMessagingModule addCustomPropsToUserProps:nil withLaunchOptions:launchOptions];
 
+  // Register BackgroundFetch
+  [[TSBackgroundFetch sharedInstance] didFinishLaunching];
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 

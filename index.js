@@ -8,6 +8,9 @@ import {name as appName} from './app.json';
 import {registerBackgroundMessaging} from '@utils/Messaging/FCM/fcm';
 import runMigrations from './src/utils/Storage/Migrations';
 import {Text, TextInput} from 'react-native';
+import {initBackgroundFetch} from '@utils/BackgroundOperations/backgroundFetch';
+
+initBackgroundFetch();
 
 /**
  * Prevents accessibility text from expanding beyond what the app can comfortably render

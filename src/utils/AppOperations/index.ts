@@ -19,7 +19,7 @@ const performBackgroundToForegroundOperations = async () => {
 /**̦
  * All actions that need to be performed periodically.
  */
-const performPeriodicOperations = async () => {
+export const performPeriodicOperations = async () => {
   console.log('[PERIODIC OPERATIONS RUNNING]');
   await pullBacklog();
   await sendJournaled();

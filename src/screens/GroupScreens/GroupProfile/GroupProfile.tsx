@@ -208,27 +208,38 @@ function GroupProfile({route, navigation}: Props) {
             )}
           </View>
 
-          <FlatList
-            contentContainerStyle={{marginTop: 12}}
-            data={media.slice(0, 10)}
-            showsHorizontalScrollIndicator={false}
-            scrollEnabled={true}
-            horizontal={true}
-            renderItem={renderSelectedPhoto}
-            ListEmptyComponent={
+          {media.length > 0 ? (
+            <FlatList
+              contentContainerStyle={{marginTop: 12}}
+              data={media.slice(0, 10)}
+              showsHorizontalScrollIndicator={false}
+              scrollEnabled={true}
+              horizontal={true}
+              renderItem={renderSelectedPhoto}
+            />
+          ) : (
+            <View
+              style={{
+                borderRadius: 8,
+                width: 150,
+                borderWidth: 1,
+                borderColor: '#DBDBDB',
+                alignSelf: 'center',
+                marginTop: 20,
+              }}>
               <NumberlessText
-                fontSizeType={FontSizeType.l}
-                fontType={FontType.sb}
-                textColor={PortColors.text.secondary}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.md}
+                textColor="#555555"
                 style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
                   textAlign: 'center',
-                  width: screen.width,
-                  right: 20,
                 }}>
                 No shared media
               </NumberlessText>
-            }
-          />
+            </View>
+          )}
         </View>
         {connected ? (
           <GenericButton

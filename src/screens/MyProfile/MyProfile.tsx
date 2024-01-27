@@ -4,7 +4,6 @@
  */
 import EditCameraIcon from '@assets/icons/EditCamera.svg';
 import EditIcon from '@assets/icons/Pencil.svg';
-import BackTopbar from '@components/BackTopBar';
 import ChatBackground from '@components/ChatBackground';
 import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
@@ -27,6 +26,7 @@ import {Pressable, StyleSheet, View} from 'react-native';
 import ReportIssueModal from '../BugReporting/ReportIssueModal';
 import PermissionIconInactive from '@assets/permissions/permissions-inactive.svg';
 import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
+import GenericTopBar from '@components/GenericTopBar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -75,7 +75,10 @@ function MyProfile({navigation}: Props): ReactNode {
   return (
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
-      <BackTopbar />
+      <GenericTopBar
+        onBackPress={() => navigation.goBack()}
+        title="My Profile"
+      />
       <View style={styles.profile}>
         <View style={styles.profilePictureHitbox}>
           <GenericAvatar profileUri={profileURI} avatarSize="medium" />
@@ -211,7 +214,7 @@ const styles = StyleSheet.create({
     bottom: 30,
     height: 60,
     width: 250,
-    borderRadius: 38,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },

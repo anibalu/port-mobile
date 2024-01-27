@@ -1,4 +1,4 @@
-import Send from '@assets/icons/NewSend.svg';
+import Send from '@assets/icons/WhiteArrowUp.svg';
 import Whitecross from '@assets/icons/Whitecross.svg';
 import Delete from '@assets/icons/Whitedelete.svg';
 import Play from '@assets/icons/videoPlay.svg';
@@ -194,6 +194,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         {activeIndex === index && (
           <Pressable
             onPress={() => {
+              if (dataList.length <= 1) {
+                navigation.goBack();
+              }
               setDataList(oldList =>
                 oldList.filter(
                   oldItem => oldItem.data.fileUri != item.data.fileUri,
@@ -256,7 +259,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
       keyboardVerticalOffset={isIOS ? 54 : undefined}
       style={styles.screen}>
       <Whitecross
-        style={{position: 'absolute', zIndex: 10, top: 50, left: 20}}
+        style={{position: 'absolute', zIndex: 10, top: 50, right: 20}}
         disabled={isSending}
         onPress={() => navigation.goBack()}
       />
@@ -312,7 +315,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
 
         <GenericButton
           onPress={onSend}
-          IconLeft={Send}
+          disabled={message.length < 0}
+          iconSizeRight={14}
+          IconRight={Send}
           loading={isSending || loading}
           buttonStyle={styles.button}
         />
@@ -352,12 +357,16 @@ const styles = StyleSheet.create({
     height: screen.height - 130,
   },
   bottombar: {
-    maxHeight: 110,
     backgroundColor: PortColors.primary.white,
+    marginHorizontal: 10,
+    paddingVertical: 15,
+    flexDirection: 'row',
+    gap: 3,
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
-    paddingVertical: 15,
+    overflow: 'hidden',
+    borderRadius: 24,
+    borderWidth: 0.5,
   },
   imagescroll: {
     maxHeight: 90,
@@ -374,26 +383,30 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   messageInputStyle: {
-    width: screen.width - 92,
-    minHeight: 50,
+    width: screen.width - 65,
+    borderRadius: 24,
     maxHeight: 110,
     height: undefined,
-    backgroundColor: PortColors.primary.white,
-    borderRadius: 24,
+    minHeight: 40,
     color: PortColors.text.primary,
+    ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
     overflow: 'hidden',
-    paddingRight: 5,
-    paddingLeft: 20,
-    ...(isIOS && {paddingTop: 15, paddingBottom: 5}),
-    marginRight: 10,
+    alignSelf: 'stretch',
+    paddingHorizontal: 15,
+    justifyContent: 'center',
+    ...(isIOS && {paddingTop: 12, paddingBottom: 10, paddingLeft: 5}),
   },
   itemtext: {
     fontSize: 12,
     color: PortColors.primary.grey.dark,
   },
   button: {
-    alignItems: 'flex-end',
-    marginRight: 15,
+    width: 40,
+    height: 40,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#547CEF',
   },
   bottomimageContainer: {
     marginRight: 10,

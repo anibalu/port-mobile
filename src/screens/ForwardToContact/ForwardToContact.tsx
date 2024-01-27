@@ -177,7 +177,8 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: 'row',
-    marginHorizontal: 14,
+
+    marginHorizontal: 20,
     marginTop: 16,
   },
   searchBox: {

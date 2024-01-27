@@ -11,7 +11,8 @@ export function GenericAvatar({
   profileUri = AVATAR_ARRAY[0],
   onPress,
 }: {
-  avatarSize: 'xxsmall' | 'extraSmall' | 'small' | 'medium' | 'large'; //size - extraSmall, small, medium, large || default - large
+  avatarSize: 'xxsmall' | 'extraSmall' | 'small' | 'medium' | 'large';
+  //size - extraSmall, small, medium, large || default - large
   profileUri?: string | null;
   onPress?: (() => void) | null;
 }) {
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
     width: 40,
     borderRadius: 16,
   },
+
   small: {
     height: 50,
     width: 50,

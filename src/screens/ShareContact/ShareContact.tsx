@@ -22,7 +22,9 @@ export default function ShareContact({route, navigation}: Props) {
   const [searchText, setSearchText] = useState('');
 
   //Members that have been selected via the checkbox
-  const [selectedMembers, setSelectedMembers] = useState<ConnectionInfo[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<ConnectionInfo | null>(
+    null,
+  );
 
   //All members who can be invited
   const [allMembers, setAllMembers] = useState<ConnectionInfo[]>([]);
@@ -48,22 +50,6 @@ export default function ShareContact({route, navigation}: Props) {
     setViewableMembers(allMembers);
   }, [allMembers]);
 
-  const onMemberSelected = (member: ConnectionInfo) => {
-    //If member exists, we remove
-    if (selectedMembers.some(val => val.chatId === member.chatId)) {
-      setSelectedMembers(oldList =>
-        oldList.filter(val => val.chatId !== member.chatId),
-      );
-      return false;
-    } else {
-      if (selectedMembers.length < 1) {
-        setSelectedMembers(oldList => [...oldList, member]);
-        return true;
-      }
-      return false;
-    }
-  };
-
   useEffect(() => {
     if (searchText === '' || searchText === undefined) {
       setViewableMembers(allMembers);
@@ -76,12 +62,12 @@ export default function ShareContact({route, navigation}: Props) {
   }, [searchText]);
 
   const onShareContact = async () => {
-    if (selectedMembers.length === 1) {
+    if (selectedMembers) {
       await requestToShareContact({
-        source: selectedMembers[0].chatId,
+        source: selectedMembers.chatId,
         destination: chatId,
       });
-      setSelectedMembers([]);
+      setSelectedMembers(null);
       navigation.goBack();
     }
   };
@@ -109,11 +95,17 @@ export default function ShareContact({route, navigation}: Props) {
         scrollEnabled={true}
         keyExtractor={item => item.chatId}
         renderItem={({item}: {item: ConnectionInfo}) => {
-          return <ContactTile member={item} onToggle={onMemberSelected} />;
+          return (
+            <ContactTile
+              member={item}
+              selectedMembers={selectedMembers}
+              setSelectedMembers={setSelectedMembers}
+            />
+          );
         }}
       />
 
-      {selectedMembers.length > 0 && (
+      {selectedMembers && (
         <View style={styles.selectedMembers}>
           <View
             style={{
@@ -123,7 +115,7 @@ export default function ShareContact({route, navigation}: Props) {
               marginHorizontal: 20,
             }}>
             <NumberlessMediumText numberOfLines={1} style={styles.memberName}>
-              {selectedMembers.map(m => m.name).join(',')}
+              {selectedMembers.name}
             </NumberlessMediumText>
           </View>
 
@@ -149,7 +141,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: 'row',
-    marginHorizontal: 14,
+    marginHorizontal: 20,
     marginTop: 16,
   },
   searchBox: {

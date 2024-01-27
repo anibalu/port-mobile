@@ -1,10 +1,10 @@
 import DefaultImage from '@assets/avatars/avatar.png';
-import FileIcon from '@assets/icons/File.svg';
+import FileIcon from '@assets/icons/FilesIcon.svg';
 import Send from '@assets/icons/WhiteArrowUp.svg';
 import SendDisabled from '@assets/icons/WhiteArrowUpDisabled.svg';
-import ShareContactIcon from '@assets/icons/ShareContact.svg';
-import VideoIcon from '@assets/icons/Video.svg';
-import {default as ImageIcon} from '@assets/icons/image.svg';
+import ShareContactIcon from '@assets/icons/ShareContactIcon.svg';
+import VideoIcon from '@assets/icons/VideoBlack.svg';
+import {default as ImageIcon} from '@assets/icons/GalleryIcon.svg';
 import Plus from '@assets/icons/plus.svg';
 import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {
@@ -272,6 +272,41 @@ const MessageBar = ({
       behavior={isIOS ? 'padding' : 'height'}
       keyboardVerticalOffset={isIOS ? 60 : undefined}
       style={styles.main}>
+      <View style={styles.textInputContainer}>
+        <View
+          style={StyleSheet.compose(
+            styles.textInput,
+            replyTo ? {borderTopLeftRadius: 0, borderTopRightRadius: 0} : {},
+          )}>
+          <Animated.View style={[styles.plus, animatedStyle]}>
+            <Pressable onPress={togglePopUp}>
+              <Plus height={24} width={24} />
+            </Pressable>
+          </Animated.View>
+
+          <View style={styles.textBox}>
+            <GenericInput
+              inputStyle={styles.inputText}
+              text={text}
+              size="sm"
+              maxLength={'inf'}
+              multiline={true}
+              setText={onChangeText}
+              placeholder={isFocused ? '' : 'Type your message here'}
+              alignment="left"
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+          </View>
+        </View>
+        <GenericButton
+          disabled={text.length < 0}
+          iconSizeRight={14}
+          buttonStyle={styles.send}
+          IconRight={text.length > 0 ? Send : SendDisabled}
+          onPress={sendText}
+        />
+      </View>
       {isPopUpVisible ? (
         <View style={styles.popUpContainer}>
           <View style={styles.optionContainer}>
@@ -282,16 +317,6 @@ const MessageBar = ({
               fontSizeType={FontSizeType.s}
               fontType={FontType.md}>
               Images
-            </NumberlessText>
-          </View>
-          <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onVideoPressed}>
-              <VideoIcon />
-            </Pressable>
-            <NumberlessText
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.md}>
-              Videos
             </NumberlessText>
           </View>
           <View style={styles.optionContainer}>
@@ -317,10 +342,20 @@ const MessageBar = ({
                 fontSizeType={FontSizeType.s}
                 style={{textAlign: 'center'}}
                 fontType={FontType.md}>
-                Share Contact
+                Contact
               </NumberlessText>
             </View>
           )}
+          <View style={styles.optionContainer}>
+            <Pressable style={styles.optionBox} onPress={onVideoPressed}>
+              <VideoIcon />
+            </Pressable>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.md}>
+              Videos
+            </NumberlessText>
+          </View>
         </View>
       ) : (
         <View style={{flexDirection: 'column'}}>
@@ -389,41 +424,6 @@ const MessageBar = ({
           )}
         </View>
       )}
-      <View style={styles.textInputContainer}>
-        <View
-          style={StyleSheet.compose(
-            styles.textInput,
-            replyTo ? {borderTopLeftRadius: 0, borderTopRightRadius: 0} : {},
-          )}>
-          <Animated.View style={[styles.plus, animatedStyle]}>
-            <Pressable onPress={togglePopUp}>
-              <Plus height={24} width={24} />
-            </Pressable>
-          </Animated.View>
-
-          <View style={styles.textBox}>
-            <GenericInput
-              inputStyle={styles.inputText}
-              text={text}
-              size="sm"
-              maxLength={'inf'}
-              multiline={true}
-              setText={onChangeText}
-              placeholder={isFocused ? '' : 'Type your message here'}
-              alignment="left"
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-            />
-          </View>
-        </View>
-        <GenericButton
-          disabled={text.length < 0}
-          iconSizeRight={14}
-          buttonStyle={styles.send}
-          IconRight={text.length > 0 ? Send : SendDisabled}
-          onPress={sendText}
-        />
-      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -476,18 +476,13 @@ const styles = StyleSheet.create({
   },
   popUpContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
     paddingTop: 20,
-    paddingLeft: 30,
-    paddingRight: 30,
+    paddingLeft: 24,
+    paddingRight: 24,
     backgroundColor: '#FFF',
-    borderRadius: 10,
-    marginBottom: 5,
-    rowGap: 8,
-    columnGap: 8,
-    width: '95%',
-    alignSelf: 'center',
+    borderRadius: 24,
+    justifyContent: 'space-between',
+    marginHorizontal: 10,
   },
   replyTextBackgroundContainer: {
     backgroundColor: '#B7B6B64D',
@@ -562,7 +557,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 5,
+    marginBottom: 8,
     backgroundColor: '#F6F6F6',
   },
 });

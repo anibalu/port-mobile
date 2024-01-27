@@ -57,7 +57,10 @@ function ChatTopbar({
 
   return (
     <View style={styles.bar}>
-      <BackButton style={styles.backIcon} onPress={onBackPress} />
+      {selectedMessagesLength == 0 && (
+        <BackButton style={styles.backIcon} onPress={onBackPress} />
+      )}
+
       <Pressable style={styles.profileBar} onPress={handlePress}>
         <View style={styles.titleBar}>
           {selectedMessagesLength == 0 && (

@@ -106,7 +106,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    paddingVertical: 15,
     paddingHorizontal: 15,
   },
   backgroundImage: {

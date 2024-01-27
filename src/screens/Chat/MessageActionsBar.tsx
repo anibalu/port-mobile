@@ -1,12 +1,16 @@
 import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import Copy from '@assets/icons/copy.svg';
-import Delete from '@assets/icons/delete.svg';
+import Delete from '@assets/icons/DeleteIcon.svg';
 import Forward from '@assets/icons/forward.svg';
 import Info from '@assets/icons/info.svg';
 import Reply from '@assets/icons/reply.svg';
 import CustomModal from '@components/CustomModal';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
 import {PortColors} from '@components/ComponentUtils';
 
@@ -68,17 +72,23 @@ export function MessageActionsBar({
             <Pressable style={styles.optionBox} onPress={onForward}>
               <Forward />
             </Pressable>
-            <NumberlessMediumText style={styles.optionText}>
+            <NumberlessText
+              style={styles.optionText}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
               Forward
-            </NumberlessMediumText>
+            </NumberlessText>
           </View>
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onCopy}>
               <Copy />
             </Pressable>
-            <NumberlessMediumText style={styles.optionText}>
+            <NumberlessText
+              style={styles.optionText}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
               Copy
-            </NumberlessMediumText>
+            </NumberlessText>
           </View>
           <View style={styles.optionContainer}>
             <Pressable
@@ -88,9 +98,12 @@ export function MessageActionsBar({
               }}>
               <Delete />
             </Pressable>
-            <NumberlessMediumText style={styles.optionText}>
+            <NumberlessText
+              style={styles.optionText}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
               Delete
-            </NumberlessMediumText>
+            </NumberlessText>
           </View>
         </View>
       ) : (
@@ -100,9 +113,12 @@ export function MessageActionsBar({
               <Pressable style={styles.optionBox} onPress={performReply}>
                 <Reply />
               </Pressable>
-              <NumberlessMediumText style={styles.optionText}>
+              <NumberlessText
+                style={styles.optionText}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
                 Reply
-              </NumberlessMediumText>
+              </NumberlessText>
             </View>
           )}
 
@@ -110,18 +126,24 @@ export function MessageActionsBar({
             <Pressable style={styles.optionBox} onPress={onForward}>
               <Forward />
             </Pressable>
-            <NumberlessMediumText style={styles.optionText}>
+            <NumberlessText
+              style={styles.optionText}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
               Forward
-            </NumberlessMediumText>
+            </NumberlessText>
           </View>
           {!isSharedMedia && (
             <View style={styles.optionContainer}>
               <Pressable style={styles.optionBox} onPress={onCopy}>
                 <Copy />
               </Pressable>
-              <NumberlessMediumText style={styles.optionText}>
+              <NumberlessText
+                style={styles.optionText}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
                 Copy
-              </NumberlessMediumText>
+              </NumberlessText>
             </View>
           )}
 
@@ -133,9 +155,12 @@ export function MessageActionsBar({
               }}>
               <Info />
             </Pressable>
-            <NumberlessMediumText style={styles.optionText}>
+            <NumberlessText
+              style={styles.optionText}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
               Info
-            </NumberlessMediumText>
+            </NumberlessText>
           </View>
           <View style={styles.optionContainer}>
             <Pressable
@@ -145,9 +170,12 @@ export function MessageActionsBar({
               }}>
               <Delete />
             </Pressable>
-            <NumberlessMediumText style={styles.optionText}>
+            <NumberlessText
+              style={styles.optionText}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
               Delete
-            </NumberlessMediumText>
+            </NumberlessText>
           </View>
         </View>
       )}

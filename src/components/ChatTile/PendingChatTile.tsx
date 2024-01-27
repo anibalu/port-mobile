@@ -10,7 +10,6 @@ import {
 } from '@components/NumberlessText';
 import {deleteConnection} from '@utils/Connections';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
-import {getReadableTimestamp} from '@utils/Time';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
@@ -31,19 +30,15 @@ function PendingChatTile(props: ConnectionInfo): ReactNode {
           {props.name && props.name !== '' ? props.name : 'New Contact'}
         </NumberlessText>
         <NumberlessText
-          fontSizeType={FontSizeType.s}
-          fontType={FontType.md}
-          style={{marginTop: 2}}
-          textColor={PortColors.text.secondary}>
-          {getReadableTimestamp(props.timestamp)}
-        </NumberlessText>
-
-        <NumberlessText
           ellipsizeMode="tail"
           numberOfLines={1}
+          fontType={FontType.md}
+          style={{
+            flex: 1,
+            alignSelf: 'stretch',
+            marginTop: 6,
+          }}
           fontSizeType={FontSizeType.m}
-          fontType={FontType.rg}
-          style={{marginTop: 2}}
           textColor={PortColors.text.title}>
           {props.chatId.substring(0, 9) === 'linkId://'
             ? 'Pending Handshake'
@@ -55,12 +50,11 @@ function PendingChatTile(props: ConnectionInfo): ReactNode {
         onPress={() => handleDelete(props.chatId)}>
         <NumberlessText
           style={{
-            marginHorizontal: 6,
-            marginRight: 12,
-            paddingHorizontal: 8,
-            borderRadius: 4,
             backgroundColor: PortColors.primary.red.error,
-            paddingVertical: 3,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            color: 'white',
+            borderRadius: 4,
           }}
           textColor={PortColors.text.primaryWhite}
           fontSizeType={FontSizeType.s}
@@ -80,14 +74,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 15,
-    paddingLeft: 15,
-    paddingTop: 15,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    height: 82,
   },
   text: {
     justifyContent: 'center',
     flex: 1,
-    marginLeft: 19,
+    marginLeft: 10,
     alignContent: 'flex-start',
   },
   metadata: {

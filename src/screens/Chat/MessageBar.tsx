@@ -471,7 +471,8 @@ const styles = StyleSheet.create({
   main: {
     width: '100%',
     flexDirection: 'column',
-    marginBottom: 15,
+
+    ...(isIOS && {marginBottom: 15}),
   },
   popUpContainer: {
     flexDirection: 'row',
@@ -516,8 +517,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingBottom: 12,
-    ...(isIOS && {paddingBottom: 7}),
+    paddingBottom: 7,
   },
   send: {
     width: 40,
@@ -528,7 +528,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#547CEF',
   },
   textBox: {
-    //height: 65,
     width: MESSAGE_INPUT_TEXT_WIDTH,
     flexDirection: 'column',
     alignItems: 'center',
@@ -538,9 +537,12 @@ const styles = StyleSheet.create({
     width: '97%',
     maxHeight: 110,
     height: undefined,
-    color: PortColors.text.primary,
     minHeight: 40,
+    color: PortColors.text.primary,
+    //Remove additional padding on Android
+    ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
     overflow: 'hidden',
+    alignSelf: 'stretch',
     paddingRight: 5,
     borderRadius: 0,
     justifyContent: 'center',

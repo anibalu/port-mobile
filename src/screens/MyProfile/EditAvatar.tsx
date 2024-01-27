@@ -5,7 +5,6 @@
 //import Camera from '@assets/icons/Camera.svg';
 import ImageIcon from '@assets/icons/ImageIcon.svg';
 import RemoveIcon from '@assets/icons/RemoveIcon.svg';
-import Cross from '@assets/icons/cross.svg';
 
 import ChatBackground from '@components/ChatBackground';
 import {NumberlessMediumText} from '@components/NumberlessText';
@@ -21,6 +20,7 @@ import React, {useEffect, useState} from 'react';
 import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {SaveButton} from '@components/SaveButton';
+import GenericTopBar from '@components/GenericTopBar';
 
 function EditAvatar() {
   const navigation = useNavigation();
@@ -82,12 +82,12 @@ function EditAvatar() {
   return (
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
+      <GenericTopBar
+        title="My avatar"
+        onBackPress={() => navigation.goBack()}
+      />
+
       <View style={styles.profile}>
-        <Pressable
-          onPress={() => navigation.goBack()}
-          style={styles.closeButton}>
-          <Cross />
-        </Pressable>
         <GenericAvatar profileUri={imagePath} avatarSize="medium" />
         <View style={styles.iconholder}>
           <Pressable onPress={setNewPicture} style={styles.selectOption}>

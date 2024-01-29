@@ -10,16 +10,17 @@ import {
 } from '@utils/Messaging/interfaces';
 import {getMessage} from '@utils/Storage/messages';
 import React, {useEffect, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
 
 import {PortColors} from '@components/ComponentUtils';
 import {DEFAULT_NAME} from '@configs/constants';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
-import {renderMediaReplyBubble, renderTimeStamp} from '../BubbleUtils';
+import {MediaText, renderTimeStamp} from '../BubbleUtils';
 import DeletedReplyContainer from '../ReplyContainers/DeletedReplyContainer';
 import FileBubble from './FileBubble';
 import TextBubble from './TextBubble';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 /**
  * We get the message that needs to be shown, and the person who sent the message is the memberName.
@@ -59,6 +60,7 @@ const ReplyBubble = ({
         (await getMessage(message.chatId, message.replyId!)) ||
         DEFAULT_DELETED_MESSAGE;
       setReplyMessage(messageData);
+
       if (isGroup && messageData?.memberId) {
         const name = (
           await (dataHandler as Group).getMember(messageData.memberId)
@@ -102,15 +104,57 @@ const ReplyBubble = ({
             handlePress={handlePress}
             handleLongPress={handleLongPress}
             isReply={true}
+            isOriginalSender={message.sender}
           />
         );
       }
       case ContentType.image: {
-        return renderMediaReplyBubble(
-          memberName,
-          message,
-          (replyMessage.data as LargeDataParams).fileUri,
-          'Image',
+        return (
+          <View
+            style={{
+              maxWidth: '95%',
+              flexDirection: 'row',
+              marginVertical: -6,
+            }}>
+            <MediaText
+              memberName={memberName}
+              message={message}
+              text={(replyMessage.data as LargeDataParams).text}
+              type="Image"
+            />
+            {(replyMessage.data as LargeDataParams).fileUri != undefined &&
+            (replyMessage.data as LargeDataParams).fileUri != null ? (
+              <Image
+                source={{
+                  uri: getSafeAbsoluteURI(
+                    (replyMessage.data as LargeDataParams).fileUri!,
+                    'doc',
+                  ),
+                }}
+                style={{
+                  height: 75, // Set the maximum height you desire
+                  width: 75, // Set the maximum width you desire
+
+                  borderTopRightRadius: 12,
+                  borderBottomRightRadius: 12,
+
+                  right: -4,
+                }}
+              />
+            ) : (
+              <View
+                style={{
+                  height: 75, // Set the maximum height you desire
+                  width: 75, // Set the maximum width you desire
+
+                  borderTopRightRadius: 12,
+                  borderBottomRightRadius: 12,
+
+                  right: -4,
+                }}
+              />
+            )}
+          </View>
         );
       }
       case ContentType.file: {
@@ -126,11 +170,54 @@ const ReplyBubble = ({
         );
       }
       case ContentType.video: {
-        return renderMediaReplyBubble(
-          memberName,
-          message,
-          (replyMessage.data as LargeDataParams).fileUri,
-          'Video',
+        return (
+          <View
+            style={{
+              maxWidth: '95%',
+              flexDirection: 'row',
+              height: 45,
+              maxHeight: 75,
+              marginVertical: -6,
+            }}>
+            <MediaText
+              memberName={memberName}
+              message={message}
+              text={(replyMessage.data as LargeDataParams).text}
+              type="Video"
+            />
+            {(replyMessage.data as LargeDataParams).previewUri != undefined &&
+            (replyMessage.data as LargeDataParams).previewUri != null ? (
+              <Image
+                source={{
+                  uri: getSafeAbsoluteURI(
+                    (replyMessage.data as LargeDataParams).previewUri!,
+                    'cache',
+                  ),
+                }}
+                style={{
+                  height: 75, // Set the maximum height you desire
+                  width: 75, // Set the maximum width you desire
+
+                  borderTopRightRadius: 12,
+                  borderBottomRightRadius: 12,
+
+                  right: -4,
+                }}
+              />
+            ) : (
+              <View
+                style={{
+                  height: 75, // Set the maximum height you desire
+                  width: 75, // Set the maximum width you desire
+
+                  borderTopRightRadius: 12,
+                  borderBottomRightRadius: 12,
+
+                  right: -4,
+                }}
+              />
+            )}
+          </View>
         );
       }
       default: {
@@ -144,24 +231,32 @@ const ReplyBubble = ({
       onPress={() => handlePress(message.messageId)}
       onLongPress={() => handleLongPress(message.messageId)}>
       <View
-        style={
-          replyMessage.sender ? styles.receiverBubble : styles.senderBubble
-        }>
+        style={message.sender ? styles.receiverBubble : styles.senderBubble}>
+        <View style={styles.receiverLine} />
         <View
-          style={replyMessage.sender ? styles.senderLine : styles.receiverLine}
-        />
-        {getBubble()}
+          style={{
+            paddingHorizontal: 5,
+            paddingVertical: 7,
+          }}>
+          {getBubble()}
+        </View>
       </View>
 
       {/* TODO add reply bubbles for other data types */}
-      <View style={{paddingHorizontal: 8}}>
+      <View
+        style={{
+          marginHorizontal: 4,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          gap: 4,
+        }}>
         <NumberlessLinkText
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}>
           {message.data.text}
         </NumberlessLinkText>
+        {renderTimeStamp(message)}
       </View>
-      {renderTimeStamp(message)}
     </Pressable>
   );
 };
@@ -171,32 +266,28 @@ export default ReplyBubble;
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
-  },
-  senderLine: {
-    width: 4,
-    backgroundColor: PortColors.primary.white,
-    borderRadius: 2,
-    marginRight: 10,
+    marginHorizontal: -4,
+    marginTop: -4,
   },
   receiverLine: {
     width: 4,
     backgroundColor: PortColors.primary.blue.app,
     borderRadius: 2,
-    marginRight: 10,
+    marginRight: 8,
   },
   receiverBubble: {
     backgroundColor: '#B7B6B64D',
-    paddingHorizontal: 7,
-    paddingVertical: 7,
+
     marginBottom: 4,
+    overflow: 'hidden',
     alignSelf: 'stretch',
     borderRadius: 10,
     flexDirection: 'row',
   },
   senderBubble: {
     backgroundColor: '#AFCCE4',
-    paddingHorizontal: 5,
-    paddingVertical: 7,
+
+    overflow: 'hidden',
     marginBottom: 4,
     alignSelf: 'stretch',
     borderRadius: 10,

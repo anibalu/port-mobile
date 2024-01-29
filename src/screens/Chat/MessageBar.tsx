@@ -44,6 +44,7 @@ import FileReplyContainer from './ReplyContainers/FileReplyContainer';
 import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
 import TextReplyContainer from './ReplyContainers/TextReplyContainer';
 import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
 /**
@@ -87,10 +88,10 @@ const MessageBar = ({
   useEffect(() => {
     const reply = replyTo?.data as LargeDataParams;
     if (reply?.fileUri) {
-      setReplyImageURI('file://' + reply?.fileUri);
+      setReplyImageURI(getSafeAbsoluteURI(reply?.fileUri, 'doc'));
     }
     if (reply?.previewUri) {
-      setReplyImageURI('file://' + reply?.previewUri);
+      setReplyImageURI(getSafeAbsoluteURI(reply?.previewUri, 'cache'));
     }
     console.log('Reply to is: ', reply);
   }, [replyTo]);
@@ -270,8 +271,63 @@ const MessageBar = ({
   return (
     <KeyboardAvoidingView
       behavior={isIOS ? 'padding' : 'height'}
-      keyboardVerticalOffset={isIOS ? 60 : undefined}
+      keyboardVerticalOffset={isIOS ? 50 : undefined}
       style={styles.main}>
+      {replyTo ? (
+        <View style={styles.replyContainerStyle}>
+          <View style={styles.replyTextBackgroundContainer}>
+            {/* Indicator bar for reply */}
+            <View
+              style={{
+                width: 4,
+                borderRadius: 2,
+                alignSelf: 'stretch',
+                backgroundColor: PortColors.primary.blue.app,
+              }}
+            />
+            <View
+              style={{
+                marginLeft: 12,
+                paddingRight: 8,
+                paddingVertical: 8,
+                minHeight: 50,
+                flex: 1,
+              }}>
+              {renderReplyBar(replyTo, replyName, replyImageUri)}
+            </View>
+            {(replyTo.contentType === ContentType.image ||
+              replyTo.contentType === ContentType.video) && (
+              <Image
+                source={{uri: replyImageUri}}
+                style={{
+                  height: 65,
+                  width: 70,
+                  borderTopRightRadius: 16,
+                  borderBottomRightRadius: 16,
+                  position: 'absolute',
+                  right: 0,
+                }}
+              />
+            )}
+          </View>
+          <Pressable
+            onPress={onSend}
+            style={{
+              position: 'absolute',
+              right: 17,
+              top: 16,
+              borderRadius: 12,
+              backgroundColor: '#F2F2F2',
+            }}>
+            <Plus
+              style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
+            />
+          </Pressable>
+        </View>
+      ) : (
+        <></>
+      )}
+
       <View style={styles.textInputContainer}>
         <View
           style={StyleSheet.compose(
@@ -307,7 +363,7 @@ const MessageBar = ({
           onPress={sendText}
         />
       </View>
-      {isPopUpVisible ? (
+      {isPopUpVisible && (
         <View style={styles.popUpContainer}>
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onImagePressed}>
@@ -315,8 +371,18 @@ const MessageBar = ({
             </Pressable>
             <NumberlessText
               fontSizeType={FontSizeType.s}
-              fontType={FontType.md}>
+              fontType={FontType.rg}>
               Images
+            </NumberlessText>
+          </View>
+          <View style={styles.optionContainer}>
+            <Pressable style={styles.optionBox} onPress={onVideoPressed}>
+              <VideoIcon />
+            </Pressable>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              Videos
             </NumberlessText>
           </View>
           <View style={styles.optionContainer}>
@@ -325,7 +391,7 @@ const MessageBar = ({
             </Pressable>
             <NumberlessText
               fontSizeType={FontSizeType.s}
-              fontType={FontType.md}>
+              fontType={FontType.rg}>
               Files
             </NumberlessText>
           </View>
@@ -341,86 +407,10 @@ const MessageBar = ({
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 style={{textAlign: 'center'}}
-                fontType={FontType.md}>
+                fontType={FontType.rg}>
                 Contact
               </NumberlessText>
             </View>
-          )}
-          <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onVideoPressed}>
-              <VideoIcon />
-            </Pressable>
-            <NumberlessText
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.md}>
-              Videos
-            </NumberlessText>
-          </View>
-        </View>
-      ) : (
-        <View style={{flexDirection: 'column'}}>
-          {replyTo ? (
-            <View
-              style={{
-                backgroundColor: '#fff',
-                width: MESSAGE_INPUT_TEXT_WIDTH + 48,
-                paddingTop: 8,
-                paddingHorizontal: 8,
-                borderTopRightRadius: 24,
-                borderTopLeftRadius: 24,
-                marginLeft: 10,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <View style={styles.replyTextBackgroundContainer}>
-                {/* Indicator bar for reply */}
-                <View
-                  style={{
-                    width: 6,
-                    marginLeft: 10,
-                    borderRadius: 16,
-                    height: 53,
-                    backgroundColor: !replyTo?.sender ? '#547CEF' : '#fff',
-                  }}
-                />
-                <View
-                  style={{
-                    marginLeft: 11,
-                    flexDirection: 'column',
-                  }}>
-                  {renderReplyBar(replyTo, replyName, replyImageUri)}
-                </View>
-                {(replyTo.contentType === ContentType.image ||
-                  replyTo.contentType === ContentType.video) && (
-                  <Image
-                    source={{uri: replyImageUri}}
-                    style={{
-                      height: 65,
-                      width: 70,
-                      borderTopRightRadius: 16,
-                      borderBottomRightRadius: 16,
-                      position: 'absolute',
-                      right: 0,
-                    }}
-                  />
-                )}
-              </View>
-              <Pressable
-                onPress={onSend}
-                style={{
-                  position: 'absolute',
-                  right: 17,
-                  top: 16,
-                  borderRadius: 12,
-                  backgroundColor: '#F2F2F2',
-                }}>
-                <Plus
-                  style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
-                />
-              </Pressable>
-            </View>
-          ) : (
-            <></>
           )}
         </View>
       )}
@@ -440,7 +430,7 @@ function renderReplyBar(
     case ContentType.image: {
       return (
         <ImageReplyContainer
-          // message={replyTo}
+          message={replyTo}
           memberName={replyName}
           URI={URI}
         />
@@ -449,7 +439,7 @@ function renderReplyBar(
     case ContentType.file: {
       return (
         <FileReplyContainer
-          // message={replyTo}
+          message={replyTo}
           memberName={replyName}
           URI={URI}
         />
@@ -458,7 +448,7 @@ function renderReplyBar(
     case ContentType.video: {
       return (
         <VideoReplyContainer
-          // message={replyTo}
+          message={replyTo}
           memberName={replyName}
           URI={URI}
         />
@@ -488,9 +478,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#B7B6B64D',
     borderRadius: 16,
     alignSelf: 'stretch',
-    padding: 8,
+
     alignItems: 'center',
     flexDirection: 'row',
+    overflow: 'hidden',
   },
   textInputContainer: {
     flexDirection: 'row',
@@ -499,12 +490,30 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     paddingBottom: 10,
   },
+  replyContainerStyle: {
+    backgroundColor: PortColors.primary.white,
+    width: MESSAGE_INPUT_TEXT_WIDTH + 48,
+    paddingTop: 8,
+    paddingHorizontal: 8,
+    marginLeft: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth: 0.5,
+    borderColor: '#E5E5E5',
+    borderRightWidth: 0.5,
+    borderLeftWidth: 0.5,
+
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: 'visible',
+  },
   textInput: {
     flexDirection: 'row',
     backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
     borderRadius: 24,
     borderWidth: 0.5,
+    borderTopWidth: 0,
     borderColor: '#E5E5E5',
   },
   plus: {
@@ -542,7 +551,7 @@ const styles = StyleSheet.create({
     borderRadius: 0,
     justifyContent: 'center',
     backgroundColor: PortColors.primary.white,
-    ...(isIOS && {paddingTop: 12, paddingBottom: 10, paddingLeft: 5}),
+    ...(isIOS && {paddingTop: 10, paddingLeft: 5}),
   },
   optionContainer: {
     flexDirection: 'column',

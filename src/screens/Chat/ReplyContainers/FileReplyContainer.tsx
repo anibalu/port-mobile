@@ -1,20 +1,21 @@
 import FileIcon from '@assets/icons/FileClip.svg';
-import {screen} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 
 export default function FileReplyContainer({
-  // message,
+  message,
   memberName,
   URI,
 }: {
-  // message: SavedMessageParams;
+  message: SavedMessageParams;
   memberName: string | null | undefined;
   URI: string;
 }) {
@@ -28,7 +29,7 @@ export default function FileReplyContainer({
       }}>
       <View
         style={{
-          backgroundColor: '#FEB95A',
+          backgroundColor: PortColors.primary.yellow.dull,
           width: 39,
           height: 39,
           borderRadius: 10,
@@ -37,19 +38,20 @@ export default function FileReplyContainer({
         }}>
         <FileIcon />
       </View>
-      <View style={{marginLeft: 12}}>
+      <View
+        style={{
+          marginLeft: 12,
+          marginRight: 0.15 * screen.width,
+        }}>
         <NumberlessText
-          style={{maxWidth: screen.width - 160}}
-          fontSizeType={FontSizeType.l}
-          fontType={FontType.sb}>
+          fontSizeType={FontSizeType.s}
+          textColor={PortColors.text.title}
+          fontType={FontType.md}>
           {memberName}
         </NumberlessText>
 
-        <NumberlessText
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.rg}
-          style={{marginTop: 3, marginRight: 20}}>
-          File
+        <NumberlessText fontSizeType={FontSizeType.s} fontType={FontType.rg}>
+          {message.data.text ? message.data.text : 'File'}
         </NumberlessText>
       </View>
     </Pressable>
@@ -58,13 +60,7 @@ export default function FileReplyContainer({
 
 const styles = StyleSheet.create({
   replyImageContainer: {
-    minWidth: '70%',
-    marginRight: 20,
-    height: 63,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  fileText: {
-    marginTop: 10,
   },
 });

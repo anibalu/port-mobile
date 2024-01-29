@@ -1,4 +1,4 @@
-import {screen} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -18,16 +18,19 @@ export default function TextReplyContainer({
   return (
     <>
       <NumberlessText
-        fontSizeType={FontSizeType.l}
-        fontType={FontType.sb}
+        fontSizeType={FontSizeType.s}
+        fontType={FontType.md}
         numberOfLines={1}
-        style={{maxWidth: screen.width - 160}}
+        style={{
+          maxWidth: screen.width - 160,
+        }}
+        textColor={PortColors.text.title}
         ellipsizeMode="tail">
         {memberName}
       </NumberlessText>
       <View style={{marginTop: 3, marginRight: 20}}>
         <NumberlessText
-          fontSizeType={FontSizeType.m}
+          fontSizeType={FontSizeType.s}
           fontType={FontType.rg}
           numberOfLines={3}
           ellipsizeMode="tail">

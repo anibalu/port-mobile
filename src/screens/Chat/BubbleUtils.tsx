@@ -3,7 +3,6 @@ import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
-  NumberlessLinkText,
   NumberlessText,
 } from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
@@ -11,17 +10,22 @@ import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {getTimeStamp} from '@utils/Time';
 import React from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 
-export function renderTimeStamp(message: SavedMessageParams) {
+export function renderTimeStamp(
+  message: SavedMessageParams,
+  hasGradient?: boolean,
+) {
   if (message.messageStatus === MessageStatus.sent || !message.sender) {
     return (
       <NumberlessText
         fontSizeType={FontSizeType.s}
         fontType={FontType.rg}
         textColor={
-          message.sender
+          hasGradient
+            ? PortColors.text.primaryWhite
+            : message.sender
             ? PortColors.text.messageBubble.senderTimestamp
             : PortColors.text.messageBubble.receiverTimestamp
         }
@@ -83,6 +87,7 @@ export function renderProfileName(
   name: string = DEFAULT_NAME,
   isSender: boolean,
   isReply: boolean,
+  isOriginalSender?: boolean,
 ) {
   return (
     <View style={{alignSelf: 'flex-start', marginBottom: 2}}>
@@ -90,26 +95,34 @@ export function renderProfileName(
         isReply && isSender ? (
           <NumberlessText
             fontSizeType={FontSizeType.s}
-            fontType={FontType.sb}
+            fontType={FontType.md}
             ellipsizeMode="tail"
             numberOfLines={1}
-            textColor={PortColors.text.messageBubble.profileName}>
+            textColor={
+              isOriginalSender
+                ? PortColors.text.title
+                : PortColors.primary.black
+            }>
             You
           </NumberlessText>
         ) : (
           <NumberlessText
             fontSizeType={FontSizeType.s}
-            fontType={FontType.sb}
+            fontType={FontType.md}
             ellipsizeMode="tail"
             numberOfLines={1}
-            textColor={PortColors.text.messageBubble.profileName}>
+            textColor={
+              isOriginalSender
+                ? PortColors.text.title
+                : PortColors.primary.black
+            }>
             {name}
           </NumberlessText>
         )
       ) : isSender && isReply ? (
         <NumberlessText
           fontSizeType={FontSizeType.s}
-          fontType={FontType.sb}
+          fontType={FontType.md}
           numberOfLines={1}
           ellipsizeMode="tail"
           textColor={PortColors.text.messageBubble.profileName}>
@@ -130,56 +143,39 @@ export function renderProfileName(
  * @param type - Video or Image
  * @returns
  */
-export const renderMediaReplyBubble = (
-  memberName: string,
-  message: SavedMessageParams,
-  mediaURI: string | undefined | null,
-  type: 'Video' | 'Image',
-) => {
+export const MediaText = ({
+  memberName,
+  message,
+  text = '',
+  type,
+}: {
+  memberName: string;
+  message: SavedMessageParams;
+  text?: string;
+  type: 'Video' | 'Image';
+}) => {
   return (
     <View style={styles.mediaReplyContainer}>
       <View
         style={{
           flexDirection: 'column',
-          marginRight: 22,
         }}>
         {renderProfileName(
           shouldRenderProfileName(memberName),
           memberName,
           message.sender,
           true,
+          true,
         )}
-        <View
-          style={{
-            marginRight: 8,
-          }}>
-          {/* TODO add in text that can was attached to the message */}
-          <NumberlessLinkText
-            fontSizeType={FontSizeType.s}
-            fontType={FontType.rg}>
-            {type}
-          </NumberlessLinkText>
-        </View>
+
+        {/* TODO add in text that can was attached to the message */}
+        <NumberlessText
+          numberOfLines={3}
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.rg}>
+          {text || type}
+        </NumberlessText>
       </View>
-      {mediaURI != undefined && mediaURI != null ? (
-        <Image
-          source={{uri: mediaURI}}
-          style={{
-            height: 60, // Set the maximum height you desire
-            width: 60, // Set the maximum width you desire
-            borderRadius: 16,
-          }}
-        />
-      ) : (
-        <View
-          style={{
-            height: 60, // Set the maximum height you desire
-            width: 60, // Set the maximum width you desire
-            borderRadius: 16,
-            backgroundColor: PortColors.primary.black,
-          }}
-        />
-      )}
     </View>
   );
 };
@@ -188,11 +184,11 @@ const styles = StyleSheet.create({
   timeStampContainer: {
     flexDirection: 'column',
     alignSelf: 'flex-end',
+    marginTop: 3,
   },
   mediaReplyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexGrow: 1,
-    justifyContent: 'space-between',
+    maxWidth: '70%',
   },
 });

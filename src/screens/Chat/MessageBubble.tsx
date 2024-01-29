@@ -12,6 +12,7 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
 import {
   ContentType,
+  LargeDataMessageContentTypes,
   LargeDataParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
@@ -48,7 +49,7 @@ interface MessageBubbleProps {
   isGroupChat: boolean;
   handleDownload: (x: string) => Promise<void>;
   dataHandler: Group | DirectChat;
-  swipingCheck?: any;
+  toggleSwipe: () => void;
   chatId: string;
   setReplyTo: Function;
 }
@@ -76,12 +77,11 @@ const MessageBubble = ({
   handleLongPress,
   isGroupChat,
   dataHandler,
-  swipingCheck,
+  toggleSwipe,
   chatId,
   setReplyTo,
 }: MessageBubbleProps): ReactNode => {
   const positionX = useRef(new Animated.Value(0)).current;
-  const scrollStopped = useRef(false);
 
   const resetPosition = () => {
     Animated.spring(positionX, {
@@ -89,16 +89,11 @@ const MessageBubble = ({
       useNativeDriver: true,
       speed: 100,
     }).start();
+    toggleSwipe();
   };
 
   const performReply = async (): Promise<void> => {
     setReplyTo(await getMessage(chatId, message.messageId));
-  };
-  const enableScrollView = (isEnabled: boolean) => {
-    if (scrollStopped.current !== isEnabled) {
-      swipingCheck(isEnabled);
-      scrollStopped.current = isEnabled;
-    }
   };
 
   const constrainedX = positionX.interpolate({
@@ -123,7 +118,7 @@ const MessageBubble = ({
       },
       onPanResponderTerminationRequest: () => false,
       onPanResponderGrant: () => {
-        enableScrollView(true);
+        toggleSwipe();
       },
       onPanResponderMove: Animated.event(
         [
@@ -245,7 +240,24 @@ const MessageBubble = ({
                   style={styles.displayPicContainer}
                 />
               )}
-              <View style={blobType}>
+              <View
+                style={StyleSheet.compose(blobType, {
+                  paddingTop: LargeDataMessageContentTypes.includes(
+                    message.contentType,
+                  )
+                    ? 2
+                    : 10,
+                  paddingHorizontal: LargeDataMessageContentTypes.includes(
+                    message.contentType,
+                  )
+                    ? 4
+                    : 10,
+                  paddingBottom: LargeDataMessageContentTypes.includes(
+                    message.contentType,
+                  )
+                    ? 2
+                    : 10,
+                })}>
                 {renderBubbleType(
                   message,
                   isGroupChat,
@@ -293,7 +305,6 @@ function initialStylePicker(
         styles.DataContainer,
         hasExtraPadding ? styles.majorSpacing : styles.minorSpacing,
       ),
-      ,
       styles.DataBlob,
     ];
   } else {
@@ -312,7 +323,6 @@ function initialStylePicker(
             styles.RecieverContainer,
             hasExtraPadding ? styles.majorSpacing : styles.minorSpacing,
           ),
-          ,
           styles.ReceiverBlob,
         ];
     }
@@ -520,7 +530,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    padding: 10,
+
     borderWidth: 0.5,
     borderColor: PortColors.primary.messageBubble.sender.blobBorder,
     maxWidth: '70%',
@@ -534,7 +544,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    padding: 10,
     borderWidth: 0.5,
     borderColor: PortColors.primary.messageBubble.receiver.blobBorder,
     maxWidth: '70%',

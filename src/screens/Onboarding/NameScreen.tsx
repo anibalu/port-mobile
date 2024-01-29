@@ -3,7 +3,7 @@
  * screen id: 3
  */
 import Next from '@assets/navigation/nextButton.svg';
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, isIOS} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
@@ -16,7 +16,12 @@ import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {processName} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
-import {BackHandler, ScrollView, StyleSheet} from 'react-native';
+import {
+  BackHandler,
+  KeyboardAvoidingView,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Onboarding'>;
 
@@ -48,11 +53,10 @@ function NameScreen({navigation}: Props): ReactNode {
         backgroundColor={PortColors.primary.white}
       />
 
-      <ScrollView
-        style={{backgroundColor: PortColors.primary.white}}
-        contentContainerStyle={onboardingStylesheet.scrollViewContainer}
-        automaticallyAdjustKeyboardInsets={true}
-        showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView
+        behavior={isIOS ? 'padding' : 'height'}
+        keyboardVerticalOffset={isIOS ? -24 : undefined}
+        style={onboardingStylesheet.scrollViewContainer}>
         <NumberlessText fontType={FontType.md} fontSizeType={FontSizeType.xl}>
           Share a name but
         </NumberlessText>
@@ -77,6 +81,7 @@ function NameScreen({navigation}: Props): ReactNode {
           text={name}
           setText={setName}
         />
+        <View style={{flex: 1}} />
         <GenericButton
           onPress={() =>
             navigation.navigate('PermissionsScreen', {
@@ -86,7 +91,7 @@ function NameScreen({navigation}: Props): ReactNode {
           IconLeft={Next}
           buttonStyle={onboardingStylesheet.nextButtonContainer}
         />
-      </ScrollView>
+      </KeyboardAvoidingView>
     </>
   );
 }
@@ -95,7 +100,7 @@ export const onboardingStylesheet = StyleSheet.create({
   scrollViewContainer: {
     alignItems: 'center',
     flex: 1,
-    paddingVertical: 72,
+    paddingTop: 72,
     paddingHorizontal: 22,
     backgroundColor: PortColors.primary.white,
   },
@@ -103,8 +108,7 @@ export const onboardingStylesheet = StyleSheet.create({
     backgroundColor: PortColors.primary.blue.app,
     height: 60,
     width: 65,
-    position: 'absolute',
-    bottom: 18,
+    bottom: isIOS ? 36 : 18,
     right: 25,
     alignSelf: 'flex-end',
     justifyContent: 'center',

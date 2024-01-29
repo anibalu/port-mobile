@@ -24,6 +24,7 @@ export const PortColors = {
       app: '#547CEF',
       light: '#88A9FF',
       dull: '#AFCCE4',
+      overlay: '#BAD0E3',
     },
     white: '#FFFFFF',
     black: '#000000',

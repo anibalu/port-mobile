@@ -3,16 +3,19 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
+import Videoicon from '@assets/icons/Videoicon.svg';
+import {PortColors} from '@components/ComponentUtils';
 
 export default function VideoReplyContainer({
-  // message,
+  message,
   memberName,
   URI,
 }: {
-  // message: SavedMessageParams;
+  message: SavedMessageParams;
   memberName: string | null | undefined;
   URI: string;
 }) {
@@ -27,24 +30,27 @@ export default function VideoReplyContainer({
       <View
         style={{
           overflow: 'hidden',
-          width: '100%',
         }}>
         <NumberlessText
           numberOfLines={1}
           ellipsizeMode="tail"
-          fontSizeType={FontSizeType.l}
-          fontType={FontType.sb}>
+          textColor={PortColors.text.title}
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}>
           {memberName}
         </NumberlessText>
+        <View
+          style={{flexDirection: 'row', marginTop: 2, alignItems: 'center'}}>
+          <Videoicon style={{marginRight: 4}} />
 
-        <NumberlessText
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.rg}
-          numberOfLines={3}
-          style={{marginTop: 3, marginRight: 20}}
-          ellipsizeMode="tail">
-          Video
-        </NumberlessText>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.rg}
+            numberOfLines={3}
+            ellipsizeMode="tail">
+            {message.data.text ? message.data.text : 'Video'}
+          </NumberlessText>
+        </View>
       </View>
     </Pressable>
   );
@@ -52,7 +58,7 @@ export default function VideoReplyContainer({
 
 const styles = StyleSheet.create({
   replyImageContainer: {
-    width: '80%',
+    width: '70%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

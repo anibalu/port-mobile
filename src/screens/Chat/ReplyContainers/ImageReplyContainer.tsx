@@ -1,18 +1,21 @@
+import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
+import Gallery from '@assets/icons/GalleryIcon.svg';
 
 export default function ImageReplyContainer({
-  // message,
+  message,
   memberName,
   URI,
 }: {
-  // message: SavedMessageParams;
+  message: SavedMessageParams;
   memberName: string | null | undefined;
   URI: string;
 }) {
@@ -27,24 +30,26 @@ export default function ImageReplyContainer({
       <View
         style={{
           overflow: 'hidden',
-          width: '100%',
         }}>
         <NumberlessText
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.sb}
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.md}
           ellipsizeMode="tail"
+          textColor={PortColors.text.title}
           numberOfLines={1}>
           {memberName}
         </NumberlessText>
-
-        <NumberlessText
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.rg}
-          numberOfLines={3}
-          style={{marginTop: 3, overflow: 'hidden'}}
-          ellipsizeMode="tail">
-          Image
-        </NumberlessText>
+        <View
+          style={{flexDirection: 'row', marginTop: 2, alignItems: 'center'}}>
+          <Gallery style={{marginRight: 2}} height={16} width={16} />
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.rg}
+            numberOfLines={3}
+            ellipsizeMode="tail">
+            {message.data.text ? message.data.text : 'Image'}
+          </NumberlessText>
+        </View>
       </View>
     </Pressable>
   );
@@ -52,12 +57,8 @@ export default function ImageReplyContainer({
 
 const styles = StyleSheet.create({
   replyImageContainer: {
-    width: '80%',
     flexDirection: 'row',
+    width: '70%',
     alignItems: 'center',
-    padding: 5,
-  },
-  imageText: {
-    marginTop: 10,
   },
 });

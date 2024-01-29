@@ -6,22 +6,19 @@ import {
   NumberlessLinkText,
 } from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import React, {useState} from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import {CircleSnail} from 'react-native-progress';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 import {
   handleMediaOpen,
   renderProfileName,
+  renderTimeStamp,
   shouldRenderProfileName,
 } from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
-import {useErrorModal} from 'src/context/ErrorModalContext';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 //import store from '@store/appStore';
 
 const imageDimensions = 0.7 * screen.width - 40;
@@ -62,6 +59,8 @@ export default function ImageBubble({
     }
   };
 
+  const text = (message.data as LargeDataParams).text;
+
   return (
     <Pressable
       style={styles.textBubbleContainer}
@@ -73,6 +72,7 @@ export default function ImageBubble({
           memberName,
           message.sender,
           false,
+          false,
         )}
         {startedManualDownload ? (
           <Loader />
@@ -83,19 +83,31 @@ export default function ImageBubble({
           )
         )}
 
-        {(message.data as LargeDataParams).text ? (
-          <View
-            style={{
-              marginTop: 8,
-              marginHorizontal: 8,
-            }}>
-            <NumberlessLinkText
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}>
-              {(message.data as LargeDataParams).text || ''}
-            </NumberlessLinkText>
+        {text ? (
+          <View style={getBubbleLayoutStyle(text)}>
+            <View
+              style={{
+                width:
+                  text!.length > 27
+                    ? imageDimensions - 15
+                    : imageDimensions - 55,
+              }}>
+              <NumberlessLinkText
+                fontSizeType={FontSizeType.m}
+                fontType={FontType.rg}
+                numberOfLines={0}>
+                {text}
+              </NumberlessLinkText>
+            </View>
+            {renderTimeStamp(message)}
           </View>
-        ) : null}
+        ) : (
+          <LinearGradient
+            colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 1)']}
+            style={styles.gradientContainer}>
+            {renderTimeStamp(message, true)}
+          </LinearGradient>
+        )}
       </>
     </Pressable>
   );
@@ -109,7 +121,7 @@ const Loader = () => {
         justifyContent: 'center',
         alignItems: 'center',
       })}>
-      <ActivityIndicator size={'large'} color={PortColors.primary.white} />
+      <CircleSnail color={PortColors.primary.blue.app} duration={500} />
     </View>
   );
 };
@@ -118,7 +130,7 @@ const Loader = () => {
 // - if thumbnail exists
 // - if shouldDownload is true and no thumbnail exists
 // - if shouldDownload is false on and no thumbnail exists
-const renderDisplay = (
+export const renderDisplay = (
   messageURI: string | undefined | null,
   data: LargeDataParams,
 ) => {
@@ -158,6 +170,14 @@ const renderDisplay = (
   }
 };
 
+const getBubbleLayoutStyle = (text: string) => {
+  if (text.length > 27) {
+    return styles.imageBubbleColumnContainer;
+  } else {
+    return styles.imageBubbleRowContainer;
+  }
+};
+
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
@@ -167,6 +187,40 @@ const styles = StyleSheet.create({
   image: {
     height: imageDimensions, // Set the maximum height you desire
     width: imageDimensions, // Set the maximum width you desire
-    borderRadius: 16,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  gradientContainer: {
+    position: 'absolute',
+    bottom: 4,
+    width: imageDimensions,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    justifyContent: 'flex-end',
+    paddingBottom: 10,
+    paddingRight: 10,
+    height: 50,
+  },
+  timestampContainer: {
+    paddingRight: 4,
+    paddingBottom: 10,
+    alignSelf: 'flex-end',
+  },
+  imageBubbleColumnContainer: {
+    paddingTop: 4,
+    paddingLeft: 6,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
+    paddingBottom: 6,
+  },
+  imageBubbleRowContainer: {
+    paddingTop: 4,
+    paddingLeft: 6,
+    flexDirection: 'row',
+    columnGap: 4,
+    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
+    paddingBottom: 6,
+    justifyContent: 'center',
   },
 });

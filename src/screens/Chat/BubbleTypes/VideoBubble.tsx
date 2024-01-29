@@ -7,23 +7,22 @@ import {
   NumberlessLinkText,
 } from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import React, {ReactNode, useState} from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import {CircleSnail} from 'react-native-progress';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 import {
   handleMediaOpen,
   renderProfileName,
+  renderTimeStamp,
   shouldRenderProfileName,
 } from '../BubbleUtils';
 import {SelectedMessagesSize} from '../Chat';
-import {useErrorModal} from 'src/context/ErrorModalContext';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 //import store from '@store/appStore';
+
+const videoDimensions = 0.7 * screen.width - 40;
 
 export default function VideoBubble({
   message,
@@ -61,6 +60,8 @@ export default function VideoBubble({
     }
   };
 
+  const text = (message.data as LargeDataParams).text;
+
   return (
     <Pressable
       style={styles.textBubbleContainer}
@@ -71,6 +72,7 @@ export default function VideoBubble({
         memberName,
         message.sender,
         false,
+        message.sender,
       )}
 
       {startedManualDownload ? (
@@ -82,19 +84,29 @@ export default function VideoBubble({
         )
       )}
 
-      {(message.data as LargeDataParams).text ? (
-        <View
-          style={{
-            marginTop: 8,
-            marginHorizontal: 8,
-          }}>
-          <NumberlessLinkText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.rg}>
-            {(message.data as LargeDataParams).text || ''}
-          </NumberlessLinkText>
+      {text ? (
+        <View style={getBubbleLayoutStyle(text)}>
+          <View
+            style={{
+              width:
+                text!.length > 27 ? videoDimensions - 10 : videoDimensions - 65,
+            }}>
+            <NumberlessLinkText
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}
+              numberOfLines={0}>
+              {text}
+            </NumberlessLinkText>
+          </View>
+          {renderTimeStamp(message)}
         </View>
-      ) : null}
+      ) : (
+        <LinearGradient
+          colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 1)']}
+          style={styles.gradientContainer}>
+          {renderTimeStamp(message, true)}
+        </LinearGradient>
+      )}
     </Pressable>
   );
 }
@@ -102,7 +114,7 @@ export default function VideoBubble({
 const Loader = () => {
   return (
     <View style={styles.image}>
-      <ActivityIndicator size={'large'} color={PortColors.primary.white} />
+      <CircleSnail color={PortColors.primary.blue.app} duration={500} />
     </View>
   );
 };
@@ -125,8 +137,8 @@ const renderDisplay = (
         <Play
           style={{
             position: 'absolute',
-            top: 0.25 * screen.width - 40,
-            left: 0.25 * screen.width - 45,
+            top: 0.35 * screen.width - 40,
+            left: 0.35 * screen.width - 45,
           }}
         />
       </>
@@ -145,12 +157,20 @@ const renderDisplay = (
         <Download
           style={{
             position: 'absolute',
-            top: 0.29 * screen.width - 40,
-            left: 0.29 * screen.width - 45,
+            top: 0.38 * screen.width - 40,
+            left: 0.38 * screen.width - 40,
           }}
         />
       </>
     );
+  }
+};
+
+const getBubbleLayoutStyle = (text: string) => {
+  if (text.length > 27) {
+    return styles.videoBubbleColumnContainer;
+  } else {
+    return styles.videoBubbleRowContainer;
   }
 };
 
@@ -162,11 +182,44 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   image: {
-    height: 0.5 * screen.width - 40, // Set the maximum height you desire
-    width: 0.5 * screen.width - 40, // Set the maximum width you desire
-    borderRadius: 16,
+    height: videoDimensions, // Set the maximum height you desire
+    width: videoDimensions, // Set the maximum width you desire
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 4,
     backgroundColor: PortColors.primary.black,
+  },
+  timestampContainer: {
+    paddingBottom: 10,
+    alignSelf: 'flex-end',
+  },
+  videoBubbleColumnContainer: {
+    paddingTop: 4,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
+    paddingBottom: 6,
+  },
+  videoBubbleRowContainer: {
+    paddingTop: 4,
+    flexDirection: 'row',
+    columnGap: 4,
+    paddingHorizontal: 6,
+    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
+    paddingBottom: 6,
+    justifyContent: 'center',
+  },
+  gradientContainer: {
+    position: 'absolute',
+    bottom: 4,
+    width: videoDimensions,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    justifyContent: 'flex-end',
+    paddingBottom: 10,
+    paddingRight: 10,
+    height: 50,
   },
 });

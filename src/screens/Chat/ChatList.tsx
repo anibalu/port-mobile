@@ -69,7 +69,7 @@ function ChatList({
     return (
       <MessageBubble
         chatId={chatId}
-        swipingCheck={onSwipe}
+        toggleSwipe={onSwipe}
         message={item}
         hasExtraPadding={shouldHaveExtraPadding}
         isDateBoundary={isDateBoundary}

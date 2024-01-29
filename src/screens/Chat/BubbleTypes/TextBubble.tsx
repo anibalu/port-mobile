@@ -18,12 +18,14 @@ export default function TextBubble({
   handleLongPress,
   memberName,
   isReply = false,
+  isOriginalSender,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
   memberName: string;
   isReply?: boolean;
+  isOriginalSender?: boolean;
 }) {
   return (
     <Pressable
@@ -44,10 +46,11 @@ export default function TextBubble({
         memberName,
         message.sender,
         isReply,
+        isOriginalSender,
       )}
       <View style={getBubbleLayoutStyle(message.data.text || '')}>
         <NumberlessLinkText
-          fontSizeType={FontSizeType.m}
+          fontSizeType={isReply ? FontSizeType.s : FontSizeType.m}
           fontType={FontType.rg}
           numberOfLines={isReply ? 3 : 0}>
           {message.data.text || ''}

@@ -19,6 +19,7 @@ import ReceiveContactBundleRequest from './ActionClasses/ReceiveContactBundleReq
 import ReceiveContactBundleResponseDenial from './ActionClasses/ReceiveContactBundleResponseDenial';
 import ReceiveContactBundleResponse from './ActionClasses/ReceiveContactBundleResponse';
 import ReceiveContactBundle from './ActionClasses/ReceiveContactBundle';
+import ReceiveUpdate from './ActionClasses/ReceiveUpdate';
 
 export enum PossibleDirectReceiveActions {
   deletion,
@@ -162,6 +163,13 @@ export async function directReceiveActionPicker(
         );
       case ContentType.contactBundle:
         return new ReceiveContactBundle(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.update:
+        return new ReceiveUpdate(
           chatId,
           message,
           receiveTime,

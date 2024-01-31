@@ -31,7 +31,7 @@ export default function TextReplyBubble({
       style={StyleSheet.compose(
         styles.textReplyContainer,
         //Controls the limit of when the bubble should expand to match the container inside
-        text.length < 24 && {flex: 1},
+        text.length < 6 && {flex: 1},
       )}
       onPress={() => {
         handlePress(message.messageId);

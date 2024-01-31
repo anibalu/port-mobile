@@ -99,7 +99,7 @@ export default function ContactSharingBubble({
   };
 
   useEffect(() => {
-    setAccepted((message.data as ContactBundleParams).accepeted);
+    setAccepted((message.data as ContactBundleParams).accepted);
     setGoToChatId((message.data as ContactBundleParams).goToChatId);
   }, [message]);
   useEffect(() => {

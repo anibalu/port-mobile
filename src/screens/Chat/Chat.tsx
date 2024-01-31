@@ -60,9 +60,6 @@ function Chat({route, navigation}: Props) {
 
   const [messages, setMessages] = useState<SavedMessageParams[]>([]);
 
-  //Allows for message auto-scrolling in the list. Set to true as list is INVERTED.
-  const [enableAutoscrollToTop, setEnableAutoscrollToTop] = useState(true);
-
   //selected messages
   const [selectedMessages, setSelectedMessages] = useState<Array<string>>([]);
   //message to be replied
@@ -165,6 +162,11 @@ function Chat({route, navigation}: Props) {
     });
   };
 
+  const onInfoPress = async () => {
+    const msg = await getMessage(chatId, selectedMessages[0]);
+    console.log('Message status: ', msg?.messageStatus);
+  };
+
   const clearSelected = () => {
     setReplyToMessage(undefined);
     setSelectedMessages([]);
@@ -232,8 +234,8 @@ function Chat({route, navigation}: Props) {
   //runs every time a new message is recieved.
   useEffect(() => {
     if (chatState.messagesLoaded && latestReceivedMessage) {
-      console.log('[CHAT UPDATE] - New message received');
       if (!shouldNotRender(latestReceivedMessage.contentType)) {
+        console.log('[CHAT UPDATE] - New message received');
         setMessages(oldList => [latestReceivedMessage].concat(oldList));
       } else {
         console.log('[CHAT DATA UPDATE] - dropping due to data message');
@@ -301,12 +303,17 @@ function Chat({route, navigation}: Props) {
 
   const onStartReached = async (): Promise<void> => {
     const resp = await readPaginatedMessages(chatId, cursor);
-    setMessages(oldList => oldList.concat(resp.messages));
+    const cleanedMessages = resp.messages.filter(
+      item => !shouldNotRender(item.contentType),
+    );
+    setMessages(oldList => oldList.concat(cleanedMessages));
     //When this is called, the user has reached the top and a new message should autoscroll them down.
-    if (cursor == 0) {
-      !enableAutoscrollToTop && setEnableAutoscrollToTop(false);
-    }
+
     setCursor(resp.cursor);
+  };
+  const onEndReached = async () => {
+    console.log('Marking chat as read');
+    await toggleRead(chatId);
   };
 
   const onSettingsPressed = (): void => {
@@ -364,8 +371,8 @@ function Chat({route, navigation}: Props) {
         messages={messages}
         setReplyTo={setReplyToMessage}
         chatId={chatId}
-        allowScrollToTop={enableAutoscrollToTop}
         onStartReached={onStartReached}
+        onEndReached={onEndReached}
         selectedMessages={selectedMessages}
         handlePress={handleMessageBubbleShortPress}
         handleLongPress={handleMessageBubbleLongPress}
@@ -373,6 +380,7 @@ function Chat({route, navigation}: Props) {
         isGroupChat={isGroupChat}
         dataHandler={dataHandler}
       />
+
       {chatState.connectionConnected ? (
         <>
           {selectedMessages.length > 0 && replyToMessage === undefined ? (
@@ -380,6 +388,7 @@ function Chat({route, navigation}: Props) {
               chatId={chatId}
               onCopy={onCopy}
               onForward={onForward}
+              onInfo={onInfoPress}
               selectedMessages={selectedMessages}
               setReplyTo={setReplyToMessage}
               postDelete={updateAfterDeletion}
@@ -415,7 +424,8 @@ export function shouldNotRender(contentType: ContentType) {
     contentType === ContentType.contactBundleRequest ||
     contentType === ContentType.contactBundleDenialResponse ||
     contentType === ContentType.contactBundleResponse ||
-    contentType === ContentType.initialInfoRequest
+    contentType === ContentType.initialInfoRequest ||
+    contentType === ContentType.update
   ) {
     return true;
   } else {

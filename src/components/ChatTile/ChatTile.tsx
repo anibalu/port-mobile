@@ -1,4 +1,4 @@
-import Sending from '@assets/icons/sending.svg';
+import Sending from '@assets/icons/statusIndicators/sending.svg';
 import {PortColors} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {

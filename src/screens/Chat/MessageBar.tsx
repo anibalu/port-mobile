@@ -355,11 +355,11 @@ const MessageBar = ({
                 })}
                 ref={inputRef}
                 textAlign="left"
+                multiline
                 placeholder={isFocused ? '' : 'Type your message here'}
                 placeholderTextColor={PortColors.primary.grey.medium}
                 onChangeText={onChangeText}
                 value={text}
-                multiline={true}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
               />

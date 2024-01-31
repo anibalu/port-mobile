@@ -1,10 +1,5 @@
 import Download from '@assets/icons/Download.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessLinkText,
-} from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import React, {useState} from 'react';
@@ -13,6 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {CircleSnail} from 'react-native-progress';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {
+  MediaTextDisplay,
   handleMediaOpen,
   renderProfileName,
   renderTimeStamp,
@@ -64,7 +60,7 @@ export default function ImageBubble({
 
   return (
     <Pressable
-      style={styles.textBubbleContainer}
+      style={styles.imageBubbleContainer}
       onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
       <>
@@ -85,24 +81,7 @@ export default function ImageBubble({
         )}
 
         {text ? (
-          <View style={getBubbleLayoutStyle(text)}>
-            <View
-              style={{
-                marginLeft: 6,
-                width:
-                  text!.length > 27
-                    ? imageDimensions - 10
-                    : imageDimensions - 60,
-              }}>
-              <NumberlessLinkText
-                fontSizeType={FontSizeType.m}
-                fontType={FontType.rg}
-                numberOfLines={0}>
-                {text}
-              </NumberlessLinkText>
-            </View>
-            {renderTimeStamp(message)}
-          </View>
+          <MediaTextDisplay text={text} message={message} />
         ) : (
           <LinearGradient
             colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 1)']}
@@ -172,17 +151,10 @@ export const renderDisplay = (
   }
 };
 
-const getBubbleLayoutStyle = (text: string) => {
-  if (text.length > 27) {
-    return styles.imageBubbleColumnContainer;
-  } else {
-    return styles.imageBubbleRowContainer;
-  }
-};
-
 const styles = StyleSheet.create({
-  textBubbleContainer: {
+  imageBubbleContainer: {
     flexDirection: 'column',
+    width: imageDimensions,
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
@@ -199,28 +171,9 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
     justifyContent: 'flex-end',
+    alignItems: 'flex-end',
     paddingBottom: 10,
     paddingRight: 10,
     height: 50,
-  },
-  timestampContainer: {
-    paddingRight: 4,
-    paddingBottom: 10,
-    alignSelf: 'flex-end',
-  },
-  imageBubbleColumnContainer: {
-    paddingTop: 4,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
-    paddingBottom: 6,
-  },
-  imageBubbleRowContainer: {
-    paddingTop: 4,
-    flexDirection: 'row',
-    columnGap: 4,
-    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
-    paddingBottom: 6,
-    justifyContent: 'center',
   },
 });

@@ -1,11 +1,31 @@
-import {toggleRead} from '@utils/Connections';
+import DownArrow from '@assets/icons/GreyArrowDown.svg';
+import {PortColors} from '@components/ComponentUtils';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
-import {checkDateBoundary} from '@utils/Time';
-import React, {ReactNode, useState} from 'react';
-import {FlatList} from 'react-native-bidirectional-infinite-scroll';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {
+  ContentType,
+  MessageStatus,
+  SavedMessageParams,
+  UpdateRequiredMessageContentTypes,
+} from '@utils/Messaging/interfaces';
+import {checkDateBoundary, generateISOTimeStamp} from '@utils/Time';
+import React, {ReactNode, useRef, useState} from 'react';
+import {
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  StyleSheet,
+  ViewToken,
+} from 'react-native';
 import MessageBubble, {isDataMessage} from './MessageBubble';
+
+//An item is considered viewed if it matches the following criteria.
+const viewabilityConfig = {
+  minimumViewTime: 1000,
+  itemVisiblePercentThreshold: 60,
+};
 
 /**
  * Renders an inverted flatlist that displays all chat messages.
@@ -21,21 +41,21 @@ import MessageBubble, {isDataMessage} from './MessageBubble';
  */
 function ChatList({
   messages,
-  allowScrollToTop,
   selectedMessages,
   handlePress,
   handleLongPress,
   handleDownload,
   onStartReached,
+  onEndReached,
   isGroupChat,
   dataHandler,
   chatId,
   setReplyTo,
 }: {
   messages: SavedMessageParams[];
-  allowScrollToTop: boolean;
   selectedMessages: string[];
   onStartReached: any;
+  onEndReached: any;
   handlePress: any;
   handleLongPress: any;
   handleDownload: (x: string) => Promise<void>;
@@ -85,19 +105,91 @@ function ChatList({
   };
   const [swiping, setSwiping] = useState(false);
 
+  //Swiping should be enabled for
+  const minimumThreshold = (messages.length * 77) / 2;
+
+  const onViewableItemsChanged = React.useCallback(
+    ({changed}: {changed: ViewToken[]}) => {
+      //We just need the item that was changed and added in.
+      const message: SavedMessageParams = changed[0].item;
+
+      //If message wasn't sent by us, then it needs to be marked as read (We can't mark our own messages as read)
+      if (
+        !message.sender &&
+        UpdateRequiredMessageContentTypes.includes(message.contentType)
+      ) {
+        //If message wasn't sent by us, it has to be delivered at the least.
+        if (
+          message.messageStatus != undefined &&
+          message.messageStatus === MessageStatus.delivered
+        ) {
+          const sender = new SendMessage(chatId, ContentType.update, {
+            messageIdToBeUpdated: message.messageId,
+            updatedMessageStatus: MessageStatus.read,
+            readAtTimestamp: generateISOTimeStamp(),
+          });
+          sender.send();
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  const viewabilityConfigPairCallbacks = useRef([
+    {viewabilityConfig, onViewableItemsChanged},
+  ]);
+
+  const [showScrollToEnd, setShowScrollToEnd] = useState(false);
+
+  const handleMomentumEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (e.nativeEvent.contentOffset.y === 0) {
+      // do things
+      onEndReached();
+    }
+  };
+
+  const flatlistRef = useRef<any>(null);
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (e.nativeEvent.contentOffset.y > 100) {
+      setShowScrollToEnd(true);
+    } else {
+      setShowScrollToEnd(false);
+    }
+  };
+
+  const onHandlePress = () => {
+    if (flatlistRef.current) {
+      flatlistRef.current.scrollToOffset({animated: true, offset: 0});
+    }
+  };
+
   return (
-    <FlatList
-      scrollEnabled={!swiping}
-      data={messages}
-      renderItem={renderMessage}
-      inverted
-      keyExtractor={message => message.messageId}
-      enableAutoscrollToTop={allowScrollToTop}
-      onStartReached={async () => {
-        await toggleRead(chatId);
-      }}
-      onEndReached={onStartReached}
-    />
+    <>
+      <FlatList
+        ref={flatlistRef}
+        scrollEnabled={!swiping}
+        data={messages}
+        viewabilityConfigCallbackPairs={viewabilityConfigPairCallbacks.current}
+        renderItem={renderMessage}
+        inverted
+        keyExtractor={message => message.messageId}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 1,
+          autoscrollToTopThreshold: minimumThreshold,
+        }}
+        onScroll={handleScroll}
+        scrollEventThrottle={500}
+        onMomentumScrollEnd={handleMomentumEnd}
+        onEndReached={onStartReached}
+      />
+      {showScrollToEnd && (
+        <Pressable style={styles.handleStyle} onPress={onHandlePress}>
+          <DownArrow />
+        </Pressable>
+      )}
+    </>
   );
 }
 
@@ -125,6 +217,22 @@ const determineSpacing = (
 };
 
 export default ChatList;
+
+const styles = StyleSheet.create({
+  handleStyle: {
+    height: 50,
+    width: 50,
+    position: 'absolute',
+    bottom: 70,
+    zIndex: 10,
+    right: 0,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: PortColors.primary.blue.app,
+  },
+});
 
 // memo(ChatList, (prevProps, nextProps) => {
 //   return (

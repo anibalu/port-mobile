@@ -146,7 +146,7 @@ export async function acceptPortBundle(
       const message = await getMessage(fromChatId, messsageId);
       if (message) {
         const update = message.data as ContactBundleParams;
-        update.accepeted = true;
+        update.accepted = true;
         await updateMessage(fromChatId, messsageId, update);
       }
     }
@@ -191,7 +191,7 @@ export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
       const message = await getMessage(fromChatId, messsageId);
       if (message) {
         const update = message.data as ContactBundleParams;
-        (update.accepeted = true), (update.goToChatId = chat.getChatId());
+        (update.accepted = true), (update.goToChatId = chat.getChatId());
         await updateMessage(fromChatId, messsageId, update);
       }
     }

@@ -1,6 +1,7 @@
 import React, {ReactNode, memo, useEffect, useRef, useState} from 'react';
 
 import DefaultImage from '@assets/avatars/avatar.png';
+
 import {PortColors, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
@@ -238,9 +239,9 @@ const MessageBubble = ({
                */}
               <View
                 style={StyleSheet.compose(initialBlobType, {
-                  paddingTop: isLargeData ? 4 : 10,
-                  paddingHorizontal: isLargeData ? 4 : 10,
-                  paddingBottom: isLargeData ? 2 : 10,
+                  paddingTop: isLargeData ? 4 : 8,
+                  paddingHorizontal: isLargeData ? 4 : 8,
+                  paddingBottom: isLargeData ? 2 : 8,
                 })}>
                 {renderBubbleType(
                   message,
@@ -547,7 +548,6 @@ export default memo(MessageBubble, (prevProps, nextProps) => {
       (nextProps.message.data as LargeDataParams).previewUri &&
     prevProps.isGroupChat === nextProps.isGroupChat &&
     prevProps.selected === nextProps.selected &&
-    prevProps.message.memberId === nextProps.message.memberId &&
     prevProps.isDateBoundary === nextProps.isDateBoundary &&
     prevProps.hasExtraPadding === nextProps.hasExtraPadding
   );

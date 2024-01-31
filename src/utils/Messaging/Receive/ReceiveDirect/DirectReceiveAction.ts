@@ -1,14 +1,18 @@
 import store from '@store/appStore';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
+  ContentType,
   DataType,
   LargeDataMessageContentTypes,
   LargeDataParams,
   MessageStatus,
   PayloadMessageParams,
   SavedMessageParams,
+  UpdateRequiredMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import {saveNewMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
+import {generateISOTimeStamp} from '@utils/Time';
 
 class DirectReceiveAction {
   protected message: any;
@@ -64,6 +68,20 @@ class DirectReceiveAction {
       type: 'NEW_RECEIVED_MESSAGE',
       payload: savedMessage,
     });
+    //All messages do not need to have their status updated.
+    if (
+      UpdateRequiredMessageContentTypes.includes(
+        this.decryptedMessageContent.contentType,
+      )
+    ) {
+      const sender = new SendMessage(this.chatId, ContentType.update, {
+        messageIdToBeUpdated: this.decryptedMessageContent.messageId,
+        updatedMessageStatus: MessageStatus.delivered,
+        deliveredAtTimestamp: generateISOTimeStamp(),
+      });
+      await sender.send();
+      console.log('Delivered message sent');
+    }
   }
 }
 

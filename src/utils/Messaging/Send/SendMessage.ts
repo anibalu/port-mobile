@@ -116,6 +116,7 @@ class SendMessage<T extends ContentType> {
    */
   private async processPayload(shouldEncrypt: boolean): Promise<object> {
     const plaintext = JSON.stringify(this.payload);
+    console.log("We're sending: ", this.payload);
     if (!shouldEncrypt || this.isGroup) {
       return {content: plaintext};
     } else {
@@ -182,7 +183,8 @@ class SendMessage<T extends ContentType> {
   }
 
   private async preProcessMessage(journal: boolean) {
-    if (journal) {
+    //Update messages aren't saved to the DB to prevent unnecessary clutter.
+    if (journal && this.savedMessage.contentType !== ContentType.update) {
       //save message to storage if journaling is on
       await this.saveMessage();
       //preprocesses large data message if message is large data message
@@ -240,8 +242,10 @@ class SendMessage<T extends ContentType> {
 
   //save message to storage
   private async saveMessage() {
-    //save message to storage with "unassigned" sendStatus
+    //save message to storage with "unassigned" messageStatus
+
     await storage.saveMessage(this.savedMessage);
+
     //update redux store that a new message will be sent
     store.dispatch({
       type: 'NEW_SENT_MESSAGE',
@@ -249,7 +253,7 @@ class SendMessage<T extends ContentType> {
     });
   }
 
-  //update message send status
+  //update message send status. Can either be sent or journaled.
   private async updateSendStatus(newSendStatus: MessageStatus) {
     //Large data message cannot be journaled
     if (newSendStatus === MessageStatus.journaled) {
@@ -257,21 +261,27 @@ class SendMessage<T extends ContentType> {
         throw new Error('LargeDataMessageCannotBeJournaled');
       }
     }
+    console.log('Updating send status for sender');
 
+    const msgTimestamp = generateISOTimeStamp();
+    const deliveredAtTimestamp =
+      newSendStatus === MessageStatus.sent ? msgTimestamp : undefined;
     //update send status
     await storage.updateMessageSendStatus(
       this.chatId,
       this.messageId,
       newSendStatus,
+      deliveredAtTimestamp,
     );
-    //update redux store that a new message send status has changed
+    //update redux store that a new message send status has changed.
     store.dispatch({
       type: 'NEW_SEND_STATUS_UPDATE',
       payload: {
         chatId: this.chatId,
         messageId: this.messageId,
         messageStatus: newSendStatus,
-        timestamp: generateISOTimeStamp(),
+        timestamp: msgTimestamp,
+        deliveredTimestamp: deliveredAtTimestamp,
       },
     });
   }

@@ -1,8 +1,13 @@
-import Sending from '@assets/icons/sending.svg';
+import Read from '@assets/icons/statusIndicators/read.svg';
+import Received from '@assets/icons/statusIndicators/received.svg';
+import Sending from '@assets/icons/statusIndicators/sending.svg';
+import Sent from '@assets/icons/statusIndicators/sent.svg';
+
 import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
+  NumberlessLinkText,
   NumberlessText,
 } from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
@@ -17,23 +22,7 @@ export function renderTimeStamp(
   message: SavedMessageParams,
   hasGradient?: boolean,
 ) {
-  if (message.messageStatus === MessageStatus.sent || !message.sender) {
-    return (
-      <NumberlessText
-        fontSizeType={FontSizeType.s}
-        fontType={FontType.rg}
-        textColor={
-          hasGradient
-            ? PortColors.text.primaryWhite
-            : message.sender
-            ? PortColors.text.messageBubble.senderTimestamp
-            : PortColors.text.messageBubble.receiverTimestamp
-        }
-        style={styles.timeStampContainer}>
-        {getTimeStamp(message.timestamp)}
-      </NumberlessText>
-    );
-  } else if (message.messageStatus === MessageStatus.failed) {
+  if (message.messageStatus === MessageStatus.failed) {
     return (
       <NumberlessText
         fontSizeType={FontSizeType.xs}
@@ -46,7 +35,30 @@ export function renderTimeStamp(
   } else {
     return (
       <View style={styles.timeStampContainer}>
-        <Sending />
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.rg}
+          textColor={
+            hasGradient
+              ? PortColors.text.primaryWhite
+              : message.sender
+              ? PortColors.text.messageBubble.senderTimestamp
+              : PortColors.text.messageBubble.receiverTimestamp
+          }>
+          {getTimeStamp(message.timestamp)}
+        </NumberlessText>
+        <View style={{marginLeft: 2, paddingBottom: 1.5}}>
+          {message.sender &&
+            (message.messageStatus === MessageStatus.delivered ? (
+              <Received />
+            ) : message.messageStatus === MessageStatus.sent ? (
+              <Sent />
+            ) : message.messageStatus === MessageStatus.read ? (
+              <Read />
+            ) : (
+              <Sending />
+            ))}
+        </View>
       </View>
     );
   }
@@ -127,14 +139,63 @@ export function renderProfileName(
   );
 }
 
+export const MediaTextDisplay = ({
+  text,
+  message,
+}: {
+  text: string;
+  message: SavedMessageParams;
+}) => {
+  return (
+    <View style={getMediaTextAreaStyle(text)}>
+      <NumberlessLinkText
+        fontSizeType={FontSizeType.m}
+        fontType={FontType.rg}
+        numberOfLines={0}>
+        {text}
+      </NumberlessLinkText>
+      {renderTimeStamp(message)}
+    </View>
+  );
+};
+
+const getMediaTextAreaStyle = (text: string) => {
+  if (text.length > 27) {
+    return styles.bubbleColumnContainer;
+  } else {
+    return styles.bubbleRowContainer;
+  }
+};
+
 const styles = StyleSheet.create({
   timeStampContainer: {
-    flexDirection: 'column',
-    alignSelf: 'flex-end',
+    flexDirection: 'row',
     marginTop: 3,
+
+    alignItems: 'flex-end',
+    alignSelf: 'flex-end',
   },
   mediaReplyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  bubbleColumnContainer: {
+    paddingTop: 4,
+    marginHorizontal: 6,
+    alignSelf: 'stretch',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
+    paddingBottom: 6,
+  },
+  bubbleRowContainer: {
+    paddingTop: 4,
+    flexDirection: 'row',
+    columnGap: 4,
+    alignSelf: 'stretch',
+    justifyContent: 'space-between',
+    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
+    paddingBottom: 6,
+    marginHorizontal: 6,
   },
 });

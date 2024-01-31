@@ -30,6 +30,7 @@ export function MessageActionsBar({
   setReplyTo,
   postDelete,
   onCopy,
+  onInfo,
   onForward,
   isSharedMedia,
 }: {
@@ -38,6 +39,7 @@ export function MessageActionsBar({
   setReplyTo: any;
   postDelete: any;
   onCopy: any;
+  onInfo: () => void;
   onForward: any;
   isSharedMedia?: boolean;
 }): ReactNode {
@@ -148,11 +150,7 @@ export function MessageActionsBar({
           )}
 
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                console.log('info pressed');
-              }}>
+            <Pressable style={styles.optionBox} onPress={onInfo}>
               <Info />
             </Pressable>
             <NumberlessText

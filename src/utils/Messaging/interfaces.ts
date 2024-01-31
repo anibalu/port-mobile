@@ -37,7 +37,18 @@ export enum ContentType {
   initialInfoRequest = 14,
   contactBundleDenialResponse = 15,
   deleted = 16,
+  update = 17,
 }
+
+/**
+ * Determines messages that need to send an acknowledgement on delivery.
+ */
+export const UpdateRequiredMessageContentTypes = [
+  ContentType.text,
+  ContentType.image,
+  ContentType.file,
+  ContentType.video,
+];
 
 export const LargeDataMessageContentTypes = [
   ContentType.image,
@@ -51,6 +62,7 @@ export const DisappearMessageExemptContentTypes = [
   ContentType.handshakeA1,
   ContentType.handshakeB2,
   ContentType.info,
+  ContentType.update,
   ContentType.contactBundle,
   ContentType.contactBundleRequest,
   ContentType.contactBundleResponse,
@@ -125,7 +137,7 @@ export interface InfoParams {
   info: string;
 }
 export interface ContactBundleParams extends PortBundle {
-  accepeted?: boolean;
+  accepted?: boolean;
   goToChatId?: string;
 }
 
@@ -135,6 +147,13 @@ export interface ContactBundleRequestParams {
 export interface ContactBundleResponseParams extends PortBundle {}
 
 export interface ContactBundleDenialResponseParams {}
+
+export interface UpdateParams {
+  messageIdToBeUpdated: string;
+  updatedMessageStatus: MessageStatus;
+  deliveredAtTimestamp?: string;
+  readAtTimestamp?: string;
+}
 
 export interface InitialInfoRequestParams {
   sendName: boolean;
@@ -174,6 +193,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? ContactBundleDenialResponseParams
     : T extends ContentType.initialInfoRequest
     ? InitialInfoRequestParams
+    : T extends ContentType.update
+    ? UpdateParams
     : never;
 
 /**

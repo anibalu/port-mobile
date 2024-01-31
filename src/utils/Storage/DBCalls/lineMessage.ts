@@ -141,7 +141,7 @@ export async function updateStatusAndTimestamp(
     SET
     messageStatus = ?,
     deliveredTimestamp = COALESCE(?, deliveredTimestamp),
-    readTimestamp = COALESCE(?, readTimestamp),
+    readTimestamp = COALESCE(?, readTimestamp)
     WHERE chatId = ? AND messageId = ? ;
     `,
     [messageStatus, deliveredTimestamp, readTimestamp, chatId, messageId],

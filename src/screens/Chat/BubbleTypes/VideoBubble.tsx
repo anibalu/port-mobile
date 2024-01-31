@@ -1,11 +1,6 @@
 import Download from '@assets/icons/Download.svg';
 import Play from '@assets/icons/videoPlay.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessLinkText,
-} from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import React, {ReactNode, useState} from 'react';
@@ -14,6 +9,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {CircleSnail} from 'react-native-progress';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {
+  MediaTextDisplay,
   handleMediaOpen,
   renderProfileName,
   renderTimeStamp,
@@ -82,21 +78,7 @@ export default function VideoBubble({
       )}
 
       {text ? (
-        <View style={getBubbleLayoutStyle(text)}>
-          <View
-            style={{
-              width:
-                text!.length > 27 ? videoDimensions - 10 : videoDimensions - 65,
-            }}>
-            <NumberlessLinkText
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}
-              numberOfLines={0}>
-              {text}
-            </NumberlessLinkText>
-          </View>
-          {renderTimeStamp(message)}
-        </View>
+        <MediaTextDisplay text={text} message={message} />
       ) : (
         <LinearGradient
           colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 1)']}
@@ -163,14 +145,6 @@ const renderDisplay = (
   }
 };
 
-const getBubbleLayoutStyle = (text: string) => {
-  if (text.length > 27) {
-    return styles.videoBubbleColumnContainer;
-  } else {
-    return styles.videoBubbleRowContainer;
-  }
-};
-
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
@@ -187,27 +161,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     backgroundColor: PortColors.primary.black,
   },
-  timestampContainer: {
-    paddingBottom: 10,
-    alignSelf: 'flex-end',
-  },
-  videoBubbleColumnContainer: {
-    paddingTop: 4,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
-    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
-    paddingBottom: 6,
-  },
-  videoBubbleRowContainer: {
-    paddingTop: 4,
-    flexDirection: 'row',
-    columnGap: 4,
-    paddingHorizontal: 6,
-    //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
-    paddingBottom: 6,
-    justifyContent: 'center',
-  },
+
   gradientContainer: {
     position: 'absolute',
     bottom: 4,

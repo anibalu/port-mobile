@@ -26,7 +26,6 @@ export default function TextBubble({
   isOriginalSender?: boolean;
 }) {
   const text = (message.data as TextParams).text;
-
   return (
     <Pressable
       style={styles.textBubbleColumnContainer}

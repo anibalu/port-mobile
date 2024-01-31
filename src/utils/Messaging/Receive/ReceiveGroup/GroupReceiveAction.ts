@@ -1,3 +1,4 @@
+import store from '@store/appStore';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContentType,
@@ -82,6 +83,10 @@ class GroupReceiveAction {
         );
       }
       await storage.saveMessage(savedMessage);
+      store.dispatch({
+        type: 'NEW_RECEIVED_MESSAGE',
+        payload: savedMessage,
+      });
     }
   }
 }

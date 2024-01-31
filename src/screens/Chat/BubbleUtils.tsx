@@ -89,96 +89,43 @@ export function renderProfileName(
   isReply: boolean,
   isOriginalSender?: boolean,
 ) {
-  return (
-    <View style={{alignSelf: 'flex-start', marginBottom: 2}}>
-      {shouldRender ? (
-        isReply && isSender ? (
-          <NumberlessText
-            fontSizeType={FontSizeType.s}
-            fontType={FontType.md}
-            ellipsizeMode="tail"
-            numberOfLines={1}
-            textColor={
-              isOriginalSender
-                ? PortColors.text.title
-                : PortColors.primary.black
-            }>
-            You
-          </NumberlessText>
-        ) : (
-          <NumberlessText
-            fontSizeType={FontSizeType.s}
-            fontType={FontType.md}
-            ellipsizeMode="tail"
-            numberOfLines={1}
-            textColor={
-              isOriginalSender
-                ? PortColors.text.title
-                : PortColors.primary.black
-            }>
-            {name}
-          </NumberlessText>
-        )
-      ) : isSender && isReply ? (
-        <NumberlessText
-          fontSizeType={FontSizeType.s}
-          fontType={FontType.md}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          textColor={PortColors.text.messageBubble.profileName}>
-          You
-        </NumberlessText>
-      ) : (
-        <View />
-      )}
-    </View>
+  return shouldRender ? (
+    isReply && isSender ? (
+      <NumberlessText
+        fontSizeType={FontSizeType.s}
+        fontType={FontType.md}
+        ellipsizeMode="tail"
+        numberOfLines={1}
+        textColor={
+          isOriginalSender ? PortColors.text.title : PortColors.primary.black
+        }>
+        You
+      </NumberlessText>
+    ) : (
+      <NumberlessText
+        fontSizeType={FontSizeType.s}
+        fontType={FontType.md}
+        ellipsizeMode="tail"
+        numberOfLines={1}
+        textColor={
+          isOriginalSender ? PortColors.text.title : PortColors.primary.black
+        }>
+        {name}
+      </NumberlessText>
+    )
+  ) : isSender && isReply ? (
+    <NumberlessText
+      fontSizeType={FontSizeType.s}
+      fontType={FontType.md}
+      numberOfLines={1}
+      ellipsizeMode="tail"
+      textColor={PortColors.text.messageBubble.profileName}>
+      You
+    </NumberlessText>
+  ) : (
+    <View />
   );
 }
-
-/**
- * Handles rendering of both Image and Video reply bubble components.
- * @param memberName
- * @param message
- * @param mediaURI
- * @param type - Video or Image
- * @returns
- */
-export const MediaText = ({
-  memberName,
-  message,
-  text = '',
-  type,
-}: {
-  memberName: string;
-  message: SavedMessageParams;
-  text?: string;
-  type: 'Video' | 'Image';
-}) => {
-  return (
-    <View style={styles.mediaReplyContainer}>
-      <View
-        style={{
-          flexDirection: 'column',
-        }}>
-        {renderProfileName(
-          shouldRenderProfileName(memberName),
-          memberName,
-          message.sender,
-          true,
-          true,
-        )}
-
-        {/* TODO add in text that can was attached to the message */}
-        <NumberlessText
-          numberOfLines={3}
-          fontSizeType={FontSizeType.s}
-          fontType={FontType.rg}>
-          {text || type}
-        </NumberlessText>
-      </View>
-    </View>
-  );
-};
 
 const styles = StyleSheet.create({
   timeStampContainer: {
@@ -189,6 +136,5 @@ const styles = StyleSheet.create({
   mediaReplyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    maxWidth: '70%',
   },
 });

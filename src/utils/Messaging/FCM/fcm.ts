@@ -27,8 +27,8 @@ export const registerBackgroundMessaging = (): void => {
  * Foreground FCM handler, does the same as background.
  */
 export const foregroundMessageHandler = () => {
-  messaging().onMessage(async remoteMessage => {
-    console.log('[NEW FOREGROUND MESSAGE] ', remoteMessage);
+  messaging().onMessage(async _ => {
+    console.log('[NEW FOREGROUND MESSAGE] ');
     await pullBacklog().catch((e: any) => {
       console.log('Error in background message handler: ', e);
       showDefaultNotification();

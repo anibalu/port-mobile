@@ -83,6 +83,12 @@ const MessageBubble = ({
 }: MessageBubbleProps): ReactNode => {
   const positionX = useRef(new Animated.Value(0)).current;
 
+  const isLargeData = LargeDataMessageContentTypes.includes(
+    message.contentType,
+  );
+
+  const isReply = (message.replyId && message.replyId !== '') || false;
+
   const resetPosition = () => {
     Animated.spring(positionX, {
       toValue: 0,
@@ -134,7 +140,7 @@ const MessageBubble = ({
       },
       onPanResponderRelease: (_, gesture) => {
         resetPosition();
-        if (gesture.dx > 100) {
+        if (gesture.dx > 50) {
           performReply();
         }
       },
@@ -150,7 +156,6 @@ const MessageBubble = ({
 
   //Assume that member name is empty, which implies it is the sender themselves
   const [memberName, setMemberName] = useState('');
-  const [blobType, setBlobType] = useState(initialBlobType);
 
   useEffect(() => {
     (async () => {
@@ -173,25 +178,6 @@ const MessageBubble = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (selected.includes(message.messageId)) {
-      setBlobType(
-        selectedMessageBackgroundStylePicker(
-          message.contentType,
-          message.sender,
-        ),
-      );
-    } else {
-      setBlobType(
-        unselectedMessageBackgroundStylePicker(
-          message.contentType,
-          message.sender,
-        ),
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
-
   //Any kind of data bubble shouldn't be replied to
   if (isDataMessage(message.contentType)) {
     return (
@@ -201,7 +187,7 @@ const MessageBubble = ({
           : null}
         <View style={styles.parentContainer}>
           <View style={containerType}>
-            <View style={blobType}>
+            <View style={initialBlobType}>
               {renderBubbleType(
                 message,
                 isGroupChat,
@@ -210,6 +196,7 @@ const MessageBubble = ({
                 handleDownload,
                 memberName,
                 dataHandler,
+                false,
               )}
             </View>
           </View>
@@ -227,9 +214,14 @@ const MessageBubble = ({
           {...panResponder.panHandlers}
           style={{
             transform: [{translateX: constrainedX}],
-            // position.getTranslateTransform(),
           }}>
-          <View style={styles.parentContainer}>
+          <View
+            style={StyleSheet.compose(
+              styles.parentContainer,
+              selected.includes(message.messageId) && {
+                backgroundColor: 'rgba(0, 117, 224, 0.25)',
+              },
+            )}>
             <View style={containerType}>
               {/**
                * Profile image added if message is a received, non-data group message
@@ -240,23 +232,15 @@ const MessageBubble = ({
                   style={styles.displayPicContainer}
                 />
               )}
+
+              {/*
+              Controls rendering of the wrapper that contains information that is displayed by a bubble. Applies to all bubbles
+               */}
               <View
-                style={StyleSheet.compose(blobType, {
-                  paddingTop: LargeDataMessageContentTypes.includes(
-                    message.contentType,
-                  )
-                    ? 2
-                    : 10,
-                  paddingHorizontal: LargeDataMessageContentTypes.includes(
-                    message.contentType,
-                  )
-                    ? 4
-                    : 10,
-                  paddingBottom: LargeDataMessageContentTypes.includes(
-                    message.contentType,
-                  )
-                    ? 2
-                    : 10,
+                style={StyleSheet.compose(initialBlobType, {
+                  paddingTop: isLargeData ? 4 : 10,
+                  paddingHorizontal: isLargeData ? 4 : 10,
+                  paddingBottom: isLargeData ? 2 : 10,
                 })}>
                 {renderBubbleType(
                   message,
@@ -266,6 +250,7 @@ const MessageBubble = ({
                   handleDownload,
                   memberName,
                   dataHandler,
+                  isReply,
                 )}
               </View>
             </View>
@@ -290,7 +275,10 @@ export function isDataMessage(contentType: ContentType) {
 
 /**
  * Decides the styling of the container - data, sender or receiver container and blobs
+ * It also adds padding to elements depending on their conditional render set by `hasExtraPadding`
+ *
  * @param contentType - message content type
+ * @param hasExtraPadding - notifies component about extra padding if any.
  * @param sender - whether message is sent by user
  * @returns {list} - styling
  */
@@ -320,41 +308,12 @@ function initialStylePicker(
       case false:
         return [
           StyleSheet.compose(
-            styles.RecieverContainer,
+            styles.ReceiverContainer,
             hasExtraPadding ? styles.majorSpacing : styles.minorSpacing,
           ),
           styles.ReceiverBlob,
         ];
     }
-  }
-}
-function selectedMessageBackgroundStylePicker(
-  contentType: ContentType,
-  sender: boolean,
-): ViewStyle {
-  if (isDataMessage(contentType)) {
-    return styles.DataBlob;
-  }
-  switch (sender) {
-    case true:
-      return styles.SenderSelectedBlob;
-    case false:
-      return styles.ReceiverSelectedBlob;
-  }
-}
-
-function unselectedMessageBackgroundStylePicker(
-  contentType: ContentType,
-  sender: boolean,
-): ViewStyle {
-  if (isDataMessage(contentType)) {
-    return styles.DataBlob;
-  }
-  switch (sender) {
-    case true:
-      return styles.SenderBlob;
-    case false:
-      return styles.ReceiverBlob;
   }
 }
 
@@ -388,7 +347,6 @@ export const renderDateBoundaryBubble = (
  * @param message
  * @param isGroup
  * @param handlePress
- * @param handleLongPress
  * @param handleDownload
  * @param memberName
  * @param dataHandler
@@ -402,10 +360,11 @@ function renderBubbleType(
   handleDownload: (x: string) => Promise<void>,
   memberName: string = '',
   dataHandler: Group | DirectChat,
+  isReply: boolean,
 ) {
   switch (message.contentType) {
     case ContentType.text: {
-      if (message.replyId && message.replyId !== '') {
+      if (isReply) {
         return (
           <ReplyBubble
             message={message}
@@ -475,11 +434,11 @@ function chooseProfileURI(imageUri: string = ''): string {
 }
 
 const styles = StyleSheet.create({
+  //Styles the whole row of the chat tile.
   parentContainer: {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
   },
   dateContainer: {
     alignItems: 'center',
@@ -490,37 +449,42 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
   },
-
   majorSpacing: {
     marginTop: 8,
   },
   minorSpacing: {
     marginTop: 0,
   },
-
+  //If the bubble is sent by you
   SenderContainer: {
-    flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
-    alignSelf: 'stretch',
     marginRight: 16,
+    flexDirection: 'row',
+    alignSelf: 'stretch',
     marginBottom: 4,
   },
-  RecieverContainer: {
-    flexDirection: 'row',
+
+  //If the bubble is received by you.
+  ReceiverContainer: {
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    alignSelf: 'stretch',
     marginLeft: 16,
+    flexDirection: 'row',
+    alignSelf: 'stretch',
     marginBottom: 4,
   },
+
+  //If bubble is for a data message
   DataContainer: {
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
+    flexDirection: 'column',
     alignSelf: 'stretch',
     marginBottom: 4,
   },
+
+  //Controls bubble style if sent by you
   SenderBlob: {
     backgroundColor: PortColors.primary.messageBubble.sender.blobBackground,
     borderTopLeftRadius: 16,
@@ -530,11 +494,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-
     borderWidth: 0.5,
     borderColor: PortColors.primary.messageBubble.sender.blobBorder,
     maxWidth: '70%',
   },
+
+  //Controls bubble style if received by you
   ReceiverBlob: {
     backgroundColor: PortColors.primary.messageBubble.receiver.blobBackground,
     borderTopLeftRadius: 0,
@@ -548,51 +513,19 @@ const styles = StyleSheet.create({
     borderColor: PortColors.primary.messageBubble.receiver.blobBorder,
     maxWidth: '70%',
   },
+
+  //Controls bubble style for any data bubble
   DataBlob: {
     backgroundColor: PortColors.primary.messageBubble.data.blobBackground,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
+    borderRadius: 16,
     justifyContent: 'flex-start',
-    paddingLeft: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingRight: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderWidth: 0.5,
     borderColor: PortColors.primary.messageBubble.data.blobBorder,
     maxWidth: '70%',
   },
-  SenderSelectedBlob: {
-    backgroundColor: PortColors.primary.messageBubble.selected.blobBackground,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 0,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-    padding: 10,
-    borderWidth: 2,
-    marginRight: 5,
-    borderColor: PortColors.primary.messageBubble.selected.blobBorder,
-    maxWidth: '70%',
-  },
-  ReceiverSelectedBlob: {
-    backgroundColor: PortColors.primary.messageBubble.selected.blobBackground,
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 16,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-    padding: 10,
-    borderWidth: 2,
-    marginLeft: 5,
-    borderColor: PortColors.primary.messageBubble.selected.blobBorder,
-    maxWidth: '70%',
-  },
+
   displayPicContainer: {
     width: 36,
     height: 36,

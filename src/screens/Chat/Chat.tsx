@@ -6,26 +6,13 @@ import {StyleSheet, Vibration} from 'react-native';
 
 import ChatBackground from '@components/ChatBackground';
 import DeleteChatButton from '@components/DeleteChatButton';
-import {
-  DEFAULT_AVATAR,
-  SELECTED_MESSAGES_LIMIT,
-  START_OF_TIME,
-} from '@configs/constants';
+import {DEFAULT_AVATAR, SELECTED_MESSAGES_LIMIT} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import Clipboard from '@react-native-clipboard/clipboard';
 //import store from '@store/appStore';
 import {toggleRead} from '@utils/Connections';
-import {
-  ContentType,
-  LargeDataParams,
-  MessageStatus,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
-import {
-  getLatestMessages,
-  getMessage,
-  readPaginatedMessages,
-} from '@utils/Storage/messages';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {getMessage, readPaginatedMessages} from '@utils/Storage/messages';
 
 import store from '@store/appStore';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
@@ -71,12 +58,7 @@ function Chat({route, navigation}: Props) {
   const {copyingMessageError, messageCopied, mediaDownloadError} =
     useErrorModal();
 
-  const [messages, setMessages] = useState<Array<SavedMessageParams>>([]);
-
-  //Filtered list that only holds messages that can be rendered. This is needed for efficient rendering and UI cohesiveness based on previous message bubbles
-  const [visibleMessages, setVisibleMessages] = useState<
-    Array<SavedMessageParams>
-  >([]);
+  const [messages, setMessages] = useState<SavedMessageParams[]>([]);
 
   //Allows for message auto-scrolling in the list. Set to true as list is INVERTED.
   const [enableAutoscrollToTop, setEnableAutoscrollToTop] = useState(true);
@@ -87,7 +69,7 @@ function Chat({route, navigation}: Props) {
   const [replyToMessage, setReplyToMessage] = useState<SavedMessageParams>();
 
   const latestReceivedMessage: any = useSelector(
-    state => state.latestReceivedMessage.content.data,
+    state => state.latestReceivedMessage.latestReceivedMessage,
   );
   const latestSentMessage: any = useSelector(
     state => state.latestSentMessage.message,
@@ -98,12 +80,6 @@ function Chat({route, navigation}: Props) {
   const latestUpdatedMediaStatus: any = useSelector(
     state => state.latestMessageUpdate.updatedMedia,
   );
-
-  useEffect(() => {
-    setVisibleMessages(
-      messages.filter(item => !shouldNotRender(item.contentType)),
-    );
-  }, [messages]);
 
   //handles toggling the select messages flow.
   const handleMessageBubbleLongPress = (messageId: string): void => {
@@ -224,7 +200,10 @@ function Chat({route, navigation}: Props) {
         debouncedPeriodicOperations();
         //set saved messages
         const resp = await readPaginatedMessages(chatId);
-        setMessages(resp.messages);
+        const cleanedMessages = resp.messages.filter(
+          item => !shouldNotRender(item.contentType),
+        );
+        setMessages(cleanedMessages);
         setCursor(resp.cursor);
 
         //Notifying that initial message load is complete.
@@ -243,108 +222,82 @@ function Chat({route, navigation}: Props) {
     }, []),
   );
 
+  const updateGroup = async () => {
+    if (isGroupChat) {
+      const groupHandler = new Group(chatId);
+      updateChatState({groupInfo: await groupHandler.getData()});
+    }
+  };
+
   //runs every time a new message is recieved.
   useEffect(() => {
-    (async () => {
-      if (isGroupChat) {
-        const groupHandler = new Group(chatId);
-        updateChatState({groupInfo: await groupHandler.getData()});
+    if (chatState.messagesLoaded && latestReceivedMessage) {
+      console.log('[CHAT UPDATE] - New message received');
+      if (!shouldNotRender(latestReceivedMessage.contentType)) {
+        setMessages(oldList => [latestReceivedMessage].concat(oldList));
+      } else {
+        console.log('[CHAT DATA UPDATE] - dropping due to data message');
       }
-      //If messages have been loaded and the check fails, we need to fetch the latest messages only.
-      if (chatState.messagesLoaded) {
-        await addNewMessages();
-      }
-    })();
+    }
+    updateGroup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestReceivedMessage]);
 
-  //Runs every time a message is sent into the queue.
+  //Runs every time a message is sent into the queue. Updates with the last message that was sent to it, instead of fetching from DB everytime
   useEffect(() => {
-    (async () => {
-      if (chatState.messagesLoaded) {
-        await addNewMessages();
+    if (latestSentMessage && chatState.messagesLoaded) {
+      if (!shouldNotRender(latestSentMessage.contentType)) {
+        console.log('[CHAT UPDATE] - New message sent');
+        setMessages(oldList => [latestSentMessage].concat(oldList));
+      } else {
+        console.log('[CHAT DATA UPDATE] - dropping sent message');
       }
-    })();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestSentMessage]);
 
   //Runs every time a sent message's send status is updated.
   useEffect(() => {
-    (async () => {
-      if (chatState.messagesLoaded) {
-        await updateMessages(messages);
-      }
-    })();
+    if (chatState.messagesLoaded && latestUpdatedSendStatus) {
+      console.log('[CHAT UPDATE] - Message status updated');
+      setMessages(oldList => {
+        if (oldList.length > 0) {
+          const idx = oldList.findIndex(
+            item => item.messageId === latestUpdatedSendStatus.messageId,
+          );
+          let msgs = [...oldList];
+          msgs[idx] = {...msgs[idx], ...latestUpdatedSendStatus};
+          return msgs;
+        } else {
+          return oldList;
+        }
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestUpdatedSendStatus]);
 
-  //Runs every time a sent message's media status is updated.
+  //Runs every time a sent message's media status is updated. Updates with the data present inside latestUpdatedMediaStatus
   useEffect(() => {
-    (async () => {
-      if (chatState.messagesLoaded) {
-        await updateMedia(messages);
-      }
-    })();
+    if (chatState.messagesLoaded && latestUpdatedMediaStatus.data) {
+      console.log('[CHAT UPDATE] - Media status updated');
+      setMessages(oldList => {
+        if (oldList.length > 0) {
+          const idx = oldList.findIndex(
+            item => item.messageId === latestUpdatedMediaStatus.messageId,
+          );
+          let msgs = [...oldList];
+          msgs[idx].data = {
+            ...msgs[idx].data,
+            ...latestUpdatedMediaStatus.data,
+          };
+          return msgs;
+        } else {
+          return oldList;
+        }
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestUpdatedMediaStatus]);
-
-  const updateMedia = async (msgs: SavedMessageParams[]): Promise<void> => {
-    const indices: number[] = [];
-    msgs.forEach((element, index) => {
-      if (
-        element.contentType === ContentType.file ||
-        element.contentType === ContentType.video ||
-        element.contentType === ContentType.image
-      ) {
-        indices.push(index);
-      }
-    });
-    for (const i of indices) {
-      const msg = await getMessage(chatId, msgs[i].messageId);
-      if (
-        msg &&
-        (msgs[i].data as LargeDataParams).fileUri !=
-          (msg.data as LargeDataParams).fileUri
-      ) {
-        msgs[i] = msg;
-      }
-    }
-    setMessages([...msgs]);
-  };
-
-  const updateMessages = async (msgs: SavedMessageParams[]): Promise<void> => {
-    const indices: number[] = [];
-    msgs.forEach((element, index) => {
-      if (
-        element.messageStatus !== MessageStatus.sent &&
-        element.messageStatus !== null
-      ) {
-        indices.push(index);
-      }
-    });
-    for (const i of indices) {
-      const msg = await getMessage(chatId, msgs[i].messageId);
-      if (msg) {
-        msgs[i] = msg;
-      }
-    }
-    setMessages([...msgs]);
-  };
-
-  const addNewMessages = async (): Promise<void> => {
-    if (messages.length >= 1) {
-      const messageList = await getLatestMessages(
-        chatId,
-        messages[0].timestamp,
-      );
-      const newList = messageList.concat(messages);
-      await updateMessages(newList);
-    } else {
-      const messageList = await getLatestMessages(chatId, START_OF_TIME);
-      const newList = messageList.concat(messages);
-      await updateMessages(newList);
-    }
-  };
 
   const onStartReached = async (): Promise<void> => {
     const resp = await readPaginatedMessages(chatId, cursor);
@@ -408,7 +361,7 @@ function Chat({route, navigation}: Props) {
         onCancelPressed={onCancelPressed}
       />
       <ChatList
-        messages={visibleMessages}
+        messages={messages}
         setReplyTo={setReplyToMessage}
         chatId={chatId}
         allowScrollToTop={enableAutoscrollToTop}

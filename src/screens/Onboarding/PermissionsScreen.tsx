@@ -2,23 +2,28 @@
  * This screens informs a user of the permissions the App requires.
  * screen id: 2
  */
+import Call from '@assets/icons/call.svg';
+import Notification from '@assets/icons/notificationBell.svg';
 import Next from '@assets/navigation/nextButton.svg';
+import {PortColors, isIOS} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {ReactNode, useEffect} from 'react';
-import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
-import notifee from '@notifee/react-native';
-import Call from '@assets/icons/call.svg';
-import Notification from '@assets/icons/notificationBell.svg';
-import {PortColors} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {GenericButton} from '@components/GenericButton';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
+import notifee from '@notifee/react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {processName} from '@utils/Profile';
+import React, {ReactNode, useEffect} from 'react';
+import {
+  BackHandler,
+  KeyboardAvoidingView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {onboardingStylesheet} from './NameScreen';
 
 type Props = NativeStackScreenProps<
@@ -50,10 +55,10 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
         backgroundColor={PortColors.primary.white}
       />
 
-      <ScrollView
-        style={{backgroundColor: PortColors.primary.white}}
-        contentContainerStyle={onboardingStylesheet.scrollViewContainer}
-        showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView
+        behavior={isIOS ? 'padding' : 'height'}
+        keyboardVerticalOffset={isIOS ? -24 : undefined}
+        style={onboardingStylesheet.scrollViewContainer}>
         <NumberlessText
           fontType={FontType.rg}
           fontSizeType={FontSizeType.xl}
@@ -114,6 +119,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
             </NumberlessText>
           </View>
         </View>
+        <View style={{flex: 1}} />
         <GenericButton
           onPress={async () => {
             // Needed for iOS
@@ -131,7 +137,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
           IconLeft={Next}
           buttonStyle={onboardingStylesheet.nextButtonContainer}
         />
-      </ScrollView>
+      </KeyboardAvoidingView>
     </>
   );
 }

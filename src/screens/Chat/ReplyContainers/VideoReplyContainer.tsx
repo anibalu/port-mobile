@@ -1,3 +1,5 @@
+import VideoIcon from '@assets/icons/Videoicon.svg';
+import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -7,8 +9,6 @@ import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
-import Videoicon from '@assets/icons/Videoicon.svg';
-import {PortColors} from '@components/ComponentUtils';
 
 export default function VideoReplyContainer({
   message,
@@ -39,9 +39,8 @@ export default function VideoReplyContainer({
           fontType={FontType.md}>
           {memberName}
         </NumberlessText>
-        <View
-          style={{flexDirection: 'row', marginTop: 2, alignItems: 'center'}}>
-          <Videoicon style={{marginRight: 4}} />
+        <View style={{flexDirection: 'row', marginTop: 2}}>
+          <VideoIcon style={{marginRight: 4}} />
 
           <NumberlessText
             fontSizeType={FontSizeType.s}

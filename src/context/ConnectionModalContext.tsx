@@ -68,8 +68,8 @@ const ConnectionModalContext = createContext<ModalContextType | undefined>(
   undefined,
 );
 
-const imageRegex = /jpg|jpeg|png|gif|image$/;
-const videoRegex = /mp4|video$/;
+const imageRegex = /jpg|jpeg|png|gif|image|webp$/;
+const videoRegex = /mp4|video|mov$/;
 
 export const useConnectionModal = () => {
   const context = useContext(ConnectionModalContext);
@@ -167,6 +167,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
           isText = true;
           console.log('File received is: ', sharingMessageObjects);
         } else {
+          console.log('File is: ', file);
           const msg = {
             contentType: imageRegex.test(file.mimeType)
               ? ContentType.image

@@ -3,9 +3,7 @@
  */
 
 const initialState = {
-  content: {
-    data: {},
-  },
+  latestReceivedMessage: {},
 };
 
 export default function latestReceivedMessage(
@@ -16,7 +14,7 @@ export default function latestReceivedMessage(
     case 'NEW_RECEIVED_MESSAGE':
       return {
         ...state,
-        content: action.payload,
+        latestReceivedMessage: action.payload,
       };
     default:
       return state;

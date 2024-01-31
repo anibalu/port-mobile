@@ -1,16 +1,17 @@
 import DefaultImage from '@assets/avatars/avatar.png';
 import FileIcon from '@assets/icons/FilesIcon.svg';
-import Send from '@assets/icons/WhiteArrowUp.svg';
-import SendDisabled from '@assets/icons/WhiteArrowUpDisabled.svg';
+import {default as ImageIcon} from '@assets/icons/GalleryIcon.svg';
 import ShareContactIcon from '@assets/icons/ShareContactIcon.svg';
 import VideoIcon from '@assets/icons/VideoBlack.svg';
-import {default as ImageIcon} from '@assets/icons/GalleryIcon.svg';
+import Send from '@assets/icons/WhiteArrowUp.svg';
+import SendDisabled from '@assets/icons/WhiteArrowUpDisabled.svg';
 import Plus from '@assets/icons/plus.svg';
 import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
+  getWeight,
 } from '@components/NumberlessText';
 import {
   ContentType,
@@ -20,13 +21,14 @@ import {
 import {FileAttributes} from '@utils/Storage/interfaces';
 import React, {ReactNode, memo, useEffect, useRef, useState} from 'react';
 import {
+  Animated,
+  Easing,
   Image,
   KeyboardAvoidingView,
   Pressable,
   StyleSheet,
+  TextInput,
   View,
-  Animated,
-  Easing,
   ViewStyle,
 } from 'react-native';
 import DocumentPicker, {
@@ -35,16 +37,15 @@ import DocumentPicker, {
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 
 import {GenericButton} from '@components/GenericButton';
-import GenericInput from '@components/GenericInput';
 import {DEFAULT_NAME} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import Group from '@utils/Groups/Group';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import FileReplyContainer from './ReplyContainers/FileReplyContainer';
 import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
 import TextReplyContainer from './ReplyContainers/TextReplyContainer';
 import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
 /**
@@ -81,6 +82,7 @@ const MessageBar = ({
   const [replyName, setReplyName] = useState<string | null | undefined>(
     DEFAULT_NAME,
   );
+  const inputRef = useRef(null);
 
   const [replyImageUri, setReplyImageURI] = useState(
     Image.resolveAssetSource(DefaultImage).uri,
@@ -93,7 +95,10 @@ const MessageBar = ({
     if (reply?.previewUri) {
       setReplyImageURI(getSafeAbsoluteURI(reply?.previewUri, 'cache'));
     }
-    console.log('Reply to is: ', reply);
+    if (inputRef?.current && replyTo != undefined) {
+      console.log('Calling focus');
+      inputRef.current.focus();
+    }
   }, [replyTo]);
 
   const togglePopUp = (): void => {
@@ -273,95 +278,101 @@ const MessageBar = ({
       behavior={isIOS ? 'padding' : 'height'}
       keyboardVerticalOffset={isIOS ? 50 : undefined}
       style={styles.main}>
-      {replyTo ? (
-        <View style={styles.replyContainerStyle}>
-          <View style={styles.replyTextBackgroundContainer}>
-            {/* Indicator bar for reply */}
-            <View
-              style={{
-                width: 4,
-                borderRadius: 2,
-                alignSelf: 'stretch',
-                backgroundColor: PortColors.primary.blue.app,
-              }}
-            />
-            <View
-              style={{
-                marginLeft: 12,
-                paddingRight: 8,
-                paddingVertical: 8,
-                minHeight: 50,
-                flex: 1,
-              }}>
-              {renderReplyBar(replyTo, replyName, replyImageUri)}
-            </View>
-            {(replyTo.contentType === ContentType.image ||
-              replyTo.contentType === ContentType.video) && (
-              <Image
-                source={{uri: replyImageUri}}
+      <View style={{flexDirection: 'column'}}>
+        {replyTo ? (
+          <View style={styles.replyContainerStyle}>
+            <View style={styles.replyTextBackgroundContainer}>
+              {/* Indicator bar for reply */}
+              <View
                 style={{
-                  height: 65,
-                  width: 70,
-                  borderTopRightRadius: 16,
-                  borderBottomRightRadius: 16,
-                  position: 'absolute',
-                  right: 0,
+                  width: 4,
+                  borderRadius: 2,
+                  alignSelf: 'stretch',
+                  backgroundColor: PortColors.primary.blue.app,
                 }}
               />
-            )}
-          </View>
-          <Pressable
-            onPress={onSend}
-            style={{
-              position: 'absolute',
-              right: 17,
-              top: 16,
-              borderRadius: 12,
-              backgroundColor: '#F2F2F2',
-            }}>
-            <Plus
-              style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
-            />
-          </Pressable>
-        </View>
-      ) : (
-        <></>
-      )}
-
-      <View style={styles.textInputContainer}>
-        <View
-          style={StyleSheet.compose(
-            styles.textInput,
-            replyTo ? {borderTopLeftRadius: 0, borderTopRightRadius: 0} : {},
-          )}>
-          <Animated.View style={[styles.plus, animatedStyle]}>
-            <Pressable onPress={togglePopUp}>
-              <Plus height={24} width={24} />
+              <View
+                style={{
+                  marginLeft: 12,
+                  paddingRight: 8,
+                  paddingVertical: 8,
+                  minHeight: 50,
+                  flex: 1,
+                }}>
+                {renderReplyBar(replyTo, replyName, replyImageUri)}
+              </View>
+              {(replyTo.contentType === ContentType.image ||
+                replyTo.contentType === ContentType.video) && (
+                <Image
+                  source={{uri: replyImageUri}}
+                  style={{
+                    height: 75,
+                    width: 70,
+                    borderTopRightRadius: 16,
+                    borderBottomRightRadius: 16,
+                    position: 'absolute',
+                    right: 0,
+                  }}
+                />
+              )}
+            </View>
+            <Pressable
+              onPress={onSend}
+              style={{
+                position: 'absolute',
+                right: 17,
+                top: 16,
+                borderRadius: 12,
+                backgroundColor: '#F2F2F2',
+              }}>
+              <Plus
+                style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
+              />
             </Pressable>
-          </Animated.View>
-
-          <View style={styles.textBox}>
-            <GenericInput
-              inputStyle={styles.inputText}
-              text={text}
-              size="sm"
-              maxLength={'inf'}
-              multiline={true}
-              setText={onChangeText}
-              placeholder={isFocused ? '' : 'Type your message here'}
-              alignment="left"
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-            />
           </View>
+        ) : (
+          <></>
+        )}
+
+        <View style={styles.textInputContainer}>
+          <View
+            style={StyleSheet.compose(
+              styles.textInput,
+              replyTo ? {borderTopLeftRadius: 0, borderTopRightRadius: 0} : {},
+            )}>
+            <Animated.View style={[styles.plus, animatedStyle]}>
+              <Pressable onPress={togglePopUp}>
+                <Plus height={24} width={24} />
+              </Pressable>
+            </Animated.View>
+
+            <View style={styles.textBox}>
+              <TextInput
+                style={StyleSheet.compose(styles.inputText, {
+                  fontFamily: FontType.rg,
+                  fontSize: FontSizeType.m,
+                  fontWeight: getWeight(FontType.rg),
+                })}
+                ref={inputRef}
+                textAlign="left"
+                placeholder={isFocused ? '' : 'Type your message here'}
+                placeholderTextColor={PortColors.primary.grey.medium}
+                onChangeText={onChangeText}
+                value={text}
+                multiline={true}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+              />
+            </View>
+          </View>
+          <GenericButton
+            disabled={text.length < 0}
+            iconSizeRight={14}
+            buttonStyle={styles.send}
+            IconRight={text.length > 0 ? Send : SendDisabled}
+            onPress={sendText}
+          />
         </View>
-        <GenericButton
-          disabled={text.length < 0}
-          iconSizeRight={14}
-          buttonStyle={styles.send}
-          IconRight={text.length > 0 ? Send : SendDisabled}
-          onPress={sendText}
-        />
       </View>
       {isPopUpVisible && (
         <View style={styles.popUpContainer}>
@@ -487,6 +498,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+
     marginHorizontal: 10,
     paddingBottom: 10,
   },
@@ -502,7 +514,6 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5E5',
     borderRightWidth: 0.5,
     borderLeftWidth: 0.5,
-
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     overflow: 'visible',
@@ -551,7 +562,7 @@ const styles = StyleSheet.create({
     borderRadius: 0,
     justifyContent: 'center',
     backgroundColor: PortColors.primary.white,
-    ...(isIOS && {paddingTop: 10, paddingLeft: 5}),
+    ...(isIOS && {paddingTop: 10, paddingBottom: 10, paddingLeft: 5}),
   },
   optionContainer: {
     flexDirection: 'column',

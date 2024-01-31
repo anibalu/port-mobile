@@ -1,3 +1,4 @@
+import store from '@store/appStore';
 import {
   DataType,
   LargeDataMessageContentTypes,
@@ -59,6 +60,10 @@ class DirectReceiveAction {
       );
     }
     await storage.saveMessage(savedMessage);
+    store.dispatch({
+      type: 'NEW_RECEIVED_MESSAGE',
+      payload: savedMessage,
+    });
   }
 }
 

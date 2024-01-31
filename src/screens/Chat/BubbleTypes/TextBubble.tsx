@@ -3,7 +3,7 @@ import {
   FontType,
   NumberlessLinkText,
 } from '@components/NumberlessText';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import {SavedMessageParams, TextParams} from '@utils/Messaging/interfaces';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {
@@ -17,24 +17,19 @@ export default function TextBubble({
   handlePress,
   handleLongPress,
   memberName,
-  isReply = false,
   isOriginalSender,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
   memberName: string;
-  isReply?: boolean;
   isOriginalSender?: boolean;
 }) {
+  const text = (message.data as TextParams).text;
+
   return (
     <Pressable
-      style={StyleSheet.compose(
-        styles.textBubbleColumnContainer,
-        isReply
-          ? {alignItems: 'flex-start', maxWidth: '95%'}
-          : {alignItems: 'flex-end'},
-      )}
+      style={styles.textBubbleColumnContainer}
       onPress={() => {
         handlePress(message.messageId);
       }}
@@ -45,17 +40,16 @@ export default function TextBubble({
         shouldRenderProfileName(memberName),
         memberName,
         message.sender,
-        isReply,
+        false,
         isOriginalSender,
       )}
-      <View style={getBubbleLayoutStyle(message.data.text || '')}>
+      <View style={getBubbleLayoutStyle(text || '')}>
         <NumberlessLinkText
-          fontSizeType={isReply ? FontSizeType.s : FontSizeType.m}
-          fontType={FontType.rg}
-          numberOfLines={isReply ? 3 : 0}>
-          {message.data.text || ''}
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}>
+          {text || ''}
         </NumberlessLinkText>
-        {!isReply && renderTimeStamp(message)}
+        {renderTimeStamp(message)}
       </View>
     </Pressable>
   );
@@ -73,6 +67,7 @@ const styles = StyleSheet.create({
   textBubbleColumnContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
+    alignItems: 'flex-end',
   },
   textBubbleRowContainer: {
     flexDirection: 'row',

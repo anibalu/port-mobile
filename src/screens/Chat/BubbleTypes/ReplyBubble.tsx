@@ -3,24 +3,21 @@ import {
   FontType,
   NumberlessLinkText,
 } from '@components/NumberlessText';
-import {
-  ContentType,
-  LargeDataParams,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
+import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {getMessage} from '@utils/Storage/messages';
-import React, {useEffect, useState} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import React, {ReactNode, useEffect, useState} from 'react';
+import {Pressable, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
 
 import {PortColors} from '@components/ComponentUtils';
 import {DEFAULT_NAME} from '@configs/constants';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
-import {MediaText, renderTimeStamp} from '../BubbleUtils';
-import DeletedReplyContainer from '../ReplyContainers/DeletedReplyContainer';
-import FileBubble from './FileBubble';
-import TextBubble from './TextBubble';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {renderTimeStamp} from '../BubbleUtils';
+import DeletedReplyBubble from './Reply/DeletedReplyBubble';
+import FileReplyBubble from './Reply/FileReplyBubble';
+import ImageReplyBubble from './Reply/ImageReplyBubble';
+import TextReplyBubble from './Reply/TextReplyBubble';
+import VideoReplyBubble from './Reply/VideoReplyBubble';
 
 /**
  * We get the message that needs to be shown, and the person who sent the message is the memberName.
@@ -45,8 +42,8 @@ const ReplyBubble = ({
 }: {
   message: SavedMessageParams;
   handlePress: any;
-  isGroup: boolean;
   handleLongPress: any;
+  isGroup: boolean;
   dataHandler: Group | DirectChat;
   memberName: string;
 }) => {
@@ -89,135 +86,49 @@ const ReplyBubble = ({
       : ''
     : memberName;
 
-  const getBubble = () => {
+  const getReplyBubble = (): ReactNode => {
     //This local check forces names to be updated when the replyMemberName state changes. Weird bug which requires this to be present
 
     switch (replyMessage.contentType) {
       case ContentType.deleted: {
-        return <DeletedReplyContainer />;
+        return <DeletedReplyBubble />;
       }
       case ContentType.text: {
         return (
-          <TextBubble
+          <TextReplyBubble
             message={replyMessage}
             memberName={displayMemberName}
             handlePress={handlePress}
             handleLongPress={handleLongPress}
-            isReply={true}
             isOriginalSender={message.sender}
           />
         );
       }
       case ContentType.image: {
         return (
-          <View
-            style={{
-              maxWidth: '95%',
-              flexDirection: 'row',
-              marginVertical: -6,
-            }}>
-            <MediaText
-              memberName={memberName}
-              message={message}
-              text={(replyMessage.data as LargeDataParams).text}
-              type="Image"
-            />
-            {(replyMessage.data as LargeDataParams).fileUri != undefined &&
-            (replyMessage.data as LargeDataParams).fileUri != null ? (
-              <Image
-                source={{
-                  uri: getSafeAbsoluteURI(
-                    (replyMessage.data as LargeDataParams).fileUri!,
-                    'doc',
-                  ),
-                }}
-                style={{
-                  height: 75, // Set the maximum height you desire
-                  width: 75, // Set the maximum width you desire
-
-                  borderTopRightRadius: 12,
-                  borderBottomRightRadius: 12,
-
-                  right: -4,
-                }}
-              />
-            ) : (
-              <View
-                style={{
-                  height: 75, // Set the maximum height you desire
-                  width: 75, // Set the maximum width you desire
-
-                  borderTopRightRadius: 12,
-                  borderBottomRightRadius: 12,
-
-                  right: -4,
-                }}
-              />
-            )}
-          </View>
+          <ImageReplyBubble
+            message={replyMessage}
+            memberName={displayMemberName}
+            isOriginalSender={message.sender}
+          />
         );
       }
       case ContentType.file: {
         return (
-          <FileBubble
+          <FileReplyBubble
             message={replyMessage}
             memberName={displayMemberName}
-            handlePress={handlePress}
-            handleDownload={async () => {}}
-            handleLongPress={handleLongPress}
-            isReply={true}
+            isOriginalSender={message.sender}
           />
         );
       }
       case ContentType.video: {
         return (
-          <View
-            style={{
-              maxWidth: '95%',
-              flexDirection: 'row',
-              height: 45,
-              maxHeight: 75,
-              marginVertical: -6,
-            }}>
-            <MediaText
-              memberName={memberName}
-              message={message}
-              text={(replyMessage.data as LargeDataParams).text}
-              type="Video"
-            />
-            {(replyMessage.data as LargeDataParams).previewUri != undefined &&
-            (replyMessage.data as LargeDataParams).previewUri != null ? (
-              <Image
-                source={{
-                  uri: getSafeAbsoluteURI(
-                    (replyMessage.data as LargeDataParams).previewUri!,
-                    'cache',
-                  ),
-                }}
-                style={{
-                  height: 75, // Set the maximum height you desire
-                  width: 75, // Set the maximum width you desire
-
-                  borderTopRightRadius: 12,
-                  borderBottomRightRadius: 12,
-
-                  right: -4,
-                }}
-              />
-            ) : (
-              <View
-                style={{
-                  height: 75, // Set the maximum height you desire
-                  width: 75, // Set the maximum width you desire
-
-                  borderTopRightRadius: 12,
-                  borderBottomRightRadius: 12,
-
-                  right: -4,
-                }}
-              />
-            )}
-          </View>
+          <VideoReplyBubble
+            message={replyMessage}
+            memberName={displayMemberName}
+            isOriginalSender={message.sender}
+          />
         );
       }
       default: {
@@ -225,36 +136,37 @@ const ReplyBubble = ({
     }
   };
 
+  const replyText = replyMessage?.data?.text ? replyMessage.data.text : '';
+
   return (
     <Pressable
-      style={styles.textBubbleContainer}
+      style={StyleSheet.compose(
+        styles.textBubbleContainer,
+        replyMessage.contentType === ContentType.video ||
+          replyMessage.contentType === ContentType.image
+          ? getMinimumMediaBubbleWidth(replyText)
+          : {},
+      )}
       onPress={() => handlePress(message.messageId)}
       onLongPress={() => handleLongPress(message.messageId)}>
+      {/*  Bubbles are responsible for their positioning inside the parent. Parent has no padding or default styling */}
       <View
         style={message.sender ? styles.receiverBubble : styles.senderBubble}>
         <View style={styles.receiverLine} />
-        <View
-          style={{
-            paddingHorizontal: 5,
-            paddingVertical: 7,
-          }}>
-          {getBubble()}
-        </View>
+
+        {getReplyBubble()}
       </View>
 
       {/* TODO add reply bubbles for other data types */}
-      <View
-        style={{
-          marginHorizontal: 4,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          gap: 4,
-        }}>
+      <View style={getBubbleLayoutStyle(message.data.text || '')}>
         <NumberlessLinkText
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}>
-          {message.data.text}
+          {message.data.text || ''}
         </NumberlessLinkText>
+
+        {message.data.text.length < 27 && <View style={{flex: 1}} />}
+
         {renderTimeStamp(message)}
       </View>
     </Pressable>
@@ -263,33 +175,58 @@ const ReplyBubble = ({
 
 export default ReplyBubble;
 
+const getBubbleLayoutStyle = (text: string) => {
+  if (text.length > 27) {
+    return styles.textBubbleColumnContainer;
+  } else {
+    return styles.textBubbleRowContainer;
+  }
+};
+
+const getMinimumMediaBubbleWidth = (text: string): StyleProp<ViewStyle> => {
+  if (text.length > 16) {
+    return {minWidth: '100%'};
+  } else if (text.length == 0) {
+    return {minWidth: '50%'};
+  } else {
+    return {minWidth: '70%'};
+  }
+};
+
 const styles = StyleSheet.create({
   textBubbleContainer: {
     flexDirection: 'column',
-    marginHorizontal: -4,
-    marginTop: -4,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  textBubbleColumnContainer: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  textBubbleRowContainer: {
+    flexDirection: 'row',
+    columnGap: 4,
+    justifyContent: 'flex-end',
   },
   receiverLine: {
     width: 4,
     backgroundColor: PortColors.primary.blue.app,
     borderRadius: 2,
-    marginRight: 8,
   },
   receiverBubble: {
     backgroundColor: '#B7B6B64D',
-
     marginBottom: 4,
     overflow: 'hidden',
-    alignSelf: 'stretch',
+    width: '100%',
     borderRadius: 10,
     flexDirection: 'row',
   },
   senderBubble: {
     backgroundColor: '#AFCCE4',
-
     overflow: 'hidden',
     marginBottom: 4,
-    alignSelf: 'stretch',
+    width: '100%',
     borderRadius: 10,
     flexDirection: 'row',
   },

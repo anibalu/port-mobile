@@ -1,4 +1,3 @@
-import store from '@store/appStore';
 import ReceiveDirectMessage from './ReceiveDirect/ReceiveDirectMessage';
 import ReceiveGroupMessage from './ReceiveGroup/ReceiveGroupMessage';
 
@@ -64,10 +63,6 @@ class ReceiveMessage {
         );
         await receiver.receive();
       }
-      store.dispatch({
-        type: 'NEW_RECEIVED_MESSAGE',
-        payload: {data: this.message},
-      });
     } catch (error) {
       console.log('Error receiving message: ', error);
     }

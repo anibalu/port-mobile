@@ -38,14 +38,15 @@ export default function ImageBubble({
 }) {
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   const {mediaDownloadError} = useErrorModal();
-  const handleLongPressFunction = () => {
-    handleLongPress(message.messageId);
-  };
 
   const triggerDownload = async () => {
     setStartedManualDownload(true);
     await handleDownload(message.messageId);
     setStartedManualDownload(false);
+  };
+
+  const handleLongPressFunction = () => {
+    handleLongPress(message.messageId);
   };
 
   const handlePressFunction = () => {
@@ -87,10 +88,11 @@ export default function ImageBubble({
           <View style={getBubbleLayoutStyle(text)}>
             <View
               style={{
+                marginLeft: 6,
                 width:
                   text!.length > 27
-                    ? imageDimensions - 15
-                    : imageDimensions - 55,
+                    ? imageDimensions - 10
+                    : imageDimensions - 60,
               }}>
               <NumberlessLinkText
                 fontSizeType={FontSizeType.m}
@@ -208,7 +210,6 @@ const styles = StyleSheet.create({
   },
   imageBubbleColumnContainer: {
     paddingTop: 4,
-    paddingLeft: 6,
     flexDirection: 'column',
     justifyContent: 'center',
     //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx
@@ -216,7 +217,6 @@ const styles = StyleSheet.create({
   },
   imageBubbleRowContainer: {
     paddingTop: 4,
-    paddingLeft: 6,
     flexDirection: 'row',
     columnGap: 4,
     //Padding bottom is less, as item has additonal wrapping for it inside messageBubble.tsx

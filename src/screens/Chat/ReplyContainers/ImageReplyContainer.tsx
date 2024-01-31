@@ -39,8 +39,7 @@ export default function ImageReplyContainer({
           numberOfLines={1}>
           {memberName}
         </NumberlessText>
-        <View
-          style={{flexDirection: 'row', marginTop: 2, alignItems: 'center'}}>
+        <View style={{flexDirection: 'row', marginTop: 2}}>
           <Gallery style={{marginRight: 2}} height={16} width={16} />
           <NumberlessText
             fontSizeType={FontSizeType.s}

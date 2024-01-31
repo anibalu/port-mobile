@@ -39,9 +39,6 @@ export default function VideoBubble({
 }): ReactNode {
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   const {mediaDownloadError} = useErrorModal();
-  const handleLongPressFunction = (): void => {
-    handleLongPress(message.messageId);
-  };
 
   const triggerDownload = async () => {
     setStartedManualDownload(true);
@@ -66,7 +63,7 @@ export default function VideoBubble({
     <Pressable
       style={styles.textBubbleContainer}
       onPress={handlePressFunction}
-      onLongPress={handleLongPressFunction}>
+      onLongPress={handleLongPress}>
       {renderProfileName(
         shouldRenderProfileName(memberName),
         memberName,

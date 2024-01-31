@@ -245,7 +245,7 @@ class SendMessage<T extends ContentType> {
     //update redux store that a new message will be sent
     store.dispatch({
       type: 'NEW_SENT_MESSAGE',
-      payload: this.payload,
+      payload: this.savedMessage,
     });
   }
 
@@ -270,7 +270,7 @@ class SendMessage<T extends ContentType> {
       payload: {
         chatId: this.chatId,
         messageId: this.messageId,
-        sendStatus: newSendStatus,
+        messageStatus: newSendStatus,
         timestamp: generateISOTimeStamp(),
       },
     });

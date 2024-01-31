@@ -57,6 +57,14 @@ export const DisappearMessageExemptContentTypes = [
   ContentType.initialInfoRequest,
   ContentType.contactBundleDenialResponse,
 ];
+
+export const SelectableMessageContentTypes = [
+  ContentType.text,
+  ContentType.image,
+  ContentType.file,
+  ContentType.video,
+];
+
 /**
  * Data interfaces corresponding to various content types.
  */

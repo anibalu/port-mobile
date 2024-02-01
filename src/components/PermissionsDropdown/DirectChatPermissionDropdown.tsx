@@ -30,7 +30,6 @@ import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
 import {saveMessage} from '@utils/Storage/messages';
-import {SaveButton} from '@components/SaveButton';
 
 export default function DirectChatPermissionDropdown(props: {
   bold: boolean;
@@ -38,7 +37,7 @@ export default function DirectChatPermissionDropdown(props: {
 }) {
   const chatId = props.chatId;
   const isBold = props.bold;
-  const [showPermissions, setShowPermissions] = useState(false);
+  const [showPermissions, setShowPermissions] = useState(true);
   const [permissionsObj, setPermissionsObj] = useState<DirectPermissions>(
     getDefaultPermissions(ChatType.direct),
   );
@@ -79,6 +78,24 @@ export default function DirectChatPermissionDropdown(props: {
     await saveMessage(savedMessage);
   };
 
+  useEffect(() => {
+    (async () => {
+      if (!deepEqual(permissionsObj, modifiedPreset)) {
+        await updateChatPermissions(chatId, {
+          ...modifiedPreset,
+        });
+        setPermissionsObj({...modifiedPreset});
+        if (
+          modifiedPreset?.disappearingMessages !== 0 &&
+          modifiedPreset?.disappearingMessages !==
+            permissionsObj.disappearingMessages
+        ) {
+          await sendInfoMessage();
+        }
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permissionsObj, modifiedPreset, deepEqual]);
   return (
     <View style={styles.permissionDropDown}>
       <Pressable
@@ -116,27 +133,6 @@ export default function DirectChatPermissionDropdown(props: {
             preset={modifiedPreset}
             setIsDisappearClicked={setIsDisappearClicked}
             setModifiedPreset={setModifiedPreset}
-          />
-          <SaveButton
-            disabled={deepEqual(permissionsObj, modifiedPreset)}
-            style={
-              deepEqual(permissionsObj, modifiedPreset)
-                ? styles.disabled
-                : styles.save
-            }
-            onPress={async () => {
-              await updateChatPermissions(chatId, {
-                ...modifiedPreset,
-              });
-              setPermissionsObj({...modifiedPreset});
-              if (
-                modifiedPreset?.disappearingMessages !== 0 &&
-                modifiedPreset?.disappearingMessages !==
-                  permissionsObj.disappearingMessages
-              ) {
-                await sendInfoMessage();
-              }
-            }}
           />
         </View>
       ) : (

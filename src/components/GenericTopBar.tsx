@@ -50,8 +50,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 8,
     backgroundColor: PortColors.primary.white,
-    borderBottomColor: '#EEE',
-    borderBottomWidth: 0.5,
     height: 56,
   },
   backIcon: {

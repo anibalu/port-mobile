@@ -276,10 +276,10 @@ const MessageBar = ({
   return (
     <KeyboardAvoidingView
       behavior={isIOS ? 'padding' : 'height'}
-      keyboardVerticalOffset={isIOS ? 50 : undefined}
+      keyboardVerticalOffset={50}
       style={styles.main}>
       <View style={{flexDirection: 'column'}}>
-        {replyTo ? (
+        {replyTo && (
           <View style={styles.replyContainerStyle}>
             <View style={styles.replyTextBackgroundContainer}>
               {/* Indicator bar for reply */}
@@ -330,8 +330,6 @@ const MessageBar = ({
               />
             </Pressable>
           </View>
-        ) : (
-          <></>
         )}
 
         <View style={styles.textInputContainer}>

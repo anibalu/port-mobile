@@ -348,11 +348,7 @@ const MessageBar = ({
 
             <View style={styles.textBox}>
               <TextInput
-                style={StyleSheet.compose(styles.inputText, {
-                  fontFamily: FontType.rg,
-                  fontSize: FontSizeType.m,
-                  fontWeight: getWeight(FontType.rg),
-                })}
+                style={styles.inputText}
                 ref={inputRef}
                 textAlign="left"
                 multiline
@@ -373,58 +369,58 @@ const MessageBar = ({
             onPress={sendText}
           />
         </View>
-      </View>
-      {isPopUpVisible && (
-        <View style={styles.popUpContainer}>
-          <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onImagePressed}>
-              <ImageIcon />
-            </Pressable>
-            <NumberlessText
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Images
-            </NumberlessText>
-          </View>
-          <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onVideoPressed}>
-              <VideoIcon />
-            </Pressable>
-            <NumberlessText
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Videos
-            </NumberlessText>
-          </View>
-          <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onFilePressed}>
-              <FileIcon />
-            </Pressable>
-            <NumberlessText
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Files
-            </NumberlessText>
-          </View>
-          {!isGroupChat && (
+        {isPopUpVisible && (
+          <View style={styles.popUpContainer}>
             <View style={styles.optionContainer}>
-              <Pressable
-                style={styles.optionBox}
-                onPress={() => {
-                  navigation.navigate('ShareContact', {chatId: chatId});
-                }}>
-                <ShareContactIcon />
+              <Pressable style={styles.optionBox} onPress={onImagePressed}>
+                <ImageIcon />
               </Pressable>
               <NumberlessText
                 fontSizeType={FontSizeType.s}
-                style={{textAlign: 'center'}}
                 fontType={FontType.rg}>
-                Contact
+                Images
               </NumberlessText>
             </View>
-          )}
-        </View>
-      )}
+            <View style={styles.optionContainer}>
+              <Pressable style={styles.optionBox} onPress={onVideoPressed}>
+                <VideoIcon />
+              </Pressable>
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                Videos
+              </NumberlessText>
+            </View>
+            <View style={styles.optionContainer}>
+              <Pressable style={styles.optionBox} onPress={onFilePressed}>
+                <FileIcon />
+              </Pressable>
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                Files
+              </NumberlessText>
+            </View>
+            {!isGroupChat && (
+              <View style={styles.optionContainer}>
+                <Pressable
+                  style={styles.optionBox}
+                  onPress={() => {
+                    navigation.navigate('ShareContact', {chatId: chatId});
+                  }}>
+                  <ShareContactIcon />
+                </Pressable>
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  style={{textAlign: 'center'}}
+                  fontType={FontType.rg}>
+                  Contact
+                </NumberlessText>
+              </View>
+            )}
+          </View>
+        )}
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -498,7 +494,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-
     marginHorizontal: 10,
     paddingBottom: 10,
   },
@@ -510,10 +505,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    borderTopWidth: 0.5,
-    borderColor: '#E5E5E5',
-    borderRightWidth: 0.5,
-    borderLeftWidth: 0.5,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     overflow: 'visible',
@@ -523,9 +514,6 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
     borderRadius: 24,
-    borderWidth: 0.5,
-    borderTopWidth: 0,
-    borderColor: '#E5E5E5',
   },
   plus: {
     width: 48,
@@ -563,6 +551,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: PortColors.primary.white,
     ...(isIOS && {paddingTop: 10, paddingBottom: 10, paddingLeft: 5}),
+
+    fontFamily: FontType.rg,
+    fontSize: FontSizeType.m,
+    fontWeight: getWeight(FontType.rg),
   },
   optionContainer: {
     flexDirection: 'column',

@@ -25,6 +25,7 @@ import {
   PayloadMessageParams,
   SavedMessageParams,
   TextParams,
+  UpdateParams,
 } from '../interfaces';
 import * as API from './APICalls';
 import {getChatPermissions} from '@utils/ChatPermissions';
@@ -116,7 +117,6 @@ class SendMessage<T extends ContentType> {
    */
   private async processPayload(shouldEncrypt: boolean): Promise<object> {
     const plaintext = JSON.stringify(this.payload);
-    console.log("We're sending: ", this.payload);
     if (!shouldEncrypt || this.isGroup) {
       return {content: plaintext};
     } else {
@@ -261,29 +261,50 @@ class SendMessage<T extends ContentType> {
         throw new Error('LargeDataMessageCannotBeJournaled');
       }
     }
-    console.log('Updating send status for sender');
-
     const msgTimestamp = generateISOTimeStamp();
-    const deliveredAtTimestamp =
-      newSendStatus === MessageStatus.sent ? msgTimestamp : undefined;
-    //update send status
-    await storage.updateMessageSendStatus(
-      this.chatId,
-      this.messageId,
-      newSendStatus,
-      deliveredAtTimestamp,
-    );
-    //update redux store that a new message send status has changed.
-    store.dispatch({
-      type: 'NEW_SEND_STATUS_UPDATE',
-      payload: {
-        chatId: this.chatId,
-        messageId: this.messageId,
-        messageStatus: newSendStatus,
-        timestamp: msgTimestamp,
-        deliveredTimestamp: deliveredAtTimestamp,
-      },
-    });
+
+    // If we send an update message, we need to update the data of the message that we are updating.
+    if (this.contentType === ContentType.update) {
+      const deliveredAtTimestamp =
+        newSendStatus === MessageStatus.sent ? msgTimestamp : undefined;
+      await storage.updateMessageSendStatus(
+        this.chatId,
+        (this.data as UpdateParams).messageIdToBeUpdated,
+        (this.data as UpdateParams).updatedMessageStatus,
+        deliveredAtTimestamp,
+        undefined,
+        (this.data as UpdateParams).shouldAck,
+      );
+      //update redux store that a new message send status has changed.
+      store.dispatch({
+        type: 'NEW_SEND_STATUS_UPDATE',
+        payload: {
+          chatId: this.chatId,
+          messageId: (this.data as UpdateParams).messageIdToBeUpdated,
+          messageStatus: (this.data as UpdateParams).updatedMessageStatus,
+          timestamp: msgTimestamp,
+          deliveredTimestamp: deliveredAtTimestamp,
+          shouldAck: (this.data as UpdateParams).shouldAck,
+        },
+      });
+    } else {
+      //update send status
+      await storage.updateMessageSendStatus(
+        this.chatId,
+        this.messageId,
+        newSendStatus,
+      );
+      //update redux store that a new message send status has changed.
+      store.dispatch({
+        type: 'NEW_SEND_STATUS_UPDATE',
+        payload: {
+          chatId: this.chatId,
+          messageId: this.messageId,
+          messageStatus: newSendStatus,
+          timestamp: msgTimestamp,
+        },
+      });
+    }
   }
 
   //update message connection info based on send operation

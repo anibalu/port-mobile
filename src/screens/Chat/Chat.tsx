@@ -1,7 +1,7 @@
 import {SafeAreaView} from '@components/SafeAreaView';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {StyleSheet, Vibration} from 'react-native';
 
 import ChatBackground from '@components/ChatBackground';
@@ -37,6 +37,8 @@ export enum SelectedMessagesSize {
  * @returns Component for rendered chat window
  */
 function Chat({route, navigation}: Props) {
+  console.log('Re-rendered chat ');
+
   //gets lineId of chat
   const {chatId, isGroupChat, isConnected, profileUri} = route.params;
 
@@ -126,7 +128,7 @@ function Chat({route, navigation}: Props) {
     setSelectedMessages([]);
   };
 
-  const onCopy = useCallback(async () => {
+  const onCopy = async () => {
     let copyString = '';
     messageCopied();
     for (const message of selectedMessages) {
@@ -144,15 +146,7 @@ function Chat({route, navigation}: Props) {
       }
     }
     Clipboard.setString(copyString);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    selectedMessages,
-    chatState,
-    chatId,
-    messageCopied,
-    dataHandler,
-    isGroupChat,
-  ]);
+  };
 
   const onForward = () => {
     navigation.navigate('ForwardToContact', {
@@ -220,8 +214,7 @@ function Chat({route, navigation}: Props) {
           payload: undefined,
         });
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
+    }, [chatId, dataHandler, isGroupChat]),
   );
 
   const updateGroup = async () => {
@@ -447,4 +440,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Chat;
+export default memo(Chat, (prevProps, nextProps) => {
+  return (
+    prevProps.route.params.chatId === nextProps.route.params.chatId &&
+    prevProps.route.params.isGroupChat === nextProps.route.params.isGroupChat &&
+    prevProps.route.params.isConnected === nextProps.route.params.isConnected &&
+    prevProps.route.params.profileUri === nextProps.route.params.profileUri
+  );
+});

@@ -18,13 +18,14 @@ class ReceiveUpdate extends DirectReceiveAction {
   //update message send status for the given message
   async updateSendStatus(updateParams: UpdateParams) {
     //update send status
-    console.log('Receiving send status');
+
     storage.updateMessageSendStatus(
       this.chatId,
       updateParams.messageIdToBeUpdated,
       updateParams.updatedMessageStatus,
       updateParams.deliveredAtTimestamp,
       updateParams.readAtTimestamp,
+      updateParams.shouldAck,
     );
     console.log('Updating message status for ContentType.update');
     //update redux store that a new message send status has changed
@@ -37,6 +38,7 @@ class ReceiveUpdate extends DirectReceiveAction {
         deliveredTimestamp: updateParams.deliveredAtTimestamp,
         readTimestamp: updateParams.readAtTimestamp,
         timestamp: generateISOTimeStamp(),
+        shouldAck: updateParams.shouldAck,
       },
     });
   }

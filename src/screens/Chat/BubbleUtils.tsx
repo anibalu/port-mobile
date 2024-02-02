@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   timeStampContainer: {
     flexDirection: 'row',
     marginTop: 3,
-
+    marginLeft: 4,
     alignItems: 'flex-end',
     alignSelf: 'flex-end',
   },

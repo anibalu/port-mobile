@@ -401,6 +401,8 @@ PODS:
     - React-Core
   - react-native-image-picker (5.7.0):
     - React-Core
+  - react-native-netinfo (11.2.1):
+    - React-Core
   - react-native-numberless-crypto (0.1.25):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
@@ -600,6 +602,7 @@ DEPENDENCIES:
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-encrypted-storage (from `../node_modules/react-native-encrypted-storage`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - "react-native-numberless-crypto (from `../node_modules/@numberless/react-native-numberless-crypto`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
@@ -714,6 +717,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-encrypted-storage"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-numberless-crypto:
     :path: "../node_modules/@numberless/react-native-numberless-crypto"
   react-native-pager-view:
@@ -835,6 +840,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: b4f4a23b73f864ce17965b284c0757648993805b
   react-native-encrypted-storage: db300a3f2f0aba1e818417c1c0a6be549038deb7
   react-native-image-picker: 3269f75c251cdcd61ab51b911dd30d6fff8c6169
+  react-native-netinfo: 8a7fd3f7130ef4ad2fb4276d5c9f8d3f28d2df3d
   react-native-numberless-crypto: 53df0971b95975ff6f951979a5d04cb030c1f649
   react-native-pager-view: e26d35e382d86950c936f8917e3beb9188115ccc
   react-native-pdf: 79aa75e39a80c1d45ffe58aa500f3cf08f267a2e

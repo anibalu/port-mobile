@@ -8,6 +8,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import {PortColors} from '@components/ComponentUtils';
 
 /**
  * @param message, message object
@@ -16,7 +17,10 @@ import {SavedMessageParams} from '@utils/Messaging/interfaces';
 export default function InfoBubble(message: SavedMessageParams): ReactNode {
   return (
     <Pressable style={styles.textBubbleContainer}>
-      <NumberlessText fontSizeType={FontSizeType.s} fontType={FontType.rg}>
+      <NumberlessText
+        fontSizeType={FontSizeType.s}
+        fontType={FontType.rg}
+        textColor={PortColors.text.messageBubble.infoText}>
         {message.data.info.toString()}
       </NumberlessText>
     </Pressable>

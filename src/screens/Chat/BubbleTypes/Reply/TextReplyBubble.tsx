@@ -14,24 +14,26 @@ import {Pressable, StyleSheet} from 'react-native';
 // Returns a text bubble to be wrapped inside the ReplyBubble. Only contains the reply message inside it.
 export default function TextReplyBubble({
   message,
+  repliedText,
   handlePress,
   handleLongPress,
   memberName,
   isOriginalSender,
 }: {
   message: SavedMessageParams;
+  repliedText: string;
   handlePress: any;
   handleLongPress: any;
   memberName: string;
   isOriginalSender?: boolean;
 }) {
-  const text = (message.data as TextParams).text;
+  const replyText = (message.data as TextParams).text;
   return (
     <Pressable
       style={StyleSheet.compose(
         styles.textReplyContainer,
         //Controls the limit of when the bubble should expand to match the container inside
-        text.length < 6 && {flex: 1},
+        replyText.length - 8 < repliedText.length && {flex: 1},
       )}
       onPress={() => {
         handlePress(message.messageId);
@@ -51,7 +53,7 @@ export default function TextReplyBubble({
         fontSizeType={FontSizeType.s}
         fontType={FontType.rg}
         numberOfLines={3}>
-        {text || ''}
+        {replyText || ''}
       </NumberlessLinkText>
     </Pressable>
   );

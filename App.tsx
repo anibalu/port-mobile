@@ -17,14 +17,15 @@ import {loadConnectionsToStore} from '@utils/Connections';
 import {checkProfileCreated} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 
-import {AppState} from 'react-native';
-import BootSplash from 'react-native-bootsplash';
-import Toast from 'react-native-toast-message';
-import {ErrorModalProvider} from 'src/context/ErrorModalContext';
+import {addEventListener} from '@react-native-community/netinfo';
 import {
   debouncedBtFOperations,
   debouncedPeriodicOperations,
 } from '@utils/AppOperations';
+import {AppState} from 'react-native';
+import BootSplash from 'react-native-bootsplash';
+import Toast from 'react-native-toast-message';
+import {ErrorModalProvider} from 'src/context/ErrorModalContext';
 
 // import DeviceInfo from 'react-native-device-info';
 
@@ -70,8 +71,17 @@ function App(): JSX.Element {
       appState.current = nextAppState;
     });
 
+    // Detects app going online-offline.
+    const unsubscribe = addEventListener(state => {
+      //Performs operation if the app is connected to any valid network (might not have internet access though)
+      if (state.isConnected) {
+        debouncedPeriodicOperations();
+      }
+    });
+
     return () => {
       subscription.remove();
+      unsubscribe();
     };
   }, []);
 

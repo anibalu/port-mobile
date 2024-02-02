@@ -86,7 +86,7 @@ const ReplyBubble = ({
       : ''
     : memberName;
 
-  const getReplyBubble = (): ReactNode => {
+  const ReplyBubble = (): ReactNode => {
     //This local check forces names to be updated when the replyMemberName state changes. Weird bug which requires this to be present
 
     switch (replyMessage.contentType) {
@@ -97,6 +97,7 @@ const ReplyBubble = ({
         return (
           <TextReplyBubble
             message={replyMessage}
+            repliedText={message.data.text}
             memberName={displayMemberName}
             handlePress={handlePress}
             handleLongPress={handleLongPress}
@@ -154,7 +155,7 @@ const ReplyBubble = ({
         style={message.sender ? styles.receiverBubble : styles.senderBubble}>
         <View style={styles.receiverLine} />
 
-        {getReplyBubble()}
+        <ReplyBubble />
       </View>
 
       {/* TODO add reply bubbles for other data types */}

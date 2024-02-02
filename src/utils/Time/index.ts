@@ -101,16 +101,29 @@ export function createDateBoundaryStamp(isoString: string | undefined): string {
     return '';
   }
   const options: Intl.DateTimeFormatOptions = {
-    weekday: 'long', // Full weekday name
     day: 'numeric', // Day of the month
     month: 'long', // Full month name
     year: 'numeric', // Four-digit year
   };
 
-  const date = new Date(isoString);
-  const formattedDate = date.toLocaleDateString('en-US', options);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const inputDate = new Date(isoString);
 
-  return formattedDate;
+  today.setHours(0, 0, 0, 0);
+  yesterday.setHours(0, 0, 0, 0);
+  inputDate.setHours(0, 0, 0, 0);
+
+  if (inputDate.getTime() === today.getTime()) {
+    return 'Today';
+  } else if (inputDate.getTime() === yesterday.getTime()) {
+    return 'Yesterday';
+  } else {
+    const date = new Date(isoString);
+    const formattedDate = date.toLocaleDateString('en-US', options);
+    return formattedDate;
+  }
 }
 
 /**

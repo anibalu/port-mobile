@@ -159,6 +159,8 @@ const MessageBubble = ({
   const [memberName, setMemberName] = useState('');
 
   useEffect(() => {
+    if (isGroupChat) {
+    }
     (async () => {
       //If it is not a group chat, name doesnt need to be rendered which is why it is left as is
       if (isGroupChat) {
@@ -331,12 +333,12 @@ export const renderDateBoundaryBubble = (
     <View style={styles.parentContainer}>
       <NumberlessText
         fontSizeType={FontSizeType.s}
-        fontType={FontType.md}
+        fontType={FontType.rg}
         style={StyleSheet.compose(
           styles.dateContainer,
           hasExtraPadding ? styles.majorSpacing : styles.minorSpacing,
         )}
-        textColor={PortColors.text.messageBubble.senderTimestamp}>
+        textColor={PortColors.text.messageBubble.dateBoundary}>
         {createDateBoundaryStamp(message.timestamp)}
       </NumberlessText>
     </View>
@@ -444,11 +446,10 @@ const styles = StyleSheet.create({
   dateContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: PortColors.primary.messageBubble.dateBoundary,
     maxWidth: '80%',
-    overflow: 'hidden',
-    borderRadius: 12,
-    padding: 10,
+    borderRadius: 35,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   majorSpacing: {
     marginTop: 8,
@@ -520,8 +521,8 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.messageBubble.data.blobBackground,
     borderRadius: 16,
     justifyContent: 'flex-start',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderWidth: 0.5,
     borderColor: PortColors.primary.messageBubble.data.blobBorder,
     maxWidth: '70%',

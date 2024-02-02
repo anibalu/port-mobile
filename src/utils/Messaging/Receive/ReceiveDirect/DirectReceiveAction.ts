@@ -78,6 +78,7 @@ class DirectReceiveAction {
         messageIdToBeUpdated: this.decryptedMessageContent.messageId,
         updatedMessageStatus: MessageStatus.delivered,
         deliveredAtTimestamp: generateISOTimeStamp(),
+        shouldAck: true,
       });
       await sender.send();
       console.log('Delivered message sent');

@@ -1,4 +1,4 @@
-import DownArrow from '@assets/icons/GreyArrowDown.svg';
+import DownArrow from '@assets/icons/DownArrowWhite.svg';
 import {PortColors} from '@components/ComponentUtils';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
@@ -10,7 +10,7 @@ import {
   UpdateRequiredMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import {checkDateBoundary, generateISOTimeStamp} from '@utils/Time';
-import React, {ReactNode, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import {
   FlatList,
   NativeScrollEvent,
@@ -25,6 +25,31 @@ import MessageBubble, {isDataMessage} from './MessageBubble';
 const viewabilityConfig = {
   minimumViewTime: 1000,
   itemVisiblePercentThreshold: 60,
+  waitForInteraction: false,
+};
+
+const sendReadReceipt = (chatId: string, message: SavedMessageParams) => {
+  if (
+    message.shouldAck &&
+    !message.sender &&
+    UpdateRequiredMessageContentTypes.includes(message.contentType)
+  ) {
+    //If message wasn't sent by us, it has to be delivered at the least and only then do we need to send an update.
+    if (
+      message.messageStatus != undefined &&
+      message.messageStatus === MessageStatus.delivered
+    ) {
+      console.log('Sending read receipt for: ', message.messageId);
+      const sender = new SendMessage(chatId, ContentType.update, {
+        messageIdToBeUpdated: message.messageId,
+        updatedMessageStatus: MessageStatus.read,
+        readAtTimestamp: generateISOTimeStamp(),
+      });
+      sender.send();
+    } else {
+      console.log('Skipping ack');
+    }
+  }
 };
 
 /**
@@ -110,30 +135,17 @@ function ChatList({
 
   const onViewableItemsChanged = React.useCallback(
     ({changed}: {changed: ViewToken[]}) => {
-      //We just need the item that was changed and added in.
-      const message: SavedMessageParams = changed[0].item;
+      const visibleItems = changed.filter(entry => entry.isViewable);
+      visibleItems.forEach(visible => {
+        const message: SavedMessageParams = visible.item;
+        sendReadReceipt(chatId, message);
+        //If message wasn't sent by us, then it needs to be marked as read (We can't mark our own messages as read)
+      });
 
-      //If message wasn't sent by us, then it needs to be marked as read (We can't mark our own messages as read)
-      if (
-        !message.sender &&
-        UpdateRequiredMessageContentTypes.includes(message.contentType)
-      ) {
-        //If message wasn't sent by us, it has to be delivered at the least.
-        if (
-          message.messageStatus != undefined &&
-          message.messageStatus === MessageStatus.delivered
-        ) {
-          const sender = new SendMessage(chatId, ContentType.update, {
-            messageIdToBeUpdated: message.messageId,
-            updatedMessageStatus: MessageStatus.read,
-            readAtTimestamp: generateISOTimeStamp(),
-          });
-          sender.send();
-        }
-      }
+      //We just need the item that was changed and added in.
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+
+    [chatId],
   );
 
   const viewabilityConfigPairCallbacks = useRef([
@@ -145,6 +157,7 @@ function ChatList({
   const handleMomentumEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (e.nativeEvent.contentOffset.y === 0) {
       // do things
+      console.log('Start has been reached');
       onEndReached();
     }
   };
@@ -165,6 +178,15 @@ function ChatList({
     }
   };
 
+  useEffect(() => {
+    //If messages are < 12, then all messages are visible.
+    if (messages.length < 12) {
+      messages.forEach(msg => sendReadReceipt(chatId, msg));
+      onEndReached();
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
+
   return (
     <>
       <FlatList
@@ -180,13 +202,13 @@ function ChatList({
           autoscrollToTopThreshold: minimumThreshold,
         }}
         onScroll={handleScroll}
-        scrollEventThrottle={500}
+        scrollEventThrottle={1000}
         onMomentumScrollEnd={handleMomentumEnd}
         onEndReached={onStartReached}
       />
       {showScrollToEnd && (
         <Pressable style={styles.handleStyle} onPress={onHandlePress}>
-          <DownArrow />
+          <DownArrow width={20} height={20} />
         </Pressable>
       )}
     </>
@@ -216,14 +238,12 @@ const determineSpacing = (
   }
 };
 
-export default ChatList;
-
 const styles = StyleSheet.create({
   handleStyle: {
-    height: 50,
-    width: 50,
+    height: 45,
+    width: 45,
     position: 'absolute',
-    bottom: 70,
+    bottom: 80,
     zIndex: 10,
     right: 0,
     borderTopLeftRadius: 16,
@@ -234,12 +254,14 @@ const styles = StyleSheet.create({
   },
 });
 
-// memo(ChatList, (prevProps, nextProps) => {
+export default ChatList;
+
+// export default memo(ChatList, (prevProps, nextProps) => {
 //   return (
-//     prevProps.messages !== nextProps.messages &&
-//     prevProps.selectedMessages === nextProps.selectedMessages &&
-//     prevProps.groupInfo === nextProps.groupInfo &&
+//     prevProps.messages.length === nextProps.messages.length &&
+//     prevProps.selectedMessages.length === nextProps.selectedMessages.length &&
 //     prevProps.isGroupChat === nextProps.isGroupChat &&
-//     prevProps.allowScrollToTop === nextProps.allowScrollToTop
+//     prevProps.dataHandler === nextProps.dataHandler &&
+//     prevProps.chatId === nextProps.chatId
 //   );
 // });

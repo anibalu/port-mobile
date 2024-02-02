@@ -153,6 +153,9 @@ export interface UpdateParams {
   updatedMessageStatus: MessageStatus;
   deliveredAtTimestamp?: string;
   readAtTimestamp?: string;
+
+  //Only applies to a read receipt. If toggled, allows the receipt to acknowledge that the message has been read
+  shouldAck?: boolean;
 }
 
 export interface InitialInfoRequestParams {
@@ -211,6 +214,7 @@ export interface SavedMessageParams {
   replyId?: string | null; //not null if message is a reply message
   memberId?: string | null; //not null for received group messages
   expiresOn?: string | null; //when should the message expire.
+  shouldAck?: boolean; // if the message should be ack'ed. Useful for controlling read receipts. This is present only for messages that have been received by a user
 }
 /**
  * Interface describing the payload being encrypted and sent/received

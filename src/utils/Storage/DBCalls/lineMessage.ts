@@ -134,6 +134,7 @@ export async function updateStatusAndTimestamp(
   messageStatus: MessageStatus,
   deliveredTimestamp?: string,
   readTimestamp?: string,
+  shouldAck?: boolean,
 ) {
   await runSimpleQuery(
     `
@@ -141,10 +142,18 @@ export async function updateStatusAndTimestamp(
     SET
     messageStatus = ?,
     deliveredTimestamp = COALESCE(?, deliveredTimestamp),
-    readTimestamp = COALESCE(?, readTimestamp)
+    readTimestamp = COALESCE(?, readTimestamp),
+    shouldAck = COALESCE(?,shouldAck)
     WHERE chatId = ? AND messageId = ? ;
     `,
-    [messageStatus, deliveredTimestamp, readTimestamp, chatId, messageId],
+    [
+      messageStatus,
+      deliveredTimestamp,
+      readTimestamp,
+      shouldAck,
+      chatId,
+      messageId,
+    ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );

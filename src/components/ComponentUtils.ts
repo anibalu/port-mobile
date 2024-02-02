@@ -17,6 +17,8 @@ export const PortColors = {
       senderTimestamp: '#868686',
       receiverTimestamp: '#71899C',
       profileName: '#7C7C7C',
+      infoText: '#00340B',
+      dateBoundary: '#71899C',
     },
   },
   primary: {
@@ -39,10 +41,13 @@ export const PortColors = {
     },
     success: '#6FC960',
     messageBubble: {
-      dateBoundary: '#EDEDED',
+      dateBoundary: {
+        background: '#FFFFFF',
+        border: '#E5E5E5',
+      },
       data: {
         blobBackground: '#EFFEE0',
-        blobBorder: '#E5E5E5',
+        blobBorder: '#D7E3CA',
       },
       receiver: {
         blobBackground: '#D4EBFF',

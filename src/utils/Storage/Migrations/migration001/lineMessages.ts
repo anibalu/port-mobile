@@ -23,6 +23,7 @@ export default async function lineMessages() {
       messageStatus INT,
       deliveredTimestamp VARCHAR(27),
       readTimestamp VARCHAR(27),
+      shouldAck BOOL,
       expiresOn VARCHAR(27),
       FOREIGN KEY (chatID) REFERENCES connections(chatId),
       UNIQUE(chatID, messageId)

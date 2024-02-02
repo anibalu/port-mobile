@@ -54,6 +54,7 @@ function PendingChatTile(props: ConnectionInfo): ReactNode {
             paddingHorizontal: 10,
             paddingVertical: 5,
             color: 'white',
+            overflow: 'hidden',
             borderRadius: 4,
           }}
           textColor={PortColors.text.primaryWhite}

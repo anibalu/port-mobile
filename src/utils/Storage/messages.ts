@@ -77,6 +77,7 @@ export async function updateMessageSendStatus(
   updatedStatus: MessageStatus,
   deliveredTimestamp?: string,
   readTimestamp?: string,
+  shouldAck?: boolean,
 ): Promise<void> {
   if (updatedStatus || updatedStatus === 0) {
     if (deliveredTimestamp && updatedStatus === MessageStatus.delivered) {
@@ -85,6 +86,8 @@ export async function updateMessageSendStatus(
         messageId,
         updatedStatus,
         deliveredTimestamp,
+        undefined,
+        shouldAck,
       );
     } else if (readTimestamp && updatedStatus === MessageStatus.read) {
       await DBCalls.updateStatusAndTimestamp(
@@ -93,6 +96,7 @@ export async function updateMessageSendStatus(
         updatedStatus,
         undefined,
         readTimestamp,
+        shouldAck,
       );
     } else if (updatedStatus === MessageStatus.sent) {
       await DBCalls.setSent(chatId, messageId);

@@ -226,7 +226,11 @@ function Chat({route, navigation}: Props) {
 
   //runs every time a new message is recieved.
   useEffect(() => {
-    if (chatState.messagesLoaded && latestReceivedMessage) {
+    if (
+      chatState.messagesLoaded &&
+      latestReceivedMessage &&
+      latestReceivedMessage.chatId === chatId
+    ) {
       if (!shouldNotRender(latestReceivedMessage.contentType)) {
         console.log('[CHAT UPDATE] - New message received');
         setMessages(oldList => [latestReceivedMessage].concat(oldList));
@@ -240,7 +244,11 @@ function Chat({route, navigation}: Props) {
 
   //Runs every time a message is sent into the queue. Updates with the last message that was sent to it, instead of fetching from DB everytime
   useEffect(() => {
-    if (latestSentMessage && chatState.messagesLoaded) {
+    if (
+      latestSentMessage &&
+      chatState.messagesLoaded &&
+      latestSentMessage.chatId === chatId
+    ) {
       if (!shouldNotRender(latestSentMessage.contentType)) {
         console.log('[CHAT UPDATE] - New message sent');
         setMessages(oldList => [latestSentMessage].concat(oldList));
@@ -253,7 +261,11 @@ function Chat({route, navigation}: Props) {
 
   //Runs every time a sent message's send status is updated.
   useEffect(() => {
-    if (chatState.messagesLoaded && latestUpdatedSendStatus) {
+    if (
+      chatState.messagesLoaded &&
+      latestUpdatedSendStatus &&
+      latestUpdatedSendStatus.chatId === chatId
+    ) {
       console.log('[CHAT UPDATE] - Message status updated');
       setMessages(oldList => {
         if (oldList.length > 0) {
@@ -273,7 +285,11 @@ function Chat({route, navigation}: Props) {
 
   //Runs every time a sent message's media status is updated. Updates with the data present inside latestUpdatedMediaStatus
   useEffect(() => {
-    if (chatState.messagesLoaded && latestUpdatedMediaStatus.data) {
+    if (
+      chatState.messagesLoaded &&
+      latestUpdatedMediaStatus.data &&
+      latestUpdatedMediaStatus.chatId === chatId
+    ) {
       console.log('[CHAT UPDATE] - Media status updated');
       setMessages(oldList => {
         if (oldList.length > 0) {

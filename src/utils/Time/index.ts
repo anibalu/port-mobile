@@ -67,6 +67,12 @@ export function getReadableTimestamp(
   }
 }
 
+/**
+ * Check if 2 different timestamps are on the same day (in the local timezone)
+ * @param ISOTimeString1 timestamp 1
+ * @param ISOTimeString2 timestamp 2
+ * @returns
+ */
 export function checkDateBoundary(
   ISOTimeString1: string | null,
   ISOTimeString2: string | null,
@@ -74,17 +80,12 @@ export function checkDateBoundary(
   try {
     if (!ISOTimeString1 || !ISOTimeString2) {
       return false;
-    } else {
-      const date1 = new Date(ISOTimeString1);
-      const date2 = new Date(ISOTimeString2);
-
-      // Compare the year, month, and day components of the dates.
-      return (
-        date1.getFullYear() !== date2.getFullYear() ||
-        date1.getMonth() !== date2.getMonth() ||
-        date1.getDate() !== date2.getDate()
-      );
     }
+    const date1 = new Date(ISOTimeString1);
+    const date2 = new Date(ISOTimeString2);
+
+    // Compare the year, month, and day components of the dates.
+    return date1.toDateString() !== date2.toDateString();
   } catch (error) {
     console.log('Check date boundary error: ', error);
     return false;
@@ -93,37 +94,12 @@ export function checkDateBoundary(
 
 /**
  * converts an ISO timestamp into a user-readable date boundary string.
+ * @deprecated
  * @param {string|undefined} ISOTime - ISO timestamp or undefined
  * @returns {string} - user-readable date boundary string
  */
 export function createDateBoundaryStamp(isoString: string | undefined): string {
-  if (isoString === undefined) {
-    return '';
-  }
-  const options: Intl.DateTimeFormatOptions = {
-    day: 'numeric', // Day of the month
-    month: 'long', // Full month name
-    year: 'numeric', // Four-digit year
-  };
-
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const inputDate = new Date(isoString);
-
-  today.setHours(0, 0, 0, 0);
-  yesterday.setHours(0, 0, 0, 0);
-  inputDate.setHours(0, 0, 0, 0);
-
-  if (inputDate.getTime() === today.getTime()) {
-    return 'Today';
-  } else if (inputDate.getTime() === yesterday.getTime()) {
-    return 'Yesterday';
-  } else {
-    const date = new Date(isoString);
-    const formattedDate = date.toLocaleDateString('en-US', options);
-    return formattedDate;
-  }
+  return getDateStamp(isoString);
 }
 
 /**
@@ -140,35 +116,23 @@ export const wait = async (delay: number = ARTIFICIAL_LOADER_INTERVAL) => {
   return new Promise(resolve => setTimeout(resolve, delay));
 };
 
-//create a function to take in an ISO timestamp string like the first function in this module and return a date string to display in your component.
+/**
+ * Convert an ISO timestamp into a human-readable string. Carveouts for today and yesterday.
+ * @param isoString the target time to convert to a readable string
+ * @returns a user-readable string
+ */
 export function getTimeAndDateStamp(isoString: string | undefined): string {
   if (!isoString) {
     return '';
   }
+  const formattedDate = getDateStamp(isoString);
   const inputDate = new Date(isoString);
-  const currentDate = new Date();
-
-  // Format options for the date and time
-  const options = {
+  const formattedTime = inputDate.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false,
-  };
-  if (inputDate.toDateString() === currentDate.toDateString()) {
-    // Format time only for today
-    return `Today, ${inputDate.toLocaleTimeString('en-US', options)}`;
-  } else if (
-    inputDate.toDateString() ===
-    currentDate.setDate(currentDate.getDate() - 1).toDateString()
-  ) {
-    // Format time only for yesterday
-    return `Yesterday, ${inputDate.toLocaleTimeString('en-US', options)}`;
-  } else {
-    // Format date and time for other dates
-    const formattedDate = inputDate.toLocaleDateString('en-US');
-    const formattedTime = inputDate.toLocaleTimeString('en-US', options);
-    return `${formattedTime}, ${formattedDate}`;
-  }
+    hour12: true,
+  });
+  return `${formattedTime}, ${formattedDate}`;
 }
 
 export function getDateStamp(isoString: string | undefined): string {
@@ -176,28 +140,39 @@ export function getDateStamp(isoString: string | undefined): string {
   if (!isoString) {
     return '';
   }
-  const inputDate = new Date(isoString);
-  const currentDate = new Date();
-
-  console.log(currentDate.toDateString());
-
-  if (inputDate.toDateString() === currentDate.toDateString()) {
-    // Format time only for today
+  const targetDate = new Date(isoString);
+  // Check today
+  let cmpDate = new Date();
+  if (targetDate.toDateString() === cmpDate.toDateString()) {
     return 'Today';
-  } else {
-    currentDate.setDate(currentDate.getDate() - 1);
-
-    if (inputDate.toDateString() === currentDate.toDateString()) {
-      console.log('1');
-      // Format time only for yesterday
-      return 'Yesterday';
-    } else {
-      console.log('2');
-      // Format date
-      const formattedDate = inputDate.toLocaleDateString('en-US');
-      return `${formattedDate}`;
-    }
   }
+  // Check yesterday
+  cmpDate.setDate(cmpDate.getDate() - 1);
+  if (targetDate.toDateString() === cmpDate.toDateString()) {
+    return 'Yesterday';
+  }
+  // Check in the last week
+  cmpDate.setDate(cmpDate.getDate() - 6); // 6 Because we decremented by 1 already
+  if (targetDate.toISOString() >= cmpDate.toISOString()) {
+    // The message was sent in the last week
+    return targetDate.toLocaleDateString('en-us', {weekday: 'long'});
+  }
+  // Check this year
+  cmpDate = new Date();
+  if (cmpDate.getFullYear() === targetDate.getFullYear()) {
+    return targetDate.toLocaleDateString('en-us', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+
+  // Finally, we resort to the whole string
+  return targetDate.toLocaleDateString('en-us', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 export function getExpiryTimestamp(

@@ -45,7 +45,7 @@ export async function getPermissions(chatId: string): Promise<Permissions> {
   let match: Permissions = {};
   await runSimpleQuery(
     `
-    SELECT notifications, autoDownload, displayPicture, contactSharing, disappearingMessages
+    SELECT notifications, autoDownload, displayPicture, contactSharing, disappearingMessages, readReceipts
     FROM permissions
     WHERE chatId = ? ;
     `,
@@ -79,7 +79,8 @@ export async function updatePermissions(chatId: string, update: Permissions) {
     autoDownload = COALESCE(?, autoDownload),
     displayPicture = COALESCE(?, displayPicture),
     contactSharing = COALESCE(?, contactSharing),
-    disappearingMessages = COALESCE(?, disappearingMessages)
+    disappearingMessages = COALESCE(?, disappearingMessages),
+    readReceipts = COALESCE(?, readReceipts)
     WHERE chatId = ? ;
     `,
     [
@@ -88,6 +89,7 @@ export async function updatePermissions(chatId: string, update: Permissions) {
       update.displayPicture,
       update.contactSharing,
       update.disappearingMessages,
+      update.readReceipts,
       chatId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

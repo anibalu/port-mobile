@@ -1,4 +1,6 @@
 import store from '@store/appStore';
+import {getChatPermissions} from '@utils/ChatPermissions';
+import {ChatType} from '@utils/Connections/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
   ContentType,
@@ -74,11 +76,15 @@ class DirectReceiveAction {
         this.decryptedMessageContent.contentType,
       )
     ) {
+      const readReceipts = await getChatPermissions(
+        this.chatId,
+        ChatType.direct,
+      );
       const sender = new SendMessage(this.chatId, ContentType.update, {
         messageIdToBeUpdated: this.decryptedMessageContent.messageId,
         updatedMessageStatus: MessageStatus.delivered,
         deliveredAtTimestamp: generateISOTimeStamp(),
-        shouldAck: true,
+        shouldAck: readReceipts.readReceipts,
       });
       await sender.send();
       console.log('Delivered message sent');

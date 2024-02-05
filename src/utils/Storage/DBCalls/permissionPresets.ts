@@ -31,8 +31,9 @@ export async function addNewPreset(preset: PermissionPreset) {
       autoDownload,
       displayPicture,
       contactSharing,
-      disappearingMessages
-    ) VALUES (?,?,?,?,?,?,?,?);
+      disappearingMessages,
+      readReceipts
+    ) VALUES (?,?,?,?,?,?,?,?,?);
     `,
     [
       preset.presetId,
@@ -43,6 +44,7 @@ export async function addNewPreset(preset: PermissionPreset) {
       preset.displayPicture,
       preset.contactSharing,
       preset.disappearingMessages,
+      preset.readReceipts,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
@@ -67,7 +69,8 @@ export async function editPreset(
     autoDownload = COALESCE(?, autoDownload),
     displayPicture = COALESCE(?, displayPicture),
     contactSharing = COALESCE(?, contactSharing),
-    disappearingMessages = COALESCE(?, disappearingMessages)
+    disappearingMessages = COALESCE(?, disappearingMessages),
+    readReceipts = COALESCE(?, readReceipts)
     WHERE presetId = ? ;
     `,
     [
@@ -77,6 +80,7 @@ export async function editPreset(
       updated.displayPicture,
       updated.contactSharing,
       updated.disappearingMessages,
+      updated.readReceipts,
       presetId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

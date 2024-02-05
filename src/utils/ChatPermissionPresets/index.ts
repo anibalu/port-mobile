@@ -9,6 +9,7 @@ export const defaultMasterDirectChatPermissions: MasterPermissions = {
   displayPicture: true,
   contactSharing: false,
   disappearingMessages: 0,
+  readReceipts: false,
 };
 
 export function getDefaultMasterPermissions(): MasterPermissions {

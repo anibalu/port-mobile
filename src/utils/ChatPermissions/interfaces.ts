@@ -8,6 +8,7 @@ export interface BooleanPermissions {
   autoDownload?: boolean | null;
   displayPicture?: boolean | null;
   contactSharing?: boolean | null;
+  readReceipts?: boolean | null;
 }
 export interface NumberPermissions {
   disappearingMessages?: number | null;
@@ -19,6 +20,7 @@ export const booleanKeysOfPermissions: (keyof BooleanPermissions)[] = [
   'autoDownload',
   'displayPicture',
   'contactSharing',
+  'readReceipts',
 ];
 export const numberKeysOfPermissions: (keyof NumberPermissions)[] = [
   'disappearingMessages',
@@ -29,6 +31,7 @@ export interface MasterPermissions extends Permissions {
   autoDownload: boolean;
   displayPicture: boolean;
   contactSharing: boolean;
+  readReceipts: boolean;
   disappearingMessages: number;
 }
 
@@ -43,6 +46,7 @@ export const masterPermissionsName = {
   displayPicture: 'Display picture',
   contactSharing: 'Contact sharing',
   disappearingMessages: 'Disappearing messages',
+  readReceipts: 'Read Receipts',
 };
 
 /**
@@ -53,6 +57,7 @@ export interface BooleanDirectPermissions {
   autoDownload: boolean;
   displayPicture: boolean;
   contactSharing: boolean;
+  readReceipts: boolean;
 }
 export interface NumberDirectPermissions {
   disappearingMessages: number;
@@ -63,9 +68,16 @@ export interface DirectPermissions extends Permissions {
   displayPicture: boolean;
   contactSharing: boolean;
   disappearingMessages: number;
+  readReceipts: boolean;
 }
 export const booleanKeysOfDirectPermissions: (keyof BooleanDirectPermissions)[] =
-  ['notifications', 'autoDownload', 'displayPicture', 'contactSharing'];
+  [
+    'notifications',
+    'autoDownload',
+    'displayPicture',
+    'contactSharing',
+    'readReceipts',
+  ];
 export const numberKeysOfDirectPermissions: (keyof NumberDirectPermissions)[] =
   ['disappearingMessages'];
 

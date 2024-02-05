@@ -13,4 +13,5 @@ export interface PermissionPresetUpdate {
   displayPicture?: boolean;
   contactSharing?: boolean;
   disappearingMessages?: number;
+  readReceipts?: boolean;
 }

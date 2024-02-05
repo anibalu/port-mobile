@@ -14,6 +14,7 @@ export default async function permissions() {
     autoDownload BOOL,
     displayPicture BOOL,
     contactSharing BOOL,
+    readReceipts BOOL,
     disappearingMessages INT
   ) ;
   `,
@@ -35,6 +36,7 @@ export default async function permissions() {
     displayPicture BOOL,
     contactSharing BOOL,
     disappearingMessages INT,
+    readReceipts BOOL,
     UNIQUE(presetId, name)
   ) ;
   `,

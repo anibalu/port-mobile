@@ -12,7 +12,7 @@ import {PortColors} from '@components/ComponentUtils';
 import {DEFAULT_NAME} from '@configs/constants';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
-import {renderTimeStamp} from '../BubbleUtils';
+import {TEXT_OVERFLOW_LIMIT, renderTimeStamp} from '../BubbleUtils';
 import DeletedReplyBubble from './Reply/DeletedReplyBubble';
 import FileReplyBubble from './Reply/FileReplyBubble';
 import ImageReplyBubble from './Reply/ImageReplyBubble';
@@ -177,7 +177,7 @@ const ReplyBubble = ({
 export default ReplyBubble;
 
 const getBubbleLayoutStyle = (text: string) => {
-  if (text.length > 27) {
+  if (text.length > TEXT_OVERFLOW_LIMIT) {
     return styles.textBubbleColumnContainer;
   } else {
     return styles.textBubbleRowContainer;

@@ -13,6 +13,7 @@ import {Pressable, StyleSheet, View} from 'react-native';
 import {CircleSnail} from 'react-native-progress';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {
+  TEXT_OVERFLOW_LIMIT,
   handleMediaOpen,
   renderProfileName,
   renderTimeStamp,
@@ -69,7 +70,7 @@ export default function FileBubble({
   };
 
   const getBubbleLayoutStyle = (text: string) => {
-    if (text.length > 27) {
+    if (text.length > TEXT_OVERFLOW_LIMIT) {
       return styles.videoBubbleColumnContainer;
     } else {
       return styles.videoBubbleRowContainer;

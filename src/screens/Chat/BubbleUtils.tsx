@@ -18,6 +18,8 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 
+export const TEXT_OVERFLOW_LIMIT = 20;
+
 export function renderTimeStamp(
   message: SavedMessageParams,
   hasGradient?: boolean,

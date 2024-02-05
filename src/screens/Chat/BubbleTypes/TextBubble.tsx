@@ -7,6 +7,7 @@ import {SavedMessageParams, TextParams} from '@utils/Messaging/interfaces';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {
+  TEXT_OVERFLOW_LIMIT,
   renderProfileName,
   renderTimeStamp,
   shouldRenderProfileName,
@@ -55,7 +56,7 @@ export default function TextBubble({
 }
 
 const getBubbleLayoutStyle = (text: string) => {
-  if (text.length > 27) {
+  if (text.length > TEXT_OVERFLOW_LIMIT) {
     return styles.textBubbleColumnContainer;
   } else {
     return styles.textBubbleRowContainer;

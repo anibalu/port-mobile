@@ -1,8 +1,12 @@
-import BlueForwardIcon from '@assets/icons/BlueForwardIcon.svg';
 import ChatBackground from '@components/ChatBackground';
-import {FontSizes, screen} from '@components/ComponentUtils';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
 import GenericTopBar from '@components/GenericTopBar';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import Send from '@assets/icons/WhiteArrowUp.svg';
 import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -10,16 +14,19 @@ import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import React, {useEffect, useState} from 'react';
-import {FlatList, Pressable, StyleSheet, View} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
+import WhiteOverlay from '@assets/miscellaneous/whiteOverlay.svg';
 import ContactTile from './ContactTile';
 import {getDirectChats} from '@utils/DirectChats';
 import {requestToShareContact} from '@utils/ContactSharing';
+import {GenericButton} from '@components/GenericButton';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ShareContact'>;
 
 export default function ShareContact({route, navigation}: Props) {
   const {chatId} = route.params;
   const [searchText, setSearchText] = useState('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   //Members that have been selected via the checkbox
   const [selectedMembers, setSelectedMembers] = useState<ConnectionInfo | null>(
@@ -63,11 +70,13 @@ export default function ShareContact({route, navigation}: Props) {
 
   const onShareContact = async () => {
     if (selectedMembers) {
+      setLoading(true);
       await requestToShareContact({
         source: selectedMembers.chatId,
         destination: chatId,
       });
       setSelectedMembers(null);
+      setLoading(false);
       navigation.goBack();
     }
   };
@@ -107,21 +116,34 @@ export default function ShareContact({route, navigation}: Props) {
 
       {selectedMembers && (
         <View style={styles.selectedMembers}>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={styles.itemTile}
+            textColor={PortColors.text.secondary}
+            fontType={FontType.sb}>
+            {selectedMembers.name}
+          </NumberlessText>
+
           <View
             style={{
-              width: screen.width - 130,
               flexDirection: 'row',
               alignItems: 'center',
-              marginHorizontal: 20,
+              justifyContent: 'flex-end',
+              gap: 0,
             }}>
-            <NumberlessMediumText numberOfLines={1} style={styles.memberName}>
-              {selectedMembers.name}
-            </NumberlessMediumText>
+            <WhiteOverlay
+              style={{position: 'absolute', right: 2, bottom: -6}}
+            />
+            <GenericButton
+              onPress={onShareContact}
+              iconSizeRight={14}
+              IconRight={Send}
+              loading={loading}
+              buttonStyle={styles.sendButton}
+            />
           </View>
-
-          <Pressable style={styles.iconStyles} onPress={onShareContact}>
-            <BlueForwardIcon />
-          </Pressable>
         </View>
       )}
     </SafeAreaView>
@@ -131,13 +153,16 @@ export default function ShareContact({route, navigation}: Props) {
 const styles = StyleSheet.create({
   selectedMembers: {
     width: '100%',
-    height: 90,
-    backgroundColor: 'white',
+    backgroundColor: PortColors.primary.white,
     padding: 15,
     position: 'absolute',
     bottom: 0,
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingLeft: 15,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -153,7 +178,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   memberContainer: {flexDirection: 'row'},
-  iconStyles: {alignSelf: 'flex-end'},
+  sendButton: {
+    marginLeft: 10,
+    alignSelf: 'flex-end',
+    marginRight: 15,
+    borderRadius: 100,
+  },
   topBar: {
     backgroundColor: '#FFF',
     flexDirection: 'row',
@@ -167,9 +197,6 @@ const styles = StyleSheet.create({
   },
   header: {
     maxWidth: '80%',
-  },
-  memberName: {
-    ...FontSizes[15].medium,
   },
   itemCard: {
     marginTop: 15,
@@ -187,6 +214,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     flex: 1,
+  },
+  itemTile: {
+    padding: 10,
+    borderRadius: 11,
+    textAlign: 'center',
+    backgroundColor: PortColors.primary.grey.light,
   },
   profile: {
     backgroundColor: 'white',

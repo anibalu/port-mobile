@@ -168,6 +168,7 @@ const MessageBar = ({
         selectedMembers: [{chatId: chatId}],
         shareMessages: lst,
         isChat: true,
+        isGroupChat: isGroupChat,
       });
     }
     togglePopUp();

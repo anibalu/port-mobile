@@ -5,10 +5,11 @@ import Play from '@assets/icons/videoPlay.svg';
 import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import BlackOverlay from '@assets/miscellaneous/blackOverlay.svg';
 import {
   FontSizeType,
   FontType,
-  NumberlessMediumText,
   NumberlessText,
 } from '@components/NumberlessText';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -24,7 +25,7 @@ import {
   getRelativeURI,
   moveToLargeFileDir,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -39,11 +40,20 @@ import FileViewer from 'react-native-file-viewer';
 import Pdf from 'react-native-pdf';
 import Carousel from 'react-native-snap-carousel';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import useKeyboardVisibility from '../../utils/Hooks/useKeyboardVisibility';
+import Group from '@utils/Groups/Group';
+import {GroupMemberStrict} from '@utils/Groups/interfaces';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
 const GalleryConfirmation = ({navigation, route}: Props) => {
-  const {selectedMembers, shareMessages, isChat = false} = route.params;
+  const {
+    selectedMembers,
+    shareMessages,
+    isChat = false,
+    isGroupChat,
+  } = route.params;
+
   const carousel = useRef<any>();
   const [isFocused, setIsFocused] = useState(false);
   const [isSending, setSending] = useState(false);
@@ -51,6 +61,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const isKeyboardVisible = useKeyboardVisibility();
+  const [userNameInDM, setUserNameInDM] = useState('');
+  const [groupMembers, setGroupMembers] = useState<GroupMemberStrict[]>([]);
 
   const {compressionError} = useErrorModal();
 
@@ -89,6 +102,26 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     }
     setDataList(newList);
     setLoading(false);
+  };
+
+  const renderItemTile = ({item}: {item: ConnectionInfo}) => {
+    return (
+      <NumberlessText
+        fontSizeType={FontSizeType.s}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={{
+          padding: 10,
+          borderRadius: 11,
+          overflow: 'hidden',
+          textAlign: 'center',
+          backgroundColor: PortColors.text.backgroundGrey,
+        }}
+        textColor={PortColors.text.primaryWhite}
+        fontType={FontType.sb}>
+        {item.name}
+      </NumberlessText>
+    );
   };
 
   const renderCarouselItem = ({item, index}: {item: any; index: number}) => {
@@ -205,14 +238,12 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
             }}
             style={{
               position: 'absolute',
-              left: 15,
-              top: 15,
-              backgroundColor: PortColors.primary.black,
-              opacity: 0.5,
-              paddingVertical: 4,
+              left: 12,
+              top: 14,
               paddingHorizontal: 6,
               borderRadius: 4,
             }}>
+            <View style={styles.buttonShadowContainer} />
             <Delete />
           </Pressable>
         )}
@@ -253,13 +284,34 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     }
   };
 
+  const groupHandler = useMemo(() => {
+    return new Group(selectedMembers[0].chatId);
+  }, [selectedMembers]);
+
+  useEffect(() => {
+    (async () => {
+      const membersInGroup = await groupHandler.getMembers();
+      setGroupMembers(membersInGroup);
+    })();
+  }, [groupHandler]);
+
+  const dataHandler = useMemo(() => {
+    return isChat && new DirectChat(selectedMembers[0].chatId);
+  }, [isChat, selectedMembers]);
+
+  useEffect(() => {
+    if (selectedMembers.length <= 1 && isChat) {
+      (async () => {
+        const chatData = await (dataHandler as DirectChat).getChatData();
+        setUserNameInDM(chatData.name);
+      })();
+    }
+  }, [dataHandler, isChat, selectedMembers]);
+
   return (
-    <KeyboardAvoidingView
-      behavior={isIOS ? 'padding' : 'height'}
-      keyboardVerticalOffset={isIOS ? 54 : undefined}
-      style={styles.screen}>
+    <View style={styles.screen}>
       <Whitecross
-        style={{position: 'absolute', zIndex: 10, top: 50, right: 20}}
+        style={styles.whiteCrossIcon}
         disabled={isSending}
         onPress={() => navigation.goBack()}
       />
@@ -274,55 +326,107 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         renderItem={renderCarouselItem}
       />
 
-      <FlatList
-        data={dataList}
-        horizontal={true}
-        scrollEnabled={true}
-        contentContainerStyle={{paddingHorizontal: 6}}
-        style={styles.imagescroll}
-        renderItem={renderThumbnails}
-      />
-      <View
+      {!isKeyboardVisible && dataList.length > 1 && (
+        <FlatList
+          data={dataList}
+          horizontal={true}
+          scrollEnabled={true}
+          contentContainerStyle={{paddingHorizontal: 12}}
+          style={styles.imagescroll}
+          renderItem={renderThumbnails}
+        />
+      )}
+      <KeyboardAvoidingView
+        behavior={isIOS ? 'padding' : 'height'}
+        keyboardVerticalOffset={isIOS ? 54 : undefined}
         style={StyleSheet.compose(
           styles.bottombar,
           isChat && {
             backgroundColor: PortColors.primary.black,
           },
         )}>
-        {isChat ? (
-          <GenericInput
-            inputStyle={styles.messageInputStyle}
-            text={message}
-            size="sm"
-            maxLength={'inf'}
-            multiline={true}
-            setText={setMessage}
-            placeholder={isFocused ? '' : 'Type your message here'}
-            alignment="left"
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-          />
-        ) : (
-          <FlatList
-            data={selectedMembers}
-            horizontal={true}
-            showsVerticalScrollIndicator={false}
-            scrollEnabled={true}
-            keyExtractor={item => item.chatId}
-            renderItem={renderMembers}
-          />
-        )}
-
-        <GenericButton
-          onPress={onSend}
-          disabled={message.length < 0}
-          iconSizeRight={14}
-          IconRight={Send}
-          loading={isSending || loading}
-          buttonStyle={styles.button}
+        <GenericInput
+          inputStyle={styles.messageInputStyle}
+          text={message}
+          size="sm"
+          maxLength={'inf'}
+          multiline={true}
+          setText={setMessage}
+          placeholder={isFocused ? '' : 'Add a message'}
+          alignment="left"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
         />
-      </View>
-    </KeyboardAvoidingView>
+        <View style={styles.bottombarUserPills}>
+          <View style={styles.bottomUserPillsBg} />
+          <View style={styles.selectedUserContainer}>
+            {isGroupChat && groupMembers.length >= 1 ? (
+              <FlatList
+                data={groupMembers}
+                horizontal={true}
+                contentContainerStyle={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  columnGap: 8,
+                }}
+                showsHorizontalScrollIndicator={false}
+                scrollEnabled={true}
+                keyExtractor={item => item.chatId}
+                renderItem={renderItemTile}
+              />
+            ) : selectedMembers.length >= 1 && !isChat ? (
+              <FlatList
+                data={selectedMembers}
+                horizontal={true}
+                contentContainerStyle={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  columnGap: 8,
+                }}
+                showsHorizontalScrollIndicator={false}
+                scrollEnabled={true}
+                keyExtractor={item => item.chatId}
+                renderItem={renderItemTile}
+              />
+            ) : (
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={{
+                  padding: 10,
+                  borderRadius: 11,
+                  overflow: 'hidden',
+                  textAlign: 'center',
+                  backgroundColor: PortColors.text.backgroundGrey,
+                }}
+                textColor={PortColors.text.primaryWhite}
+                fontType={FontType.sb}>
+                {userNameInDM}
+              </NumberlessText>
+            )}
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: 0,
+            }}>
+            <BlackOverlay style={{position: 'absolute', right: -16}} />
+
+            <GenericButton
+              onPress={onSend}
+              disabled={message.length < 0}
+              iconSizeRight={14}
+              IconRight={Send}
+              loading={isSending || loading}
+              buttonStyle={styles.button}
+            />
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -332,21 +436,17 @@ const onVideoPressed = (uri: string) => {
   });
 };
 
-const renderMembers = ({item}: {item: ConnectionInfo}) => {
-  return (
-    <View style={styles.item}>
-      <NumberlessMediumText style={styles.itemtext} numberOfLines={1}>
-        {item.name}
-      </NumberlessMediumText>
-    </View>
-  );
-};
-
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     backgroundColor: PortColors.primary.black,
+  },
+  whiteCrossIcon: {
+    position: 'absolute',
+    zIndex: 10,
+    top: 42,
+    left: 18,
   },
   pdfname: {
     color: PortColors.primary.white,
@@ -357,22 +457,47 @@ const styles = StyleSheet.create({
     height: screen.height - 130,
   },
   bottombar: {
-    backgroundColor: PortColors.primary.white,
     marginHorizontal: 10,
-    paddingVertical: 15,
-    flexDirection: 'row',
+    paddingVertical: 4,
+    flexDirection: 'column',
     gap: 3,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
+    rowGap: 8,
     borderRadius: 24,
     borderWidth: 0.5,
   },
-  imagescroll: {
-    maxHeight: 90,
+  bottombarUserPills: {
     paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    height: 60,
+  },
+  selectedUserContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    flex: 1,
+    columnGap: 8,
+    ...(isIOS && {paddingHorizontal: 3}),
+  },
+  bottomUserPillsBg: {
+    position: 'absolute',
+    paddingVertical: 4,
+    top: 0,
+    left: -16,
     backgroundColor: PortColors.primary.black,
+    opacity: 0.2,
+    height: 100,
+    width: screen.width + 16,
+  },
+  imagescroll: {
+    maxHeight: 70,
+    paddingVertical: 4,
     width: screen.width,
+    marginBottom: 8,
   },
   item: {
     paddingHorizontal: 10,
@@ -383,18 +508,20 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   messageInputStyle: {
-    width: screen.width - 65,
     borderRadius: 24,
     maxHeight: 110,
     height: undefined,
     minHeight: 40,
-    color: PortColors.text.primary,
+    backgroundColor: PortColors.text.primary,
+    borderWidth: 0.5,
+    borderColor: PortColors.text.backgroundGrey,
+    color: PortColors.text.primaryWhite,
     ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
     overflow: 'hidden',
     alignSelf: 'stretch',
-    paddingHorizontal: 15,
+    paddingHorizontal: 24,
     justifyContent: 'center',
-    ...(isIOS && {paddingTop: 12, paddingBottom: 10, paddingLeft: 5}),
+    ...(isIOS && {paddingTop: 12, paddingBottom: 10, paddingLeft: 16}),
   },
   itemtext: {
     fontSize: 12,
@@ -409,16 +536,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#547CEF',
   },
   bottomimageContainer: {
-    marginRight: 10,
+    marginRight: 8,
     borderRadius: 8,
     overflow: 'hidden',
   },
   selectedImageContainer: {
     borderColor: PortColors.primary.blue.app,
-    marginRight: 10,
+    marginRight: 8,
     borderWidth: 4,
     overflow: 'hidden',
     borderRadius: 8,
+    width: 60,
+    height: 60,
+  },
+  buttonShadowContainer: {
+    position: 'absolute',
+    left: -15,
+    top: -15,
+    height: 60,
+    width: 60,
+    backgroundColor: PortColors.primary.black,
+    opacity: 0.3,
   },
   bottomImage: {
     width: 60,

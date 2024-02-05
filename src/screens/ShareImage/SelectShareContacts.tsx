@@ -1,4 +1,4 @@
-import Send from '@assets/icons/NewSend.svg';
+import Send from '@assets/icons/WhiteArrowUp.svg';
 import {PortColors} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericTopBar from '@components/GenericTopBar';
@@ -19,6 +19,7 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
+import WhiteOverlay from '@assets/miscellaneous/whiteOverlay.svg';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SelectShareContacts'>;
 
@@ -146,12 +147,23 @@ const SelectShareContacts = ({route, navigation}: Props) => {
             keyExtractor={item => item.chatId}
             renderItem={renderItemTile}
           />
-          <GenericButton
-            loading={loading}
-            onPress={navigateToPreview}
-            IconLeft={Send}
-            buttonStyle={styles.button}
-          />
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: 0,
+            }}>
+            <WhiteOverlay style={{position: 'absolute', right: 2}} />
+            <GenericButton
+              onPress={navigateToPreview}
+              iconSizeRight={14}
+              IconRight={Send}
+              loading={loading}
+              buttonStyle={styles.button}
+            />
+          </View>
         </View>
       )}
     </SafeAreaView>
@@ -170,7 +182,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     flexDirection: 'row',
-    paddingVertical: 15,
+    paddingVertical: 8,
     paddingLeft: 15,
   },
   item: {
@@ -186,8 +198,10 @@ const styles = StyleSheet.create({
     color: '#868686',
   },
   button: {
+    marginLeft: 10,
     alignSelf: 'flex-end',
     marginRight: 15,
+    borderRadius: 100,
   },
 });
 

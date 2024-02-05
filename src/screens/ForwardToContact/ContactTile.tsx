@@ -3,12 +3,16 @@
  */
 import React, {useState} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {PortColors} from '@components/ComponentUtils';
 import {DEFAULT_AVATAR} from '@configs/constants';
-import {RadioButton} from '@screens/BugReporting/AccordionWithRadio';
+import CheckBox from '@react-native-community/checkbox';
 
 export default function ContactTile({
   member,
@@ -38,10 +42,15 @@ export default function ContactTile({
         }
         avatarSize={'small'}
       />
-      <NumberlessMediumText style={styles.defaultTileText} numberOfLines={1}>
+      <NumberlessText
+        style={styles.defaultTileText}
+        numberOfLines={1}
+        fontSizeType={FontSizeType.m}
+        fontType={FontType.md}>
+        {' '}
         {member.name}
-      </NumberlessMediumText>
-      <RadioButton selected={toggleCheckBox} />
+      </NumberlessText>
+      <CheckBox value={toggleCheckBox} />
     </Pressable>
   );
 }

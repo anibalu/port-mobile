@@ -10,6 +10,7 @@ export const PortColors = {
     secondary: '#868686',
     labels: '#C9C9C9',
     primaryWhite: '#FFFFFF',
+    backgroundGrey: '#3B3B3B',
     greenLabel: '#00340B',
     alertGreen: '#6FC960',
     delete: '#EE786B',

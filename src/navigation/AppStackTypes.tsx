@@ -47,6 +47,7 @@ export type AppStackParamList = {
     selectedMembers: ConnectionInfo[];
     shareMessages: [];
     isChat?: boolean;
+    isGroupChat?: boolean;
   };
   Presets: undefined;
   PendingRequests: undefined;

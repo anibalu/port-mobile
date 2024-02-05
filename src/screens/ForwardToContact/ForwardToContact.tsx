@@ -1,8 +1,9 @@
-import Send from '@assets/icons/NewSend.svg';
+import Send from '@assets/icons/WhiteArrowUp.svg';
 import ChatBackground from '@components/ChatBackground';
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {FontSizes, PortColors} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericTopBar from '@components/GenericTopBar';
+import WhiteOverlay from '@assets/miscellaneous/whiteOverlay.svg';
 import {
   FontSizeType,
   FontType,
@@ -18,7 +19,7 @@ import {ConnectionInfo} from '@utils/Connections/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {getMessage} from '@utils/Storage/messages';
 import React, {useEffect, useState} from 'react';
-import {FlatList, ScrollView, StyleSheet, View} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
 import ContactTile from './ContactTile';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ForwardToContact'>;
@@ -94,6 +95,20 @@ export default function ForwardToContact({route, navigation}: Props) {
     navigation.goBack();
   };
 
+  const renderItemTile = ({item}: {item: ConnectionInfo}) => {
+    return (
+      <NumberlessText
+        fontSizeType={FontSizeType.s}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={styles.itemTile}
+        textColor={PortColors.text.secondary}
+        fontType={FontType.sb}>
+        {item.name}
+      </NumberlessText>
+    );
+  };
+
   // TODO: Remove all inline styles
   return (
     <SafeAreaView style={styles.profileScreen}>
@@ -122,34 +137,37 @@ export default function ForwardToContact({route, navigation}: Props) {
 
       {selectedMembers.length > 0 && (
         <View style={styles.selectedMembers}>
-          <ScrollView
-            horizontal
+          <FlatList
+            data={selectedMembers}
+            horizontal={true}
             contentContainerStyle={{
+              justifyContent: 'center',
+              alignItems: 'center',
               columnGap: 8,
             }}
-            showsHorizontalScrollIndicator={false}
-            style={{
-              width: screen.width - 130,
-              marginRight: 16,
-            }}>
-            {selectedMembers.map(m => (
-              <NumberlessText
-                key={m.chatId}
-                style={styles.selectedItemDisplay}
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.md}
-                textColor={PortColors.text.secondary}>
-                {m.name}
-              </NumberlessText>
-            ))}
-          </ScrollView>
-
-          <GenericButton
-            buttonStyle={styles.send}
-            IconRight={Send}
-            loading={loading}
-            onPress={onForward}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+            keyExtractor={item => item.chatId}
+            renderItem={renderItemTile}
           />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: 0,
+            }}>
+            <WhiteOverlay
+              style={{position: 'absolute', right: 2, bottom: -6}}
+            />
+            <GenericButton
+              onPress={onForward}
+              iconSizeRight={14}
+              IconRight={Send}
+              loading={loading}
+              buttonStyle={styles.send}
+            />
+          </View>
         </View>
       )}
     </SafeAreaView>
@@ -159,21 +177,14 @@ export default function ForwardToContact({route, navigation}: Props) {
 const styles = StyleSheet.create({
   selectedMembers: {
     width: '100%',
-    height: 90,
     backgroundColor: 'white',
     padding: 15,
     position: 'absolute',
     bottom: 0,
     flex: 1,
     flexDirection: 'row',
-  },
-  selectedItemDisplay: {
-    backgroundColor: PortColors.primary.grey.light,
-    borderRadius: 11,
-    height: 36,
-    overflow: 'hidden',
-    marginTop: 5,
-    padding: 10,
+    paddingVertical: 8,
+    paddingLeft: 15,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -242,13 +253,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginRight: 10,
   },
+  itemTile: {
+    padding: 10,
+    borderRadius: 11,
+    textAlign: 'center',
+    backgroundColor: PortColors.primary.grey.light,
+  },
   send: {
-    width: 50,
-    height: 50,
-    borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: PortColors.primary.blue.app,
+    marginLeft: 10,
+    alignSelf: 'flex-end',
+    borderRadius: 100,
   },
   content: {
     fontSize: 15,

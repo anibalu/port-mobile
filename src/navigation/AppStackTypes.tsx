@@ -13,6 +13,7 @@ export type AppStackParamList = {
     isGroupChat: boolean;
     isConnected: boolean;
     profileUri: string | undefined | null;
+    latestMessageId?: string;
   };
   ContactProfile: {chatId: string};
   Placeholder: undefined;

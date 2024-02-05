@@ -10,6 +10,7 @@ export enum ReadStatus {
   read,
   sent,
   journaled,
+  failed,
 }
 export interface ConnectionInfoUpdate {
   chatId: string;
@@ -23,6 +24,7 @@ export interface ConnectionInfoUpdate {
   timestamp?: string;
   newMessageCount?: number;
   disconnected?: boolean;
+  latestMessageId?: string;
 }
 
 export interface ConnectionInfo extends ConnectionInfoUpdate {
@@ -37,6 +39,7 @@ export interface ConnectionInfo extends ConnectionInfoUpdate {
   timestamp: string;
   newMessageCount: number;
   disconnected?: boolean;
+  latestMessageId?: string;
 }
 
 export interface ConnectionInfoUpdateOnNewMessage extends ConnectionInfoUpdate {
@@ -47,6 +50,7 @@ export interface ConnectionInfoUpdateOnNewMessage extends ConnectionInfoUpdate {
   pathToDisplayPic?: string;
   readStatus: ReadStatus;
   authenticated?: boolean;
+  latestMessageId?: string;
 }
 
 export interface Connections {
@@ -56,6 +60,7 @@ export interface Connections {
 export interface StoreConnection {
   chatId: string;
   stringifiedConnection: string;
+  trigger?: string;
 }
 
 export interface StoreConnections {

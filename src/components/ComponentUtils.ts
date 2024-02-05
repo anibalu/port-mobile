@@ -41,6 +41,9 @@ export const PortColors = {
       dull: '#FEB95A',
     },
     success: '#6FC960',
+    border: {
+      dullGrey: '#e5e5e5',
+    },
     messageBubble: {
       dateBoundary: {
         background: '#FFFFFF',

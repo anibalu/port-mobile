@@ -1,5 +1,15 @@
-import Sending from '@assets/icons/statusIndicators/sending.svg';
-import {PortColors} from '@components/ComponentUtils';
+import CameraThin from '@assets/icons/CameraThin.svg';
+import DocumentThin from '@assets/icons/DocumentThin.svg';
+import VideoThin from '@assets/icons/VideoThin.svg';
+import Failure from '@assets/icons/statusIndicators/failure.svg';
+import Read from '@assets/icons/statusIndicators/read.svg';
+import Delivered from '@assets/icons/statusIndicators/received.svg';
+import {
+  default as Journaled,
+  default as Sending,
+} from '@assets/icons/statusIndicators/sending.svg';
+import Sent from '@assets/icons/statusIndicators/sent.svg';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {
   FontSizeType,
@@ -11,17 +21,25 @@ import {
   ChatType,
   ConnectionInfo,
   ReadStatus,
+  StoreConnection,
 } from '@utils/Connections/interfaces';
-import {ContentType} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  MessageStatus,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {getMessage} from '@utils/Storage/messages';
 import {getReadableTimestamp} from '@utils/Time';
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import PendingChatTile from './PendingChatTile';
 
-function ChatTile(props: ConnectionInfo): ReactNode {
+function ChatTile(initialProps: StoreConnection): ReactNode {
   const navigation = useNavigation<any>();
-
+  const [props, setProps] = useState<ConnectionInfo>(
+    JSON.parse(initialProps.stringifiedConnection),
+  );
   //handles navigation to a chat screen and toggles chat to read.
   const handleNavigate = (): void => {
     navigation.navigate('DirectChat', {
@@ -29,8 +47,41 @@ function ChatTile(props: ConnectionInfo): ReactNode {
       isGroupChat: props.connectionType === ChatType.group,
       isConnected: !props.disconnected,
       profileUri: props.pathToDisplayPic,
+      latestMessageId: props.latestMessageId,
     });
   };
+  const [newMessage, setNewMessage] = useState<SavedMessageParams>();
+
+  const getNewMessage = async (): Promise<void> => {
+    const msg = await getMessage(
+      JSON.parse(initialProps.stringifiedConnection).chatId,
+      JSON.parse(initialProps.stringifiedConnection).latestMessageId,
+    );
+    if (msg) {
+      setNewMessage(msg);
+    }
+  };
+
+  useEffect(() => {
+    setProps(JSON.parse(initialProps.stringifiedConnection));
+    getNewMessage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialProps]);
+
+  const messageStatus = () => {
+    if (newMessage?.messageStatus === MessageStatus.journaled) {
+      return <Journaled />;
+    } else if (newMessage?.messageStatus === MessageStatus.read) {
+      return <Read />;
+    } else if (newMessage?.messageStatus === MessageStatus.delivered) {
+      return <Delivered />;
+    } else if (newMessage?.messageStatus === MessageStatus.sent) {
+      return <Sent />;
+    } else if (newMessage?.messageStatus === MessageStatus.failed) {
+      return <Failure />;
+    }
+  };
+
   const isNewMessage = props.readStatus === ReadStatus.new;
   const isNewConnection = props.recentMessageType === ContentType.newChat;
 
@@ -47,7 +98,7 @@ function ChatTile(props: ConnectionInfo): ReactNode {
         profileUri={getProfileURI(props.pathToDisplayPic)}
         avatarSize="small"
       />
-      <View style={{flex: 1, marginTop: 4}}>
+      <View style={{flex: 1}}>
         <View style={styles.textInfoContainer}>
           <NumberlessText
             ellipsizeMode="tail"
@@ -78,7 +129,7 @@ function ChatTile(props: ConnectionInfo): ReactNode {
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
-                textColor={PortColors.text.labels}>
+                textColor={PortColors.text.secondary}>
                 {getReadableTimestamp(props.timestamp)}
               </NumberlessText>
             </View>
@@ -100,21 +151,12 @@ function ChatTile(props: ConnectionInfo): ReactNode {
             </NumberlessText>
           ) : (
             <>
-              <NumberlessText
-                ellipsizeMode="tail"
-                numberOfLines={1}
-                fontType={FontType.rg}
-                fontSizeType={FontSizeType.m}
-                style={{
-                  flex: 1,
-                  alignSelf: 'stretch',
-                }}
-                textColor={
-                  isNewMessage ? undefined : PortColors.text.secondary
-                }>
-                {props.text}
-              </NumberlessText>
-              <DisplayStatus {...props} />
+              <RenderText newMessage={newMessage} isNewMessage={isNewMessage} />
+              {isNewMessage ? (
+                <DisplayStatus {...props} />
+              ) : +newMessage?.sender ? (
+                messageStatus()
+              ) : null}
             </>
           )}
         </View>
@@ -124,6 +166,42 @@ function ChatTile(props: ConnectionInfo): ReactNode {
     <PendingChatTile {...props} />
   );
 }
+
+const RenderText = ({
+  newMessage,
+  isNewMessage,
+}: {
+  newMessage: SavedMessageParams | undefined;
+  isNewMessage: boolean;
+}) => {
+  return (
+    <View style={{flexDirection: 'row', flex: 1}}>
+      {newMessage?.contentType === ContentType.image ? (
+        <CameraThin style={{marginRight: 4}} />
+      ) : newMessage?.contentType === ContentType.video ? (
+        <VideoThin style={{marginRight: 4}} />
+      ) : newMessage?.contentType === ContentType.file ? (
+        <DocumentThin style={{marginRight: 4}} />
+      ) : null}
+      <NumberlessText
+        ellipsizeMode="tail"
+        numberOfLines={2}
+        style={{width: screen.width * 0.55}}
+        fontType={FontType.rg}
+        fontSizeType={FontSizeType.m}
+        textColor={isNewMessage ? undefined : PortColors.text.secondary}>
+        {newMessage?.data?.text ||
+          (newMessage?.contentType === ContentType.image
+            ? ' Photo'
+            : newMessage?.contentType === ContentType.video
+            ? ' Video'
+            : newMessage?.contentType === ContentType.file
+            ? ' File'
+            : null)}
+      </NumberlessText>
+    </View>
+  );
+};
 
 function getProfileURI(fileURI?: string | null) {
   if (fileURI) {
@@ -178,16 +256,16 @@ const styles = StyleSheet.create({
   tile: {
     borderRadius: 14,
     flexDirection: 'row',
-    paddingVertical: 16,
+    padding: 16,
     height: 82,
-    paddingHorizontal: 16,
+    borderWidth: 0.5,
+    borderColor: PortColors.primary.border.dullGrey,
   },
   textInfoContainer: {
     marginLeft: 12,
+    marginTop: -4,
     flexDirection: 'row',
     justifyContent: 'space-between',
-
-    flex: 1,
   },
   metadataContainer: {
     flexDirection: 'column',
@@ -218,8 +296,6 @@ const styles = StyleSheet.create({
   columnview: {
     alignSelf: 'stretch',
     marginLeft: 12,
-    marginTop: 6,
-    flex: 1,
     flexDirection: 'row',
   },
 });

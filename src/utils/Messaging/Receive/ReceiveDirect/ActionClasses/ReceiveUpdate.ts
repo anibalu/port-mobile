@@ -19,7 +19,7 @@ class ReceiveUpdate extends DirectReceiveAction {
   async updateSendStatus(updateParams: UpdateParams) {
     //update send status
 
-    storage.updateMessageSendStatus(
+    await storage.updateMessageSendStatus(
       this.chatId,
       updateParams.messageIdToBeUpdated,
       updateParams.updatedMessageStatus,

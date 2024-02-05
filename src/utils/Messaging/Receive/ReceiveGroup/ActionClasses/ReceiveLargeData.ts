@@ -67,6 +67,7 @@ class ReceiveLargeData extends GroupReceiveAction {
       readStatus: ReadStatus.new,
       recentMessageType: this.decryptedMessageContent.contentType,
       text: this.generatePreviewText(),
+      latestMessageId: this.decryptedMessageContent.messageId,
     });
   }
   notify(shouldNotify: boolean, connection: ConnectionInfo): void {

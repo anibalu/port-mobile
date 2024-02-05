@@ -310,10 +310,17 @@ class SendMessage<T extends ContentType> {
   //update message connection info based on send operation
   private async updateConnectionInfo(newSendStatus: MessageStatus) {
     //create ReadStatus attribute based on send status.
-    const readStatus: ReadStatus =
-      newSendStatus === MessageStatus.sent
-        ? ReadStatus.sent
-        : ReadStatus.journaled;
+
+    let readStatus: ReadStatus = ReadStatus.failed;
+    switch (newSendStatus) {
+      case MessageStatus.sent:
+        readStatus = ReadStatus.sent;
+        break;
+      case MessageStatus.journaled:
+        readStatus = ReadStatus.journaled;
+        break;
+    }
+
     switch (this.contentType) {
       //example if content type is text
       case ContentType.text:
@@ -322,6 +329,7 @@ class SendMessage<T extends ContentType> {
           text: (this.data as TextParams).text,
           readStatus: readStatus,
           recentMessageType: this.contentType,
+          latestMessageId: this.messageId,
         });
         break;
       case ContentType.image:
@@ -332,6 +340,7 @@ class SendMessage<T extends ContentType> {
             'sent image: ' + (this.data as LargeDataParams).fileName,
           readStatus: readStatus,
           recentMessageType: this.contentType,
+          latestMessageId: this.messageId,
         });
         break;
       case ContentType.video:
@@ -342,6 +351,7 @@ class SendMessage<T extends ContentType> {
             'sent video: ' + (this.data as LargeDataParams).fileName,
           readStatus: readStatus,
           recentMessageType: this.contentType,
+          latestMessageId: this.messageId,
         });
         break;
       case ContentType.file:
@@ -352,6 +362,7 @@ class SendMessage<T extends ContentType> {
             'sent file: ' + (this.data as LargeDataParams).fileName,
           readStatus: readStatus,
           recentMessageType: this.contentType,
+          latestMessageId: this.messageId,
         });
         break;
       case ContentType.contactBundle:
@@ -360,6 +371,7 @@ class SendMessage<T extends ContentType> {
           text: 'shared contact of ' + (this.data as ContactBundleParams).name,
           readStatus: readStatus,
           recentMessageType: this.contentType,
+          latestMessageId: this.messageId,
         });
         break;
       default:
@@ -374,6 +386,7 @@ class SendMessage<T extends ContentType> {
       try {
         //toggles stored message send status to failed.
         await this.updateSendStatus(MessageStatus.failed);
+        await this.updateConnectionInfo(MessageStatus.failed);
       } catch (error) {
         console.log('Error handling send operation failure: ', error);
       }

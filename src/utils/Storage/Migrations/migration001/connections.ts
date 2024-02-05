@@ -16,7 +16,8 @@ export default async function connections() {
       authenticated BOOL,
       timestamp VARCHAR(64),
       newMessageCount INT,
-      disconnected BOOL
+      disconnected BOOL,
+      latestMessageId CHAR(32)
       );`,
     [],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -18,6 +18,7 @@ class ReceiveContactBundle extends DirectReceiveAction {
         ' shared',
       readStatus: ReadStatus.new,
       recentMessageType: this.decryptedMessageContent.contentType,
+      latestMessageId: this.decryptedMessageContent.messageId,
     });
     //notify user if notifications are ON
     const permissions = await getChatPermissions(this.chatId, ChatType.direct);

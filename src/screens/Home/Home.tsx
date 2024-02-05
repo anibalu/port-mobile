@@ -19,20 +19,17 @@ import {
   ReadStatus,
   StoreConnection,
 } from '@utils/Connections/interfaces';
+import {useReadBundles} from '@utils/Ports';
 import React, {ReactElement, ReactNode, useEffect, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import DefaultChatTile from './DefaultChatTile';
 import HomeTopbar from './HomeTopbar';
-import {useReadBundles} from '@utils/Ports';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: StoreConnection): ReactElement {
   try {
-    const newConnection: ConnectionInfo = JSON.parse(
-      connection.stringifiedConnection,
-    );
-    return <ChatTile {...newConnection} />;
+    return <ChatTile {...connection} />;
   } catch (error) {
     return <></>;
   }
@@ -83,6 +80,9 @@ function Home(): ReactNode {
   const showOnboardingInfo = useSelector(
     state => state.profile.showOnboardingInfo,
   );
+  const latestUpdatedSendStatus: any = useSelector(
+    state => state.latestMessageUpdate.updatedStatus,
+  );
   const [searchText, setSearchText] = useState('');
 
   const [totalUnread, setTotalUnread] = useState<number>(0);
@@ -118,8 +118,35 @@ function Home(): ReactNode {
   }, []);
 
   useEffect(() => {
-    setViewableConnections(connections);
-  }, [connections]);
+    if (latestUpdatedSendStatus) {
+      setViewableConnections(_ => {
+        if (connections.length > 0) {
+          const idx = connections.findIndex(
+            item =>
+              JSON.parse(item.stringifiedConnection).latestMessageId ===
+              latestUpdatedSendStatus.messageId,
+          );
+          if (idx >= 0) {
+            let connc = [...connections];
+            let connectionData = JSON.parse(connc[idx].stringifiedConnection);
+            connectionData = {
+              ...connectionData,
+              ...latestUpdatedSendStatus,
+            } as ConnectionInfo;
+            connc[idx].stringifiedConnection = JSON.stringify(connectionData);
+
+            return connc;
+          } else {
+            return connections;
+          }
+        } else {
+          return connections;
+        }
+      });
+    } else {
+      setViewableConnections(connections);
+    }
+  }, [connections, latestUpdatedSendStatus]);
 
   useEffect(() => {
     if (searchText === '' || searchText === undefined) {
@@ -133,6 +160,7 @@ function Home(): ReactNode {
         ),
       );
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
@@ -150,7 +178,6 @@ function Home(): ReactNode {
             count++;
           }
         }
-        debouncedPeriodicOperations();
         setTotalUnread(count);
       })();
     }, [connections]),

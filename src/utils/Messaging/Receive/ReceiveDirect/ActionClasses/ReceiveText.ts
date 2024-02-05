@@ -16,6 +16,7 @@ class ReceiveText extends DirectReceiveAction {
       text: (this.decryptedMessageContent.data as TextParams).text || '',
       readStatus: ReadStatus.new,
       recentMessageType: this.decryptedMessageContent.contentType,
+      latestMessageId: this.decryptedMessageContent.messageId,
     });
     //notify user if notifications are ON
     const permissions = await getChatPermissions(this.chatId, ChatType.direct);

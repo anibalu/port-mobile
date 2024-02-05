@@ -83,8 +83,9 @@ export async function addConnection(connection: ConnectionInfo) {
       authenticated,
       timestamp,
       newMessageCount,
-      disconnected
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?);`,
+      disconnected,
+      latestMessageId
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);`,
     [
       connection.chatId,
       connection.connectionType,
@@ -97,6 +98,7 @@ export async function addConnection(connection: ConnectionInfo) {
       connection.timestamp,
       connection.newMessageCount,
       connection.disconnected,
+      connection.latestMessageId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, result) => {},
@@ -132,7 +134,8 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
     authenticated = COALESCE(?, authenticated),
     timestamp = COALESCE(?, timestamp),
     newMessageCount = COALESCE(?, newMessageCount),
-    disconnected = COALESCE(?, disconnected)
+    disconnected = COALESCE(?, disconnected),
+    latestMessageId = COALESCE(?, latestMessageId)
     WHERE chatId = ?
     ;`,
     [
@@ -145,6 +148,7 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
       update.timestamp,
       update.newMessageCount,
       update.disconnected,
+      update.latestMessageId,
       update.chatId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

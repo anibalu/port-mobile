@@ -6,8 +6,9 @@ import {screen} from '@components/ComponentUtils';
 
 import GenericModal from '@components/GenericModal';
 import {
-  NumberlessBoldText,
-  NumberlessMediumText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import {SaveButton} from '@components/SaveButton';
 import DisappearingMessage from '@screens/Presets/DisappearingMessage';
@@ -34,7 +35,6 @@ export default function GroupChatPermissionDropdown(props: {
   chatId: string; // The line id to manage permissions for
 }) {
   const chatId = props.chatId;
-  const isBold = props.bold;
   const [showPermissions, setShowPermissions] = useState(false);
   const [permissionsObj, setPermissionsObj] = useState<GroupPermissions>(
     getDefaultPermissions(ChatType.group),
@@ -68,15 +68,13 @@ export default function GroupChatPermissionDropdown(props: {
           ) : (
             <PermissionIconInactive />
           )}
-          {isBold ? (
-            <NumberlessBoldText style={styles.headerTextStyle}>
-              Permissions
-            </NumberlessBoldText>
-          ) : (
-            <NumberlessMediumText style={styles.headerTextStyle}>
-              Permissions
-            </NumberlessMediumText>
-          )}
+
+          <NumberlessText
+            fontType={FontType.md}
+            fontSizeType={FontSizeType.l}
+            style={styles.headerTextStyle}>
+            Permissions
+          </NumberlessText>
         </View>
         {showPermissions ? <SingleUp /> : <SingleDown />}
       </Pressable>
@@ -144,8 +142,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   headerTextStyle: {
-    fontSize: 16,
-    fontWeight: '500',
     color: 'black',
     left: 10,
   },

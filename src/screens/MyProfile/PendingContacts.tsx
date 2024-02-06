@@ -11,9 +11,9 @@ import {
 import CrossIcon from '@assets/icons/cross.svg';
 import {GeneratedDirectConnectionBundle} from '@utils/Bundles/interfaces';
 import {
-  NumberlessBoldText,
-  NumberlessMediumText,
-  NumberlessRegularText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import GenericModal from '@components/GenericModal';
 import {screen} from '@components/ComponentUtils';
@@ -56,23 +56,35 @@ export default function PendingContacts() {
                 }}>
                 {item?.type === 'link' ? <Link /> : <QRCode />}
                 <View style={styles.columnStyles}>
-                  <NumberlessMediumText style={styles.itemLabel}>
+                  <NumberlessText
+                    fontType={FontType.md}
+                    fontSizeType={FontSizeType.s}
+                    style={styles.itemLabel}>
                     {item?.label ? item?.label : 'unlabeled'}
-                  </NumberlessMediumText>
-                  <NumberlessRegularText style={styles.itemTime}>
+                  </NumberlessText>
+                  <NumberlessText
+                    fontType={FontType.rg}
+                    fontSizeType={FontSizeType.s}
+                    style={styles.itemTime}>
                     Created
-                  </NumberlessRegularText>
-                  <NumberlessRegularText style={styles.itemTime}>
+                  </NumberlessText>
+                  <NumberlessText
+                    fontType={FontType.rg}
+                    fontSizeType={FontSizeType.s}
+                    style={styles.itemTime}>
                     {getTimeAndDateStamp(item?.timestamp)}
-                  </NumberlessRegularText>
+                  </NumberlessText>
                 </View>
               </Pressable>
             )}
           />
         ) : (
-          <NumberlessRegularText style={styles.noContacts}>
+          <NumberlessText
+            fontType={FontType.rg}
+            fontSizeType={FontSizeType.m}
+            style={styles.noContacts}>
             No Pending Contacts
-          </NumberlessRegularText>
+          </NumberlessText>
         )}
       </Accordion>
       <GenericModal
@@ -88,22 +100,34 @@ export default function PendingContacts() {
               <QRCode style={styles.iconStyles} />
             )}
             <View style={styles.modalStyles}>
-              <NumberlessBoldText style={styles.modalLabel}>
+              <NumberlessText
+                fontType={FontType.sb}
+                fontSizeType={FontSizeType.m}
+                style={styles.modalLabel}>
                 {selectedObject.label ? selectedObject.label : 'unlabled'}
-              </NumberlessBoldText>
-              <NumberlessMediumText style={styles.modalTime}>
+              </NumberlessText>
+              <NumberlessText
+                fontType={FontType.md}
+                fontSizeType={FontSizeType.m}
+                style={styles.modalTime}>
                 Created
-              </NumberlessMediumText>
-              <NumberlessMediumText style={styles.modalTime}>
+              </NumberlessText>
+              <NumberlessText
+                fontType={FontType.md}
+                fontSizeType={FontSizeType.m}
+                style={styles.modalTime}>
                 {getTimeAndDateStamp(selectedObject.timestamp)}
-              </NumberlessMediumText>
+              </NumberlessText>
             </View>
             <CrossIcon onPress={() => setModalVisible(false)} />
           </View>
           <Pressable style={styles.button} onPress={deleteBundle}>
-            <NumberlessBoldText style={styles.buttonText}>
+            <NumberlessText
+              fontType={FontType.sb}
+              fontSizeType={FontSizeType.l}
+              style={styles.buttonText}>
               Delete
-            </NumberlessBoldText>
+            </NumberlessText>
           </Pressable>
         </View>
       </GenericModal>
@@ -138,13 +162,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   itemLabel: {
-    fontWeight: '500',
-    fontSize: 12,
     color: 'black',
   },
   itemTime: {
     fontWeight: '400',
-    fontSize: 12,
     color: '#B7B7B7',
   },
   popUpArea: {
@@ -162,13 +183,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   modalLabel: {
-    fontWeight: '700',
-    fontSize: 14,
     color: 'black',
   },
   modalTime: {
-    fontWeight: '500',
-    fontSize: 14,
     color: '#B7B7B7',
   },
   modalStyles: {
@@ -189,8 +206,6 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   buttonText: {
-    fontSize: 17,
-    fontWeight: '700',
     color: 'white',
     textAlign: 'center',
   },

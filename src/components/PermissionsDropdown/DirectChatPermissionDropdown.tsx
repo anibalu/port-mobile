@@ -3,8 +3,9 @@ import {Pressable, StyleSheet, View} from 'react-native';
 import PermissionIconActive from '@assets/permissions/permissions-active.svg';
 import PermissionIconInactive from '@assets/permissions/permissions-inactive.svg';
 import {
-  NumberlessBoldText,
-  NumberlessMediumText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import SingleDown from '@assets/icons/single-down.svg';
 import SingleUp from '@assets/icons/BlueSingleUp.svg';
@@ -36,7 +37,6 @@ export default function DirectChatPermissionDropdown(props: {
   chatId: string; // The line id to manage permissions for
 }) {
   const chatId = props.chatId;
-  const isBold = props.bold;
   const [showPermissions, setShowPermissions] = useState(true);
   const [permissionsObj, setPermissionsObj] = useState<DirectPermissions>(
     getDefaultPermissions(ChatType.direct),
@@ -109,15 +109,13 @@ export default function DirectChatPermissionDropdown(props: {
           ) : (
             <PermissionIconInactive />
           )}
-          {isBold ? (
-            <NumberlessBoldText style={styles.headerTextStyle}>
-              Permissions
-            </NumberlessBoldText>
-          ) : (
-            <NumberlessMediumText style={styles.headerTextStyle}>
-              Permissions
-            </NumberlessMediumText>
-          )}
+
+          <NumberlessText
+            fontSizeType={FontSizeType.l}
+            fontType={FontType.md}
+            style={styles.headerTextStyle}>
+            Permissions
+          </NumberlessText>
         </View>
         {showPermissions ? <SingleUp /> : <SingleDown />}
       </Pressable>
@@ -171,8 +169,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   headerTextStyle: {
-    fontSize: 16,
-    fontWeight: '500',
     color: 'black',
     left: 10,
   },

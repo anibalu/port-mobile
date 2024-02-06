@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     flex: 1,
     marginLeft: 19,
-    fontSize: 15,
   },
   newIcon: {
     width: 60,

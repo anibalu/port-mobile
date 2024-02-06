@@ -5,7 +5,11 @@ import React from 'react';
 import {Image, Pressable, StyleSheet, View} from 'react-native';
 import DefaultImage from '@assets/avatars/avatar.png';
 import Plus from '@assets/icons/plus.svg';
-import {NumberlessRegularText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 
 function SelectedMemberTile({
@@ -32,9 +36,13 @@ function SelectedMemberTile({
         style={styles.plusIcon}>
         <Plus style={{transform: [{rotate: '45deg'}]}} />
       </Pressable>
-      <NumberlessRegularText style={styles.defaultTileText} numberOfLines={1}>
+      <NumberlessText
+        fontType={FontType.rg}
+        fontSizeType={FontSizeType.l}
+        style={styles.defaultTileText}
+        numberOfLines={1}>
         {member.name}
-      </NumberlessRegularText>
+      </NumberlessText>
     </View>
   );
 }
@@ -53,7 +61,6 @@ const styles = StyleSheet.create({
   defaultTileText: {
     color: '#18191F',
     marginTop: 12,
-    fontSize: 18,
   },
   plusIcon: {
     position: 'absolute',

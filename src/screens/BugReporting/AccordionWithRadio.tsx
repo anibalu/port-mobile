@@ -11,10 +11,11 @@ import GreyArrowUp from '@assets/icons/GreyArrowUp.svg';
 import Screenshot from '@assets/icons/Screenshot.svg';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import {
-  NumberlessMediumText,
-  NumberlessRegularText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import GenericInput from '@components/GenericInput';
 
 const AccordionWithRadio = ({
@@ -54,9 +55,13 @@ const AccordionWithRadio = ({
       <TouchableOpacity onPress={toggleAccordion} style={styles.header}>
         <View style={styles.accordionTitleStyles}>
           <Img style={{marginRight: 10}} />
-          <NumberlessMediumText style={styles.headerText}>
+          <NumberlessText
+            fontType={FontType.md}
+            fontSizeType={FontSizeType.m}
+            textColor={PortColors.text.primary}
+            style={styles.headerText}>
             {category}
-          </NumberlessMediumText>
+          </NumberlessText>
           {expanded ? <GreyArrowUp /> : <GreyArrowDown />}
         </View>
       </TouchableOpacity>
@@ -69,9 +74,13 @@ const AccordionWithRadio = ({
                 onPress={() => setSelected(section)}
                 style={styles.sectionStyles}
                 key={section.index}>
-                <NumberlessRegularText style={styles.sectionTextStyles}>
+                <NumberlessText
+                  fontType={FontType.rg}
+                  fontSizeType={FontSizeType.m}
+                  textColor={PortColors.text.primary}
+                  style={styles.sectionTextStyles}>
                   {content}
-                </NumberlessRegularText>
+                </NumberlessText>
                 <RadioButton selected={selected.index === index} />
               </Pressable>
             );
@@ -103,24 +112,34 @@ const AccordionWithRadio = ({
       <View style={styles.screenshot}>
         {image ? (
           <>
-            <NumberlessRegularText style={styles.screenshotText}>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.s}
+              textColor={PortColors.text.secondary}
+              style={styles.screenshotText}>
               Attached Screenshot.{' '}
-              <NumberlessRegularText
+              <NumberlessText
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.s}
+                textColor={PortColors.text.secondary}
                 style={[
                   styles.screenshotText,
                   {textDecorationLine: 'underline'},
                 ]}
                 onPress={openImageGallery}>
                 Click to change
-              </NumberlessRegularText>
-            </NumberlessRegularText>
+              </NumberlessText>
+            </NumberlessText>
             <Image style={styles.selectedImage} source={{uri: image}} />
           </>
         ) : (
           <>
-            <NumberlessRegularText style={styles.screenshotText}>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.s}
+              style={styles.screenshotText}>
               Do you wish to attach a screenshot?
-            </NumberlessRegularText>
+            </NumberlessText>
             <Screenshot style={{top: -7}} onPress={openImageGallery} />
           </>
         )}
@@ -156,10 +175,8 @@ const styles = StyleSheet.create({
   },
   screenshotText: {
     width: '90%',
-    ...FontSizes[12].regular,
     alignSelf: 'center',
     marginBottom: 15,
-    color: '#868686',
   },
   accordionTitleStyles: {
     paddingVertical: 15,
@@ -175,9 +192,7 @@ const styles = StyleSheet.create({
   },
 
   headerText: {
-    ...FontSizes[15].medium,
     width: '90%',
-    color: 'black',
   },
   content: {
     paddingTop: 5,
@@ -192,7 +207,6 @@ const styles = StyleSheet.create({
     width: '85%',
     marginBottom: 20,
     marginLeft: 20,
-    color: 'black',
   },
 });
 

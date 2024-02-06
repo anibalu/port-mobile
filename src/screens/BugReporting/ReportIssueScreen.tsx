@@ -10,7 +10,11 @@ import AccordionWithRadio from './AccordionWithRadio';
 import {Submitted} from './Submitted';
 import DeviceInfo from 'react-native-device-info';
 import {submitBugReport} from '@utils/BugReporting/bug_reports';
-import {NumberlessRegularText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import ChatBackground from '@components/ChatBackground';
@@ -94,9 +98,13 @@ export default function ReportIssueScreen({navigation, route}: Props) {
             setError={setError}
           />
           {error !== '' && (
-            <NumberlessRegularText style={styles.error}>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.s}
+              textColor={'red'}
+              style={styles.error}>
               {error}
-            </NumberlessRegularText>
+            </NumberlessText>
           )}
         </View>
 
@@ -147,8 +155,6 @@ const styles = StyleSheet.create({
     height: 70,
   },
   error: {
-    color: 'red',
-    fontSize: 13,
     textAlign: 'center',
   },
   buttonText: {

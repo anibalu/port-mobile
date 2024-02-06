@@ -3,7 +3,6 @@ import {PortColors, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
-  NumberlessRegularText,
   NumberlessText,
 } from '@components/NumberlessText';
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
@@ -136,9 +135,12 @@ const ViewPhotosVideos = ({route}: Props) => {
           {rows}
         </ScrollView>
       ) : (
-        <NumberlessRegularText style={styles.nocontentText}>
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}
+          style={styles.nocontentText}>
           No Media yet
-        </NumberlessRegularText>
+        </NumberlessText>
       )}
       {selectedMedia.length > 0 && (
         <View style={styles.messagebar}>

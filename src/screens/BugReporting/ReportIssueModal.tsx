@@ -1,13 +1,18 @@
 import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 import InfoIcon from '@assets/icons/Information.svg';
 import WorldIcon from '@assets/icons/WorldIcon.svg';
 import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
 import {useNavigation} from '@react-navigation/native';
-import {NumberlessMediumText} from '@components/NumberlessText';
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import {PortColors, screen} from '@components/ComponentUtils';
 import Notch from '@components/ConnectionModal/Notch';
+import {GenericButton} from '@components/GenericButton';
 
 interface reportIssueProps {
   setReportBugModalOpen: Function;
@@ -30,20 +35,34 @@ export default function ReportIssueModal(props: reportIssueProps) {
       <Notch />
 
       <View style={styles.rowStyles}>
-        <NumberlessMediumText style={styles.titleText}>
+        <NumberlessText
+          fontType={FontType.md}
+          fontSizeType={FontSizeType.m}
+          textColor={PortColors.text.primary}
+          style={styles.titleText}>
           Need help?
-        </NumberlessMediumText>
+        </NumberlessText>
       </View>
-      <Pressable style={styles.button} onPress={onClickReportProblem}>
-        <InfoIcon />
-        <Text style={styles.buttonText}>Report a problem</Text>
-        <GreyArrowRight />
-      </Pressable>
-      <Pressable style={styles.button} onPress={onClickSuggestFeature}>
-        <WorldIcon />
-        <Text style={styles.buttonText}>Suggest a feature</Text>
-        <GreyArrowRight />
-      </Pressable>
+      <GenericButton
+        textStyle={styles.buttonText}
+        buttonStyle={styles.button}
+        IconLeft={InfoIcon}
+        iconSizeRight={15}
+        iconSize={50}
+        IconRight={GreyArrowRight}
+        onPress={onClickReportProblem}>
+        Report a problem
+      </GenericButton>
+      <GenericButton
+        buttonStyle={styles.button}
+        textStyle={styles.buttonText}
+        iconSizeRight={15}
+        iconSize={50}
+        IconLeft={WorldIcon}
+        IconRight={GreyArrowRight}
+        onPress={onClickSuggestFeature}>
+        Suggest a feature
+      </GenericButton>
     </View>
   );
 }
@@ -62,8 +81,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   titleText: {
-    ...FontSizes[15].medium,
-    color: 'black',
     width: 330,
     marginTop: -10,
   },
@@ -85,9 +102,9 @@ const styles = StyleSheet.create({
     borderColor: PortColors.primary.grey.light,
   },
   buttonText: {
+    color: PortColors.text.primary,
     fontSize: 14,
     fontWeight: '400',
-    color: 'black',
     paddingLeft: 15,
     paddingRight: 10,
     width: 160,

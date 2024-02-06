@@ -524,7 +524,6 @@ const styles = StyleSheet.create({
     ...(isIOS && {paddingTop: 12, paddingBottom: 10, paddingLeft: 16}),
   },
   itemtext: {
-    fontSize: 12,
     color: PortColors.primary.grey.dark,
   },
   button: {

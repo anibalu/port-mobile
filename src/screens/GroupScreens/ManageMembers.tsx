@@ -3,8 +3,9 @@
  * screen Id: N/A
  */
 import {
-  NumberlessMediumText,
-  NumberlessRegularText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
@@ -153,15 +154,20 @@ function ManageMembers({route, navigation}: Props) {
 
       <View style={styles.section}>
         <View style={styles.memberSection}>
-          <NumberlessMediumText
+          <NumberlessText
+            fontType={FontType.md}
+            fontSizeType={FontSizeType.m}
             style={styles.content}
             ellipsizeMode="tail"
             numberOfLines={1}>
             Other members
-          </NumberlessMediumText>
-          <NumberlessRegularText style={{fontSize: 15, marginRight: 14}}>
+          </NumberlessText>
+          <NumberlessText
+            fontType={FontType.rg}
+            fontSizeType={FontSizeType.m}
+            style={{marginRight: 14}}>
             {members ? members.length : 0} other participants
-          </NumberlessRegularText>
+          </NumberlessText>
         </View>
 
         <SearchBar
@@ -334,7 +340,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
-    fontSize: 15,
     color: 'black',
     textAlign: 'center',
     marginVertical: 8,

@@ -3,7 +3,11 @@
  */
 import React from 'react';
 import {Pressable, StyleSheet} from 'react-native';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {PortColors} from '@components/ComponentUtils';
@@ -34,9 +38,14 @@ export default function ContactTile({
         }
         avatarSize={'small'}
       />
-      <NumberlessMediumText style={styles.defaultTileText} numberOfLines={1}>
+      <NumberlessText
+        fontType={FontType.md}
+        fontSizeType={FontSizeType.m}
+        textColor={PortColors.primary.black}
+        style={styles.defaultTileText}
+        numberOfLines={1}>
         {member.name}
-      </NumberlessMediumText>
+      </NumberlessText>
       <RadioButton selected={selectedMembers?.chatId === member.chatId} />
     </Pressable>
   );
@@ -56,11 +65,9 @@ const styles = StyleSheet.create({
     paddingRight: 21,
   },
   defaultTileText: {
-    color: PortColors.primary.black,
     textAlign: 'left',
     flex: 1,
     marginLeft: 19,
-    fontSize: 15,
   },
   newIcon: {
     width: 60,

@@ -5,7 +5,11 @@
 import React, {useCallback, useEffect, useState} from 'react';
 
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 // import NamePopup from './UpdateNamePopup';
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
@@ -131,10 +135,12 @@ function AddMembers({route, navigation}: Props) {
             navigation.navigate('ShareGroup', {groupId: groupId});
           }}>
           <Share />
-          <NumberlessMediumText
-            style={{fontSize: 15, color: '#FFFFFF', marginLeft: 6}}>
+          <NumberlessText
+            fontType={FontType.md}
+            fontSizeType={FontSizeType.m}
+            style={{color: '#FFFFFF', marginLeft: 6}}>
             Group Invite
-          </NumberlessMediumText>
+          </NumberlessText>
         </Pressable>
       </View>
       <FlatList

@@ -6,9 +6,6 @@ import Play from '@assets/icons/videoPlay.svg';
 import {
   FontSizeType,
   FontType,
-  NumberlessMediumText,
-  NumberlessRegularText,
-  NumberlessSemiBoldText,
   NumberlessText,
 } from '@components/NumberlessText';
 import React, {useCallback, useEffect, useState} from 'react';
@@ -138,31 +135,39 @@ function GroupProfile({route, navigation}: Props) {
         <View style={styles.profile}>
           <GenericAvatar profileUri={profileURI} avatarSize={'medium'} />
           <View style={styles.groupNameArea}>
-            <NumberlessSemiBoldText
+            <NumberlessText
+              fontType={FontType.sb}
+              fontSizeType={FontSizeType.xl}
               style={styles.groupName}
               ellipsizeMode="tail"
               numberOfLines={1}>
               {groupData.name}
-            </NumberlessSemiBoldText>
-            <NumberlessMediumText
+            </NumberlessText>
+            <NumberlessText
+              fontType={FontType.md}
+              fontSizeType={FontSizeType.m}
               style={styles.groupDetails}
               ellipsizeMode="tail"
               numberOfLines={1}>
               Group | {members ? members.length + 1 : 1} participants
-            </NumberlessMediumText>
-            <NumberlessRegularText
+            </NumberlessText>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.m}
               style={styles.groupDetails}
               ellipsizeMode="tail"
               numberOfLines={1}>
               Created {getTimeStamp(groupData.joinedAt)}
-            </NumberlessRegularText>
+            </NumberlessText>
             {groupData.description && (
-              <NumberlessRegularText
+              <NumberlessText
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.m}
                 style={styles.groupDescription}
                 ellipsizeMode="tail"
                 numberOfLines={3}>
                 {groupData.description || ''}
-              </NumberlessRegularText>
+              </NumberlessText>
             )}
 
             <View>
@@ -380,18 +385,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   groupName: {
-    fontSize: 19,
     color: 'black',
     textAlign: 'center',
   },
   groupDetails: {
-    fontSize: 15,
     color: 'rgba(0, 0, 0, 0.28)',
     textAlign: 'center',
     marginTop: 7,
   },
   groupDescription: {
-    fontSize: 15,
     color: 'black',
     textAlign: 'center',
     marginVertical: 26,

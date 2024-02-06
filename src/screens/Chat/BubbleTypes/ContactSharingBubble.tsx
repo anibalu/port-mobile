@@ -1,4 +1,8 @@
-import {NumberlessRegularText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {
   ContactBundleParams,
   SavedMessageParams,
@@ -16,6 +20,7 @@ import {useNavigation} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import {PortColors} from '@components/ComponentUtils';
 
 enum ButtonState {
   undecided,
@@ -109,15 +114,22 @@ export default function ContactSharingBubble({
   if (message.sender) {
     return (
       <Pressable style={styles.textBubbleContainer}>
-        <NumberlessRegularText style={styles.text}>
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}
+          textColor={PortColors.text.primary}
+          style={styles.text}>
           {'You have shared the contact of ' +
             ((message.data as ContactBundleParams).name || DEFAULT_NAME)}
-        </NumberlessRegularText>
+        </NumberlessText>
         <View style={styles.timeStampContainer}>
           <View>
-            <NumberlessRegularText style={styles.timeStamp}>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.xs}
+              textColor={PortColors.text.secondary}>
               {getTimeStamp(message.timestamp)}
-            </NumberlessRegularText>
+            </NumberlessText>
           </View>
         </View>
       </Pressable>
@@ -125,15 +137,22 @@ export default function ContactSharingBubble({
   } else {
     return (
       <View style={styles.textBubbleContainer}>
-        <NumberlessRegularText style={styles.text}>
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}
+          textColor={PortColors.text.primary}
+          style={styles.text}>
           {'You have been shared the contact of ' +
             ((message.data as ContactBundleParams).name || DEFAULT_NAME)}
-        </NumberlessRegularText>
+        </NumberlessText>
         <View style={styles.timeStampContainer}>
           <View>
-            <NumberlessRegularText style={styles.timeStamp}>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.xs}
+              textColor={PortColors.text.secondary}>
               {getTimeStamp(message.timestamp)}
-            </NumberlessRegularText>
+            </NumberlessText>
           </View>
         </View>
         <GetButton clickHandle={handleConnect} buttonState={buttonType} />
@@ -154,7 +173,7 @@ function GetButton({
       return (
         <GenericButton
           onPress={clickHandle}
-          textStyle={styles.connectText}
+          textStyle={{color: PortColors.text.title}}
           buttonStyle={styles.connectButton}>
           Connect
         </GenericButton>
@@ -163,7 +182,7 @@ function GetButton({
       return (
         <GenericButton
           onPress={() => {}}
-          textStyle={styles.connectText}
+          textStyle={{color: PortColors.text.title}}
           buttonStyle={styles.connectButton}>
           Connecting...
         </GenericButton>
@@ -172,7 +191,7 @@ function GetButton({
       return (
         <GenericButton
           onPress={() => {}}
-          textStyle={styles.connectText}
+          textStyle={{color: PortColors.text.title}}
           buttonStyle={styles.connectButton}>
           expired
         </GenericButton>
@@ -181,7 +200,7 @@ function GetButton({
       return (
         <GenericButton
           onPress={() => {}}
-          textStyle={styles.connectText}
+          textStyle={{color: PortColors.text.title}}
           buttonStyle={styles.connectButton}>
           expired
         </GenericButton>
@@ -190,7 +209,7 @@ function GetButton({
       return (
         <GenericButton
           onPress={clickHandle}
-          textStyle={styles.connectText}
+          textStyle={{color: PortColors.text.title}}
           buttonStyle={styles.connectButton}>
           message
         </GenericButton>
@@ -199,7 +218,7 @@ function GetButton({
       return (
         <GenericButton
           onPress={() => {}}
-          textStyle={styles.connectText}
+          textStyle={{color: PortColors.text.title}}
           buttonStyle={styles.connectButton}>
           expired
         </GenericButton>
@@ -229,16 +248,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
-  timeStamp: {
-    fontSize: 10,
-    color: '#868686',
-  },
   failedStamp: {
     fontSize: 10,
     color: '#CCCCCC',
   },
   text: {
-    color: '#000000',
     marginTop: 10,
   },
   buttonContainer: {
@@ -264,8 +278,5 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
     backgroundColor: 'white',
-  },
-  connectText: {
-    color: '#547CEF',
   },
 });

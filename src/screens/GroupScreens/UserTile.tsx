@@ -7,8 +7,9 @@ import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
 import GenericModal from '@components/GenericModal';
 import {
-  NumberlessBoldText,
-  NumberlessRegularText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
 import {GroupMember, GroupMemberStrict} from '@utils/Groups/interfaces';
@@ -58,9 +59,13 @@ function UserTile({
             setVisible(true);
           }}
         />
-        <NumberlessRegularText style={styles.defaultTileText} numberOfLines={1}>
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}
+          style={styles.defaultTileText}
+          numberOfLines={1}>
           {member?.name ? member.name : DEFAULT_NAME}
-        </NumberlessRegularText>
+        </NumberlessText>
       </View>
       <GenericModal
         onClose={() => setVisible(false)}
@@ -69,9 +74,12 @@ function UserTile({
           <View style={styles.row}>
             <GenericAvatar profileUri={avatar} avatarSize={'small'} />
             <View style={styles.textColumn}>
-              <NumberlessBoldText style={styles.bold}>
+              <NumberlessText
+                fontType={FontType.sb}
+                fontSizeType={FontSizeType.l}
+                style={styles.bold}>
                 {member?.name ? member.name : DEFAULT_NAME}
-              </NumberlessBoldText>
+              </NumberlessText>
             </View>
             <Pressable onPress={() => setVisible(false)}>
               <Cross />

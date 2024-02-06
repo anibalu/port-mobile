@@ -1,6 +1,7 @@
 import {
-  NumberlessMediumText,
-  NumberlessRegularText,
+  FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -29,13 +30,19 @@ function ShareGroup({route, navigation}: Props) {
         <View style={styles.mainBox}>
           <ConnectionDisplay groupId={groupId} />
           <View style={styles.educationBox}>
-            <NumberlessMediumText style={styles.titleText}>
+            <NumberlessText
+              fontType={FontType.md}
+              fontSizeType={FontSizeType.s}
+              style={styles.titleText}>
               Frequently Asked Questions
-            </NumberlessMediumText>
-            <NumberlessRegularText style={styles.educationText}>
+            </NumberlessText>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.s}
+              style={styles.educationText}>
               Lorem ipsum dolor sit amet consectetur. Magna eget faucibus
               pellentesque sit fusce fames vel. Neque placerat.
-            </NumberlessRegularText>
+            </NumberlessText>
           </View>
         </View>
       </ScrollView>
@@ -62,12 +69,10 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   titleText: {
-    fontSize: 13,
     marginBottom: 20,
     width: '100%',
   },
   educationText: {
-    fontSize: 13,
     width: '100%',
   },
 });

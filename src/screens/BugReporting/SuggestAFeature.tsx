@@ -1,6 +1,6 @@
 import Screenshot from '@assets/icons/Screenshot.svg';
 import ChatBackground from '@components/ChatBackground';
-import {FontSizes, screen} from '@components/ComponentUtils';
+import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
 import GenericModal from '@components/GenericModal';
@@ -12,7 +12,11 @@ import React, {useState} from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import {Submitted} from './Submitted';
-import {NumberlessRegularText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SuggestAFeature'>;
 
@@ -71,24 +75,34 @@ export default function SuggestAFeature({navigation}: Props) {
         <View style={styles.screenshot}>
           {image ? (
             <>
-              <NumberlessRegularText style={styles.screenshotText}>
+              <NumberlessText
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.s}
+                textColor={PortColors.text.secondary}
+                style={styles.screenshotText}>
                 Attached Screenshot.{' '}
-                <NumberlessRegularText
+                <NumberlessText
+                  fontType={FontType.rg}
+                  fontSizeType={FontSizeType.s}
+                  textColor={PortColors.text.secondary}
                   style={[
                     styles.screenshotText,
                     {textDecorationLine: 'underline'},
                   ]}
                   onPress={openImageGallery}>
                   Click to change
-                </NumberlessRegularText>
-              </NumberlessRegularText>
+                </NumberlessText>
+              </NumberlessText>
               <Image style={styles.selectedImage} source={{uri: image}} />
             </>
           ) : (
             <>
-              <NumberlessRegularText style={styles.screenshotText}>
+              <NumberlessText
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.s}
+                style={styles.screenshotText}>
                 Do you wish to attach a screenshot?
-              </NumberlessRegularText>
+              </NumberlessText>
               <Screenshot style={{top: -7}} onPress={openImageGallery} />
             </>
           )}
@@ -179,10 +193,8 @@ const styles = StyleSheet.create({
   },
   screenshotText: {
     width: '90%',
-    ...FontSizes[12].regular,
     alignSelf: 'center',
     marginBottom: 15,
-    color: '#868686',
   },
   input: {
     width: '100%',

@@ -5,7 +5,11 @@ import TorchOff from '@assets/icons/TorchOff.svg';
 import TorchOn from '@assets/icons/TorchOn.svg';
 import Area from '@assets/miscellaneous/scanArea.svg';
 import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
-import {NumberlessRegularText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {useIsFocused} from '@react-navigation/native';
 import {checkCameraPermission} from '@utils/AppPermissions';
 import {checkBundleValidity} from '@utils/Ports';
@@ -90,9 +94,12 @@ export default function QRScanner() {
         />
       ) : (
         <View style={styles.permissionDenied}>
-          <NumberlessRegularText style={styles.text}>
+          <NumberlessText
+            fontType={FontType.rg}
+            fontSizeType={FontSizeType.m}
+            style={styles.text}>
             Please provide camera permission
-          </NumberlessRegularText>
+          </NumberlessText>
         </View>
       )}
       <View style={styles.cameraOptions}>

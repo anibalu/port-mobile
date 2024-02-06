@@ -3,7 +3,11 @@
  */
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {NumberlessRegularText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import Plus from '@assets/icons/plus.svg';
 import {GenericAvatar} from '@components/GenericAvatar';
@@ -32,9 +36,14 @@ export default function SelectedContactTile({
         style={styles.plusIcon}>
         <Plus style={{transform: [{rotate: '45deg'}]}} />
       </Pressable>
-      <NumberlessRegularText style={styles.defaultTileText} numberOfLines={1}>
+      <NumberlessText
+        fontType={FontType.rg}
+        fontSizeType={FontSizeType.l}
+        textColor={PortColors.primary.black}
+        style={styles.defaultTileText}
+        numberOfLines={1}>
         {member.name}
-      </NumberlessRegularText>
+      </NumberlessText>
     </View>
   );
 }
@@ -52,11 +61,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   defaultTileText: {
-    color: PortColors.primary.black,
     textAlign: 'left',
     flex: 1,
     marginLeft: 19,
-    fontSize: 17,
   },
   plusIcon: {
     position: 'absolute',

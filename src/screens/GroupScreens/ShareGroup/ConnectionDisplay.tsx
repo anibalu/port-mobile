@@ -11,9 +11,10 @@ import Nfc from '@assets/icons/nfc.svg';
 //component imports
 import {PortColors, screen} from '@components/ComponentUtils';
 import {
+  FontSizeType,
+  FontType,
   NumberlessItalicText,
-  NumberlessMediumText,
-  NumberlessRegularText,
+  NumberlessText,
 } from '@components/NumberlessText';
 import {DEFAULT_NAME} from '@configs/constants';
 import Group from '@utils/Groups/Group';
@@ -128,9 +129,12 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
   }, [latestNewConnection]);
   return (
     <View style={styles.container}>
-      <NumberlessMediumText style={styles.cardTitleText}>
+      <NumberlessText
+        fontType={FontType.md}
+        fontSizeType={FontSizeType.l}
+        style={styles.cardTitleText}>
         Share Group Invite
-      </NumberlessMediumText>
+      </NumberlessText>
       <View
         style={{
           flexDirection: 'column',
@@ -174,25 +178,34 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
               marginTop: 20,
             }}>
             <View style={styles.labelInput}>
-              <NumberlessMediumText>
+              <NumberlessText
+                fontType={FontType.md}
+                fontSizeType={FontSizeType.m}>
                 {isLoadingBundle ? '' : groupData.name}
-              </NumberlessMediumText>
+              </NumberlessText>
             </View>
           </View>
         )}
       </View>
-      <NumberlessRegularText style={styles.generalText}>
+      <NumberlessText
+        fontType={FontType.rg}
+        fontSizeType={FontSizeType.s}
+        style={styles.generalText}>
         This QR is only good for one scan and can't be used again.
-      </NumberlessRegularText>
+      </NumberlessText>
       <View style={styles.buttonsBoxContainer}>
         <View style={styles.buttonBox}>
           <Pressable
             style={styles.button}
             onPress={() => setGenerate(generate + 1)}>
             <Refresh height={24} width={24} />
-            <NumberlessRegularText style={styles.buttonText}>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.m}
+              textColor={PortColors.text.title}
+              style={styles.buttonText}>
               New
-            </NumberlessRegularText>
+            </NumberlessText>
           </Pressable>
         </View>
         <View style={styles.buttonBox}>
@@ -202,18 +215,25 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
               navigation.navigate('HomeTab', {screen: 'ScanTab'});
             }}>
             <Scan width={24} height={24} />
-            <NumberlessRegularText style={styles.buttonText}>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.m}
+              textColor={PortColors.text.title}
+              style={styles.buttonText}>
               Scan
-            </NumberlessRegularText>
+            </NumberlessText>
           </Pressable>
         </View>
       </View>
       <View style={styles.nfcEducation}>
         <Nfc width={24} height={24} />
-        <NumberlessRegularText style={styles.nfcText}>
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.s}
+          style={styles.nfcText}>
           If NFC is enabled, tap your device against theirs to instantly
           connect.
-        </NumberlessRegularText>
+        </NumberlessText>
       </View>
       <GenericButton
         onPress={handleShare}
@@ -282,7 +302,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     marginLeft: 5,
-    color: '#547CEF',
   },
   buttonBox: {
     padding: 10,
@@ -321,7 +340,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   cardTitleText: {
-    fontSize: 17,
     color: '#547CEF',
     paddingLeft: 20,
     paddingRight: 20,
@@ -330,7 +348,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   generalText: {
-    fontSize: 13,
     marginTop: 20,
     marginBottom: 10,
     textAlign: 'center',
@@ -343,7 +360,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nfcText: {
-    fontSize: 13,
     paddingLeft: 10,
     paddingRight: 10,
     color: '#547CEF',

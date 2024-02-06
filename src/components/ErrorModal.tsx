@@ -2,7 +2,7 @@ import React from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {StyleSheet, View} from 'react-native';
 import {PortColors, screen} from './ComponentUtils';
-import {NumberlessMediumText} from './NumberlessText';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 
 function ErrorModal() {
   const {modalVisible, errorToShow} = useErrorModal();
@@ -13,10 +13,12 @@ function ErrorModal() {
       {modalVisible && (
         <View style={showGreen ? styles.greenModalView : styles.modalView}>
           {Icon && <Icon />}
-          <NumberlessMediumText
+          <NumberlessText
+            fontType={FontType.md}
+            fontSizeType={FontSizeType.s}
             style={showGreen ? styles.greenModaltext : styles.modaltext}>
             {text}
-          </NumberlessMediumText>
+          </NumberlessText>
         </View>
       )}
     </>
@@ -55,13 +57,11 @@ const styles = StyleSheet.create({
     borderColor: '#A0D995',
   },
   modaltext: {
-    fontSize: 12,
     color: '#D84646',
     marginLeft: 5,
     lineHeight: 15,
   },
   greenModaltext: {
-    fontSize: 12,
     color: '#A0D995',
     textAlign: 'center',
   },

@@ -5,11 +5,16 @@ import {Pressable, StyleSheet, View} from 'react-native';
 
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
-import {NumberlessRegularText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {categories} from '@configs/bugCategories';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {PortColors} from '@components/ComponentUtils';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AddCategoryScreen'>;
 
@@ -39,9 +44,13 @@ export default function AddCategoryScreen({navigation}: Props) {
               }
               key={category.index}>
               <Img style={{marginLeft: 10}} />
-              <NumberlessRegularText style={styles.categoryText}>
+              <NumberlessText
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.m}
+                textColor={PortColors.text.primary}
+                style={styles.categoryText}>
                 {value}
-              </NumberlessRegularText>
+              </NumberlessText>
               <GreyArrowRight />
             </Pressable>
           );
@@ -80,7 +89,6 @@ const styles = StyleSheet.create({
     paddingRight: 15,
   },
   categoryText: {
-    color: 'black',
     width: '100%',
     paddingLeft: 10,
   },

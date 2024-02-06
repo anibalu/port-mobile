@@ -7,7 +7,11 @@ import ImageIcon from '@assets/icons/ImageIcon.svg';
 import RemoveIcon from '@assets/icons/RemoveIcon.svg';
 
 import ChatBackground from '@components/ChatBackground';
-import {NumberlessMediumText} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
 
 import {GenericAvatar} from '@components/GenericAvatar';
@@ -92,24 +96,33 @@ function EditAvatar() {
         <View style={styles.iconholder}>
           <Pressable onPress={setNewPicture} style={styles.selectOption}>
             <ImageIcon />
-            <NumberlessMediumText style={styles.iconName}>
+            <NumberlessText
+              fontType={FontType.md}
+              fontSizeType={FontSizeType.s}
+              style={styles.iconName}>
               Select Image
-            </NumberlessMediumText>
+            </NumberlessText>
           </Pressable>
           {imagePath !== DEFAULT_AVATAR && (
             <Pressable onPress={onRemovePicture} style={styles.selectOption}>
               <RemoveIcon />
-              <NumberlessMediumText style={styles.iconName}>
+              <NumberlessText
+                fontType={FontType.md}
+                fontSizeType={FontSizeType.s}
+                style={styles.iconName}>
                 Remove
-              </NumberlessMediumText>
+              </NumberlessText>
             </Pressable>
           )}
         </View>
       </View>
       <View style={styles.avatarArea}>
-        <NumberlessMediumText style={styles.chooseAvatarText}>
+        <NumberlessText
+          fontType={FontType.md}
+          fontSizeType={FontSizeType.l}
+          style={styles.chooseAvatarText}>
           Choose your avatar
-        </NumberlessMediumText>
+        </NumberlessText>
         <ScrollView
           horizontal={true}
           showsHorizontalScrollIndicator={false}
@@ -177,7 +190,6 @@ const styles = StyleSheet.create({
   },
   iconName: {
     color: 'black',
-    fontSize: 12,
     marginTop: 10,
   },
   avatartext: {

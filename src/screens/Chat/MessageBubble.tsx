@@ -182,7 +182,7 @@ const MessageBubble = ({
   }, []);
 
   //Any kind of data bubble shouldn't be replied to
-  if (isDataMessage(message.contentType)) {
+  if (!isSwipeableMessage(message.contentType)) {
     return (
       <View>
         {isDateBoundary
@@ -274,6 +274,17 @@ export function isDataMessage(contentType: ContentType) {
     return true;
   }
   return false;
+}
+
+export function isSwipeableMessage(contentType: ContentType) {
+  if (
+    contentType === ContentType.name ||
+    contentType === ContentType.info ||
+    contentType === ContentType.contactBundle
+  ) {
+    return false;
+  }
+  return true;
 }
 
 /**

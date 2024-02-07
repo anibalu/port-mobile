@@ -141,7 +141,10 @@ export default function ShareContact({route, navigation}: Props) {
               iconSizeRight={14}
               IconRight={Send}
               loading={loading}
-              buttonStyle={styles.sendButton}
+              buttonStyle={StyleSheet.compose(
+                styles.sendButton,
+                loading && {padding: 12},
+              )}
             />
           </View>
         </View>

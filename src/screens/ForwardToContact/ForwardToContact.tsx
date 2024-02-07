@@ -165,7 +165,10 @@ export default function ForwardToContact({route, navigation}: Props) {
               iconSizeRight={14}
               IconRight={Send}
               loading={loading}
-              buttonStyle={styles.send}
+              buttonStyle={StyleSheet.compose(
+                styles.send,
+                loading && {padding: 12},
+              )}
             />
           </View>
         </View>

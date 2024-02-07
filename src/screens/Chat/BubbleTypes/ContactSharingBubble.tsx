@@ -3,24 +3,23 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {DEFAULT_NAME} from '@configs/constants';
 import {
   ContactBundleParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
-import {getTimeStamp} from '@utils/Time';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {DEFAULT_NAME} from '@configs/constants';
-import {GenericButton} from '@components/GenericButton';
 // import {useConnectionModal} from 'src/context/ConnectionModalContext';
 // import {useErrorModal} from 'src/context/ErrorModalContext';
-import {PortBundle} from '@utils/Ports/interfaces';
-import {getReadPort} from '@utils/Ports';
+import {PortColors} from '@components/ComponentUtils';
 import {useNavigation} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
+import {getReadPort} from '@utils/Ports';
+import {PortBundle} from '@utils/Ports/interfaces';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
 import {useErrorModal} from 'src/context/ErrorModalContext';
-import {PortColors} from '@components/ComponentUtils';
+import {renderTimeStamp} from '../BubbleUtils';
 
 enum ButtonState {
   undecided,
@@ -48,6 +47,9 @@ export default function ContactSharingBubble({
   );
   const [accepted, setAccepted] = useState<boolean | undefined>(undefined);
   const [goToChatId, setGoToChatId] = useState<string | undefined>(undefined);
+  const [chatName, setChatName] = useState<string>(
+    (message.data as ContactBundleParams).name || DEFAULT_NAME,
+  );
   const handleConnect = async () => {
     if (goToChatId) {
       const chat = new DirectChat(goToChatId);
@@ -81,6 +83,7 @@ export default function ContactSharingBubble({
       if (goToChatId) {
         const chat = new DirectChat(goToChatId);
         const chatData = await chat.getChatData();
+        setChatName(chatData.name);
         if (chatData.authenticated) {
           setButtonType(ButtonState.message);
         } else {
@@ -103,6 +106,23 @@ export default function ContactSharingBubble({
     }
   };
 
+  //handles navigation to a chat screen and toggles chat to read.
+  const handleNavigate = async (): Promise<void> => {
+    if ((message.data as ContactBundleParams).goToChatId) {
+      const chat = new DirectChat(
+        (message.data as ContactBundleParams).goToChatId,
+      );
+      const chatData = await chat.getChatData();
+      if (chatData.authenticated) {
+        navigation.push('DirectChat', {
+          chatId: goToChatId,
+          isGroupChat: false,
+          isConnected: !chatData.disconnected,
+        });
+      }
+    }
+  };
+
   useEffect(() => {
     setAccepted((message.data as ContactBundleParams).accepted);
     setGoToChatId((message.data as ContactBundleParams).goToChatId);
@@ -113,46 +133,44 @@ export default function ContactSharingBubble({
   }, [accepted, goToChatId]);
   if (message.sender) {
     return (
-      <Pressable style={styles.textBubbleContainer}>
-        <NumberlessText
-          fontType={FontType.rg}
-          fontSizeType={FontSizeType.m}
-          textColor={PortColors.text.primary}
-          style={styles.text}>
-          {'You have shared the contact of ' +
-            ((message.data as ContactBundleParams).name || DEFAULT_NAME)}
-        </NumberlessText>
-        <View style={styles.timeStampContainer}>
-          <View>
+      <View>
+        <View style={{paddingTop: 16, paddingHorizontal: 8, paddingBottom: 8}}>
+          <NumberlessText fontSizeType={FontSizeType.m} fontType={FontType.md}>
+            {chatName}
+          </NumberlessText>
+          <View style={styles.timeStampContainer}>
             <NumberlessText
-              fontType={FontType.rg}
-              fontSizeType={FontSizeType.xs}
-              textColor={PortColors.text.secondary}>
-              {getTimeStamp(message.timestamp)}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              {'You have shared the contact of ' + chatName}
             </NumberlessText>
+            {renderTimeStamp(message)}
           </View>
         </View>
-      </Pressable>
+        <Pressable onPress={handleNavigate} style={styles.messageStyle}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}
+            textColor={PortColors.text.title}>
+            Message
+          </NumberlessText>
+        </Pressable>
+      </View>
     );
   } else {
     return (
-      <View style={styles.textBubbleContainer}>
-        <NumberlessText
-          fontType={FontType.rg}
-          fontSizeType={FontSizeType.m}
-          textColor={PortColors.text.primary}
-          style={styles.text}>
-          {'You have been shared the contact of ' +
-            ((message.data as ContactBundleParams).name || DEFAULT_NAME)}
-        </NumberlessText>
-        <View style={styles.timeStampContainer}>
-          <View>
+      <View>
+        <View style={{paddingTop: 16, paddingHorizontal: 8, paddingBottom: 8}}>
+          <NumberlessText fontSizeType={FontSizeType.m} fontType={FontType.md}>
+            {chatName}
+          </NumberlessText>
+          <View style={styles.timeStampContainer}>
             <NumberlessText
-              fontType={FontType.rg}
-              fontSizeType={FontSizeType.xs}
-              textColor={PortColors.text.secondary}>
-              {getTimeStamp(message.timestamp)}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              {'You have been shared the contact of ' + chatName}
             </NumberlessText>
+            {renderTimeStamp(message)}
           </View>
         </View>
         <GetButton clickHandle={handleConnect} buttonState={buttonType} />
@@ -171,112 +189,110 @@ function GetButton({
   switch (buttonState) {
     case ButtonState.connect:
       return (
-        <GenericButton
-          onPress={clickHandle}
-          textStyle={{color: PortColors.text.title}}
-          buttonStyle={styles.connectButton}>
-          Connect
-        </GenericButton>
+        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}
+            textColor={PortColors.text.title}>
+            Connect
+          </NumberlessText>
+        </Pressable>
       );
     case ButtonState.connecting:
       return (
-        <GenericButton
-          onPress={() => {}}
-          textStyle={{color: PortColors.text.title}}
-          buttonStyle={styles.connectButton}>
-          Connecting...
-        </GenericButton>
+        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}
+            textColor={PortColors.text.title}>
+            Connecting...
+          </NumberlessText>
+        </Pressable>
       );
     case ButtonState.expired:
       return (
-        <GenericButton
-          onPress={() => {}}
-          textStyle={{color: PortColors.text.title}}
-          buttonStyle={styles.connectButton}>
-          expired
-        </GenericButton>
+        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}
+            textColor={PortColors.text.title}>
+            Expired
+          </NumberlessText>
+        </Pressable>
       );
     case ButtonState.undecided:
       return (
-        <GenericButton
-          onPress={() => {}}
-          textStyle={{color: PortColors.text.title}}
-          buttonStyle={styles.connectButton}>
-          expired
-        </GenericButton>
+        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}
+            textColor={PortColors.text.title}>
+            Expired
+          </NumberlessText>
+        </Pressable>
       );
     case ButtonState.message:
       return (
-        <GenericButton
-          onPress={clickHandle}
-          textStyle={{color: PortColors.text.title}}
-          buttonStyle={styles.connectButton}>
-          message
-        </GenericButton>
+        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}
+            textColor={PortColors.text.title}>
+            Message
+          </NumberlessText>
+        </Pressable>
       );
     default:
       return (
-        <GenericButton
-          onPress={() => {}}
-          textStyle={{color: PortColors.text.title}}
-          buttonStyle={styles.connectButton}>
-          expired
-        </GenericButton>
+        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}
+            textColor={PortColors.text.title}>
+            Expired
+          </NumberlessText>
+        </Pressable>
       );
   }
 }
 
 const styles = StyleSheet.create({
-  textBubbleContainer: {
-    width: '100%',
-  },
-  groupName: {
-    fontSize: 17,
-    color: 'black',
-  },
-  groupInvite: {
-    fontSize: 12,
-  },
-  inviteMessage: {
-    fontSize: 12,
-    color: 'black',
-    marginTop: 15,
-  },
   timeStampContainer: {
+    marginTop: 4,
     flexDirection: 'column',
-    width: '100%',
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
-  failedStamp: {
-    fontSize: 10,
-    color: '#CCCCCC',
-  },
-  text: {
-    marginTop: 10,
-  },
-  buttonContainer: {
-    backgroundColor: '#D2F2FF',
-    paddingVertical: 12,
-    justifyContent: 'center',
-    marginHorizontal: -20,
-    marginBottom: -5,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    marginTop: 10,
-  },
-  buttonText: {
-    textAlign: 'center',
-    color: '#547CEF',
-    fontSize: 15,
-  },
   connectButton: {
     marginTop: 10,
-    marginLeft: -6,
-    marginRight: -6,
+    marginLeft: -10,
+    marginRight: -10,
     marginBottom: -6,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
-    backgroundColor: 'white',
+    backgroundColor: PortColors.primary.white,
+  },
+  connectText: {
+    color: PortColors.text.title,
+  },
+  receiveMessageStyle: {
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    //Used to prevent background overflow.
+    marginHorizontal: -1,
+    marginBottom: -1,
+    borderBottomStartRadius: 12,
+    borderBottomEndRadius: 12,
+    backgroundColor: PortColors.primary.white,
+  },
+  messageStyle: {
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomStartRadius: 16,
+    borderBottomEndRadius: 16,
+    backgroundColor: PortColors.primary.messageBubble.receiver.blobBackground,
   },
 });

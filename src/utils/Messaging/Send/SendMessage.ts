@@ -4,14 +4,17 @@
  */
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import store from '@store/appStore';
+import {getChatPermissions} from '@utils/ChatPermissions';
 import {isGroupChat, updateConnectionOnNewMessage} from '@utils/Connections';
 import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {checkFileSizeWithinLimits} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {saveNewMedia, updateMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
 import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
+import LargeDataUpload from '../LargeData/LargeDataUpload';
 import {
   ContactBundleParams,
   ContentType,
@@ -28,9 +31,6 @@ import {
   UpdateParams,
 } from '../interfaces';
 import * as API from './APICalls';
-import {getChatPermissions} from '@utils/ChatPermissions';
-import LargeDataUpload from '../LargeData/LargeDataUpload';
-import {saveNewMedia, updateMedia} from '@utils/Storage/media';
 
 class SendMessage<T extends ContentType> {
   private chatId: string; //chatId of chat
@@ -189,6 +189,14 @@ class SendMessage<T extends ContentType> {
       await this.saveMessage();
       //preprocesses large data message if message is large data message
       await this.preProcessLargeDataMessage();
+
+      this.preProcessContactBundleMessage();
+    }
+  }
+
+  private preProcessContactBundleMessage() {
+    if (this.savedMessage.contentType === ContentType.contactBundle) {
+      this.payload.data = {...this.data, goToChatId: undefined};
     }
   }
 

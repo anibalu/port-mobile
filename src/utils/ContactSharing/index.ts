@@ -124,6 +124,7 @@ export async function relayContactBundle(source: string, bundle: PortBundle) {
     await storage.deleteContactSharingEntry({source, destination});
     const sender = new SendMessage(destination, ContentType.contactBundle, {
       ...bundle,
+      goToChatId: source,
     });
     await sender.send();
   }

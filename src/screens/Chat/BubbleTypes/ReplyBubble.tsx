@@ -166,7 +166,9 @@ const ReplyBubble = ({
           {message.data.text || ''}
         </NumberlessLinkText>
 
-        {message.data.text.length < 27 && <View style={{flex: 1}} />}
+        {message.data.text.length < TEXT_OVERFLOW_LIMIT && (
+          <View style={{flex: 1}} />
+        )}
 
         {renderTimeStamp(message)}
       </View>

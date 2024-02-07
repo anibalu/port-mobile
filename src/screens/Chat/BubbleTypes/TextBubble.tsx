@@ -2,11 +2,14 @@ import {
   FontSizeType,
   FontType,
   NumberlessLinkText,
+  NumberlessText,
 } from '@components/NumberlessText';
 import {SavedMessageParams, TextParams} from '@utils/Messaging/interfaces';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {
+  getEmojiSize,
+  hasOnlyEmojis,
   TEXT_OVERFLOW_LIMIT,
   renderProfileName,
   renderTimeStamp,
@@ -27,6 +30,14 @@ export default function TextBubble({
   isOriginalSender?: boolean;
 }) {
   const text = (message.data as TextParams).text;
+  const [showEmojiBubble, setShowEmojiBubble] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (text.length <= 6) {
+      setShowEmojiBubble(hasOnlyEmojis(text));
+    }
+  }, [text]);
+
   return (
     <Pressable
       style={styles.textBubbleColumnContainer}
@@ -44,11 +55,19 @@ export default function TextBubble({
         isOriginalSender,
       )}
       <View style={getBubbleLayoutStyle(text || '')}>
-        <NumberlessLinkText
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.rg}>
-          {text || ''}
-        </NumberlessLinkText>
+        {showEmojiBubble ? (
+          <NumberlessText
+            fontSizeType={getEmojiSize(text)}
+            fontType={FontType.rg}>
+            {text || ''}
+          </NumberlessText>
+        ) : (
+          <NumberlessLinkText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}>
+            {text || ''}
+          </NumberlessLinkText>
+        )}
         {renderTimeStamp(message)}
       </View>
     </Pressable>
@@ -56,7 +75,10 @@ export default function TextBubble({
 }
 
 const getBubbleLayoutStyle = (text: string) => {
-  if (text.length > TEXT_OVERFLOW_LIMIT) {
+  const showEmojiBubble = hasOnlyEmojis(text);
+  if (showEmojiBubble) {
+    return styles.textBubbleColumnContainer;
+  } else if (text.length > TEXT_OVERFLOW_LIMIT) {
     return styles.textBubbleColumnContainer;
   } else {
     return styles.textBubbleRowContainer;

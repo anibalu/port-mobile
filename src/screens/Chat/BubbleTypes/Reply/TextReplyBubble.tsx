@@ -4,11 +4,13 @@ import {
   NumberlessLinkText,
 } from '@components/NumberlessText';
 import {
+  getEmojiSize,
+  hasOnlyEmojis,
   renderProfileName,
   shouldRenderProfileName,
 } from '@screens/Chat/BubbleUtils';
 import {SavedMessageParams, TextParams} from '@utils/Messaging/interfaces';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 
 // Returns a text bubble to be wrapped inside the ReplyBubble. Only contains the reply message inside it.
@@ -28,12 +30,35 @@ export default function TextReplyBubble({
   isOriginalSender?: boolean;
 }) {
   const replyText = (message.data as TextParams).text;
+  const [showEmojiReplyBubble, setShowEmojiReplyBubble] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    if (replyText.length <= 6) {
+      setShowEmojiReplyBubble(hasOnlyEmojis(replyText));
+    }
+  }, [replyText]);
+
+  const shouldExpandBubble = (
+    showEmojiReplyBubble: boolean,
+    replyText: string,
+    repliedText: string,
+  ): boolean => {
+    if (showEmojiReplyBubble) {
+      return replyText.length < repliedText.length;
+    } else {
+      return replyText.length - 8 < repliedText.length;
+    }
+  };
+
   return (
     <Pressable
       style={StyleSheet.compose(
         styles.textReplyContainer,
         //Controls the limit of when the bubble should expand to match the container inside
-        replyText.length - 8 < repliedText.length && {flex: 1},
+        shouldExpandBubble(showEmojiReplyBubble, replyText, repliedText) && {
+          flex: 1,
+        },
       )}
       onPress={() => {
         handlePress(message.messageId);
@@ -48,13 +73,21 @@ export default function TextReplyBubble({
         true,
         isOriginalSender,
       )}
-
-      <NumberlessLinkText
-        fontSizeType={FontSizeType.s}
-        fontType={FontType.rg}
-        numberOfLines={3}>
-        {replyText || ''}
-      </NumberlessLinkText>
+      {showEmojiReplyBubble ? (
+        <NumberlessLinkText
+          fontSizeType={getEmojiSize(replyText)}
+          fontType={FontType.rg}
+          numberOfLines={3}>
+          {replyText || ''}
+        </NumberlessLinkText>
+      ) : (
+        <NumberlessLinkText
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.rg}
+          numberOfLines={3}>
+          {replyText || ''}
+        </NumberlessLinkText>
+      )}
     </Pressable>
   );
 }

@@ -24,6 +24,9 @@ export enum FontSizeType {
   'm' = 15,
   's' = 12,
   'xs' = 10,
+  'es' = 24, //e => emoji size
+  'em' = 36,
+  'el' = 54,
 }
 
 export const getWeight = (fontType: FontType): '400' | '500' | '600' => {

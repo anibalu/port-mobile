@@ -1,5 +1,5 @@
 import Play from '@assets/icons/videoPlay.svg';
-import {PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -121,6 +121,13 @@ const ViewPhotosVideos = ({route}: Props) => {
     });
   };
 
+  const updateAfterDeletion = (messageId: string[]): void => {
+    setMedia(media =>
+      media.filter(media => !messageId.includes(media.messageId)),
+    );
+    setSelectedMedia([]);
+  };
+
   return (
     <View style={styles.screen}>
       {media.length > 0 ? (
@@ -149,6 +156,7 @@ const ViewPhotosVideos = ({route}: Props) => {
             onForward={onForward}
             selectedMedia={selectedMedia}
             setSelectedMedia={setSelectedMedia}
+            postDelete={updateAfterDeletion}
           />
         </View>
       )}
@@ -191,9 +199,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center',
     backgroundColor: PortColors.primary.blue.app,
-    borderRadius: 20,
+    borderRadius: isIOS ? 9 : 20,
     height: 20,
     width: 20,
+    paddingTop: isIOS ? 2 : 0,
+    paddingHorizontal: isIOS ? 4 : 0,
   },
   countText: {
     color: 'white',

@@ -1,7 +1,7 @@
 import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
-import ShareIcon from '@assets/icons/ShareBlack.svg';
+import ShareIcon from '@assets/icons/ShareBold.svg';
 import Delete from '@assets/icons/delete.svg';
 import Forward from '@assets/icons/forward.svg';
 
@@ -33,11 +33,13 @@ export function MediaActionsBar({
   selectedMedia,
   setSelectedMedia,
   onForward,
+  postDelete,
 }: {
   chatId: string;
   selectedMedia: MediaEntry[];
   setSelectedMedia: any;
   onForward: any;
+  postDelete: any;
 }): ReactNode {
   const performDelete = async (): Promise<void> => {
     for (const media of selectedMedia) {
@@ -48,6 +50,13 @@ export function MediaActionsBar({
         );
       }
     }
+    const getMessageIds = (data: {messageId: string}[]): string[] => {
+      return data.map(item => item.messageId);
+    };
+
+    const messageId: string[] = getMessageIds(selectedMedia);
+
+    postDelete(messageId);
     setOpenCustomModal(false);
   };
 

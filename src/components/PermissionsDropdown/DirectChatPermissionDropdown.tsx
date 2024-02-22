@@ -49,10 +49,6 @@ export default function DirectChatPermissionDropdown(props: {
 
   useEffect(() => {
     (async () => {
-      console.log(
-        'setting new: ',
-        await getChatPermissions(chatId, ChatType.direct),
-      );
       setPermissionsObj(await getChatPermissions(chatId, ChatType.direct));
       setModifiedPreset(await getChatPermissions(chatId, ChatType.direct));
     })();

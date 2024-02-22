@@ -1,14 +1,19 @@
+import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+import {getConnections} from '@utils/Connections';
+import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
+import {generateKeys} from '@utils/Crypto/ed25519';
+import {pickRandomAvatarId} from '@utils/IdGenerator';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {FileAttributes} from '@utils/Storage/interfaces';
 import {DEFAULT_NAME, NAME_LENGTH_LIMIT} from '../../configs/constants';
 import store from '../../store/appStore';
 import * as storage from '../Storage/profile';
-import {ProfileInfo, ProfileInfoUpdate, ProfileStatus} from './interfaces';
 import {connectionFsSync} from '../Synchronization';
-import {FileAttributes} from '@utils/Storage/interfaces';
-import {generateKeys} from '@utils/Crypto/ed25519';
 import * as API from './APICalls';
-import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
-import {pickRandomAvatarId} from '@utils/IdGenerator';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {ProfileInfo, ProfileInfoUpdate, ProfileStatus} from './interfaces';
+import {getChatPermissions} from '@utils/ChatPermissions';
 
 function getDefaultAvatarInfo(): FileAttributes {
   return {...DEFAULT_PROFILE_AVATAR_INFO};
@@ -214,10 +219,52 @@ export async function getProfilePictureUri(): Promise<string> {
  */
 export async function setNewProfilePicture(file: FileAttributes) {
   try {
+    const connections: ConnectionInfo[] = await getConnections();
     if (file.fileType === 'avatar') {
+      for (const conn of connections) {
+        const isAllowed = (
+          await getChatPermissions(
+            conn.chatId,
+            conn.connectionType === ChatType.group
+              ? ChatType.group
+              : ChatType.direct,
+          )
+        ).displayPicture;
+        if (isAllowed) {
+          const sendDisplayPicture = new SendMessage(
+            conn.chatId,
+            ContentType.displayAvatar,
+            {
+              ...file,
+              fileType: 'avatar',
+            },
+          );
+          sendDisplayPicture.send();
+        }
+      }
       await updateProfileInfo({profilePicInfo: file});
     } else {
       const newFile = await storage.moveProfilePictureToProfileDir(file);
+      for (const conn of connections) {
+        const isAllowed = (
+          await getChatPermissions(
+            conn.chatId,
+            conn.connectionType === ChatType.group
+              ? ChatType.group
+              : ChatType.direct,
+          )
+        ).displayPicture;
+        if (isAllowed) {
+          const sendDisplayPicture = new SendMessage(
+            conn.chatId,
+            ContentType.displayImage,
+            {
+              ...newFile,
+            },
+          );
+          sendDisplayPicture.send();
+        }
+      }
       await updateProfileInfo({profilePicInfo: newFile});
     }
   } catch (error) {

@@ -2,7 +2,6 @@ import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import {DEFAULT_NAME} from '@configs/constants';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import * as storageReadPorts from '@utils/Storage/readPorts';
 import * as storageSuperports from '@utils/Storage/superPorts';
@@ -14,6 +13,7 @@ import {
   ReadPortData,
   SuperportData,
 } from './interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 function getCurrentSuperportVersion() {
   return '0.0.1';

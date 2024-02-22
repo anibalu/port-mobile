@@ -12,10 +12,10 @@ import {
 } from '@utils/Time';
 import {expiryOptionsTypes} from '@utils/Time/interfaces';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContactBundleParams, ContentType} from '@utils/Messaging/interfaces';
 import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import {getMessage, updateMessage} from '@utils/Storage/messages';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 export async function getNewPorts() {
   try {

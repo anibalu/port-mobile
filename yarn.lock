@@ -1549,10 +1549,10 @@
   resolved "https://registry.npmjs.org/@notifee/react-native/-/react-native-7.8.2.tgz"
   integrity sha512-VG4IkWJIlOKqXwa3aExC3WFCVCGCC9BA55Ivg0SMRfEs+ruvYy/zlLANcrVGiPtgkUEryXDhA8SXx9+JcO8oLA==
 
-"@numberless/react-native-numberless-crypto@0.1.25":
-  version "0.1.25"
-  resolved "https://pkgs.dev.azure.com/numberless-india/Port/_packaging/port-packages/npm/registry/@numberless/react-native-numberless-crypto/-/react-native-numberless-crypto-0.1.25.tgz"
-  integrity sha1-ea/l/lW7gl05yr5/P81v5IUu+xY=
+"@numberless/react-native-numberless-crypto@0.2.3":
+  version "0.2.3"
+  resolved "https://pkgs.dev.azure.com/numberless-india/Port/_packaging/port-packages/npm/registry/@numberless/react-native-numberless-crypto/-/react-native-numberless-crypto-0.2.3.tgz#9bdfc05fe8a0744055d207fd5295fec384d44a8f"
+  integrity sha1-m9/AX+igdEBV0gf9UpX+w4TUSo8=
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"

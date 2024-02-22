@@ -13,3 +13,8 @@ export interface CryptoDataStrict extends CryptoData {
   peerPublicKeyHash: string | null;
   rad: string | null;
 }
+
+export interface CryptoDataMember extends CryptoData {
+  publicKey?: string;
+  sharedSecret: string;
+}

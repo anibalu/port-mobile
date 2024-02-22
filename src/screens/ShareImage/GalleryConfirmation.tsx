@@ -19,7 +19,6 @@ import {
   compressVideo,
 } from '@utils/Compressor/graphicCompressors';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {
   getRelativeURI,
@@ -43,6 +42,7 @@ import {useErrorModal} from 'src/context/ErrorModalContext';
 import useKeyboardVisibility from '../../utils/Hooks/useKeyboardVisibility';
 import Group from '@utils/Groups/Group';
 import {GroupMemberStrict} from '@utils/Groups/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 

@@ -1,3 +1,5 @@
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import Group from '@utils/Groups/Group';
 import {PayloadMessageParams} from '@utils/Messaging/interfaces';
 import GroupReceiveAction from './GroupReceiveAction';
 import {groupReceiveActionPicker} from './possibleActions';
@@ -37,7 +39,7 @@ class ReceiveGroupMessage {
         this.content = null;
         return;
       }
-      this.content = JSON.parse(this.message.content);
+      this.content = this.message.messageContent;
     } catch (error) {
       console.log('Error in extracting message content: ', error);
       this.content = null;
@@ -49,11 +51,21 @@ class ReceiveGroupMessage {
         this.decryptedMessageContent = null;
         return;
       } else {
-        this.extractContent();
-        if (this.content.content) {
-          const parsedAndProcessed = JSON.parse(this.content.content);
+        if (this.content.encryptedContent && this.senderId) {
+          const group = new Group(this.chatId);
+
+          const member = await group.getMember(this.senderId);
+
+          const cryptoDriver = new CryptoDriver(member!.cryptoId);
+
+          const decryptedAndProcessed = JSON.parse(
+            await cryptoDriver.decrypt(this.content.encryptedContent),
+          );
+
           this.decryptedMessageContent =
-            parsedAndProcessed as PayloadMessageParams;
+            decryptedAndProcessed as PayloadMessageParams;
+        } else {
+          this.decryptedMessageContent = this.content as PayloadMessageParams;
         }
       }
     } catch (error) {

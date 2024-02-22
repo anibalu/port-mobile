@@ -137,6 +137,7 @@ const MessageBar = ({
         chatId,
         ContentType.text,
         {text: processedText},
+
         replyTo ? replyTo.messageId : null,
       );
       await sender.send();

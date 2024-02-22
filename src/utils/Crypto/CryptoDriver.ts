@@ -1,16 +1,16 @@
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {CryptoData, CryptoDataStrict} from './interfaces';
-import * as x25519 from './x25519';
 import * as storage from '@utils/Storage/crypto';
-import {generateRad16} from './rad';
 import {hash} from './hash';
+import {CryptoData, CryptoDataMember, CryptoDataStrict} from './interfaces';
+import {generateRad16} from './rad';
+import * as x25519 from './x25519';
 
 /**
  * Class responsible for cryptographic operations
  */
 class CryptoDriver {
   private cryptoId: string | null;
-  private cryptoData: CryptoDataStrict | null;
+  private cryptoData: CryptoDataStrict | CryptoDataMember | null;
   constructor(cryptoId: string | null = null) {
     this.cryptoId = cryptoId;
     this.cryptoData = null;
@@ -42,11 +42,27 @@ class CryptoDriver {
       }
     }
   }
+
+  public async createForMember(cryptoData: CryptoDataMember) {
+    const newCryptoId = generateRandomHexId();
+    await storage.newCryptoEntry(newCryptoId);
+    await storage.updateCryptoData(newCryptoId, cryptoData);
+    this.cryptoId = newCryptoId;
+    this.cryptoData = cryptoData;
+  }
+
   public async getData(): Promise<CryptoDataStrict> {
     this.cryptoId = this.checkCryptoIdNotNull();
     this.cryptoData = await this.loadKeys();
     return this.cryptoData;
   }
+
+  public async getMemberData(): Promise<CryptoDataMember> {
+    this.cryptoId = this.checkCryptoIdNotNull();
+    this.cryptoData = await this.loadKeysForMember();
+    return this.cryptoData;
+  }
+
   /**
    * returns crypto id if present. throw error otherwise.
    * @returns crypto id if present
@@ -152,6 +168,12 @@ class CryptoDriver {
     this.cryptoId = this.checkCryptoIdNotNull();
     return this.validateCryptoData(await storage.getCryptoData(this.cryptoId));
   }
+
+  private async loadKeysForMember(): Promise<CryptoDataMember> {
+    this.cryptoId = this.checkCryptoIdNotNull();
+    return (await storage.getCryptoData(this.cryptoId)) as CryptoDataMember;
+  }
+
   /**
    * makes sure crypto data has essential cryptographic information
    * @param cryptoData crypto data to validate
@@ -160,9 +182,13 @@ class CryptoDriver {
   private validateCryptoData(cryptoData: CryptoData): CryptoDataStrict {
     if (cryptoData.privateKey && cryptoData.publicKey) {
       return cryptoData as CryptoDataStrict;
-    } else {
-      throw new Error('CryptoDataIncomplete');
     }
+    if (cryptoData.sharedSecret) {
+      cryptoData.privateKey = 'NA';
+      cryptoData.publicKey = 'NA';
+      return cryptoData as CryptoDataStrict;
+    }
+    throw new Error('CryptoDataIncomplete');
   }
 }
 

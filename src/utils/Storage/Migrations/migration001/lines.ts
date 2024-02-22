@@ -14,7 +14,8 @@ export default async function lines() {
         disconnected BOOL,
         cryptoId CHAR(32),
         connectedOn VARCHAR(27),
-        connectedUsing VARCHAR(64)
+        connectedUsing VARCHAR(64),
+        recipientID CHAR(32)
     ) ;
     `,
     [],

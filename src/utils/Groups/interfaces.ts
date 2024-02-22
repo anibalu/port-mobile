@@ -4,6 +4,7 @@ export interface GroupData {
   description?: string | null;
   groupPicture?: string | null;
   amAdmin?: boolean;
+  selfCryptoId?: string;
 }
 export interface GroupDataStrict extends GroupData {
   name: string;
@@ -29,4 +30,9 @@ export interface GroupMemberStrict extends GroupMember {
   joinedAt: string | null;
   cryptoId: string | null;
   isAdmin: boolean | null;
+}
+
+export interface GroupCryptoPair {
+  memberId: string;
+  cryptoId: string | null;
 }

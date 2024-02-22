@@ -15,7 +15,8 @@ export default async function groups() {
       joinedAt VARCHAR(27),
       description VARCHAR(256),
       groupPicture VARCHAR(128),
-      amAdmin BOOL
+      amAdmin BOOL,
+      selfCryptoId CHAR(32)
     ) ;
     `,
     [],

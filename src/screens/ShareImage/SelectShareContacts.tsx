@@ -1,4 +1,5 @@
 import Send from '@assets/icons/WhiteArrowUp.svg';
+import WhiteOverlay from '@assets/miscellaneous/whiteOverlay.svg';
 import {PortColors} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericTopBar from '@components/GenericTopBar';
@@ -19,7 +20,6 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
-import WhiteOverlay from '@assets/miscellaneous/whiteOverlay.svg';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SelectShareContacts'>;
 

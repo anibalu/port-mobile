@@ -1,5 +1,5 @@
+import {GroupMemberStrict, GroupMemberUpdate} from '@utils/Groups/interfaces';
 import {runSimpleQuery} from './dbCommon';
-import {GroupMemberUpdate, GroupMemberStrict} from '@utils/Groups/interfaces';
 
 /**
  * Add a member to a group
@@ -38,6 +38,36 @@ export async function getMembers(
     (tx, results) => {
       for (let i = 0; i < results.rows.length; i++) {
         matches.push(results.rows.item(i));
+      }
+    },
+  );
+  return matches;
+}
+
+/**
+ * Get all the non-deleted members of a group
+ * @param groupId a 32 character identifier for a group
+ * @returns a list of active group members
+ */
+export async function getMemberCryptoPairs(
+  groupId: string,
+): Promise<Array<string[]>> {
+  const matches: Array<string[]> = [];
+  await runSimpleQuery(
+    `
+    SELECT memberId, cryptoId
+    FROM groupMembers
+    WHERE groupId = ? AND deleted = FALSE ;
+    `,
+    [groupId],
+
+    (tx, results) => {
+      for (let i = 0; i < results.rows.length; i++) {
+        const pair = [
+          results.rows.item(i).memberId,
+          results.rows.item(i).cryptoId,
+        ];
+        matches.push(pair);
       }
     },
   );

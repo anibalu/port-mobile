@@ -6,7 +6,6 @@ import * as API from './APICalls';
  */
 export default async function pullBacklog() {
   try {
-    console.log('Calling backlog');
     const messages = await API.getMessages();
     for (const message of messages) {
       const receiver = new ReceiveMessage(message);

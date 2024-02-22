@@ -1,27 +1,28 @@
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import {
-  GroupData,
-  GroupDataStrict,
-  GroupMemberStrict,
-  GroupMemberUpdate,
-} from './interfaces';
-import * as groupStorage from '@utils/Storage/group';
-import * as memberStorage from '@utils/Storage/groupMembers';
+  createChatPermissions,
+  getDefaultPermissions,
+} from '@utils/ChatPermissions';
+import {GroupPermissions} from '@utils/ChatPermissions/interfaces';
 import {
   addConnection,
   deleteConnection,
   updateConnection,
 } from '@utils/Connections';
 import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {GroupPermissions} from '@utils/ChatPermissions/interfaces';
-import {
-  createChatPermissions,
-  getDefaultPermissions,
-} from '@utils/ChatPermissions';
-import * as API from './APICalls';
-import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import {getRandomAvatarInfo} from '@utils/Profile';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import * as groupStorage from '@utils/Storage/group';
+import * as memberStorage from '@utils/Storage/groupMembers';
+import * as API from './APICalls';
+import {
+  GroupData,
+  GroupDataStrict,
+  GroupMemberStrict,
+  GroupMemberUpdate,
+} from './interfaces';
 
 class Group {
   private groupId: string | null;
@@ -64,6 +65,22 @@ class Group {
     }
   }
 
+  public async loadGroupCryptoPairs() {
+    console.log('Group id is: ', this.groupId);
+    if (this.groupId) {
+      const cryptoIdPairs = await memberStorage.getGroupCryptoPairs(
+        this.groupId,
+      );
+      for (const crypto of cryptoIdPairs) {
+        const obj = new CryptoDriver(crypto[1]);
+        crypto[1] = (await obj.getMemberData()).sharedSecret;
+      }
+      return cryptoIdPairs;
+    } else {
+      return [];
+    }
+  }
+
   /**
    * attemps to create a group. throws error if fails
    * @param groupData - initial group data of group
@@ -73,8 +90,11 @@ class Group {
     presetId: string | null = null,
     permissions: GroupPermissions = getDefaultPermissions(ChatType.group),
   ) {
-    this.groupId = await API.createGroup();
+    const cryptoDriver = new CryptoDriver();
+    await cryptoDriver.create();
     this.groupData = groupData;
+    this.groupData.selfCryptoId = cryptoDriver.getCryptoId();
+    this.groupId = await API.createGroup(await cryptoDriver.getPublicKey());
     await this.addGroup(permissions, presetId);
   }
 
@@ -183,6 +203,7 @@ class Group {
     await groupStorage.updateGroupData(this.groupId, this.groupData);
     //update member storage
     if (this.checkGroupMembersNotEmpty()) {
+      console.log('Adding in members: ', this, this.groupMembers);
       const promises = this.groupMembers.map(member =>
         this.addGroupMember(member),
       );
@@ -216,6 +237,7 @@ class Group {
    */
   public async addGroupMember(member: GroupMemberStrict) {
     this.groupId = this.checkGroupIdNotNull();
+    console.log('Group ID: ', member);
     await memberStorage.newMember(this.groupId, member.memberId);
     await memberStorage.updateMember(this.groupId, member.memberId, member);
   }

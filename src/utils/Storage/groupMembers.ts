@@ -1,4 +1,4 @@
-import {GroupMemberUpdate, GroupMemberStrict} from '@utils/Groups/interfaces';
+import {GroupMemberStrict, GroupMemberUpdate} from '@utils/Groups/interfaces';
 import * as dbCalls from './DBCalls/groupMembers';
 
 /**
@@ -19,6 +19,12 @@ export async function getMembers(
   groupId: string,
 ): Promise<Array<GroupMemberStrict>> {
   return await dbCalls.getMembers(groupId);
+}
+
+export async function getGroupCryptoPairs(
+  groupId: string,
+): Promise<Array<string[]>> {
+  return await dbCalls.getMemberCryptoPairs(groupId);
 }
 
 /**

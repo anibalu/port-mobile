@@ -6,11 +6,11 @@ import {saveMessage} from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';
 import * as storage from '@utils/Storage/contactSharing';
 import {ContactSharingMap} from './interfaces';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {generateBundle} from '@utils/Ports';
 import {BundleTarget, PortBundle} from '@utils/Ports/interfaces';
 import {expiryOptions} from '@utils/Time/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 export async function requestToShareContact(map: ContactSharingMap) {
   //create bundle map

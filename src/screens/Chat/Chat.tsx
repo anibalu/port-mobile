@@ -297,10 +297,13 @@ function Chat({route, navigation}: Props) {
             item => item.messageId === latestUpdatedMediaStatus.messageId,
           );
           let msgs = [...oldList];
-          msgs[idx].data = {
-            ...msgs[idx].data,
-            ...latestUpdatedMediaStatus.data,
-          };
+          if (msgs[idx].data) {
+            msgs[idx].data = {
+              ...msgs[idx].data,
+              ...latestUpdatedMediaStatus.data,
+            };
+          }
+
           return msgs;
         } else {
           return oldList;

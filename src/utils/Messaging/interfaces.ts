@@ -215,6 +215,7 @@ export interface SavedMessageParams {
   memberId?: string | null; //not null for received group messages
   expiresOn?: string | null; //when should the message expire.
   shouldAck?: boolean; // if the message should be ack'ed. Useful for controlling read receipts. This is present only for messages that have been received by a user
+  recipientID?: string | null; //used when message has to be sent to one
 }
 /**
  * Interface describing the payload being encrypted and sent/received

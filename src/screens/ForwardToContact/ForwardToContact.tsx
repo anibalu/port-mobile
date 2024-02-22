@@ -15,12 +15,12 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getConnections} from '@utils/Connections';
-import {ConnectionInfo} from '@utils/Connections/interfaces';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
 import {getMessage} from '@utils/Storage/messages';
 import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import ContactTile from './ContactTile';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ForwardToContact'>;
 
@@ -84,7 +84,12 @@ export default function ForwardToContact({route, navigation}: Props) {
       for (const id of messages) {
         const msg = await getMessage(chatId, id);
         if (msg) {
-          const sender = new SendMessage(mbr.chatId, msg.contentType, msg.data);
+          const sender = new SendMessage(
+            mbr.chatId,
+            msg.contentType,
+            msg.data,
+            mbr.connectionType === ChatType.group,
+          );
           sender.send();
         }
       }

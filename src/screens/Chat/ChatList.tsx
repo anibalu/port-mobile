@@ -28,6 +28,7 @@ const viewabilityConfig = {
   waitForInteraction: false,
 };
 
+//Currently only sends read receipts for DMs
 const sendReadReceipt = (chatId: string, message: SavedMessageParams) => {
   if (
     message.shouldAck &&

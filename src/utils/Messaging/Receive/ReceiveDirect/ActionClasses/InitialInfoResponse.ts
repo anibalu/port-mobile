@@ -3,10 +3,10 @@ import {
   InitialInfoRequestParams,
 } from '@utils/Messaging/interfaces';
 import DirectReceiveAction from '../DirectReceiveAction';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {getProfileName, getProfilePicture} from '@utils/Profile';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {ChatType} from '@utils/Connections/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 class InitialInfoResponse extends DirectReceiveAction {
   async performAction(): Promise<void> {

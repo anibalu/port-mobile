@@ -12,6 +12,7 @@ async function sendJournaled() {
     for (let index = 0; index < journaledMessages.length; index++) {
       const {contentType, data, replyId, messageId, chatId} =
         journaledMessages[index];
+
       const sender = new SendMessage(
         chatId,
         contentType,

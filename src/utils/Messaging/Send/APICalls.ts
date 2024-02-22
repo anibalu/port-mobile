@@ -20,7 +20,7 @@ export async function sendObject(
         GROUP_MESSAGING_RESOURCE,
         {
           type: 'group',
-          message: processedPayload,
+          message_mapping: processedPayload,
           chat: chatId,
         },
         {headers: {Authorization: `${token}`}},

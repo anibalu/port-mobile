@@ -41,8 +41,8 @@ import Carousel from 'react-native-snap-carousel';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import useKeyboardVisibility from '../../utils/Hooks/useKeyboardVisibility';
 import Group from '@utils/Groups/Group';
-import {GroupMemberStrict} from '@utils/Groups/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {GroupMemberStrict} from '@utils/Groups/interfaces';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -104,7 +104,11 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     setLoading(false);
   };
 
-  const renderItemTile = ({item}: {item: ConnectionInfo}) => {
+  const renderItemTile = ({
+    item,
+  }: {
+    item: ConnectionInfo | GroupMemberStrict;
+  }) => {
     return (
       <NumberlessText
         fontSizeType={FontSizeType.s}
@@ -371,7 +375,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
                 }}
                 showsHorizontalScrollIndicator={false}
                 scrollEnabled={true}
-                keyExtractor={item => item.chatId}
+                keyExtractor={item => item.memberId}
                 renderItem={renderItemTile}
               />
             ) : selectedMembers.length >= 1 && !isChat ? (

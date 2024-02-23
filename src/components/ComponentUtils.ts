@@ -23,6 +23,7 @@ export const PortColors = {
     },
   },
   primary: {
+    notch: '#D9D9D9',
     blue: {
       app: '#547CEF',
       light: '#88A9FF',

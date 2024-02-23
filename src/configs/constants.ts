@@ -1,6 +1,7 @@
 import {FileAttributes} from '@utils/Storage/interfaces';
 
 export const NAME_LENGTH_LIMIT = 30;
+export const MIN_NAME_LENGTH = 2;
 export const PAGINATION_LIMIT = 60;
 export const ARTIFICIAL_LOADER_INTERVAL = 300;
 export const TOKEN_VALIDITY_INTERVAL = 4 * 60 * 1000;

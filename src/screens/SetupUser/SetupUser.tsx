@@ -9,7 +9,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import store from '@store/appStore';
@@ -17,6 +17,7 @@ import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
 import {fetchNewPorts} from '@utils/Ports';
 import {deleteProfile, setupProfile} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
+import {FileAttributes} from '@utils/Storage/interfaces';
 import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {CircleSnail} from 'react-native-progress';
@@ -33,15 +34,16 @@ const Loader = () => {
 
 function SetupUser({route, navigation}: Props) {
   const {onboardingFailureError} = useErrorModal();
-  const {name} = route.params;
+  const {name, avatar} = route.params;
   const processedName: string = name || DEFAULT_NAME;
+  const processedAvatar: FileAttributes = avatar || DEFAULT_PROFILE_AVATAR_INFO;
   //state of progress
   //actions attached to progress
   type ThunkAction = () => Promise<boolean>;
   const setupActions: ThunkAction[] = [
     async (): Promise<boolean> => {
       //setup profile
-      const response = await setupProfile(processedName);
+      const response = await setupProfile(processedName, processedAvatar);
       if (response === ProfileStatus.created) {
         return true;
       }

@@ -33,11 +33,13 @@ export function getRandomAvatarInfo(): FileAttributes {
  */
 export async function setupProfile(
   name: string = DEFAULT_NAME,
+  avatar: FileAttributes = DEFAULT_PROFILE_AVATAR_INFO,
 ): Promise<ProfileStatus> {
   try {
     const existingProfile = await getProfileInfo();
     if (existingProfile) {
       await updateProfileName(name);
+      await updateProfileAvatar(avatar);
       return ProfileStatus.created;
     }
 
@@ -52,7 +54,7 @@ export async function setupProfile(
       name: name,
       clientId: clientId,
       privateKey: privateKey,
-      profilePicInfo: getRandomAvatarInfo(),
+      profilePicInfo: avatar || getRandomAvatarInfo(),
     };
     store.dispatch({
       type: 'UPDATE_PROFILE',
@@ -184,6 +186,13 @@ export async function updateProfileName(
   blocking: boolean = true,
 ) {
   await updateProfileInfo({name: name}, blocking);
+}
+
+export async function updateProfileAvatar(
+  avatar: FileAttributes,
+  blocking: boolean = true,
+) {
+  await updateProfileInfo({profilePicInfo: avatar}, blocking);
 }
 
 /**

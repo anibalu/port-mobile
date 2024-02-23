@@ -86,6 +86,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
     ) {
       navigation.navigate('SetupUser', {
         name: processName(route.params.name),
+        avatar: route.params.avatar,
       });
     }
   }, [
@@ -93,6 +94,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
     isCameraPermissionGranted,
     isNotifPermissionGranted,
     route.params.name,
+    route.params.avatar,
     navigation,
   ]);
 
@@ -197,6 +199,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
           onPress={() => {
             navigation.navigate('SetupUser', {
               name: processName(route.params.name),
+              avatar: route.params.avatar,
             });
           }}
           textStyle={styles.buttonText}

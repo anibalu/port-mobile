@@ -20,13 +20,20 @@ import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {getProfileName, getProfilePictureUri} from '@utils/Profile';
+import {
+  getProfileName,
+  getProfilePictureUri,
+  setNewProfilePicture,
+} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import ReportIssueModal from '../BugReporting/ReportIssueModal';
 import PermissionIconInactive from '@assets/permissions/permissions-inactive.svg';
 import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
 import GenericTopBar from '@components/GenericTopBar';
+import EditAvatar from '@screens/EditAvatar/EditAvatar';
+import {FileAttributes} from '@utils/Storage/interfaces';
+import GenericBottomsheet from '@components/GenericBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -36,6 +43,7 @@ function MyProfile({navigation}: Props): ReactNode {
   const [updatedCounter, setUpdatedCounter] = useState(0);
   const [editingName, setEditingName] = useState(false);
   const [reportbugModalOpen, setReportBugModalOpen] = useState(false);
+  const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
 
   //updates profile picture with user set profile picture
   async function setPicture(): Promise<void> {
@@ -72,6 +80,12 @@ function MyProfile({navigation}: Props): ReactNode {
     }, []),
   );
 
+  async function onSavePicture(profilePicAttr: FileAttributes) {
+    await setNewProfilePicture(profilePicAttr);
+    setUpdated(true);
+    setOpenEditAvatarModal(false);
+  }
+
   return (
     <SafeAreaView style={styles.profileScreen}>
       <ChatBackground />
@@ -84,9 +98,7 @@ function MyProfile({navigation}: Props): ReactNode {
           <GenericAvatar profileUri={profileURI} avatarSize="medium" />
           <Pressable
             style={styles.updatePicture}
-            onPress={() => {
-              navigation.navigate('EditAvatar');
-            }}>
+            onPress={() => setOpenEditAvatarModal(p => !p)}>
             <EditCameraIcon />
           </Pressable>
         </View>
@@ -151,6 +163,16 @@ function MyProfile({navigation}: Props): ReactNode {
         }}>
         <ReportIssueModal setReportBugModalOpen={setReportBugModalOpen} />
       </GenericModal>
+      <GenericBottomsheet
+        headerTile={'Change your profile picture'}
+        showCloseButton={true}
+        visible={openEditAvatarModal}
+        showBackButton={true}
+        onClose={() => {
+          setOpenEditAvatarModal(p => !p);
+        }}>
+        <EditAvatar onSave={onSavePicture} />
+      </GenericBottomsheet>
     </SafeAreaView>
   );
 }

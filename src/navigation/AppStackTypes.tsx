@@ -7,7 +7,6 @@ export type AppStackParamList = {
   ManageMembers: {groupId: string};
   AddMembers: {groupId: string};
   Scanner: undefined;
-  EditAvatar: undefined;
   DirectChat: {
     chatId: string;
     isGroupChat: boolean;

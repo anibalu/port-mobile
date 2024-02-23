@@ -14,7 +14,6 @@ import ManageMembers from '@screens/GroupScreens/ManageMembers';
 import NewGroup from '@screens/GroupScreens/NewGroup/NewGroup';
 import ShareGroup from '@screens/GroupScreens/ShareGroup/ShareGroup';
 import ImageView from '@screens/MediaView/ImageView';
-import EditAvatar from '@screens/MyProfile/EditAvatar';
 import MyProfile from '@screens/MyProfile/MyProfile';
 import PendingRequests from '@screens/PendingRequests/PendingRequests';
 import Placeholder from '@screens/Placeholder/Placeholder';
@@ -64,7 +63,6 @@ function AppStack() {
           />
           <Stack.Screen name="SuggestAFeature" component={SuggestAFeature} />
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
-          <Stack.Screen name="EditAvatar" component={EditAvatar} />
           <Stack.Screen name="ShareContact" component={ShareContact} />
           <Stack.Screen
             name="SelectShareContacts"

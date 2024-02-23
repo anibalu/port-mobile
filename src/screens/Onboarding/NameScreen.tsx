@@ -15,7 +15,7 @@ import {
 } from '@components/NumberlessText';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {processName} from '@utils/Profile';
+import {processName, setNewProfilePicture} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {
   BackHandler,
@@ -23,24 +23,38 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {AVATAR_ARRAY} from '@configs/constants';
+import {
+  DEFAULT_AVATAR,
+  MIN_NAME_LENGTH,
+  NAME_LENGTH_LIMIT,
+} from '@configs/constants';
 import {checkPermissions} from '@utils/AppPermissions/checkAllPermissions';
+import EditAvatar from '@screens/EditAvatar/EditAvatar';
+import {FileAttributes} from '@utils/Storage/interfaces';
+import GenericBottomsheet from '@components/GenericBottomsheet';
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Onboarding'>;
 
 function NameScreen({navigation}: Props): ReactNode {
   //setting initial state of nickname string to ""
   const [name, setName] = useState('');
-  const imagePath = AVATAR_ARRAY[1];
+  const [imagePath, setImagePath] = useState<FileAttributes>({
+    fileUri: DEFAULT_AVATAR,
+    fileName: '1',
+    fileType: 'avatar',
+  });
+  const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
 
   const onNextCllick = async () => {
     const permissionsResult = await checkPermissions();
     if (permissionsResult) {
       navigation.navigate('SetupUser', {
         name: processName(name),
+        avatar: imagePath,
       });
     } else {
       navigation.navigate('PermissionsScreen', {
         name: processName(name),
+        avatar: imagePath,
       });
     }
   };
@@ -61,6 +75,11 @@ function NameScreen({navigation}: Props): ReactNode {
     return () => backHandler.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function onSavePicture(profilePicAttr: FileAttributes) {
+    await setNewProfilePicture(profilePicAttr);
+    setOpenEditAvatarModal(false);
+  }
 
   return (
     <>
@@ -88,20 +107,22 @@ function NameScreen({navigation}: Props): ReactNode {
           phone number or email to get you setup. Just a name will do.
         </NumberlessText>
         <View style={onboardingStylesheet.profilePictureHitbox}>
-          <GenericAvatar profileUri={imagePath} avatarSize="semiMedium" />
+          <GenericAvatar
+            profileUri={imagePath.fileUri}
+            avatarSize="semiMedium"
+          />
           <GenericButton
             IconLeft={EditCameraIcon}
             iconSize={20}
             buttonStyle={onboardingStylesheet.updatePicture}
             onPress={() => {
-              console.log(
-                'User clicked set an avatar on onboarding that isn`t currently supported NOT IMPLEMENTED',
-              );
+              setOpenEditAvatarModal(p => !p);
             }}
           />
         </View>
         <GenericInput
           placeholder="Name"
+          maxLength={NAME_LENGTH_LIMIT}
           placeholderTextColor={PortColors.primary.grey.dark}
           inputStyle={onboardingStylesheet.nameInputStyle}
           text={name}
@@ -109,16 +130,29 @@ function NameScreen({navigation}: Props): ReactNode {
         />
         <View style={{flex: 1}} />
         <GenericButton
-          disabled={name.trim().length >= 2 ? false : true}
+          disabled={name.trim().length >= MIN_NAME_LENGTH ? false : true}
           onPress={onNextCllick}
           textStyle={onboardingStylesheet.buttonText}
           buttonStyle={StyleSheet.compose(
             onboardingStylesheet.nextButtonContainer,
-            {opacity: name.trim().length >= 2 ? 1 : 0.4},
+            {opacity: name.trim().length >= MIN_NAME_LENGTH ? 1 : 0.4},
           )}>
           Next
         </GenericButton>
       </KeyboardAvoidingView>
+      <GenericBottomsheet
+        headerTile={'Change your profile picture'}
+        showCloseButton={true}
+        visible={openEditAvatarModal}
+        onClose={() => {
+          setOpenEditAvatarModal(p => !p);
+        }}>
+        <EditAvatar
+          onSave={onSavePicture}
+          localImagePath={imagePath}
+          setLocalImagePath={setImagePath}
+        />
+      </GenericBottomsheet>
     </>
   );
 }

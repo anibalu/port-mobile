@@ -13,6 +13,43 @@ import Avatar12 from '@assets/avatarsforprofile/Avatar12.svg';
 import Avatar13 from '@assets/avatarsforprofile/Avatar13.svg';
 import Avatar14 from '@assets/avatarsforprofile/Avatar14.svg';
 import Avatar15 from '@assets/avatarsforprofile/Avatar15.svg';
+import Avatar16 from '@assets/avatarsforprofile/Avatar16.svg';
+import Avatar17 from '@assets/avatarsforprofile/Avatar17.svg';
+import Avatar18 from '@assets/avatarsforprofile/Avatar18.svg';
+import Avatar19 from '@assets/avatarsforprofile/Avatar19.svg';
+import Avatar20 from '@assets/avatarsforprofile/Avatar20.svg';
+import Avatar21 from '@assets/avatarsforprofile/Avatar21.svg';
+import Avatar22 from '@assets/avatarsforprofile/Avatar22.svg';
+import Avatar23 from '@assets/avatarsforprofile/Avatar23.svg';
+import Avatar24 from '@assets/avatarsforprofile/Avatar24.svg';
+import Avatar25 from '@assets/avatarsforprofile/Avatar25.svg';
+import Avatar26 from '@assets/avatarsforprofile/Avatar26.svg';
+import Avatar27 from '@assets/avatarsforprofile/Avatar27.svg';
+import Avatar28 from '@assets/avatarsforprofile/Avatar28.svg';
+import Avatar29 from '@assets/avatarsforprofile/Avatar29.svg';
+import Avatar30 from '@assets/avatarsforprofile/Avatar30.svg';
+import Avatar31 from '@assets/avatarsforprofile/Avatar31.svg';
+import Avatar32 from '@assets/avatarsforprofile/Avatar32.svg';
+import Avatar33 from '@assets/avatarsforprofile/Avatar33.svg';
+import Avatar34 from '@assets/avatarsforprofile/Avatar34.svg';
+import Avatar35 from '@assets/avatarsforprofile/Avatar35.svg';
+import Avatar36 from '@assets/avatarsforprofile/Avatar36.svg';
+import Avatar37 from '@assets/avatarsforprofile/Avatar37.svg';
+import Avatar38 from '@assets/avatarsforprofile/Avatar38.svg';
+import Avatar39 from '@assets/avatarsforprofile/Avatar39.svg';
+import Avatar40 from '@assets/avatarsforprofile/Avatar40.svg';
+import Avatar41 from '@assets/avatarsforprofile/Avatar41.svg';
+import Avatar42 from '@assets/avatarsforprofile/Avatar42.svg';
+import Avatar43 from '@assets/avatarsforprofile/Avatar43.svg';
+import Avatar44 from '@assets/avatarsforprofile/Avatar44.svg';
+import Avatar45 from '@assets/avatarsforprofile/Avatar45.svg';
+import Avatar46 from '@assets/avatarsforprofile/Avatar46.svg';
+import Avatar47 from '@assets/avatarsforprofile/Avatar47.svg';
+import Avatar48 from '@assets/avatarsforprofile/Avatar48.svg';
+import Avatar49 from '@assets/avatarsforprofile/Avatar49.svg';
+import Avatar50 from '@assets/avatarsforprofile/Avatar50.svg';
+import Avatar51 from '@assets/avatarsforprofile/Avatar51.svg';
+import Avatar52 from '@assets/avatarsforprofile/Avatar52.svg';
 
 export const avatarmapping = [
   {id: '1', Icon: Avatar1},
@@ -30,4 +67,41 @@ export const avatarmapping = [
   {id: '13', Icon: Avatar13},
   {id: '14', Icon: Avatar14},
   {id: '15', Icon: Avatar15},
+  {id: '16', Icon: Avatar16},
+  {id: '17', Icon: Avatar17},
+  {id: '18', Icon: Avatar18},
+  {id: '19', Icon: Avatar19},
+  {id: '20', Icon: Avatar20},
+  {id: '21', Icon: Avatar21},
+  {id: '22', Icon: Avatar22},
+  {id: '23', Icon: Avatar23},
+  {id: '24', Icon: Avatar24},
+  {id: '25', Icon: Avatar25},
+  {id: '26', Icon: Avatar26},
+  {id: '27', Icon: Avatar27},
+  {id: '28', Icon: Avatar28},
+  {id: '29', Icon: Avatar29},
+  {id: '30', Icon: Avatar30},
+  {id: '31', Icon: Avatar31},
+  {id: '32', Icon: Avatar32},
+  {id: '33', Icon: Avatar33},
+  {id: '34', Icon: Avatar34},
+  {id: '35', Icon: Avatar35},
+  {id: '36', Icon: Avatar36},
+  {id: '37', Icon: Avatar37},
+  {id: '38', Icon: Avatar38},
+  {id: '39', Icon: Avatar39},
+  {id: '40', Icon: Avatar40},
+  {id: '41', Icon: Avatar41},
+  {id: '42', Icon: Avatar42},
+  {id: '43', Icon: Avatar43},
+  {id: '44', Icon: Avatar44},
+  {id: '45', Icon: Avatar45},
+  {id: '46', Icon: Avatar46},
+  {id: '47', Icon: Avatar47},
+  {id: '48', Icon: Avatar48},
+  {id: '49', Icon: Avatar49},
+  {id: '50', Icon: Avatar50},
+  {id: '51', Icon: Avatar51},
+  {id: '52', Icon: Avatar52},
 ];

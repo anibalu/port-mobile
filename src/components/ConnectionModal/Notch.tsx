@@ -1,3 +1,4 @@
+import {PortColors} from '@components/ComponentUtils';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 
@@ -12,7 +13,7 @@ const styles = StyleSheet.create({
     width: 90,
     height: 6,
     borderRadius: 8,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: PortColors.primary.notch,
     marginBottom: 20,
   },
 });

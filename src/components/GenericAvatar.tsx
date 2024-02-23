@@ -1,7 +1,7 @@
 import {avatarmapping} from '@configs/avatarmapping';
 import {AVATAR_ARRAY} from '@configs/constants';
 import React, {FC} from 'react';
-import {Image, ImageStyle, Pressable, StyleSheet} from 'react-native';
+import {Image, ImageStyle, Pressable, StyleSheet, View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
 //profile uri => file://pathtoimage.jpg
@@ -73,10 +73,16 @@ export function GenericAvatar({
         />
       )}
       {Icon ? (
-        <Icon
-          height={avatarSizeStylePicker(avatarSize).height}
-          width={avatarSizeStylePicker(avatarSize).width}
-        />
+        <View
+          style={{
+            borderRadius: avatarSizeStylePicker(avatarSize).borderRadius,
+            overflow: 'hidden',
+          }}>
+          <Icon
+            height={avatarSizeStylePicker(avatarSize).height}
+            width={avatarSizeStylePicker(avatarSize).width}
+          />
+        </View>
       ) : null}
     </Pressable>
   );

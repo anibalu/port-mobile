@@ -36,6 +36,7 @@ export const PortColors = {
       light: '#F6F6F6',
       medium: '#C9C9C9',
       dark: '#868686',
+      bold: '#717171',
     },
     yellow: {
       dull: '#FEB95A',

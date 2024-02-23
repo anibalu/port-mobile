@@ -11,7 +11,13 @@ export function GenericAvatar({
   profileUri = AVATAR_ARRAY[0],
   onPress,
 }: {
-  avatarSize: 'xxsmall' | 'extraSmall' | 'small' | 'medium' | 'large';
+  avatarSize:
+    | 'xxsmall'
+    | 'extraSmall'
+    | 'small'
+    | 'semiMedium'
+    | 'medium'
+    | 'large';
   //size - extraSmall, small, medium, large || default - large
   profileUri?: string | null;
   onPress?: (() => void) | null;
@@ -20,6 +26,8 @@ export function GenericAvatar({
   function avatarSizeStylePicker(avatarSize?: string): ImageStyle {
     if (avatarSize === 'small') {
       return styles.small;
+    } else if (avatarSize === 'semiMedium') {
+      return styles.semiMedium;
     } else if (avatarSize === 'medium') {
       return styles.medium;
     } else if (avatarSize === 'large') {
@@ -100,6 +108,11 @@ const styles = StyleSheet.create({
     height: 170,
     width: 170,
     borderRadius: 56,
+  },
+  semiMedium: {
+    height: 100,
+    width: 100,
+    borderRadius: 33,
   },
   medium: {
     height: 132,

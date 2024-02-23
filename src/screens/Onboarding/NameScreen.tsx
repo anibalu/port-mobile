@@ -2,9 +2,10 @@
  * This screen allows a user to add a nickname.
  * screen id: 3
  */
-import Next from '@assets/navigation/nextButton.svg';
-import {PortColors, isIOS} from '@components/ComponentUtils';
+import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import {GenericAvatar} from '@components/GenericAvatar';
+import EditCameraIcon from '@assets/icons/EditCamera.svg';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
 import {
@@ -22,12 +23,27 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-
+import {AVATAR_ARRAY} from '@configs/constants';
+import {checkPermissions} from '@utils/AppPermissions/checkAllPermissions';
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Onboarding'>;
 
 function NameScreen({navigation}: Props): ReactNode {
   //setting initial state of nickname string to ""
   const [name, setName] = useState('');
+  const imagePath = AVATAR_ARRAY[1];
+
+  const onNextCllick = async () => {
+    const permissionsResult = await checkPermissions();
+    if (permissionsResult) {
+      navigation.navigate('SetupUser', {
+        name: processName(name),
+      });
+    } else {
+      navigation.navigate('PermissionsScreen', {
+        name: processName(name),
+      });
+    }
+  };
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -57,40 +73,51 @@ function NameScreen({navigation}: Props): ReactNode {
         behavior={isIOS ? 'padding' : 'height'}
         keyboardVerticalOffset={isIOS ? -24 : undefined}
         style={onboardingStylesheet.scrollViewContainer}>
-        <NumberlessText fontType={FontType.md} fontSizeType={FontSizeType.xl}>
-          Share a name but
-        </NumberlessText>
         <NumberlessText
-          fontType={FontType.md}
-          fontSizeType={FontSizeType.xl}
-          textColor={PortColors.text.title}>
-          not a number
+          style={{paddingHorizontal: 16}}
+          fontType={FontType.sb}
+          fontSizeType={FontSizeType.xl}>
+          Enter your name
         </NumberlessText>
         <NumberlessText
           fontType={FontType.rg}
           fontSizeType={FontSizeType.m}
-          style={{textAlign: 'center', marginTop: 44}}
+          style={{textAlign: 'center', marginTop: 20, paddingHorizontal: 16}}
           textColor={PortColors.text.secondary}>
-          We like to keep things simple. We don't require any data to set up
-          your portfolio. Just a name will do.{'\n\n'} And even this is
-          optional.
+          Port is a numberless communication app. This means we don't need your
+          phone number or email to get you setup. Just a name will do.
         </NumberlessText>
+        <View style={onboardingStylesheet.profilePictureHitbox}>
+          <GenericAvatar profileUri={imagePath} avatarSize="semiMedium" />
+          <GenericButton
+            IconLeft={EditCameraIcon}
+            iconSize={20}
+            buttonStyle={onboardingStylesheet.updatePicture}
+            onPress={() => {
+              console.log(
+                'User clicked set an avatar on onboarding that isn`t currently supported NOT IMPLEMENTED',
+              );
+            }}
+          />
+        </View>
         <GenericInput
-          placeholder="Name (Optional)"
-          inputStyle={{marginTop: 44}}
+          placeholder="Name"
+          placeholderTextColor={PortColors.primary.grey.dark}
+          inputStyle={onboardingStylesheet.nameInputStyle}
           text={name}
           setText={setName}
         />
         <View style={{flex: 1}} />
         <GenericButton
-          onPress={() =>
-            navigation.navigate('PermissionsScreen', {
-              name: processName(name),
-            })
-          }
-          IconLeft={Next}
-          buttonStyle={onboardingStylesheet.nextButtonContainer}
-        />
+          disabled={name.trim().length >= 2 ? false : true}
+          onPress={onNextCllick}
+          textStyle={onboardingStylesheet.buttonText}
+          buttonStyle={StyleSheet.compose(
+            onboardingStylesheet.nextButtonContainer,
+            {opacity: name.trim().length >= 2 ? 1 : 0.4},
+          )}>
+          Next
+        </GenericButton>
       </KeyboardAvoidingView>
     </>
   );
@@ -101,19 +128,51 @@ export const onboardingStylesheet = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     paddingTop: 72,
-    paddingHorizontal: 22,
     backgroundColor: PortColors.primary.white,
   },
-  nextButtonContainer: {
+  profilePictureHitbox: {
+    marginTop: 30,
+    paddingHorizontal: 16,
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+  },
+  updatePicture: {
+    width: 32,
+    height: 32,
     backgroundColor: PortColors.primary.blue.app,
-    height: 60,
-    width: 65,
-    bottom: isIOS ? 36 : 18,
-    right: 25,
-    alignSelf: 'flex-end',
+    position: 'absolute',
+    bottom: -8,
+    right: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: 9,
+  },
+  nameInputStyle: {
+    marginTop: 20,
+    height: 50,
+    padding: 16,
+    width: screen.width - 32,
+    alignSelf: 'center',
+    textAlign: 'center',
+    borderRadius: 12,
+    fontSize: 14,
+    fontWeight: '400',
+    color: PortColors.primary.black,
+  },
+  nextButtonContainer: {
+    marginBottom: 32,
+    backgroundColor: PortColors.primary.blue.app,
+    height: 50,
+    flexDirection: 'row',
+    borderRadius: 12,
+    alignItems: 'center',
+    width: screen.width - 32,
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: PortColors.primary.white,
+    fontSize: 16,
   },
 });
 

@@ -87,15 +87,16 @@ const styles = StyleSheet.create({
   button: {
     marginBottom: 32,
     backgroundColor: PortColors.primary.white,
-    height: 60,
+    height: 50,
     flexDirection: 'row',
-    borderRadius: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    width: screen.width - 38,
+    width: screen.width - 32,
     justifyContent: 'center',
   },
   buttonText: {
     color: PortColors.primary.blue.app,
+    fontSize: 16,
   },
 });
 

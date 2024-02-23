@@ -4,14 +4,12 @@
  */
 import {PortColors} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import {GenericAvatar} from '@components/GenericAvatar';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import ProgressBar from '@components/ProgressBar';
-import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_NAME} from '@configs/constants';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import store from '@store/appStore';
@@ -19,28 +17,30 @@ import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
 import {fetchNewPorts} from '@utils/Ports';
 import {deleteProfile, setupProfile} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
+import {CircleSnail} from 'react-native-progress';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
+const Loader = () => {
+  return (
+    <View style={{justifyContent: 'center', alignItems: 'center'}}>
+      <CircleSnail color={PortColors.primary.blue.app} duration={500} />
+    </View>
+  );
+};
 
 function SetupUser({route, navigation}: Props) {
   const {onboardingFailureError} = useErrorModal();
-  const [profileUri, setProfileUri] = useState(AVATAR_ARRAY[0]);
   const {name} = route.params;
   const processedName: string = name || DEFAULT_NAME;
   //state of progress
-  const [progress, setProgress] = useState(10);
-  const [loaderText, setLoaderText] = useState('Initializing...');
   //actions attached to progress
   type ThunkAction = () => Promise<boolean>;
   const setupActions: ThunkAction[] = [
     async (): Promise<boolean> => {
       //setup profile
-      setLoaderText("We're setting up a safe place");
-      setProfileUri(AVATAR_ARRAY[1]);
-
       const response = await setupProfile(processedName);
       if (response === ProfileStatus.created) {
         return true;
@@ -49,15 +49,11 @@ function SetupUser({route, navigation}: Props) {
     },
     async (): Promise<boolean> => {
       //get initial set of connection links
-      setLoaderText('Getting you ready to connect with others');
-      setProfileUri(AVATAR_ARRAY[2]);
       await fetchNewPorts();
       return true;
     },
     async (): Promise<boolean> => {
       //initialise FCM
-      setLoaderText("We're almost there");
-      setProfileUri(AVATAR_ARRAY[3]);
       return await initialiseFCM();
     },
   ];
@@ -68,9 +64,7 @@ function SetupUser({route, navigation}: Props) {
       if (!result) {
         return false;
       }
-      setProgress(prevProgress => prevProgress + 90 / setupActions.length);
     }
-    setProgress(100);
     return true;
   };
   useEffect(() => {
@@ -81,7 +75,7 @@ function SetupUser({route, navigation}: Props) {
           navigation.navigate('OnboardingStack', {screen: 'NameScreen'});
         });
       } else {
-        //ts-ignore
+        // ts-ignore
         store.dispatch({
           type: 'ONBOARDING_COMPLETE',
           payload: true,
@@ -98,17 +92,7 @@ function SetupUser({route, navigation}: Props) {
         backgroundColor={PortColors.primary.white}
       />
       <View style={styles.container}>
-        <View style={styles.avatar}>
-          <GenericAvatar avatarSize="large" profileUri={profileUri} />
-        </View>
-        <ProgressBar progress={progress} />
-        <NumberlessText
-          fontType={FontType.rg}
-          fontSizeType={FontSizeType.m}
-          textColor={PortColors.text.secondary}
-          style={{marginTop: 11}}>
-          {loaderText}
-        </NumberlessText>
+        <Loader />
 
         <NumberlessText
           fontType={FontType.rg}

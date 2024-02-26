@@ -9,7 +9,6 @@ import {PortColors, screen} from '@components/ComponentUtils';
 import DeleteChatButton from '@components/DeleteChatButton';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
-import GenericModal from '@components/Modals/GenericModal';
 import {
   FontSizeType,
   FontType,
@@ -40,6 +39,7 @@ import {
 } from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import DisconnectButton from './DisconnectButton';
+import GenericBottomsheet from '@components/GenericBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -224,17 +224,19 @@ function ContactProfile({route, navigation}: Props) {
           </View>
         </View>
       </ScrollView>
-      <GenericModal
+      <GenericBottomsheet
+        showCloseButton={true}
+        headerTile={"Update this contact's name"}
         visible={editingName}
         onClose={() => {
-          setUpdated(false);
+          setUpdated(p => !p);
         }}>
         <UpdateNamePopup
+          chatId={chatId}
           setUpdated={setUpdated}
           initialName={name}
-          chatId={chatId}
         />
-      </GenericModal>
+      </GenericBottomsheet>
     </SafeAreaView>
   );
 }

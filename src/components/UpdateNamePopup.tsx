@@ -3,12 +3,6 @@
  * the user to enter a new nickname to update the user's
  * profile
  */
-
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
 import {updateProfileName} from '@utils/Profile';
 import React, {ReactNode, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
@@ -16,8 +10,8 @@ import {PortColors, screen} from './ComponentUtils';
 import GenericInput from './GenericInput';
 
 import DirectChat from '@utils/DirectChats/DirectChat';
-import Notch from './ConnectionModal/Notch';
 import {SaveButton} from './SaveButton';
+import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
 
 interface updateNameProps {
   setUpdated: Function;
@@ -47,28 +41,23 @@ export default function UpdateNamePopup({
 
   return (
     <View style={styles.editRegion}>
-      <Notch />
-
-      <NumberlessText fontType={FontType.sb} fontSizeType={FontSizeType.l}>
-        {chatId ? "Update this contact's name" : 'Update your name'}
-      </NumberlessText>
-      <NumberlessText
-        fontType={FontType.rg}
-        fontSizeType={FontSizeType.m}
-        style={{marginTop: 8}}
-        textColor={PortColors.text.secondary}>
-        When left blank the username would be “Numberless” and will appear so
-        while forming connections.
-      </NumberlessText>
       <GenericInput
+        maxLength={NAME_LENGTH_LIMIT}
         inputStyle={styles.nameInputStyle}
         text={newName}
         setText={setNewName}
-        placeholder="Enter a new name"
+        placeholder="Name"
         alignment="left"
       />
       <View style={styles.buttonContainer}>
-        <SaveButton onPress={onSavePressed} />
+        <SaveButton
+          style={{
+            opacity: newName.trim().length >= MIN_NAME_LENGTH ? 1 : 0.4,
+            height: 50,
+          }}
+          disabled={newName.trim().length >= MIN_NAME_LENGTH ? false : true}
+          onPress={onSavePressed}
+        />
       </View>
     </View>
   );
@@ -76,22 +65,18 @@ export default function UpdateNamePopup({
 
 const styles = StyleSheet.create({
   editRegion: {
-    backgroundColor: PortColors.primary.white,
     flexDirection: 'column',
     width: screen.width,
     alignItems: 'flex-start',
     justifyContent: 'flex-end',
-    paddingBottom: 20,
-    paddingTop: 8,
-    paddingHorizontal: 30,
+    paddingHorizontal: 24,
     borderTopStartRadius: 32,
     borderTopEndRadius: 32,
+    gap: 24,
   },
-
   buttonContainer: {
     alignSelf: 'stretch',
     height: 50,
-    marginBottom: 25,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
@@ -103,9 +88,10 @@ const styles = StyleSheet.create({
     color: PortColors.text.secondary,
   },
   nameInputStyle: {
+    marginTop: 5,
     paddingLeft: 10,
-    height: 58,
-    marginTop: 24,
-    marginBottom: 38,
+    backgroundColor: PortColors.primary.white,
+    height: 50,
+    color: PortColors.primary.black,
   },
 });

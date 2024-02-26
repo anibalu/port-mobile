@@ -148,14 +148,15 @@ function MyProfile({navigation}: Props): ReactNode {
         Report Issue
       </GenericButton>
 
-      <GenericModal
+      <GenericBottomsheet
+        showCloseButton={true}
+        headerTile={'Update your name'}
         visible={editingName}
         onClose={() => {
           setUpdated(p => !p);
         }}>
         <UpdateNamePopup setUpdated={setUpdated} initialName={name} />
-      </GenericModal>
-
+      </GenericBottomsheet>
       <GenericModal
         visible={reportbugModalOpen}
         onClose={() => {

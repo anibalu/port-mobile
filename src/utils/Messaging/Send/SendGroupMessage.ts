@@ -13,6 +13,11 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {checkFileSizeWithinLimits} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {saveNewMedia, updateMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
+import {
+  addReaction,
+  getReactions,
+  updateReactions,
+} from '@utils/Storage/reactions';
 import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
 import LargeDataUpload from '../LargeData/LargeDataUpload';
 import {
@@ -26,6 +31,7 @@ import {
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
+  ReactionParams,
   SavedMessageParams,
   TextParams,
   UpdateParams,
@@ -133,7 +139,6 @@ class SendGroupMessage<T extends ContentType> {
   private async trySending(
     processedPayload: object,
   ): Promise<MessageStatus.sent | MessageStatus.journaled> {
-    console.log('Payload is: ', processedPayload);
     return await API.sendObject(this.chatId, processedPayload, true);
   }
 
@@ -142,11 +147,17 @@ class SendGroupMessage<T extends ContentType> {
    * @param shouldEncrypt - whether processed payload needs to be encrypted or not.
    */
   private async processPayload(shouldEncrypt: boolean): Promise<object> {
-    const plaintext = JSON.stringify(this.payload);
     const group = new Group(this.chatId);
-
     const groupCryptoPairs = await group.loadGroupCryptoPairs();
-    console.log('Pairs are: ', groupCryptoPairs);
+
+    if (this.payload.contentType === ContentType.reaction) {
+      const data = await group.getData();
+      //Sending a message entails that the user uses their own cryptoId to send.
+      (this.payload.data as ReactionParams).cryptoId = data!.selfCryptoId!;
+      (this.data as ReactionParams).cryptoId = data!.selfCryptoId!;
+    }
+
+    const plaintext = JSON.stringify(this.payload);
 
     //TODO: Test this out, isnt tested
     if (this.recipientID) {
@@ -165,7 +176,10 @@ class SendGroupMessage<T extends ContentType> {
 
   //load up saved message in storage if it exists
   private async loadSavedMessage() {
-    const savedMessage = await storage.getMessage(this.chatId, this.messageId);
+    const savedMessage = await storage.getGroupMessage(
+      this.chatId,
+      this.messageId,
+    );
     if (savedMessage) {
       this.savedMessage = savedMessage as SavedMessageParams;
     }
@@ -261,8 +275,6 @@ class SendGroupMessage<T extends ContentType> {
         key: newMediaIdAndKey.key,
       };
 
-      console.log('Saving path as: ', largeData.fileUri);
-
       //Saves relative URIs for the paths
       await updateMedia(newMediaIdAndKey.mediaId, {
         type: this.contentType,
@@ -280,7 +292,7 @@ class SendGroupMessage<T extends ContentType> {
   private async saveMessage() {
     //save message to storage with "unassigned" messageStatus
 
-    await storage.saveMessage(this.savedMessage);
+    await storage.saveGroupMessage(this.savedMessage);
 
     //update redux store that a new message will be sent
     store.dispatch({
@@ -293,9 +305,9 @@ class SendGroupMessage<T extends ContentType> {
     const msgTimestamp = generateISOTimeStamp();
     const deliveredAtTimestamp =
       newSendStatus === MessageStatus.sent ? msgTimestamp : undefined;
-    await storage.updateMessageSendStatus(
+    await storage.updateGroupMessageSendStatus(
       this.chatId,
-      (this.data as UpdateParams).messageIdToBeUpdated,
+
       this.data as UpdateParams,
     );
     store.dispatch({
@@ -328,19 +340,76 @@ class SendGroupMessage<T extends ContentType> {
       messageIdToBeUpdated: this.messageId,
       updatedMessageStatus: newSendStatus,
     };
-    //update send status
-    await storage.updateMessageSendStatus(this.chatId, newUpdate);
 
-    //update redux store that a new message send status has changed.
-    store.dispatch({
-      type: 'NEW_SEND_STATUS_UPDATE',
-      payload: {
-        chatId: this.chatId,
-        messageId: this.messageId,
-        messageStatus: newSendStatus,
-        timestamp: msgTimestamp,
-      },
-    });
+    //update send status
+    await storage.updateGroupMessageSendStatus(this.chatId, newUpdate);
+
+    if (this.contentType === ContentType.reaction) {
+      const reactionData = this.data as ReactionParams;
+
+      //Determines if a message has a reaction or not
+      let reactionState = true;
+
+      if (reactionData.reaction === null) {
+        const reactions = await getReactions(
+          reactionData.chatId,
+          reactionData.messageId,
+        );
+        if (reactions?.length <= 1) {
+          reactionState = false;
+        } else {
+          reactionState = true;
+        }
+      }
+
+      const oldReactions = await getReactions(
+        reactionData.chatId,
+        reactionData.messageId,
+      );
+
+      const hasUserReacted = oldReactions.some(
+        item => item.cryptoId === reactionData.cryptoId,
+      );
+
+      if (hasUserReacted) {
+        //Adding reaction to the reaction DB.
+        await updateReactions(
+          reactionData.chatId,
+          reactionData.messageId,
+          reactionData.cryptoId,
+          reactionData.reaction,
+        );
+      } else {
+        await addReaction(reactionData);
+      }
+      //Reactions can be changed, added or removed.
+      await storage.updateGroupReaction(
+        reactionData.chatId,
+        reactionData.messageId,
+        reactionState,
+      );
+
+      store.dispatch({
+        type: 'REACTION_UPDATE',
+        payload: {
+          chatId: reactionData.chatId,
+          messageId: reactionData.messageId,
+          hasReaction: reactionState,
+          latestReaction: reactionData.reaction,
+        },
+      });
+    } else {
+      //update redux store that a new message send status has changed.
+      store.dispatch({
+        type: 'NEW_SEND_STATUS_UPDATE',
+        payload: {
+          chatId: this.chatId,
+          messageId: this.messageId,
+          messageStatus: newSendStatus,
+          timestamp: msgTimestamp,
+        },
+      });
+    }
   }
 
   //update message connection info based on send operation

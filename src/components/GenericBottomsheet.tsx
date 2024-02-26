@@ -1,12 +1,12 @@
 import React from 'react';
 import {PortColors, screen} from './ComponentUtils';
-import GenericModal from './GenericModal';
 import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import {StyleSheet, View} from 'react-native';
 import {GenericButton} from './GenericButton';
 import Whitecross from '@assets/icons/WhitecrossOutline.svg';
 import BackButton from '@assets/icons/BlackArrowLeft.svg';
 import {useNavigation} from '@react-navigation/native';
+import GenericModal from './Modals/GenericModal';
 
 const GenericBottomsheet = ({
   onClose,

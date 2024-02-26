@@ -1,5 +1,6 @@
 import DownArrow from '@assets/icons/DownArrowWhite.svg';
 import {PortColors} from '@components/ComponentUtils';
+import {REACTION_SENDER_ID} from '@configs/constants';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
@@ -53,6 +54,23 @@ const sendReadReceipt = (chatId: string, message: SavedMessageParams) => {
   }
 };
 
+const handleReaction = async (
+  message: SavedMessageParams,
+  reaction: string,
+) => {
+  const sender = new SendMessage(message.chatId, ContentType.reaction, {
+    chatId: message.chatId,
+    messageId: message.messageId,
+    //Since these are for DMs we will define an ID that identifies the sender locally.
+    //Note that for the recevier, this flips and they themselves are the sender
+
+    //This gets overridden inside sendGroup for passing in the member's own CryptoID.
+    cryptoId: REACTION_SENDER_ID,
+    reaction,
+  });
+  await sender.send();
+};
+
 /**
  * Renders an inverted flatlist that displays all chat messages.
  * @param messages - messages to be displayed
@@ -74,6 +92,7 @@ function ChatList({
   onStartReached,
   onEndReached,
   isGroupChat,
+  onPostSelect,
   dataHandler,
   chatId,
   setReplyTo,
@@ -88,6 +107,7 @@ function ChatList({
   isGroupChat: boolean;
   dataHandler: Group | DirectChat;
   chatId: string;
+  onPostSelect: any;
   setReplyTo: Function;
 }): ReactNode {
   //render function to display message bubbles
@@ -112,6 +132,11 @@ function ChatList({
       setSwiping(p => !p);
     };
 
+    const onReaction = (message: SavedMessageParams, reaction: string) => {
+      handleReaction(message, reaction);
+      onPostSelect();
+    };
+
     return (
       <MessageBubble
         chatId={chatId}
@@ -121,6 +146,7 @@ function ChatList({
         isDateBoundary={isDateBoundary}
         selected={selectedMessages}
         handlePress={handlePress}
+        handleReaction={onReaction}
         handleDownload={handleDownload}
         handleLongPress={handleLongPress}
         isGroupChat={isGroupChat}

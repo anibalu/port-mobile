@@ -8,9 +8,9 @@ import {SavedMessageParams, TextParams} from '@utils/Messaging/interfaces';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {
+  TEXT_OVERFLOW_LIMIT,
   getEmojiSize,
   hasOnlyEmojis,
-  TEXT_OVERFLOW_LIMIT,
   renderProfileName,
   renderTimeStamp,
   shouldRenderProfileName,

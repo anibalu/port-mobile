@@ -4,7 +4,6 @@ import {
   DataType,
   MessageStatus,
   SavedMessageParams,
-  UpdateParams,
 } from '@utils/Messaging/interfaces';
 
 function toBool(a: number) {
@@ -16,7 +15,7 @@ function toBool(a: number) {
 export async function addMessage(message: SavedMessageParams) {
   await runSimpleQuery(
     `
-    INSERT INTO lineMessages (
+    INSERT INTO groupMessages (
       messageId,
       chatId,
       contentType,
@@ -53,7 +52,7 @@ export async function updateMessage(
 ) {
   await runSimpleQuery(
     `
-    UPDATE lineMessages
+    UPDATE groupMessages
     SET data = ?
     WHERE chatId = ? AND messageId = ? ;
     `,
@@ -76,7 +75,7 @@ export async function getMessage(
   let entry = null;
   await runSimpleQuery(
     `
-    SELECT * FROM lineMessages
+    SELECT * FROM groupMessages
     WHERE chatId = ? and messageId = ? ;
     `,
     [chatId, messageId],
@@ -109,75 +108,11 @@ export async function updateStatus(
   }
   await runSimpleQuery(
     `
-    UPDATE lineMessages
+    UPDATE groupMessages
     SET messageStatus = ?
     WHERE chatId = ? AND messageId = ? ;
     `,
     [messageStatus, chatId, messageId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
-  );
-}
-
-/**
- * Update the status of a message along with its timestamp. Only used for delivered and read status updates
- * or failute.
- * @param chatId the chatId of the message to udpate
- * @param messageId the messageId of the message to update
- * @param messageStatus The new read status. Note, if success, use set Sent.
- * @param deliveredTimestamp time when the message was delivered.
- * @param readTimestamp time when the message was read
- * @returns null
- */
-export async function updateStatusAndTimestamp(
-  chatId: string,
-  messageId: string,
-  updatedParams: UpdateParams,
-) {
-  await runSimpleQuery(
-    `
-    UPDATE lineMessages
-    SET
-    messageStatus = ?,
-    deliveredTimestamp = COALESCE(?, deliveredTimestamp),
-    readTimestamp = COALESCE(?, readTimestamp),
-    shouldAck = COALESCE(?,shouldAck),
-    contentType = COALESCE(?,contentType)
-    WHERE chatId = ? AND messageId = ? ;
-    `,
-    [
-      updatedParams.updatedMessageStatus
-        ? updatedParams.updatedMessageStatus
-        : null,
-      updatedParams.deliveredAtTimestamp
-        ? updatedParams.deliveredAtTimestamp
-        : null,
-      updatedParams.readAtTimestamp ? updatedParams.readAtTimestamp : null,
-      updatedParams.shouldAck ? updatedParams.shouldAck : null,
-      updatedParams.updatedContentType
-        ? updatedParams.updatedContentType
-        : null,
-      chatId,
-      messageId,
-    ],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
-  );
-}
-
-export async function toggleReactionState(
-  hasReaction: boolean,
-  chatId: string,
-  messageId: string,
-) {
-  await runSimpleQuery(
-    `
-    UPDATE lineMessages
-    SET
-    hasReaction = COALESCE(?, hasReaction)
-    WHERE chatId = ? AND messageId = ? ;
-    `,
-    [hasReaction, chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
@@ -196,7 +131,7 @@ export async function getLatestMessages(
   let messageList: SavedMessageParams[] = [];
   await runSimpleQuery(
     `
-    SELECT * FROM lineMessages
+    SELECT * FROM groupMessages
     WHERE chatId = ? AND timestamp > ?
     ORDER BY timestamp ASC ;
     `,
@@ -224,7 +159,7 @@ async function getMessageIterator(chatId: string) {
   let messageIterator = {};
   await runSimpleQuery(
     `
-    SELECT * FROM lineMessages
+    SELECT * FROM groupMessages
     WHERE chatId = ? 
     ORDER BY timestamp ASC ;
     `,
@@ -288,7 +223,7 @@ export async function getPaginatedMessages(chatId: string, cursor?: number) {
 export async function setSent(chatId: string, messageId: string) {
   await runSimpleQuery(
     `
-    UPDATE lineMessages
+    UPDATE groupMessages
     SET messageStatus = ?
     WHERE chatId = ? AND messageId = ? ;
     `,
@@ -305,7 +240,7 @@ export async function getUnsent(): Promise<SavedMessageParams[]> {
   let unsent: SavedMessageParams[] = [];
   await runSimpleQuery(
     `
-    SELECT * FROM lineMessages 
+    SELECT * FROM groupMessages 
     WHERE messageStatus = ? ;
     `,
     [MessageStatus.journaled],
@@ -323,6 +258,24 @@ export async function getUnsent(): Promise<SavedMessageParams[]> {
   return unsent;
 }
 
+export async function toggleReactionState(
+  hasReaction: boolean,
+  chatId: string,
+  messageId: string,
+) {
+  await runSimpleQuery(
+    `
+    UPDATE groupMessages
+    SET
+    hasReaction = COALESCE(?, hasReaction)
+    WHERE chatId = ? AND messageId = ? ;
+    `,
+    [hasReaction, chatId, messageId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, res) => {},
+  );
+}
+
 /**
  * Get a list of all saved messages that have expired
  * @param currentTimestamp The current time in ISOString format
@@ -334,7 +287,7 @@ export async function getExpiredMessages(
   let expired: SavedMessageParams[] = [];
   await runSimpleQuery(
     `
-    SELECT * FROM lineMessages 
+    SELECT * FROM groupMessages 
     WHERE expiresOn < ? ;
     `,
     [currentTimestamp],
@@ -365,7 +318,7 @@ export async function permanentlyDeleteMessage(
 ) {
   await runSimpleQuery(
     `
-    DELETE FROM lineMessages 
+    DELETE FROM groupMessages 
     WHERE chatId = ? AND messageId = ? ;
     `,
     [chatId, messageId],

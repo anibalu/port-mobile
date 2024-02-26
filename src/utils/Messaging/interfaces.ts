@@ -38,6 +38,7 @@ export enum ContentType {
   contactBundleDenialResponse = 15,
   deleted = 16,
   update = 17,
+  reaction = 18,
 }
 
 /**
@@ -96,6 +97,7 @@ export type DataType =
   | ContactBundleRequestParams
   | ContactBundleResponseParams
   | ContactBundleDenialResponseParams
+  | ReactionParams
   | InitialInfoRequestParams;
 
 export interface TextParams {
@@ -198,6 +200,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? InitialInfoRequestParams
     : T extends ContentType.update
     ? UpdateParams
+    : T extends ContentType.reaction
+    ? ReactionParams
     : never;
 
 /**
@@ -216,7 +220,17 @@ export interface SavedMessageParams {
   expiresOn?: string | null; //when should the message expire.
   shouldAck?: boolean; // if the message should be ack'ed. Useful for controlling read receipts. This is present only for messages that have been received by a user
   recipientID?: string | null; //used when message has to be sent to one
+  hasReaction?: boolean;
+  forceRender?: string; //Used to force re-render for bubbles when conditions cannot be explicitly defined.
 }
+
+export interface ReactionParams {
+  chatId: string;
+  messageId: string;
+  cryptoId: string; //
+  reaction: string | null;
+}
+
 /**
  * Interface describing the payload being encrypted and sent/received
  */

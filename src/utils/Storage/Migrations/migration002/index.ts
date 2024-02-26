@@ -1,3 +1,4 @@
+import groupMessages from './groupMessages';
 import media from './media';
 
 /**
@@ -7,4 +8,5 @@ import media from './media';
  */
 export default async function migration002() {
   await media();
+  await groupMessages();
 }

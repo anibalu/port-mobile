@@ -1,4 +1,4 @@
-import React, {ReactNode, memo, useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
 
 import DefaultImage from '@assets/avatars/avatar.png';
 
@@ -14,15 +14,16 @@ import Group from '@utils/Groups/Group';
 import {
   ContentType,
   LargeDataMessageContentTypes,
-  LargeDataParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
-import {getMessage} from '@utils/Storage/messages';
+import {getGroupMessage, getMessage} from '@utils/Storage/messages';
+
 import {createDateBoundaryStamp} from '@utils/Time';
 import {
   Animated,
   Image,
   PanResponder,
+  Pressable,
   StyleProp,
   StyleSheet,
   View,
@@ -36,6 +37,8 @@ import InfoBubble from './BubbleTypes/InfoBubble';
 import ReplyBubble from './BubbleTypes/ReplyBubble';
 import TextBubble from './BubbleTypes/TextBubble';
 import VideoBubble from './BubbleTypes/VideoBubble';
+import {reactionMapping} from '@configs/reactionmapping';
+import {getReactions} from '@utils/Storage/reactions';
 
 /**
  * Props that a message bubble takes
@@ -43,6 +46,7 @@ import VideoBubble from './BubbleTypes/VideoBubble';
 interface MessageBubbleProps {
   message: SavedMessageParams;
   isDateBoundary: boolean;
+  handleReaction: any;
   selected: string[];
   handlePress: any;
   hasExtraPadding: boolean;
@@ -73,6 +77,7 @@ const MessageBubble = ({
   isDateBoundary,
   selected,
   handlePress,
+  handleReaction,
   handleDownload,
   hasExtraPadding,
   handleLongPress,
@@ -88,6 +93,47 @@ const MessageBubble = ({
     message.contentType,
   );
 
+  const [isReactionsVisible, setIsReactionsVisible] = useState(false);
+  const [reactions, setReactions] = useState<any[]>([]);
+
+  const onLongPress = (id: string) => {
+    handleLongPress(id);
+    if (selected.length > 1) {
+      setIsReactionsVisible(false);
+    } else {
+      setIsReactionsVisible(true);
+    }
+  };
+
+  useEffect(() => {
+    if (selected.length > 1 || selected.length < 1) {
+      setIsReactionsVisible(false);
+    }
+  }, [selected]);
+
+  const fetchReactions = async () => {
+    const rawReactions = await getReactions(chatId, message.messageId);
+    console.log('Fetched reactions are: ', message.messageId);
+    const result = Object.entries(
+      rawReactions.reduce((acc, {reaction}) => {
+        if (reaction) {
+          acc[reaction] = (acc[reaction] || 0) + 1;
+        }
+        return acc;
+      }, {}),
+    ).map(([k, v]) => [k, v]);
+
+    console.log('Result is: ', result);
+    console.log('Message has reactions: ', message.hasReaction);
+    setReactions(result);
+  };
+
+  useEffect(() => {
+    console.log('Fetching reactions for bubble');
+    fetchReactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [message.forceRender]);
+
   const isReply = (message.replyId && message.replyId !== '') || false;
 
   const resetPosition = () => {
@@ -100,7 +146,11 @@ const MessageBubble = ({
   };
 
   const performReply = async (): Promise<void> => {
-    setReplyTo(await getMessage(chatId, message.messageId));
+    setReplyTo(
+      isGroupChat
+        ? await getGroupMessage(chatId, message.messageId)
+        : await getMessage(chatId, message.messageId),
+    );
   };
 
   const constrainedX = positionX.interpolate({
@@ -153,14 +203,13 @@ const MessageBubble = ({
     hasExtraPadding,
     message.sender,
   );
+
   const [containerType] = useState(intitialContainerType);
 
   //Assume that member name is empty, which implies it is the sender themselves
   const [memberName, setMemberName] = useState('');
 
   useEffect(() => {
-    if (isGroupChat) {
-    }
     (async () => {
       //If it is not a group chat, name doesnt need to be rendered which is why it is left as is
       if (isGroupChat) {
@@ -195,7 +244,7 @@ const MessageBubble = ({
                 message,
                 isGroupChat,
                 handlePress,
-                handleLongPress,
+                onLongPress,
                 handleDownload,
                 memberName,
                 dataHandler,
@@ -240,21 +289,36 @@ const MessageBubble = ({
               Controls rendering of the wrapper that contains information that is displayed by a bubble. Applies to all bubbles
                */}
               <View
-                style={StyleSheet.compose(initialBlobType, {
-                  paddingTop: isLargeData ? 4 : 8,
-                  paddingHorizontal: isLargeData ? 4 : 8,
-                  paddingBottom: isLargeData ? 2 : 8,
+                style={StyleSheet.compose(containerType, {
+                  flexDirection: 'column',
+                  flex: 1,
+                  //We remove the padding from the container, as it already exists with the parent
+                  marginRight: 0,
+                  marginLeft: 0,
+                  marginBottom: 0,
                 })}>
-                {renderBubbleType(
-                  message,
-                  isGroupChat,
-                  handlePress,
-                  handleLongPress,
-                  handleDownload,
-                  memberName,
-                  dataHandler,
-                  isReply,
-                )}
+                {isReactionsVisible &&
+                  renderReactionBar(handleReaction, message)}
+                <View
+                  style={StyleSheet.compose(initialBlobType, {
+                    paddingTop: isLargeData ? 4 : 8,
+                    paddingHorizontal: isLargeData ? 4 : 8,
+                    paddingBottom: isLargeData ? 2 : 8,
+                  })}>
+                  {renderBubbleType(
+                    message,
+                    isGroupChat,
+                    handlePress,
+                    onLongPress,
+                    handleDownload,
+                    memberName,
+                    dataHandler,
+                    isReply,
+                  )}
+                </View>
+                {message.hasReaction
+                  ? renderReactions(reactions, message.sender)
+                  : null}
               </View>
             </View>
           </View>
@@ -285,6 +349,56 @@ export function isSwipeableMessage(contentType: ContentType) {
     return false;
   }
   return true;
+}
+
+function renderReactionBar(
+  handleReaction: (arg0: any, arg1: string) => void,
+  message: SavedMessageParams,
+) {
+  return (
+    <View
+      style={StyleSheet.compose(styles.reactionSelection, {
+        ...(message.sender ? {right: 0} : {}),
+      })}>
+      {reactionMapping.map(item => {
+        return (
+          <Pressable
+            key={item}
+            onPress={() => {
+              handleReaction(message, item);
+            }}>
+            <NumberlessText
+              fontSizeType={FontSizeType.es}
+              fontType={FontType.rg}>
+              {item}
+            </NumberlessText>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function renderReactions(reactions: any[], isSender: boolean) {
+  return (
+    <View
+      style={StyleSheet.compose(styles.reactionDisplay, {
+        ...(isSender ? {right: 0} : {}),
+      })}>
+      {reactions.map(item => {
+        if (item[1] > 0) {
+          return (
+            <NumberlessText
+              key={item[0]}
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}>
+              {item[0]} {item[1]}
+            </NumberlessText>
+          );
+        }
+      })}
+    </View>
+  );
 }
 
 /**
@@ -539,6 +653,30 @@ const styles = StyleSheet.create({
     maxWidth: '70%',
   },
 
+  reactionSelection: {
+    backgroundColor: PortColors.primary.white,
+    borderRadius: 16,
+    flexDirection: 'row',
+    gap: 5,
+    padding: 5,
+    zIndex: 20,
+    bottom: 5,
+    alignItems: 'center',
+  },
+
+  reactionDisplay: {
+    backgroundColor: PortColors.primary.grey.light,
+    borderRadius: 12,
+    flexDirection: 'row',
+    borderWidth: 0.5,
+    borderColor: PortColors.primary.border.dullGrey,
+    zIndex: 10,
+    top: -4,
+    paddingVertical: 2,
+    paddingHorizontal: 7,
+    gap: 4,
+  },
+
   displayPicContainer: {
     width: 36,
     height: 36,
@@ -551,16 +689,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(MessageBubble, (prevProps, nextProps) => {
-  return (
-    prevProps.message.messageStatus === nextProps.message.messageStatus &&
-    (prevProps.message.data as LargeDataParams).fileUri ===
-      (nextProps.message.data as LargeDataParams).fileUri &&
-    (prevProps.message.data as LargeDataParams).previewUri ===
-      (nextProps.message.data as LargeDataParams).previewUri &&
-    prevProps.isGroupChat === nextProps.isGroupChat &&
-    prevProps.selected === nextProps.selected &&
-    prevProps.isDateBoundary === nextProps.isDateBoundary &&
-    prevProps.hasExtraPadding === nextProps.hasExtraPadding
-  );
-});
+export default MessageBubble;

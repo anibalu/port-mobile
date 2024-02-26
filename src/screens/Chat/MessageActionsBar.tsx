@@ -13,9 +13,15 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {
+  cleanDeleteGroupMessage,
+  cleanDeleteMessage,
+  getGroupMessage,
+  getMessage,
+} from '@utils/Storage/messages';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
+
 import {useErrorModal} from 'src/context/ErrorModalContext';
 
 /**
@@ -36,6 +42,7 @@ export function MessageActionsBar({
   onCopy,
   onInfo,
   onForward,
+  isGroup,
   isSharedMedia,
 }: {
   chatId: string;
@@ -44,19 +51,32 @@ export function MessageActionsBar({
   postDelete: any;
   onCopy: any;
   onInfo: () => void;
+  isGroup: boolean;
   onForward: any;
   isSharedMedia?: boolean;
 }): ReactNode {
   const {somethingWentWrongError} = useErrorModal();
   const performReply = async (): Promise<void> => {
-    setReplyTo(await getMessage(chatId, selectedMessages[0]));
+    setReplyTo(
+      isGroup
+        ? await getGroupMessage(chatId, selectedMessages[0])
+        : await getMessage(chatId, selectedMessages[0]),
+    );
   };
   const performDelete = async (): Promise<void> => {
-    for (const msg of selectedMessages) {
-      await cleanDeleteMessage(chatId, msg);
+    if (isGroup) {
+      for (const msg of selectedMessages) {
+        await cleanDeleteGroupMessage(chatId, msg);
+      }
+      postDelete(selectedMessages);
+      setOpenDeleteModal(false);
+    } else {
+      for (const msg of selectedMessages) {
+        await cleanDeleteMessage(chatId, msg);
+      }
+      postDelete(selectedMessages);
+      setOpenDeleteModal(false);
     }
-    postDelete(selectedMessages);
-    setOpenDeleteModal(false);
   };
 
   const determineModalDisplay = async () => {

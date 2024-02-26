@@ -5,6 +5,7 @@
 const initialState = {
   updatedStatus: {},
   updatedMedia: {},
+  updatedReaction: {},
 };
 
 export default function latestMessageUpdate(state = initialState, action: any) {
@@ -18,6 +19,11 @@ export default function latestMessageUpdate(state = initialState, action: any) {
       return {
         ...state,
         updatedMedia: action.payload,
+      };
+    case 'REACTION_UPDATE':
+      return {
+        ...state,
+        updatedReaction: action.payload,
       };
     default:
       return state;

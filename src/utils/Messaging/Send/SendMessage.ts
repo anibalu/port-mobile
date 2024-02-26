@@ -1,3 +1,4 @@
+import {isGroupChat} from '@utils/Connections';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContentType,
@@ -5,7 +6,6 @@ import {
   MessageDataTypeBasedOnContentType,
 } from '../interfaces';
 import SendDirectMessage from './SendDirectMessage';
-import {isGroupChat} from '@utils/Connections';
 import SendGroupMessage from './SendGroupMessage';
 
 class SendMessage<T extends ContentType> {

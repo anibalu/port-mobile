@@ -1,9 +1,9 @@
 import Send from '@assets/icons/WhiteArrowUp.svg';
+import WhiteOverlay from '@assets/miscellaneous/whiteOverlay.svg';
 import ChatBackground from '@components/ChatBackground';
 import {FontSizes, PortColors} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericTopBar from '@components/GenericTopBar';
-import WhiteOverlay from '@assets/miscellaneous/whiteOverlay.svg';
 import {
   FontSizeType,
   FontType,
@@ -16,11 +16,11 @@ import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getConnections} from '@utils/Connections';
 import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
-import {getMessage} from '@utils/Storage/messages';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import ContactTile from './ContactTile';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ForwardToContact'>;
 
@@ -82,15 +82,26 @@ export default function ForwardToContact({route, navigation}: Props) {
     setLoading(true);
     for (const mbr of selectedMembers) {
       for (const id of messages) {
-        const msg = await getMessage(chatId, id);
-        if (msg) {
-          const sender = new SendMessage(
-            mbr.chatId,
-            msg.contentType,
-            msg.data,
-            mbr.connectionType === ChatType.group,
-          );
-          sender.send();
+        if (mbr.connectionType === ChatType.group) {
+          const msg = await getGroupMessage(chatId, id);
+          if (msg) {
+            const sender = new SendMessage(
+              mbr.chatId,
+              msg.contentType,
+              msg.data,
+            );
+            sender.send();
+          }
+        } else {
+          const msg = await getMessage(chatId, id);
+          if (msg) {
+            const sender = new SendMessage(
+              mbr.chatId,
+              msg.contentType,
+              msg.data,
+            );
+            sender.send();
+          }
         }
       }
     }

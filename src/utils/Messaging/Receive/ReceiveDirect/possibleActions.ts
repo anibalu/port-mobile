@@ -1,25 +1,26 @@
+import {ContentType, PayloadMessageParams} from '@utils/Messaging/interfaces';
+import Deletion from './ActionClasses/Deletion';
 import {
   HandshakeResponseA1,
   HandshakeResponseB2,
 } from './ActionClasses/HandshakeResponse';
+import InitialInfoResponse from './ActionClasses/InitialInfoResponse';
 import NewChatOverPort from './ActionClasses/NewChatOverPort';
 import NewChatOverSuperport from './ActionClasses/NewChatOverSuperport';
 import ReceiveAvatar from './ActionClasses/ReceiveAvatar';
+import ReceiveContactBundle from './ActionClasses/ReceiveContactBundle';
+import ReceiveContactBundleRequest from './ActionClasses/ReceiveContactBundleRequest';
+import ReceiveContactBundleResponse from './ActionClasses/ReceiveContactBundleResponse';
+import ReceiveContactBundleResponseDenial from './ActionClasses/ReceiveContactBundleResponseDenial';
 import ReceiveDisplayImage from './ActionClasses/ReceiveDisplayImage';
 import ReceiveFile from './ActionClasses/ReceiveFile';
 import ReceiveImage from './ActionClasses/ReceiveImage';
-import ReceiveText from './ActionClasses/ReceiveText';
-import ReceiveVideo from './ActionClasses/ReceiveVideo';
-import Deletion from './ActionClasses/Deletion';
 import ReceiveName from './ActionClasses/ReceiveName';
-import DirectReceiveAction from './DirectReceiveAction';
-import {ContentType, PayloadMessageParams} from '@utils/Messaging/interfaces';
-import InitialInfoResponse from './ActionClasses/InitialInfoResponse';
-import ReceiveContactBundleRequest from './ActionClasses/ReceiveContactBundleRequest';
-import ReceiveContactBundleResponseDenial from './ActionClasses/ReceiveContactBundleResponseDenial';
-import ReceiveContactBundleResponse from './ActionClasses/ReceiveContactBundleResponse';
-import ReceiveContactBundle from './ActionClasses/ReceiveContactBundle';
+import ReceiveReaction from './ActionClasses/ReceiveReaction';
+import ReceiveText from './ActionClasses/ReceiveText';
 import ReceiveUpdate from './ActionClasses/ReceiveUpdate';
+import ReceiveVideo from './ActionClasses/ReceiveVideo';
+import DirectReceiveAction from './DirectReceiveAction';
 
 export enum PossibleDirectReceiveActions {
   deletion,
@@ -170,6 +171,13 @@ export async function directReceiveActionPicker(
         );
       case ContentType.update:
         return new ReceiveUpdate(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.reaction:
+        return new ReceiveReaction(
           chatId,
           message,
           receiveTime,

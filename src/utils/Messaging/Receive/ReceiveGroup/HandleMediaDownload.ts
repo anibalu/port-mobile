@@ -1,6 +1,5 @@
 import store from '@store/appStore';
 import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
-import {getMessage} from '@utils/Storage/messages';
 import * as storage from '@utils/Storage/messages';
 import {createThumbnail} from 'react-native-create-thumbnail';
 import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
@@ -15,7 +14,7 @@ export const handleAsyncMediaDownload = async (
   chatId: string,
   messageId: string,
 ): Promise<void> => {
-  const message = await getMessage(chatId, messageId);
+  const message = await storage.getGroupMessage(chatId, messageId);
   if (message?.data) {
     const mediaId = (message.data as LargeDataParams).mediaId;
     const key = (message.data as LargeDataParams).key;
@@ -56,7 +55,7 @@ export const handleAsyncMediaDownload = async (
         previewPath: data.previewUri,
       });
 
-      await storage.updateMessage(chatId, messageId, data);
+      await storage.updateGroupMessage(chatId, messageId, data);
       store.dispatch({
         type: 'NEW_MEDIA_STATUS_UPDATE',
         payload: {

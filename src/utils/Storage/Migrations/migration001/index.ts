@@ -6,6 +6,7 @@ import permissions from './permissions';
 import lines from './lines';
 import ports from './ports';
 import contactSharing from './contactSharing';
+import reactions from './reactions';
 /**
  * Migration 001, setting up the initial version of our app storage
  * Good from version 1.0.x
@@ -19,4 +20,5 @@ export default async function migration001() {
   await lines();
   await ports();
   await contactSharing();
+  await reactions();
 }

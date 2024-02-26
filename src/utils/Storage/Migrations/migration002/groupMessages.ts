@@ -8,10 +8,10 @@ import {MessageStatus} from '@utils/Messaging/interfaces';
  * - Create an index to optimize getting a specific messages
  * - Create a partial index to track journaled messages better
  */
-export default async function lineMessages() {
+export default async function groupMessages() {
   await runSimpleQuery(
     `
-    CREATE TABLE IF NOT EXISTS lineMessages (
+    CREATE TABLE IF NOT EXISTS groupMessages (
       messageId CHAR(32) NOT NULL,
       chatId CHAR(32),
       contentType INT,
@@ -21,40 +21,37 @@ export default async function lineMessages() {
       memberId CHAR(32),
       timestamp VARCHAR(27),
       messageStatus INT,
-      deliveredTimestamp VARCHAR(27),
-      readTimestamp VARCHAR(27),
-      shouldAck BOOL,
-      hasReaction BOOL,
       expiresOn VARCHAR(27),
+      hasReaction BOOL,
       FOREIGN KEY (chatID) REFERENCES connections(chatId),
-      UNIQUE(chatId, messageId)
+      UNIQUE(chatID, messageId)
     );
     `,
     [],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {
       console.log(
-        '[DB MIGRATION] Successfully created the lineMessages table ',
+        '[DB MIGRATION] Successfully created the groupMessages table ',
       );
     },
   );
   await runSimpleQuery(
     `
-    CREATE INDEX IF NOT EXISTS line_chat_time
-    ON lineMessages(chatId, timestamp);
+    CREATE INDEX IF NOT EXISTS group_chat_time
+    ON groupMessages(chatId, timestamp);
     `,
     [],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {
       console.log(
-        '[DB MIGRATION] Successfully created chatId, timestamp index to optimize sorted messages',
+        '[DB MIGRATION] Successfully created chatId, timestamp index to optimize sorted groupMessages',
       );
     },
   );
   await runSimpleQuery(
     `
-    CREATE INDEX IF NOT EXISTS line_chat_message
-    ON lineMessages(chatId, messageId);
+    CREATE INDEX IF NOT EXISTS group_chat_message
+    ON groupMessages(chatId, messageId);
     `,
     [],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -72,29 +69,29 @@ export default async function lineMessages() {
   }
   await runSimpleQuery(
     `
-    CREATE INDEX IF NOT EXISTS line_unsent
-    ON lineMessages(messageStatus)
+    CREATE INDEX IF NOT EXISTS group_unsent
+    ON groupMessages(messageStatus)
     WHERE messageStatus = -32 ;
     `,
     [],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {
       console.log(
-        '[DB MIGRATION] Successfully created a partial index on messageStatus to track journaled messages',
+        '[DB MIGRATION] Successfully created a partial index on messageStatus to track journaled groupMessages',
       );
     },
   );
   await runSimpleQuery(
     `
     CREATE INDEX IF NOT EXISTS expired_messages
-    ON lineMessages(expiresOn)
+    ON groupMessages(expiresOn)
     WHERE expiresOn IS NOT NULL ;
     `,
     [],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {
       console.log(
-        '[DB MIGRATION] Successfully created a partial index on lineMessages for expiresOn is not null',
+        '[DB MIGRATION] Successfully created a partial index on groupMessages for expiresOn is not null',
       );
     },
   );

@@ -26,11 +26,18 @@ import {
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
+  ReactionParams,
   SavedMessageParams,
   TextParams,
   UpdateParams,
 } from '../interfaces';
 import * as API from './APICalls';
+
+import {
+  addReaction,
+  getReactions,
+  updateReactions,
+} from '@utils/Storage/reactions';
 
 class SendDirectMessage<T extends ContentType> {
   private chatId: string; //chatId of chat
@@ -206,6 +213,7 @@ class SendDirectMessage<T extends ContentType> {
 
   private async preProcessMessage(journal: boolean) {
     //Update messages aren't saved to the DB to prevent unnecessary clutter.
+
     if (journal && this.savedMessage.contentType !== ContentType.update) {
       //save message to storage if journaling is on
       await this.saveMessage();
@@ -247,8 +255,6 @@ class SendDirectMessage<T extends ContentType> {
         key: newMediaIdAndKey.key,
       };
 
-      console.log('Saving path as: ', largeData.fileUri);
-
       //Saves relative URIs for the paths
       await updateMedia(newMediaIdAndKey.mediaId, {
         type: this.contentType,
@@ -265,7 +271,6 @@ class SendDirectMessage<T extends ContentType> {
   //save message to storage
   private async saveMessage() {
     //save message to storage with "unassigned" messageStatus
-
     await storage.saveMessage(this.savedMessage);
 
     //update redux store that a new message will be sent
@@ -281,7 +286,6 @@ class SendDirectMessage<T extends ContentType> {
       newSendStatus === MessageStatus.sent ? msgTimestamp : undefined;
     await storage.updateMessageSendStatus(
       this.chatId,
-      (this.data as UpdateParams).messageIdToBeUpdated,
       this.data as UpdateParams,
     );
     store.dispatch({
@@ -308,28 +312,84 @@ class SendDirectMessage<T extends ContentType> {
         throw new Error('LargeDataMessageCannotBeJournaled');
       }
     }
-    const msgTimestamp = generateISOTimeStamp();
-
-    // If we send an update message, we need to update the data of the message that we are updating.
 
     const newUpdate: UpdateParams = {
       messageIdToBeUpdated: this.messageId,
       updatedMessageStatus: newSendStatus,
     };
+    const msgTimestamp = generateISOTimeStamp();
 
-    console.log('Updating status to: ', newUpdate);
     //update send status
     await storage.updateMessageSendStatus(this.chatId, newUpdate);
-    //update redux store that a new message send status has changed.
-    store.dispatch({
-      type: 'NEW_SEND_STATUS_UPDATE',
-      payload: {
-        chatId: this.chatId,
-        messageId: this.messageId,
-        messageStatus: newSendStatus,
-        timestamp: msgTimestamp,
-      },
-    });
+
+    // If we send an update message, we need to update the data of the message that we are updating.
+
+    if (this.contentType === ContentType.reaction) {
+      const reactionData = this.data as ReactionParams;
+
+      //Determines if a message has a reaction or not
+      let reactionState = true;
+
+      if (reactionData.reaction === null) {
+        const reactions = await getReactions(
+          reactionData.chatId,
+          reactionData.messageId,
+        );
+        if (reactions?.length <= 1) {
+          reactionState = false;
+        } else {
+          reactionState = true;
+        }
+      }
+
+      const oldReactions = await getReactions(
+        reactionData.chatId,
+        reactionData.messageId,
+      );
+
+      const hasUserReacted = oldReactions.some(
+        item => item.cryptoId === reactionData.cryptoId,
+      );
+
+      if (hasUserReacted) {
+        //Adding reaction to the reaction DB.
+        await updateReactions(
+          reactionData.chatId,
+          reactionData.messageId,
+          reactionData.cryptoId,
+          reactionData.reaction,
+        );
+      } else {
+        await addReaction(reactionData);
+      }
+
+      //Reactions can be changed, added or removed.
+      await storage.updateReactionStatus(
+        reactionData.chatId,
+        reactionData.messageId,
+        reactionState,
+      );
+
+      store.dispatch({
+        type: 'REACTION_UPDATE',
+        payload: {
+          chatId: reactionData.chatId,
+          messageId: reactionData.messageId,
+          hasReaction: reactionState,
+          latestReaction: reactionData.reaction,
+        },
+      });
+    } else {
+      store.dispatch({
+        type: 'NEW_SEND_STATUS_UPDATE',
+        payload: {
+          chatId: this.chatId,
+          messageId: this.messageId,
+          messageStatus: newSendStatus,
+          timestamp: msgTimestamp,
+        },
+      });
+    }
   }
 
   //update message connection info based on send operation

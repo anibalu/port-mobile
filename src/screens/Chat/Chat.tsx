@@ -12,12 +12,18 @@ import Clipboard from '@react-native-clipboard/clipboard';
 //import store from '@store/appStore';
 import {toggleRead} from '@utils/Connections';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
-import {getMessage, readPaginatedMessages} from '@utils/Storage/messages';
+import {
+  getGroupMessage,
+  getMessage,
+  readPaginatedGroupMessages,
+  readPaginatedMessages,
+} from '@utils/Storage/messages';
 
 import store from '@store/appStore';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
 import {handleAsyncMediaDownload as groupMedia} from '@utils/Messaging/Receive/ReceiveGroup/HandleMediaDownload';
 import {useSelector} from 'react-redux';
@@ -80,6 +86,10 @@ function Chat({route, navigation}: Props) {
     state => state.latestMessageUpdate.updatedMedia,
   );
 
+  const latestUpdatedReactionStatus: any = useSelector(
+    state => state.latestMessageUpdate.updatedReaction,
+  );
+
   //handles toggling the select messages flow.
   const handleMessageBubbleLongPress = (messageId: string): void => {
     //adds messageId to selected messages on long press and vibrates
@@ -132,7 +142,9 @@ function Chat({route, navigation}: Props) {
     let copyString = '';
     messageCopied();
     for (const message of selectedMessages) {
-      const msg = await getMessage(chatId, message);
+      const msg = isGroupChat
+        ? await getGroupMessage(chatId, message)
+        : await getMessage(chatId, message);
       switch (msg?.contentType) {
         case ContentType.text: {
           //Formatting multiple messages into a single string.
@@ -156,8 +168,11 @@ function Chat({route, navigation}: Props) {
     });
   };
 
+  //TODO implement something
   const onInfoPress = async () => {
-    const msg = await getMessage(chatId, selectedMessages[0]);
+    const msg = isGroupChat
+      ? await getGroupMessage(chatId, selectedMessages[0])
+      : await getMessage(chatId, selectedMessages[0]);
     console.log('Message status: ', msg?.messageStatus);
   };
 
@@ -195,11 +210,14 @@ function Chat({route, navigation}: Props) {
         }
         debouncedPeriodicOperations();
         //set saved messages
-        const resp = await readPaginatedMessages(chatId);
+        const resp = isGroupChat
+          ? await readPaginatedGroupMessages(chatId)
+          : await readPaginatedMessages(chatId);
         const cleanedMessages = resp.messages.filter(
           item => !shouldNotRender(item.contentType),
         );
         setMessages(cleanedMessages);
+        console.log('Messages are: ', cleanedMessages);
         setCursor(resp.cursor);
 
         //Notifying that initial message load is complete.
@@ -241,6 +259,36 @@ function Chat({route, navigation}: Props) {
     updateGroup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestReceivedMessage]);
+
+  useEffect(() => {
+    if (
+      chatState.messagesLoaded &&
+      latestUpdatedReactionStatus.chatId === chatId
+    ) {
+      console.log('[CHAT UPDATE] - Reaction status updated');
+
+      //If a new reaction comes, we need to change status of message to true
+
+      setMessages(oldList => {
+        if (oldList.length > 0) {
+          const idx = oldList.findIndex(
+            item => item.messageId === latestUpdatedReactionStatus.messageId,
+          );
+          let msgs = [...oldList];
+          msgs[idx] = {
+            ...msgs[idx],
+            hasReaction: latestUpdatedReactionStatus.hasReaction,
+            forceRender: generateRandomHexId(),
+          };
+
+          return msgs;
+        } else {
+          return oldList;
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestUpdatedReactionStatus]);
 
   //Runs every time a message is sent into the queue. Updates with the last message that was sent to it, instead of fetching from DB everytime
   useEffect(() => {
@@ -323,7 +371,9 @@ function Chat({route, navigation}: Props) {
   }, [latestUpdatedMediaStatus]);
 
   const onStartReached = async (): Promise<void> => {
-    const resp = await readPaginatedMessages(chatId, cursor);
+    const resp = isGroupChat
+      ? await readPaginatedGroupMessages(chatId, cursor)
+      : await readPaginatedMessages(chatId, cursor);
     const cleanedMessages = resp.messages.filter(
       item => !shouldNotRender(item.contentType),
     );
@@ -392,6 +442,7 @@ function Chat({route, navigation}: Props) {
         messages={messages}
         setReplyTo={setReplyToMessage}
         chatId={chatId}
+        onPostSelect={clearSelected}
         onStartReached={onStartReached}
         onEndReached={onEndReached}
         selectedMessages={selectedMessages}
@@ -408,6 +459,7 @@ function Chat({route, navigation}: Props) {
             <MessageActionsBar
               chatId={chatId}
               onCopy={onCopy}
+              isGroup={isGroupChat}
               onForward={onForward}
               onInfo={onInfoPress}
               selectedMessages={selectedMessages}
@@ -446,7 +498,8 @@ export function shouldNotRender(contentType: ContentType) {
     contentType === ContentType.contactBundleDenialResponse ||
     contentType === ContentType.contactBundleResponse ||
     contentType === ContentType.initialInfoRequest ||
-    contentType === ContentType.update
+    contentType === ContentType.update ||
+    contentType === ContentType.reaction
   ) {
     return true;
   } else {

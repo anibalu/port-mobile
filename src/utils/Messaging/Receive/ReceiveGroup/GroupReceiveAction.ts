@@ -54,7 +54,7 @@ class GroupReceiveAction {
           timestamp: this.receiveTime,
           sender: false,
         };
-        await storage.saveMessage(savedMessage);
+        await storage.saveGroupMessage(savedMessage);
       }
     } else {
       const savedMessage: SavedMessageParams = {
@@ -82,7 +82,7 @@ class GroupReceiveAction {
           this.receiveTime,
         );
       }
-      await storage.saveMessage(savedMessage);
+      await storage.saveGroupMessage(savedMessage);
       store.dispatch({
         type: 'NEW_RECEIVED_MESSAGE',
         payload: savedMessage,

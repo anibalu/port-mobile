@@ -4,7 +4,7 @@ import {
   NumberlessLinkText,
 } from '@components/NumberlessText';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
-import {getMessage} from '@utils/Storage/messages';
+import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
 
@@ -53,9 +53,11 @@ const ReplyBubble = ({
   const getReply = async () => {
     try {
       //If a reply bubble is being rendered, it implies the existence of the replyId, which in turn implies the existence of a message
-      const messageData =
-        (await getMessage(message.chatId, message.replyId!)) ||
-        DEFAULT_DELETED_MESSAGE;
+      const messageData = isGroup
+        ? (await getGroupMessage(message.chatId, message.replyId!)) ||
+          DEFAULT_DELETED_MESSAGE
+        : (await getMessage(message.chatId, message.replyId!)) ||
+          DEFAULT_DELETED_MESSAGE;
       setReplyMessage(messageData);
 
       if (isGroup && messageData?.memberId) {

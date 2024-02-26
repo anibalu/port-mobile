@@ -44,3 +44,7 @@ export const DEFAULT_PROFILE_AVATAR_INFO: FileAttributes = {
 export const MAX_PERMISSION_PRESETS = 5;
 export const SHARED_FILE_SIZE_LIMIT_IN_BYTES = 10000000; //10MB limit
 export const FILE_ENCRYPTION_KEY_LENGTH = 160;
+
+//CryptoIDs used for identifying reactors in reactions.
+export const REACTION_SENDER_ID = '01';
+export const REACTION_RECEIVER_ID = '02';

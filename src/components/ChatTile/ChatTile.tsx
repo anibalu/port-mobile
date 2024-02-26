@@ -29,7 +29,7 @@ import {
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {getMessage} from '@utils/Storage/messages';
+import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import {getReadableTimestamp} from '@utils/Time';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
@@ -53,10 +53,16 @@ function ChatTile(initialProps: StoreConnection): ReactNode {
   const [newMessage, setNewMessage] = useState<SavedMessageParams>();
 
   const getNewMessage = async (): Promise<void> => {
-    const msg = await getMessage(
-      JSON.parse(initialProps.stringifiedConnection).chatId,
-      JSON.parse(initialProps.stringifiedConnection).latestMessageId,
-    );
+    const msg =
+      props.connectionType === ChatType.group
+        ? await getGroupMessage(
+            JSON.parse(initialProps.stringifiedConnection).chatId,
+            JSON.parse(initialProps.stringifiedConnection).latestMessageId,
+          )
+        : await getMessage(
+            JSON.parse(initialProps.stringifiedConnection).chatId,
+            JSON.parse(initialProps.stringifiedConnection).latestMessageId,
+          );
     if (msg) {
       setNewMessage(msg);
     }

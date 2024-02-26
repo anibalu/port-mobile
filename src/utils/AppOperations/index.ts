@@ -2,7 +2,10 @@ import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import pullBacklog from '@utils/Messaging/pullBacklog';
 import {cancelAllNotifications} from '@utils/Notifications';
 import {useReadBundles} from '@utils/Ports';
-import {deleteExpiredMessages} from '@utils/Storage/messages';
+import {
+  deleteExpiredGroupMessages,
+  deleteExpiredMessages,
+} from '@utils/Storage/messages';
 import {debounce} from 'lodash';
 
 /**
@@ -25,6 +28,7 @@ export const performPeriodicOperations = async () => {
   await sendJournaled();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   await useReadBundles();
+  await deleteExpiredGroupMessages();
   await deleteExpiredMessages();
   console.log('[PERIODIC OPERATIONS COMPLETE]');
 };

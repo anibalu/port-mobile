@@ -8,6 +8,7 @@ import RemoveMember from './ActionClasses/RemoveMember';
 import RemoveSelf from './ActionClasses/RemoveSelf';
 import GroupReceiveAction from './GroupReceiveAction';
 import ReceiveImage from './ActionClasses/ReceiveImage';
+import ReceiveReaction from './ActionClasses/ReceiveReaction';
 import ReceiveUpdate from './ActionClasses/ReceiveUpdate';
 
 export enum PossibleGroupReceiveActions {
@@ -101,6 +102,15 @@ export async function groupReceiveActionPicker(
         );
       case ContentType.file:
         return new ReceiveFile(
+          chatId,
+          senderId,
+          message,
+          receiveTime,
+          content,
+          decryptedMessageContent,
+        );
+      case ContentType.reaction:
+        return new ReceiveReaction(
           chatId,
           senderId,
           message,

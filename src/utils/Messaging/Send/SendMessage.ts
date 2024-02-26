@@ -31,7 +31,11 @@ class SendMessage<T extends ContentType> {
   }
 
   //only public function. Handles lifecycle of send operation.
-  public async send(journal: boolean = true, shouldEncrypt: boolean = true) {
+  public async send(
+    journal: boolean = true,
+    shouldEncrypt: boolean = true,
+    onUpdateSuccess?: (x: boolean) => void,
+  ) {
     const isGroup = await isGroupChat(this.chatId);
     if (isGroup) {
       const sender = new SendGroupMessage(
@@ -41,7 +45,7 @@ class SendMessage<T extends ContentType> {
         this.replyId,
         this.messageId,
       );
-      await sender.send(journal, shouldEncrypt);
+      await sender.send(journal, shouldEncrypt, onUpdateSuccess);
     } else {
       const sender = new SendDirectMessage(
         this.chatId,
@@ -50,7 +54,7 @@ class SendMessage<T extends ContentType> {
         this.replyId,
         this.messageId,
       );
-      await sender.send(journal, shouldEncrypt);
+      await sender.send(journal, shouldEncrypt, onUpdateSuccess);
     }
   }
 }

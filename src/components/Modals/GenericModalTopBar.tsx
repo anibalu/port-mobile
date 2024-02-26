@@ -5,7 +5,7 @@ import {
 } from '@components/NumberlessText';
 import React, {ReactNode, memo} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {screen} from './ComponentUtils';
+import {screen} from '../ComponentUtils';
 
 const GenericModalTopbar = ({
   title,

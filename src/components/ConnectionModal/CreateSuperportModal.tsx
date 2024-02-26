@@ -21,7 +21,7 @@ import {useErrorModal} from 'src/context/ErrorModalContext';
 import {useConnectionModal} from '../../context/ConnectionModalContext';
 import {PortColors, screen} from '../ComponentUtils';
 import GenericInput from '../GenericInput';
-import GenericModal from '../GenericModal';
+import GenericModal from '../Modals/GenericModal';
 import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
 import {displayQR} from './QRUtils';
 import Notch from './Notch';

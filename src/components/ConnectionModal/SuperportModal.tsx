@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import {useConnectionModal} from '../../context/ConnectionModalContext';
 import {PortColors, screen} from '../ComponentUtils';
-import GenericModal from '../GenericModal';
+import GenericModal from '../Modals/GenericModal';
 import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
 import Notch from './Notch';
 

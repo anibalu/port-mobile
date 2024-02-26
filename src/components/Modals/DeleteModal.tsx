@@ -1,32 +1,39 @@
 import CrossIcon from '@assets/icons/cross.svg';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
+import {screen} from '../ComponentUtils';
 import GenericModal from './GenericModal';
-import {screen} from './ComponentUtils';
 import GenericModalTopBar from './GenericModalTopBar';
 
-function CustomModal({
-  openCustomModal,
+function DeleteModal({
+  showMore,
+  openDeleteModal,
   title,
-  question,
-  description,
   topButton,
+  middleButton,
   bottomButton,
   topButtonFunction,
+  middleButtonFunction,
   bottomButtonFunction,
 }: {
-  openCustomModal: boolean;
+  showMore: boolean;
+  openDeleteModal: boolean;
   title: string;
-  question?: string;
-  description?: string;
   topButton: string;
+  middleButton?: string;
   bottomButton: string;
   topButtonFunction: any;
+  middleButtonFunction?: any;
   bottomButtonFunction: any;
 }) {
   return (
     <GenericModal
-      visible={openCustomModal}
+      visible={openDeleteModal}
       position="center"
       onClose={bottomButtonFunction}>
       <View style={styles.mainContainer}>
@@ -34,7 +41,13 @@ function CustomModal({
           style={{
             flexDirection: 'row',
           }}>
-          <Text style={styles.titleStyles}>{title}</Text>
+          <NumberlessText
+            style={styles.titleStyles}
+            fontSizeType={FontSizeType.l}
+            fontType={FontType.md}>
+            {title}
+          </NumberlessText>
+
           <View style={{bottom: 5}}>
             <GenericModalTopBar
               RightOptionalIcon={CrossIcon}
@@ -43,22 +56,38 @@ function CustomModal({
           </View>
         </View>
 
-        {question != undefined && (
-          <Text style={styles.questionStyles}>{question}</Text>
-        )}
-        {description != undefined && (
-          <Text style={styles.descriptionStyles}>{description}</Text>
-        )}
-
         <Pressable
           style={styles.topButtonContainer}
           onPress={topButtonFunction}>
-          <Text style={styles.topButtonText}>{topButton}</Text>
+          <NumberlessText
+            style={styles.topButtonText}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}>
+            {topButton}
+          </NumberlessText>
         </Pressable>
+        {showMore && (
+          <Pressable
+            style={styles.topButtonContainer}
+            onPress={middleButtonFunction}>
+            <NumberlessText
+              style={styles.topButtonText}
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.md}>
+              {middleButton}
+            </NumberlessText>
+          </Pressable>
+        )}
+
         <Pressable
           style={styles.bottomButtonContainer}
           onPress={bottomButtonFunction}>
-          <Text style={styles.bottomButtonText}>{bottomButton}</Text>
+          <NumberlessText
+            style={styles.bottomButtonText}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}>
+            {bottomButton}
+          </NumberlessText>
         </Pressable>
       </View>
     </GenericModal>
@@ -74,23 +103,15 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   titleStyles: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: 'black',
     textAlign: 'center',
     marginBottom: 20,
     width: '100%',
   },
   questionStyles: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: 'black',
     textAlign: 'left',
     marginBottom: 10,
   },
   descriptionStyles: {
-    fontSize: 15,
-    fontWeight: '400',
     color: '#606060',
     textAlign: 'left',
     marginBottom: 30,
@@ -104,8 +125,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   topButtonText: {
-    fontSize: 15,
-    fontWeight: '500',
     color: 'white',
     textAlign: 'center',
   },
@@ -118,11 +137,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bottomButtonText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: 'black',
     textAlign: 'center',
   },
 });
 
-export default CustomModal;
+export default DeleteModal;

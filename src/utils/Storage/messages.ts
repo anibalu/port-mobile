@@ -4,6 +4,7 @@ import {
   LargeDataParams,
   MessageStatus,
   SavedMessageParams,
+  UpdateParams,
 } from '../Messaging/interfaces';
 import * as DBCalls from './DBCalls/lineMessage';
 import {deleteFile} from './StorageRNFS/sharedFileHandlers';
@@ -73,35 +74,38 @@ export async function readPaginatedMessages(
  */
 export async function updateMessageSendStatus(
   chatId: string,
-  messageId: string, //with sender prefix
-  updatedStatus: MessageStatus,
-  deliveredTimestamp?: string,
-  readTimestamp?: string,
-  shouldAck?: boolean,
+  updateParams: UpdateParams,
 ): Promise<void> {
-  if (updatedStatus || updatedStatus === 0) {
-    if (deliveredTimestamp && updatedStatus === MessageStatus.delivered) {
+  if (
+    updateParams.updatedMessageStatus ||
+    updateParams.updatedMessageStatus === 0
+  ) {
+    if (
+      updateParams.deliveredAtTimestamp &&
+      updateParams.updatedMessageStatus === MessageStatus.delivered
+    ) {
       await DBCalls.updateStatusAndTimestamp(
         chatId,
-        messageId,
-        updatedStatus,
-        deliveredTimestamp,
-        undefined,
-        shouldAck,
+        updateParams.messageIdToBeUpdated,
+        updateParams,
       );
-    } else if (readTimestamp && updatedStatus === MessageStatus.read) {
+    } else if (
+      updateParams.readAtTimestamp &&
+      updateParams.updatedMessageStatus === MessageStatus.read
+    ) {
       await DBCalls.updateStatusAndTimestamp(
         chatId,
-        messageId,
-        updatedStatus,
-        undefined,
-        readTimestamp,
-        shouldAck,
+        updateParams.messageIdToBeUpdated,
+        updateParams,
       );
-    } else if (updatedStatus === MessageStatus.sent) {
-      await DBCalls.setSent(chatId, messageId);
+    } else if (updateParams.updatedMessageStatus === MessageStatus.sent) {
+      await DBCalls.setSent(chatId, updateParams.messageIdToBeUpdated);
     } else {
-      await DBCalls.updateStatus(chatId, messageId, updatedStatus);
+      await DBCalls.updateStatus(
+        chatId,
+        updateParams.messageIdToBeUpdated,
+        updateParams.updatedMessageStatus,
+      );
     }
     return;
   }

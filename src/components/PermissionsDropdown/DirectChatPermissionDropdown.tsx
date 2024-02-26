@@ -24,7 +24,7 @@ import {
 } from '@utils/ChatPermissions';
 import {ChatType} from '@utils/Connections/interfaces';
 import Permissions from '@screens/Presets/Permissions';
-import GenericModal from '@components/GenericModal';
+import GenericModal from '@components/Modals/GenericModal';
 import DisappearingMessage from '@screens/Presets/DisappearingMessage';
 import {deepEqual} from '@screens/Presets/deepEqual';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';

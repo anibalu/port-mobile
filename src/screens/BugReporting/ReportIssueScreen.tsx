@@ -19,7 +19,7 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import ChatBackground from '@components/ChatBackground';
 import GenericTopBar from '@components/GenericTopBar';
-import GenericModal from '@components/GenericModal';
+import GenericModal from '@components/Modals/GenericModal';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {GenericButton} from '@components/GenericButton';
 

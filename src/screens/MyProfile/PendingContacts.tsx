@@ -15,7 +15,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import GenericModal from '@components/GenericModal';
+import GenericModal from '@components/Modals/GenericModal';
 import {screen} from '@components/ComponentUtils';
 
 export default function PendingContacts() {

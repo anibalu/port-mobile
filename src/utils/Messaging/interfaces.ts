@@ -150,10 +150,10 @@ export interface ContactBundleDenialResponseParams {}
 
 export interface UpdateParams {
   messageIdToBeUpdated: string;
-  updatedMessageStatus: MessageStatus;
+  updatedMessageStatus?: MessageStatus;
   deliveredAtTimestamp?: string;
   readAtTimestamp?: string;
-
+  updatedContentType?: ContentType;
   //Only applies to a read receipt. If toggled, allows the receipt to acknowledge that the message has been read
   shouldAck?: boolean;
 }

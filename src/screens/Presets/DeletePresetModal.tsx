@@ -9,7 +9,7 @@ import {
 import {GenericButton} from '@components/GenericButton';
 import Notch from '@components/ConnectionModal/Notch';
 
-const DeleteModal = ({setIsDeleteModalVisible, deletePreset}) => {
+const DeletePresetModal = ({setIsDeleteModalVisible, deletePreset}) => {
   const [loading, setLoading] = useState(false);
 
   return (
@@ -75,4 +75,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DeleteModal;
+export default DeletePresetModal;

@@ -10,7 +10,7 @@ import {PortColors, screen} from '@components/ComponentUtils';
 import Notch from '@components/ConnectionModal/Notch';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
-import GenericModal from '@components/GenericModal';
+import GenericModal from '@components/Modals/GenericModal';
 import {
   FontSizeType,
   FontType,

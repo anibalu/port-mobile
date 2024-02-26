@@ -1,18 +1,22 @@
-import React, {ReactNode, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import Copy from '@assets/icons/copy.svg';
 import Delete from '@assets/icons/DeleteIcon.svg';
+import Copy from '@assets/icons/copy.svg';
 import Forward from '@assets/icons/forward.svg';
 import Info from '@assets/icons/info.svg';
 import Reply from '@assets/icons/reply.svg';
-import CustomModal from '@components/CustomModal';
+import React, {ReactNode, useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import {PortColors} from '@components/ComponentUtils';
+import DeleteModal from '@components/Modals/DeleteModal';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {ContentType} from '@utils/Messaging/interfaces';
 import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
-import {PortColors} from '@components/ComponentUtils';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 /**
  * Renders action bar based on messages that are selected
@@ -43,6 +47,7 @@ export function MessageActionsBar({
   onForward: any;
   isSharedMedia?: boolean;
 }): ReactNode {
+  const {somethingWentWrongError} = useErrorModal();
   const performReply = async (): Promise<void> => {
     setReplyTo(await getMessage(chatId, selectedMessages[0]));
   };
@@ -51,21 +56,56 @@ export function MessageActionsBar({
       await cleanDeleteMessage(chatId, msg);
     }
     postDelete(selectedMessages);
-    setOpenCustomModal(false);
+    setOpenDeleteModal(false);
   };
 
-  const [openCustomModal, setOpenCustomModal] = useState(false);
+  const determineModalDisplay = async () => {
+    setOpenDeleteModal(true);
+    for (const msg of selectedMessages) {
+      const message = await getMessage(chatId, msg);
+      //If sender is false for all selected, we can then allow the messsages to be deleted for all
+      if (!message?.sender) {
+        return;
+      }
+    }
+    setShowDeleteForEveryone(true);
+  };
+
+  const performGlobalDelete = async (): Promise<void> => {
+    for (const msg of selectedMessages) {
+      const sender = new SendMessage(chatId, ContentType.update, {
+        messageIdToBeUpdated: msg,
+        updatedContentType: ContentType.deleted,
+      });
+      sender.send(true, true, async (success: boolean) => {
+        if (success) {
+          await cleanDeleteMessage(chatId, msg);
+          postDelete(selectedMessages);
+        } else {
+          somethingWentWrongError();
+        }
+      });
+    }
+
+    setOpenDeleteModal(false);
+  };
+
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
 
   return (
     <View style={styles.parentContainer}>
-      <CustomModal
-        openCustomModal={openCustomModal}
+      <DeleteModal
+        showMore={showDeleteForEveryone}
+        openDeleteModal={openDeleteModal}
         title={'Delete message'}
         topButton="Delete for me"
         topButtonFunction={performDelete}
+        middleButton="Delete for everyone"
+        middleButtonFunction={performGlobalDelete}
         bottomButton="Cancel"
         bottomButtonFunction={() => {
-          setOpenCustomModal(false);
+          setOpenDeleteModal(false);
         }}
       />
       {selectedMessages.length > 1 ? (
@@ -93,11 +133,7 @@ export function MessageActionsBar({
             </NumberlessText>
           </View>
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                setOpenCustomModal(true);
-              }}>
+            <Pressable style={styles.optionBox} onPress={determineModalDisplay}>
               <Delete />
             </Pressable>
             <NumberlessText
@@ -161,11 +197,7 @@ export function MessageActionsBar({
             </NumberlessText>
           </View>
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                setOpenCustomModal(true);
-              }}>
+            <Pressable style={styles.optionBox} onPress={determineModalDisplay}>
               <Delete />
             </Pressable>
             <NumberlessText

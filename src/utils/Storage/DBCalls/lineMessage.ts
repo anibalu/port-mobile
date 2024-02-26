@@ -4,6 +4,7 @@ import {
   DataType,
   MessageStatus,
   SavedMessageParams,
+  UpdateParams,
 } from '@utils/Messaging/interfaces';
 
 function toBool(a: number) {
@@ -131,10 +132,7 @@ export async function updateStatus(
 export async function updateStatusAndTimestamp(
   chatId: string,
   messageId: string,
-  messageStatus: MessageStatus,
-  deliveredTimestamp?: string,
-  readTimestamp?: string,
-  shouldAck?: boolean,
+  updatedParams: UpdateParams,
 ) {
   await runSimpleQuery(
     `
@@ -143,14 +141,22 @@ export async function updateStatusAndTimestamp(
     messageStatus = ?,
     deliveredTimestamp = COALESCE(?, deliveredTimestamp),
     readTimestamp = COALESCE(?, readTimestamp),
-    shouldAck = COALESCE(?,shouldAck)
+    shouldAck = COALESCE(?,shouldAck),
+    contentType = COALESCE(?,contentType)
     WHERE chatId = ? AND messageId = ? ;
     `,
     [
-      messageStatus,
-      deliveredTimestamp,
-      readTimestamp,
-      shouldAck,
+      updatedParams.updatedMessageStatus
+        ? updatedParams.updatedMessageStatus
+        : null,
+      updatedParams.deliveredAtTimestamp
+        ? updatedParams.deliveredAtTimestamp
+        : null,
+      updatedParams.readAtTimestamp ? updatedParams.readAtTimestamp : null,
+      updatedParams.shouldAck ? updatedParams.shouldAck : null,
+      updatedParams.updatedContentType
+        ? updatedParams.updatedContentType
+        : null,
       chatId,
       messageId,
     ],

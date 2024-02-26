@@ -4,7 +4,7 @@ import PermissionIconActive from '@assets/permissions/permissions-active.svg';
 import PermissionIconInactive from '@assets/permissions/permissions-inactive.svg';
 import {screen} from '@components/ComponentUtils';
 
-import GenericModal from '@components/GenericModal';
+import GenericModal from '@components/Modals/GenericModal';
 import {
   FontSizeType,
   FontType,

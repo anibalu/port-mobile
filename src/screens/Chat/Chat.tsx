@@ -267,13 +267,22 @@ function Chat({route, navigation}: Props) {
       latestUpdatedSendStatus.chatId === chatId
     ) {
       console.log('[CHAT UPDATE] - Message status updated');
+
+      if (latestUpdatedSendStatus.contentType === ContentType.deleted) {
+        updateAfterDeletion([latestUpdatedSendStatus.messageId]);
+      }
+
       setMessages(oldList => {
         if (oldList.length > 0) {
           const idx = oldList.findIndex(
             item => item.messageId === latestUpdatedSendStatus.messageId,
           );
           let msgs = [...oldList];
-          msgs[idx] = {...msgs[idx], ...latestUpdatedSendStatus};
+          if (latestUpdatedSendStatus.contentType === ContentType.deleted) {
+            msgs.splice(idx, 1);
+          } else {
+            msgs[idx] = {...msgs[idx], ...latestUpdatedSendStatus};
+          }
           return msgs;
         } else {
           return oldList;

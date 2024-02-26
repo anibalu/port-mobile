@@ -81,26 +81,50 @@ class SendGroupMessage<T extends ContentType> {
   }
 
   //only public function. Handles lifecycle of send operation.
-  public async send(journal: boolean = true, shouldEncrypt: boolean = true) {
-    try {
-      //get expires on timestamp
-      await this.getExpiresOnTimestamp();
-      //load up saved message in storage if it exists
-      await this.loadSavedMessage();
-      //perform rudimentary checks before progressing further
+  public async send(
+    journal: boolean = true,
+    shouldEncrypt: boolean = true,
+    onUpdateSuccess?: (x: boolean) => void,
+  ) {
+    if (this.contentType === ContentType.update) {
       await this.validateMessage();
       //pre-process message appropriately.
       await this.preProcessMessage(journal);
       //get processed payload that can be sent.
       const processedPayload = await this.processPayload(shouldEncrypt);
+
       //try sending encrypted payload
       const newSendStatus = await this.trySending(processedPayload);
-      //update status of message based on output of try sending operation
-      await this.updateSendStatus(newSendStatus);
-      //update connection with relevant information
-      await this.updateConnectionInfo(newSendStatus);
-    } catch (error) {
-      await this.handleSendFailure(error);
+      if (onUpdateSuccess) {
+        if (newSendStatus >= MessageStatus.sent) {
+          await this.handleUpdateContent(newSendStatus);
+          await this.updateConnectionInfo(newSendStatus);
+          onUpdateSuccess(true);
+        } else {
+          onUpdateSuccess(false);
+        }
+      }
+    } else {
+      try {
+        //get expires on timestamp
+        await this.getExpiresOnTimestamp();
+        //load up saved message in storage if it exists
+        await this.loadSavedMessage();
+        //perform rudimentary checks before progressing further
+        await this.validateMessage();
+        //pre-process message appropriately.
+        await this.preProcessMessage(journal);
+        //get processed payload that can be sent.
+        const processedPayload = await this.processPayload(shouldEncrypt);
+        //try sending encrypted payload
+        const newSendStatus = await this.trySending(processedPayload);
+        //update status of message based on output of try sending operation
+        await this.updateSendStatus(newSendStatus);
+        //update connection with relevant information
+        await this.updateConnectionInfo(newSendStatus);
+      } catch (error) {
+        await this.handleSendFailure(error);
+      }
     }
   }
 
@@ -265,7 +289,32 @@ class SendGroupMessage<T extends ContentType> {
     });
   }
 
-  //update message send status. Can either be sent or journaled.
+  private async handleUpdateContent(newSendStatus: MessageStatus) {
+    const msgTimestamp = generateISOTimeStamp();
+    const deliveredAtTimestamp =
+      newSendStatus === MessageStatus.sent ? msgTimestamp : undefined;
+    await storage.updateMessageSendStatus(
+      this.chatId,
+      (this.data as UpdateParams).messageIdToBeUpdated,
+      this.data as UpdateParams,
+    );
+    store.dispatch({
+      type: 'NEW_SEND_STATUS_UPDATE',
+      payload: {
+        chatId: this.chatId,
+        messageId: (this.data as UpdateParams).messageIdToBeUpdated,
+        messageStatus: (this.data as UpdateParams).updatedMessageStatus,
+        timestamp: msgTimestamp,
+        deliveredTimestamp: deliveredAtTimestamp,
+        shouldAck: (this.data as UpdateParams).shouldAck,
+        ...((this.data as UpdateParams).updatedContentType && {
+          contentType: (this.data as UpdateParams).updatedContentType,
+        }),
+      },
+    });
+  }
+
+  //update message status. Can either be sent or journaled.
   private async updateSendStatus(newSendStatus: MessageStatus) {
     //Large data message cannot be journaled
     if (newSendStatus === MessageStatus.journaled) {
@@ -275,48 +324,23 @@ class SendGroupMessage<T extends ContentType> {
     }
     const msgTimestamp = generateISOTimeStamp();
 
-    // If we send an update message, we need to update the data of the message that we are updating.
-    if (this.contentType === ContentType.update) {
-      const deliveredAtTimestamp =
-        newSendStatus === MessageStatus.sent ? msgTimestamp : undefined;
-      await storage.updateMessageSendStatus(
-        this.chatId,
-        (this.data as UpdateParams).messageIdToBeUpdated,
-        (this.data as UpdateParams).updatedMessageStatus,
-        deliveredAtTimestamp,
-        undefined,
-        (this.data as UpdateParams).shouldAck,
-      );
-      //update redux store that a new message send status has changed.
-      store.dispatch({
-        type: 'NEW_SEND_STATUS_UPDATE',
-        payload: {
-          chatId: this.chatId,
-          messageId: (this.data as UpdateParams).messageIdToBeUpdated,
-          messageStatus: (this.data as UpdateParams).updatedMessageStatus,
-          timestamp: msgTimestamp,
-          deliveredTimestamp: deliveredAtTimestamp,
-          shouldAck: (this.data as UpdateParams).shouldAck,
-        },
-      });
-    } else {
-      //update send status
-      await storage.updateMessageSendStatus(
-        this.chatId,
-        this.messageId,
-        newSendStatus,
-      );
-      //update redux store that a new message send status has changed.
-      store.dispatch({
-        type: 'NEW_SEND_STATUS_UPDATE',
-        payload: {
-          chatId: this.chatId,
-          messageId: this.messageId,
-          messageStatus: newSendStatus,
-          timestamp: msgTimestamp,
-        },
-      });
-    }
+    const newUpdate: UpdateParams = {
+      messageIdToBeUpdated: this.messageId,
+      updatedMessageStatus: newSendStatus,
+    };
+    //update send status
+    await storage.updateMessageSendStatus(this.chatId, newUpdate);
+
+    //update redux store that a new message send status has changed.
+    store.dispatch({
+      type: 'NEW_SEND_STATUS_UPDATE',
+      payload: {
+        chatId: this.chatId,
+        messageId: this.messageId,
+        messageStatus: newSendStatus,
+        timestamp: msgTimestamp,
+      },
+    });
   }
 
   //update message connection info based on send operation

@@ -4,13 +4,14 @@ import React, {useEffect, useState} from 'react';
 
 import Delete from '@assets/icons/deleteRed.svg';
 import {GenericButton} from '@components/GenericButton';
-import GenericModal from '@components/GenericModal';
 import GenericTopBar from '@components/GenericTopBar';
+import GenericModal from '@components/Modals/GenericModal';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {SaveButton} from '@components/SaveButton';
 import {MAX_PERMISSION_PRESETS} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -34,11 +35,10 @@ import {
 import {processName} from '@utils/Profile';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import AddNew from './AddNew';
-import DeleteModal from './DeleteModal';
+import DeletePresetModal from './DeletePresetModal';
 import DisappearingMessage from './DisappearingMessage';
 import Permissions from './Permissions';
 import {deepEqual} from './deepEqual';
-import {SaveButton} from '@components/SaveButton';
 
 const Presets = () => {
   const navigation = useNavigation();
@@ -319,7 +319,7 @@ const Presets = () => {
         onClose={() => {
           setIsDeleteModalVisible(p => !p);
         }}>
-        <DeleteModal
+        <DeletePresetModal
           deletePreset={deletePreset}
           setIsDeleteModalVisible={setIsDeleteModalVisible}
         />

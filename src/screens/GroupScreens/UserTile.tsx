@@ -5,7 +5,7 @@ import Cross from '@assets/icons/cross.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
-import GenericModal from '@components/GenericModal';
+import GenericModal from '@components/Modals/GenericModal';
 import {
   FontSizeType,
   FontType,

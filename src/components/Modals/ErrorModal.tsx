@@ -1,8 +1,8 @@
 import React from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {StyleSheet, View} from 'react-native';
-import {PortColors, screen} from './ComponentUtils';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import {PortColors, screen} from '../ComponentUtils';
+import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
 
 function ErrorModal() {
   const {modalVisible, errorToShow} = useErrorModal();

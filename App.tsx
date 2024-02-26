@@ -11,7 +11,7 @@ import store from './src/store/appStore';
 
 import {foregroundMessageHandler} from '@utils/Messaging/FCM/fcm';
 
-import ErrorModal from '@components/ErrorModal';
+import ErrorModal from '@components/Modals/ErrorModal';
 import LoginStack from '@navigation/LoginStack';
 import {loadConnectionsToStore} from '@utils/Connections';
 import {checkProfileCreated} from '@utils/Profile';

@@ -6,7 +6,6 @@ import Delete from '@assets/icons/delete.svg';
 import Forward from '@assets/icons/forward.svg';
 
 import {PortColors} from '@components/ComponentUtils';
-import CustomModal from '@components/CustomModal';
 import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
@@ -15,9 +14,12 @@ import {
 } from '@components/NumberlessText';
 import {MediaEntry} from '@utils/Media/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {cleanDeleteMessage} from '@utils/Storage/messages';
+import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
 import Share from 'react-native-share';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import DeleteModal from '@components/Modals/DeleteModal';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {ContentType} from '@utils/Messaging/interfaces';
 
 /**
  * Renders action bar based on messages that are selected
@@ -41,6 +43,10 @@ export function MediaActionsBar({
   onForward: any;
   postDelete: any;
 }): ReactNode {
+  const getMessageIds = (data: MediaEntry[]): string[] => {
+    return data.flatMap(item => (item.messageId ? item.messageId : []));
+  };
+
   const performDelete = async (): Promise<void> => {
     for (const media of selectedMedia) {
       if (media.chatId) {
@@ -50,14 +56,46 @@ export function MediaActionsBar({
         );
       }
     }
-    const getMessageIds = (data: {messageId: string}[]): string[] => {
-      return data.map(item => item.messageId);
-    };
-
     const messageId: string[] = getMessageIds(selectedMedia);
 
     postDelete(messageId);
-    setOpenCustomModal(false);
+    setOpenDeleteModal(false);
+  };
+
+  const determineModalDisplay = async () => {
+    setOpenDeleteModal(true);
+    for (const media of selectedMedia) {
+      if (media.messageId) {
+        const message = await getMessage(chatId, media.messageId);
+        //If sender is false for all selected, we can then allow the messsages to be deleted for all
+        if (!message?.sender) {
+          return;
+        }
+      } else {
+        return;
+      }
+    }
+    setShowDeleteForEveryone(true);
+  };
+
+  const performGlobalDelete = async (): Promise<void> => {
+    for (const media of selectedMedia) {
+      if (media.chatId) {
+        if (media.messageId) {
+          const sender = new SendMessage(chatId, ContentType.update, {
+            messageIdToBeUpdated: media.messageId,
+            updatedContentType: ContentType.deleted,
+          });
+          sender.send();
+          await cleanDeleteMessage(chatId, media.messageId);
+        }
+        setSelectedMedia((old: MediaEntry[]) =>
+          old.filter(item => item.mediaId !== media.mediaId),
+        );
+      }
+    }
+
+    setOpenDeleteModal(false);
   };
 
   const handleShare = async () => {
@@ -80,20 +118,24 @@ export function MediaActionsBar({
     }
   };
 
-  const [openCustomModal, setOpenCustomModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
   const [loadingShare, setLoadingShare] = useState(false);
   const {unableToSharelinkError} = useErrorModal();
 
   return (
     <View style={styles.parentContainer}>
-      <CustomModal
-        openCustomModal={openCustomModal}
+      <DeleteModal
+        showMore={showDeleteForEveryone}
+        openDeleteModal={openDeleteModal}
         title={'Delete message'}
         topButton="Delete for me"
         topButtonFunction={performDelete}
+        middleButton="Delete for everyone"
+        middleButtonFunction={performGlobalDelete}
         bottomButton="Cancel"
         bottomButtonFunction={() => {
-          setOpenCustomModal(false);
+          setOpenDeleteModal(false);
         }}
       />
       {selectedMedia.length > 1 ? (
@@ -128,11 +170,7 @@ export function MediaActionsBar({
           </View>
 
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                setOpenCustomModal(true);
-              }}>
+            <Pressable style={styles.optionBox} onPress={determineModalDisplay}>
               <Delete />
             </Pressable>
             <NumberlessText
@@ -172,11 +210,7 @@ export function MediaActionsBar({
           </View>
 
           <View style={styles.optionContainer}>
-            <Pressable
-              style={styles.optionBox}
-              onPress={() => {
-                setOpenCustomModal(true);
-              }}>
+            <Pressable style={styles.optionBox} onPress={determineModalDisplay}>
               <Delete />
             </Pressable>
             <NumberlessText

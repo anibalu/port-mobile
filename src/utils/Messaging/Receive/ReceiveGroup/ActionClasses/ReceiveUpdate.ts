@@ -2,12 +2,12 @@ import store from '@store/appStore';
 import {ContentType, UpdateParams} from '@utils/Messaging/interfaces';
 import * as storage from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';
-import DirectReceiveAction from '../DirectReceiveAction';
+import GroupReceiveAction from '../GroupReceiveAction';
 
 /**
  * Handles any form of silent message updates, such as read receipts and payload deliveries.
  */
-class ReceiveUpdate extends DirectReceiveAction {
+class ReceiveUpdate extends GroupReceiveAction {
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
 

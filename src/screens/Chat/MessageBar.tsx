@@ -1,5 +1,6 @@
 import DefaultImage from '@assets/avatars/avatar.png';
 import FileIcon from '@assets/icons/FilesIcon.svg';
+import CameraIcon from '@assets/icons/Camera.svg';
 import {default as ImageIcon} from '@assets/icons/GalleryIcon.svg';
 import ShareContactIcon from '@assets/icons/ShareContactIcon.svg';
 import VideoIcon from '@assets/icons/VideoBlack.svg';
@@ -372,6 +373,24 @@ const MessageBar = ({
         {isPopUpVisible && (
           <View style={styles.popUpContainer}>
             <View style={styles.optionContainer}>
+              <Pressable
+                style={styles.optionBox}
+                onPress={() => {
+                  navigation.navigate('CaptureMedia', {
+                    chatId: chatId,
+                    isGroupChat: isGroupChat,
+                  });
+                  togglePopUp();
+                }}>
+                <CameraIcon height={60} width={60} />
+              </Pressable>
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                Camera
+              </NumberlessText>
+            </View>
+            <View style={styles.optionContainer}>
               <Pressable style={styles.optionBox} onPress={onImagePressed}>
                 <ImageIcon />
               </Pressable>
@@ -474,6 +493,7 @@ const styles = StyleSheet.create({
   popUpContainer: {
     flexDirection: 'row',
     paddingTop: 20,
+    flexWrap: 'wrap',
     paddingLeft: 24,
     paddingRight: 24,
     backgroundColor: '#FFF',

@@ -1,24 +1,26 @@
+import Camera from '@assets/icons/CameraThinWhite.svg';
 import Send from '@assets/icons/WhiteArrowUp.svg';
 import Whitecross from '@assets/icons/Whitecross.svg';
 import Delete from '@assets/icons/Whitedelete.svg';
 import Play from '@assets/icons/videoPlay.svg';
+import BlackOverlay from '@assets/miscellaneous/blackOverlay.svg';
 import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import BlackOverlay from '@assets/miscellaneous/blackOverlay.svg';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import {AppStackParamList} from '@navigation/AppStackTypes';
+import {StackActions} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
   compressImage,
   compressVideo,
 } from '@utils/Compressor/graphicCompressors';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
+import DirectChat from '@utils/DirectChats/DirectChat';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {
   getRelativeURI,
@@ -52,6 +54,8 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     shareMessages,
     isChat = false,
     isGroupChat,
+    fromCapture = false,
+    onRemove = undefined,
   } = route.params;
 
   const carousel = useRef<any>();
@@ -89,7 +93,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
             timeStamp: 0,
           })
         ).path;
-        console.log();
+        console.log('URI is: ', item);
       }
       if (item.contentType === ContentType.image) {
         const compressedUri = await compressImage(
@@ -239,6 +243,11 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
                   oldItem => oldItem.data.fileUri != item.data.fileUri,
                 ),
               );
+              if (onRemove) {
+                for (const t of dataList) {
+                  onRemove(t.data.fileUri);
+                }
+              }
             }}
             style={{
               position: 'absolute',
@@ -256,9 +265,10 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   };
 
   const onSend = async () => {
-    setSending(true);
+    // setSending(true);
     for (const mbr of selectedMembers) {
       for (const data of dataList) {
+        console.log('Sending: ', data.data);
         //If there are multiple messages and this has entered from chat, attach text to the last image that is sent.
         if (isChat && dataList.indexOf(data) === dataList.length - 1) {
           data.data.text = message;
@@ -281,7 +291,10 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
       }
     }
     setSending(false);
-    if (isChat) {
+    if (fromCapture) {
+      const popAction = StackActions.pop(2);
+      navigation.dispatch(popAction);
+    } else if (isChat) {
       navigation.goBack();
     } else {
       navigation.popToTop();
@@ -317,7 +330,14 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
       <Whitecross
         style={styles.whiteCrossIcon}
         disabled={isSending}
-        onPress={() => navigation.goBack()}
+        onPress={() => {
+          if (onRemove) {
+            for (const t of dataList) {
+              onRemove(t.data.fileUri);
+            }
+          }
+          navigation.goBack();
+        }}
       />
 
       <Carousel
@@ -349,18 +369,36 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
             backgroundColor: PortColors.primary.black,
           },
         )}>
-        <GenericInput
-          inputStyle={styles.messageInputStyle}
-          text={message}
-          size="sm"
-          maxLength={'inf'}
-          multiline={true}
-          setText={setMessage}
-          placeholder={isFocused ? '' : 'Add a message'}
-          alignment="left"
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-        />
+        <View
+          style={{
+            flexDirection: 'row',
+            alignSelf: 'stretch',
+            width: '100%',
+            alignItems: 'center',
+          }}>
+          {fromCapture && (
+            <Pressable
+              onPress={() => {
+                navigation.goBack();
+              }}>
+              <Camera style={{marginHorizontal: 8}} />
+            </Pressable>
+          )}
+
+          <GenericInput
+            inputStyle={styles.messageInputStyle}
+            text={message}
+            size="sm"
+            maxLength={'inf'}
+            multiline={true}
+            setText={setMessage}
+            placeholder={isFocused ? '' : 'Add a message'}
+            alignment="left"
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+        </View>
+
         <View style={styles.bottombarUserPills}>
           <View style={styles.bottomUserPillsBg} />
           <View style={styles.selectedUserContainer}>
@@ -522,7 +560,7 @@ const styles = StyleSheet.create({
     color: PortColors.text.primaryWhite,
     ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
     overflow: 'hidden',
-    alignSelf: 'stretch',
+    flex: 1,
     paddingHorizontal: 24,
     justifyContent: 'center',
     ...(isIOS && {paddingTop: 12, paddingBottom: 10, paddingLeft: 16}),

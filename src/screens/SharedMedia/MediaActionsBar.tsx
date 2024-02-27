@@ -104,7 +104,6 @@ export function MediaActionsBar({
     });
     try {
       setLoadingShare(true);
-
       const shareOptions: any = {
         urls: uriFilePath,
         failOnCancel: false,

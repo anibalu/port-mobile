@@ -70,6 +70,7 @@ export async function moveToLargeFileDir(
   if (contentType === ContentType.displayImage) {
     return fileUri;
   }
+
   if (contentType === ContentType.image || contentType === ContentType.video) {
     return getRelativeURI(
       await moveToMediaDir(chatId, fileUri, fileName),
@@ -112,7 +113,9 @@ async function moveToMediaDir(
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath =
     chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
+
   await RNFS.moveFile(fileUri, destinationPath);
+
   return destinationPath;
 }
 

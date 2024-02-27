@@ -4,7 +4,7 @@
 import TorchOff from '@assets/icons/TorchOff.svg';
 import TorchOn from '@assets/icons/TorchOn.svg';
 import Area from '@assets/miscellaneous/scanArea.svg';
-import {FontSizes, PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -15,17 +15,18 @@ import {checkCameraPermission} from '@utils/AppPermissions';
 import {checkBundleValidity} from '@utils/Ports';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {Camera} from 'react-native-camera-kit';
+import {
+  Camera,
+  useCameraDevice,
+  useCodeScanner,
+} from 'react-native-vision-camera';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 
 export default function QRScanner() {
-  const {
-    newPortModalVisible: modalVisible,
-    showConnectionModal,
-    connectionModalVisible,
-    setConnectionQRData,
-  } = useConnectionModal();
+  const device = useCameraDevice('back');
+  const {showConnectionModal, connectionModalVisible, setConnectionQRData} =
+    useConnectionModal();
   const {incorrectQRError} = useErrorModal();
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
     useState(false);
@@ -34,14 +35,24 @@ export default function QRScanner() {
   }, []);
   const [viewWidth, setViewWidth] = useState(0);
   const [qrData, setQrData] = useState('');
-  const [torchState, setTorchState] = useState('off');
-  const [scanCode, setScanCode] = useState(true);
   const isFocused = useIsFocused();
+
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr'],
+    onCodeScanned: codes => {
+      if (codes.length > 0 && codes[0].value) {
+        setQrData(oldCode =>
+          oldCode !== codes[0].value ? codes[0].value! : oldCode,
+        );
+      }
+    },
+  });
+
+  const [torchState, setTorchState] = useState<'on' | 'off'>('off');
 
   const cleanScreen = () => {
     setQrData('');
     setTorchState('off');
-    setScanCode(true);
   };
   //shows an alert if there is an issue creating a new Port after scanning a QR code.
   const showAlertAndWait = () => {
@@ -77,20 +88,13 @@ export default function QRScanner() {
 
   return (
     <View style={styles.container} onLayout={onLayout}>
-      {isCameraPermissionGranted && isFocused ? (
+      {isCameraPermissionGranted && device && isFocused ? (
         <Camera
-          cameraType="back"
-          flashMode="off"
-          focusMode="on"
-          zoomMode="on"
-          torchMode={torchState}
-          saveToCameraRoll={false}
+          device={device}
+          torch={torchState}
+          codeScanner={codeScanner}
+          isActive={true}
           style={styles.camera}
-          scanBarcode={scanCode && !modalVisible}
-          onReadCode={event => {
-            setScanCode(false);
-            setQrData(event.nativeEvent.codeStringValue);
-          }}
         />
       ) : (
         <View style={styles.permissionDenied}>
@@ -200,16 +204,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-end',
-  },
-  input: {
-    width: '85%',
-    height: 60,
-    ...FontSizes[17].bold,
-    backgroundColor: '#F6F6F6',
-    textAlign: 'center',
-    borderRadius: 8,
-    marginTop: 15,
-    marginBottom: 15,
   },
   roundButton: {
     justifyContent: 'center',

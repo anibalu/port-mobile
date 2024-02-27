@@ -27,6 +27,7 @@ import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
 import {AppStackParamList} from './AppStackTypes';
 import BottomNavStack from './BottomNavStack';
 import Presets from '@screens/Presets/Presets';
+import CaptureMedia from '@screens/ShareImage/CaptureMedia';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -73,6 +74,7 @@ function AppStack() {
             component={GalleryConfirmation}
           />
           <Stack.Screen name="PendingRequests" component={PendingRequests} />
+          <Stack.Screen name="CaptureMedia" component={CaptureMedia} />
           <Stack.Screen name="SharedMedia" component={SharedMedia} />
           <Stack.Screen name="Presets" component={Presets} />
         </Stack.Navigator>

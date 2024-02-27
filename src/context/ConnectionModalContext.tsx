@@ -68,8 +68,8 @@ const ConnectionModalContext = createContext<ModalContextType | undefined>(
   undefined,
 );
 
-const imageRegex = /jpg|jpeg|png|gif|image|webp$/;
-const videoRegex = /mp4|video|mov$/;
+export const imageRegex = /jpg|jpeg|png|gif|image|webp$/;
+export const videoRegex = /mp4|video|mov$/;
 
 export const useConnectionModal = () => {
   const context = useContext(ConnectionModalContext);

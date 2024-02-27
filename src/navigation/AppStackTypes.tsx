@@ -48,7 +48,10 @@ export type AppStackParamList = {
     shareMessages: [];
     isChat?: boolean;
     isGroupChat?: boolean;
+    fromCapture?: boolean;
+    onRemove?: (item: any) => void;
   };
+  CaptureMedia: {chatId: string; isGroupChat?: boolean};
   Presets: undefined;
   PendingRequests: undefined;
 };

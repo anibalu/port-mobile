@@ -55,6 +55,8 @@
 	<string>Port would like to access your music for sounds</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Port would like to access your camera to take pictures or scan QR codes</string>
+	<key>NSMicrophoneUsageDescription</key>
+<string>Port would like access to your Microphone for video and voice capture.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Port would like to access your location when using the app if you wish to shae your location with a contact</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

@@ -8,6 +8,7 @@ import BluePlusIcon from '../../../assets/icons/plusWhite.svg';
 import ChatTile from '@components/ChatTile/ChatTile';
 import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
+
 import notifee, {EventDetail, EventType} from '@notifee/react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 // import store from '@store/appStore';
@@ -31,6 +32,7 @@ import GenericBottomsheet from '@components/Modals/GenericBottomsheet';
 import ConnectionOptions from './ConnectionOptions';
 import {screen} from '@components/ComponentUtils';
 import {TOPBAR_HEIGHT} from '@configs/constants';
+import SideDrawerWrapper from './SideDrawerWrapper';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: StoreConnection): ReactElement {
@@ -195,57 +197,64 @@ function Home(): ReactNode {
 
   return (
     <SafeAreaView>
-      <ChatBackground />
-      <HomeTopbar
+      <SideDrawerWrapper
         openSideDrawer={openSideDrawer}
-        setOpenSideDrawer={setOpenSideDrawer}
-        unread={totalUnread}
-        toptitleMessage="Primary"
-      />
-
-      <FlatList
-        data={viewableConnections}
-        renderItem={element => renderChatTile(element.item)}
-        style={styles.chats}
-        contentContainerStyle={
-          viewableConnections.length > 0 && {
-            rowGap: 8,
-          }
-        }
-        ListHeaderComponent={
-          connections.length >= 2 ? (
-            /**
-             * @todo inline rendering is expensive, need to memoise and move outside. Haven't done so as it requires some finesse to allow focus to be retained
-             */
-            <SearchBar searchText={searchText} setSearchText={setSearchText} />
-          ) : (
-            <></>
-          )
-        }
-        keyExtractor={connection => connection.chatId}
-        ListEmptyComponent={renderDefaultTile}
-      />
-      <GenericButton
-        onPress={() => {
-          setIsConnectionOptionsModalOpen(p => !p);
-        }}
-        iconSize={24}
-        IconLeft={BluePlusIcon}
-        buttonStyle={styles.addButtonWrapper}
-      />
-      <GenericBottomsheet
-        showNotch={true}
-        visible={isConnectionOptionsModalOpen}
-        onClose={() => {
-          setIsConnectionOptionsModalOpen(p => !p);
-        }}>
-        <ConnectionOptions
-          setIsConnectionOptionsModalOpen={setIsConnectionOptionsModalOpen}
+        setOpenSideDrawer={setOpenSideDrawer}>
+        <ChatBackground />
+        <HomeTopbar
+          openSideDrawer={openSideDrawer}
+          setOpenSideDrawer={setOpenSideDrawer}
+          unread={totalUnread}
+          toptitleMessage="Primary"
         />
-      </GenericBottomsheet>
-      <CenterInformationModal visible={showOnboardingInfo} position="center">
-        <OnboardingCarousel />
-      </CenterInformationModal>
+        <FlatList
+          data={viewableConnections}
+          renderItem={element => renderChatTile(element.item)}
+          style={styles.chats}
+          contentContainerStyle={
+            viewableConnections.length > 0 && {
+              rowGap: 8,
+            }
+          }
+          ListHeaderComponent={
+            connections.length >= 2 ? (
+              /**
+               * @todo inline rendering is expensive, need to memoise and move outside. Haven't done so as it requires some finesse to allow focus to be retained
+               */
+              <SearchBar
+                searchText={searchText}
+                setSearchText={setSearchText}
+              />
+            ) : (
+              <></>
+            )
+          }
+          keyExtractor={connection => connection.chatId}
+          ListEmptyComponent={renderDefaultTile}
+        />
+
+        <GenericButton
+          onPress={() => {
+            setIsConnectionOptionsModalOpen(p => !p);
+          }}
+          iconSize={24}
+          IconLeft={BluePlusIcon}
+          buttonStyle={styles.addButtonWrapper}
+        />
+        <GenericBottomsheet
+          showNotch={true}
+          visible={isConnectionOptionsModalOpen}
+          onClose={() => {
+            setIsConnectionOptionsModalOpen(p => !p);
+          }}>
+          <ConnectionOptions
+            setIsConnectionOptionsModalOpen={setIsConnectionOptionsModalOpen}
+          />
+        </GenericBottomsheet>
+        <CenterInformationModal visible={showOnboardingInfo} position="center">
+          <OnboardingCarousel />
+        </CenterInformationModal>
+      </SideDrawerWrapper>
     </SafeAreaView>
   );
 }

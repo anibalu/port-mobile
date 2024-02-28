@@ -5,11 +5,7 @@ import {StyleSheet, View} from 'react-native';
 import BlackAngleRight from '@assets/icons/BlackAngleRight.svg';
 import {GenericAvatar} from '@components/GenericAvatar';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {
-  AVATAR_ARRAY,
-  DEFAULT_NAME,
-  SIDE_DRAWER_WIDTH,
-} from '@configs/constants';
+import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
 import NewSuperportIcon from '@assets/icons/NewSuperportBlack.svg';
 import PendingRequestIcon from '@assets/icons/pendingRequestThin.svg';
 import {getProfileName, getProfilePictureUri} from '@utils/Profile';
@@ -110,7 +106,7 @@ function SideDrawer({setOpenSideDrawer}: any) {
 
 const styles = StyleSheet.create({
   drawerContainer: {
-    width: SIDE_DRAWER_WIDTH,
+    width: '100%',
     flex: 1,
     backgroundColor: PortColors.primary.white,
   },

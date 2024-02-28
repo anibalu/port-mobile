@@ -17,13 +17,14 @@ const GenericModal = ({
 }) => {
   return (
     <Modal
+      backdropOpacity={0.5}
       avoidKeyboard={avoidKeyboard}
       onSwipeComplete={onClose}
       swipeDirection="down"
-      backdropTransitionOutTiming={200}
-      backdropTransitionInTiming={200}
-      animationInTiming={200}
-      animationOutTiming={200}
+      backdropTransitionOutTiming={0}
+      backdropTransitionInTiming={300}
+      animationInTiming={300}
+      animationOutTiming={300}
       style={{
         margin: 0,
         flex: 1,

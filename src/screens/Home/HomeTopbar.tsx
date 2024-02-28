@@ -3,7 +3,7 @@
  */
 import SearchIcon from '@assets/icons/searchThin.svg';
 import PendingRequestIcon from '@assets/icons/pendingRequestThin.svg';
-import {PortColors, isIOS} from '@components/ComponentUtils';
+import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -15,11 +15,8 @@ import {numberOfPendingRequests} from '@utils/Ports';
 import SidebarMenu from '@assets/icons/SidebarMenu.svg';
 import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Modal from 'react-native-modal';
 import {useSelector} from 'react-redux';
 import {GenericButton} from '@components/GenericButton';
-import SideDrawer from './SideDrawer';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 type TopbarProps = {
   toptitleMessage: String;
@@ -31,7 +28,6 @@ type TopbarProps = {
 function HomeTopbar({
   unread,
   toptitleMessage = 'All',
-  openSideDrawer,
   setOpenSideDrawer,
 }: TopbarProps): ReactNode {
   const title = unread
@@ -42,8 +38,6 @@ function HomeTopbar({
   const reloadTrigger = useSelector(
     state => state.triggerPendingRequestsReload.change,
   );
-
-  const iosPaddingTop = useSafeAreaInsets().top;
 
   const [pendingRequestsLength, setPendingRequestsLength] = useState(0);
 
@@ -96,23 +90,6 @@ function HomeTopbar({
           IconLeft={SearchIcon}
         />
       </View>
-      <Modal
-        onSwipeComplete={() => setOpenSideDrawer(p => !p)}
-        backdropTransitionOutTiming={400}
-        backdropTransitionInTiming={400}
-        animationInTiming={400}
-        animationOutTiming={400}
-        animationIn={'slideInLeft'}
-        animationOut={'slideOutLeft'}
-        style={StyleSheet.compose(styles.modal, {
-          paddingTop: isIOS ? iosPaddingTop : 0,
-        })}
-        hideModalContentWhileAnimating={true}
-        onBackButtonPress={() => setOpenSideDrawer(p => !p)}
-        isVisible={openSideDrawer}
-        onBackdropPress={() => setOpenSideDrawer(p => !p)}>
-        <SideDrawer setOpenSideDrawer={setOpenSideDrawer} />
-      </Modal>
     </View>
   );
 }

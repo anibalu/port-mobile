@@ -14,6 +14,7 @@ export const SELECTED_MESSAGES_LIMIT = 20;
 export const START_OF_TIME = '2023-11-30T09:47:11Z';
 export const MESSAGE_DATA_MAX_LENGTH = 2048;
 export const SIDE_DRAWER_WIDTH = 300;
+export const DRAWER_SWIPE_EDGE_WIDTH = 100;
 
 //UI Definitions for elements
 export const TOPBAR_HEIGHT = 56;

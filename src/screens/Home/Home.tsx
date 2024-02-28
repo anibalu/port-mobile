@@ -4,6 +4,7 @@
  * screen id: 5
  */
 import ChatBackground from '@components/ChatBackground';
+import BluePlusIcon from '../../../assets/icons/plusWhite.svg';
 import ChatTile from '@components/ChatTile/ChatTile';
 import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
@@ -23,8 +24,13 @@ import {useReadBundles} from '@utils/Ports';
 import React, {ReactElement, ReactNode, useEffect, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
-import DefaultChatTile from './DefaultChatTile';
 import HomeTopbar from './HomeTopbar';
+import HomescreenPlaceholder from './HomescreenPlaceholder';
+import {GenericButton} from '@components/GenericButton';
+import GenericBottomsheet from '@components/Modals/GenericBottomsheet';
+import ConnectionOptions from './ConnectionOptions';
+import {screen} from '@components/ComponentUtils';
+import {TOPBAR_HEIGHT} from '@configs/constants';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: StoreConnection): ReactElement {
@@ -66,7 +72,7 @@ const performNotificationRouting = (
 
 //renders default chat tile when there are no connections to display
 function renderDefaultTile(): ReactNode {
-  return <DefaultChatTile />;
+  return <HomescreenPlaceholder />;
 }
 
 function Home(): ReactNode {
@@ -183,18 +189,29 @@ function Home(): ReactNode {
     }, [connections]),
   );
 
+  const [openSideDrawer, setOpenSideDrawer] = useState(false);
+  const [isConnectionOptionsModalOpen, setIsConnectionOptionsModalOpen] =
+    useState(false);
+
   return (
     <SafeAreaView>
       <ChatBackground />
-      <HomeTopbar unread={totalUnread} toptitleMessage="All" />
+      <HomeTopbar
+        openSideDrawer={openSideDrawer}
+        setOpenSideDrawer={setOpenSideDrawer}
+        unread={totalUnread}
+        toptitleMessage="Primary"
+      />
 
       <FlatList
         data={viewableConnections}
         renderItem={element => renderChatTile(element.item)}
         style={styles.chats}
-        contentContainerStyle={{
-          rowGap: 8,
-        }}
+        contentContainerStyle={
+          viewableConnections.length > 0 && {
+            rowGap: 8,
+          }
+        }
         ListHeaderComponent={
           connections.length >= 2 ? (
             /**
@@ -208,6 +225,24 @@ function Home(): ReactNode {
         keyExtractor={connection => connection.chatId}
         ListEmptyComponent={renderDefaultTile}
       />
+      <GenericButton
+        onPress={() => {
+          setIsConnectionOptionsModalOpen(p => !p);
+        }}
+        iconSize={24}
+        IconLeft={BluePlusIcon}
+        buttonStyle={styles.addButtonWrapper}
+      />
+      <GenericBottomsheet
+        showNotch={true}
+        visible={isConnectionOptionsModalOpen}
+        onClose={() => {
+          setIsConnectionOptionsModalOpen(p => !p);
+        }}>
+        <ConnectionOptions
+          setIsConnectionOptionsModalOpen={setIsConnectionOptionsModalOpen}
+        />
+      </GenericBottomsheet>
       <CenterInformationModal visible={showOnboardingInfo} position="center">
         <OnboardingCarousel />
       </CenterInformationModal>
@@ -218,6 +253,15 @@ function Home(): ReactNode {
 const styles = StyleSheet.create({
   chats: {
     paddingHorizontal: 19,
+    height: screen.height - TOPBAR_HEIGHT,
+  },
+  addButtonWrapper: {
+    alignSelf: 'flex-end',
+    position: 'absolute',
+    bottom: 32,
+    right: 19,
+    height: 56,
+    width: 56,
   },
 });
 

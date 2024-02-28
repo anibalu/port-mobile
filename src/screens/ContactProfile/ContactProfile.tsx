@@ -39,7 +39,7 @@ import {
 } from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import DisconnectButton from './DisconnectButton';
-import GenericBottomsheet from '@components/GenericBottomsheet';
+import GenericBottomsheet from '@components/Modals/GenericBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 

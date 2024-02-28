@@ -33,7 +33,7 @@ import GreyArrowRight from '@assets/icons/GreyArrowRight.svg';
 import GenericTopBar from '@components/GenericTopBar';
 import EditAvatar from '@screens/EditAvatar/EditAvatar';
 import {FileAttributes} from '@utils/Storage/interfaces';
-import GenericBottomsheet from '@components/GenericBottomsheet';
+import GenericBottomsheet from '@components/Modals/GenericBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 

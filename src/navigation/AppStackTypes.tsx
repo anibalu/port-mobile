@@ -2,6 +2,7 @@ import {ConnectionInfo} from '@utils/Connections/interfaces';
 
 export type AppStackParamList = {
   HomeTab: undefined;
+  Scan: undefined;
   ConnectionCentre: undefined;
   MyProfile: undefined;
   ManageMembers: {groupId: string};

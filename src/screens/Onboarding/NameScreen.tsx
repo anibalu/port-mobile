@@ -31,7 +31,7 @@ import {
 import {checkPermissions} from '@utils/AppPermissions/checkAllPermissions';
 import EditAvatar from '@screens/EditAvatar/EditAvatar';
 import {FileAttributes} from '@utils/Storage/interfaces';
-import GenericBottomsheet from '@components/GenericBottomsheet';
+import GenericBottomsheet from '@components/Modals/GenericBottomsheet';
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Onboarding'>;
 
 function NameScreen({navigation}: Props): ReactNode {

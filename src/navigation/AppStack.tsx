@@ -25,8 +25,12 @@ import SharedMedia from '@screens/SharedMedia/SharedMedia';
 import React from 'react';
 import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
 import {AppStackParamList} from './AppStackTypes';
-import BottomNavStack from './BottomNavStack';
 import Presets from '@screens/Presets/Presets';
+import Home from '@screens/Home/Home';
+import Scanner from '@screens/Scanner/Scanner';
+import SuperportModal from '@components/ConnectionModal/SuperportModal';
+import NewPortModal from '@components/ConnectionModal/NewPortModal';
+import CreateSuperportModal from '@components/ConnectionModal/CreateSuperportModal';
 import CaptureMedia from '@screens/ShareImage/CaptureMedia';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -42,8 +46,9 @@ function AppStack() {
         <Stack.Navigator
           initialRouteName="HomeTab"
           screenOptions={{headerShown: false, orientation: 'portrait'}}>
-          <Stack.Screen name="HomeTab" component={BottomNavStack} />
+          <Stack.Screen name="HomeTab" component={Home} />
           <Stack.Screen name="MyProfile" component={MyProfile} />
+          <Stack.Screen name="Scan" component={Scanner} />
           <Stack.Screen name="GroupProfile" component={GroupProfile} />
           <Stack.Screen name="ManageMembers" component={ManageMembers} />
           <Stack.Screen name="AddMembers" component={AddMembers} />
@@ -79,6 +84,9 @@ function AppStack() {
           <Stack.Screen name="Presets" component={Presets} />
         </Stack.Navigator>
         <ScannerModal />
+        <NewPortModal />
+        <SuperportModal />
+        <CreateSuperportModal />
       </ConnectionModalProvider>
     </>
   );

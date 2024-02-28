@@ -1,12 +1,12 @@
 import React from 'react';
-import {PortColors, screen} from './ComponentUtils';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import {PortColors, screen} from '../ComponentUtils';
+import GenericModal from './GenericModal';
+import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
 import {StyleSheet, View} from 'react-native';
-import {GenericButton} from './GenericButton';
+import {GenericButton} from '../GenericButton';
 import Whitecross from '@assets/icons/WhitecrossOutline.svg';
 import BackButton from '@assets/icons/BlackArrowLeft.svg';
 import {useNavigation} from '@react-navigation/native';
-import GenericModal from './Modals/GenericModal';
 
 const GenericBottomsheet = ({
   onClose,
@@ -42,32 +42,34 @@ const GenericBottomsheet = ({
           showNotch && {paddingTop: 8},
         )}>
         {showNotch && <View style={styles.topnotch} />}
-        <View style={styles.topRow}>
-          {showBackButton && (
-            <GenericButton
-              buttonStyle={styles.backButton}
-              IconLeft={BackButton}
-              iconSize={14}
-              onPress={() => navigation.goBack()}
-            />
-          )}
-          {headerTile && (
-            <NumberlessText
-              fontType={FontType.rg}
-              fontSizeType={FontSizeType.m}
-              textColor={titleColor ? titleColor : PortColors.text.primary}>
-              {headerTile}
-            </NumberlessText>
-          )}
-          {showCloseButton && (
-            <GenericButton
-              buttonStyle={styles.closeButton}
-              IconLeft={Whitecross}
-              iconSize={16}
-              onPress={onClose}
-            />
-          )}
-        </View>
+        {showBackButton && showCloseButton && headerTile && (
+          <View style={styles.topRow}>
+            {showBackButton && (
+              <GenericButton
+                buttonStyle={styles.backButton}
+                IconLeft={BackButton}
+                iconSize={14}
+                onPress={() => navigation.goBack()}
+              />
+            )}
+            {headerTile && (
+              <NumberlessText
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.m}
+                textColor={titleColor ? titleColor : PortColors.text.primary}>
+                {headerTile}
+              </NumberlessText>
+            )}
+            {showCloseButton && (
+              <GenericButton
+                buttonStyle={styles.closeButton}
+                IconLeft={Whitecross}
+                iconSize={16}
+                onPress={onClose}
+              />
+            )}
+          </View>
+        )}
         {children}
       </View>
     </GenericModal>

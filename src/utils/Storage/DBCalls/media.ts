@@ -39,7 +39,12 @@ export async function newMedia(
  * @param update changes to be applied
  */
 export async function updateMedia(mediaId: string, update: MediaUpdate) {
-  if (!LargeDataMessageContentTypes.includes(update.type)) {
+  if (
+    !(
+      LargeDataMessageContentTypes.includes(update.type) ||
+      update.type === ContentType.link
+    )
+  ) {
     console.error('ContentType invalid for media storage');
     throw Error(
       'ContentType invalid for media storage. Incorrect call for updateMedia',

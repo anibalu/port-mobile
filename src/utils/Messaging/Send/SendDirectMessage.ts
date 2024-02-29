@@ -23,6 +23,7 @@ import {
   LargeDataMessageContentTypes,
   LargeDataParams,
   LargeDataParamsStrict,
+  LinkParams,
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
@@ -219,6 +220,33 @@ class SendDirectMessage<T extends ContentType> {
       await this.saveMessage();
       //preprocesses large data message if message is large data message
       await this.preProcessLargeDataMessage();
+      await this.preProcessLinkPreviewMessage();
+    }
+  }
+
+  private async preProcessLinkPreviewMessage() {
+    if (this.savedMessage.contentType === ContentType.link) {
+      const linkData = this.data as LinkParams;
+      if (linkData.mediaId) {
+        //Add entry into media table
+        await saveNewMedia(
+          linkData.mediaId,
+          this.chatId,
+          this.messageId,
+          this.savedMessage.timestamp,
+        );
+        this.payload.data = {
+          ...this.data,
+          fileUri: null,
+          mediaId: undefined,
+        };
+        //Saves relative URIs for the paths
+        await updateMedia(linkData.mediaId, {
+          type: this.contentType,
+          filePath: linkData.fileUri,
+          name: linkData.fileName,
+        });
+      }
     }
   }
 
@@ -454,6 +482,15 @@ class SendDirectMessage<T extends ContentType> {
         await updateConnectionOnNewMessage({
           chatId: this.chatId,
           text: 'shared contact of ' + (this.data as ContactBundleParams).name,
+          readStatus: readStatus,
+          recentMessageType: this.contentType,
+          latestMessageId: this.messageId,
+        });
+        break;
+      case ContentType.link:
+        await updateConnectionOnNewMessage({
+          chatId: this.chatId,
+          text: (this.data as LinkParams).text,
           readStatus: readStatus,
           recentMessageType: this.contentType,
           latestMessageId: this.messageId,

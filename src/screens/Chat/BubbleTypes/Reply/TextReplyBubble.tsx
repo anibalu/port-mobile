@@ -29,7 +29,9 @@ export default function TextReplyBubble({
   memberName: string;
   isOriginalSender?: boolean;
 }) {
-  const replyText = (message.data as TextParams).text;
+  const messageText = (message.data as TextParams).text;
+
+  const replyText = messageText;
   const [showEmojiReplyBubble, setShowEmojiReplyBubble] =
     useState<boolean>(false);
 

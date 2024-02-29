@@ -50,6 +50,7 @@ export default function ImageReplyBubble({
             text != '' && !isImageSmall && {marginRight: 16},
           )}>
           <ImageIcon width={14} height={14} style={{marginRight: 2}} />
+
           <NumberlessText
             fontSizeType={FontSizeType.s}
             fontType={FontType.rg}
@@ -94,6 +95,7 @@ const styles = StyleSheet.create({
     maxHeight: 75,
     minHeight: 45,
     flex: 1,
+    width: '100%',
   },
   textWrapper: {
     flexDirection: 'column',

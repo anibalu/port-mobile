@@ -19,6 +19,7 @@ import ReceiveName from './ActionClasses/ReceiveName';
 import ReceiveReaction from './ActionClasses/ReceiveReaction';
 import ReceiveText from './ActionClasses/ReceiveText';
 import ReceiveUpdate from './ActionClasses/ReceiveUpdate';
+import ReceiveLink from './ActionClasses/ReceiveLink';
 import ReceiveVideo from './ActionClasses/ReceiveVideo';
 import DirectReceiveAction from './DirectReceiveAction';
 
@@ -33,6 +34,7 @@ export enum PossibleDirectReceiveActions {
   receiveImage,
   receiveVideo,
   receiveFile,
+  receiveLink,
   handshakeResponseA1,
   handshakeResponseB2,
   InitialInfoResponse,
@@ -94,6 +96,13 @@ export async function directReceiveActionPicker(
         );
       case ContentType.text:
         return new ReceiveText(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.link:
+        return new ReceiveLink(
           chatId,
           message,
           receiveTime,

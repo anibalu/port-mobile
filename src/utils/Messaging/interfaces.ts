@@ -39,6 +39,7 @@ export enum ContentType {
   deleted = 16,
   update = 17,
   reaction = 18,
+  link = 19,
 }
 
 /**
@@ -97,9 +98,18 @@ export type DataType =
   | ContactBundleRequestParams
   | ContactBundleResponseParams
   | ContactBundleDenialResponseParams
+  | LinkParams
   | ReactionParams
   | InitialInfoRequestParams;
 
+export interface LinkParams extends TextParams {
+  title?: string | null;
+  description?: string | null;
+  fileUri?: string | null;
+  linkUri: string;
+  fileName?: string;
+  mediaId?: string;
+}
 export interface TextParams {
   text: string;
 }
@@ -200,6 +210,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? InitialInfoRequestParams
     : T extends ContentType.update
     ? UpdateParams
+    : T extends ContentType.link
+    ? LinkParams
     : T extends ContentType.reaction
     ? ReactionParams
     : never;

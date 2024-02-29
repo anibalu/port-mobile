@@ -34,6 +34,7 @@ import DataBubble from './BubbleTypes/DataBubble';
 import FileBubble from './BubbleTypes/FileBubble';
 import ImageBubble from './BubbleTypes/ImageBubble';
 import InfoBubble from './BubbleTypes/InfoBubble';
+import LinkPreviewBubble from './BubbleTypes/LinkPreviewBubble';
 import ReplyBubble from './BubbleTypes/ReplyBubble';
 import TextBubble from './BubbleTypes/TextBubble';
 import VideoBubble from './BubbleTypes/VideoBubble';
@@ -529,6 +530,15 @@ function renderBubbleType(
         <VideoBubble
           message={message}
           handleDownload={handleDownload}
+          memberName={memberName}
+          handlePress={handlePress}
+          handleLongPress={handleLongPress}
+        />
+      );
+    case ContentType.link:
+      return (
+        <LinkPreviewBubble
+          message={message}
           memberName={memberName}
           handlePress={handlePress}
           handleLongPress={handleLongPress}

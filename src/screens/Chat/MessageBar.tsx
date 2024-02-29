@@ -17,10 +17,19 @@ import {
 import {
   ContentType,
   LargeDataParams,
+  LinkParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
-import React, {ReactNode, memo, useEffect, useRef, useState} from 'react';
+import {debounce} from 'lodash';
+import React, {
+  ReactNode,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   Animated,
   Easing,
@@ -36,15 +45,23 @@ import DocumentPicker, {
   DocumentPickerResponse,
 } from 'react-native-document-picker';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import {OpenGraphParser} from 'react-native-opengraph-kit';
 
 import {GenericButton} from '@components/GenericButton';
 import {DEFAULT_NAME} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import Group from '@utils/Groups/Group';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {
+  downloadImageToMediaDir,
+  getSafeAbsoluteURI,
+} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {extractLink} from './BubbleUtils';
+import LinkPreview from './LinkPreview';
 import FileReplyContainer from './ReplyContainers/FileReplyContainer';
 import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
+import LinkReplyContainer from './ReplyContainers/LinkReplyContainer';
 import TextReplyContainer from './ReplyContainers/TextReplyContainer';
 import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
 
@@ -78,6 +95,12 @@ const MessageBar = ({
 
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+
+  const [openGraphData, setOpenGraphData] = useState(null);
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState<boolean>(true);
+
   const [isPopUpVisible, setPopUpVisible] = useState(false);
   const groupHandler = isGroupChat ? new Group(chatId) : undefined;
   const [replyName, setReplyName] = useState<string | null | undefined>(
@@ -129,6 +152,8 @@ const MessageBar = ({
   };
 
   const sendText = async (): Promise<void> => {
+    setShowPreview(false);
+    setOpenGraphData(null);
     const processedText = text.trim();
     if (processedText !== '') {
       setText('');
@@ -143,6 +168,38 @@ const MessageBar = ({
       );
       await sender.send();
     }
+  };
+
+  const sendLinkText = async (): Promise<void> => {
+    setShowPreview(false);
+    const processedText = text.trim();
+    setText('');
+    onSend();
+    const fileName = generateRandomHexId();
+    const fileUri = await downloadImageToMediaDir(
+      chatId,
+      fileName,
+      openGraphData['og:image'] || openGraphData.image || null,
+    );
+    const dataObj: LinkParams = {
+      title: openGraphData['og:title'] || openGraphData.title || null,
+      description:
+        openGraphData['og:description'] || openGraphData.description || null,
+      fileUri: fileUri,
+      linkUri: url,
+      fileName: fileName,
+      text: processedText,
+      mediaId: fileUri ? generateRandomHexId() : undefined,
+    };
+    //send link message
+    setOpenGraphData(null);
+    const sender = new SendMessage(
+      chatId,
+      ContentType.link,
+      dataObj,
+      replyTo ? replyTo.messageId : null,
+    );
+    await sender.send();
   };
 
   useEffect(() => {
@@ -276,6 +333,67 @@ const MessageBar = ({
     }
   };
 
+  const hasLink: string | null = extractLink(text.toLocaleLowerCase());
+
+  useEffect(() => {
+    if (hasLink) {
+      setUrl(hasLink);
+      setShowPreview(true);
+    } else {
+      setShowPreview(false);
+      setOpenGraphData(null);
+    }
+  }, [hasLink, text]);
+
+  const fetchData = useCallback(async () => {
+    if (url) {
+      setOpenGraphData(null);
+      setLoading(true);
+      try {
+        const dataPromise = OpenGraphParser.extractMeta(url);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timed out')), 2000),
+        );
+        const data = await Promise.race([dataPromise, timeoutPromise]);
+        setOpenGraphData(data[0]);
+      } catch (error) {
+        console.log('Error fetching Open Graph data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [url]);
+
+  useEffect(() => {
+    const debouncedFetchData = debounce(fetchData, 1000);
+    if (url && !openGraphData) {
+      debouncedFetchData();
+    } else if (
+      openGraphData &&
+      openGraphData.url.toLowerCase() !== url.toLowerCase()
+    ) {
+      debouncedFetchData();
+    }
+    return () => {
+      debouncedFetchData.cancel();
+    };
+  }, [hasLink, url, openGraphData, fetchData]);
+
+  const onLinkSend = () => {
+    if (
+      showPreview &&
+      openGraphData &&
+      (openGraphData.title ||
+        openGraphData.description ||
+        openGraphData['og:title'] ||
+        openGraphData['og:description'])
+    ) {
+      sendLinkText();
+    } else {
+      sendText();
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={isIOS ? 'padding' : 'height'}
@@ -323,12 +441,14 @@ const MessageBar = ({
               onPress={onSend}
               style={{
                 position: 'absolute',
-                right: 17,
-                top: 16,
+                right: 15,
+                top: 14,
                 borderRadius: 12,
                 backgroundColor: '#F2F2F2',
               }}>
               <Plus
+                height={18}
+                width={18}
                 style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
               />
             </Pressable>
@@ -339,15 +459,31 @@ const MessageBar = ({
           <View
             style={StyleSheet.compose(
               styles.textInput,
+              {flexDirection: 'column', flex: 1, marginRight: 4},
               replyTo ? {borderTopLeftRadius: 0, borderTopRightRadius: 0} : {},
             )}>
-            <Animated.View style={[styles.plus, animatedStyle]}>
-              <Pressable onPress={togglePopUp}>
-                <Plus height={24} width={24} />
-              </Pressable>
-            </Animated.View>
+            {url && (
+              <View>
+                <LinkPreview
+                  showPreview={showPreview}
+                  setShowPreview={setShowPreview}
+                  link={url}
+                  loading={loading}
+                  data={openGraphData}
+                />
+              </View>
+            )}
 
-            <View style={styles.textBox}>
+            <View
+              style={StyleSheet.compose(styles.textBox, {
+                flexDirection: 'row',
+                alignItems: 'center',
+              })}>
+              <Animated.View style={[styles.plus, animatedStyle]}>
+                <Pressable onPress={togglePopUp}>
+                  <Plus height={24} width={24} />
+                </Pressable>
+              </Animated.View>
               <TextInput
                 style={styles.inputText}
                 ref={inputRef}
@@ -367,7 +503,7 @@ const MessageBar = ({
             iconSizeRight={14}
             buttonStyle={styles.send}
             IconRight={text.length > 0 ? Send : SendDisabled}
-            onPress={sendText}
+            onPress={onLinkSend}
           />
         </View>
         {isPopUpVisible && (
@@ -452,6 +588,9 @@ function renderReplyBar(
   switch (replyTo.contentType) {
     case ContentType.text: {
       return <TextReplyContainer message={replyTo} memberName={replyName} />;
+    }
+    case ContentType.link: {
+      return <LinkReplyContainer message={replyTo} memberName={replyName} />;
     }
     case ContentType.image: {
       return (
@@ -540,7 +679,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingBottom: 7,
+    paddingBottom: 2,
   },
   send: {
     width: 40,

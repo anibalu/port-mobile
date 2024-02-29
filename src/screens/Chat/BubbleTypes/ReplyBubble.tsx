@@ -95,6 +95,18 @@ const ReplyBubble = ({
       case ContentType.deleted: {
         return <DeletedReplyBubble />;
       }
+      case ContentType.link: {
+        return (
+          <TextReplyBubble
+            message={replyMessage}
+            repliedText={message.data.text}
+            memberName={displayMemberName}
+            handlePress={handlePress}
+            handleLongPress={handleLongPress}
+            isOriginalSender={message.sender}
+          />
+        );
+      }
       case ContentType.text: {
         return (
           <TextReplyBubble

@@ -140,6 +140,17 @@ export function renderProfileName(
     <View />
   );
 }
+export const extractLink = (text: string): string | null => {
+  const urlRegex: RegExp =
+    /^(?:https?:\/\/)(?:www\.)?[\w.-]+\.[a-zA-Z]{2,}(?:\/\S*)?$/;
+  const words = text.trim().split(/\s+|'/);
+  for (const word of words) {
+    if (urlRegex.test(word)) {
+      return word;
+    }
+  }
+  return null;
+};
 
 export const hasOnlyEmojis = (text: string): boolean => {
   const emojiRegex =

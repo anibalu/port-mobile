@@ -206,6 +206,45 @@ async function decryptToFilesDir(
   return addFilePrefix(destinationPath);
 }
 
+export async function downloadImageToMediaDir(
+  chatId: string,
+  fileName: string,
+  fromUrl: string | null,
+): Promise<string | null> {
+  if (fromUrl) {
+    const chatIdDir = await initialiseLargeFileDirAsync(chatId);
+    const destinationPath =
+      chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
+    //download image to destination
+    return await downloadImage(fromUrl, destinationPath);
+  }
+  return null;
+}
+
+async function downloadImage(
+  fromUrl: string,
+  toLocation: string,
+): Promise<string | null> {
+  await RNFS.writeFile(toLocation, '');
+  try {
+    const downloadOptions = {
+      fromUrl: fromUrl,
+      toFile: toLocation,
+    };
+    const response = await RNFS.downloadFile(downloadOptions).promise;
+    if (response.statusCode === 200) {
+      console.log('resource downloaded successfully');
+      return getRelativeURI(toLocation, 'doc');
+    }
+    console.log('response code: ', response.statusCode);
+    throw new Error('ResponseError');
+  } catch (error) {
+    console.log('error downloading resource: ', error);
+    await deleteFile(toLocation);
+    return null;
+  }
+}
+
 export async function downloadResource(fromUrl: string) {
   const encryptedFilePath = await initialiseEncryptedTempFile();
   try {

@@ -241,6 +241,12 @@ function Home(): ReactNode {
           IconLeft={BluePlusIcon}
           buttonStyle={styles.addButtonWrapper}
         />
+        {/* go to component isolation playground */}
+        {/* <GenericButton
+          onPress={() => navigation.navigate('Isolation')}
+          buttonStyle={styles.isolationButton}>
+          🔑
+        </GenericButton> */}
         <GenericBottomsheet
           showNotch={true}
           visible={isConnectionOptionsModalOpen}
@@ -263,6 +269,14 @@ const styles = StyleSheet.create({
   chats: {
     paddingHorizontal: 19,
     height: screen.height - TOPBAR_HEIGHT,
+  },
+  isolationButton: {
+    alignSelf: 'flex-end',
+    position: 'absolute',
+    bottom: 32,
+    left: 19,
+    height: 56,
+    width: 56,
   },
   addButtonWrapper: {
     alignSelf: 'flex-end',

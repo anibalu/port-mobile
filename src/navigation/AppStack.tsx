@@ -32,6 +32,7 @@ import SuperportModal from '@components/ConnectionModal/SuperportModal';
 import NewPortModal from '@components/ConnectionModal/NewPortModal';
 import CreateSuperportModal from '@components/ConnectionModal/CreateSuperportModal';
 import CaptureMedia from '@screens/ShareImage/CaptureMedia';
+import Isolation from '@screens/Isolations/Isolation';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -82,6 +83,7 @@ function AppStack() {
           <Stack.Screen name="CaptureMedia" component={CaptureMedia} />
           <Stack.Screen name="SharedMedia" component={SharedMedia} />
           <Stack.Screen name="Presets" component={Presets} />
+          <Stack.Screen name="Isolation" component={Isolation} />
         </Stack.Navigator>
         <ScannerModal />
         <NewPortModal />

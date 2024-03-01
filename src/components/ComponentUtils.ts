@@ -122,6 +122,18 @@ export const FontSizes = {
       fontWeight: '400',
     },
   },
+  16: {
+    medium: {
+      fontFamily: 'Rubik-Medium',
+      fontSize: 16,
+      fontWeight: '500',
+    },
+    regular: {
+      fontFamily: 'Rubik-Regular',
+      fontSize: 16,
+      fontWeight: '400',
+    },
+  },
   12: {
     semibold: {
       fontFamily: 'Rubik-SemiBold',

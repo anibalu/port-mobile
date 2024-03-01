@@ -16,3 +16,104 @@
  * 6. isLoading - false by default. If button should be in loading state, use true.
  * 7. onClick - function that runs on clicking.
  */
+
+import {PortColors, FontSizes} from '@components/ComponentUtils';
+import React, {FC} from 'react';
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  TextStyle,
+  ActivityIndicator,
+  ViewStyle,
+} from 'react-native';
+import {SvgProps} from 'react-native-svg';
+
+const PrimaryButton = ({
+  buttonText,
+  primaryButtonColor,
+  Icon,
+  iconSize,
+  textStyle,
+
+  isLoading,
+  disabled,
+  onClick,
+}: {
+  buttonText: string;
+  primaryButtonColor: 'b' | 'r' | 'w';
+  Icon?: FC<SvgProps>;
+  iconSize?: 's' | 'm';
+  textStyle?: TextStyle;
+  isLoading: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) => {
+  function primaryButtonStylePicker(primaryButtonColor?: string): ViewStyle {
+    if (primaryButtonColor === 'r') {
+      return styles.redButton;
+    } else if (primaryButtonColor === 'w') {
+      return styles.whiteButton;
+    } else {
+      return styles.blueButton;
+    }
+  }
+  return (
+    <TouchableOpacity
+      disabled={isLoading ? true : disabled}
+      style={StyleSheet.compose(
+        primaryButtonStylePicker(primaryButtonColor),
+        disabled ? styles.disabledButton : styles.button,
+      )}
+      activeOpacity={0.6}
+      onPress={() => onClick()}>
+      {isLoading ? (
+        <ActivityIndicator color={'white'} />
+      ) : (
+        <>
+          {Icon && (
+            <Icon
+              style={{marginRight: 5}}
+              height={iconSize === 'm' ? 24 : 20}
+              width={iconSize === 'm' ? 24 : 20}
+            />
+          )}
+          <Text style={StyleSheet.compose(textStyle, styles.buttonText)}>
+            {buttonText.length > 16
+              ? buttonText.substring(0, 16) + '...'
+              : buttonText}
+          </Text>
+        </>
+      )}
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  disabledButton: {
+    alignItems: 'center',
+    height: 50,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    borderRadius: 12,
+    opacity: 0.6,
+  },
+  redButton: {
+    backgroundColor: PortColors.primary.red.error,
+  },
+  whiteButton: {backgroundColor: PortColors.primary.white},
+  blueButton: {backgroundColor: PortColors.primary.blue.app},
+  button: {
+    alignItems: 'center',
+    height: 50,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    borderRadius: 12,
+  },
+  buttonText: {
+    ...FontSizes[16].medium,
+    color: 'white',
+  },
+});
+
+export default PrimaryButton;

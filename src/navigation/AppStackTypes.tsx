@@ -55,4 +55,5 @@ export type AppStackParamList = {
   CaptureMedia: {chatId: string; isGroupChat?: boolean};
   Presets: undefined;
   PendingRequests: undefined;
+  Isolation: undefined;
 };

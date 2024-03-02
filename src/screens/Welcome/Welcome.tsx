@@ -1,11 +1,9 @@
 /**
  * This welcome screen shows Port branding and greets the user the first time they open the app.
- * screen id: 1
  */
 import Logo from '@assets/miscellaneous/portBranding.svg';
-import {PortColors, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {GenericButton} from '@components/GenericButton';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -22,11 +20,14 @@ type Props = NativeStackScreenProps<
 >;
 
 function Welcome({navigation}: Props) {
+  //On login, as an edge case we do a profile check to ensure that a user who has logged in before doesnt end up at onboaring
   const profileCheck = async (): Promise<boolean> => {
     try {
       const result = await checkProfileCreated();
       if (result === ProfileStatus.created) {
+        //loads chats to redux store
         await loadConnectionsToStore();
+        //lets profile store know that onboarding is complete
         store.dispatch({
           type: 'ONBOARDING_COMPLETE',
           payload: true,
@@ -39,12 +40,11 @@ function Welcome({navigation}: Props) {
       return false;
     }
   };
-
-  //On login, as an edge case we do a profile check to ensure that a user who has logged in before doesnt end up at onboaring
   useEffect(() => {
     profileCheck();
   }, []);
 
+  //what happens when the user presses "get started".
   const onPress = async () => {
     const profileExists = await profileCheck();
     if (!profileExists) {
@@ -54,19 +54,17 @@ function Welcome({navigation}: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={PortColors.primary.blue.app}
-      />
       <View style={styles.greeting}>
         <Logo height={175} />
       </View>
-      <GenericButton
-        onPress={onPress}
-        textStyle={styles.buttonText}
-        buttonStyle={styles.button}>
-        Get started
-      </GenericButton>
+      <View style={styles.buttonContainer}>
+        <TertiaryButton
+          buttonText={'Get Started'}
+          tertiaryButtonColor={'w'}
+          disabled={false}
+          onClick={onPress}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -84,19 +82,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  button: {
-    marginBottom: 32,
-    backgroundColor: PortColors.primary.white,
-    height: 50,
-    flexDirection: 'row',
-    borderRadius: 12,
-    alignItems: 'center',
-    width: screen.width - 32,
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: PortColors.primary.blue.app,
-    fontSize: 16,
+  buttonContainer: {
+    width: '100%',
+    paddingBottom: PortSpacing.primary.bottom,
+    paddingLeft: PortSpacing.secondary.left,
+    paddingRight: PortSpacing.secondary.right,
   },
 });
 

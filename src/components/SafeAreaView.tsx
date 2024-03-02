@@ -1,5 +1,6 @@
 /**
  * custom SafeAreaView for Port that uses safe insets.
+ * Wrap this component around your screen so that the app handles various phone with various notches well.
  */
 import React from 'react';
 import {StyleSheet, View, ViewProps, ViewStyle} from 'react-native';

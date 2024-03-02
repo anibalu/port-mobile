@@ -4,7 +4,8 @@ import {PortColors, isIOS} from './ComponentUtils';
 import DeviceInfo from 'react-native-device-info';
 
 /**
- *
+ * Status bar for the entire app.
+ * Handles IOS and android whether notch exists or not.
  * @param backgroundColor - pass this prop ONLY if no back button should be shown. This absolutely positions the element for welcome page
  * @returns Status bar
  */

@@ -30,14 +30,14 @@ export const PortColors = {
     body: '#98A2B3',
     notch: '#D9D9D9',
     blue: {
-      app: '#547CEF',
+      app: '#4E75FF',
       light: '#88A9FF',
       dull: '#AFCCE4',
       overlay: '#BAD0E3',
     },
     white: '#FFFFFF',
     black: '#000000',
-    red: {error: '#EE786B', light: '#FFE6E6'},
+    red: {error: '#EF4D41', light: '#FFE6E6'},
     grey: {
       light: '#F6F6F6',
       medium: '#C9C9C9',
@@ -163,6 +163,37 @@ export const FontSizes = {
       fontSize: 10,
       fontWeight: '500',
     },
+  },
+};
+
+export const PortSpacing = {
+  primary: {
+    uniform: 32,
+    left: 32,
+    right: 32,
+    bottom: 32,
+    top: 32,
+  },
+  intermediate: {
+    uniform: 24,
+    left: 24,
+    right: 24,
+    bottom: 24,
+    top: 24,
+  },
+  secondary: {
+    uniform: 16,
+    left: 16,
+    right: 16,
+    bottom: 16,
+    top: 16,
+  },
+  tertiary: {
+    uniform: 8,
+    left: 8,
+    right: 8,
+    bottom: 8,
+    top: 8,
   },
 };
 

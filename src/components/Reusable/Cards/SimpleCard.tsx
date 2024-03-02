@@ -12,7 +12,7 @@ const SimpleCard = ({
   children,
   style,
 }: {
-  children: any;
+  children?: any;
   style?: ViewStyle | StyleProp<ViewStyle>;
 }) => {
   return (
@@ -24,8 +24,8 @@ const SimpleCard = ({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    paddingVertical: 16,
-    alignSelf: 'stretch',
+    paddingVertical: 8,
+    width: '100%',
     borderColor: PortColors.stroke,
     borderWidth: 0.5,
     backgroundColor: PortColors.primary.white,

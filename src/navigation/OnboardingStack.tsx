@@ -10,18 +10,20 @@ const Stack = createNativeStackNavigator<OnboardingStackParamList>();
 
 function OnboardingStack() {
   return (
-    <Stack.Navigator
-      initialRouteName="Welcome"
-      screenOptions={{
-        headerShown: false,
-        orientation: 'portrait',
-        gestureEnabled: false,
-      }}>
-      <Stack.Screen name="Welcome" component={Welcome} />
-      <Stack.Screen name="NameScreen" component={NameScreen} />
-      <Stack.Screen name="PermissionsScreen" component={PermissionsScreen} />
-      <Stack.Screen name="SetupUser" component={SetupUser} />
-    </Stack.Navigator>
+    <>
+      <Stack.Navigator
+        initialRouteName="Welcome"
+        screenOptions={{
+          headerShown: false,
+          orientation: 'portrait',
+          gestureEnabled: false,
+        }}>
+        <Stack.Screen name="Welcome" component={Welcome} />
+        <Stack.Screen name="NameScreen" component={NameScreen} />
+        <Stack.Screen name="PermissionsScreen" component={PermissionsScreen} />
+        <Stack.Screen name="SetupUser" component={SetupUser} />
+      </Stack.Navigator>
+    </>
   );
 }
 

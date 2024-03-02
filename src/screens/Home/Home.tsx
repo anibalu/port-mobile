@@ -242,11 +242,11 @@ function Home(): ReactNode {
           buttonStyle={styles.addButtonWrapper}
         />
         {/* go to component isolation playground */}
-        {/* <GenericButton
+        <GenericButton
           onPress={() => navigation.navigate('Isolation')}
           buttonStyle={styles.isolationButton}>
           🔑
-        </GenericButton> */}
+        </GenericButton>
         <GenericBottomsheet
           showNotch={true}
           visible={isConnectionOptionsModalOpen}

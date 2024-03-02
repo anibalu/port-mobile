@@ -1,4 +1,4 @@
-import {avatarmapping} from '@configs/avatarmapping';
+import {DirectAvatarMapping} from '@configs/avatarmapping';
 import {AVATAR_ARRAY} from '@configs/constants';
 import React, {FC} from 'react';
 import {Image, ImageStyle, Pressable, StyleSheet, View} from 'react-native';
@@ -50,7 +50,9 @@ export function GenericAvatar({
   };
   // Function to retrieve Icon based on id
   const getIconById = (id: string): FC<SvgProps> | null => {
-    const avatarMappingEntry = avatarmapping.find(entry => entry.id === id);
+    const avatarMappingEntry = DirectAvatarMapping.find(
+      entry => entry.id === id,
+    );
     return avatarMappingEntry ? avatarMappingEntry.Icon : null;
   };
   // Function to retrieve Icon based on id

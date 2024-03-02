@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 import React, {useEffect, useMemo, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {
@@ -14,7 +17,7 @@ import {GenericAvatar} from '@components/GenericAvatar';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {FileAttributes} from '@utils/Storage/interfaces';
-import {avatarmapping} from '@configs/avatarmapping';
+import {DirectAvatarMapping} from '@configs/avatarmapping';
 import {getProfilePictureUri} from '@utils/Profile';
 
 interface EditAvatarProps {
@@ -159,7 +162,7 @@ export default function EditAvatar(props: EditAvatarProps) {
           persistentScrollbar={true}
           showsVerticalScrollIndicator={true}
           contentContainerStyle={styles.avatarAccordion}>
-          {avatarmapping.map(avatar => {
+          {DirectAvatarMapping.map(avatar => {
             const id = avatar.id;
             return (
               <View

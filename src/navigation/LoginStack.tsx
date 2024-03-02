@@ -7,7 +7,15 @@ import OnboardingStack from './OnboardingStack';
 
 const Stack = createNativeStackNavigator<LoginStackTypes>();
 
+/**
+ * Decides which stack to navigate to:
+ * 1. navigating user to onboarding (Onboarding stack) if profile setup is not done
+ * 2. navigating user to home (App stack) is profile setup is done
+ * @param startOnboarding - whether we should navigate to onboarding stack
+ * @returns - appropriate navigation stack
+ */
 function LoginStack({startOnboarding}: {startOnboarding: boolean}): ReactNode {
+  //overrides startOnboarding if onboarding is already completed and navigates App stack.
   const onboardingStatus = useSelector(
     state => state.profile.onboardingComplete,
   );

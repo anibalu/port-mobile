@@ -35,10 +35,9 @@ const PrimaryButton = ({
   Icon,
   iconSize,
   textStyle,
-
   isLoading,
   disabled,
-  onClick,
+  onClick = () => {},
 }: {
   buttonText: string;
   primaryButtonColor: 'b' | 'r' | 'w';
@@ -78,7 +77,13 @@ const PrimaryButton = ({
               width={iconSize === 'm' ? 24 : 20}
             />
           )}
-          <Text style={StyleSheet.compose(textStyle, styles.buttonText)}>
+          <Text
+            style={StyleSheet.compose(
+              textStyle,
+              primaryButtonColor === 'w'
+                ? {...styles.buttonText, color: PortColors.text.primary}
+                : styles.buttonText,
+            )}>
             {buttonText.length > 16
               ? buttonText.substring(0, 16) + '...'
               : buttonText}
@@ -91,6 +96,7 @@ const PrimaryButton = ({
 
 const styles = StyleSheet.create({
   disabledButton: {
+    width: '100%',
     alignItems: 'center',
     height: 50,
     flexDirection: 'row',
@@ -104,6 +110,7 @@ const styles = StyleSheet.create({
   whiteButton: {backgroundColor: PortColors.primary.white},
   blueButton: {backgroundColor: PortColors.primary.blue.app},
   button: {
+    width: '100%',
     alignItems: 'center',
     height: 50,
     flexDirection: 'row',
@@ -112,7 +119,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     ...FontSizes[16].medium,
-    color: 'white',
+    color: PortColors.text.primaryWhite,
   },
 });
 

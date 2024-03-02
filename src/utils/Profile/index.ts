@@ -33,13 +33,12 @@ export function getRandomAvatarInfo(): FileAttributes {
  */
 export async function setupProfile(
   name: string = DEFAULT_NAME,
-  avatar: FileAttributes = DEFAULT_PROFILE_AVATAR_INFO,
+  profilePic: FileAttributes = DEFAULT_PROFILE_AVATAR_INFO,
 ): Promise<ProfileStatus> {
   try {
     const existingProfile = await getProfileInfo();
     if (existingProfile) {
-      await updateProfileName(name);
-      await updateProfileAvatar(avatar);
+      await updateProfileInfo({name: name, profilePicInfo: profilePic});
       return ProfileStatus.created;
     }
 
@@ -54,13 +53,18 @@ export async function setupProfile(
       name: name,
       clientId: clientId,
       privateKey: privateKey,
-      profilePicInfo: avatar || getRandomAvatarInfo(),
+      profilePicInfo:
+        profilePic.fileType === 'avatar' ? profilePic : getDefaultAvatarInfo(),
     };
     store.dispatch({
       type: 'UPDATE_PROFILE',
       payload: profile,
     });
     await storage.saveProfileInfo(profile, true);
+    //saves profile picture to app storage if a real picture is chosen instead of avatar.
+    if (profilePic.fileType !== 'avatar') {
+      await setNewProfilePicture(profilePic);
+    }
     return ProfileStatus.created;
   } catch (error) {
     console.log('error creating profile:', error);
@@ -96,7 +100,6 @@ export async function getProfileInfo(
     //read profile from cache
     const entireState = store.getState();
     const cachedProfile = entireState.profile.profile;
-    //const cachedProfile = {};
     //if profile doesn't exist in cache
     if (!cachedProfile.clientId) {
       //read profile from storage
@@ -223,11 +226,14 @@ export async function getProfilePictureUri(): Promise<string> {
 }
 
 /**
- * Sets new profile picture with new file attributes
+ * Sets new profile picture with new file attributes and sends it to contacts with profile picture permissions.
  * @param {FileAttributes} file - new profile picture file attributes
  */
-export async function setNewProfilePicture(file: FileAttributes) {
+export async function setNewProfilePicture(
+  file: FileAttributes = getDefaultAvatarInfo(),
+) {
   try {
+    await removeProfilePicture();
     const connections: ConnectionInfo[] = await getConnections();
     if (file.fileType === 'avatar') {
       for (const conn of connections) {
@@ -282,7 +288,7 @@ export async function setNewProfilePicture(file: FileAttributes) {
 }
 
 /**
- * deletes existing profile picture.
+ * deletes existing profile picture and updates with default picture
  */
 export async function removeProfilePicture() {
   try {
@@ -291,10 +297,10 @@ export async function removeProfilePicture() {
       throw new Error('NoProfile');
     }
     const file = profile.profilePicInfo;
-    await updateProfileInfo({profilePicInfo: getDefaultAvatarInfo()});
     if (file.fileType !== 'avatar') {
       await storage.removeProfilePicture(file);
     }
+    await updateProfileInfo({profilePicInfo: getDefaultAvatarInfo()});
   } catch (error) {
     console.log('error removing profile pic: ', error);
   }

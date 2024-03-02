@@ -1,14 +1,15 @@
 /**
- * This screen sets up a user account
- * screen id: 4
+ * This screen sets up a user's profile.
+ * It shows an error message and re-directs to enter name screen if there's a failure.
  */
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
 import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -24,6 +25,8 @@ import {CircleSnail} from 'react-native-progress';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
+
+//loader that shows up when profile is being setup
 const Loader = () => {
   return (
     <View style={{justifyContent: 'center', alignItems: 'center'}}>
@@ -33,7 +36,9 @@ const Loader = () => {
 };
 
 function SetupUser({route, navigation}: Props) {
+  //importing onboarding error
   const {onboardingFailureError} = useErrorModal();
+  //we get user name and profile picture from route params
   const {name, avatar} = route.params;
   const processedName: string = name || DEFAULT_NAME;
   const processedAvatar: FileAttributes = avatar || DEFAULT_PROFILE_AVATAR_INFO;
@@ -73,6 +78,7 @@ function SetupUser({route, navigation}: Props) {
     runActions().then(ret => {
       if (!ret) {
         onboardingFailureError();
+        //delete whatever profile is setup so it can begin again cleanly.
         deleteProfile().then(() => {
           navigation.navigate('OnboardingStack', {screen: 'NameScreen'});
         });
@@ -93,22 +99,23 @@ function SetupUser({route, navigation}: Props) {
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
       />
-      <View style={styles.container}>
-        <Loader />
-
-        <NumberlessText
-          fontType={FontType.rg}
-          fontSizeType={FontSizeType.m}
-          textColor={PortColors.text.secondary}
-          style={{
-            textAlign: 'center',
-            position: 'absolute',
-            bottom: 44,
-          }}>
-          This may take a few seconds. Please ensure you have an active internet
-          connection.
-        </NumberlessText>
-      </View>
+      <SafeAreaView>
+        <View style={styles.container}>
+          <Loader />
+          <NumberlessText
+            fontType={FontType.rg}
+            fontSizeType={FontSizeType.m}
+            textColor={PortColors.text.secondary}
+            style={{
+              textAlign: 'center',
+              position: 'absolute',
+              bottom: 44,
+            }}>
+            This may take a few seconds. Please ensure you have an active
+            internet connection.
+          </NumberlessText>
+        </View>
+      </SafeAreaView>
     </>
   );
 }
@@ -120,11 +127,7 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 22,
-  },
-  avatar: {
-    overflow: 'hidden',
-    marginBottom: 30,
+    paddingHorizontal: PortSpacing.intermediate.uniform,
   },
 });
 

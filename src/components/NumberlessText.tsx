@@ -19,7 +19,7 @@ export enum FontType {
 }
 
 export enum FontSizeType {
-  'xl' = 21,
+  'xl' = 20,
   'l' = 16,
   'm' = 14,
   's' = 12,

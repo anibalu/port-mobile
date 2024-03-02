@@ -49,9 +49,9 @@ import Avatar48 from '@assets/avatarsforprofile/Avatar48.svg';
 import Avatar49 from '@assets/avatarsforprofile/Avatar49.svg';
 import Avatar50 from '@assets/avatarsforprofile/Avatar50.svg';
 import Avatar51 from '@assets/avatarsforprofile/Avatar51.svg';
-import Avatar52 from '@assets/avatarsforprofile/Avatar52.svg';
 
-export const avatarmapping = [
+//avatars to be used for direct chats
+export const DirectAvatarMapping = [
   {id: '1', Icon: Avatar1},
   {id: '2', Icon: Avatar2},
   {id: '3', Icon: Avatar3},
@@ -103,5 +103,4 @@ export const avatarmapping = [
   {id: '49', Icon: Avatar49},
   {id: '50', Icon: Avatar50},
   {id: '51', Icon: Avatar51},
-  {id: '52', Icon: Avatar52},
 ];

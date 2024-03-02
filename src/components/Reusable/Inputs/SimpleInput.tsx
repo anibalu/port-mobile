@@ -17,13 +17,15 @@ const SimpleInput = ({
   setText,
   maxLength = NAME_LENGTH_LIMIT,
   placeholderText = 'Type here..',
+  bgColor = 'w',
 }: {
   text: string;
   placeholderText?: string;
   setText: (text: string) => void;
   maxLength?: number | 'inf';
+  bgColor?: 'w' | 'g';
 }) => {
-  const [isFocused, setIsFocuse] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const onTextChange = (newText: string) => {
     setText(newText);
   };
@@ -35,9 +37,13 @@ const SimpleInput = ({
           borderColor: isFocused
             ? PortColors.primary.blue.app
             : PortColors.stroke,
+          backgroundColor:
+            bgColor && bgColor === 'g'
+              ? PortColors.primary.grey.light
+              : PortColors.primary.white,
         })}
-        onFocus={() => setIsFocuse(true)}
-        onBlur={() => setIsFocuse(false)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         placeholder={placeholderText}
         placeholderTextColor={PortColors.primary.grey.medium}
         maxLength={maxLength === 'inf' ? undefined : maxLength}
@@ -57,8 +63,8 @@ const styles = StyleSheet.create({
     fontSize: FontSizeType.m,
     fontWeight: getWeight(FontType.rg),
     color: PortColors.title,
-    backgroundColor: PortColors.primary.grey.light,
     borderRadius: 12,
+    height: 50,
   },
 });
 

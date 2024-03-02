@@ -1,3 +1,7 @@
+/**
+ * Primary navigation stack of the app.
+ * User is navigated here if onboarding is done or if profile is already setup.
+ */
 import {PortColors} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';

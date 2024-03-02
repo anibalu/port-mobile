@@ -1,5 +1,9 @@
 /**
- * Numberless Inc's messaging client app Port
+ * Numberless Inc's messaging client app Port.
+ * This screen is responsible for:
+ * 1. Setsup Login Stack to decide if the user needs to be navigated to Onboarding or Home (based on if profile is setup)
+ * 2. Sets up background operations and periodic foreground operations
+ * 3. Provides Error modal context for the entire app. This allows us to display errors in the app.
  */
 
 import {NavigationContainer} from '@react-navigation/native';
@@ -27,26 +31,34 @@ import BootSplash from 'react-native-bootsplash';
 import Toast from 'react-native-toast-message';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
 
-// import DeviceInfo from 'react-native-device-info';
-
 function App(): JSX.Element {
   const appState = useRef(AppState.currentState);
 
-  //check if initial setup is done, and accordingly decides which flow to render on app start
+  //decides if app is in initial load state
   const [initialLoad, setInitialLoad] = useState(true);
+  //decides if profile exists
   const [profileExists, setProfileExists] = useState(false);
+
+  //checks if profile setup is done
   const profileCheck = async () => {
     try {
       const result = await checkProfileCreated();
+      // If profile has been created
       if (result === ProfileStatus.created) {
         setProfileExists(true);
+        //loads chats to redux store
         await loadConnectionsToStore();
-
+        //background operations are setup
         debouncedPeriodicOperations();
       }
     } catch (error) {
+      // If profile has not been created or not created properly
       console.log('Error checking profile:', error);
+      console.log(
+        'Assuming profile does not exist and taking user to onboarding',
+      );
     } finally {
+      //hides splash screen
       await BootSplash.hide({fade: true}).then(() => {
         setInitialLoad(false);
       });
@@ -58,6 +70,9 @@ function App(): JSX.Element {
     foregroundMessageHandler();
   }, []);
 
+  /**
+   * Setup background or foreground operations according to app state.
+   */
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       //If app has come to the foreground.
@@ -70,7 +85,6 @@ function App(): JSX.Element {
 
       appState.current = nextAppState;
     });
-
     // Detects app going online-offline.
     const unsubscribe = addEventListener(state => {
       //Performs operation if the app is connected to any valid network (might not have internet access though)
@@ -78,23 +92,11 @@ function App(): JSX.Element {
         debouncedPeriodicOperations();
       }
     });
-
     return () => {
       subscription.remove();
       unsubscribe();
     };
   }, []);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     const isEmu = await DeviceInfo.isEmulator();
-  //     if (isEmu) {
-  //       const interval = setInterval(()=> {pullBacklog()}, 2000);
-  //       // Clear the interval on component unmount
-  //       return () => clearInterval(interval);
-  //     }
-  //   })()
-  // }, []);
 
   if (initialLoad) {
     return <></>;

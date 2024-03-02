@@ -1,9 +1,10 @@
 /**
- * A reducer for the user's profile info
+ * A reducer for the user's profile info.
  */
-
 const initialState = {
+  //profile info
   profile: {},
+  //whether onboarding is complete
   onboardingComplete: false,
   showOnboardingInfo: false,
   activeChat: undefined,

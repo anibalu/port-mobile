@@ -4,6 +4,10 @@ import {Dimensions, Platform} from 'react-native';
  * All app colors, use colors defined here only.
  */
 export const PortColors = {
+  stroke: '#EAECF0',
+  subtitle: '#667085',
+  background: '#F2F4F7',
+  title: '#1D2939',
   text: {
     title: '#547CEF',
     primary: '#000000',
@@ -23,6 +27,7 @@ export const PortColors = {
     },
   },
   primary: {
+    body: '#98A2B3',
     notch: '#D9D9D9',
     blue: {
       app: '#547CEF',
@@ -45,6 +50,7 @@ export const PortColors = {
     success: '#6FC960',
     border: {
       dullGrey: '#e5e5e5',
+      separatorGrey: '#F4F4F4',
     },
     messageBubble: {
       dateBoundary: {

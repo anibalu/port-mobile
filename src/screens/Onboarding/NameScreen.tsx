@@ -94,7 +94,7 @@ function NameScreen({navigation}: Props): ReactNode {
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
       />
-      <SafeAreaView>
+      <SafeAreaView style={{backgroundColor: PortColors.primary.white}}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <View style={styles.container}>
             <NumberlessText
@@ -193,9 +193,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
-    ...(isIOS
-      ? {marginBottom: PortSpacing.primary.bottom}
-      : {marginBottom: PortSpacing.secondary.bottom}),
+    marginBottom: PortSpacing.secondary.bottom,
   },
   profilePictureHitbox: {
     marginTop: PortSpacing.primary.top,

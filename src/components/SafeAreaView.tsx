@@ -5,20 +5,21 @@
 import React from 'react';
 import {StyleSheet, View, ViewProps, ViewStyle} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {isIOS} from './ComponentUtils';
+import {PortColors, PortSpacing, isIOS} from './ComponentUtils';
 
 export function SafeAreaView({children, style, ...rest}: ViewProps) {
   const insets = useSafeAreaInsets();
   const safeAreaStyle: ViewStyle = {
     flex: 1,
+    backgroundColor: PortColors.primary.white,
     paddingTop: isIOS ? 0 : insets.top,
     paddingLeft: insets.left,
     paddingRight: insets.right,
-    paddingBottom: isIOS ? 0 : insets.bottom,
+    paddingBottom: isIOS ? PortSpacing.secondary.bottom : insets.bottom,
   };
 
   return (
-    <View style={StyleSheet.compose(style, safeAreaStyle)} {...rest}>
+    <View style={StyleSheet.compose(safeAreaStyle, style)} {...rest}>
       {children}
     </View>
   );

@@ -1,10 +1,11 @@
 import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {FileAttributes} from '@utils/Storage/interfaces';
 
 export type AppStackParamList = {
   HomeTab: undefined;
   Scan: undefined;
   ConnectionCentre: undefined;
-  MyProfile: undefined;
+  MyProfile: {name: string; avatar: FileAttributes};
   ManageMembers: {groupId: string};
   AddMembers: {groupId: string};
   Scanner: undefined;

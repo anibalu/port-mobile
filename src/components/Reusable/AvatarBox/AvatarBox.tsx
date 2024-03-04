@@ -2,13 +2,16 @@
  * Reusable avatar box component.
  * Takes the following props:
  * 1. profileUri (optional) - if none is specified, uses default silhouette
- * If specifying actual location use: file://pathtoimage.jpg structure
+ * If specifying actual location use:
+ *  - if loading from cache, use file://... structure
+ *  - if loading from app storage, use any structure (relative or absolute).
  * If specifying an avatar use: avatar://avatar_id
  * 2. boxSize - s , m (default), l
  * 3. onPress (optional)
  */
 import {DirectAvatarMapping} from '@configs/avatarmapping';
 import {AVATAR_ARRAY} from '@configs/constants';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import React, {FC} from 'react';
 import {Image, Pressable, StyleSheet} from 'react-native';
 import {SvgProps} from 'react-native-svg';
@@ -71,6 +74,12 @@ export function AvatarBox({
   };
   const Icon = getIconByUri(profileUri);
 
+  const getDisplayableUri = (uri: string): string => {
+    const displayableUri =
+      uri.substring(0, 7) === 'file://' ? uri : getSafeAbsoluteURI(uri, 'doc');
+    return displayableUri;
+  };
+
   return (
     <Pressable
       onPress={onPress}
@@ -86,7 +95,7 @@ export function AvatarBox({
       ) : (
         profileUri && (
           <Image
-            source={{uri: profileUri}}
+            source={{uri: getDisplayableUri(profileUri)}}
             style={avatarSizeStylePicker(avatarSize)}
           />
         )

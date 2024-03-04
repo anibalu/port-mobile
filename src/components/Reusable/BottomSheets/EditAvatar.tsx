@@ -8,12 +8,17 @@
  * 5. visible - to determine if bottom sheet should be visible
  */
 
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, FlatList} from 'react-native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {StyleSheet, View, FlatList, Animated, Easing} from 'react-native';
 
 import Delete from '@assets/icons/TrashcanWhite.svg';
 import GalleryOutline from '@assets/icons/GalleryOutline.svg';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {
+  PortColors,
+  PortSpacing,
+  isIOS,
+  screen,
+} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {DEFAULT_AVATAR, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {launchImageLibrary} from 'react-native-image-picker';
@@ -67,12 +72,6 @@ export default function EditAvatar(props: EditAvatarProps) {
   //reset state values to initial values on closing
   const cleanClose = () => {
     onClose();
-    setImageAttr(localImageAttr);
-    setSelectedAvatar(
-      localImageAttr.fileUri.substring(0, 9) === 'avatar://'
-        ? localImageAttr.fileUri.replace('avatar://', '')
-        : '',
-    );
   };
   //Lets user pic a new picture from gallery
   async function setNewPicture() {
@@ -193,35 +192,91 @@ function RenderAvatar({
   selected: string;
   onClick: (id: string) => void;
 }) {
+  const opacityAnimation = useMemo(() => new Animated.Value(1), []);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [id]);
+
+  useEffect(() => {
+    const breathingAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacityAnimation, {
+          toValue: 0.3,
+          duration: 350,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnimation, {
+          toValue: 1,
+          duration: 350,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    if (isLoading) {
+      breathingAnimation.start();
+    } else {
+      breathingAnimation.stop();
+      opacityAnimation.setValue(1);
+    }
+
+    return () => {
+      breathingAnimation.stop();
+    };
+  }, [isLoading, opacityAnimation]);
+
   return (
     <View style={styles.avatarBoxPressable}>
       <View
         style={StyleSheet.compose(
           styles.avatarBoxBorder,
-          id === selected
+          id === selected && !isLoading
             ? {
                 borderWidth: 3,
                 borderColor: PortColors.primary.blue.app,
               }
             : {},
         )}>
-        <AvatarBox
-          avatarSize="s"
-          profileUri={'avatar://' + id}
-          onPress={() => {
-            onClick(id);
-          }}
-        />
+        {isLoading ? (
+          <Animated.View style={{opacity: opacityAnimation}}>
+            <View style={styles.placeholder} />
+          </Animated.View>
+        ) : (
+          <AvatarBox
+            avatarSize="s"
+            profileUri={'avatar://' + id}
+            onPress={() => {
+              onClick(id);
+            }}
+          />
+        )}
       </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
+    ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+  },
+  placeholder: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 12,
+    width: 40,
+    height: 40,
   },
   mainAvatarContainer: {
     marginVertical: PortSpacing.intermediate.uniform,
@@ -239,16 +294,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-  },
-  selectedImage: {
-    borderColor: PortColors.primary.blue.app,
-    borderWidth: 3,
-    height: 40,
-    width: 40,
-    overflow: 'hidden',
-    borderRadius: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   buttonDelete: {
     backgroundColor: PortColors.primary.red.error,
@@ -268,47 +313,5 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     borderColor: PortColors.primary.border.dullGrey,
     marginBottom: PortSpacing.intermediate.bottom,
-  },
-  nextButton: {
-    backgroundColor: PortColors.primary.blue.app,
-    height: 50,
-    borderRadius: 12,
-    width: screen.width - 48,
-  },
-  buttonText: {
-    color: PortColors.primary.white,
-    fontSize: 16,
-  },
-  mainContainer: {
-    backgroundColor: PortColors.primary.white,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    width: '100%',
-    borderRadius: 16,
-    borderColor: PortColors.primary.border.dullGrey,
-    borderWidth: 0.5,
-  },
-  backButton: {
-    padding: 3,
-    borderRadius: 24,
-    backgroundColor: 'none',
-  },
-  listItemButton: {
-    backgroundColor: 'transparent',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    borderBottomColor: PortColors.primary.border.dullGrey,
-  },
-  topRow: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  closeButton: {
-    padding: 3,
-    borderRadius: 24,
-    backgroundColor: PortColors.primary.grey.medium,
   },
 });

@@ -198,4 +198,4 @@ export const PortSpacing = {
 };
 
 export const screen = Dimensions.get('window');
-export const isIOS = Platform.OS == 'ios';
+export const isIOS = Platform.OS === 'ios';

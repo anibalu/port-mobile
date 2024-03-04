@@ -7,6 +7,7 @@ export const ARTIFICIAL_LOADER_INTERVAL = 300;
 export const TOKEN_VALIDITY_INTERVAL = 4 * 60 * 1000;
 export const IDEAL_UNUSED_PORTS_NUMBER = 5;
 export const DEFAULT_NAME = 'Numberless';
+export const APP_VERSION = '1.0';
 
 export const BUNDLE_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;
 export const ERROR_MODAL_VALIDITY_TIMEOUT = 3000;

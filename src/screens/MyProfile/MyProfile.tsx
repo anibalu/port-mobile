@@ -1,6 +1,7 @@
 /**
  * The screen to view one's own profile
  * screen Id: 8
+ * @deprecated
  */
 import EditCameraIcon from '@assets/icons/EditCamera.svg';
 import EditIcon from '@assets/icons/Pencil.svg';

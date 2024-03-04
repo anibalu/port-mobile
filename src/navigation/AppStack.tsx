@@ -2,8 +2,6 @@
  * Primary navigation stack of the app.
  * User is navigated here if onboarding is done or if profile is already setup.
  */
-import {PortColors} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import AddCategoryScreen from '@screens/BugReporting/AddCategoryScreen';
 import ReportIssueScreen from '@screens/BugReporting/ReportIssueScreen';
@@ -18,7 +16,7 @@ import ManageMembers from '@screens/GroupScreens/ManageMembers';
 import NewGroup from '@screens/GroupScreens/NewGroup/NewGroup';
 import ShareGroup from '@screens/GroupScreens/ShareGroup/ShareGroup';
 import ImageView from '@screens/MediaView/ImageView';
-import MyProfile from '@screens/MyProfile/MyProfile';
+import MyProfile from '@screens/MyProfile/Profile';
 import PendingRequests from '@screens/PendingRequests/PendingRequests';
 import Placeholder from '@screens/Placeholder/Placeholder';
 import ScannerModal from '@screens/Scanner/ScannerModal';
@@ -43,10 +41,6 @@ const Stack = createNativeStackNavigator<AppStackParamList>();
 function AppStack() {
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
-      />
       <ConnectionModalProvider>
         <Stack.Navigator
           initialRouteName="HomeTab"

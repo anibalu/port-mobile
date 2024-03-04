@@ -1,8 +1,10 @@
 /**
  * This welcome screen shows Port branding and greets the user the first time they open the app.
+ * UI is updated to latest spec for both android and ios
  */
 import Logo from '@assets/miscellaneous/portBranding.svg';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
@@ -53,19 +55,25 @@ function Welcome({navigation}: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.greeting}>
-        <Logo height={175} />
-      </View>
-      <View style={styles.buttonContainer}>
-        <TertiaryButton
-          buttonText={'Get Started'}
-          tertiaryButtonColor={'w'}
-          disabled={false}
-          onClick={onPress}
-        />
-      </View>
-    </SafeAreaView>
+    <>
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.blue.app}
+      />
+      <SafeAreaView style={styles.container}>
+        <View style={styles.greeting}>
+          <Logo height={175} />
+        </View>
+        <View style={styles.buttonContainer}>
+          <TertiaryButton
+            buttonText={'Get Started'}
+            tertiaryButtonColor={'w'}
+            disabled={false}
+            onClick={onPress}
+          />
+        </View>
+      </SafeAreaView>
+    </>
   );
 }
 

@@ -4,7 +4,7 @@
 import Microphone from '@assets/icons/MicrophoneOutline.svg';
 import Notification from '@assets/icons/NotificationOutline.svg';
 import Camera from '@assets/icons/CameraOutline.svg';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {
   FontSizeType,
@@ -122,7 +122,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
       />
-      <SafeAreaView>
+      <SafeAreaView style={{backgroundColor: PortColors.primary.white}}>
         <View style={styles.container}>
           <NumberlessText
             fontType={FontType.sb}
@@ -235,20 +235,6 @@ const styles = StyleSheet.create({
     marginTop: PortSpacing.intermediate.top,
     marginHorizontal: PortSpacing.intermediate.uniform,
   },
-  nextButtonContainer: {
-    marginBottom: 32,
-    backgroundColor: PortColors.primary.blue.app,
-    height: 50,
-    flexDirection: 'row',
-    borderRadius: 12,
-    alignItems: 'center',
-    width: screen.width - 32,
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: PortColors.primary.white,
-    fontSize: 16,
-  },
   textColumnWrapper: {
     flexDirection: 'column',
     flex: 1,
@@ -258,6 +244,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     paddingHorizontal: PortSpacing.secondary.uniform,
-    marginBottom: PortSpacing.primary.bottom,
+    marginBottom: PortSpacing.secondary.bottom,
   },
 });

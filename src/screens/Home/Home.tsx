@@ -30,9 +30,10 @@ import HomescreenPlaceholder from './HomescreenPlaceholder';
 import {GenericButton} from '@components/GenericButton';
 import GenericBottomsheet from '@components/Modals/GenericBottomsheet';
 import ConnectionOptions from './ConnectionOptions';
-import {screen} from '@components/ComponentUtils';
+import {PortColors, screen} from '@components/ComponentUtils';
 import {TOPBAR_HEIGHT} from '@configs/constants';
 import SideDrawerWrapper from './SideDrawerWrapper';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 
 //rendered chat tile of a connection
 function renderChatTile(connection: StoreConnection): ReactElement {
@@ -196,72 +197,80 @@ function Home(): ReactNode {
     useState(false);
 
   return (
-    <SafeAreaView>
-      <SideDrawerWrapper
-        openSideDrawer={openSideDrawer}
-        setOpenSideDrawer={setOpenSideDrawer}>
-        <ChatBackground />
-        <HomeTopbar
+    <>
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.white}
+      />
+      <SafeAreaView>
+        <SideDrawerWrapper
           openSideDrawer={openSideDrawer}
-          setOpenSideDrawer={setOpenSideDrawer}
-          unread={totalUnread}
-          toptitleMessage="Primary"
-        />
-        <FlatList
-          data={viewableConnections}
-          renderItem={element => renderChatTile(element.item)}
-          style={styles.chats}
-          contentContainerStyle={
-            viewableConnections.length > 0 && {
-              rowGap: 8,
-            }
-          }
-          ListHeaderComponent={
-            connections.length >= 2 ? (
-              /**
-               * @todo inline rendering is expensive, need to memoise and move outside. Haven't done so as it requires some finesse to allow focus to be retained
-               */
-              <SearchBar
-                searchText={searchText}
-                setSearchText={setSearchText}
-              />
-            ) : (
-              <></>
-            )
-          }
-          keyExtractor={connection => connection.chatId}
-          ListEmptyComponent={renderDefaultTile}
-        />
-
-        <GenericButton
-          onPress={() => {
-            setIsConnectionOptionsModalOpen(p => !p);
-          }}
-          iconSize={24}
-          IconLeft={BluePlusIcon}
-          buttonStyle={styles.addButtonWrapper}
-        />
-        {/* go to component isolation playground */}
-        <GenericButton
-          onPress={() => navigation.navigate('Isolation')}
-          buttonStyle={styles.isolationButton}>
-          🔑
-        </GenericButton>
-        <GenericBottomsheet
-          showNotch={true}
-          visible={isConnectionOptionsModalOpen}
-          onClose={() => {
-            setIsConnectionOptionsModalOpen(p => !p);
-          }}>
-          <ConnectionOptions
-            setIsConnectionOptionsModalOpen={setIsConnectionOptionsModalOpen}
+          setOpenSideDrawer={setOpenSideDrawer}>
+          <ChatBackground />
+          <HomeTopbar
+            openSideDrawer={openSideDrawer}
+            setOpenSideDrawer={setOpenSideDrawer}
+            unread={totalUnread}
+            toptitleMessage="Primary"
           />
-        </GenericBottomsheet>
-        <CenterInformationModal visible={showOnboardingInfo} position="center">
-          <OnboardingCarousel />
-        </CenterInformationModal>
-      </SideDrawerWrapper>
-    </SafeAreaView>
+          <FlatList
+            data={viewableConnections}
+            renderItem={element => renderChatTile(element.item)}
+            style={styles.chats}
+            contentContainerStyle={
+              viewableConnections.length > 0 && {
+                rowGap: 8,
+              }
+            }
+            ListHeaderComponent={
+              connections.length >= 2 ? (
+                /**
+                 * @todo inline rendering is expensive, need to memoise and move outside. Haven't done so as it requires some finesse to allow focus to be retained
+                 */
+                <SearchBar
+                  searchText={searchText}
+                  setSearchText={setSearchText}
+                />
+              ) : (
+                <></>
+              )
+            }
+            keyExtractor={connection => connection.chatId}
+            ListEmptyComponent={renderDefaultTile}
+          />
+
+          <GenericButton
+            onPress={() => {
+              setIsConnectionOptionsModalOpen(p => !p);
+            }}
+            iconSize={24}
+            IconLeft={BluePlusIcon}
+            buttonStyle={styles.addButtonWrapper}
+          />
+          {/* go to component isolation playground */}
+          <GenericButton
+            onPress={() => navigation.navigate('Isolation')}
+            buttonStyle={styles.isolationButton}>
+            🔑
+          </GenericButton>
+          <GenericBottomsheet
+            showNotch={true}
+            visible={isConnectionOptionsModalOpen}
+            onClose={() => {
+              setIsConnectionOptionsModalOpen(p => !p);
+            }}>
+            <ConnectionOptions
+              setIsConnectionOptionsModalOpen={setIsConnectionOptionsModalOpen}
+            />
+          </GenericBottomsheet>
+          <CenterInformationModal
+            visible={showOnboardingInfo}
+            position="center">
+            <OnboardingCarousel />
+          </CenterInformationModal>
+        </SideDrawerWrapper>
+      </SafeAreaView>
+    </>
   );
 }
 

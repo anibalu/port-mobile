@@ -1,3 +1,7 @@
+/**
+ * @deprecated
+ */
+
 import React, {useEffect, useState} from 'react';
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 import Accordion from '@components/Accordion';

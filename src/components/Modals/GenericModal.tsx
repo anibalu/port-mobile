@@ -19,6 +19,7 @@ const GenericModal = ({
     <Modal
       backdropOpacity={0.5}
       avoidKeyboard={avoidKeyboard}
+      propagateSwipe={true}
       onSwipeComplete={onClose}
       swipeDirection="down"
       backdropTransitionOutTiming={0}

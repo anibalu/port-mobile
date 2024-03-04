@@ -1,3 +1,7 @@
+/**
+ * @deprecated
+ */
+
 import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import ActiveGateways from '@assets/icons/ActiveGateways.svg';

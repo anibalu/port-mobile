@@ -3,44 +3,52 @@ import {GenericButton} from '@components/GenericButton';
 import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import BlackAngleRight from '@assets/icons/BlackAngleRight.svg';
-import {GenericAvatar} from '@components/GenericAvatar';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import NewSuperportIcon from '@assets/icons/NewSuperportBlack.svg';
 import PendingRequestIcon from '@assets/icons/pendingRequestThin.svg';
-import {getProfileName, getProfilePictureUri} from '@utils/Profile';
+import {getProfileName, getProfilePicture, processName} from '@utils/Profile';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 
 function SideDrawer({setOpenSideDrawer}: any) {
   const navigation = useNavigation();
-  const [profileURI, setProfileURI] = useState(AVATAR_ARRAY[0]);
+  const [profilePicAttr, setProfilePicAttr] = useState(
+    DEFAULT_PROFILE_AVATAR_INFO,
+  );
   const [name, setName] = useState<string>(DEFAULT_NAME);
   const {showSuperportModal} = useConnectionModal();
   useFocusEffect(
     React.useCallback(() => {
       //updates profile picture with user set profile picture
       (async () => {
-        const profilePictureURI = await getProfilePictureUri();
+        const profilePictureURI = await getProfilePicture();
         const fetchedName = await getProfileName();
         if (fetchedName) {
           setName(fetchedName ? fetchedName : DEFAULT_NAME);
         }
         if (profilePictureURI) {
-          setProfileURI(profilePictureURI);
+          setProfilePicAttr(profilePictureURI);
         }
       })();
     }, []),
   );
 
-  const drawerItemClick = (screenName: string) => {
-    if (screenName) {
-      navigation.navigate(screenName);
-    }
+  const navigateToMyprofile = () => {
+    navigation.navigate('MyProfile', {
+      name: processName(name),
+      avatar: profilePicAttr,
+    });
+    setOpenSideDrawer(false);
+  };
+
+  const navigateToPendingReq = () => {
+    navigation.navigate('PendingRequests');
     setOpenSideDrawer(false);
   };
 
@@ -52,10 +60,10 @@ function SideDrawer({setOpenSideDrawer}: any) {
   return (
     <View style={styles.drawerContainer}>
       <View style={styles.myprofileWrapper}>
-        <GenericAvatar profileUri={profileURI} avatarSize={'xxsmall'} />
+        <AvatarBox profileUri={profilePicAttr.fileUri} avatarSize={'s'} />
         <GenericButton
           buttonStyle={styles.mrpyofileButton}
-          onPress={() => drawerItemClick('MyProfile')}
+          onPress={navigateToMyprofile}
           iconSize={20}
           IconRight={BlackAngleRight}>
           <NumberlessText
@@ -87,7 +95,7 @@ function SideDrawer({setOpenSideDrawer}: any) {
           <PendingRequestIcon width={20} height={20} />
           <GenericButton
             buttonStyle={styles.listItemButton}
-            onPress={() => drawerItemClick('PendingRequests')}
+            onPress={navigateToPendingReq}
             iconSize={20}
             IconRight={BlackAngleRight}>
             <NumberlessText

@@ -14,6 +14,7 @@
 
 import React, {FC} from 'react';
 import {
+  Keyboard,
   Pressable,
   StyleProp,
   StyleSheet,
@@ -24,12 +25,13 @@ import {
 import {SvgProps} from 'react-native-svg';
 import GenericModal from '@components/Modals/GenericModal';
 import {
-  FontSizes,
   PortColors,
   PortSpacing,
+  isIOS,
   screen,
 } from '@components/ComponentUtils';
 import BlackCross from '@assets/icons/BlackCross.svg';
+import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 
 const PrimaryBottomSheet = ({
   visible,
@@ -54,11 +56,15 @@ const PrimaryBottomSheet = ({
   IconLeft?: FC<SvgProps>;
   children: any;
 }) => {
+  const neatClose = () => {
+    Keyboard.dismiss();
+    onClose();
+  };
   return (
     <GenericModal
       avoidKeyboard={avoidKeyboard}
       visible={visible}
-      onClose={onClose}>
+      onClose={neatClose}>
       <View
         style={StyleSheet.compose(
           styles.mainContainerRegion,
@@ -80,7 +86,7 @@ const PrimaryBottomSheet = ({
           </View>
           <View>
             {showClose && (
-              <Pressable onPress={onClose}>
+              <Pressable onPress={neatClose}>
                 <BlackCross width={24} height={24} />
               </Pressable>
             )}
@@ -99,9 +105,11 @@ const styles = StyleSheet.create({
     width: screen.width,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    borderTopRightRadius: 32,
-    borderTopLeftRadius: 32,
-    padding: PortSpacing.intermediate.uniform,
+    borderTopRightRadius: PortSpacing.intermediate.right,
+    borderTopLeftRadius: PortSpacing.intermediate.left,
+    padding: PortSpacing.secondary.uniform,
+    paddingTop: PortSpacing.intermediate.top,
+    ...(isIOS ? {paddingBottom: PortSpacing.secondary.bottom} : 0),
   },
   leftContainer: {
     flexDirection: 'row',
@@ -116,7 +124,9 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.notch,
   },
   titleText: {
-    ...FontSizes[16].regular,
+    fontFamily: FontType.md,
+    fontSize: FontSizeType.l,
+    fontWeight: getWeight(FontType.md),
     color: PortColors.text.primary,
   },
   backButton: {

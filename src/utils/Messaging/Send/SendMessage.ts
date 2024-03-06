@@ -5,8 +5,8 @@ import {
   DataType,
   MessageDataTypeBasedOnContentType,
 } from '../interfaces';
-import SendDirectMessage from './SendDirectMessage';
 import SendGroupMessage from './SendGroupMessage';
+import {sendDirect} from './SendDirectMessage';
 
 class SendMessage<T extends ContentType> {
   private chatId: string; //chatId of chat
@@ -47,14 +47,14 @@ class SendMessage<T extends ContentType> {
       );
       await sender.send(journal, shouldEncrypt, onUpdateSuccess);
     } else {
-      const sender = new SendDirectMessage(
+      sendDirect(
         this.chatId,
         this.contentType,
         this.data,
         this.replyId,
         this.messageId,
+        onUpdateSuccess,
       );
-      await sender.send(journal, shouldEncrypt, onUpdateSuccess);
     }
   }
 }

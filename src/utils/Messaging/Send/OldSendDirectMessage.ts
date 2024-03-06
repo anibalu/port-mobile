@@ -1,4 +1,5 @@
 /**
+ * @deprecated
  * A class responsible for managing message send operations.
  * The class is strictly typed so that a contentType accepts only its relevant data type.
  */
@@ -193,7 +194,7 @@ class SendDirectMessage<T extends ContentType> {
   }
 
   //check if message is a large file message
-  private isLargeDataMessage() {
+  isLargeDataMessage() {
     return LargeDataMessageContentTypes.includes(this.contentType);
   }
   private isExpiryExemptMessage() {

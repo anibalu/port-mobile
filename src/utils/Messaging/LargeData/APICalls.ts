@@ -1,4 +1,4 @@
-import {LARGE_FILE_PRESIGNED_URL_RESOURE} from '@configs/api';
+import {LARGE_FILE_PRESIGNED_URL_RESOURCE} from '@configs/api';
 import axios from 'axios';
 
 /**
@@ -14,7 +14,7 @@ export async function getDownloadPresignedUrl(
     mediaId: mediaId,
   };
   const response = await axios.get(
-    LARGE_FILE_PRESIGNED_URL_RESOURE + '?' + new URLSearchParams(queryParams),
+    LARGE_FILE_PRESIGNED_URL_RESOURCE + '?' + new URLSearchParams(queryParams),
   );
   if (response.data.body) {
     return response.data.body;
@@ -28,7 +28,7 @@ export async function getDownloadPresignedUrl(
  * @throws {Error} If there is an issue with fetching the presigned URL.
  */
 export async function getUploadPresignedUrl() {
-  const response = await axios.post(LARGE_FILE_PRESIGNED_URL_RESOURE);
+  const response = await axios.post(LARGE_FILE_PRESIGNED_URL_RESOURCE);
   if (response.data.body) {
     return response.data.body;
   }

@@ -26,6 +26,7 @@ export default async function lineMessages() {
       shouldAck BOOL,
       hasReaction BOOL,
       expiresOn VARCHAR(27),
+      mtime VARCHAR(27),
       FOREIGN KEY (chatID) REFERENCES connections(chatId),
       UNIQUE(chatId, messageId)
     );

@@ -40,6 +40,7 @@ export enum ContentType {
   update = 17,
   reaction = 18,
   link = 19,
+  receipt = 20,
 }
 
 /**
@@ -70,6 +71,7 @@ export const DisappearMessageExemptContentTypes = [
   ContentType.contactBundleResponse,
   ContentType.initialInfoRequest,
   ContentType.contactBundleDenialResponse,
+  ContentType.receipt,
 ];
 
 export const SelectableMessageContentTypes = [
@@ -100,6 +102,7 @@ export type DataType =
   | ContactBundleDenialResponseParams
   | LinkParams
   | ReactionParams
+  | ReceiptParams
   | InitialInfoRequestParams;
 
 export interface LinkParams extends TextParams {
@@ -115,6 +118,11 @@ export interface TextParams {
 }
 export interface NameParams {
   name: string;
+}
+export interface ReceiptParams {
+  messageId: string;
+  deliveredAt?: string;
+  readAt?: string;
 }
 export interface DisplayAvatarParams {
   fileUri: string;
@@ -214,6 +222,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? LinkParams
     : T extends ContentType.reaction
     ? ReactionParams
+    : T extends ContentType.receipt
+    ? ReceiptParams
     : never;
 
 /**
@@ -233,14 +243,21 @@ export interface SavedMessageParams {
   shouldAck?: boolean; // if the message should be ack'ed. Useful for controlling read receipts. This is present only for messages that have been received by a user
   recipientID?: string | null; //used when message has to be sent to one
   hasReaction?: boolean;
+  deliveredTimestamp?: string | null;
+  readTimestamp?: string | null;
   forceRender?: string; //Used to force re-render for bubbles when conditions cannot be explicitly defined.
+  mtime?: string;
+}
+
+export enum LineReactionSender {
+  self = 'SELF',
+  peer = 'PEER',
 }
 
 export interface ReactionParams {
   chatId: string;
   messageId: string;
-  cryptoId: string; //
-  reaction: string | null;
+  reaction: string;
 }
 
 /**

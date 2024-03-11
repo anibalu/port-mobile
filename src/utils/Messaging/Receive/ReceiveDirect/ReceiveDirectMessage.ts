@@ -3,6 +3,7 @@ import DirectReceiveAction from './DirectReceiveAction';
 import {directReceiveActionPicker} from './possibleActions';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import store from '@store/appStore';
 
 class ReceiveDirectMessage {
   private message: any;
@@ -65,9 +66,14 @@ class ReceiveDirectMessage {
   async receive() {
     await this.extractDecryptedMessageContent();
     await this.assignReceiverClass();
+    console.log('Trying to assign receiver for: ', this.message);
     if (this.receiveClass) {
       await this.receiveClass.performAction();
     }
+    store.dispatch({
+      type: 'PING',
+      payload: 'PONG',
+    });
   }
 }
 

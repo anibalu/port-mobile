@@ -11,14 +11,17 @@ import {
 import {DEFAULT_NAME} from '@configs/constants';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
   ContentType,
   LargeDataMessageContentTypes,
+  MessageStatus,
   SavedMessageParams,
+  UpdateRequiredMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 
-import {createDateBoundaryStamp} from '@utils/Time';
+import {createDateBoundaryStamp, generateISOTimeStamp} from '@utils/Time';
 import {
   Animated,
   Image,
@@ -39,7 +42,8 @@ import ReplyBubble from './BubbleTypes/ReplyBubble';
 import TextBubble from './BubbleTypes/TextBubble';
 import VideoBubble from './BubbleTypes/VideoBubble';
 import {reactionMapping} from '@configs/reactionmapping';
-import {getReactions} from '@utils/Storage/reactions';
+import {getReactionCounts, getRichReactions} from '@utils/Storage/reactions';
+import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
 
 /**
  * Props that a message bubble takes
@@ -61,6 +65,28 @@ interface MessageBubbleProps {
 }
 
 const SWIPE_UPPER_THRESHOLD = screen.width / 5;
+
+//Currently only sends read receipts for DMs
+const sendReadReceipt = (chatId: string, message: SavedMessageParams) => {
+  if (
+    message.shouldAck &&
+    !message.sender &&
+    UpdateRequiredMessageContentTypes.includes(message.contentType)
+  ) {
+    console.log(`shouldAck: ${message.shouldAck}`);
+    //If message wasn't sent by us, it has to be delivered at the least and only then do we need to send an update.
+    if (
+      message.messageStatus !== undefined &&
+      message.messageStatus === MessageStatus.delivered
+    ) {
+      const sender = new SendMessage(chatId, ContentType.receipt, {
+        messageId: message.messageId,
+        readAt: generateISOTimeStamp(),
+      });
+      sender.send();
+    }
+  }
+};
 
 /**
  * Individual chat bubbles. Controls all paddings, blobs and wrappers for every type of bubble.
@@ -113,27 +139,42 @@ const MessageBubble = ({
   }, [selected]);
 
   const fetchReactions = async () => {
-    const rawReactions = await getReactions(chatId, message.messageId);
-    console.log('Fetched reactions are: ', message.messageId);
-    const result = Object.entries(
-      rawReactions.reduce((acc, {reaction}) => {
-        if (reaction) {
-          acc[reaction] = (acc[reaction] || 0) + 1;
-        }
-        return acc;
-      }, {}),
-    ).map(([k, v]) => [k, v]);
-
-    console.log('Result is: ', result);
-    console.log('Message has reactions: ', message.hasReaction);
-    setReactions(result);
+    if (message.hasReaction) {
+      const reactionCounts = await getReactionCounts(chatId, message.messageId);
+      const reactions = [];
+      for (let i = 0; i < reactionCounts.length; i++) {
+        reactions.push([reactionCounts[i].reaction, reactionCounts[i].count]);
+      }
+      setReactions(reactions);
+    }
   };
 
+  const updateSendStatus = () => {
+    if (message.deliveredTimestamp) {
+      message.messageStatus = MessageStatus.delivered;
+    }
+    if (message.readTimestamp) {
+      message.messageStatus = MessageStatus.read;
+    }
+  };
+
+  const updateMedia = async () => {
+    if (mediaContentTypes.includes(message.contentType)) {
+      message.data =
+        (await getMessage(message.chatId, message.messageId))?.data ||
+        message.data;
+    }
+  };
+
+  /**
+   * Tun this everytime a change to this message has been detected
+   */
   useEffect(() => {
-    console.log('Fetching reactions for bubble');
+    updateSendStatus();
+    updateMedia();
     fetchReactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [message.forceRender]);
+  }, [message.mtime]);
 
   const isReply = (message.replyId && message.replyId !== '') || false;
 
@@ -228,6 +269,7 @@ const MessageBubble = ({
         }
       }
     })();
+    sendReadReceipt(chatId, message);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -318,7 +360,12 @@ const MessageBubble = ({
                   )}
                 </View>
                 {message.hasReaction
-                  ? renderReactions(reactions, message.sender)
+                  ? renderReactions(
+                      reactions,
+                      message.sender,
+                      chatId,
+                      message.messageId,
+                    )
                   : null}
               </View>
             </View>
@@ -380,12 +427,21 @@ function renderReactionBar(
   );
 }
 
-function renderReactions(reactions: any[], isSender: boolean) {
+function renderReactions(
+  reactions: any[],
+  isSender: boolean,
+  chatId: string = '',
+  messageId: string = '',
+) {
   return (
-    <View
+    <Pressable
       style={StyleSheet.compose(styles.reactionDisplay, {
         ...(isSender ? {right: 0} : {}),
-      })}>
+      })}
+      // TODO
+      onPress={async () => {
+        console.log(await getRichReactions(chatId, messageId));
+      }}>
       {reactions.map(item => {
         if (item[1] > 0) {
           return (
@@ -398,7 +454,7 @@ function renderReactions(reactions: any[], isSender: boolean) {
           );
         }
       })}
-    </View>
+    </Pressable>
   );
 }
 

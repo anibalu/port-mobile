@@ -1,6 +1,4 @@
 import store from '@store/appStore';
-import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Connections/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
   ContentType,
@@ -14,6 +12,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import {saveNewMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
+import {getPermissions} from '@utils/Storage/permissions';
 import {generateISOTimeStamp} from '@utils/Time';
 
 class DirectReceiveAction {
@@ -51,6 +50,7 @@ class DirectReceiveAction {
       messageStatus: MessageStatus.delivered,
       replyId: this.decryptedMessageContent.replyId,
       expiresOn: this.decryptedMessageContent.expiresOn,
+      shouldAck: (await getPermissions(this.chatId)).readReceipts || false,
     };
     if (
       LargeDataMessageContentTypes.includes(
@@ -76,15 +76,9 @@ class DirectReceiveAction {
         this.decryptedMessageContent.contentType,
       )
     ) {
-      const readReceipts = await getChatPermissions(
-        this.chatId,
-        ChatType.direct,
-      );
-      const sender = new SendMessage(this.chatId, ContentType.update, {
-        messageIdToBeUpdated: this.decryptedMessageContent.messageId,
-        updatedMessageStatus: MessageStatus.delivered,
-        deliveredAtTimestamp: generateISOTimeStamp(),
-        shouldAck: readReceipts.readReceipts,
+      const sender = new SendMessage(this.chatId, ContentType.receipt, {
+        messageId: this.decryptedMessageContent.messageId,
+        deliveredAt: generateISOTimeStamp(),
       });
       await sender.send();
       console.log('Delivered message sent');

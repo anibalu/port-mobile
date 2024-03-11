@@ -22,6 +22,7 @@ import ReceiveUpdate from './ActionClasses/ReceiveUpdate';
 import ReceiveLink from './ActionClasses/ReceiveLink';
 import ReceiveVideo from './ActionClasses/ReceiveVideo';
 import DirectReceiveAction from './DirectReceiveAction';
+import ReceiveReceipt from './ActionClasses/ReceiveReceipt';
 
 export enum PossibleDirectReceiveActions {
   deletion,
@@ -187,6 +188,13 @@ export async function directReceiveActionPicker(
         );
       case ContentType.reaction:
         return new ReceiveReaction(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.receipt:
+        return new ReceiveReceipt(
           chatId,
           message,
           receiveTime,

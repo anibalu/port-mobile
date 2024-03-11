@@ -1,3 +1,4 @@
+import store from '@store/appStore';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {generateRandomHexId} from '@utils/IdGenerator';
@@ -30,7 +31,7 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
   ) {
     if (type === null) {
       console.error('ContentType cannot be null');
-      return;
+      throw new Error('NullTypeError');
     }
     this.chatId = chatId;
     this.contentType = type;
@@ -76,5 +77,11 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
     const chatData = await chat.getChatData();
     const cryptoDriver = new CryptoDriver(chatData.cryptoId);
     return {encryptedContent: await cryptoDriver.encrypt(plaintext)};
+  }
+  storeCalls() {
+    store.dispatch({
+      type: 'PING',
+      payload: 'PONG',
+    });
   }
 }

@@ -12,14 +12,15 @@ class ReceiveUpdate extends DirectReceiveAction {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
 
     //We don't save a message, we need to update the status of the message ID that needs to be updated.
-    this.updateSendStatus(this.decryptedMessageContent.data as UpdateParams);
+    this.handleUpdate(this.decryptedMessageContent.data as UpdateParams);
   }
 
   //update message send status for the given message
-  async updateSendStatus(updateParams: UpdateParams) {
+  async handleUpdate(updateParams: UpdateParams) {
     //update send status
 
     if (updateParams.updatedContentType === ContentType.deleted) {
+      console.warn('Routed to clean delete');
       await storage.cleanDeleteMessage(
         this.chatId,
         updateParams.messageIdToBeUpdated,

@@ -2,11 +2,7 @@ import store from '@store/appStore';
 import {ReactionParams} from '@utils/Messaging/interfaces';
 
 import * as storage from '@utils/Storage/messages';
-import {
-  addReaction,
-  getReactions,
-  updateReactions,
-} from '@utils/Storage/reactions';
+import {addReaction} from '@utils/Storage/reactions';
 import GroupReceiveAction from '../GroupReceiveAction';
 
 /**
@@ -23,48 +19,16 @@ class ReceiveReaction extends GroupReceiveAction {
   //update message send status for the given message
   async saveReaction(data: ReactionParams) {
     //Determines if a message has a reaction or not
-    let reactionState = true;
 
-    if (data.reaction === null) {
-      const reactions = await getReactions(data.chatId, data.messageId);
-      if (reactions?.length <= 1) {
-        reactionState = false;
-      } else {
-        reactionState = true;
-      }
-    }
-
-    const oldReactions = await getReactions(data.chatId, data.messageId);
-
-    const hasUserReacted = oldReactions.some(
-      item => item.cryptoId === data.cryptoId,
-    );
-
-    if (hasUserReacted) {
-      //Adding reaction to the reaction DB.
-      await updateReactions(
-        data.chatId,
-        data.messageId,
-        data.cryptoId,
-        data.reaction,
-      );
-    } else {
-      await addReaction(data);
-    }
-
-    //Reactions can be changed, added or removed.
-    await storage.updateGroupReaction(
-      data.chatId,
-      data.messageId,
-      reactionState,
-    );
+    addReaction(this.chatId, data.messageId, this.senderId, data.reaction);
+    storage.setHasReactions(this.chatId, data.messageId);
 
     store.dispatch({
       type: 'REACTION_UPDATE',
       payload: {
         chatId: data.chatId,
         messageId: data.messageId,
-        hasReaction: reactionState,
+        hasReaction: true,
         latestReaction: data.reaction,
       },
     });

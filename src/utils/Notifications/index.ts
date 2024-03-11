@@ -38,7 +38,7 @@ export async function displaySimpleNotification(
   };
   if (currentActiveChatId) {
     //Display notifications when it's not for the active chat
-    if (chatId != currentActiveChatId) {
+    if (chatId !== currentActiveChatId) {
       // Display a notification
       await notifee.displayNotification(notification);
     }

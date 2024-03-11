@@ -11,7 +11,7 @@ import {
   UpdateRequiredMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import {checkDateBoundary, generateISOTimeStamp} from '@utils/Time';
-import React, {ReactNode, useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useRef, useState} from 'react';
 import {
   FlatList,
   NativeScrollEvent,
@@ -41,15 +41,11 @@ const sendReadReceipt = (chatId: string, message: SavedMessageParams) => {
       message.messageStatus != undefined &&
       message.messageStatus === MessageStatus.delivered
     ) {
-      console.log('Sending read receipt for: ', message.messageId);
-      const sender = new SendMessage(chatId, ContentType.update, {
-        messageIdToBeUpdated: message.messageId,
-        updatedMessageStatus: MessageStatus.read,
-        readAtTimestamp: generateISOTimeStamp(),
+      const sender = new SendMessage(chatId, ContentType.receipt, {
+        messageId: message.messageId,
+        readAt: generateISOTimeStamp(),
       });
       sender.send();
-    } else {
-      console.log('Skipping ack');
     }
   }
 };
@@ -205,14 +201,14 @@ function ChatList({
     }
   };
 
-  useEffect(() => {
-    //If messages are < 12, then all messages are visible.
-    if (messages.length < 12) {
-      messages.forEach(msg => sendReadReceipt(chatId, msg));
-      onEndReached();
-    }
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages]);
+  // useEffect(() => {
+  //   //If messages are < 12, then all messages are visible.
+  //   if (messages.length < 12) {
+  //     messages.forEach(msg => sendReadReceipt(chatId, msg));
+  //     onEndReached();
+  //   }
+  //   //eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [messages]);
 
   return (
     <>

@@ -8,7 +8,6 @@ import {
   SavedMessageParams,
   TextParams,
 } from '@utils/Messaging/interfaces';
-import store from '@store/appStore';
 import * as storage from '@utils/Storage/messages';
 import {SendDirectMessage} from './AbstractSender';
 import {generateRandomHexId} from '@utils/IdGenerator';
@@ -180,16 +179,6 @@ export class SendGenericDirectMessage<
    */
   private async cleanup(): Promise<boolean> {
     return true;
-  }
-
-  /**
-   * Trigger redux store calls after successfully sending the message
-   */
-  private storeCalls(): void {
-    store.dispatch({
-      type: 'NEW_SENT_MESSAGE',
-      payload: this.savedMessage,
-    });
   }
 
   private async updateConnectionInfo(newSendStatus: MessageStatus) {

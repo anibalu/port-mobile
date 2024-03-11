@@ -6,6 +6,7 @@ import {
   SavedMessageParams,
   UpdateParams,
 } from '@utils/Messaging/interfaces';
+import {generateISOTimeStamp} from '@utils/Time';
 
 function toBool(a: number) {
   if (a) {
@@ -26,8 +27,10 @@ export async function addMessage(message: SavedMessageParams) {
       memberId,
       timestamp,
       messageStatus,
-      expiresOn
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
+      expiresOn,
+      mtime,
+      shouldAck
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
     `,
     [
       message.messageId,
@@ -40,6 +43,8 @@ export async function addMessage(message: SavedMessageParams) {
       message.timestamp,
       message.messageStatus,
       message.expiresOn,
+      generateISOTimeStamp(),
+      message.shouldAck,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
@@ -54,10 +59,10 @@ export async function updateMessage(
   await runSimpleQuery(
     `
     UPDATE lineMessages
-    SET data = ?
+    SET data = ?, mtime = ?
     WHERE chatId = ? AND messageId = ? ;
     `,
-    [JSON.stringify(data), chatId, messageId],
+    [JSON.stringify(data), generateISOTimeStamp(), chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
@@ -110,10 +115,10 @@ export async function updateStatus(
   await runSimpleQuery(
     `
     UPDATE lineMessages
-    SET messageStatus = ?
+    SET messageStatus = ?, mtime = ?
     WHERE chatId = ? AND messageId = ? ;
     `,
-    [messageStatus, chatId, messageId],
+    [messageStatus, generateISOTimeStamp(), chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
@@ -142,7 +147,8 @@ export async function updateStatusAndTimestamp(
     deliveredTimestamp = COALESCE(?, deliveredTimestamp),
     readTimestamp = COALESCE(?, readTimestamp),
     shouldAck = COALESCE(?,shouldAck),
-    contentType = COALESCE(?,contentType)
+    contentType = COALESCE(?,contentType),
+    mtime = ?
     WHERE chatId = ? AND messageId = ? ;
     `,
     [
@@ -157,9 +163,24 @@ export async function updateStatusAndTimestamp(
       updatedParams.updatedContentType
         ? updatedParams.updatedContentType
         : null,
+      generateISOTimeStamp(),
       chatId,
       messageId,
     ],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, res) => {},
+  );
+}
+
+export async function setHasReactions(chatId: string, messageId: string) {
+  await runSimpleQuery(
+    `
+    UPDATE lineMessages
+    SET
+    hasReaction = TRUE, mtime = ?
+    WHERE chatId = ? AND messageId = ? ;
+    `,
+    [generateISOTimeStamp(), chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
@@ -174,10 +195,11 @@ export async function toggleReactionState(
     `
     UPDATE lineMessages
     SET
-    hasReaction = COALESCE(?, hasReaction)
+    hasReaction = COALESCE(?, hasReaction),
+    mtime = ?
     WHERE chatId = ? AND messageId = ? ;
     `,
-    [hasReaction, chatId, messageId],
+    [hasReaction, generateISOTimeStamp(), chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
@@ -185,22 +207,23 @@ export async function toggleReactionState(
 
 /**
  * @param chatId , chat to be loaded
- * @param latestTimestamp , lower bound of messages that need to be fetched
+ * @param limit the maximum number of messages to fetch (default 50)
  * @returns {SavedMessageParams[]} list of messages
  * has been directly imported without abstraction
  */
 export async function getLatestMessages(
   chatId: string,
-  latestTimestamp: string,
+  limit: number = 50,
 ): Promise<SavedMessageParams[]> {
   let messageList: SavedMessageParams[] = [];
   await runSimpleQuery(
     `
     SELECT * FROM lineMessages
-    WHERE chatId = ? AND timestamp > ?
-    ORDER BY timestamp ASC ;
+    WHERE chatId = ?
+    ORDER BY timestamp DESC
+    LIMIT ? ;
     `,
-    [chatId, latestTimestamp],
+    [chatId, limit],
     (tx, results) => {
       const len = results.rows.length;
       let entry;
@@ -366,6 +389,54 @@ export async function permanentlyDeleteMessage(
   await runSimpleQuery(
     `
     DELETE FROM lineMessages 
+    WHERE chatId = ? AND messageId = ? ;
+    `,
+    [chatId, messageId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
+}
+
+/**
+ * Set a new receipt timestamp if one hasn't already been set
+ * @param chatId
+ * @param messageId
+ * @param readAt
+ * @param deliveredAt
+ */
+export async function setReceipts(
+  chatId: string,
+  messageId: string,
+  readAt: string | null,
+  deliveredAt: string | null,
+  messageStatus: MessageStatus,
+) {
+  await runSimpleQuery(
+    `
+    UPDATE lineMessages 
+    SET
+    readTimestamp = COALESCE(readTimestamp, ?),
+    deliveredTimestamp = COALESCE(deliveredTimestamp, ?)
+    messageStatus = ?
+    WHERE chatId = ? AND messageId = ? ;
+    `,
+    [readAt, deliveredAt, messageStatus, chatId, messageId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
+}
+
+/**
+ * Set a message to not send acknowledge anymore
+ * @param chatId
+ * @param messageId
+ */
+export async function setShouldNotAck(chatId: string, messageId: string) {
+  await runSimpleQuery(
+    `
+    UPDATE lineMessages 
+    SET
+    shouldAck = FALSE
     WHERE chatId = ? AND messageId = ? ;
     `,
     [chatId, messageId],

@@ -16,14 +16,12 @@ import {
   getGroupMessage,
   getMessage,
   readPaginatedGroupMessages,
-  readPaginatedMessages,
 } from '@utils/Storage/messages';
 
 import store from '@store/appStore';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
-import {generateRandomHexId} from '@utils/IdGenerator';
 import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
 import {handleAsyncMediaDownload as groupMedia} from '@utils/Messaging/Receive/ReceiveGroup/HandleMediaDownload';
 import {useSelector} from 'react-redux';
@@ -32,6 +30,7 @@ import ChatList from './ChatList';
 import ChatTopbar from './ChatTopbar';
 import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
+import {getLatestMessages} from '@utils/Storage/messages';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 export enum SelectedMessagesSize {
@@ -53,7 +52,7 @@ function Chat({route, navigation}: Props) {
     return isGroupChat ? new Group(chatId) : new DirectChat(chatId);
   }, [isGroupChat, chatId]);
 
-  const [cursor, setCursor] = useState(0);
+  const [cursor, setCursor] = useState(50);
 
   const [chatState, setChatState] = useState({
     name: '',
@@ -73,22 +72,7 @@ function Chat({route, navigation}: Props) {
   //message to be replied
   const [replyToMessage, setReplyToMessage] = useState<SavedMessageParams>();
 
-  const latestReceivedMessage: any = useSelector(
-    state => state.latestReceivedMessage.latestReceivedMessage,
-  );
-  const latestSentMessage: any = useSelector(
-    state => state.latestSentMessage.message,
-  );
-  const latestUpdatedSendStatus: any = useSelector(
-    state => state.latestMessageUpdate.updatedStatus,
-  );
-  const latestUpdatedMediaStatus: any = useSelector(
-    state => state.latestMessageUpdate.updatedMedia,
-  );
-
-  const latestUpdatedReactionStatus: any = useSelector(
-    state => state.latestMessageUpdate.updatedReaction,
-  );
+  const ping: any = useSelector(state => state.ping.ping);
 
   //handles toggling the select messages flow.
   const handleMessageBubbleLongPress = (messageId: string): void => {
@@ -211,14 +195,13 @@ function Chat({route, navigation}: Props) {
         debouncedPeriodicOperations();
         //set saved messages
         const resp = isGroupChat
-          ? await readPaginatedGroupMessages(chatId)
-          : await readPaginatedMessages(chatId);
-        const cleanedMessages = resp.messages.filter(
+          ? (await readPaginatedGroupMessages(chatId)).messages
+          : await getLatestMessages(chatId, cursor);
+        const cleanedMessages = resp.filter(
           item => !shouldNotRender(item.contentType),
         );
         setMessages(cleanedMessages);
-        console.log('Messages are: ', cleanedMessages);
-        setCursor(resp.cursor);
+        setCursor(cursor);
 
         //Notifying that initial message load is complete.
         localState.messagesLoaded = true;
@@ -232,8 +215,23 @@ function Chat({route, navigation}: Props) {
           payload: undefined,
         });
       };
-    }, [chatId, dataHandler, isGroupChat]),
+    }, [chatId, dataHandler, isGroupChat, cursor]),
   );
+
+  useEffect(() => {
+    (async () => {
+      console.log('[PING] ', ping);
+      const resp = isGroupChat
+        ? (await readPaginatedGroupMessages(chatId)).messages
+        : await getLatestMessages(chatId, cursor);
+      const cleanedMessages = resp.filter(
+        item => !shouldNotRender(item.contentType),
+      );
+      setMessages(cleanedMessages);
+      updateGroup();
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ping, cursor]);
 
   const updateGroup = async () => {
     if (isGroupChat) {
@@ -242,145 +240,16 @@ function Chat({route, navigation}: Props) {
     }
   };
 
-  //runs every time a new message is recieved.
-  useEffect(() => {
-    if (
-      chatState.messagesLoaded &&
-      latestReceivedMessage &&
-      latestReceivedMessage.chatId === chatId
-    ) {
-      if (!shouldNotRender(latestReceivedMessage.contentType)) {
-        console.log('[CHAT UPDATE] - New message received');
-        setMessages(oldList => [latestReceivedMessage].concat(oldList));
-      } else {
-        console.log('[CHAT DATA UPDATE] - dropping due to data message');
-      }
-    }
-    updateGroup();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestReceivedMessage]);
-
-  useEffect(() => {
-    if (
-      chatState.messagesLoaded &&
-      latestUpdatedReactionStatus.chatId === chatId
-    ) {
-      console.log('[CHAT UPDATE] - Reaction status updated');
-
-      //If a new reaction comes, we need to change status of message to true
-
-      setMessages(oldList => {
-        if (oldList.length > 0) {
-          const idx = oldList.findIndex(
-            item => item.messageId === latestUpdatedReactionStatus.messageId,
-          );
-          let msgs = [...oldList];
-          msgs[idx] = {
-            ...msgs[idx],
-            hasReaction: latestUpdatedReactionStatus.hasReaction,
-            forceRender: generateRandomHexId(),
-          };
-
-          return msgs;
-        } else {
-          return oldList;
-        }
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestUpdatedReactionStatus]);
-
-  //Runs every time a message is sent into the queue. Updates with the last message that was sent to it, instead of fetching from DB everytime
-  useEffect(() => {
-    if (
-      latestSentMessage &&
-      chatState.messagesLoaded &&
-      latestSentMessage.chatId === chatId
-    ) {
-      if (!shouldNotRender(latestSentMessage.contentType)) {
-        console.log('[CHAT UPDATE] - New message sent');
-        setMessages(oldList => [latestSentMessage].concat(oldList));
-      } else {
-        console.log('[CHAT DATA UPDATE] - dropping sent message');
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestSentMessage]);
-
-  //Runs every time a sent message's send status is updated.
-  useEffect(() => {
-    if (
-      chatState.messagesLoaded &&
-      latestUpdatedSendStatus &&
-      latestUpdatedSendStatus.chatId === chatId
-    ) {
-      console.log('[CHAT UPDATE] - Message status updated');
-
-      if (latestUpdatedSendStatus.contentType === ContentType.deleted) {
-        updateAfterDeletion([latestUpdatedSendStatus.messageId]);
-      }
-
-      setMessages(oldList => {
-        if (oldList.length > 0) {
-          const idx = oldList.findIndex(
-            item => item.messageId === latestUpdatedSendStatus.messageId,
-          );
-          let msgs = [...oldList];
-          if (latestUpdatedSendStatus.contentType === ContentType.deleted) {
-            msgs.splice(idx, 1);
-          } else {
-            msgs[idx] = {...msgs[idx], ...latestUpdatedSendStatus};
-          }
-          return msgs;
-        } else {
-          return oldList;
-        }
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestUpdatedSendStatus]);
-
-  //Runs every time a sent message's media status is updated. Updates with the data present inside latestUpdatedMediaStatus
-  useEffect(() => {
-    if (
-      chatState.messagesLoaded &&
-      latestUpdatedMediaStatus.data &&
-      latestUpdatedMediaStatus.chatId === chatId
-    ) {
-      console.log('[CHAT UPDATE] - Media status updated');
-      setMessages(oldList => {
-        if (oldList.length > 0) {
-          const idx = oldList.findIndex(
-            item => item.messageId === latestUpdatedMediaStatus.messageId,
-          );
-          let msgs = [...oldList];
-          if (msgs[idx].data) {
-            msgs[idx].data = {
-              ...msgs[idx].data,
-              ...latestUpdatedMediaStatus.data,
-            };
-          }
-
-          return msgs;
-        } else {
-          return oldList;
-        }
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestUpdatedMediaStatus]);
-
   const onStartReached = async (): Promise<void> => {
+    const initCursor = cursor;
     const resp = isGroupChat
-      ? await readPaginatedGroupMessages(chatId, cursor)
-      : await readPaginatedMessages(chatId, cursor);
-    const cleanedMessages = resp.messages.filter(
+      ? (await readPaginatedGroupMessages(chatId, cursor)).messages
+      : await getLatestMessages(chatId, initCursor + 50);
+    const cleanedMessages = resp.filter(
       item => !shouldNotRender(item.contentType),
     );
-    setMessages(oldList => oldList.concat(cleanedMessages));
-    //When this is called, the user has reached the top and a new message should autoscroll them down.
-
-    setCursor(resp.cursor);
+    setMessages(cleanedMessages);
+    setCursor(cursor + 50);
   };
   const onEndReached = async () => {
     console.log('Marking chat as read');
@@ -402,6 +271,10 @@ function Chat({route, navigation}: Props) {
       } else {
         await directMedia(chatId, messageId);
       }
+      store.dispatch({
+        action: 'PING',
+        payload: 'PONG',
+      });
     } catch (e) {
       console.log('Error handling manual download:', e);
       mediaDownloadError();

@@ -251,6 +251,9 @@ export async function updateMessageSendStatus(
   chatId: string,
   updateParams: UpdateParams,
 ): Promise<void> {
+  console.log(
+    `Updating message ${updateParams.messageIdToBeUpdated} to status ${updateParams.updatedMessageStatus}`,
+  );
   if (
     updateParams.updatedMessageStatus ||
     updateParams.updatedMessageStatus === 0
@@ -344,4 +347,46 @@ export async function deleteExpiredMessages() {
       expiredMessages[index].messageId,
     );
   }
+}
+
+export async function setHasReactions(chatId: string, messageId: string) {
+  lineDBCalls.setHasReactions(chatId, messageId);
+}
+
+/**
+ * Get the (k) latest messages in a chat
+ * @param chatId
+ * @param limit
+ * @returns
+ */
+export async function getLatestMessages(chatId: string, limit: number = 50) {
+  return lineDBCalls.getLatestMessages(chatId, limit);
+}
+
+export async function setReceipt(
+  chatId: string,
+  messageId: string,
+  deliveredAt: string | null,
+  readAt: string | null,
+) {
+  const updatedMessageStatus = readAt
+    ? MessageStatus.read
+    : MessageStatus.delivered;
+  lineDBCalls.setReceipts(
+    chatId,
+    messageId,
+    readAt,
+    deliveredAt,
+    updatedMessageStatus,
+  );
+  console.warn('Setting receipt: ', chatId, messageId, deliveredAt, readAt);
+}
+
+/**
+ * Set a message as no longer requiring acknowledgement
+ * @param chatId
+ * @param messageId
+ */
+export async function setShouldNotAck(chatId: string, messageId: string) {
+  await lineDBCalls.setShouldNotAck(chatId, messageId);
 }

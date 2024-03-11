@@ -8,6 +8,7 @@ import profile from './profile';
 import authToken from './authToken';
 import triggerPendingRequestsReload from './triggerPendingRequestsReload';
 import latestMessageUpdate from './latestMessageUpdate';
+import ping from './ping';
 
 const rootReducer = combineReducers({
   latestReceivedMessage,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   profile,
   authToken,
   triggerPendingRequestsReload,
+  ping,
 });
 
 const store = configureStore({

@@ -35,6 +35,8 @@ class LargeDataUpload {
   }
   getMediaIdAndKey() {
     if (!this.mediaId || !this.key) {
+      console.error('MediaId: ', this.mediaId, 'Key: ', this.key);
+      console.log('MediaId: ', this.mediaId, 'Key: ', this.key);
       throw new Error('MediaIdOrKeyNull');
     }
     return {mediaId: this.mediaId, key: this.key};

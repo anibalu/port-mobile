@@ -4,19 +4,19 @@ import {
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
+  ReceiptParams,
   SavedMessageParams,
-  UpdateParams,
 } from '@utils/Messaging/interfaces';
-import * as storage from '@utils/Storage/messages';
+import * as MessageStorage from '@utils/Storage/messages';
 import {SendDirectMessage} from './AbstractSender';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
 
-export const updateContentTypes: ContentType[] = [ContentType.update];
+export const receiptContentTypes: ContentType[] = [ContentType.receipt];
 
-export class SendUpdateDirectMessage<
+export class SendReceiptDirectMessage<
   T extends ContentType,
 > extends SendDirectMessage<T> {
   chatId: string; //chatId of chat
@@ -65,41 +65,38 @@ export class SendUpdateDirectMessage<
 
   /**
    * Send an update. Cannot be journalled and is never saved to FS.
-   * @deprecated Please remove me in place of a DeletingSender
    * @returns whether errors found
    */
-  async send(onUpdateSuccess?: (success: boolean) => void): Promise<boolean> {
+  async send(_onUpdateSuccess?: (success: boolean) => void): Promise<boolean> {
     try {
       // Set up in Filesystem
       this.validate();
+      const receipt = this.data as ReceiptParams;
+      console.log('Sending receipt: ', receipt);
+      // Make the API call to send the receipt
       const processedPayload = await this.encryedtMessage();
       const newSendStatus = await API.sendObject(
         this.chatId,
         processedPayload,
         false,
       );
-      storage.cleanDeleteMessage(
-        this.chatId,
-        (this.data as UpdateParams).messageIdToBeUpdated,
-      );
-      if (onUpdateSuccess) {
-        onUpdateSuccess(newSendStatus >= MessageStatus.sent);
+      if (newSendStatus === -1 && receipt.readAt) {
+        MessageStorage.setShouldNotAck(this.chatId, receipt.messageId);
       }
+      return true;
     } catch (e) {
       console.error('Could not send message', e);
       await this.onFailure();
       return false;
     }
-    this.storeCalls();
-    return true;
   }
   /**
    * Perform the initial DBCalls and attempt API calls
    */
   private validate(): void {
     try {
-      if (!updateContentTypes.includes(this.contentType)) {
-        throw new Error('NotUpdateContentTypeError');
+      if (!receiptContentTypes.includes(this.contentType)) {
+        throw new Error('NotReactionContentTypeError');
       }
       if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
         throw new Error('MessageDataTooBigError');
@@ -119,7 +116,7 @@ export class SendUpdateDirectMessage<
    * Retry sending a journalled message using only API calls
    */
   async retry(): Promise<boolean> {
-    throw new Error('MessageNotJournallable');
+    throw new Error('NotJournallable');
   }
 
   private async onFailure() {}
@@ -132,12 +129,9 @@ export class SendUpdateDirectMessage<
   }
 
   /**
-   * Updates trigger no connectionInfo updates so we simply return
-   * @param newSendStatus The status of the message send
-   * @returns void
+   * Receipt sending doesn't warrant a redraw
    */
-  private async updateConnectionInfo(newSendStatus: MessageStatus) {
-    newSendStatus;
+  storeCalls(): void {
     return;
   }
 }

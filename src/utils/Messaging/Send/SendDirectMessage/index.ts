@@ -13,6 +13,14 @@ import {
 } from './senders/UpdateSender';
 import {SendDirectMessage} from './senders/AbstractSender';
 import {ContentType, DataType} from '@utils/Messaging/interfaces';
+import {
+  SendReactionDirectMessage,
+  reactionContentTypes,
+} from './senders/ReactionSender';
+import {
+  SendReceiptDirectMessage,
+  receiptContentTypes,
+} from './senders/ReceiptSender';
 
 export async function sendDirect(
   chatId: string,
@@ -20,50 +28,40 @@ export async function sendDirect(
   data: DataType,
   replyId: string | null,
   messageId: string,
-  onSuccess?: (success: boolean) => void,
+  _onSuccess?: (success: boolean) => void,
 ) {
-  let sender: SendDirectMessage<null> | null = null;
+  let SenderClass = null;
   if (genericContentTypes.includes(contentType)) {
-    sender = new SendGenericDirectMessage(
-      chatId,
-      contentType,
-      data,
-      replyId,
-      messageId,
-    );
+    SenderClass = SendGenericDirectMessage;
   }
   if (updateContentTypes.includes(contentType)) {
-    sender = new SendUpdateDirectMessage(
-      chatId,
-      contentType,
-      data,
-      replyId,
-      messageId,
-    );
+    SenderClass = SendUpdateDirectMessage;
+  }
+  if (receiptContentTypes.includes(contentType)) {
+    SenderClass = SendReceiptDirectMessage;
+  }
+  if (reactionContentTypes.includes(contentType)) {
+    SenderClass = SendReactionDirectMessage;
   }
   if (mediaContentTypes.includes(contentType)) {
-    sender = new SendMediaDirectMessage(
-      chatId,
-      contentType,
-      data,
-      replyId,
-      messageId,
-    );
+    SenderClass = SendMediaDirectMessage;
   }
   if (plaintextContentTypes.includes(contentType)) {
-    sender = new SendPlaintextDirectMessage(
+    SenderClass = SendPlaintextDirectMessage;
+  }
+  if (SenderClass) {
+    // await SenderClass.send(onSuccess);
+    let sender: SendDirectMessage = new SenderClass(
       chatId,
       contentType,
       data,
       replyId,
       messageId,
     );
-  }
-  if (sender) {
-    await sender.send(onSuccess);
+    sender.send();
     return;
   }
   console.error(
-    `Could not find a suitible sender for contentType: ${contentType}`,
+    `Could not find a suitible SenderClass for contentType: ${contentType}`,
   );
 }

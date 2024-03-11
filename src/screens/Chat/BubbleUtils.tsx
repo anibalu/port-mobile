@@ -51,12 +51,12 @@ export function renderTimeStamp(
         </NumberlessText>
         <View style={{marginLeft: 2, paddingBottom: 1.5}}>
           {message.sender &&
-            (message.messageStatus === MessageStatus.delivered ? (
+            (message.readTimestamp ? (
+              <Read />
+            ) : message.deliveredTimestamp ? (
               <Received />
             ) : message.messageStatus === MessageStatus.sent ? (
               <Sent />
-            ) : message.messageStatus === MessageStatus.read ? (
-              <Read />
             ) : (
               <Sending />
             ))}

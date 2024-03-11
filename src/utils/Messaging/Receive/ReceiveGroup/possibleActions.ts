@@ -127,6 +127,8 @@ export async function groupReceiveActionPicker(
           content,
           decryptedMessageContent,
         );
+      case ContentType.receipt:
+        throw new Error('Add stuff here');
       default:
         return null;
     }

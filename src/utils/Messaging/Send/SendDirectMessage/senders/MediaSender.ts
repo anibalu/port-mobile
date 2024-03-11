@@ -8,7 +8,6 @@ import {
   PayloadMessageParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
-import store from '@store/appStore';
 import * as storage from '@utils/Storage/messages';
 import {SendDirectMessage} from './AbstractSender';
 import {generateRandomHexId} from '@utils/IdGenerator';
@@ -150,16 +149,6 @@ export class SendMediaDirectMessage<
     storage.updateMessageSendStatus(this.chatId, {
       messageIdToBeUpdated: this.messageId,
       updatedMessageStatus: MessageStatus.failed,
-    });
-  }
-
-  /**
-   * Trigger redux store calls after successfully sending the message
-   */
-  private storeCalls(): void {
-    store.dispatch({
-      type: 'NEW_SENT_MESSAGE',
-      payload: this.savedMessage,
     });
   }
 

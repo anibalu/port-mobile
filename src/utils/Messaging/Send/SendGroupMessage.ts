@@ -150,13 +150,6 @@ class SendGroupMessage<T extends ContentType> {
     const group = new Group(this.chatId);
     const groupCryptoPairs = await group.loadGroupCryptoPairs();
 
-    if (this.payload.contentType === ContentType.reaction) {
-      const data = await group.getData();
-      //Sending a message entails that the user uses their own cryptoId to send.
-      (this.payload.data as ReactionParams).cryptoId = data!.selfCryptoId!;
-      (this.data as ReactionParams).cryptoId = data!.selfCryptoId!;
-    }
-
     const plaintext = JSON.stringify(this.payload);
 
     //TODO: Test this out, isnt tested

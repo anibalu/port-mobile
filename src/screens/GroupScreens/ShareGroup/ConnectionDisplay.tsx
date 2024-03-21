@@ -212,7 +212,7 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
           <Pressable
             style={styles.button}
             onPress={() => {
-              navigation.navigate('HomeTab', {screen: 'ScanTab'});
+              navigation.navigate('HomeTab');
             }}>
             <Scan width={24} height={24} />
             <NumberlessText

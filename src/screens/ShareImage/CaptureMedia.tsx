@@ -7,19 +7,27 @@ import TorchOff from '@assets/icons/TorchOff.svg';
 import TorchOn from '@assets/icons/TorchOn.svg';
 import VideoRecord from '@assets/icons/VideoRecord.svg';
 import Gallery from '@assets/icons/WhiteGallery.svg';
-import Cross from '@assets/icons/Whitecross.svg';
-import {PortColors, isIOS, screen} from '@components/ComponentUtils';
+import CloseWhite from '@assets/icons/closeWhite.svg';
+import {
+  PortColors,
+  PortSpacing,
+  isIOS,
+  screen,
+} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {checkCameraPermission} from '@utils/AppPermissions';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
+import {getEpochTime} from '@utils/Time';
 import React, {useEffect, useRef, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
@@ -49,16 +57,18 @@ const CaptureMedia = ({navigation, route}: Props) => {
   const [mediaList, setMediaList] = useState<any>([]);
 
   const [isRunning, setIsRunning] = useState(false);
-  const [time, setTime] = useState<number>(0);
+  const [startTime, setStartTime] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
 
   useEffect(() => {
     let interval: any;
     if (isRunning) {
       interval = setInterval(() => {
-        setTime(prevTime => prevTime + 1);
+        setElapsedTime(getEpochTime() - startTime);
       }, 1);
     }
     return () => clearInterval(interval);
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning]);
 
   const handleStartStop = () => {
@@ -67,7 +77,7 @@ const CaptureMedia = ({navigation, route}: Props) => {
 
   const handleReset = () => {
     setIsRunning(false);
-    setTime(0);
+    setStartTime(getEpochTime());
   };
 
   const [flash, setFlash] = useState<'off' | 'on'>('off');
@@ -115,9 +125,9 @@ const CaptureMedia = ({navigation, route}: Props) => {
   const takePhoto = async () => {
     if (camera.current) {
       const photo = await camera.current.takePhoto({
-        flash: cameraPosition === 'back' ? flash : false,
+        flash: cameraPosition === 'back' ? flash : 'off',
       });
-      const extension = photo.path.split('.')[2];
+      const extension = photo.path.split('.')[!isIOS ? 2 : 1];
       //videos are selected
       const file: FileAttributes = {
         fileUri: photo.path || '',
@@ -195,127 +205,146 @@ const CaptureMedia = ({navigation, route}: Props) => {
     }
   };
 
+  /**
+   * Convert a number of milliseconds into a human readable time
+   * @param time milliseconds to convert to readable time
+   * @returns
+   */
   const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 6000);
-    const seconds = Math.floor((time % 6000) / 1000);
-    const milliseconds = time % 1000;
-    return `${minutes.toString().padStart(2, '0')}:${seconds
+    const totalSeconds = Math.floor(time / 1000);
+    const minutes = Math.floor(totalSeconds / 60)
       .toString()
-      .padStart(2, '0')}:${milliseconds.toString().padStart(3, '0')}`;
+      .padStart(2, '0');
+    const seconds = Math.floor(totalSeconds % 60)
+      .toString()
+      .padStart(2, '0');
+    // const milliseconds = time % 1000;
+    return `${minutes}:${seconds}`;
+    //:${milliseconds.toString().padStart(3, '0')}`;
   };
 
   let device = useCameraDevice(cameraPosition);
 
   return (
-    <View style={styles.container}>
-      {isCameraPermissionGranted && device ? (
-        <Camera
-          device={device}
-          ref={camera}
-          isActive={true}
-          video={true}
-          audio={hasPermission}
-          photo={true}
-          style={styles.camera}
-        />
-      ) : (
-        <View style={styles.permissionDenied}>
-          <NumberlessText
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}
-            style={styles.text}>
-            Please provide camera permission
-          </NumberlessText>
-        </View>
-      )}
-      <View style={styles.topbar}>
-        <Pressable
-          onPress={() => {
-            navigation.goBack();
-          }}>
-          <Cross color={PortColors.primary.white} />
-        </Pressable>
-        {cameraPosition === 'back' ? (
-          flash === 'off' ? (
-            <Pressable
-              onPress={() => {
-                setFlash('on');
-              }}>
-              <TorchOff />
-            </Pressable>
+    <>
+      <CustomStatusBar
+        barStyle="light-content"
+        backgroundColor={PortColors.primary.black}
+      />
+      <SafeAreaView style={{backgroundColor: PortColors.primary.black}}>
+        <View style={styles.container}>
+          {isCameraPermissionGranted && device ? (
+            <Camera
+              device={device}
+              ref={camera}
+              isActive={true}
+              video={true}
+              audio={hasPermission}
+              photo={true}
+              style={styles.camera}
+            />
           ) : (
+            <View style={styles.permissionDenied}>
+              <NumberlessText
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.m}
+                style={styles.text}>
+                Please provide camera permission
+              </NumberlessText>
+            </View>
+          )}
+          <View style={styles.topbar}>
+            {cameraPosition === 'back' ? (
+              flash === 'off' ? (
+                <Pressable
+                  onPress={() => {
+                    setFlash('on');
+                  }}>
+                  <TorchOff />
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={() => {
+                    setFlash('off');
+                  }}>
+                  <TorchOn />
+                </Pressable>
+              )
+            ) : null}
             <Pressable
               onPress={() => {
-                setFlash('off');
+                navigation.goBack();
               }}>
-              <TorchOn />
+              <CloseWhite width={24} height={24} />
             </Pressable>
-          )
-        ) : null}
-      </View>
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 32,
-          alignItems: 'center',
-          width: '100%',
-        }}>
-        {isRunning ? (
-          <NumberlessText
-            fontSizeType={FontSizeType.l}
-            fontType={FontType.rg}
-            textColor={PortColors.text.primaryWhite}
+          </View>
+          <View
             style={{
-              backgroundColor: PortColors.primary.red.error,
-              paddingVertical: 4,
-              paddingHorizontal: 11,
-              borderRadius: 16,
-              marginBottom: 54,
-              overflow: 'hidden',
+              position: 'absolute',
+              bottom: 32,
+              alignItems: 'center',
+              width: '100%',
             }}>
-            {formatTime(time)}
-          </NumberlessText>
-        ) : null}
+            {isRunning ? (
+              <NumberlessText
+                fontSizeType={FontSizeType.l}
+                fontType={FontType.rg}
+                textColor={PortColors.text.primaryWhite}
+                style={{
+                  backgroundColor: PortColors.primary.red.error,
+                  paddingVertical: 4,
+                  paddingHorizontal: 11,
+                  borderRadius: 16,
+                  marginBottom: 54,
+                  overflow: 'hidden',
+                }}>
+                {formatTime(elapsedTime)}
+              </NumberlessText>
+            ) : null}
 
-        <View
-          style={{
-            flexDirection: 'row',
-            marginBottom: 24,
-            justifyContent: isRunning ? 'center' : 'space-between',
-            alignItems: 'center',
-            paddingHorizontal: 50,
-            width: '100%',
-          }}>
-          {!isRunning && (
-            <Pressable onPress={onGalleryPressed}>
-              <Gallery />
-            </Pressable>
-          )}
-          <Pressable
-            onPress={takePhoto}
-            onLongPress={startRecording}
-            onPressOut={stopRecording}>
-            {isRecording ? <VideoRecord /> : <CameraButton />}
-          </Pressable>
-          {!isRunning && (
-            <Pressable
-              onPress={() => {
-                setCameraPosition(old => (old === 'front' ? 'back' : 'front'));
+            <View
+              style={{
+                flexDirection: 'row',
+                marginBottom: 24,
+                justifyContent: isRunning ? 'center' : 'space-between',
+                alignItems: 'center',
+                paddingHorizontal: 50,
+                width: '100%',
               }}>
-              <CameraReverse />
-            </Pressable>
-          )}
+              {!isRunning && (
+                <Pressable onPress={onGalleryPressed}>
+                  <Gallery />
+                </Pressable>
+              )}
+              <Pressable
+                onPress={takePhoto}
+                onLongPress={startRecording}
+                onPressOut={stopRecording}>
+                {isRecording ? <VideoRecord /> : <CameraButton />}
+              </Pressable>
+              {!isRunning && (
+                <Pressable
+                  onPress={() => {
+                    setCameraPosition(old =>
+                      old === 'front' ? 'back' : 'front',
+                    );
+                  }}>
+                  <CameraReverse />
+                </Pressable>
+              )}
+            </View>
+            {!isRunning && (
+              <NumberlessText
+                fontSizeType={FontSizeType.m}
+                fontType={FontType.rg}
+                textColor={PortColors.text.primaryWhite}>
+                Tap for photo, hold for video
+              </NumberlessText>
+            )}
+          </View>
         </View>
-        {!isRunning && (
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.rg}
-            textColor={PortColors.text.primaryWhite}>
-            Tap for photo, hold for video
-          </NumberlessText>
-        )}
-      </View>
-    </View>
+      </SafeAreaView>
+    </>
   );
 };
 
@@ -385,7 +414,7 @@ const styles = StyleSheet.create({
   },
   topbar: {
     position: 'absolute',
-    top: 36,
+    top: PortSpacing.intermediate.top,
     width: screen.width,
     flexDirection: 'row',
     paddingHorizontal: 26,

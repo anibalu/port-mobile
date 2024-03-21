@@ -1,6 +1,5 @@
 import DownArrow from '@assets/icons/DownArrowWhite.svg';
 import {PortColors} from '@components/ComponentUtils';
-import {REACTION_SENDER_ID} from '@configs/constants';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
@@ -21,6 +20,7 @@ import {
   ViewToken,
 } from 'react-native';
 import MessageBubble, {isDataMessage} from './MessageBubble';
+import {getRichReactions} from '@utils/Storage/reactions';
 
 //An item is considered viewed if it matches the following criteria.
 const viewabilityConfig = {
@@ -54,17 +54,35 @@ const handleReaction = async (
   message: SavedMessageParams,
   reaction: string,
 ) => {
-  const sender = new SendMessage(message.chatId, ContentType.reaction, {
-    chatId: message.chatId,
-    messageId: message.messageId,
-    //Since these are for DMs we will define an ID that identifies the sender locally.
-    //Note that for the recevier, this flips and they themselves are the sender
+  const richReactionsData = await getRichReactions(
+    message.chatId,
+    message.messageId,
+  );
 
-    //This gets overridden inside sendGroup for passing in the member's own CryptoID.
-    cryptoId: REACTION_SENDER_ID,
-    reaction,
-  });
-  await sender.send();
+  const selfReactionObj = richReactionsData.find(
+    (reaction: {senderId: string}) => reaction.senderId === 'SELF',
+  );
+
+  const selfReaction = selfReactionObj ? selfReactionObj.reaction : false;
+
+  if (selfReaction === reaction) {
+    const sender = new SendMessage(message.chatId, ContentType.reaction, {
+      chatId: message.chatId,
+      messageId: message.messageId,
+      reaction: '',
+      tombstone: true,
+    });
+    await sender.send();
+  } else {
+    const sender = new SendMessage(message.chatId, ContentType.reaction, {
+      chatId: message.chatId,
+      messageId: message.messageId,
+      //Since these are for DMs we will define an ID that identifies the sender locally.
+      //Note that for the recevier, this flips and they themselves are the sender
+      reaction,
+    });
+    await sender.send();
+  }
 };
 
 /**
@@ -92,6 +110,8 @@ function ChatList({
   dataHandler,
   chatId,
   setReplyTo,
+  setReaction,
+  isConnected,
 }: {
   messages: SavedMessageParams[];
   selectedMessages: string[];
@@ -105,6 +125,8 @@ function ChatList({
   chatId: string;
   onPostSelect: any;
   setReplyTo: Function;
+  setReaction: Function;
+  isConnected?: boolean;
 }): ReactNode {
   //render function to display message bubbles
   const renderMessage = ({
@@ -148,6 +170,8 @@ function ChatList({
         isGroupChat={isGroupChat}
         dataHandler={dataHandler}
         setReplyTo={setReplyTo}
+        setRichReaction={setReaction}
+        isConnected={isConnected}
       />
     );
   };

@@ -6,7 +6,6 @@ import EditCameraIcon from '@assets/icons/EditCamera.svg';
 
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import GenericModal from '@components/Modals/GenericModal';
-import BackIcon from '@assets/navigation/backButton.svg';
 import {
   FontSizeType,
   FontType,
@@ -22,8 +21,8 @@ import {
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {setNewProfilePicture, updateProfileName} from '@utils/Profile';
-import React, {ReactNode, useState} from 'react';
-import {Text, StyleSheet, View, Pressable} from 'react-native';
+import React, {ReactNode, useMemo, useState} from 'react';
+import {StyleSheet, View, Pressable} from 'react-native';
 import ReportIssueModal from '../BugReporting/ReportIssueModal';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import {FileAttributes} from '@utils/Storage/interfaces';
@@ -54,12 +53,15 @@ function MyProfile({route, navigation}: Props): ReactNode {
     await setNewProfilePicture(newProfilePicAttr);
   }
 
-  const onSaveName = (): void => {
-    (async () => {
-      await updateProfileName(newName);
-      setEditingName(false);
-    })();
+  const onSaveName = async () => {
+    await updateProfileName(newName);
+    setEditingName(false);
   };
+
+  useMemo(() => {
+    onSaveName();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newName]);
 
   return (
     <>
@@ -68,12 +70,9 @@ function MyProfile({route, navigation}: Props): ReactNode {
         backgroundColor={PortColors.background}
       />
       <SafeAreaView style={styles.profileScreen}>
-        <BackTopbar
-          onIconLeftPress={() => navigation.goBack()}
-          IconLeft={BackIcon}
-        />
+        <BackTopbar onBackPress={() => navigation.goBack()} />
         <View style={styles.profile}>
-          <View style={{alignItems: 'center'}}>
+          <View style={{alignItems: 'center', width: '100%'}}>
             <View style={styles.profilePictureHitbox}>
               <AvatarBox
                 profileUri={profilePicAttr.fileUri}
@@ -89,7 +88,7 @@ function MyProfile({route, navigation}: Props): ReactNode {
             <View style={styles.mainContainer}>
               <EditableInputCard text={newName} setOpenModal={setEditingName} />
               <NumberlessText
-                fontSizeType={FontSizeType.s}
+                fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}
                 textColor={PortColors.primary.grey.bold}
                 style={{
@@ -103,11 +102,18 @@ function MyProfile({route, navigation}: Props): ReactNode {
             </View>
           </View>
           <View style={styles.bottomContainer}>
-            <Text style={styles.versionText}>version {APP_VERSION}</Text>
+            <NumberlessText
+              style={styles.versionText}
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}>
+              version {APP_VERSION}
+            </NumberlessText>
+
             <PrimaryButton
               disabled={false}
               isLoading={false}
-              onClick={() => setReportBugModalOpen(p => !p)}
+              onClick={() => console.log('bug reporting clicked')}
+              // onClick={() => setReportBugModalOpen(p => !p)}
               buttonText="Give us feedback"
               primaryButtonColor={'b'}
             />
@@ -119,7 +125,6 @@ function MyProfile({route, navigation}: Props): ReactNode {
           visible={editingName}
           name={newName}
           setName={setNewName}
-          onSave={onSaveName}
           onClose={() => {
             setEditingName(false);
           }}
@@ -155,6 +160,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
   profile: {
     flex: 1,
@@ -188,9 +194,6 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
   versionText: {
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.m,
-    fontWeight: getWeight(FontType.rg),
     color: PortColors.subtitle,
     padding: PortSpacing.secondary.bottom,
   },

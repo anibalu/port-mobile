@@ -19,7 +19,6 @@ import {
 } from 'react-native';
 // import NamePopup from './UpdateNamePopup';
 import BackTopbar from '@components/BackTopBar';
-import GroupChatPermissionDropdown from '@components/PermissionsDropdown/GroupChatPermissionDropdown';
 import {SafeAreaView} from '@components/SafeAreaView';
 import FileViewer from 'react-native-file-viewer';
 
@@ -191,9 +190,6 @@ function GroupProfile({route, navigation}: Props) {
             </View>
           </View>
         </View>
-
-        <GroupChatPermissionDropdown bold={false} chatId={groupId} />
-
         <View style={styles.content}>
           <View style={styles.mediaView}>
             <NumberlessText

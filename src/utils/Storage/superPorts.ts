@@ -42,6 +42,17 @@ export async function getAllSuperports(): Promise<SuperportData[]> {
 }
 
 /**
+ * increments connections made using superport by 1
+ * @param portId
+ */
+export async function incrementConnectionsMade(
+  portId: string,
+  usedOnTimestamp: string,
+) {
+  await dbCalls.incrementConnectionsMade(portId, usedOnTimestamp);
+}
+
+/**
  * Delete a superport entry
  * @param portId a 32 character identifier for a superport
  */
@@ -50,10 +61,15 @@ export async function deleteSuperPortData(portId: string) {
 }
 
 /**
- * decrements connections possible by 1
- * @param portId
+ * Pause a superport
  */
-export async function decrementConnectionsPossible(portId: string) {
-  // Start the transaction
-  await dbCalls.decrementConnectionsPossible(portId);
+export async function pauseSuperport(portId: string) {
+  await dbCalls.updateSuperportData(portId, {paused: true});
+}
+
+/**
+ * unpause a superport
+ */
+export async function unpauseSuperport(portId: string) {
+  await dbCalls.updateSuperportData(portId, {paused: false});
 }

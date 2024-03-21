@@ -32,9 +32,11 @@ import {
 } from '@components/ComponentUtils';
 import BlackCross from '@assets/icons/BlackCross.svg';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+import SmallLoader from '../Loaders/SmallLoader';
 
 const PrimaryBottomSheet = ({
   visible,
+  IconLeftSize,
   showNotch = false,
   avoidKeyboard = true,
   showClose = true,
@@ -44,13 +46,19 @@ const PrimaryBottomSheet = ({
   LeftIconOnClick,
   IconLeft,
   children,
+  showLoaderIconLeft,
+  bgColor,
 }: {
   visible: boolean;
   showNotch?: boolean;
+  customIconLeft?: any;
   avoidKeyboard?: boolean;
+  showLoaderIconLeft?: boolean;
   showClose: boolean;
   onClose?: () => void;
   title?: string;
+  bgColor?: 'w' | 'g';
+  IconLeftSize?: 's' | 'gm';
   titleStyle?: TextStyle | StyleProp<TextStyle>;
   LeftIconOnClick?: () => void;
   IconLeft?: FC<SvgProps>;
@@ -66,17 +74,30 @@ const PrimaryBottomSheet = ({
       visible={visible}
       onClose={neatClose}>
       <View
-        style={StyleSheet.compose(
-          styles.mainContainerRegion,
-          showNotch && {paddingTop: 8},
-        )}>
+        style={StyleSheet.compose(styles.mainContainerRegion, {
+          backgroundColor:
+            bgColor === 'g'
+              ? PortColors.primary.grey.light
+              : PortColors.primary.white,
+          paddingTop: showNotch
+            ? PortSpacing.tertiary.top
+            : PortSpacing.intermediate.top,
+        })}>
         {showNotch && <View style={styles.topnotch} />}
         <View style={styles.topRow}>
           <View style={styles.leftContainer}>
             {IconLeft && (
               <Pressable onPress={LeftIconOnClick}>
-                <IconLeft width={24} height={24} />
+                <IconLeft
+                  width={IconLeftSize === 's' ? 20 : 24}
+                  height={IconLeftSize === 's' ? 20 : 24}
+                />
               </Pressable>
+            )}
+            {showLoaderIconLeft && (
+              <View>
+                <SmallLoader />
+              </View>
             )}
             {title && (
               <Text style={StyleSheet.compose(styles.titleText, titleStyle)}>
@@ -100,7 +121,6 @@ const PrimaryBottomSheet = ({
 
 const styles = StyleSheet.create({
   mainContainerRegion: {
-    backgroundColor: PortColors.primary.grey.light,
     flexDirection: 'column',
     width: screen.width,
     justifyContent: 'flex-start',
@@ -108,7 +128,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: PortSpacing.intermediate.right,
     borderTopLeftRadius: PortSpacing.intermediate.left,
     padding: PortSpacing.secondary.uniform,
-    paddingTop: PortSpacing.intermediate.top,
     ...(isIOS ? {paddingBottom: PortSpacing.secondary.bottom} : 0),
   },
   leftContainer: {
@@ -118,16 +137,17 @@ const styles = StyleSheet.create({
   },
   topnotch: {
     alignSelf: 'center',
-    width: 90,
-    height: 6,
-    borderRadius: 8,
-    backgroundColor: PortColors.primary.notch,
+    width: 40,
+    height: 4,
+    borderRadius: 4,
+    backgroundColor: PortColors.primary.body,
   },
   titleText: {
     fontFamily: FontType.md,
     fontSize: FontSizeType.l,
     fontWeight: getWeight(FontType.md),
     color: PortColors.text.primary,
+    maxWidth: screen.width - 52,
   },
   backButton: {
     padding: 3,
@@ -137,7 +157,7 @@ const styles = StyleSheet.create({
   topRow: {
     width: '100%',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
   closeButton: {

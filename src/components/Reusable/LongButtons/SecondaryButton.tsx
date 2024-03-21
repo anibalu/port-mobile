@@ -29,7 +29,7 @@ const SecondaryButton = ({
   onClick,
 }: {
   buttonText: string;
-  secondaryButtonColor: 'b' | 'r' | 'w';
+  secondaryButtonColor: 'b' | 'r' | 'w' | 'black';
   Icon?: FC<SvgProps>;
   iconSize?: 's' | 'm';
   onClick: () => void;
@@ -41,6 +41,8 @@ const SecondaryButton = ({
       return styles.redButton;
     } else if (secondaryButtonColor === 'w') {
       return styles.whiteButton;
+    } else if (secondaryButtonColor === 'black') {
+      return styles.blackButton;
     } else {
       return styles.blueButton;
     }
@@ -52,6 +54,8 @@ const SecondaryButton = ({
       return styles.redButtonText;
     } else if (secondaryButtonColor === 'w') {
       return styles.whiteButtonText;
+    } else if (secondaryButtonColor === 'black') {
+      return styles.blackButtonText;
     } else {
       return styles.blueButtonText;
     }
@@ -75,10 +79,10 @@ const SecondaryButton = ({
         style={StyleSheet.compose(
           secondaryButtonTextColorPicker(secondaryButtonColor),
           styles.buttonText,
-        )}>
-        {buttonText.length > 16
-          ? buttonText.substring(0, 16) + '...'
-          : buttonText}
+        )}
+        numberOfLines={1}
+        ellipsizeMode={'tail'}>
+        {buttonText.substring(0, 20)}
       </Text>
     </TouchableOpacity>
   );
@@ -90,11 +94,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   whiteButton: {borderColor: PortColors.primary.white, borderWidth: 1},
+  blackButton: {
+    borderColor: PortColors.stroke,
+    borderWidth: 1,
+  },
   blueButton: {borderColor: PortColors.primary.blue.app, borderWidth: 1},
   redButtonText: {
     color: PortColors.primary.red.error,
   },
   whiteButtonText: {color: PortColors.primary.white},
+  blackButtonText: {color: PortColors.primary.black},
   blueButtonText: {color: PortColors.primary.blue.app},
   button: {
     alignItems: 'center',
@@ -103,6 +112,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 12,
     backgroundColor: 'transparent',
+    width: '100%',
   },
   buttonText: {
     ...FontSizes[16].medium,

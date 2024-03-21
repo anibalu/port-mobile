@@ -72,7 +72,7 @@ export async function handshakeActionsA2(
       throw new Error('AuthenticationFailed');
     }
     await chat.toggleAuthenticated();
-    let shouldAskToSendName = false;
+    let shouldAskToSendName = true;
     if (fromSuperport || fromContact) {
       shouldAskToSendName = true;
     }
@@ -110,6 +110,13 @@ export async function handshakeActionsA2(
   }
 }
 
+function getSuperportDisplayName(id: string, label: string | null | undefined) {
+  if (label && label !== '') {
+    return label;
+  } else {
+    return '#' + id;
+  }
+}
 async function saveInfoMessageSuperport(
   superportId: string,
   thisChatId: string,
@@ -120,7 +127,10 @@ async function saveInfoMessageSuperport(
       messageId: generateRandomHexId(),
       contentType: ContentType.info,
       data: {
-        info: `This chat was formed using superport: ${superport.superport.label}`,
+        info: `This chat was formed using superport: ${getSuperportDisplayName(
+          superport.superport.portId,
+          superport.superport.label,
+        )}`,
       },
       chatId: thisChatId,
       sender: true,

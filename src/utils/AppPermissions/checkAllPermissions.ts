@@ -13,21 +13,34 @@ export const checkPermissions = async () => {
     ios: PERMISSIONS.IOS.MICROPHONE,
   });
 
+  const savingImagesPermission = Platform.select({
+    android: PERMISSIONS.ANDROID.READ_MEDIA_IMAGES,
+    ios: PERMISSIONS.IOS.PHOTO_LIBRARY,
+  });
+
   const settings = await notifee.getNotificationSettings();
 
-  if (cameraPermission === undefined || recordingPermission === undefined) {
+  if (
+    cameraPermission === undefined ||
+    recordingPermission === undefined ||
+    savingImagesPermission === undefined
+  ) {
     console.log('This platform is not supported');
     return false;
   }
 
-  const [cameraStatus, recordingStatus] = await Promise.all([
-    check(cameraPermission),
-    check(recordingPermission),
-  ]);
+  const [cameraStatus, recordingStatus, savingImagesStatus] = await Promise.all(
+    [
+      check(cameraPermission),
+      check(recordingPermission),
+      check(savingImagesPermission),
+    ],
+  );
 
   return (
     cameraStatus === RESULTS.GRANTED &&
     recordingStatus === RESULTS.GRANTED &&
+    savingImagesStatus === RESULTS.GRANTED &&
     settings.authorizationStatus === AuthorizationStatus.AUTHORIZED
   );
 };

@@ -2,6 +2,7 @@ import {
   ContactBundleParams,
   ContentType,
   DataType,
+  LinkParams,
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
@@ -11,21 +12,28 @@ import {
 import * as storage from '@utils/Storage/messages';
 import {SendDirectMessage} from './AbstractSender';
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {generateISOTimeStamp} from '@utils/Time';
+import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
-import {ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
+import {getChatPermissions} from '@utils/ChatPermissions';
 
 export const genericContentTypes: ContentType[] = [
   ContentType.text,
-  ContentType.contactBundle,
+  ContentType.link,
+  ContentType.name,
   ContentType.contactBundleRequest,
+  ContentType.contactBundleResponse,
   ContentType.contactBundleDenialResponse,
   ContentType.info,
   ContentType.initialInfoRequest,
   ContentType.displayAvatar,
-  ContentType.displayImage,
+];
+
+const genericDisappearingTypes: ContentType[] = [
+  ContentType.text,
+  ContentType.link,
 ];
 
 export class SendGenericDirectMessage<
@@ -79,8 +87,10 @@ export class SendGenericDirectMessage<
     try {
       // Set up in Filesystem
       this.validate();
+      await this.setDisappearing();
       try {
-        storage.saveMessage(this.savedMessage);
+        await storage.saveMessage(this.savedMessage);
+        this.storeCalls();
       } catch (e) {
         console.warn('Error adding message to FS', e);
         console.warn(
@@ -118,6 +128,17 @@ export class SendGenericDirectMessage<
       console.error('Error found in initial checks: ', error);
       throw new Error('InitialChecksError');
     }
+  }
+  private async setDisappearing() {
+    if (!genericDisappearingTypes.includes(this.contentType)) {
+      return;
+    }
+    this.expiresOn = generateExpiresOnISOTimestamp(
+      (await getChatPermissions(this.chatId, ChatType.direct))
+        .disappearingMessages,
+    );
+    this.savedMessage.expiresOn = this.expiresOn;
+    this.payload.expiresOn = this.expiresOn;
   }
 
   private async loadSavedMessage() {
@@ -198,6 +219,9 @@ export class SendGenericDirectMessage<
       //example if content type is text
       case ContentType.text:
         text = (this.data as TextParams).text;
+        break;
+      case ContentType.link:
+        text = (this.data as LinkParams).text;
         break;
       case ContentType.contactBundle:
         text = 'shared contact of ' + (this.data as ContactBundleParams).name;

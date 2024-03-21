@@ -10,7 +10,6 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import store from '@store/appStore';
-import {loadConnectionsToStore} from '@utils/Connections';
 import {checkProfileCreated} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 import React, {useEffect} from 'react';
@@ -27,8 +26,6 @@ function Welcome({navigation}: Props) {
     try {
       const result = await checkProfileCreated();
       if (result === ProfileStatus.created) {
-        //loads chats to redux store
-        await loadConnectionsToStore();
         //lets profile store know that onboarding is complete
         store.dispatch({
           type: 'ONBOARDING_COMPLETE',

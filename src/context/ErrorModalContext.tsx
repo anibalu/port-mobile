@@ -141,7 +141,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
 
   const portConnectionError = () => {
     setErrorToShow({
-      text: 'New port connection error',
+      text: 'Error using port. This link has expired',
       Icon: Info,
     });
   };

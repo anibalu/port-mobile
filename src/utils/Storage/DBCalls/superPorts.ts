@@ -1,5 +1,14 @@
 import {SuperportData, SuperportDataUpdate} from '@utils/Ports/interfaces';
 import {runSimpleQuery} from './dbCommon';
+
+function toBool(a: number | boolean | null | undefined): boolean {
+  if (a) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 /**
  * Create a new super port entry
  * Add a new super port to the list
@@ -36,7 +45,10 @@ export async function updateSuperportData(
 		createdOnTimestamp = COALESCE(?, createdOnTimestamp),
 		channel = COALESCE(?, channel),
 		cryptoId = COALESCE(?, cryptoId),
-    connectionsPossible = COALESCE(?, connectionsPossible)
+    connectionsLimit = COALESCE(?, connectionsLimit),
+    connectionsMade = COALESCE(?, connectionsMade),
+    folderId = COALESCE(?, folderId),
+    paused = COALESCE(?, paused)
 		WHERE portId = ? ;
 		`,
     [
@@ -46,32 +58,12 @@ export async function updateSuperportData(
       update.createdOnTimestamp,
       update.channel,
       update.cryptoId,
-      update.connectionsPossible,
+      update.connectionsLimit,
+      update.connectionsMade,
+      update.folderId,
+      update.paused,
       portId,
     ],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, results) => {},
-  );
-}
-
-/**
- * decrements connections possible by 1
- * @param portId
- */
-export async function decrementConnectionsPossible(portId: string) {
-  // Start the transaction
-  await runSimpleQuery(
-    `
-    UPDATE superPorts
-    SET
-      connectionsPossible = CASE 
-        WHEN connectionsPossible IS NULL THEN NULL 
-        WHEN connectionsPossible > 0 THEN connectionsPossible - 1
-        ELSE 0
-      END
-    WHERE portId = ?;
-    `,
-    [portId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
@@ -86,10 +78,10 @@ export async function decrementConnectionsPossible(portId: string) {
 export async function getSuperportData(
   portId: string,
 ): Promise<SuperportDataUpdate | null> {
-  let matchingEntry: SuperportDataUpdate | null = null;
+  let match: SuperportDataUpdate | null = null;
   await runSimpleQuery(
     `
-    SELECT version, label, usedOnTimestamp, createdOnTimestamp, channel, cryptoId, connectionsPossible
+    SELECT *
     FROM superPorts
     WHERE portId = ?;
     `,
@@ -97,11 +89,13 @@ export async function getSuperportData(
 
     (tx, results) => {
       if (results.rows.length > 0) {
-        matchingEntry = results.rows.item(0);
+        const matchingEntry = results.rows.item(0);
+        matchingEntry.paused = toBool(matchingEntry.paused);
+        match = matchingEntry;
       }
     },
   );
-  return matchingEntry;
+  return match;
 }
 
 /**
@@ -125,6 +119,29 @@ export async function getAllSuperports(): Promise<SuperportData[]> {
     },
   );
   return matchingEntry;
+}
+
+/**
+ * increments connections made using superport by 1
+ * @param portId
+ */
+export async function incrementConnectionsMade(
+  portId: string,
+  usedOnTimestamp: string,
+) {
+  // Start the transaction
+  await runSimpleQuery(
+    `
+    UPDATE superPorts
+    SET 
+    connectionsMade = connectionsMade + 1,
+    usedOnTimestamp = COALESCE(?, usedOnTimestamp)
+    WHERE portId = ?;
+    `,
+    [usedOnTimestamp, portId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
 }
 
 /**

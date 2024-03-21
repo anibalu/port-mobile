@@ -20,6 +20,7 @@ import {BackHandler, StyleSheet, View} from 'react-native';
 import {
   checkCameraPermission,
   checkRecordingPermission,
+  checkSavingImagesPermission,
 } from '@utils/AppPermissions';
 import {SafeAreaView} from '@components/SafeAreaView';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
@@ -38,6 +39,9 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
     useState(false);
   //state of audio permission
   const [isRecordingPermissionGranted, setIsRecordingPermissionGranted] =
+    useState(false);
+
+  const [isSavingImagesPermissionGranted, setIsSavingImagesPermissionGranted] =
     useState(false);
 
   //setup notification channels for the app. this also requests permissions.
@@ -68,6 +72,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
         await setupNotificationChannels();
         await checkCameraPermission(setIsCameraPermissionGranted);
         await checkRecordingPermission(setIsRecordingPermissionGranted);
+        await checkSavingImagesPermission(setIsSavingImagesPermissionGranted);
         await checkNotificationPermission();
       } catch (error) {
         console.log('Error occurred during setup:', error);
@@ -82,6 +87,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
     if (
       isRecordingPermissionGranted &&
       isCameraPermissionGranted &&
+      isSavingImagesPermissionGranted &&
       isNotifPermissionGranted
     ) {
       navigation.navigate('SetupUser', {
@@ -93,6 +99,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
     isRecordingPermissionGranted,
     isCameraPermissionGranted,
     isNotifPermissionGranted,
+    isSavingImagesPermissionGranted,
     route.params.name,
     route.params.avatar,
     navigation,

@@ -31,7 +31,7 @@ export default function VideoReplyBubble({
   const text = (message.data as TextParams).text;
   const URI = (message.data as LargeDataParams).previewUri;
 
-  const isImageSmall = text.length < 16;
+  const isImageSmall = text ? text.length < 16 : false;
 
   return (
     <View style={styles.videoReplyContainer}>

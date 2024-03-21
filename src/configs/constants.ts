@@ -1,12 +1,14 @@
+import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
 
 export const NAME_LENGTH_LIMIT = 30;
-export const MIN_NAME_LENGTH = 2;
+export const MIN_NAME_LENGTH = 1;
 export const PAGINATION_LIMIT = 60;
 export const ARTIFICIAL_LOADER_INTERVAL = 300;
 export const TOKEN_VALIDITY_INTERVAL = 4 * 60 * 1000;
 export const IDEAL_UNUSED_PORTS_NUMBER = 5;
-export const DEFAULT_NAME = 'Numberless';
+export const DEFAULT_NAME = 'New contact';
 export const APP_VERSION = '1.0';
 
 export const BUNDLE_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;
@@ -51,3 +53,25 @@ export const FILE_ENCRYPTION_KEY_LENGTH = 160;
 //CryptoIDs used for identifying reactors in reactions.
 export const REACTION_SENDER_ID = '01';
 export const REACTION_RECEIVER_ID = '02';
+
+//default permissions used to initialise default folder
+export const defaultPermissions: PermissionsStrict = {
+  notifications: true,
+  autoDownload: false,
+  displayPicture: true,
+  contactSharing: true,
+  readReceipts: true,
+  disappearingMessages: 0,
+};
+
+export const defaultPermissionsId: string = '00000000000000000000000000000000';
+export const defaultFolderId: string = '00000000000000000000000000000000';
+export const defaultFolderInfo: FolderInfo = {
+  folderId: defaultFolderId,
+  name: 'Primary',
+  permissionsId: defaultPermissionsId,
+};
+
+export const defaultSuperportConnectionsLimit: number = 50;
+
+export const safeModalCloseDuration: number = 500;

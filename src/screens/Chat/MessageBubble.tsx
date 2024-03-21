@@ -21,7 +21,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 
-import {createDateBoundaryStamp, generateISOTimeStamp} from '@utils/Time';
+import {generateISOTimeStamp, getDateStamp} from '@utils/Time';
 import {
   Animated,
   Image,
@@ -44,6 +44,7 @@ import VideoBubble from './BubbleTypes/VideoBubble';
 import {reactionMapping} from '@configs/reactionmapping';
 import {getReactionCounts, getRichReactions} from '@utils/Storage/reactions';
 import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
+import DeletedBubble from './BubbleTypes/DeletedBubble';
 
 /**
  * Props that a message bubble takes
@@ -62,6 +63,8 @@ interface MessageBubbleProps {
   toggleSwipe: () => void;
   chatId: string;
   setReplyTo: Function;
+  setRichReaction: Function;
+  isConnected?: boolean;
 }
 
 const SWIPE_UPPER_THRESHOLD = screen.width / 5;
@@ -99,6 +102,7 @@ const sendReadReceipt = (chatId: string, message: SavedMessageParams) => {
  * @param dataHandler
  * @returns {ReactNode} bubble component
  */
+
 const MessageBubble = ({
   message,
   isDateBoundary,
@@ -113,6 +117,8 @@ const MessageBubble = ({
   toggleSwipe,
   chatId,
   setReplyTo,
+  setRichReaction,
+  isConnected,
 }: MessageBubbleProps): ReactNode => {
   const positionX = useRef(new Animated.Value(0)).current;
 
@@ -122,10 +128,14 @@ const MessageBubble = ({
 
   const [isReactionsVisible, setIsReactionsVisible] = useState(false);
   const [reactions, setReactions] = useState<any[]>([]);
+  const [richReactions, setRichReactions] = useState<any>([]);
+  const showReactionRibbon = () => {
+    setRichReaction(chatId, message.messageId);
+  };
 
   const onLongPress = (id: string) => {
     handleLongPress(id);
-    if (selected.length > 1) {
+    if (selected.length > 1 || !isConnected) {
       setIsReactionsVisible(false);
     } else {
       setIsReactionsVisible(true);
@@ -146,6 +156,7 @@ const MessageBubble = ({
         reactions.push([reactionCounts[i].reaction, reactionCounts[i].count]);
       }
       setReactions(reactions);
+      setRichReactions(await getRichReactions(chatId, message.messageId));
     }
   };
 
@@ -174,7 +185,7 @@ const MessageBubble = ({
     updateMedia();
     fetchReactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [message.mtime]);
+  }, [message.mtime, message.contentType]);
 
   const isReply = (message.replyId && message.replyId !== '') || false;
 
@@ -340,8 +351,13 @@ const MessageBubble = ({
                   marginLeft: 0,
                   marginBottom: 0,
                 })}>
-                {isReactionsVisible &&
-                  renderReactionBar(handleReaction, message)}
+                {isReactionsVisible && (
+                  <RenderReactionBar
+                    handleReaction={handleReaction}
+                    message={message}
+                    richReactions={richReactions}
+                  />
+                )}
                 <View
                   style={StyleSheet.compose(initialBlobType, {
                     paddingTop: isLargeData ? 4 : 8,
@@ -363,8 +379,7 @@ const MessageBubble = ({
                   ? renderReactions(
                       reactions,
                       message.sender,
-                      chatId,
-                      message.messageId,
+                      showReactionRibbon,
                     )
                   : null}
               </View>
@@ -399,49 +414,65 @@ export function isSwipeableMessage(contentType: ContentType) {
   return true;
 }
 
-function renderReactionBar(
-  handleReaction: (arg0: any, arg1: string) => void,
-  message: SavedMessageParams,
-) {
+const RenderReactionBar = ({
+  handleReaction,
+  message,
+  richReactions,
+}: {
+  handleReaction: (arg0: any, arg1: string) => void;
+  message: SavedMessageParams;
+  richReactions: any;
+}) => {
+  const selfReactionObj = richReactions.find(
+    (reaction: {senderId: string}) => reaction.senderId === 'SELF',
+  );
+  const selfReaction = selfReactionObj ? selfReactionObj.reaction : false;
+
   return (
-    <View
-      style={StyleSheet.compose(styles.reactionSelection, {
-        ...(message.sender ? {right: 0} : {}),
-      })}>
-      {reactionMapping.map(item => {
-        return (
+    <View style={styles.reactionSelection}>
+      {reactionMapping.map(item => (
+        <View key={item} style={styles.reactionsWrapper}>
           <Pressable
+            style={StyleSheet.compose(
+              styles.reactionsWrapper,
+              message.hasReaction &&
+                selfReaction === item &&
+                richReactions && {
+                  backgroundColor: PortColors.stroke,
+                  padding: 5,
+                  borderRadius: 12,
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  justifyContent: 'center',
+                },
+            )}
             key={item}
             onPress={() => {
               handleReaction(message, item);
             }}>
             <NumberlessText
-              fontSizeType={FontSizeType.es}
+              fontSizeType={FontSizeType.exs}
               fontType={FontType.rg}>
               {item}
             </NumberlessText>
           </Pressable>
-        );
-      })}
+        </View>
+      ))}
     </View>
   );
-}
+};
 
 function renderReactions(
   reactions: any[],
   isSender: boolean,
-  chatId: string = '',
-  messageId: string = '',
+  showReactionRibbon: Function = () => {},
 ) {
   return (
     <Pressable
       style={StyleSheet.compose(styles.reactionDisplay, {
-        ...(isSender ? {right: 0} : {}),
+        ...(isSender ? {right: 0, top: -5} : {}),
       })}
-      // TODO
-      onPress={async () => {
-        console.log(await getRichReactions(chatId, messageId));
-      }}>
+      onPress={() => showReactionRibbon()}>
       {reactions.map(item => {
         if (item[1] > 0) {
           return (
@@ -449,7 +480,7 @@ function renderReactions(
               key={item[0]}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
-              {item[0]} {item[1]}
+              {item[0]} {item[1] > 1 && item[1]}
             </NumberlessText>
           );
         }
@@ -515,13 +546,13 @@ export const renderDateBoundaryBubble = (
     <View style={styles.parentContainer}>
       <NumberlessText
         fontSizeType={FontSizeType.s}
-        fontType={FontType.rg}
+        fontType={FontType.md}
         style={StyleSheet.compose(
           styles.dateContainer,
           hasExtraPadding ? styles.majorSpacing : styles.minorSpacing,
         )}
-        textColor={PortColors.text.messageBubble.dateBoundary}>
-        {createDateBoundaryStamp(message.timestamp)}
+        textColor={PortColors.title}>
+        {getDateStamp(message.timestamp)}
       </NumberlessText>
     </View>
   );
@@ -614,6 +645,8 @@ function renderBubbleType(
       return <InfoBubble {...message} />;
     case ContentType.contactBundle:
       return <ContactSharingBubble message={message} />;
+    case ContentType.deleted:
+      return <DeletedBubble memberName={memberName} message={message} />;
     default:
       return <DataBubble {...message} />;
   }
@@ -710,24 +743,31 @@ const styles = StyleSheet.create({
   //Controls bubble style for any data bubble
   DataBlob: {
     backgroundColor: PortColors.primary.messageBubble.data.blobBackground,
-    borderRadius: 16,
+    borderRadius: 10,
     justifyContent: 'flex-start',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderColor: PortColors.primary.messageBubble.data.blobBorder,
-    maxWidth: '70%',
+    maxWidth: '80%',
   },
 
   reactionSelection: {
+    overflow: 'hidden',
     backgroundColor: PortColors.primary.white,
     borderRadius: 16,
+    borderWidth: 0.5,
+    borderColor: PortColors.stroke,
     flexDirection: 'row',
-    gap: 5,
-    padding: 5,
+    gap: 3,
+    padding: 4,
     zIndex: 20,
     bottom: 5,
     alignItems: 'center',
+  },
+
+  reactionsWrapper: {
+    padding: 2,
   },
 
   reactionDisplay: {

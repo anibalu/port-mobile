@@ -10,7 +10,7 @@ import {PortColors} from '@components/ComponentUtils';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {useState} from 'react';
-import {StyleSheet, TextInput} from 'react-native';
+import {KeyboardTypeOptions, StyleSheet, TextInput} from 'react-native';
 
 const SimpleInput = ({
   text,
@@ -18,12 +18,14 @@ const SimpleInput = ({
   maxLength = NAME_LENGTH_LIMIT,
   placeholderText = 'Type here..',
   bgColor = 'w',
+  keyboardType = 'ascii-capable',
 }: {
   text: string;
   placeholderText?: string;
   setText: (text: string) => void;
   maxLength?: number | 'inf';
   bgColor?: 'w' | 'g';
+  keyboardType?: KeyboardTypeOptions;
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const onTextChange = (newText: string) => {
@@ -49,6 +51,7 @@ const SimpleInput = ({
         maxLength={maxLength === 'inf' ? undefined : maxLength}
         value={text}
         onChangeText={onTextChange}
+        keyboardType={keyboardType}
       />
     </>
   );

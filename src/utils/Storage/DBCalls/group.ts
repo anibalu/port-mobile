@@ -34,7 +34,7 @@ export async function getGroupData(
   let matchingEntry = null;
   await runSimpleQuery(
     `
-    SELECT name, joinedAt, description, groupPicture, amAdmin, selfCryptoId
+    SELECT *
     FROM groups
     WHERE groupId = ?;
     `,
@@ -65,7 +65,8 @@ export async function updateGroupData(id: string, update: GroupData) {
 		description = COALESCE(?, description),
 		groupPicture = COALESCE(?, groupPicture),
 		amAdmin = COALESCE(?, amAdmin),
-    selfCryptoId = COALESCE(?, selfCryptoId)
+    selfCryptoId = COALESCE(?, selfCryptoId),
+    permissionsId = COALESCE(?, permissionsId)
 		WHERE groupId = ? ;
 		`,
     [
@@ -75,6 +76,7 @@ export async function updateGroupData(id: string, update: GroupData) {
       update.groupPicture,
       update.amAdmin,
       update.selfCryptoId,
+      update.permissionsId,
       id,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

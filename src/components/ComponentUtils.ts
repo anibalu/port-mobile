@@ -11,7 +11,7 @@ export const PortColors = {
   text: {
     title: '#547CEF',
     primary: '#000000',
-    secondary: '#868686',
+    secondary: '#667085',
     labels: '#C9C9C9',
     primaryWhite: '#FFFFFF',
     backgroundGrey: '#3B3B3B',
@@ -25,6 +25,7 @@ export const PortColors = {
       infoText: '#00340B',
       dateBoundary: '#71899C',
     },
+    body: '#98A2B3',
   },
   primary: {
     body: '#98A2B3',
@@ -48,6 +49,7 @@ export const PortColors = {
       dull: '#FEB95A',
     },
     success: '#6FC960',
+    green: '#12B76A',
     border: {
       dullGrey: '#e5e5e5',
       separatorGrey: '#F4F4F4',
@@ -58,8 +60,8 @@ export const PortColors = {
         border: '#E5E5E5',
       },
       data: {
-        blobBackground: '#EFFEE0',
-        blobBorder: '#D7E3CA',
+        blobBackground: '#FFFCEB',
+        blobBorder: '#FFF6C4',
       },
       receiver: {
         blobBackground: '#D4EBFF',
@@ -137,6 +139,18 @@ export const FontSizes = {
     regular: {
       fontFamily: 'Rubik-Regular',
       fontSize: 16,
+      fontWeight: '400',
+    },
+  },
+  14: {
+    medium: {
+      fontFamily: 'Rubik-Medium',
+      fontSize: 14,
+      fontWeight: '500',
+    },
+    regular: {
+      fontFamily: 'Rubik-Regular',
+      fontSize: 14,
       fontWeight: '400',
     },
   },

@@ -44,13 +44,14 @@ const ViewPhotosVideos = ({route}: Props) => {
   );
 
   const toggleImageSelection = (path: MediaEntry) => {
-    if (selectedMedia.includes(path)) {
-      setSelectedMedia(prevSelected =>
-        prevSelected.filter(selectedPath => selectedPath !== path),
-      );
-    } else {
-      setSelectedMedia(prevSelected => [...prevSelected, path]);
-    }
+    console.log(path);
+    // if (selectedMedia.includes(path)) {
+    //   setSelectedMedia(prevSelected =>
+    //     prevSelected.filter(selectedPath => selectedPath !== path),
+    //   );
+    // } else {
+    //   setSelectedMedia(prevSelected => [...prevSelected, path]);
+    // }
   };
 
   const rows = [];
@@ -116,8 +117,6 @@ const ViewPhotosVideos = ({route}: Props) => {
     navigation.navigate('ForwardToContact', {
       chatId: chatId,
       messages: selectedMedia.map(item => item.messageId),
-      setSelectedMessages: setSelectedMedia,
-      mediaOnly: true,
     });
   };
 
@@ -142,12 +141,20 @@ const ViewPhotosVideos = ({route}: Props) => {
           {rows}
         </ScrollView>
       ) : (
-        <NumberlessText
-          fontType={FontType.rg}
-          fontSizeType={FontSizeType.m}
-          style={styles.nocontentText}>
-          No Media yet
-        </NumberlessText>
+        <View
+          style={{
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            transform: [{translateX: 0}, {translateY: -50}],
+          }}>
+          <NumberlessText
+            fontType={FontType.rg}
+            fontSizeType={FontSizeType.m}
+            style={styles.nocontentText}>
+            No media found
+          </NumberlessText>
+        </View>
       )}
       {selectedMedia.length > 0 && (
         <View style={styles.messagebar}>
@@ -166,8 +173,8 @@ const ViewPhotosVideos = ({route}: Props) => {
 
 const styles = StyleSheet.create({
   nocontentText: {
-    paddingLeft: 30,
-    paddingVertical: 15,
+    paddingTop: 10,
+    color: PortColors.subtitle,
   },
   image: {
     width: (screen.width - 70) / 3,

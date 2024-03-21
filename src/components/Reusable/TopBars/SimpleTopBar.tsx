@@ -9,9 +9,14 @@
  */
 
 import {PortColors} from '@components/ComponentUtils';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
 import React, {FC} from 'react';
-import {Pressable, StyleSheet, Text} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
@@ -33,9 +38,14 @@ const SimpleTopbar = ({
       <Pressable onPress={onIconLeftPress}>
         <IconLeft width={24} height={24} />
       </Pressable>
-      <Text style={styles.heading} numberOfLines={1}>
+      <NumberlessText
+        style={{textAlign: 'center'}}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        fontType={FontType.md}
+        fontSizeType={FontSizeType.l}>
         {heading}
-      </Text>
+      </NumberlessText>
       <Pressable onPress={onIconRightPress}>
         <IconRight width={24} height={24} />
       </Pressable>

@@ -1,9 +1,6 @@
-import {NAME_LENGTH_LIMIT} from '@configs/constants';
-import {
-  createChatPermissions,
-  getDefaultPermissions,
-} from '@utils/ChatPermissions';
-import {GroupPermissions} from '@utils/ChatPermissions/interfaces';
+import {NAME_LENGTH_LIMIT, defaultFolderId} from '@configs/constants';
+import {createChatPermissionsFromFolderId} from '@utils/ChatPermissions';
+import {GroupPermissions, Permissions} from '@utils/ChatPermissions/interfaces';
 import {
   addConnection,
   deleteConnection,
@@ -23,6 +20,14 @@ import {
   GroupMemberStrict,
   GroupMemberUpdate,
 } from './interfaces';
+import {deriveSharedSecret} from '@utils/Crypto/x25519';
+import {FileAttributes} from '@utils/Storage/interfaces';
+import {generateISOTimeStamp} from '@utils/Time';
+import {
+  clearPermissions,
+  getPermissions,
+  updatePermissions,
+} from '@utils/Storage/permissions';
 
 class Group {
   private groupId: string | null;
@@ -82,20 +87,42 @@ class Group {
   }
 
   /**
-   * attemps to create a group. throws error if fails
+   * attemps to create a group. throws error if fails.
+   * Currently does not support group pictures
    * @param groupData - initial group data of group
    */
   public async createGroup(
-    groupData: GroupDataStrict,
-    presetId: string | null = null,
-    permissions: GroupPermissions = getDefaultPermissions(ChatType.group),
+    name: string,
+    description: string | undefined | null,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    image: FileAttributes | null = null,
+    folderId: string = defaultFolderId,
   ) {
     const cryptoDriver = new CryptoDriver();
     await cryptoDriver.create();
-    this.groupData = groupData;
-    this.groupData.selfCryptoId = cryptoDriver.getCryptoId();
-    this.groupId = await API.createGroup(await cryptoDriver.getPublicKey());
-    await this.addGroup(permissions, presetId);
+    const cryptoId = cryptoDriver.getCryptoId();
+    const permissionsId = await createChatPermissionsFromFolderId(folderId);
+    try {
+      this.groupId = await API.createGroup(await cryptoDriver.getPublicKey());
+      this.groupData = {
+        name: name,
+        description: description,
+        joinedAt: generateISOTimeStamp(),
+        //TODO: add group picture support
+        groupPicture: null,
+        amAdmin: true,
+        selfCryptoId: cryptoId,
+        permissionsId: permissionsId,
+      };
+      await this.addGroup(folderId);
+    } catch (error) {
+      //run cleanup
+      //cleanup cryptoId
+      await cryptoDriver.deleteCryptoData();
+      //cleanup permissions
+      await clearPermissions(permissionsId);
+      this.groupId = null;
+    }
   }
 
   /**
@@ -105,15 +132,54 @@ class Group {
    */
   public async joinGroup(
     linkId: string,
-    groupData: GroupData,
-    presetId: string | null = null,
-    permissions: GroupPermissions = getDefaultPermissions(ChatType.group),
+    groupData: GroupDataStrict,
+    folderId: string = defaultFolderId,
   ) {
-    const response = await API.joinGroup(linkId, groupData);
+    const cryptoDriver = new CryptoDriver(groupData.selfCryptoId);
+    const pubKey = await cryptoDriver.getPublicKey();
+    const response = await API.joinGroup(linkId, pubKey);
     this.groupId = response.groupId;
-    this.groupData = response.groupData;
-    this.groupMembers = response.groupMembers;
-    await this.addGroup(permissions, presetId);
+    await this.performMemberHandshakes(
+      response.groupMembersAuthData,
+      groupData.selfCryptoId,
+      groupData.joinedAt,
+    );
+    await this.addGroup(folderId);
+  }
+
+  /**
+   * Generate shared secret with every member of the group and store member data in storage
+   * @param groupMembersAuthData
+   * @param selfCryptoId
+   * @param handshakeTime
+   */
+  public async performMemberHandshakes(
+    groupMembersAuthData: string[][],
+    selfCryptoId: string,
+    handshakeTime: string,
+  ) {
+    const driver = new CryptoDriver(selfCryptoId);
+    const driverData = await driver.getData();
+    const promises = groupMembersAuthData.map(async memberPair => {
+      const sharedSecret = await deriveSharedSecret(
+        driverData.privateKey,
+        memberPair[1],
+      );
+      const memberCryptoDriver = new CryptoDriver();
+      await memberCryptoDriver.createForMember({
+        sharedSecret: sharedSecret,
+      });
+      const newMember: GroupMemberStrict = {
+        memberId: memberPair[0],
+        name: null,
+        joinedAt: handshakeTime,
+        cryptoId: memberCryptoDriver.getCryptoId(),
+        isAdmin: null,
+      };
+      return newMember;
+    });
+    const groupMembers: GroupMemberStrict[] = await Promise.all(promises);
+    this.groupMembers = groupMembers;
   }
 
   public async leaveGroup() {
@@ -154,7 +220,22 @@ class Group {
     await this.loadGroupAttributes();
     return this.groupMembers;
   }
-
+  public async getPermissions(): Promise<GroupPermissions> {
+    this.groupId = this.checkGroupIdNotNull();
+    await this.loadGroupAttributes();
+    if (this.groupData) {
+      const permissions = await getPermissions(this.groupData.permissionsId);
+      return permissions as GroupPermissions;
+    }
+    throw new Error('No permissions setup for group');
+  }
+  public async updatePermissions(update: Permissions) {
+    this.groupId = this.checkGroupIdNotNull();
+    await this.loadGroupAttributes();
+    if (this.groupData) {
+      await updatePermissions(this.groupData.permissionsId, update);
+    }
+  }
   public async getMember(memberId: string): Promise<GroupMemberStrict | null> {
     this.groupId = this.checkGroupIdNotNull();
     return memberStorage.getMember(this.groupId, memberId);
@@ -190,12 +271,9 @@ class Group {
 
   /**
    * helper to update storage attributes when a group is created or joined.
-   * @param permissions - permissions user wants for the group.
+   * @param folderId - folder user wants to put the group in.
    */
-  private async addGroup(
-    permissions: GroupPermissions,
-    presetId: string | null = null,
-  ) {
+  private async addGroup(folderId: string = defaultFolderId) {
     this.groupId = this.checkGroupIdNotNull();
     this.groupData = this.checkGroupDataNotNull();
     //update group storage
@@ -203,19 +281,12 @@ class Group {
     await groupStorage.updateGroupData(this.groupId, this.groupData);
     //update member storage
     if (this.checkGroupMembersNotEmpty()) {
-      console.log('Adding in members: ', this, this.groupMembers);
+      console.log('Adding in members: ', this.groupMembers);
       const promises = this.groupMembers.map(member =>
         this.addGroupMember(member),
       );
       await Promise.all(promises);
     }
-    //create permissions for group
-    await createChatPermissions(
-      this.groupId,
-      ChatType.group,
-      presetId,
-      permissions,
-    );
     //add connection
     await addConnection({
       chatId: this.groupId,
@@ -228,6 +299,7 @@ class Group {
       timestamp: this.groupData.joinedAt,
       newMessageCount: 0,
       pathToDisplayPic: getRandomAvatarInfo().fileUri,
+      folderId: folderId,
     });
   }
 
@@ -237,7 +309,6 @@ class Group {
    */
   public async addGroupMember(member: GroupMemberStrict) {
     this.groupId = this.checkGroupIdNotNull();
-    console.log('Group ID: ', member);
     await memberStorage.newMember(this.groupId, member.memberId);
     await memberStorage.updateMember(this.groupId, member.memberId, member);
   }

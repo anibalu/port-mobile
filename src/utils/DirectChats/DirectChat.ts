@@ -12,10 +12,14 @@ import {
 import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
-import {createChatPermissions} from '@utils/ChatPermissions';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {saveMessage} from '@utils/Storage/messages';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {
+  DirectPermissions,
+  Permissions,
+} from '@utils/ChatPermissions/interfaces';
+import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 
 class DirectChat {
   private chatId: string | null;
@@ -53,20 +57,16 @@ class DirectChat {
   }
   public async createChat(
     update: LineDataStrict,
+    folderId: string,
     linkId: string | null = null,
     lineId: string | null = null,
     isSuperport: boolean = false,
-    permissionPresetId: string | null = null,
-    channel: string | null = null,
   ) {
-    const newUpdate = isSuperport
-      ? {...update, connectedUsing: 'superport://' + linkId}
-      : {...update, connectedUsing: channel};
     if (lineId) {
       const newChatId = lineId;
       await storage.newLine(newChatId);
       this.chatId = newChatId;
-      await storage.updateLine(this.chatId, newUpdate);
+      await storage.updateLine(this.chatId, update);
       await this.loadChatData();
     } else if (linkId) {
       const newChatId = isSuperport
@@ -74,16 +74,11 @@ class DirectChat {
         : await API.newDirectChatFromPort(linkId);
       await storage.newLine(newChatId);
       this.chatId = newChatId;
-      await storage.updateLine(this.chatId, newUpdate);
+      await storage.updateLine(this.chatId, update);
       await this.loadChatData();
     }
     this.chatId = this.checkChatIdNotNull();
     this.chatData = this.checkChatDataNotNull();
-    await createChatPermissions(
-      this.chatId,
-      ChatType.direct,
-      permissionPresetId,
-    );
     await addConnection({
       chatId: this.chatId,
       connectionType: ChatType.direct,
@@ -94,6 +89,7 @@ class DirectChat {
       newMessageCount: 0,
       disconnected: false,
       authenticated: false,
+      folderId: folderId,
     });
   }
   public getChatId(): string {
@@ -108,6 +104,18 @@ class DirectChat {
     await this.loadChatData();
     this.chatData = this.checkChatDataNotNull();
     return this.chatData.cryptoId;
+  }
+  public async getPermissions(): Promise<DirectPermissions> {
+    await this.loadChatData();
+    this.chatData = this.checkChatDataNotNull();
+    const permissions = await getPermissions(this.chatData.permissionsId);
+    return permissions as DirectPermissions;
+  }
+  public async updatePermissions(update: Permissions) {
+    await this.loadChatData();
+    if (this.chatData) {
+      await updatePermissions(this.chatData.permissionsId, update);
+    }
   }
   public async updateChatData(update: LineData) {
     this.chatId = this.checkChatIdNotNull();
@@ -131,7 +139,7 @@ class DirectChat {
       messageId: generateRandomHexId(),
       contentType: ContentType.info,
       data: {
-        info: 'This chat is now end-to-end encrypted',
+        info: '🔒 This chat is now end-to-end encrypted',
       },
       chatId: this.chatId,
       sender: true,

@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@notifee/react-native": "^7.8.0",
-    "@numberless/react-native-numberless-crypto": "0.2.3",
+    "@numberless/react-native-numberless-crypto": "0.2.4",
+    "@react-native-camera-roll/camera-roll": "^7.4.2",
     "@react-native-clipboard/clipboard": "^1.12.1",
     "@react-native-community/checkbox": "^0.5.16",
     "@react-native-community/netinfo": "^11.2.1",
@@ -45,6 +46,7 @@
     "react-native-file-viewer": "^2.1.5",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.15.0",
+    "react-native-haptic-feedback": "^2.2.0",
     "react-native-image-gallery": "^2.1.5",
     "react-native-image-picker": "^5.6.0",
     "react-native-linear-gradient": "^2.8.3",
@@ -67,6 +69,7 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-toast-message": "^2.1.7",
     "react-native-uuid": "^2.0.1",
+    "react-native-view-shot": "^3.8.0",
     "react-native-vision-camera": "^3.8.2",
     "react-redux": "^8.1.0",
     "toggle-switch-react-native": "^3.3.0"

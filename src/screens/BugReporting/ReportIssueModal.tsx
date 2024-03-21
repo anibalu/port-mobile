@@ -11,7 +11,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {PortColors, screen} from '@components/ComponentUtils';
-import Notch from '@components/ConnectionModal/Notch';
+import Notch from '@components/Modals/Notch';
 import {GenericButton} from '@components/GenericButton';
 
 interface reportIssueProps {

@@ -1,0 +1,87 @@
+/**
+ * A simple error bottom sheet.
+ * App Instances ex: 'incorrect qr',
+ * Takes the following props:
+ * 1. visible state for bottomsheet
+ * 2. onClose function (runs on right 'x' and modal backdrop click)
+ * 3. onTryAgain function
+ * 4. title text
+ * 5. description text
+ */
+
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+import RetryIcon from '@assets/icons/Retry.svg';
+import AlertIcon from '@assets/icons/ErrorAlert.svg';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
+import PrimaryBottomSheet from './PrimaryBottomSheet';
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import SecondaryButton from '../LongButtons/SecondaryButton';
+
+const ErrorBottomSheet = ({
+  visible,
+  title,
+  description,
+  onClose,
+  onTryAgain,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  onTryAgain: () => Promise<void>;
+  description: string;
+  title: string;
+}) => {
+  return (
+    <PrimaryBottomSheet
+      showClose={true}
+      IconLeft={AlertIcon}
+      visible={visible}
+      IconLeftSize={'s'}
+      title={title}
+      titleStyle={styles.title}
+      onClose={onClose}>
+      <View style={styles.mainWrapper}>
+        <NumberlessText
+          style={styles.description}
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}>
+          {description}
+        </NumberlessText>
+        <SecondaryButton
+          buttonText={'Try Again'}
+          secondaryButtonColor={'black'}
+          Icon={RetryIcon}
+          iconSize={'s'}
+          onClick={onTryAgain}
+        />
+      </View>
+    </PrimaryBottomSheet>
+  );
+};
+
+const styles = StyleSheet.create({
+  mainWrapper: {
+    flexDirection: 'column',
+    width: '100%',
+    marginTop: PortSpacing.intermediate.top,
+    ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+  },
+  title: {
+    fontFamily: FontType.md,
+    fontSize: FontSizeType.l,
+    fontWeight: getWeight(FontType.md),
+    marginLeft: PortSpacing.tertiary.left,
+    color: PortColors.primary.red.error,
+  },
+  description: {
+    color: PortColors.subtitle,
+    marginBottom: PortSpacing.intermediate.bottom,
+  },
+});
+
+export default ErrorBottomSheet;

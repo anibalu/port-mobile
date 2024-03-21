@@ -19,7 +19,8 @@ export default async function ports() {
       expiryTimestamp VARCHAR(27),
       channel VARCHAR(128),
       cryptoId CHAR(32),
-      permissionPresetId CHAR(32)
+      folderId CHAR(32),
+      FOREIGN KEY (folderId) REFERENCES folders(folderId)
     ) ;
     `,
     [],
@@ -37,7 +38,9 @@ export default async function ports() {
       groupId CHAR(32),
       usedOnTimestamp VARCHAR(27),
       expiryTimestamp VARCHAR(27),
-      channel VARCHAR(64)
+      channel VARCHAR(64),
+      folderId CHAR(32),
+      FOREIGN KEY (folderId) REFERENCES folders(folderId)
     ) ;
     `,
     [],
@@ -59,7 +62,8 @@ export default async function ports() {
       expiryTimestamp VARCHAR(27),
       channel VARCHAR(128),
       cryptoId CHAR(32),
-      permissionPresetId CHAR(32)
+      folderId CHAR(32),
+      FOREIGN KEY (folderId) REFERENCES folders(folderId)
     ) ;
     `,
     [],
@@ -78,7 +82,11 @@ export default async function ports() {
       createdOnTimestamp VARCHAR(27),
       channel VARCHAR(64),
       cryptoId CHAR(32),
-      connectionsPossible INT UNSIGNED
+      connectionsLimit INT UNSIGNED,
+      connectionsMade INT UNSIGNED,
+      folderId CHAR(32),
+      paused BOOL,
+      FOREIGN KEY (folderId) REFERENCES folders(folderId)
     ) ;
     `,
     [],

@@ -2,7 +2,6 @@ import connections from './connections';
 import cryptoData from './cryptoData';
 import lineMessages from './lineMessages';
 import groups from './groups';
-import permissions from './permissions';
 import lines from './lines';
 import ports from './ports';
 import contactSharing from './contactSharing';
@@ -16,7 +15,6 @@ export default async function migration001() {
   await lineMessages();
   await cryptoData();
   await groups();
-  await permissions();
   await lines();
   await ports();
   await contactSharing();

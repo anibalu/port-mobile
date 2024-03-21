@@ -16,7 +16,9 @@ export default async function groups() {
       description VARCHAR(256),
       groupPicture VARCHAR(128),
       amAdmin BOOL,
-      selfCryptoId CHAR(32)
+      selfCryptoId CHAR(32),
+      permissionsId CHAR(32),
+      FOREIGN KEY (permissionsId) REFERENCES permissions(permissionsId)
     ) ;
     `,
     [],

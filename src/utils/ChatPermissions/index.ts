@@ -1,21 +1,39 @@
-import {
-  DirectPermissions,
-  GroupPermissions,
-  ChatPermissions,
-  Permissions,
-  MasterPermissions,
-} from './interfaces';
+import {ChatPermissions, Permissions, PermissionsStrict} from './interfaces';
 import * as group from './group';
 import * as direct from './direct';
 import {ChatType} from '@utils/Connections/interfaces';
 import * as storage from '@utils/Storage/permissions';
-import {getPermissionPresetPermissions} from '@utils/ChatPermissionPresets';
 import {
   disappearDuration,
   disappearOptions,
   disappearOptionsTypes,
 } from '@utils/Time/interfaces';
+import {getFolderPermissions} from '@utils/Storage/folders';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {isGroupChat} from '@utils/Connections';
+import Group from '@utils/Groups/Group';
+import DirectChat from '@utils/DirectChats/DirectChat';
 
+/**
+ * Creates permissions based on folder permissions and returns permissionsId.
+ * @param folderId
+ * @returns - newly created permissionsId
+ */
+export async function createChatPermissionsFromFolderId(
+  folderId: string,
+): Promise<string> {
+  const permissions: PermissionsStrict = await getFolderPermissions(folderId);
+  const permissionsId = generateRandomHexId();
+  await storage.newPermissionEntry(permissionsId);
+  await storage.updatePermissions(permissionsId, permissions);
+  return permissionsId;
+}
+
+/**
+ * Get Default permissions
+ * @param chatType - direct or group
+ * @returns - defaults
+ */
 export function getDefaultPermissions<T extends ChatType>(
   chatType: T,
 ): ChatPermissions<T> {
@@ -27,6 +45,12 @@ export function getDefaultPermissions<T extends ChatType>(
   throw new Error('Invalid ChatType');
 }
 
+/**
+ * Get chat permissions given a chatId
+ * @param chatId
+ * @param chatType - group or direct
+ * @returns - chat permissions
+ */
 export async function getChatPermissions<T extends ChatType>(
   chatId: string,
   chatType: T,
@@ -39,42 +63,23 @@ export async function getChatPermissions<T extends ChatType>(
   throw new Error('Invalid ChatType');
 }
 
-export async function createChatPermissions<T extends ChatType>(
-  chatId: string,
-  chatType: T,
-  presetId: string | null = null,
-  permissions: ChatPermissions<T> = getDefaultPermissions(chatType),
-) {
-  const newPermissions: MasterPermissions =
-    await getPermissionPresetPermissions(presetId);
-  if (chatType === ChatType.group) {
-    presetId
-      ? await group.createChatPermissions(
-          chatId,
-          newPermissions as GroupPermissions,
-        )
-      : await group.createChatPermissions(
-          chatId,
-          permissions as GroupPermissions,
-        );
-  } else if (chatType === ChatType.direct) {
-    presetId
-      ? await direct.createChatPermissions(
-          chatId,
-          newPermissions as DirectPermissions,
-        )
-      : await direct.createChatPermissions(
-          chatId,
-          permissions as DirectPermissions,
-        );
-  }
-}
-
+/**
+ * Update a chat's permissions
+ * @param chatId
+ * @param update
+ */
 export async function updateChatPermissions(
   chatId: string,
   update: Permissions,
 ) {
-  await storage.updatePermissions(chatId, update);
+  const isGroup = await isGroupChat(chatId);
+  if (isGroup) {
+    const group = new Group(chatId);
+    await group.updatePermissions(update);
+  } else {
+    const chat = new DirectChat(chatId);
+    await chat.updatePermissions(update);
+  }
 }
 
 export function getLabelByTimeDiff(

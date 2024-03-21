@@ -25,6 +25,7 @@ export interface ConnectionInfoUpdate {
   newMessageCount?: number;
   disconnected?: boolean;
   latestMessageId?: string;
+  folderId?: string;
 }
 
 export interface ConnectionInfo extends ConnectionInfoUpdate {
@@ -40,6 +41,7 @@ export interface ConnectionInfo extends ConnectionInfoUpdate {
   newMessageCount: number;
   disconnected?: boolean;
   latestMessageId?: string;
+  folderId: string;
 }
 
 export interface ConnectionInfoUpdateOnNewMessage extends ConnectionInfoUpdate {
@@ -51,18 +53,4 @@ export interface ConnectionInfoUpdateOnNewMessage extends ConnectionInfoUpdate {
   readStatus: ReadStatus;
   authenticated?: boolean;
   latestMessageId?: string;
-}
-
-export interface Connections {
-  connections: ConnectionInfo[];
-}
-
-export interface StoreConnection {
-  chatId: string;
-  stringifiedConnection: string;
-  trigger?: string;
-}
-
-export interface StoreConnections {
-  connections: StoreConnection[];
 }

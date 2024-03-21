@@ -82,12 +82,21 @@ export class SendReactionDirectMessage<
       } catch (e) {
         throw new Error('MessageDoesNotExist');
       }
-      await ReactionStorage.addReaction(
-        this.chatId,
-        reactionData.messageId,
-        LineReactionSender.self,
-        reactionData.reaction,
-      );
+      if (reactionData.tombstone) {
+        // TODO delete my reaction
+        ReactionStorage.deleteReaction(
+          this.chatId,
+          reactionData.messageId,
+          LineReactionSender.self,
+        );
+      } else {
+        await ReactionStorage.addReaction(
+          this.chatId,
+          reactionData.messageId,
+          LineReactionSender.self,
+          reactionData.reaction,
+        );
+      }
       const processedPayload = await this.encryedtMessage();
       const newSendStatus = await API.sendObject(
         this.chatId,

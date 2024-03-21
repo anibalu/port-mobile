@@ -47,7 +47,7 @@ class SendMessage<T extends ContentType> {
       );
       await sender.send(journal, shouldEncrypt, onUpdateSuccess);
     } else {
-      sendDirect(
+      await sendDirect(
         this.chatId,
         this.contentType,
         this.data,

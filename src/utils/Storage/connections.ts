@@ -27,6 +27,10 @@ export async function addConnection(connection: ConnectionInfo) {
   await DBCalls.addConnection(connection);
 }
 
+export async function getNewMessageCount(folderId?: string) {
+  return await DBCalls.getNewMessageCount(folderId);
+}
+
 /**
  *
  * @param update the update to make to a connection in storage
@@ -34,6 +38,12 @@ export async function addConnection(connection: ConnectionInfo) {
  */
 export async function updateConnection(update: ConnectionInfoUpdate) {
   await DBCalls.updateConnection(update);
+}
+
+export async function updateConnectionOnNewMessage(
+  update: ConnectionInfoUpdate,
+) {
+  await DBCalls.updateConnectionOnNewMessage(update);
 }
 
 /**

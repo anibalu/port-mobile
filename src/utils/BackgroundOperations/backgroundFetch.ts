@@ -18,7 +18,7 @@ export async function initBackgroundFetch() {
 
 async function allottedBackgroundTime(taskId: string) {
   console.log('[Starting background fetch]: ', taskId);
-  performPeriodicOperations();
+  await performPeriodicOperations();
   console.log('[Completed background fetch withing allotted time]: ', taskId);
   BackgroundFetch.finish(taskId);
 }

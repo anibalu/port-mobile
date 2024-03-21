@@ -26,13 +26,15 @@ export default function LinkPreview({
   data,
   link,
   showPreview,
-  setShowPreview,
+  setShowPreview = (x: boolean) => {
+    console.log(x);
+  },
 }: {
   loading: boolean;
   link: string;
   data: LinkPreviewData | null;
   showPreview: boolean;
-  setShowPreview: (() => void) | null;
+  setShowPreview?: (x: boolean) => void;
 }): ReactNode {
   const {
     title,
@@ -176,7 +178,7 @@ export default function LinkPreview({
                   </NumberlessText>
                 )}
                 <GenericButton
-                  iconSizeRight={25}
+                  iconSizeRight={24}
                   buttonStyle={styles.cancel}
                   IconRight={Cross}
                   onPress={onCancelPreview}
@@ -237,6 +239,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 16,
     flex: 1,
     backgroundColor: PortColors.primary.grey.light,
+    marginRight: 1,
   },
   cancel: {
     backgroundColor: 'transparent',

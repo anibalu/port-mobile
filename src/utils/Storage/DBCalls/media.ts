@@ -82,7 +82,9 @@ export async function getTypedMedia(
   chatId: string,
   type: ContentType,
 ): Promise<MediaEntry[]> {
-  if (!LargeDataMessageContentTypes.includes(type)) {
+  if (
+    !(LargeDataMessageContentTypes.includes(type) || type === ContentType.link)
+  ) {
     console.error('ContentType invalid for media storage');
     throw Error(
       'ContentType invalid for media storage. Incorrect call for getTypedMedia',

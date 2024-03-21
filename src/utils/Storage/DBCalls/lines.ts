@@ -36,7 +36,7 @@ export async function readLineData(
   let match: LineDataStrict | null = null;
   await runSimpleQuery(
     `
-    SELECT name, displayPic, authenticated, disconnected, cryptoId, connectedOn, connectedUsing
+    SELECT *
     FROM lines
     WHERE lineId = ? ;
     `,
@@ -72,7 +72,8 @@ export async function updateLine(lineId: string, update: LineData) {
     disconnected = COALESCE(?, disconnected),
     cryptoId = COALESCE(?, cryptoId),
     connectedOn = COALESCE(?, connectedOn),
-    connectedUsing = COALESCE(? , connectedUsing)
+    connectedUsing = COALESCE(? , connectedUsing),
+    permissionsId = COALESCE(? , permissionsId)
     WHERE lineId = ? ;
     `,
     [
@@ -83,6 +84,7 @@ export async function updateLine(lineId: string, update: LineData) {
       update.cryptoId,
       update.connectedOn,
       update.connectedUsing,
+      update.permissionsId,
       lineId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -100,7 +102,7 @@ export async function getUnauthenticatedLines(): Promise<
   const matches: Array<LineDataStrict> = [];
   await runSimpleQuery(
     `
-    SELECT name, displayPic, authenticated, disconnected, cryptoId, connectedOn, connectedUsing
+    SELECT *
     FROM lines
     WHERE authenticated = FALSE ;
     `,

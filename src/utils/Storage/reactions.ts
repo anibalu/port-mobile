@@ -32,6 +32,20 @@ export async function getReactions(
 }
 
 /**
+ * Delete a reaction to a message from a particular sender
+ * @param chatId
+ * @param messageId
+ * @param senderId
+ */
+export async function deleteReaction(
+  chatId: string,
+  messageId: string,
+  senderId: string,
+) {
+  await DBCalls.deleteReaction(chatId, messageId, senderId);
+}
+
+/**
  * Get reactions and their counts for a message
  * @param chatId
  * @param messageId

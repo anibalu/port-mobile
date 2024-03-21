@@ -21,6 +21,9 @@ export type BundleType<T extends BundleTarget> = T extends BundleTarget.direct
   ? GroupSuperportBundle
   : never;
 
+/**
+ * Describes the data available in a generated port.
+ */
 export interface PortDataUpdate {
   version?: string | null;
   label?: string | null;
@@ -28,7 +31,7 @@ export interface PortDataUpdate {
   expiryTimestamp?: string | null;
   channel?: string | null;
   cryptoId?: string | null;
-  permissionPresetId?: string | null;
+  folderId?: string | null;
 }
 
 export interface PortData extends PortDataUpdate {
@@ -39,26 +42,33 @@ export interface PortData extends PortDataUpdate {
   expiryTimestamp: string | null;
   channel: string | null;
   cryptoId: string | null;
-  permissionPresetId?: string | null;
+  folderId: string;
 }
 
+/**
+ * Describes the data available in a generated group port.
+ */
 export interface GroupPortDataUpdate {
   version?: string | null;
   groupId?: string | null;
   usedOnTimestamp?: string | null;
   expiryTimestamp?: string | null;
   channel?: string | null;
+  folderId?: string | null;
 }
-
 export interface GroupPortData extends GroupPortDataUpdate {
   portId: string;
-  version: string | null;
-  groupId: string | null;
+  version: string;
+  groupId: string;
   usedOnTimestamp: string | null;
   expiryTimestamp: string | null;
   channel: string | null;
+  folderId: string;
 }
 
+/**
+ * Describes the data available in a generated superport.
+ */
 export interface SuperportDataUpdate {
   version?: string | null;
   label?: string | null;
@@ -66,18 +76,23 @@ export interface SuperportDataUpdate {
   createdOnTimestamp?: string | null;
   channel?: string | null;
   cryptoId?: string | null;
-  connectionsPossible?: number | null;
+  connectionsLimit?: number | null;
+  connectionsMade?: number | null;
+  folderId?: string | null;
+  paused?: boolean | null;
 }
-
 export interface SuperportData extends SuperportDataUpdate {
   portId: string;
   version: string | null;
-  label: string | null;
-  usedOnTimestamp: string;
-  createdOnTimestamp: string | null;
+  label: string;
+  usedOnTimestamp: string | null;
+  createdOnTimestamp: string;
   channel: string | null;
-  cryptoId: string | null;
-  connectionsPossible: number | null;
+  cryptoId: string;
+  connectionsLimit: number;
+  connectionsMade: number;
+  folderId: string;
+  paused: boolean;
 }
 
 export interface UnusedPortData {
@@ -85,6 +100,9 @@ export interface UnusedPortData {
   remainingPorts: number;
 }
 
+/**
+ * Describes the data available in a read port (port, superport, group port).
+ */
 export interface ReadPortData {
   portId: string;
   version: string;
@@ -94,8 +112,8 @@ export interface ReadPortData {
   usedOnTimestamp: string;
   expiryTimestamp: string | null;
   channel: string | null;
-  cryptoId?: string | null;
-  permissionPresetId?: string | null;
+  cryptoId: string;
+  folderId: string;
 }
 
 export interface BundleBase {
@@ -106,6 +124,9 @@ export interface BundleBase {
   name: string;
 }
 
+/**
+ * Describes data displayed in a QR or link for a port
+ */
 export interface PortBundle extends BundleBase {
   portId: string;
   version: string;
@@ -117,6 +138,9 @@ export interface PortBundle extends BundleBase {
   keyHash: string;
 }
 
+/**
+ * Describes data displayed in a QR or link for a direct superport
+ */
 export interface DirectSuperportBundle extends BundleBase {
   portId: string;
   version: string;
@@ -127,8 +151,9 @@ export interface DirectSuperportBundle extends BundleBase {
   keyHash: string;
 }
 
-export interface GroupSuperportBundle extends BundleBase {}
-
+/**
+ * Describes data displayed in a QR or link for a group port
+ */
 export interface GroupBundle extends BundleBase {
   portId: string;
   version: string;
@@ -139,13 +164,17 @@ export interface GroupBundle extends BundleBase {
   expiryTimestamp: string | null;
 }
 
+/**
+ * Describes data displayed in a QR or link for a group superport. Currently unsupported
+ */
+export interface GroupSuperportBundle extends BundleBase {}
+
+/**
+ * Describes the data that is required by a pending port card
+ */
 export interface PendingCardInfo {
   portId: string;
   name: string;
-  target: BundleTarget;
-  usedOnTimestamp: string;
-  expiryTimestamp: string | null;
-  stage: 'Pending Handshake';
-  channelDescription: string;
-  table: PortTable;
+  isLink: boolean;
+  createdOn: string;
 }

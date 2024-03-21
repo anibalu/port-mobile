@@ -47,7 +47,7 @@ class SendGroupMessage<T extends ContentType> {
   private savedMessage: SavedMessageParams; //message to be saved to storage
   private payload: PayloadMessageParams; //message to be encrypted and sent.
   private expiresOn: string | null;
-  private recipientID: string | null;
+  private recipientId: string | null;
   //construct the class.
   constructor(
     chatId: string,
@@ -55,14 +55,14 @@ class SendGroupMessage<T extends ContentType> {
     data: MessageDataTypeBasedOnContentType<T>,
     replyId: string | null = null,
     messageId: string = generateRandomHexId(),
-    recipientID: string | null = null,
+    recipientId: string | null = null,
   ) {
     this.chatId = chatId;
     this.contentType = type;
     this.data = data;
     this.messageId = messageId;
     this.replyId = replyId;
-    this.recipientID = recipientID;
+    this.recipientId = recipientId;
     this.savedMessage = {
       chatId: this.chatId,
       messageId: this.messageId,
@@ -74,7 +74,7 @@ class SendGroupMessage<T extends ContentType> {
       messageStatus: MessageStatus.unassigned,
       replyId: this.replyId,
       expiresOn: null,
-      recipientID: recipientID,
+      recipientId: recipientId,
     };
     this.payload = {
       messageId: this.messageId,
@@ -153,9 +153,9 @@ class SendGroupMessage<T extends ContentType> {
     const plaintext = JSON.stringify(this.payload);
 
     //TODO: Test this out, isnt tested
-    if (this.recipientID) {
+    if (this.recipientId) {
       const recipientPair = groupCryptoPairs.filter(
-        item => item[0] === this.recipientID,
+        item => item[0] === this.recipientId,
       );
       return shouldEncrypt
         ? await multiEncryptWithX25519SharedSecrets(plaintext, recipientPair)

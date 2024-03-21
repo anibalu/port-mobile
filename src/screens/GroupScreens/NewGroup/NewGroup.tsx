@@ -9,7 +9,6 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Group from '@utils/Groups/Group';
 import {fetchNewPorts} from '@utils/Ports';
-import {generateISOTimeStamp} from '@utils/Time';
 import React, {useCallback, useState} from 'react';
 import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {useErrorModal} from 'src/context/ErrorModalContext';
@@ -44,13 +43,12 @@ const NewGroup = ({route, navigation}: Props) => {
   const onCreatePressed = async () => {
     setSetupLoading(true);
     try {
-      await groupHandler.createGroup({
-        name: groupName.trim(),
-        description: groupDescription.trim(),
-        groupPicture: image,
-        joinedAt: generateISOTimeStamp(),
-        amAdmin: true,
-      });
+      await groupHandler.createGroup(
+        groupName.trim(),
+        groupDescription.trim(),
+        null,
+      );
+      //generate group ports for the group
       await generateLinks();
       navigation.navigate('ShareGroup', {
         groupId: groupHandler.getGroupIdNotNull(),

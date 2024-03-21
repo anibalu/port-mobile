@@ -1,8 +1,7 @@
 /**
  * Default chat tile displayed when there are no connections
  */
-import {PortColors, screen} from '@components/ComponentUtils';
-import {GenericButton} from '@components/GenericButton';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import ScanIcon from '@assets/icons/scanBlue.svg';
 import NewContactIcon from '@assets/icons/newContact.svg';
 import {
@@ -12,16 +11,19 @@ import {
 } from '@components/NumberlessText';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {useConnectionModal} from 'src/context/ConnectionModalContext';
-import {TOPBAR_HEIGHT} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
+import {FileAttributes} from '@utils/Storage/interfaces';
 
-function HomescreenPlaceholder(): ReactNode {
-  const {showNewPortModal: showModal} = useConnectionModal();
+function HomescreenPlaceholder({
+  name,
+  profilePicAttr,
+}: {
+  name: string;
+  profilePicAttr: FileAttributes;
+}): ReactNode {
   const navigation = useNavigation();
-  const handleNavigate = (): void => {
-    showModal();
-  };
 
   return (
     <View style={styles.mainContainer}>
@@ -30,7 +32,7 @@ function HomescreenPlaceholder(): ReactNode {
           Start connecting differently
         </NumberlessText>
         <NumberlessText
-          style={{color: PortColors.text.secondary}}
+          style={{color: PortColors.text.secondary, textAlign: 'center'}}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}>
           On Port, you create a connection by sharing a “Port” instead of your
@@ -39,29 +41,36 @@ function HomescreenPlaceholder(): ReactNode {
         </NumberlessText>
       </View>
       <View>
-        <GenericButton
-          buttonStyle={styles.buttonWrapper}
-          IconLeft={NewContactIcon}
-          iconSize={20}
-          onPress={handleNavigate}>
-          New Port
-        </GenericButton>
-        <NumberlessText
-          style={{textAlign: 'center'}}
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.rg}>
-          Or
-        </NumberlessText>
-        <GenericButton
-          buttonStyle={StyleSheet.compose(styles.buttonWrapper, {
-            backgroundColor: 'transparent',
-          })}
-          textStyle={{color: PortColors.primary.blue.app}}
-          onPress={() => navigation.navigate('Scan')}
-          IconLeft={ScanIcon}
-          iconSize={20}>
-          Scan QR
-        </GenericButton>
+        <PrimaryButton
+          isLoading={false}
+          disabled={false}
+          primaryButtonColor="b"
+          onClick={() =>
+            navigation.navigate('NewPortScreen', {
+              name: name,
+              avatar: profilePicAttr,
+            })
+          }
+          Icon={NewContactIcon}
+          buttonText="New Port"
+          iconSize="s"
+        />
+        <View style={{marginTop: PortSpacing.secondary.top}}>
+          <NumberlessText
+            style={{textAlign: 'center'}}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}>
+            Or
+          </NumberlessText>
+        </View>
+        <TertiaryButton
+          tertiaryButtonColor="b"
+          disabled={false}
+          onClick={() => navigation.navigate('Scan')}
+          Icon={ScanIcon}
+          iconSize="s"
+          buttonText=" Scan QR"
+        />
       </View>
     </View>
   );
@@ -69,10 +78,10 @@ function HomescreenPlaceholder(): ReactNode {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    height: screen.height - TOPBAR_HEIGHT,
+    height: screen.height / 2,
     flexDirection: 'column',
-    gap: 34,
-    justifyContent: 'center',
+    marginTop: PortSpacing.primary.top,
+    justifyContent: 'flex-end',
     flex: 1,
   },
   headingWrapper: {
@@ -80,12 +89,7 @@ const styles = StyleSheet.create({
     gap: 12,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  buttonWrapper: {
-    borderRadius: 12,
-    paddingVertical: 15,
-    marginBottom: 8,
-    height: 50,
+    marginBottom: PortSpacing.primary.bottom,
   },
 });
 

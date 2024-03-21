@@ -82,9 +82,8 @@ export function MediaActionsBar({
     for (const media of selectedMedia) {
       if (media.chatId) {
         if (media.messageId) {
-          const sender = new SendMessage(chatId, ContentType.update, {
-            messageIdToBeUpdated: media.messageId,
-            updatedContentType: ContentType.deleted,
+          const sender = new SendMessage(chatId, ContentType.deleted, {
+            messageIdToDelete: media.messageId,
           });
           sender.send();
           await cleanDeleteMessage(chatId, media.messageId);

@@ -63,6 +63,22 @@ async function updateReactions(
   );
 }
 
+export async function deleteReaction(
+  chatId: string,
+  messageId: string,
+  senderId: string,
+) {
+  await runSimpleQuery(
+    `
+    DELETE FROM reactions
+    WHERE chatId = ? AND messageId = ? and senderId = ? ;
+    `,
+    [chatId, messageId, senderId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, res) => {},
+  );
+}
+
 export interface messageReaction {
   senderId: string;
   reaction: string;

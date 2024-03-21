@@ -1,7 +1,7 @@
 import * as API from './APICalls';
 import * as storageReadPorts from '@utils/Storage/readPorts';
 import * as storageGroupPorts from '@utils/Storage/groupPorts';
-import {IDEAL_UNUSED_PORTS_NUMBER} from '@configs/constants';
+import {IDEAL_UNUSED_PORTS_NUMBER, defaultFolderId} from '@configs/constants';
 import {
   BundleTarget,
   GroupBundle,
@@ -19,7 +19,13 @@ import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getProfileName} from '@utils/Profile';
+import {createChatPermissionsFromFolderId} from '@utils/ChatPermissions';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
 
+/**
+ * Fetches and stores unused ports for a particular group
+ * @param groupId - group Id of group
+ */
 export async function getNewGroupPorts(groupId: string) {
   try {
     const portIds = await API.getNewGroupPorts(groupId);
@@ -29,6 +35,13 @@ export async function getNewGroupPorts(groupId: string) {
   }
 }
 
+/**
+ * Gets an unused port for a particular group
+ * @param groupId - group Id of group
+ * @returns - port Id of unused port
+ * @throws - error if we could not fetch an unused port.
+ * The primary reason for this error would be a lack of an internet connection.
+ */
 async function getUnusedGroupPort(groupId: string): Promise<string> {
   const unusedPort = await storageGroupPorts.getUnusedGroupPort(groupId);
   if (
@@ -48,13 +61,26 @@ async function getUnusedGroupPort(groupId: string): Promise<string> {
   return unusedPort.portId;
 }
 
+/**
+ * Port instrument version
+ * @returns - version string
+ */
 function getCurrentGroupportVersion() {
   return '0.0.1';
 }
+/**
+ * to determine legitimate ports
+ * @returns - organisation identifier
+ */
 function getOrganisationName() {
   return 'numberless.tech';
 }
 
+/**
+ * Fetches a generated group port's data
+ * @param portId
+ * @returns - generated data
+ */
 async function getGeneratedGroupPortData(
   portId: string,
 ): Promise<GroupPortData> {
@@ -66,9 +92,20 @@ async function getGeneratedGroupPortData(
   throw new Error('NoSuchGeneratedPort');
 }
 
+/**
+ * Creates a useable group port.
+ * @param groupId - group Id of the group
+ * @param expiry - port expiry (default is never);
+ * @param channel - channel by which the port was shared
+ * @param folderId - folder to which the formed connection should go to.
+ * The connection will inherit the folder's permissions
+ * @returns - bundle to display
+ */
 export async function generateNewGroupPortBundle(
   groupId: string,
   expiry: expiryOptionsTypes,
+  channel: string | null = null,
+  folderId: string = defaultFolderId,
 ): Promise<GroupBundle> {
   //get required params
   const group = new Group(groupId);
@@ -87,6 +124,8 @@ export async function generateNewGroupPortBundle(
     version: version,
     usedOnTimestamp: currentTimestamp,
     expiryTimestamp: expiryTimestamp,
+    folderId: folderId,
+    channel: channel,
   });
   //generate bundle to display
   const displayBundle: GroupBundle = {
@@ -101,11 +140,22 @@ export async function generateNewGroupPortBundle(
   return displayBundle;
 }
 
+/**
+ * Accepts a group port bundle and stores it to use later.
+ * @param portBundle
+ * @param channel - channel via which the port bundle was accepted (null means QR)
+ * @param folderId - folder to which the formed connection should move to.
+ * @returns
+ */
 export async function acceptGroupPortBundle(
   portBundle: GroupBundle,
   channel: string | null = null,
-  presetId: string | null = null,
+  folderId: string = defaultFolderId,
 ) {
+  //setup crypto
+  const cryptoDriver = new CryptoDriver();
+  await cryptoDriver.create();
+  const cryptoId = cryptoDriver.getCryptoId();
   //save read port
   await storageReadPorts.newReadPort({
     portId: portBundle.portId,
@@ -116,46 +166,79 @@ export async function acceptGroupPortBundle(
     usedOnTimestamp: generateISOTimeStamp(),
     expiryTimestamp: portBundle.expiryTimestamp,
     channel: channel,
-    permissionPresetId: presetId,
+    folderId: folderId,
+    cryptoId: cryptoId,
   });
   return portBundle.portId;
 }
 
+/**
+ * Joins a group using a read group port
+ * @param readPortBundle - read group port
+ */
 export async function newGroupChatOverReadPortBundle(
   readPortBundle: ReadPortData,
 ) {
+  const cryptoId: string = readPortBundle.cryptoId;
   const chat = new Group();
+  const cryptoDriver = new CryptoDriver(cryptoId);
   //check timestamp expiry
   if (hasExpired(readPortBundle.expiryTimestamp)) {
     //cleanup
     await storageReadPorts.deleteReadPortData(readPortBundle.portId);
+    await cryptoDriver.deleteCryptoData();
     return;
   }
-  //join group
-  await chat.joinGroup(
-    readPortBundle.portId,
-    {
-      name: readPortBundle.name,
-      amAdmin: false,
-      description: readPortBundle.description,
-      joinedAt: readPortBundle.usedOnTimestamp,
-    },
-    readPortBundle.permissionPresetId
-      ? readPortBundle.permissionPresetId
-      : null,
+  //create chat permissions to be assigned to chat using folder Id
+  const permissionsId = await createChatPermissionsFromFolderId(
+    readPortBundle.folderId,
   );
-  await storageReadPorts.deleteReadPortData(readPortBundle.portId);
   try {
-    const myName = await getProfileName();
-    const sender = new SendMessage(chat.getGroupIdNotNull(), ContentType.name, {
-      name: myName,
-    });
-    await sender.send();
-  } catch (error) {
-    console.log('Error sending name to group:', error);
+    //join group
+    await chat.joinGroup(
+      readPortBundle.portId,
+      {
+        name: readPortBundle.name,
+        amAdmin: false,
+        description: readPortBundle.description,
+        joinedAt: readPortBundle.usedOnTimestamp,
+        permissionsId: permissionsId,
+        selfCryptoId: cryptoId,
+      },
+      readPortBundle.folderId,
+    );
+    await storageReadPorts.deleteReadPortData(readPortBundle.portId);
+    try {
+      const myName = await getProfileName();
+      const sender = new SendMessage(
+        chat.getGroupIdNotNull(),
+        ContentType.name,
+        {
+          name: myName,
+        },
+      );
+      await sender.send();
+    } catch (error) {
+      console.log('Error sending name to group:', error);
+    }
+  } catch (error: any) {
+    if (typeof error === 'object' && error.response) {
+      if (error.response.status === 404) {
+        console.log('Port has expired');
+        //expire port
+        storageReadPorts.expireReadPort(readPortBundle.portId);
+      }
+    }
   }
 }
 
+/**
+ * Creates a generated group port into a clickable link and returns link.
+ * If the clickable link is already generated, just returns the link without regenerating.
+ * @param portId - group port Id
+ * @param bundleString - bundle string to convert to link
+ * @returns - clickable link
+ */
 export async function getGroupPortBundleClickableLink(
   portId: string,
   bundleString: string | null = null,
@@ -181,6 +264,10 @@ export async function getGroupPortBundleClickableLink(
   return BUNDLE_ID_PREPEND_LINK + bundleId;
 }
 
+/**
+ * clean deletes a generated group port
+ * @param portId - group port to delete
+ */
 export async function cleanDeleteGeneratedGroupPort(portId: string) {
   try {
     const generatedPort = await getGeneratedGroupPortData(portId);

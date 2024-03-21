@@ -4,7 +4,6 @@ import {
   LargeDataParams,
   MessageStatus,
   SavedMessageParams,
-  UpdateParams,
 } from '../Messaging/interfaces';
 import * as groupDBCalls from './DBCalls/groupMessage';
 import * as lineDBCalls from './DBCalls/lineMessage';
@@ -320,7 +319,17 @@ export async function permanentlyDeleteMessage(
   await lineDBCalls.permanentlyDeleteMessage(chatId, messageId);
 }
 
-export async function cleanDeleteMessage(chatId: string, messageId: string) {
+/**
+ * Cleanly deletie a message while taking media into consideratioin
+ * @param chatId
+ * @param messageId
+ * @param tombstone Whether to set the contentType to deleted
+ */
+export async function cleanDeleteMessage(
+  chatId: string,
+  messageId: string,
+  tombstone: boolean = false,
+) {
   const message = await getMessage(chatId, messageId);
   if (message) {
     const contentType = message.contentType;
@@ -334,7 +343,11 @@ export async function cleanDeleteMessage(chatId: string, messageId: string) {
         }
       }
     }
-    await permanentlyDeleteMessage(chatId, messageId);
+    if (tombstone) {
+      lineDBCalls.markMessageAsDeleted(chatId, messageId);
+    } else {
+      await permanentlyDeleteMessage(chatId, messageId);
+    }
   }
 }
 
@@ -379,7 +392,6 @@ export async function setReceipt(
     deliveredAt,
     updatedMessageStatus,
   );
-  console.warn('Setting receipt: ', chatId, messageId, deliveredAt, readAt);
 }
 
 /**

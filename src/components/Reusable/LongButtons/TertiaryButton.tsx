@@ -64,10 +64,10 @@ const TertiaryButton = ({
         style={StyleSheet.compose(
           tertiaryButtonTextColorPicker(tertiaryButtonColor),
           styles.buttonText,
-        )}>
-        {buttonText.length > 16
-          ? buttonText.substring(0, 16) + '...'
-          : buttonText}
+        )}
+        numberOfLines={1}
+        ellipsizeMode={'tail'}>
+        {buttonText.substring(0, 20)}
       </Text>
     </TouchableOpacity>
   );

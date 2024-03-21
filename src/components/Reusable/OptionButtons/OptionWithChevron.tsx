@@ -9,9 +9,14 @@
  * 6. Has border bottom
  */
 
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import RightChevron from '@assets/icons/BlackAngleRight.svg';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
 import React, {FC} from 'react';
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {View} from 'react-native';
@@ -27,7 +32,7 @@ const OptionWithChevron = ({
 }: {
   onClick: () => void;
   IconLeft: FC<SvgProps>;
-  labelText: string;
+  labelText?: string;
   labelActiveState: boolean;
   heading: string;
   description?: string;
@@ -35,7 +40,7 @@ const OptionWithChevron = ({
   return (
     <TouchableOpacity
       style={StyleSheet.compose(styles.optionContainer, {
-        height: description ? 67 : 38,
+        height: description ? 67 : 40,
       })}
       onPress={onClick}
       accessibilityIgnoresInvertColors
@@ -50,18 +55,23 @@ const OptionWithChevron = ({
             {description}
           </Text>
         </View>
+
         <View style={styles.sectionRight}>
-          <Text
-            style={StyleSheet.compose(styles.labelWrapper, {
-              backgroundColor: labelActiveState
-                ? PortColors.primary.blue.app
-                : PortColors.background,
-              color: labelActiveState
-                ? PortColors.primary.white
-                : PortColors.subtitle,
-            })}>
-            {labelText}
-          </Text>
+          {labelText && (
+            <View style={styles.labelWrapper}>
+              <NumberlessText
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.m}
+                textColor={
+                  labelActiveState
+                    ? PortColors.primary.blue.app
+                    : PortColors.subtitle
+                }>
+                {labelText}
+              </NumberlessText>
+            </View>
+          )}
+
           <RightChevron width={20} height={20} />
         </View>
       </View>
@@ -75,22 +85,24 @@ const styles = StyleSheet.create({
   },
   optionWrapper: {
     flexDirection: 'row',
-    paddingVertical: 8,
+    paddingTop: PortSpacing.tertiary.bottom + 2,
+    paddingBottom: PortSpacing.tertiary.bottom,
     alignItems: 'flex-start',
     flex: 1,
   },
   labelWrapper: {
-    paddingVertical: 4,
     borderRadius: 6,
-    paddingHorizontal: 4,
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.m,
-    fontWeight: getWeight(FontType.rg),
+    paddingHorizontal: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 25,
+    backgroundColor: PortColors.background,
   },
   sectionRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    height: 20,
   },
   textContainer: {
     paddingLeft: 16,
@@ -99,8 +111,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heading: {
-    lineHeight: 22,
-    paddingBottom: 2,
+    lineHeight: 20,
     color: PortColors.title,
     fontFamily: FontType.rg,
     fontSize: FontSizeType.m,

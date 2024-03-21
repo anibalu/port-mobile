@@ -1,10 +1,15 @@
 import Camera from '@assets/icons/CameraThinWhite.svg';
 import Send from '@assets/icons/WhiteArrowUp.svg';
-import Whitecross from '@assets/icons/Whitecross.svg';
+import Whitecross from '@assets/icons/closeWhite.svg';
 import Delete from '@assets/icons/Whitedelete.svg';
 import Play from '@assets/icons/videoPlay.svg';
 import BlackOverlay from '@assets/miscellaneous/blackOverlay.svg';
-import {PortColors, isIOS, screen} from '@components/ComponentUtils';
+import {
+  PortColors,
+  PortSpacing,
+  isIOS,
+  screen,
+} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import GenericInput from '@components/GenericInput';
 import {
@@ -45,6 +50,8 @@ import useKeyboardVisibility from '../../utils/Hooks/useKeyboardVisibility';
 import Group from '@utils/Groups/Group';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {GroupMemberStrict} from '@utils/Groups/interfaces';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -265,10 +272,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   };
 
   const onSend = async () => {
-    // setSending(true);
+    setSending(true);
     for (const mbr of selectedMembers) {
       for (const data of dataList) {
-        console.log('Sending: ', data.data);
         //If there are multiple messages and this has entered from chat, attach text to the last image that is sent.
         if (isChat && dataList.indexOf(data) === dataList.length - 1) {
           data.data.text = message;
@@ -287,7 +293,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         };
 
         const sender = new SendMessage(mbr.chatId, data.contentType, newData);
-        sender.send();
+        await sender.send();
       }
     }
     setSending(false);
@@ -326,149 +332,157 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   }, [dataHandler, isChat, selectedMembers]);
 
   return (
-    <View style={styles.screen}>
-      <Whitecross
-        style={styles.whiteCrossIcon}
-        disabled={isSending}
-        onPress={() => {
-          if (onRemove) {
-            for (const t of dataList) {
-              onRemove(t.data.fileUri);
-            }
-          }
-          navigation.goBack();
-        }}
+    <>
+      <CustomStatusBar
+        barStyle="light-content"
+        backgroundColor={PortColors.primary.black}
       />
-
-      <Carousel
-        layout="default"
-        ref={carousel}
-        data={dataList}
-        onSnapToItem={(index: number) => setActiveIndex(index)}
-        sliderWidth={screen.width}
-        itemWidth={screen.width}
-        renderItem={renderCarouselItem}
-      />
-
-      {!isKeyboardVisible && dataList.length > 1 && (
-        <FlatList
-          data={dataList}
-          horizontal={true}
-          scrollEnabled={true}
-          contentContainerStyle={{paddingHorizontal: 12}}
-          style={styles.imagescroll}
-          renderItem={renderThumbnails}
-        />
-      )}
-      <KeyboardAvoidingView
-        behavior={isIOS ? 'padding' : 'height'}
-        keyboardVerticalOffset={isIOS ? 54 : undefined}
-        style={StyleSheet.compose(
-          styles.bottombar,
-          isChat && {
-            backgroundColor: PortColors.primary.black,
-          },
-        )}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'stretch',
-            width: '100%',
-            alignItems: 'center',
-          }}>
-          {fromCapture && (
-            <Pressable
-              onPress={() => {
-                navigation.goBack();
-              }}>
-              <Camera style={{marginHorizontal: 8}} />
-            </Pressable>
-          )}
-
-          <GenericInput
-            inputStyle={styles.messageInputStyle}
-            text={message}
-            size="sm"
-            maxLength={'inf'}
-            multiline={true}
-            setText={setMessage}
-            placeholder={isFocused ? '' : 'Add a message'}
-            alignment="left"
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+      <SafeAreaView style={{backgroundColor: PortColors.primary.black}}>
+        <View style={styles.screen}>
+          <Whitecross
+            style={styles.whiteCrossIcon}
+            disabled={isSending}
+            onPress={() => {
+              if (onRemove) {
+                for (const t of dataList) {
+                  onRemove(t.data.fileUri);
+                }
+              }
+              navigation.goBack();
+            }}
           />
-        </View>
 
-        <View style={styles.bottombarUserPills}>
-          <View style={styles.bottomUserPillsBg} />
-          <View style={styles.selectedUserContainer}>
-            {isGroupChat && groupMembers.length >= 1 ? (
-              <FlatList
-                data={groupMembers}
-                horizontal={true}
-                contentContainerStyle={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  columnGap: 8,
-                }}
-                showsHorizontalScrollIndicator={false}
-                scrollEnabled={true}
-                keyExtractor={item => item.memberId}
-                renderItem={renderItemTile}
-              />
-            ) : selectedMembers.length >= 1 && !isChat ? (
-              <FlatList
-                data={selectedMembers}
-                horizontal={true}
-                contentContainerStyle={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  columnGap: 8,
-                }}
-                showsHorizontalScrollIndicator={false}
-                scrollEnabled={true}
-                keyExtractor={item => item.chatId}
-                renderItem={renderItemTile}
-              />
-            ) : (
-              <NumberlessText
-                fontSizeType={FontSizeType.s}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={{
-                  padding: 10,
-                  borderRadius: 11,
-                  overflow: 'hidden',
-                  textAlign: 'center',
-                  backgroundColor: PortColors.text.backgroundGrey,
-                }}
-                textColor={PortColors.text.primaryWhite}
-                fontType={FontType.sb}>
-                {userNameInDM}
-              </NumberlessText>
-            )}
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              gap: 0,
-            }}>
-            <BlackOverlay style={{position: 'absolute', right: -16}} />
+          <Carousel
+            layout="default"
+            ref={carousel}
+            data={dataList}
+            onSnapToItem={(index: number) => setActiveIndex(index)}
+            sliderWidth={screen.width}
+            itemWidth={screen.width}
+            renderItem={renderCarouselItem}
+          />
 
-            <GenericButton
-              onPress={onSend}
-              disabled={message.length < 0}
-              iconSizeRight={14}
-              IconRight={Send}
-              loading={isSending || loading}
-              buttonStyle={styles.button}
+          {!isKeyboardVisible && dataList.length > 1 && (
+            <FlatList
+              data={dataList}
+              horizontal={true}
+              scrollEnabled={true}
+              contentContainerStyle={{paddingHorizontal: 12}}
+              style={styles.imagescroll}
+              renderItem={renderThumbnails}
             />
-          </View>
+          )}
+          <KeyboardAvoidingView
+            behavior={isIOS ? 'padding' : 'height'}
+            keyboardVerticalOffset={isIOS ? 54 : undefined}
+            style={StyleSheet.compose(
+              styles.bottombar,
+              isChat && {
+                backgroundColor: PortColors.primary.black,
+              },
+            )}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignSelf: 'stretch',
+                width: '100%',
+                alignItems: 'center',
+              }}>
+              {fromCapture && (
+                <Pressable
+                  onPress={() => {
+                    navigation.goBack();
+                  }}>
+                  <Camera style={{marginHorizontal: 8}} />
+                </Pressable>
+              )}
+
+              <GenericInput
+                inputStyle={styles.messageInputStyle}
+                text={message}
+                size="sm"
+                maxLength={500}
+                multiline={true}
+                setText={setMessage}
+                placeholder={isFocused ? '' : 'Add a message'}
+                alignment="left"
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+              />
+            </View>
+
+            <View style={styles.bottombarUserPills}>
+              <View style={styles.bottomUserPillsBg} />
+              <View style={styles.selectedUserContainer}>
+                {isGroupChat && groupMembers.length >= 1 ? (
+                  <FlatList
+                    data={groupMembers}
+                    horizontal={true}
+                    contentContainerStyle={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      columnGap: 8,
+                    }}
+                    showsHorizontalScrollIndicator={false}
+                    scrollEnabled={true}
+                    keyExtractor={item => item.memberId}
+                    renderItem={renderItemTile}
+                  />
+                ) : selectedMembers.length >= 1 && !isChat ? (
+                  <FlatList
+                    data={selectedMembers}
+                    horizontal={true}
+                    contentContainerStyle={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      columnGap: 8,
+                    }}
+                    showsHorizontalScrollIndicator={false}
+                    scrollEnabled={true}
+                    keyExtractor={item => item.chatId}
+                    renderItem={renderItemTile}
+                  />
+                ) : (
+                  <NumberlessText
+                    fontSizeType={FontSizeType.s}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={{
+                      padding: 10,
+                      borderRadius: 11,
+                      overflow: 'hidden',
+                      textAlign: 'center',
+                      backgroundColor: PortColors.text.backgroundGrey,
+                    }}
+                    textColor={PortColors.text.primaryWhite}
+                    fontType={FontType.sb}>
+                    {userNameInDM}
+                  </NumberlessText>
+                )}
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: 0,
+                }}>
+                <BlackOverlay style={{position: 'absolute', right: -16}} />
+
+                <GenericButton
+                  onPress={onSend}
+                  disabled={message.length < 0}
+                  iconSizeRight={14}
+                  IconRight={Send}
+                  loading={isSending || loading}
+                  buttonStyle={styles.button}
+                />
+              </View>
+            </View>
+          </KeyboardAvoidingView>
         </View>
-      </KeyboardAvoidingView>
-    </View>
+      </SafeAreaView>
+    </>
   );
 };
 
@@ -487,8 +501,8 @@ const styles = StyleSheet.create({
   whiteCrossIcon: {
     position: 'absolute',
     zIndex: 10,
-    top: 42,
-    left: 18,
+    top: PortSpacing.intermediate.top,
+    right: PortSpacing.intermediate.right,
   },
   pdfname: {
     color: PortColors.primary.white,

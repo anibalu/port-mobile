@@ -15,7 +15,8 @@ export default async function lines() {
         cryptoId CHAR(32),
         connectedOn VARCHAR(27),
         connectedUsing VARCHAR(64),
-        recipientID CHAR(32)
+        permissionsId CHAR(32),
+        FOREIGN KEY (permissionsId) REFERENCES permissions(permissionsId)
     ) ;
     `,
     [],

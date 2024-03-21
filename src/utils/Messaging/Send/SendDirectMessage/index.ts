@@ -8,10 +8,9 @@ import {
   plaintextContentTypes,
 } from './senders/PlaintextSender';
 import {
-  SendUpdateDirectMessage,
-  updateContentTypes,
-} from './senders/UpdateSender';
-import {SendDirectMessage} from './senders/AbstractSender';
+  SendDeleteDirectMessage,
+  deleteContentTypes,
+} from './senders/DeletionSender';
 import {ContentType, DataType} from '@utils/Messaging/interfaces';
 import {
   SendReactionDirectMessage,
@@ -21,6 +20,10 @@ import {
   SendReceiptDirectMessage,
   receiptContentTypes,
 } from './senders/ReceiptSender';
+import {
+  contactBundleContentTypes,
+  SendContactBundleDirectMessage,
+} from './senders/ContactBundleSender';
 
 export async function sendDirect(
   chatId: string,
@@ -34,8 +37,11 @@ export async function sendDirect(
   if (genericContentTypes.includes(contentType)) {
     SenderClass = SendGenericDirectMessage;
   }
-  if (updateContentTypes.includes(contentType)) {
-    SenderClass = SendUpdateDirectMessage;
+  if (contactBundleContentTypes.includes(contentType)) {
+    SenderClass = SendContactBundleDirectMessage;
+  }
+  if (deleteContentTypes.includes(contentType)) {
+    SenderClass = SendDeleteDirectMessage;
   }
   if (receiptContentTypes.includes(contentType)) {
     SenderClass = SendReceiptDirectMessage;
@@ -50,15 +56,8 @@ export async function sendDirect(
     SenderClass = SendPlaintextDirectMessage;
   }
   if (SenderClass) {
-    // await SenderClass.send(onSuccess);
-    let sender: SendDirectMessage = new SenderClass(
-      chatId,
-      contentType,
-      data,
-      replyId,
-      messageId,
-    );
-    sender.send();
+    let sender = new SenderClass(chatId, contentType, data, replyId, messageId);
+    await sender.send();
     return;
   }
   console.error(

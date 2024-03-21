@@ -1,5 +1,3 @@
-import ChatBackground from '@components/ChatBackground';
-import GenericTopBar from '@components/GenericTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {useNavigation} from '@react-navigation/native';
 import React, {ReactElement, useEffect, useState} from 'react';
@@ -13,6 +11,10 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
 
 //rendered chat tile of a connection
 function renderPendingRequest(pendingRequest: PendingCardInfo): ReactElement {
@@ -25,62 +27,74 @@ const PendingRequests = () => {
     state => state.triggerPendingRequestsReload.change,
   );
   const [pendingRequests, setPendingRequests] = useState<PendingCardInfo[]>([]);
-  const [pendingRequestsLength, setPendingRequestsLength] = useState(0);
+  const [pendingRequestsLength, setPendingRequestsLength] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const getDisplayLength = () => {
+    if (pendingRequestsLength === 0) {
+      return '';
+    } else {
+      return '(' + pendingRequestsLength.toString() + ')';
+    }
+  };
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       setPendingRequests(await getPendingRequests());
       setPendingRequestsLength(await numberOfPendingRequests());
+      setIsLoading(false);
     })();
   }, [reloadTrigger]);
+
   return (
-    <SafeAreaView>
-      <ChatBackground />
-      <GenericTopBar
-        onBackPress={() => navigation.goBack()}
-        title={`Pending Requests (${pendingRequestsLength})`}
+    <>
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.white}
       />
-      {pendingRequests.length > 0 ? (
-        <FlatList
-          style={{
-            width: '100%',
-          }}
-          contentContainerStyle={{
-            marginTop: 16,
-          }}
-          data={pendingRequests}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={true}
-          keyExtractor={item => item.portId}
-          renderItem={element => renderPendingRequest(element.item)}
+      <SafeAreaView style={{backgroundColor: PortColors.background}}>
+        <BackTopbar
+          title={`Pending Ports ${getDisplayLength()}`}
+          bgColor="w"
+          onBackPress={() => navigation.goBack()}
         />
-      ) : (
         <View
           style={{
-            alignItems: 'center',
-            justifyContent: 'center',
+            width: '100%',
+            paddingTop: PortSpacing.secondary.top,
             flex: 1,
           }}>
-          <View
-            style={{
-              borderRadius: 8,
-              width: 150,
-              borderWidth: 1,
-              borderColor: '#DBDBDB',
-            }}>
-            <NumberlessText
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.md}
-              textColor="#555555"
+          {pendingRequests.length > 0 ? (
+            <FlatList
+              data={pendingRequests}
+              showsVerticalScrollIndicator={false}
+              scrollEnabled={true}
+              keyExtractor={item => item.portId}
+              renderItem={element => renderPendingRequest(element.item)}
+            />
+          ) : (
+            <View
               style={{
-                paddingHorizontal: 10,
-                paddingVertical: 4,
+                alignItems: 'center',
+                justifyContent: 'center',
+                flex: 1,
               }}>
-              No pending requests
-            </NumberlessText>
-          </View>
+              {isLoading ? (
+                <DefaultLoader />
+              ) : (
+                <View>
+                  <NumberlessText
+                    fontSizeType={FontSizeType.s}
+                    fontType={FontType.rg}
+                    textColor={PortColors.subtitle}>
+                    No pending requests
+                  </NumberlessText>
+                </View>
+              )}
+            </View>
+          )}
         </View>
-      )}
-    </SafeAreaView>
+      </SafeAreaView>
+    </>
   );
 };
 

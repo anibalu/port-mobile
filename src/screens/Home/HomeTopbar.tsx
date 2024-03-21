@@ -2,94 +2,117 @@
  * Top Bar of the home screen containing sidebar menu, pending request count and search.
  */
 import SearchIcon from '@assets/icons/searchThin.svg';
-import PendingRequestIcon from '@assets/icons/pendingRequestThin.svg';
-import {PortColors} from '@components/ComponentUtils';
+import PendingRequestIcon from '@assets/icons/PendingRequests.svg';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {TOPBAR_HEIGHT} from '@configs/constants';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {numberOfPendingRequests} from '@utils/Ports';
+import {TOPBAR_HEIGHT, defaultFolderId} from '@configs/constants';
+import {useNavigation} from '@react-navigation/native';
 import SidebarMenu from '@assets/icons/SidebarMenu.svg';
+import SettingsIcon from '@assets/icons/Settings.svg';
 import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {useSelector} from 'react-redux';
-import {GenericButton} from '@components/GenericButton';
+import SearchBar from '../../components/Reusable/TopBars/SearchBar';
+import {FolderInfo} from '@utils/ChatFolders/interfaces';
 
 type TopbarProps = {
-  toptitleMessage: String;
-  unread: Number | undefined;
+  unread: number;
   openSideDrawer?: boolean;
   setOpenSideDrawer?: any;
+  searchText: string;
+  setSearchText: (text: string) => void;
+  folder: FolderInfo;
+  pendingRequestsLength: number;
+  showPrompt?: boolean;
 };
 
 function HomeTopbar({
-  unread,
-  toptitleMessage = 'All',
+  unread = 0,
   setOpenSideDrawer,
+  searchText,
+  setSearchText,
+  folder,
+  pendingRequestsLength,
+  showPrompt = false,
 }: TopbarProps): ReactNode {
-  const title = unread
-    ? `${toptitleMessage} (${unread})`
-    : `${toptitleMessage}`;
+  const title = unread ? `${folder.name} (${unread})` : `${folder.name}`;
   const navigation = useNavigation<any>();
 
-  const reloadTrigger = useSelector(
-    state => state.triggerPendingRequestsReload.change,
-  );
-
-  const [pendingRequestsLength, setPendingRequestsLength] = useState(0);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      (async () => {
-        setPendingRequestsLength(await numberOfPendingRequests());
-      })();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reloadTrigger]),
-  );
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
   return (
     <View style={styles.bar}>
-      <View style={styles.menuLeft}>
-        <GenericButton
-          buttonStyle={styles.iconWrapper}
-          onPress={() => setOpenSideDrawer(p => !p)}
-          IconLeft={SidebarMenu}
-        />
-        <NumberlessText
-          style={styles.maintitle}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          fontType={FontType.md}
-          fontSizeType={FontSizeType.l}>
-          {title}
-        </NumberlessText>
-      </View>
-      <View style={styles.optionsRight}>
-        <Pressable
-          style={styles.iconWrapper}
-          onPress={() => navigation.navigate('PendingRequests')}>
-          <PendingRequestIcon width={24} height={24} />
-          {pendingRequestsLength > 0 && (
-            <View style={styles.badgeWrapper}>
+      {isSearchActive ? (
+        <View style={{flex: 1}}>
+          <SearchBar
+            setIsSearchActive={setIsSearchActive}
+            searchText={searchText}
+            setSearchText={setSearchText}
+          />
+        </View>
+      ) : (
+        <>
+          <View style={styles.menuLeft}>
+            <Pressable
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: PortSpacing.secondary.uniform,
+              }}
+              onPress={() => setOpenSideDrawer(p => !p)}>
+              <View style={styles.iconWrapper2}>
+                <SidebarMenu width={24} height={24} />
+
+                {showPrompt && <View style={styles.blueDot} />}
+              </View>
               <NumberlessText
-                textColor={PortColors.primary.blue.app}
-                fontType={FontType.rg}
-                fontSizeType={FontSizeType.xs}>
-                {pendingRequestsLength}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                fontType={FontType.md}
+                fontSizeType={FontSizeType.l}>
+                {title}
               </NumberlessText>
-            </View>
-          )}
-        </Pressable>
-        <GenericButton
-          iconSize={24}
-          buttonStyle={styles.iconWrapper}
-          onPress={() => console.log('search clicked!')}
-          IconLeft={SearchIcon}
-        />
-      </View>
+            </Pressable>
+          </View>
+          <View style={styles.optionsRight}>
+            {(folder.folderId === defaultFolderId ||
+              folder.folderId === 'all') && (
+              <Pressable
+                style={styles.iconWrapper3}
+                onPress={() => navigation.navigate('PendingRequests')}>
+                <PendingRequestIcon width={24} height={24} />
+                <View style={styles.badgeWrapper}>
+                  <NumberlessText
+                    textColor={PortColors.primary.blue.app}
+                    fontType={FontType.rg}
+                    fontSizeType={FontSizeType.s}>
+                    {pendingRequestsLength}
+                  </NumberlessText>
+                </View>
+              </Pressable>
+            )}
+            <Pressable
+              style={styles.iconWrapper}
+              onPress={() => setIsSearchActive(p => !p)}>
+              <SearchIcon width={24} height={24} />
+            </Pressable>
+            {folder.folderId !== 'all' && (
+              <Pressable
+                style={styles.iconWrapper2}
+                onPress={() =>
+                  navigation.navigate('EditFolder', {
+                    selectedFolder: folder,
+                  })
+                }>
+                <SettingsIcon width={24} height={24} />
+              </Pressable>
+            )}
+          </View>
+        </>
+      )}
     </View>
   );
 }
@@ -104,6 +127,15 @@ const styles = StyleSheet.create({
     borderBottomColor: '#EEE',
     borderBottomWidth: 0.5,
     height: TOPBAR_HEIGHT,
+  },
+  blueDot: {
+    backgroundColor: PortColors.primary.blue.app,
+    height: 7,
+    width: 7,
+    position: 'absolute',
+    top: 8,
+    right: -3,
+    borderRadius: 100,
   },
   modal: {
     margin: 0,
@@ -130,32 +162,40 @@ const styles = StyleSheet.create({
     position: 'absolute',
     resizeMode: 'cover',
   },
-  maintitle: {
-    textAlign: 'center',
-  },
   iconWrapper: {
     backgroundColor: 'transparent',
-    position: 'relative',
-    padding: 8,
-    borderRadius: 8,
     height: 40,
-    width: 40,
+    width: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  iconWrapper2: {
+    backgroundColor: 'transparent',
+    height: 40,
+    width: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrapper3: {
+    paddingTop: 2,
+    backgroundColor: 'transparent',
+    height: 40,
+    width: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
   },
   badgeWrapper: {
-    width: 16,
-    height: 16,
-    borderRadius: 9,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: PortColors.primary.border.dullGrey,
-    overflow: 'hidden',
     position: 'absolute',
+    height: 14,
+    overflow: 'hidden',
+    backgroundColor: PortColors.primary.white,
     textAlign: 'center',
-    justifyContent: 'center',
     textAlignVertical: 'center',
     alignItems: 'center',
-    top: 0,
-    right: -4,
+    top: 19,
+    left: 12,
   },
 });
 

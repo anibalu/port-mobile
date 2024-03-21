@@ -3,16 +3,16 @@
  */
 import TorchOff from '@assets/icons/TorchOff.svg';
 import TorchOn from '@assets/icons/TorchOn.svg';
-import Area from '@assets/miscellaneous/scanArea.svg';
-import {PortColors, screen} from '@components/ComponentUtils';
+import Area from '@assets/miscellaneous/scanAreaBlue.svg';
+import CloseWhite from '@assets/icons/closeWhite.svg';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {checkCameraPermission} from '@utils/AppPermissions';
-import {checkBundleValidity} from '@utils/Ports';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {
@@ -20,107 +20,169 @@ import {
   useCameraDevice,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import {useConnectionModal} from 'src/context/ConnectionModalContext';
-import {useErrorModal} from 'src/context/ErrorModalContext';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
+import {checkBundleValidity, readBundle, useReadBundles} from '@utils/Ports';
+import {wait} from '@utils/Time';
+import {safeModalCloseDuration} from '@configs/constants';
+import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
 
 export default function QRScanner() {
   const device = useCameraDevice('back');
-  const {showConnectionModal, connectionModalVisible, setConnectionQRData} =
-    useConnectionModal();
-  const {incorrectQRError} = useErrorModal();
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
     useState(false);
-  useEffect(() => {
-    checkCameraPermission(setIsCameraPermissionGranted);
-  }, []);
-  const [viewWidth, setViewWidth] = useState(0);
+  const [torchState, setTorchState] = useState<'on' | 'off'>('off');
   const [qrData, setQrData] = useState('');
   const isFocused = useIsFocused();
+  const navigation = useNavigation();
+  const [isScannerActive, setIsScannerActive] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: codes => {
-      if (codes.length > 0 && codes[0].value) {
-        setQrData(oldCode =>
-          oldCode !== codes[0].value ? codes[0].value! : oldCode,
-        );
+      if (isScannerActive) {
+        if (codes.length > 0 && codes[0].value) {
+          console.log('qrData', codes[0].value);
+          setQrData(oldCode =>
+            oldCode !== codes[0].value ? codes[0].value! : oldCode,
+          );
+          setIsScannerActive(false);
+        }
       }
     },
   });
-
-  const [torchState, setTorchState] = useState<'on' | 'off'>('off');
 
   const cleanScreen = () => {
     setQrData('');
     setTorchState('off');
   };
-  //shows an alert if there is an issue creating a new Port after scanning a QR code.
-  const showAlertAndWait = () => {
-    incorrectQRError();
 
-    cleanScreen();
+  const onRetry = async () => {
+    setShowErrorModal(false);
+    await wait(safeModalCloseDuration);
+    setIsScannerActive(true);
   };
-  //navigate to back to home screen is scan succeeds and an unauthenticated port is created.
+
+  //on Error, show error bottom sheet
+  const onError = () => {
+    cleanScreen();
+    setIsScannerActive(false);
+    setShowErrorModal(true);
+  };
+
   useEffect(() => {
-    if (qrData !== '') {
-      //this makes scan happen only once
-      try {
-        const newBundle = checkBundleValidity(qrData);
-        setConnectionQRData(newBundle);
-        showConnectionModal();
-      } catch (error) {
-        showAlertAndWait();
+    (async () => {
+      if (qrData !== '') {
+        try {
+          setIsLoading(true);
+          console.log('running inner block');
+          //qrData needs to be processed here.
+          //check if Qr code is a legitimate Port Qr code
+          const bundle = checkBundleValidity(qrData);
+          //if code is legitimate, read it
+          await readBundle(bundle);
+          //try to use read bundles
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          await useReadBundles();
+          setIsLoading(false);
+          //navigate to home screen
+          navigation.navigate('HomeTab');
+        } catch (error) {
+          setIsLoading(false);
+          onError();
+        }
       }
-    }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qrData]);
 
-  //When the connection modal shows, we need to clean the screen up AFTER it disappears.
   useEffect(() => {
-    if (!connectionModalVisible) {
-      cleanScreen();
-    }
-  }, [connectionModalVisible]);
-  const onLayout = (event: any) => {
-    const {width} = event.nativeEvent.layout;
-    setViewWidth(width);
-  };
+    checkCameraPermission(setIsCameraPermissionGranted);
+  }, []);
 
   return (
-    <View style={styles.container} onLayout={onLayout}>
-      {isCameraPermissionGranted && device && isFocused ? (
-        <Camera
-          device={device}
-          torch={torchState}
-          codeScanner={codeScanner}
-          isActive={true}
-          style={styles.camera}
+    <>
+      <CustomStatusBar
+        barStyle="light-content"
+        backgroundColor={PortColors.primary.black}
+      />
+      <SafeAreaView style={styles.container}>
+        <ErrorBottomSheet
+          visible={showErrorModal}
+          title={'Incorrect QR code scanned'}
+          description={
+            'The QR code scanned is not a valid Port QR code. Please scan a Port QR code.'
+          }
+          onClose={onRetry}
+          onTryAgain={onRetry}
         />
-      ) : (
-        <View style={styles.permissionDenied}>
-          <NumberlessText
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}
-            style={styles.text}>
-            Please provide camera permission
-          </NumberlessText>
-        </View>
-      )}
-      <View style={styles.cameraOptions}>
-        <Area
-          width={viewWidth * 0.7}
-          height={viewWidth * 0.7}
-          style={styles.scanArea}
-        />
-      </View>
-      <View style={styles.torch}>
-        <Torch state={torchState} setState={setTorchState} />
-      </View>
-    </View>
+        {isCameraPermissionGranted && device && isFocused ? (
+          <View style={styles.cameraOptions}>
+            <Camera
+              device={device}
+              torch={torchState}
+              codeScanner={codeScanner}
+              isActive={isScannerActive}
+              style={styles.camera}
+            />
+            <View style={styles.mainBlock}>
+              <Pressable
+                onPress={() => navigation.navigate('HomeTab')}
+                style={styles.closeButtonWrapper}>
+                <CloseWhite width={24} height={24} />
+              </Pressable>
+              {isLoading ? (
+                <DefaultLoader color={PortColors.primary.blue.app} />
+              ) : (
+                <View style={styles.scanBlock}>
+                  <NumberlessText
+                    fontType={FontType.rg}
+                    fontSizeType={FontSizeType.m}
+                    style={styles.text}>
+                    Align a Port QR code within the frame
+                  </NumberlessText>
+                  <Area
+                    width={screen.width * 0.8}
+                    height={screen.width * 0.8}
+                    style={styles.scanArea}
+                  />
+                  <View>
+                    <Torch state={torchState} setState={setTorchState} />
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+        ) : (
+          <View style={styles.permissionDenied}>
+            <Pressable
+              onPress={() => navigation.goBack()}
+              style={styles.closeButtonWrapper}>
+              <CloseWhite width={24} height={24} />
+            </Pressable>
+            <NumberlessText
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.m}
+              style={styles.text}>
+              Please provide camera permission
+            </NumberlessText>
+          </View>
+        )}
+      </SafeAreaView>
+    </>
   );
 }
 //Phone light toggle switch
-function Torch({state, setState}) {
+function Torch({
+  state,
+  setState,
+}: {
+  state: 'on' | 'off';
+  setState: (state: 'on' | 'off') => void;
+}) {
   if (state === 'on') {
     return (
       <Pressable style={styles.roundButton} onPress={() => setState('off')}>
@@ -138,150 +200,59 @@ function Torch({state, setState}) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    paddingBottom: 0,
+    backgroundColor: PortColors.primary.black,
+  },
+  closeButtonWrapper: {
+    position: 'absolute',
+    top: PortSpacing.intermediate.top,
+    right: PortSpacing.intermediate.right,
   },
   permissionDenied: {
-    flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: PortColors.primary.black,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingBottom: 100,
+    padding: PortSpacing.secondary.uniform,
     width: '100%',
-  },
-  successIndicatorArea: {
-    borderTopRightRadius: 32,
-    borderTopLeftRadius: 32,
-    backgroundColor: PortColors.primary.grey.light,
-    width: screen.width,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scanSuccessText: {
-    color: PortColors.primary.success,
-    marginTop: 20,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  newPortArea: {
-    backgroundColor: PortColors.primary.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    paddingTop: 30,
-    paddingBottom: 30,
-  },
-  groupName: {
-    textAlign: 'center',
-    color: '#547CEF',
+    height: '100%',
   },
   text: {
-    color: '#FFFFFF',
+    color: PortColors.primary.white,
   },
   camera: {
     height: '100%',
     width: '100%',
   },
-  cameraOptions: {
+  scanBlock: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mainBlock: {
     position: 'absolute',
+    height: '100%',
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cameraOptions: {
     width: '100%',
     height: '100%',
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   scanArea: {
-    marginBottom: 100,
     borderRadius: 14,
-  },
-  torch: {
-    position: 'absolute',
-    paddingBottom: 150,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    marginTop: PortSpacing.secondary.top,
+    marginBottom: PortSpacing.secondary.bottom,
   },
   roundButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 15,
-    backgroundColor: 'black',
-    borderRadius: 50,
-    opacity: 0.5,
-  },
-  popUpArea: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'flex-end',
-  },
-  saveButton: {
-    width: '80%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeButton: {
-    alignSelf: 'flex-end',
-    height: 60,
-    width: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  button: {
-    backgroundColor: '#547CEF',
-    width: '85%',
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    flexDirection: 'row',
-  },
-  disabledbutton: {
-    backgroundColor: '#547CEF',
-    width: '85%',
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    opacity: 0.7,
-    flexDirection: 'row',
-  },
-  buttontext: {
-    color: 'white',
-    fontSize: 15,
-    width: '80%',
-    textAlign: 'center',
-  },
-  savedInput: {
-    width: '85%',
-    height: 60,
-    backgroundColor: '#F6F6F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    marginTop: 15,
-  },
-  savedInputText: {
-    textAlign: 'center',
-    color: '#000000',
-  },
-  savedDescription: {
-    width: '85%',
-    height: 150,
-    backgroundColor: '#F6F6F6',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    borderRadius: 8,
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  savedDescriptionText: {
-    textAlign: 'center',
-    color: '#000000',
-    height: '100%',
-    padding: 15,
+    opacity: 1,
   },
 });

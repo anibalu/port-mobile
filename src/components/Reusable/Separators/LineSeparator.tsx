@@ -9,15 +9,25 @@ import {StyleSheet} from 'react-native';
 import {View} from 'react-native';
 
 const LineSeparator = () => {
-  return <View style={styles.lineWrapper} />;
+  return (
+    <View
+      style={{
+        height: 9,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: PortColors.primary.white,
+      }}>
+      <View style={styles.lineWrapper} />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   lineWrapper: {
     marginHorizontal: 16,
     alignSelf: 'stretch',
-    borderColor: PortColors.stroke,
-    borderBottomWidth: 0.5,
+    height: 0.5,
+    backgroundColor: PortColors.stroke,
   },
 });
 

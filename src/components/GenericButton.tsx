@@ -54,10 +54,14 @@ export function GenericButton({
   return (
     <Pressable
       style={StyleSheet.compose(styles.button, buttonStyle)}
-      disabled={disabled}
-      onPress={loading ? () => {} : onPress}>
+      disabled={disabled || loading}
+      onPress={onPress}>
       {loading ? (
-        <ActivityIndicator size={'small'} color={PortColors.primary.white} />
+        <ActivityIndicator
+          size={'small'}
+          color={PortColors.primary.white}
+          style={{marginTop: 10}}
+        />
       ) : (
         <>
           {IconLeft ? (

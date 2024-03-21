@@ -11,13 +11,32 @@ import {
   ReadPortData,
   SuperportData,
 } from './interfaces';
-import {DEFAULT_NAME} from '@configs/constants';
+import {
+  DEFAULT_NAME,
+  defaultFolderId,
+  defaultSuperportConnectionsLimit,
+} from '@configs/constants';
 import * as direct from './direct';
 import * as group from './group';
 import * as superport from './superport';
 import * as storageReadPorts from '@utils/Storage/readPorts';
 import store from '@store/appStore';
+import {hasExpired} from '@utils/Time';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import {ChatType} from '@utils/Connections/interfaces';
 
+export function bundleTargetToChatType(x: BundleTarget) {
+  if (x === BundleTarget.direct || x === BundleTarget.superportDirect) {
+    return ChatType.direct;
+  } else {
+    return ChatType.group;
+  }
+}
+
+/**
+ * Fetches new unused ports and puts it in storage.
+ * @param groupId - optional group Id param if you need to fetch group ports
+ */
 export async function fetchNewPorts(groupId: string | null = null) {
   if (!groupId) {
     await direct.getNewPorts();
@@ -26,12 +45,20 @@ export async function fetchNewPorts(groupId: string | null = null) {
   }
 }
 
+/**
+ * Triggers a reload of the Pending Requests page.
+ */
 export function triggerPendingRequestsReload() {
   store.dispatch({
     type: 'TRIGGER_RELOAD',
   });
 }
 
+/**
+ * Triggers a new chat store update
+ * @param chatId
+ * @param portId
+ */
 export function triggerNewChatStoreUpdate(chatId: string, portId: string) {
   store.dispatch({
     type: 'NEW_CONNECTION',
@@ -42,13 +69,23 @@ export function triggerNewChatStoreUpdate(chatId: string, portId: string) {
   });
 }
 
+/**
+ * Generate a displayable bundle for a new port or group port
+ * @param type - only supports groups and direct (not superport)
+ * @param id - group id
+ * @param label - label associated with port
+ * @param expiry - expiry of port
+ * @param channel - null is QR
+ * @param folderId - folder to which a chat formed will go to
+ * @returns - displayable bundle
+ */
 export async function generateBundle<T extends BundleTarget>(
   type: T,
   id: string | null = null,
   label: string | null = DEFAULT_NAME,
-  expiry: expiryOptionsTypes = expiryOptions[0],
+  expiry: expiryOptionsTypes = expiryOptions[4],
   channel: string | null = null,
-  presetId: string | null = null,
+  folderId: string = defaultFolderId,
 ): Promise<BundleType<T>> {
   if (type === BundleTarget.direct) {
     if (!label) {
@@ -58,7 +95,7 @@ export async function generateBundle<T extends BundleTarget>(
       label,
       expiry,
       channel,
-      presetId,
+      folderId,
     )) as BundleType<T>;
     triggerPendingRequestsReload();
     return newBundle;
@@ -69,6 +106,8 @@ export async function generateBundle<T extends BundleTarget>(
     const newBundle = (await group.generateNewGroupPortBundle(
       id,
       expiry,
+      channel,
+      folderId,
     )) as BundleType<T>;
     return newBundle;
   } else {
@@ -76,18 +115,79 @@ export async function generateBundle<T extends BundleTarget>(
   }
 }
 
+/**
+ * Update generated direct port label
+ * @param portId
+ * @param label
+ */
+export async function updateGeneratedPortLabel(portId: string, label: string) {
+  await direct.updateGeneratedPortLabel(portId, label);
+}
+
+/**
+ * Update generated direct superport port label
+ * @param portId
+ * @param label
+ */
+export async function updateGeneratedSuperportLabel(
+  portId: string,
+  label: string,
+) {
+  await superport.updateGeneratedSuperportLabel(portId, label);
+}
+
+/**
+ * Update generated direct superport connections limit
+ * @param portId
+ * @param newLimit
+ */
+export async function updateGeneratedSuperportLimit(
+  portId: string,
+  newLimit: number,
+) {
+  await superport.updateGeneratedSuperportLimit(portId, newLimit);
+}
+
+/**
+ * Update folder assigned to a superport
+ * @param portId
+ * @param folderId
+ */
+export async function updateGeneratedSuperportFolder(
+  portId: string,
+  folderId: string,
+) {
+  await superport.updateGeneratedSuperportFolder(portId, folderId);
+}
+
+/**
+ * Fetches a superport. If no superportId is specified, creates a new superport
+ * @param superportId
+ * @param label - label added to superport if you are trying to create a new superport
+ * @param connectionLimit - number of connections possible with superport
+ * @param folderId - folder to which the connections should go to
+ * @returns
+ */
 export async function fetchSuperport(
   superportId: string | null = null,
-  label: string = 'unlabeled',
-  connectionLimit: number | null = null,
+  label: string = '',
+  connectionLimit: number = defaultSuperportConnectionsLimit,
+  folderId: string = defaultFolderId,
 ): Promise<{bundle: DirectSuperportBundle; superport: SuperportData}> {
   if (superportId) {
     return await superport.fetchCreatedSuperportBundle(superportId);
   } else {
-    return await superport.createNewSuperport(label, connectionLimit);
+    return await superport.createNewSuperport(label, connectionLimit, folderId);
   }
 }
 
+/**
+ * Fetches clickable link given a bundle
+ * @param type - bundle type
+ * @param portId
+ * @param bundleString
+ * @returns - clickable link
+ */
 export async function getBundleClickableLink(
   type: BundleTarget,
   portId: string,
@@ -107,6 +207,11 @@ export async function getBundleClickableLink(
   }
 }
 
+/**
+ * Checks if a scanned/clicked raw string is a valid port QR or link
+ * @param rawString
+ * @returns - valid bundle
+ */
 export function checkBundleValidity(
   rawString: string,
 ): PortBundle | GroupBundle | DirectSuperportBundle | GroupSuperportBundle {
@@ -127,6 +232,12 @@ export function checkBundleValidity(
   return bundle;
 }
 
+/**
+ * Reads a port bundle
+ * @param bundle
+ * @param channel
+ * @param folderId
+ */
 export async function readBundle(
   bundle:
     | PortBundle
@@ -134,32 +245,35 @@ export async function readBundle(
     | DirectSuperportBundle
     | GroupSuperportBundle,
   channel: string | null = null,
-  presetId: string | null = null,
+  folderId: string = defaultFolderId,
 ) {
   switch (bundle.target) {
     case BundleTarget.direct:
-      await direct.acceptPortBundle(bundle as PortBundle, channel, presetId);
+      await direct.acceptPortBundle(bundle as PortBundle, channel, folderId);
       break;
     case BundleTarget.group:
       await group.acceptGroupPortBundle(
         bundle as GroupBundle,
         channel,
-        presetId,
+        folderId,
       );
       break;
     case BundleTarget.superportDirect:
       await superport.acceptSuperportBundle(
         bundle as DirectSuperportBundle,
         channel,
-        presetId,
+        folderId,
       );
       break;
     default:
       break;
   }
-  triggerPendingRequestsReload();
 }
 
+/**
+ * Use a read bundle to form a connection or join a group
+ * @param readBundle
+ */
 async function useReadBundle(readBundle: ReadPortData) {
   try {
     switch (readBundle.target) {
@@ -178,8 +292,18 @@ async function useReadBundle(readBundle: ReadPortData) {
   } catch (error) {
     console.log('Error using read bundle: ', error);
   }
+  store.dispatch({
+    type: 'PING',
+    payload: 'PONG',
+  });
 }
 
+/**
+ * Use a created bundle to form a new connection
+ * @param chatId - chat Id created by server
+ * @param portId - port Id of port used to form connection
+ * @param bundleTarget - only accepts direct port and direct superport
+ */
 export async function useCreatedBundle(
   chatId: string,
   portId: string,
@@ -199,11 +323,14 @@ export async function useCreatedBundle(
         break;
     }
   } catch (error) {
-    console.log('Error using created bundle: ', error);
+    console.log('Error using created bundles: ', error);
   }
   triggerPendingRequestsReload();
 }
 
+/**
+ * Use all read bundles
+ */
 export async function useReadBundles() {
   try {
     const readBundles = await storageReadPorts.getReadPorts();
@@ -214,83 +341,74 @@ export async function useReadBundles() {
   } catch (error) {
     console.log('Error using read bundles: ', error);
   }
-  triggerPendingRequestsReload();
 }
-
-function getReadPortChannelDescription(channel: string | null) {
-  if (!channel) {
-    return 'Scanned';
-  } else if (channel === 'link') {
-    return 'Clicked';
-  } else {
-    return 'Shared';
+/**
+ * Same as above function with nomenclature change because 'use' is a hook precursor
+ */
+export async function processReadBundles() {
+  try {
+    const readBundles = await storageReadPorts.getReadPorts();
+    for (let index = 0; index < readBundles.length; index++) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      await useReadBundle(readBundles[index]);
+    }
+  } catch (error) {
+    console.log('Error using read bundles: ', error);
   }
 }
 
+/**
+ * Get a list of items to display on pending requests screen.
+ * @returns - list of items to display
+ */
 export async function getPendingRequests(): Promise<PendingCardInfo[]> {
+  await cleanUpPorts();
   const pendingRequests: PendingCardInfo[] = [];
   //generated ports
   const generatedPorts = await direct.getAllGeneratedPorts();
-
   const morphedGeneratedPorts = generatedPorts.map(port => {
-    const channelDesc = port.channel ? 'Shared' : 'Initiated';
     const pendingRequest: PendingCardInfo = {
       portId: port.portId,
-      name: port.label ? port.label : 'New Contact',
-      target: BundleTarget.direct,
-      usedOnTimestamp: port.usedOnTimestamp,
-      expiryTimestamp: port.expiryTimestamp,
-      stage: 'Pending Handshake',
-      channelDescription: channelDesc,
-      table: PortTable.generated,
+      name:
+        port.label && port.label !== DEFAULT_NAME
+          ? port.label
+          : 'Port #' + port.portId,
+      isLink: port.channel ? true : false,
+      createdOn: port.usedOnTimestamp,
     };
     return pendingRequest;
   });
   pendingRequests.push(...morphedGeneratedPorts);
-  //read ports
-  const readPorts = await storageReadPorts.getReadPorts();
-  const morphedReadPorts = readPorts.map(port => {
-    const pendingRequest: PendingCardInfo = {
-      portId: port.portId,
-      name: port.name,
-      target: port.target,
-      usedOnTimestamp: port.usedOnTimestamp,
-      expiryTimestamp: port.expiryTimestamp,
-      stage: 'Pending Handshake',
-      channelDescription: getReadPortChannelDescription(port.channel),
-      table: PortTable.read,
-    };
-    return pendingRequest;
-  });
-  pendingRequests.push(...morphedReadPorts);
-  pendingRequests.sort((a, b) => {
-    let dateA = new Date(a.usedOnTimestamp);
-    let dateB = new Date(b.usedOnTimestamp);
-    if (isNaN(dateA.getTime())) {
-      // Handle invalid dateA (perhaps by sorting it to the end)
-      return 1;
-    }
-    if (isNaN(dateB.getTime())) {
-      // Handle invalid dateB (perhaps by sorting it to the beginning)
-      return -1;
-    }
-    return dateB.getTime() - dateA.getTime();
-  });
   return pendingRequests;
+}
+
+/**
+ * Get all read ports
+ * @returns - all read ports
+ */
+export async function getReadPorts() {
+  return await storageReadPorts.getReadPorts();
 }
 
 export async function numberOfPendingRequests() {
   //generated ports
   const generatedPorts = await direct.getAllGeneratedPorts();
-  //read ports
-  const readPorts = await storageReadPorts.getReadPorts();
-  return generatedPorts.length + readPorts.length;
+  return generatedPorts.length;
 }
 
+/**
+ * Fetch all created superports to display on superports screen.
+ * @returns - list of all created superports
+ */
 export async function getAllCreatedSuperports(): Promise<SuperportData[]> {
   return await superport.getAllCreatedSuperports();
 }
 
+/**
+ * Clean delete a port
+ * @param portId
+ * @param table - type of port
+ */
 export async function cleanDeletePort(portId: string, table: PortTable) {
   switch (table) {
     case PortTable.generated:
@@ -311,11 +429,39 @@ export async function cleanDeletePort(portId: string, table: PortTable) {
   triggerPendingRequestsReload();
 }
 
+/**
+ * Delete expired ports
+ */
 export async function cleanUpPorts() {
   await direct.cleanUpExpiredGeneratedPorts();
-  await superport.cleanUsedUpSuperports();
+  await cleanUpExpiredReadPorts();
 }
 
+/**
+ * Delete all expired read ports
+ */
+async function cleanUpExpiredReadPorts() {
+  try {
+    const readPorts = await storageReadPorts.getReadPorts();
+    for (let index = 0; index < readPorts.length; index++) {
+      if (hasExpired(readPorts[index].expiryTimestamp)) {
+        await storageReadPorts.deleteReadPortData(readPorts[index].portId);
+        if (readPorts[index].cryptoId) {
+          const cryptoDriver = new CryptoDriver(readPorts[index].cryptoId);
+          await cryptoDriver.deleteCryptoData();
+        }
+      }
+    }
+  } catch (error) {
+    console.log('Error cleaning up expired read ports', error);
+  }
+}
+
+/**
+ * Fetch a read port
+ * @param portId
+ * @returns - read port
+ */
 export async function getReadPort(
   portId: string,
 ): Promise<ReadPortData | null> {

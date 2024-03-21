@@ -1,99 +1,82 @@
-import {PortColors} from '@components/ComponentUtils';
-import {GenericAvatar} from '@components/GenericAvatar';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {AVATAR_ARRAY} from '@configs/constants';
 import {cleanDeletePort} from '@utils/Ports';
-import {
-  BundleTarget,
-  PendingCardInfo,
-  PortTable,
-} from '@utils/Ports/interfaces';
-import {getExpiryTag, getReadableTimestamp} from '@utils/Time';
+import {PendingCardInfo, PortTable} from '@utils/Ports/interfaces';
+import {formatTimeAgo} from '@utils/Time';
 import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
-import Delete from '../../../assets/icons/Trashwhite.svg';
+import {Pressable, StyleSheet, View} from 'react-native';
+import Delete from '@assets/icons/Trashwhite.svg';
+import Link from '@assets/icons/LinkIcon.svg';
+import QRIcon from '@assets/icons/QRIcon.svg';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 
 const ContactCard = (props: PendingCardInfo) => {
   return (
-    <View style={styles.card}>
+    <SimpleCard style={styles.card}>
       <View style={styles.row}>
-        <View style={{flexDirection: 'row'}}>
-          <GenericAvatar
-            avatarSize="small"
-            profileUri={
-              props.target === BundleTarget.group
-                ? AVATAR_ARRAY[14]
-                : AVATAR_ARRAY[13]
-            }
-          />
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            flex: 1,
+          }}>
+          <View
+            style={{
+              padding: PortSpacing.secondary.uniform,
+              backgroundColor: PortColors.primary.grey.light,
+              borderRadius: 12,
+            }}>
+            {props.isLink ? <Link /> : <QRIcon />}
+          </View>
+
           <View style={styles.textrow}>
             <NumberlessText
-              fontType={FontType.md}
+              fontType={FontType.rg}
               ellipsizeMode="tail"
               numberOfLines={1}
-              fontSizeType={FontSizeType.m}
+              fontSizeType={FontSizeType.l}
               style={styles.text}>
               {props.name}
             </NumberlessText>
             <NumberlessText
               fontType={FontType.rg}
+              ellipsizeMode="tail"
+              numberOfLines={1}
               fontSizeType={FontSizeType.s}
               style={styles.subtitle}>
-              {getReadableTimestamp(props.usedOnTimestamp)}
+              Created {formatTimeAgo(props.createdOn)}
             </NumberlessText>
-            <NumberlessText
-              fontType={FontType.rg}
-              fontSizeType={FontSizeType.m}
-              style={styles.infonote}>
-              {props.stage}
-            </NumberlessText>
-            <View style={styles.buttonrow}>
-              <NumberlessText
-                fontType={FontType.rg}
-                fontSizeType={FontSizeType.s}
-                style={
-                  props.table === PortTable.generated
-                    ? styles.initiatedInfo
-                    : styles.inforight
-                }>
-                {props.channelDescription}
-              </NumberlessText>
-              <NumberlessText
-                fontType={FontType.md}
-                fontSizeType={FontSizeType.s}
-                style={styles.expiry}>
-                {getExpiryTag(props.expiryTimestamp)}
-              </NumberlessText>
-            </View>
           </View>
         </View>
 
         <Pressable
           onPress={async () => {
-            await cleanDeletePort(props.portId, props.table);
+            await cleanDeletePort(props.portId, PortTable.generated);
           }}
           style={styles.declinebutton}>
           <Delete />
-          <Text style={styles.buttonText}>Delete</Text>
+          <NumberlessText
+            textColor={PortColors.primary.white}
+            fontType={FontType.rg}
+            fontSizeType={FontSizeType.s}>
+            Delete
+          </NumberlessText>
         </Pressable>
       </View>
-    </View>
+    </SimpleCard>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 20,
-    borderRadius: 16,
-    backgroundColor: 'white',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    marginBottom: 8,
+    marginHorizontal: PortSpacing.secondary.uniform,
+    marginBottom: PortSpacing.tertiary.bottom,
     justifyContent: 'center',
+    padding: PortSpacing.tertiary.uniform,
   },
   text: {
     color: 'black',
@@ -102,57 +85,24 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  buttonrow: {
-    flexDirection: 'row',
-  },
-  initiatedInfo: {
-    color: PortColors.primary.blue.app,
-    paddingVertical: 5,
-    borderRadius: 8,
-    height: 25,
-    marginRight: 2,
-  },
-  inforight: {
-    color: '#868686',
-    paddingVertical: 5,
-    borderRadius: 8,
-    height: 25,
-    marginRight: 2,
-  },
-  expiry: {
-    color: '#EE786B',
-    paddingVertical: 5,
-    borderRadius: 8,
-    height: 25,
-    marginRight: 2,
-    paddingLeft: 8,
-  },
-
   textrow: {
-    marginRight: 5,
-    marginLeft: 12,
+    padding: PortSpacing.tertiary.uniform,
+    gap: 4,
+    flex: 1,
   },
   subtitle: {
-    color: '#868686',
-  },
-  infonote: {
-    color: '#547CEF',
+    color: PortColors.subtitle,
   },
   declinebutton: {
-    backgroundColor: '#EE786B',
+    backgroundColor: PortColors.primary.red.error,
     justifyContent: 'center',
-    borderRadius: 4,
-    height: 32,
-    width: 74,
+    borderRadius: PortSpacing.tertiary.uniform,
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 4,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '500',
+    gap: PortSpacing.tertiary.uniform,
+    padding: PortSpacing.tertiary.uniform,
   },
 });
 

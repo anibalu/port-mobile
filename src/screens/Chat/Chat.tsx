@@ -2,10 +2,8 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {memo, useCallback, useEffect, useMemo, useState} from 'react';
-import {StyleSheet, Vibration} from 'react-native';
+import {KeyboardAvoidingView, StyleSheet} from 'react-native';
 
-import ChatBackground from '@components/ChatBackground';
-import DeleteChatButton from '@components/DeleteChatButton';
 import {DEFAULT_AVATAR, SELECTED_MESSAGES_LIMIT} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -31,6 +29,11 @@ import ChatTopbar from './ChatTopbar';
 import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
 import {getLatestMessages} from '@utils/Storage/messages';
+import {PortColors, isIOS} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import RichReactionsBottomsheet from '@components/Reusable/BottomSheets/RichReactionsBottomsheet';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Disconnected from './Disconnected';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 export enum SelectedMessagesSize {
@@ -42,10 +45,8 @@ export enum SelectedMessagesSize {
  * @returns Component for rendered chat window
  */
 function Chat({route, navigation}: Props) {
-  console.log('Re-rendered chat ');
-
   //gets lineId of chat
-  const {chatId, isGroupChat, isConnected, profileUri} = route.params;
+  const {chatId, isGroupChat, isConnected, profileUri, name} = route.params;
 
   //Datahandler contains functions about the group, if it is a group, else the DM.
   const dataHandler = useMemo(() => {
@@ -55,9 +56,9 @@ function Chat({route, navigation}: Props) {
   const [cursor, setCursor] = useState(50);
 
   const [chatState, setChatState] = useState({
-    name: '',
+    name: name ? name : '',
     groupInfo: {},
-    profileURI: profileUri,
+    profileURI: profileUri || DEFAULT_AVATAR,
     connectionConnected: isConnected,
     messagesLoaded: false,
   });
@@ -66,6 +67,20 @@ function Chat({route, navigation}: Props) {
     useErrorModal();
 
   const [messages, setMessages] = useState<SavedMessageParams[]>([]);
+  const [currentReactionMessage, setCurrentReactionMessage] = useState<
+    string[]
+  >([]);
+  const [showRichReaction, setShowRichReaction] = useState<boolean>(false);
+
+  const setRichReactionMessage = (chatId: string, messageId: string) => {
+    setCurrentReactionMessage([chatId, messageId]);
+    setShowRichReaction(true);
+  };
+
+  const unsetRichReaction = () => {
+    setCurrentReactionMessage([]);
+    setShowRichReaction(false);
+  };
 
   //selected messages
   const [selectedMessages, setSelectedMessages] = useState<Array<string>>([]);
@@ -73,11 +88,14 @@ function Chat({route, navigation}: Props) {
   const [replyToMessage, setReplyToMessage] = useState<SavedMessageParams>();
 
   const ping: any = useSelector(state => state.ping.ping);
-
+  const options = {
+    enableVibrateFallback: true /* iOS Only */,
+    ignoreAndroidSystemSettings: true /* Android Only */,
+  };
   //handles toggling the select messages flow.
   const handleMessageBubbleLongPress = (messageId: string): void => {
     //adds messageId to selected messages on long press and vibrates
-    Vibration.vibrate(30);
+    ReactNativeHapticFeedback.trigger('impactMedium', options);
     if (!selectedMessages.includes(messageId)) {
       setSelectedMessages([...selectedMessages, messageId]);
     }
@@ -116,39 +134,55 @@ function Chat({route, navigation}: Props) {
   };
 
   const updateAfterDeletion = (messageIds: string[]): void => {
-    setMessages(messages =>
-      messages.filter(message => !messageIds.includes(message.messageId)),
-    );
+    // setMessages(messages =>
+    //   messages.filter(message => !messageIds.includes(message.messageId)),
+    // );
+    const newMessages = messages.map(x => {
+      if (messageIds.includes(x.messageId)) {
+        x.contentType = ContentType.deleted;
+        x.mtime = 'RESET';
+      }
+      return x;
+    });
+    setMessages(newMessages);
     setSelectedMessages([]);
   };
 
   const onCopy = async () => {
     let copyString = '';
-    messageCopied();
-    for (const message of selectedMessages) {
-      const msg = isGroupChat
-        ? await getGroupMessage(chatId, message)
-        : await getMessage(chatId, message);
-      switch (msg?.contentType) {
-        case ContentType.text: {
-          //Formatting multiple messages into a single string.
-          copyString += msg?.data.text;
-          setSelectedMessages([]);
-          break;
+    try {
+      for (const message of selectedMessages) {
+        const msg = isGroupChat
+          ? await getGroupMessage(chatId, message)
+          : await getMessage(chatId, message);
+        switch (msg?.contentType) {
+          case ContentType.text: {
+            //Formatting multiple messages into a single string.
+            copyString += msg?.data.text;
+            setSelectedMessages([]);
+            break;
+          }
+          case ContentType.link: {
+            copyString += msg?.data.text;
+            setSelectedMessages([]);
+            break;
+          }
+          default:
+            //throw new Error('Unsupported copy type');
+            break;
         }
-        default:
-          //throw new Error('Unsupported copy type');
-          break;
       }
+      Clipboard.setString(copyString);
+      messageCopied();
+    } catch (error) {
+      console.log('Error copying messages', error);
     }
-    Clipboard.setString(copyString);
   };
 
   const onForward = () => {
     navigation.navigate('ForwardToContact', {
       chatId: chatId,
       messages: selectedMessages,
-      setSelectedMessages: setSelectedMessages,
     });
   };
 
@@ -201,8 +235,8 @@ function Chat({route, navigation}: Props) {
           item => !shouldNotRender(item.contentType),
         );
         setMessages(cleanedMessages);
+        console.log('setting cursor 1');
         setCursor(cursor);
-
         //Notifying that initial message load is complete.
         localState.messagesLoaded = true;
         updateChatState(localState);
@@ -215,12 +249,13 @@ function Chat({route, navigation}: Props) {
           payload: undefined,
         });
       };
-    }, [chatId, dataHandler, isGroupChat, cursor]),
+      // eslint-disable-next-line
+    }, [chatId, dataHandler, isGroupChat]),
   );
 
   useEffect(() => {
     (async () => {
-      console.log('[PING] ', ping);
+      console.log('[PINGING] ', ping);
       const resp = isGroupChat
         ? (await readPaginatedGroupMessages(chatId)).messages
         : await getLatestMessages(chatId, cursor);
@@ -249,6 +284,7 @@ function Chat({route, navigation}: Props) {
       item => !shouldNotRender(item.contentType),
     );
     setMessages(cleanedMessages);
+    console.log('setting cursor 2');
     setCursor(cursor + 50);
   };
   const onEndReached = async () => {
@@ -256,11 +292,17 @@ function Chat({route, navigation}: Props) {
     await toggleRead(chatId);
   };
 
-  const onSettingsPressed = (): void => {
+  const onSettingsPressed = async () => {
     if (isGroupChat) {
       navigation.navigate('GroupProfile', {groupId: chatId});
     } else {
-      navigation.navigate('ContactProfile', {chatId: chatId});
+      const chatData = await (dataHandler as DirectChat).getChatData();
+      navigation.navigate('ContactProfile', {
+        chatId: chatId,
+        name: chatData.name,
+        profileUri: chatData.displayPic || DEFAULT_AVATAR,
+        permissionsId: chatData.permissionsId,
+      });
     }
   };
 
@@ -272,7 +314,7 @@ function Chat({route, navigation}: Props) {
         await directMedia(chatId, messageId);
       }
       store.dispatch({
-        action: 'PING',
+        type: 'PING',
         payload: 'PONG',
       });
     } catch (e) {
@@ -291,45 +333,68 @@ function Chat({route, navigation}: Props) {
     setSelectedMessages([]);
   };
 
-  const onDelete = () => {
-    if (isGroupChat) {
-      (dataHandler as Group).deleteGroup();
-    } else {
-      (dataHandler as DirectChat).delete();
-    }
-    navigation.navigate('HomeTab');
-  };
-
   return (
-    <SafeAreaView style={styles.screen}>
-      <ChatBackground />
-      <ChatTopbar
-        name={chatState.name}
-        profileURI={chatState.profileURI}
-        selectedMessagesLength={selectedMessages.length}
-        onSettingsPressed={onSettingsPressed}
-        onBackPress={onBackPress}
-        onCancelPressed={onCancelPressed}
+    <>
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.white}
       />
-      <ChatList
-        messages={messages}
-        setReplyTo={setReplyToMessage}
-        chatId={chatId}
-        onPostSelect={clearSelected}
-        onStartReached={onStartReached}
-        onEndReached={onEndReached}
-        selectedMessages={selectedMessages}
-        handlePress={handleMessageBubbleShortPress}
-        handleLongPress={handleMessageBubbleLongPress}
-        handleDownload={handleDownload}
-        isGroupChat={isGroupChat}
-        dataHandler={dataHandler}
-      />
+      <SafeAreaView style={styles.screen}>
+        <ChatTopbar
+          name={chatState.name}
+          profileURI={chatState.profileURI}
+          selectedMessagesLength={selectedMessages.length}
+          onSettingsPressed={onSettingsPressed}
+          onBackPress={onBackPress}
+          onCancelPressed={onCancelPressed}
+        />
+        <KeyboardAvoidingView
+          behavior={isIOS ? 'padding' : 'height'}
+          keyboardVerticalOffset={isIOS ? 50 : 0}
+          style={styles.main}>
+          <ChatList
+            messages={messages}
+            setReplyTo={setReplyToMessage}
+            chatId={chatId}
+            onPostSelect={clearSelected}
+            onStartReached={onStartReached}
+            onEndReached={onEndReached}
+            selectedMessages={selectedMessages}
+            handlePress={handleMessageBubbleShortPress}
+            handleLongPress={handleMessageBubbleLongPress}
+            handleDownload={handleDownload}
+            isGroupChat={isGroupChat}
+            dataHandler={dataHandler}
+            setReaction={setRichReactionMessage}
+            isConnected={isConnected}
+          />
 
-      {chatState.connectionConnected ? (
-        <>
-          {selectedMessages.length > 0 && replyToMessage === undefined ? (
+          {chatState.connectionConnected ? (
+            <>
+              {selectedMessages.length > 0 && replyToMessage === undefined ? (
+                <MessageActionsBar
+                  chatId={chatId}
+                  onCopy={onCopy}
+                  isGroup={isGroupChat}
+                  onForward={onForward}
+                  onInfo={onInfoPress}
+                  selectedMessages={selectedMessages}
+                  setReplyTo={setReplyToMessage}
+                  postDelete={updateAfterDeletion}
+                />
+              ) : (
+                <MessageBar
+                  name={chatState.name}
+                  onSend={clearSelected}
+                  chatId={chatId}
+                  replyTo={replyToMessage}
+                  isGroupChat={isGroupChat}
+                />
+              )}
+            </>
+          ) : selectedMessages.length > 0 && replyToMessage === undefined ? (
             <MessageActionsBar
+              isDisconnected={true}
               chatId={chatId}
               onCopy={onCopy}
               isGroup={isGroupChat}
@@ -340,19 +405,17 @@ function Chat({route, navigation}: Props) {
               postDelete={updateAfterDeletion}
             />
           ) : (
-            <MessageBar
-              name={chatState.name}
-              onSend={clearSelected}
-              chatId={chatId}
-              replyTo={replyToMessage}
-              isGroupChat={isGroupChat}
-            />
+            <Disconnected name={chatState.name} />
           )}
-        </>
-      ) : (
-        <DeleteChatButton onDelete={onDelete} />
-      )}
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+        <RichReactionsBottomsheet
+          chatId={chatId}
+          currentReactionMessage={currentReactionMessage}
+          onClose={unsetRichReaction}
+          visible={showRichReaction}
+        />
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -371,8 +434,8 @@ export function shouldNotRender(contentType: ContentType) {
     contentType === ContentType.contactBundleDenialResponse ||
     contentType === ContentType.contactBundleResponse ||
     contentType === ContentType.initialInfoRequest ||
-    contentType === ContentType.update ||
-    contentType === ContentType.reaction
+    contentType === ContentType.reaction ||
+    contentType === ContentType.name
   ) {
     return true;
   } else {
@@ -381,10 +444,15 @@ export function shouldNotRender(contentType: ContentType) {
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  main: {
+    flex: 1,
     width: '100%',
-    height: '100%',
     flexDirection: 'column',
+    justifyContent: 'flex-start',
+  },
+  screen: {
+    flexDirection: 'column',
+    backgroundColor: PortColors.background,
   },
   chatBubble: {
     flexDirection: 'column',

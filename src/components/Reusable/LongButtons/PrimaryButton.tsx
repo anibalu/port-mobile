@@ -65,7 +65,7 @@ const PrimaryButton = ({
         disabled ? styles.disabledButton : styles.button,
       )}
       activeOpacity={0.6}
-      onPress={() => onClick()}>
+      onPress={onClick}>
       {isLoading ? (
         <ActivityIndicator color={'white'} />
       ) : (
@@ -83,10 +83,10 @@ const PrimaryButton = ({
               primaryButtonColor === 'w'
                 ? {...styles.buttonText, color: PortColors.text.primary}
                 : styles.buttonText,
-            )}>
-            {buttonText.length > 16
-              ? buttonText.substring(0, 16) + '...'
-              : buttonText}
+            )}
+            numberOfLines={1}
+            ellipsizeMode={'tail'}>
+            {buttonText.substring(0, 20)}
           </Text>
         </>
       )}

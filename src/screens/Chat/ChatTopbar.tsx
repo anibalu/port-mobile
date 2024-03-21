@@ -1,14 +1,14 @@
 import SettingsIcon from '@assets/icons/Settings.svg';
 import Cross from '@assets/icons/cross.svg';
 import {BackButton} from '@components/BackButton';
-import {PortColors, screen} from '@components/ComponentUtils';
-import {GenericAvatar} from '@components/GenericAvatar';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
@@ -57,18 +57,18 @@ function ChatTopbar({
 
   return (
     <View style={styles.bar}>
-      {selectedMessagesLength == 0 && (
+      {selectedMessagesLength === 0 && (
         <BackButton style={styles.backIcon} onPress={onBackPress} />
       )}
 
       <Pressable style={styles.profileBar} onPress={handlePress}>
         <View style={styles.titleBar}>
-          {selectedMessagesLength == 0 && (
+          {selectedMessagesLength === 0 && (
             <View style={styles.profile}>
-              <GenericAvatar
+              <AvatarBox
+                avatarSize="s"
                 onPress={handlePress}
                 profileUri={profileURI}
-                avatarSize={'xxsmall'}
               />
             </View>
           )}
@@ -81,7 +81,7 @@ function ChatTopbar({
             }
             numberOfLines={1}>
             {selectedMessagesLength >= 1
-              ? selectedMessagesLength.toString() + ' selected'
+              ? 'Selected (' + selectedMessagesLength.toString() + ')'
               : name}
           </NumberlessText>
         </View>
@@ -91,7 +91,6 @@ function ChatTopbar({
               selectedMessagesLength >= 1 ? styles.crossBox : styles.settingsBox
             }
             IconLeft={selectedMessagesLength >= 1 ? Cross : SettingsIcon}
-            iconSize={selectedMessagesLength >= 1 ? 38 : 0}
             onPress={handleCancellation}
           />
         </View>
@@ -108,9 +107,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: 8,
-    backgroundColor: '#FFF',
-    borderBottomColor: '#EEE',
-    borderBottomWidth: 0.5,
+    backgroundColor: PortColors.primary.white,
     height: 56,
   },
   profileBar: {
@@ -126,7 +123,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    gap: 10,
+    gap: PortSpacing.tertiary.uniform,
   },
   selectedCount: {
     color: PortColors.primary.black,
@@ -139,10 +136,9 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     alignItems: 'center',
-    height: 40,
+    height: 51,
     width: 40,
     paddingTop: 13,
-    marginRight: 12,
   },
   settingsBox: {
     backgroundColor: PortColors.primary.white,
@@ -153,8 +149,10 @@ const styles = StyleSheet.create({
   },
   crossBox: {
     backgroundColor: PortColors.primary.white,
-    width: 20,
-    padding: 0,
+    alignItems: 'flex-end',
+    height: 40,
+    top: 7,
+    width: 40,
   },
   profile: {
     height: 50,
@@ -163,7 +161,6 @@ const styles = StyleSheet.create({
     marginLeft: -14,
     display: 'flex',
     flexDirection: 'row',
-    // backgroundColor: 'yellow',
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -5,6 +5,7 @@ export interface GroupData {
   groupPicture?: string | null;
   amAdmin?: boolean;
   selfCryptoId?: string;
+  permissionsId?: string;
 }
 export interface GroupDataStrict extends GroupData {
   name: string;
@@ -12,6 +13,8 @@ export interface GroupDataStrict extends GroupData {
   description?: string | null;
   groupPicture?: string | null;
   amAdmin: boolean;
+  selfCryptoId: string;
+  permissionsId: string;
 }
 
 export interface GroupMemberUpdate {

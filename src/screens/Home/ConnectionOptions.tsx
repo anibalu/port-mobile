@@ -1,160 +1,112 @@
 import React from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import {PortColors, screen} from '@components/ComponentUtils';
-import NewContactIcon from '@assets/icons/NewContactBlack.svg';
+import {StyleSheet, View} from 'react-native';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import NewPortIcon from 'assets/icons/NewPortBlack.svg';
 import NewSuperportIcon from '@assets/icons/NewSuperportBlack.svg';
-import NewGroupIcon from '@assets/icons/NewGroupBlack.svg';
 import ScanIcon from '@assets/icons/ScanThinBlack.svg';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
-import BlackAngleRight from '@assets/icons/BlackAngleRight.svg';
-import {useConnectionModal} from 'src/context/ConnectionModalContext';
 import {useNavigation} from '@react-navigation/native';
+import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
+import TouchableOption from './TouchableOption';
+import {FileAttributes} from '@utils/Storage/interfaces';
 
 interface ConnectionOptionsProps {
-  setIsConnectionOptionsModalOpen: (isShown: boolean) => void;
+  setVisible: (isShown: boolean) => void;
+  visible: boolean;
+  name: string;
+  avatar: FileAttributes;
 }
 
 export default function ConnectionOptions(props: ConnectionOptionsProps) {
-  const {setIsConnectionOptionsModalOpen} = props;
+  const {setVisible, visible} = props;
   const navigation = useNavigation();
 
-  const {showNewPortModal, showSuperportModal} = useConnectionModal();
-  const handleOptionClick = (showModal: () => void) => {
-    setIsConnectionOptionsModalOpen(false);
-    showModal();
+  const openNewPortScreen = () => {
+    setVisible(false);
+    navigation.navigate('NewPortScreen', {
+      name: props.name,
+      avatar: props.avatar,
+    });
   };
 
-  const handleOpenNewGroup = () => {
-    setIsConnectionOptionsModalOpen(false);
-    navigation.navigate('GroupOnboarding');
+  // const handleOpenNewGroup = () => {
+  //   setVisible(false);
+  //   navigation.navigate('CreateNewGroup');
+  // };
+
+  const handleOpenSuperport = () => {
+    setVisible(false);
+    navigation.navigate('SuperportScreen', {
+      name: props.name,
+      avatar: props.avatar,
+    });
   };
 
   const handleOpenScan = () => {
-    setIsConnectionOptionsModalOpen(false);
+    setVisible(false);
     navigation.navigate('Scan');
   };
 
   return (
-    <View style={styles.connectionOptionsRegion}>
-      <View style={styles.mainContainer}>
-        <Pressable
-          style={styles.listItem}
-          onPress={() => handleOptionClick(showNewPortModal)}>
-          <NewContactIcon width={24} height={24} />
-          <View style={styles.listContentWrapper}>
-            <NumberlessText
-              style={{color: PortColors.primary.black}}
-              fontSizeType={FontSizeType.l}
-              fontType={FontType.rg}>
-              New Port
-            </NumberlessText>
-            <NumberlessText
-              style={{color: PortColors.text.secondary}}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              A one-time use QR/link to add a contact
-            </NumberlessText>
-          </View>
-          <BlackAngleRight width={20} height={20} />
-        </Pressable>
-        <Pressable
-          style={styles.listItem}
-          onPress={() => handleOptionClick(showSuperportModal)}>
-          <NewSuperportIcon width={24} height={24} />
-          <View style={styles.listContentWrapper}>
-            <NumberlessText
-              style={{color: PortColors.primary.black}}
-              fontSizeType={FontSizeType.l}
-              fontType={FontType.rg}>
-              New Superport
-            </NumberlessText>
-            <NumberlessText
-              style={{color: PortColors.text.secondary}}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              A multi-use QR/link to add contacts
-            </NumberlessText>
-          </View>
-          <BlackAngleRight width={20} height={20} />
-        </Pressable>
-        <Pressable style={styles.listItem} onPress={handleOpenNewGroup}>
-          <NewGroupIcon width={24} height={24} />
-          <View style={styles.listContentWrapper}>
-            <NumberlessText
-              style={{color: PortColors.primary.black}}
-              fontSizeType={FontSizeType.l}
-              fontType={FontType.rg}>
-              New Group
-            </NumberlessText>
-            <NumberlessText
-              style={{color: PortColors.text.secondary}}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              A private group with other Port users
-            </NumberlessText>
-          </View>
-          <BlackAngleRight width={20} height={20} />
-        </Pressable>
-        <Pressable
-          style={StyleSheet.compose(styles.listItem, {
-            borderBottomWidth: 0,
-          })}
-          onPress={handleOpenScan}>
-          <ScanIcon width={24} height={24} />
-          <View style={styles.listContentWrapper}>
-            <NumberlessText
-              style={{color: PortColors.primary.black}}
-              fontSizeType={FontSizeType.l}
-              fontType={FontType.rg}>
-              Scan QR
-            </NumberlessText>
-            <NumberlessText
-              style={{color: PortColors.text.secondary}}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Scan a QR to add a contact or join a group
-            </NumberlessText>
-          </View>
-          <BlackAngleRight width={20} height={20} />
-        </Pressable>
+    <PrimaryBottomSheet
+      showClose={false}
+      bgColor={'w'}
+      visible={visible}
+      showNotch={true}
+      onClose={() => setVisible(false)}>
+      <View style={styles.connectionOptionsRegion}>
+        <View style={styles.mainContainer}>
+          <TouchableOption
+            title={'New Port'}
+            subtitle={'A one-time use QR/link to add a contact'}
+            IconLeft={NewPortIcon}
+            onClick={openNewPortScreen}
+          />
+          <TouchableOption
+            title={'New Superport'}
+            subtitle={'A multi-use QR/link to add contacts'}
+            IconLeft={NewSuperportIcon}
+            onClick={handleOpenSuperport}
+          />
+          {/* <TouchableOption
+            title={'New Group'}
+            subtitle={'A private group with other Port users'}
+            IconLeft={NewGroupIcon}
+            onClick={handleOpenNewGroup}
+          /> */}
+          <TouchableOption
+            showBorderBottom={false}
+            title={'Scan QR'}
+            subtitle={' Scan a QR to add a contact or join a group'}
+            IconLeft={ScanIcon}
+            onClick={handleOpenScan}
+          />
+        </View>
       </View>
-    </View>
+    </PrimaryBottomSheet>
   );
 }
 
 const styles = StyleSheet.create({
   connectionOptionsRegion: {
-    paddingHorizontal: 24,
     width: screen.width,
   },
   mainContainer: {
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-    backgroundColor: PortColors.primary.white,
+    paddingTop: PortSpacing.tertiary.top,
     flexDirection: 'column',
-    width: '100%',
-    borderRadius: 16,
-    borderColor: PortColors.primary.border.dullGrey,
-    borderWidth: 0.5,
   },
   listItem: {
-    paddingVertical: 16,
-    paddingHorizontal: 0,
+    paddingVertical: PortSpacing.secondary.uniform,
     borderRadius: 0,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    borderBottomColor: PortColors.primary.border.dullGrey,
+    borderBottomColor: PortColors.stroke,
     borderBottomWidth: 1,
+    borderBottomEndRadius: 8,
   },
   listContentWrapper: {
-    marginLeft: 16,
+    marginLeft: PortSpacing.secondary.uniform,
     flexDirection: 'column',
-    gap: 4,
     flex: 1,
     alignItems: 'stretch',
     justifyContent: 'center',

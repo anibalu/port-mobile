@@ -1,49 +1,18 @@
-import {defaultMasterDirectChatPermissions} from '@utils/ChatPermissionPresets';
-import {
-  GroupPermissions,
-  Permissions,
-  booleanKeysOfGroupPermissions,
-  numberKeysOfGroupPermissions,
-} from './interfaces';
-import * as storage from '@utils/Storage/permissions';
+import {defaultPermissions} from '@configs/constants';
+import {GroupPermissions} from './interfaces';
+import Group from '@utils/Groups/Group';
 
-const defaultGroupChatPermissions: GroupPermissions = {
-  notifications: defaultMasterDirectChatPermissions.notifications,
-  autoDownload: defaultMasterDirectChatPermissions.autoDownload,
-  displayPicture: defaultMasterDirectChatPermissions.displayPicture,
-  disappearingMessages: defaultMasterDirectChatPermissions.disappearingMessages,
-};
+/**
+ * Default permissions for group chats
+ * @returns - defaults
+ */
 export function getDefaultPermissions(): GroupPermissions {
-  return {...defaultGroupChatPermissions};
-}
-
-function groupPermissionsMask(permissions: Permissions): GroupPermissions {
-  const groupPermission: GroupPermissions = getDefaultPermissions();
-  booleanKeysOfGroupPermissions.forEach(key => {
-    groupPermission[key] = permissions[key] ? true : false;
-  });
-  numberKeysOfGroupPermissions.forEach(key => {
-    if (permissions[key]) {
-      groupPermission[key] = permissions[key] as number;
-    }
-  });
-  return groupPermission;
+  return {...defaultPermissions} as GroupPermissions;
 }
 
 export async function getChatPermissions(
   chatId: string,
 ): Promise<GroupPermissions> {
-  const permissions: Permissions = await storage.getPermissions(chatId);
-  if (JSON.stringify(permissions) === '{}') {
-    return getDefaultPermissions();
-  }
-  return groupPermissionsMask(permissions);
-}
-
-export async function createChatPermissions(
-  chatId: string,
-  permissions: GroupPermissions,
-) {
-  await storage.newPermissionEntry(chatId);
-  await storage.updatePermissions(chatId, permissions);
+  const group = new Group(chatId);
+  return await group.getPermissions();
 }

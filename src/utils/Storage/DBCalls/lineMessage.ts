@@ -1,6 +1,7 @@
 import {PAGINATION_LIMIT} from '@configs/constants';
 import {runSimpleQuery} from './dbCommon';
 import {
+  ContentType,
   DataType,
   MessageStatus,
   SavedMessageParams,
@@ -392,6 +393,18 @@ export async function permanentlyDeleteMessage(
     WHERE chatId = ? AND messageId = ? ;
     `,
     [chatId, messageId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
+}
+export async function markMessageAsDeleted(chatId: string, messageId: string) {
+  await runSimpleQuery(
+    `
+    UPDATE lineMessages 
+    SET contentType = ?, data = '{}', mtime = ?
+    WHERE chatId = ? AND messageId = ? ;
+    `,
+    [ContentType.deleted, generateISOTimeStamp(), chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );

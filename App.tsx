@@ -17,7 +17,6 @@ import {foregroundMessageHandler} from '@utils/Messaging/FCM/fcm';
 
 import ErrorModal from '@components/Modals/ErrorModal';
 import LoginStack from '@navigation/LoginStack';
-import {loadConnectionsToStore} from '@utils/Connections';
 import {checkProfileCreated} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 
@@ -26,7 +25,7 @@ import {
   debouncedBtFOperations,
   debouncedPeriodicOperations,
 } from '@utils/AppOperations';
-import {AppState} from 'react-native';
+import {AppState, Linking} from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import Toast from 'react-native-toast-message';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
@@ -46,8 +45,6 @@ function App(): JSX.Element {
       // If profile has been created
       if (result === ProfileStatus.created) {
         setProfileExists(true);
-        //loads chats to redux store
-        await loadConnectionsToStore();
         //background operations are setup
         debouncedPeriodicOperations();
       }
@@ -68,6 +65,18 @@ function App(): JSX.Element {
     profileCheck();
     // default way to handle new messages in the foreground
     foregroundMessageHandler();
+    // saves fetched initial url
+    (async () => {
+      console.log('calling initial url');
+      const initialURL = await Linking.getInitialURL();
+      console.log('calling initial url 2', initialURL);
+      if (initialURL) {
+        store.dispatch({
+          type: 'NEW_LINK',
+          payload: initialURL,
+        });
+      }
+    })();
   }, []);
 
   /**

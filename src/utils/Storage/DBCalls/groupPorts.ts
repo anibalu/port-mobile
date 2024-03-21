@@ -36,7 +36,8 @@ export async function updateGroupPortData(
 		groupId = COALESCE(?, groupId),
 		usedOnTimestamp = COALESCE(?, usedOnTimestamp),
 		expiryTimestamp = COALESCE(?, expiryTimestamp),
-		channel = COALESCE(?, channel)
+		channel = COALESCE(?, channel),
+    folderId = COALESCE(?, folderId)
 		WHERE portId = ? ;
 		`,
     [
@@ -64,7 +65,7 @@ export async function getGroupPortData(
   let matchingEntry: GroupPortDataUpdate | null = null;
   await runSimpleQuery(
     `
-    SELECT version, groupId, usedOnTimestamp, expiryTimestamp, channel
+    SELECT *
     FROM groupPorts
     WHERE portId = ?;
     `,

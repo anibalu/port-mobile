@@ -1,5 +1,9 @@
 import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
-import {DEFAULT_NAME} from '@configs/constants';
+import {
+  DEFAULT_NAME,
+  defaultFolderId,
+  defaultSuperportConnectionsLimit,
+} from '@configs/constants';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {ContentType} from '@utils/Messaging/interfaces';
@@ -14,17 +18,35 @@ import {
   SuperportData,
 } from './interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {createChatPermissionsFromFolderId} from '@utils/ChatPermissions';
+import {getProfileName} from '@utils/Profile';
 
+/**
+ * Superport instrument version
+ * @returns - version string
+ */
 function getCurrentSuperportVersion() {
   return '0.0.1';
 }
+
+/**
+ * to determine legitimate ports
+ * @returns - organisation identifier
+ */
 function getOrganisationName() {
   return 'numberless.tech';
 }
 
+/**
+ * Creates a new superport
+ * @param label - label of superport
+ * @param connectionsLimit
+ * @returns - bundle to display and superport data
+ */
 export async function createNewSuperport(
-  label: string = 'unlabeled',
-  connectionLimit: number | null,
+  label: string = '',
+  connectionsLimit: number = defaultSuperportConnectionsLimit,
+  folderId: string = defaultFolderId,
 ): Promise<{bundle: DirectSuperportBundle; superport: SuperportData}> {
   const portId = await API.getNewDirectSuperport();
   const cryptoDriver = new CryptoDriver();
@@ -33,7 +55,7 @@ export async function createNewSuperport(
   const rad = await cryptoDriver.getRad();
   const keyHash = await cryptoDriver.getPublicKeyHash();
   const version = getCurrentSuperportVersion();
-  const name = label;
+  const name = await getProfileName();
   //update superport
   await storageSuperports.newSuperport(portId);
   await storageSuperports.updateSuperportData(portId, {
@@ -41,7 +63,10 @@ export async function createNewSuperport(
     label: label,
     createdOnTimestamp: generateISOTimeStamp(),
     cryptoId: cryptoId,
-    connectionsPossible: connectionLimit,
+    connectionsLimit: connectionsLimit,
+    connectionsMade: 0,
+    folderId: folderId,
+    paused: false,
   });
   const createdSuperport = await getCreatedSuperportData(portId);
   //generate bundle to display
@@ -57,6 +82,11 @@ export async function createNewSuperport(
   return {bundle: displayBundle, superport: createdSuperport};
 }
 
+/**
+ * Fetches data regarding a created superport
+ * @param portId - superport port Id
+ * @returns - bundle to display and superport data
+ */
 export async function fetchCreatedSuperportBundle(
   portId: string,
 ): Promise<{bundle: DirectSuperportBundle; superport: SuperportData}> {
@@ -70,13 +100,18 @@ export async function fetchCreatedSuperportBundle(
     version: version,
     org: getOrganisationName(),
     target: BundleTarget.superportDirect,
-    name: createdSuperport.label ? createdSuperport.label : 'unlabeled',
+    name: await getProfileName(),
     rad: rad,
     keyHash: keyHash,
   };
   return {bundle: displayBundle, superport: createdSuperport};
 }
 
+/**
+ * Fetch data associated with a created superport
+ * @param portId
+ * @returns - superport data
+ */
 async function getCreatedSuperportData(portId: string): Promise<SuperportData> {
   const portData = await storageSuperports.getSuperportData(portId);
   if (portData && portData.createdOnTimestamp) {
@@ -86,14 +121,78 @@ async function getCreatedSuperportData(portId: string): Promise<SuperportData> {
   throw new Error('NoSuchCreatedSuperport');
 }
 
+/**
+ * Fetch all created superports
+ * @returns - list of all created superports
+ */
 export async function getAllCreatedSuperports(): Promise<SuperportData[]> {
   return await storageSuperports.getAllSuperports();
 }
 
+/**
+ * Update the label of a generated superport
+ * @param portId
+ * @param label
+ */
+export async function updateGeneratedSuperportLabel(
+  portId: string,
+  label: string,
+) {
+  await storageSuperports.updateSuperportData(portId, {label: label});
+}
+
+/**
+ * Update generated direct superport connections limit
+ * @param portId
+ * @param newLimit
+ */
+export async function updateGeneratedSuperportLimit(
+  portId: string,
+  newLimit: number,
+) {
+  await storageSuperports.updateSuperportData(portId, {
+    connectionsLimit: newLimit,
+  });
+}
+
+/**
+ * Update folder assigned to a superport
+ * @param portId
+ * @param folderId
+ */
+export async function updateGeneratedSuperportFolder(
+  portId: string,
+  folderId: string,
+) {
+  await storageSuperports.updateSuperportData(portId, {folderId: folderId});
+}
+
+/**
+ * Pause or unpause superport
+ * @param portId
+ * @param pause
+ */
+export async function changePausedStateOfSuperport(
+  portId: string,
+  pause: boolean,
+) {
+  if (pause) {
+    storageSuperports.pauseSuperport(portId);
+  } else {
+    storageSuperports.unpauseSuperport(portId);
+  }
+}
+
+/**
+ * Read and accept a superport bundle
+ * @param portBundle - superport bundle
+ * @param channel - channel through which the superport was accessed
+ * @param folderId - folder to which new chat should go to
+ */
 export async function acceptSuperportBundle(
   portBundle: DirectSuperportBundle,
   channel: string | null = null,
-  presetId: string | null = null,
+  folderId: string = defaultFolderId,
 ) {
   //setup crypto
   const cryptoDriver = new CryptoDriver();
@@ -113,10 +212,14 @@ export async function acceptSuperportBundle(
     expiryTimestamp: null,
     channel: channel,
     cryptoId: cryptoId,
-    permissionPresetId: presetId,
+    folderId: folderId,
   });
 }
 
+/**
+ * Create a new direct chat using a read superport
+ * @param readPortBundle - direct chat superport bundle that is read
+ */
 export async function newChatOverReadSuperportBundle(
   readPortBundle: ReadPortData,
 ) {
@@ -133,25 +236,44 @@ export async function newChatOverReadSuperportBundle(
     await cryptoDriver.deleteCryptoData();
     return;
   }
-  //create direct chat
-  await chat.createChat(
-    {
-      name: readPortBundle.name,
-      authenticated: false,
-      disconnected: false,
-      cryptoId: cryptoId,
-      connectedOn: readPortBundle.usedOnTimestamp,
-    },
-    readPortBundle.portId,
-    null,
-    true,
-    readPortBundle.permissionPresetId
-      ? readPortBundle.permissionPresetId
-      : null,
+  //create chat permissions to be assigned to chat using folder Id
+  const permissionsId = await createChatPermissionsFromFolderId(
+    readPortBundle.folderId,
   );
-  await storageReadPorts.deleteReadPortData(readPortBundle.portId);
+  try {
+    //try to create a direct chat
+    await chat.createChat(
+      {
+        name: readPortBundle.name,
+        authenticated: false,
+        disconnected: false,
+        cryptoId: cryptoId,
+        connectedOn: readPortBundle.usedOnTimestamp,
+        connectedUsing: readPortBundle.channel,
+        permissionsId: permissionsId,
+      },
+      readPortBundle.folderId,
+      readPortBundle.portId,
+      null,
+      true,
+    );
+    await storageReadPorts.deleteReadPortData(readPortBundle.portId);
+  } catch (error: any) {
+    if (typeof error === 'object' && error.response) {
+      if (error.response.status === 404) {
+        console.log('Port has expired');
+        //expire port
+        storageReadPorts.expireReadPort(readPortBundle.portId);
+      }
+    }
+  }
 }
 
+/**
+ * Create a new direct chat using a generated superport and server assigned chat Id
+ * @param portId - superport id of generated superport
+ * @param chatId - chat Id assigned by the server
+ */
 export async function newChatOverCreatedSuperportBundle(
   portId: string,
   chatId: string,
@@ -160,43 +282,63 @@ export async function newChatOverCreatedSuperportBundle(
   if (!createdSuperport.cryptoId) {
     throw new Error('NoCryptoId');
   }
-
   const superportCryptoId: string = createdSuperport.cryptoId;
   const chat = new DirectChat();
   const superportCryptoDriver = new CryptoDriver(superportCryptoId);
-  //check timestamp expiry
-  if (createdSuperport.connectionsPossible === 0) {
-    //cleanup
-    await storageSuperports.deleteSuperPortData(createdSuperport.portId);
-    await superportCryptoDriver.deleteCryptoData();
+  //check if superport is already paused
+  if (createdSuperport.paused) {
+    return;
+  }
+  //check if superport limit reached. If so, pause superport
+  if (createdSuperport.connectionsMade === createdSuperport.connectionsLimit) {
+    //pause superport
+    await storageSuperports.pauseSuperport(createdSuperport.portId);
     return;
   }
   //create crypto duplicated entry
   const cryptoDriver = new CryptoDriver();
   await cryptoDriver.create(await superportCryptoDriver.getData());
   const cryptoId = cryptoDriver.getCryptoId();
+  //create chat permissions to be assigned to chat using folder Id
+  const permissionsId = await createChatPermissionsFromFolderId(
+    createdSuperport.folderId,
+  );
   //create direct chat
   await chat.createChat(
     {
       name: createdSuperport.label
-        ? DEFAULT_NAME + 'via' + createdSuperport.label
-        : DEFAULT_NAME + 'via superport',
+        ? DEFAULT_NAME + ' via' + createdSuperport.label
+        : DEFAULT_NAME + ' via Superport',
       authenticated: false,
       disconnected: false,
       cryptoId: cryptoId,
       connectedOn: generateISOTimeStamp(),
+      connectedUsing: 'superport://' + createdSuperport.portId,
+      permissionsId: permissionsId,
     },
+    createdSuperport.folderId,
     createdSuperport.portId,
     chatId,
     true,
   );
-  await storageSuperports.decrementConnectionsPossible(portId);
+  //increase the count of connections made using this superport
+  await storageSuperports.incrementConnectionsMade(
+    createdSuperport.portId,
+    generateISOTimeStamp(),
+  );
   const sender = new SendMessage(chatId, ContentType.handshakeA1, {
     pubKey: await cryptoDriver.getPublicKey(),
   });
   await sender.send(true, false);
 }
 
+/**
+ * Converts a generated bundle into a clickable link and returns link.
+ * If the clickable link is already generated, just returns the link without regenerating.
+ * @param portId
+ * @param bundleString
+ * @returns - clickable link
+ */
 export async function getSuperportBundleClickableLink(
   portId: string,
   bundleString: string | null = null,
@@ -222,6 +364,10 @@ export async function getSuperportBundleClickableLink(
   return BUNDLE_ID_PREPEND_LINK + bundleId;
 }
 
+/**
+ * Clean delete a superport
+ * @param portId - superport to delete
+ */
 export async function cleanDeleteSuperport(portId: string) {
   try {
     const createdSuperport = await getCreatedSuperportData(portId);
@@ -232,22 +378,5 @@ export async function cleanDeleteSuperport(portId: string) {
     }
   } catch (error) {
     console.log('Error deleting generated port: ', error);
-  }
-}
-
-export async function cleanUsedUpSuperports() {
-  const createdSuperports = await getAllCreatedSuperports();
-  for (let index = 0; index < createdSuperports.length; index++) {
-    if (createdSuperports[index].connectionsPossible === 0) {
-      await storageSuperports.deleteSuperPortData(
-        createdSuperports[index].portId,
-      );
-      if (createdSuperports[index].cryptoId) {
-        const cryptoDriver = new CryptoDriver(
-          createdSuperports[index].cryptoId,
-        );
-        await cryptoDriver.deleteCryptoData();
-      }
-    }
   }
 }

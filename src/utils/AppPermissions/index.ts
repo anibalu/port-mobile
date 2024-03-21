@@ -96,3 +96,46 @@ export const checkRecordingPermission = async (
   }
   return;
 };
+
+export const checkSavingImagesPermission = async (
+  setIsSavingImagesPermissionGranted: Function,
+) => {
+  const requestSavingImagesPermission = async (
+    savingImagesPermission: Permission,
+  ) => {
+    const savingImagesStatus = await request(savingImagesPermission);
+    if (savingImagesStatus === RESULTS.GRANTED) {
+      setIsSavingImagesPermissionGranted(true);
+    }
+  };
+  const savingPermission = Platform.select({
+    android: PERMISSIONS.ANDROID.READ_MEDIA_IMAGES,
+    ios: PERMISSIONS.IOS.PHOTO_LIBRARY,
+  });
+  if (savingPermission === undefined) {
+    console.log('This platform is not supported');
+    return;
+  }
+  const savingImagesStatus = await check(savingPermission);
+  switch (savingImagesStatus) {
+    case RESULTS.UNAVAILABLE:
+      console.log(
+        'This feature is not available (on this device / in this context)',
+      );
+      break;
+    case RESULTS.DENIED:
+      console.log(
+        'The permission has not been requested / is denied but requestable',
+      );
+      await requestSavingImagesPermission(savingPermission);
+      break;
+    case RESULTS.GRANTED:
+      console.log('The permission is granted');
+      setIsSavingImagesPermissionGranted(true);
+      break;
+    case RESULTS.BLOCKED:
+      console.log('The permission is denied and not requestable anymore');
+      break;
+  }
+  return;
+};

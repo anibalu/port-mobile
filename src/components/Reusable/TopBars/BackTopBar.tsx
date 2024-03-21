@@ -1,33 +1,50 @@
 /**
  * Back Topbar.
  * Takes the following props:
- * 1. Icon left
- * 2. onIconLeftPress
+ * 1. onBackPress
  */
 
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import React, {FC} from 'react';
+import React from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
-import {SvgProps} from 'react-native-svg';
+import BackIcon from '@assets/navigation/backButton.svg';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 
 const BackTopbar = ({
-  IconLeft,
-  onIconLeftPress,
+  onBackPress,
   bgColor = 'g',
+  title = '',
 }: {
-  onIconLeftPress: () => void;
-  IconLeft: FC<SvgProps>;
+  onBackPress: () => void;
   bgColor?: 'w' | 'g';
+  title?: string;
 }) => {
   return (
     <View
       style={StyleSheet.compose(styles.topbarAcontainer, {
         backgroundColor:
           bgColor == 'w' ? PortColors.primary.white : PortColors.background,
+        alignSelf: title ? 'auto' : 'stretch',
       })}>
-      <Pressable onPress={onIconLeftPress}>
-        <IconLeft width={24} height={24} />
+      {title && (
+        <NumberlessText
+          style={{
+            alignSelf: 'center',
+            textAlign: 'center',
+            flex: 1,
+          }}
+          fontType={FontType.md}
+          fontSizeType={FontSizeType.l}>
+          {title}
+        </NumberlessText>
+      )}
+      <Pressable style={styles.backButton} onPress={onBackPress}>
+        <BackIcon width={24} height={24} />
       </Pressable>
     </View>
   );
@@ -35,13 +52,16 @@ const BackTopbar = ({
 
 const styles = StyleSheet.create({
   topbarAcontainer: {
-    alignSelf: 'stretch',
     flexDirection: 'row',
+    justifyContent: 'center',
     paddingHorizontal: PortSpacing.secondary.uniform,
     alignItems: 'center',
-    justifyContent: 'space-between',
     backgroundColor: PortColors.primary.white,
     height: 56,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 16,
   },
 });
 

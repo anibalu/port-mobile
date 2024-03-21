@@ -18,11 +18,11 @@ import ReceiveImage from './ActionClasses/ReceiveImage';
 import ReceiveName from './ActionClasses/ReceiveName';
 import ReceiveReaction from './ActionClasses/ReceiveReaction';
 import ReceiveText from './ActionClasses/ReceiveText';
-import ReceiveUpdate from './ActionClasses/ReceiveUpdate';
 import ReceiveLink from './ActionClasses/ReceiveLink';
 import ReceiveVideo from './ActionClasses/ReceiveVideo';
 import DirectReceiveAction from './DirectReceiveAction';
 import ReceiveReceipt from './ActionClasses/ReceiveReceipt';
+import ReceiveMessageDeletion from './ActionClasses/ReceiveMessageDeletion';
 
 export enum PossibleDirectReceiveActions {
   deletion,
@@ -158,6 +158,13 @@ export async function directReceiveActionPicker(
           receiveTime,
           decryptedMessageContent,
         );
+      case ContentType.deleted:
+        return new ReceiveMessageDeletion(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
       case ContentType.contactBundleDenialResponse:
         return new ReceiveContactBundleResponseDenial(
           chatId,
@@ -174,13 +181,6 @@ export async function directReceiveActionPicker(
         );
       case ContentType.contactBundle:
         return new ReceiveContactBundle(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.update:
-        return new ReceiveUpdate(
           chatId,
           message,
           receiveTime,

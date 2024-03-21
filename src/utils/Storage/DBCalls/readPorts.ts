@@ -1,3 +1,4 @@
+import {generateISOTimeStamp} from '@utils/Time';
 import {runSimpleQuery} from './dbCommon';
 import {ReadPortData} from '@utils/Ports/interfaces';
 
@@ -19,7 +20,7 @@ export async function newReadPort(newPort: ReadPortData) {
       expiryTimestamp,
       channel,
       cryptoId,
-      permissionPresetId
+      folderId
     ) VALUES (?,?,?,?,?,?,?,?,?,?);
     `,
     [
@@ -32,7 +33,7 @@ export async function newReadPort(newPort: ReadPortData) {
       newPort.expiryTimestamp,
       newPort.channel,
       newPort.cryptoId,
-      newPort.permissionPresetId,
+      newPort.folderId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
@@ -87,6 +88,24 @@ export async function getReadPortData(
     },
   );
   return matchingEntry;
+}
+
+/**
+ * expire a read port
+ * @param portId a 32 character identifier for a read port
+ */
+export async function expireReadPort(portId: string) {
+  await runSimpleQuery(
+    `
+		UPDATE readPorts
+		SET
+		expiryTimestamp = ?
+		WHERE portId = ? ;
+		`,
+    [generateISOTimeStamp(), portId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
 }
 
 /**

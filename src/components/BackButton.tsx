@@ -19,7 +19,7 @@ export const BackButton: React.FC<TouchableOpacityProps> = ({
       style={StyleSheet.compose(styles.backIcon, style)}
       onPress={onPress}
       {...rest}>
-      <Back width={16} height={16} />
+      <Back width={24} height={24} />
     </TouchableOpacity>
   );
 };
@@ -27,7 +27,7 @@ export const BackButton: React.FC<TouchableOpacityProps> = ({
 const styles = StyleSheet.create({
   backIcon: {
     paddingTop: 16,
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
     width: 50,
     height: 51,
   },

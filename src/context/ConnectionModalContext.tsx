@@ -1,15 +1,10 @@
 import {isIOS} from '@components/ComponentUtils';
 import {useNavigation} from '@react-navigation/native';
+import store from '@store/appStore';
 import {handleDeepLink} from '@utils/DeepLinking';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {
-  DirectSuperportBundle,
-  GroupBundle,
-  GroupSuperportBundle,
-  PortBundle,
-} from '@utils/Ports/interfaces';
+import {readBundle} from '@utils/Ports';
 import {FileAttributes} from '@utils/Storage/interfaces';
-import {wait} from '@utils/Time';
 import React, {
   ReactNode,
   createContext,
@@ -19,49 +14,11 @@ import React, {
 } from 'react';
 import {Linking} from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
-import {useErrorModal} from './ErrorModalContext';
+import {useSelector} from 'react-redux';
 
 type ModalContextType = {
-  //controls incoming connection modal
-  femaleModal: boolean;
-  setFemaleModal: (x: boolean) => void;
-  connectionModalVisible: boolean;
-  connectionQRData:
-    | PortBundle
-    | GroupBundle
-    | DirectSuperportBundle
-    | GroupSuperportBundle
-    | undefined;
-  setConnectionQRData: (
-    x:
-      | PortBundle
-      | GroupBundle
-      | DirectSuperportBundle
-      | GroupSuperportBundle
-      | undefined,
-  ) => void;
-  connectionChannel: string | null;
-  setConnectionChannel: (x: string | null) => void;
-  showConnectionModal: () => void;
-  hideConnectionModal: () => void;
-  toggleConnectionModal: () => void;
-  //controls new port modal
-  newPortModalVisible: boolean;
-  showNewPortModal: () => void;
-  hideNewPortModal: () => void;
-  toggleNewPortModal: () => void;
-  //controls superports modal
-  superportModalVisible: boolean;
-  showSuperportModal: () => void;
-  hideSuperportModal: () => void;
-  toggleSuperportModal: () => void;
-  //controls superport create modal
-  superportCreateModalVisible: boolean;
-  connectionSuperportId: string;
-  setConnectionSuperportId: (x: string) => void;
-  showSuperportCreateModal: () => void;
-  hideSuperportCreateModal: () => void;
-  toggleSuperportCreateModal: () => void;
+  linkUseError: number;
+  setLinkUseError: (x: number) => void;
 };
 
 const ConnectionModalContext = createContext<ModalContextType | undefined>(
@@ -86,66 +43,14 @@ type ModalProviderProps = {
 export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   children,
 }) => {
-  const [connectionQRData, setConnectionQRData] = useState<
-    | PortBundle
-    | GroupBundle
-    | DirectSuperportBundle
-    | GroupSuperportBundle
-    | undefined
-  >(undefined);
-  const [connectionChannel, setConnectionChannel] = useState<string | null>(
-    null,
-  );
-  const [connectionModalVisible, setConnectionModalVisible] = useState(false);
-  const [femaleModal, setFemaleModal] = useState(false);
-  const showConnectionModal = async () => {
-    await safeToggleFalse();
-    setConnectionModalVisible(true);
-  };
-  const hideConnectionModal = () => setConnectionModalVisible(false);
-  const toggleConnectionModal = () => setConnectionModalVisible(p => !p);
-
-  const [newPortModalVisible, setNewPortModalVisible] =
-    useState<boolean>(false);
-  const showNewPortModal = async () => {
-    await safeToggleFalse();
-    setNewPortModalVisible(true);
-  };
-  const hideNewPortModal = () => setNewPortModalVisible(false);
-  const toggleNewPortModal = () => setNewPortModalVisible(p => !p);
-
-  const [superportModalVisible, setSuperportModalVisible] =
-    useState<boolean>(false);
-  const showSuperportModal = async () => {
-    await safeToggleFalse();
-    setSuperportModalVisible(true);
-  };
-  const hideSuperportModal = () => setSuperportModalVisible(false);
-  const toggleSuperportModal = () => setSuperportModalVisible(p => !p);
-
-  const [superportCreateModalVisible, setSuperportCreateModalVisible] =
-    useState<boolean>(false);
-  const [contextSuperportId, setContextSuperportId] = useState<string>('');
-  const setConnectionSuperportId = (x: string) => setContextSuperportId(x);
-  const showSuperportCreateModal = async () => {
-    await safeToggleFalse();
-    setSuperportCreateModalVisible(true);
-  };
-  const hideSuperportCreateModal = () => setSuperportCreateModalVisible(false);
-  const toggleSuperportCreateModal = () =>
-    setSuperportCreateModalVisible(p => !p);
-
-  const safeToggleFalse = async () => {
-    setConnectionModalVisible(false);
-    setNewPortModalVisible(false);
-    setSuperportModalVisible(false);
-    setSuperportCreateModalVisible(false);
-    await wait(300);
-  };
-  const {portConnectionError} = useErrorModal();
+  // 0 - no error
+  // 1 - no internet error
+  // 2 - no bundle found at link error
+  const [linkUseError, setLinkUseError] = useState(0);
 
   const navigation = useNavigation<any>();
 
+  //handles files shared into the app
   const handleFilesOps = (files: any) => {
     const sharingMessageObjects = [];
     let isText = false;
@@ -195,60 +100,64 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       },
       'PortShare', // share url protocol (must be unique to your app, suggest using your apple bundle id)
     );
-    Linking.addEventListener('url', checkDeeplink);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  const checkDeeplink = async ({url}: {url: string}) => {
+    try {
+      // Checking if PortShare (share into port) is being triggered
+      if (url.startsWith('PortShare')) {
+        return;
+      } else {
+        console.log('calling deep link', url);
+        navigation.navigate('HomeTab');
+        const bundle = await handleDeepLink({url: url});
+        await readBundle(bundle);
+        store.dispatch({
+          type: 'PING',
+          payload: 'PONG',
+        });
+        // await processReadBundles();
+      }
+    } catch (error: any) {
+      if (typeof error === 'object' && error.response) {
+        if (error.response.status === 404) {
+          setLinkUseError(2);
+        } else {
+          setLinkUseError(1);
+        }
+      } else {
+        setLinkUseError(1);
+      }
+    }
+  };
+  // Handle any potential deeplinks while foregrounded/backgrounded
+  const initialLink = useSelector(state => state.initialLink.initialLink);
+  useEffect(() => {
+    // Check if a link was used to open the app for the first time and
+    // Consume said link if it was
+    console.log('initial link 1', initialLink);
+    if (initialLink) {
+      checkDeeplink({url: initialLink});
+      store.dispatch({type: 'NEW_LINK', payload: null});
+    }
+    console.log('initial link 2', initialLink);
+    Linking.addEventListener('url', url => {
+      // Check that this listener isn't being called on the initial link
+      // since it's being handled above already
+      checkDeeplink(url);
+    });
     return () => {
       Linking.removeAllListeners('url');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkDeeplink = async ({url}: {url: string}) => {
-    // Checking if PortShare (share into port) is being triggered
-    if (url.startsWith('PortShare')) {
-      console.log('Here');
-      return null;
-    } else {
-      const bundle = await handleDeepLink({url: url});
-      if (bundle) {
-        setConnectionQRData(bundle);
-        setFemaleModal(true);
-        showConnectionModal();
-      } else {
-        portConnectionError();
-      }
-    }
-  };
-
-  // Handle any potential deeplinks while foregrounded/backgrounded
-
   return (
     <ConnectionModalContext.Provider
       value={{
-        femaleModal: femaleModal,
-        setFemaleModal: setFemaleModal,
-        connectionQRData: connectionQRData,
-        setConnectionQRData: setConnectionQRData,
-        connectionChannel: connectionChannel,
-        setConnectionChannel: setConnectionChannel,
-        connectionModalVisible: connectionModalVisible,
-        showConnectionModal: showConnectionModal,
-        hideConnectionModal: hideConnectionModal,
-        toggleConnectionModal: toggleConnectionModal,
-        newPortModalVisible: newPortModalVisible,
-        showNewPortModal: showNewPortModal,
-        hideNewPortModal: hideNewPortModal,
-        toggleNewPortModal: toggleNewPortModal,
-        superportModalVisible: superportModalVisible,
-        showSuperportModal: showSuperportModal,
-        hideSuperportModal: hideSuperportModal,
-        toggleSuperportModal: toggleSuperportModal,
-        superportCreateModalVisible: superportCreateModalVisible,
-        connectionSuperportId: contextSuperportId,
-        setConnectionSuperportId: setConnectionSuperportId,
-        showSuperportCreateModal: showSuperportCreateModal,
-        hideSuperportCreateModal: hideSuperportCreateModal,
-        toggleSuperportCreateModal: toggleSuperportCreateModal,
+        linkUseError: linkUseError,
+        setLinkUseError: setLinkUseError,
       }}>
       {children}
     </ConnectionModalContext.Provider>

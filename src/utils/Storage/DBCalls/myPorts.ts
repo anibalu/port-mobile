@@ -39,7 +39,7 @@ export async function updatePortData(portId: string, update: PortDataUpdate) {
 		expiryTimestamp = COALESCE(?, expiryTimestamp),
 		channel = COALESCE(?, channel),
 		cryptoId = COALESCE(?, cryptoId),
-    permissionPresetId = COALESCE(?, permissionPresetId)
+    folderId = COALESCE(?, folderId)
 		WHERE portId = ? ;
 		`,
     [
@@ -49,7 +49,7 @@ export async function updatePortData(portId: string, update: PortDataUpdate) {
       update.expiryTimestamp,
       update.channel,
       update.cryptoId,
-      update.permissionPresetId,
+      update.folderId,
       portId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -69,7 +69,7 @@ export async function getPortData(
   let matchingEntry: PortDataUpdate | null = null;
   await runSimpleQuery(
     `
-    SELECT version, label, usedOnTimestamp, expiryTimestamp, channel, cryptoId, permissionPresetId
+    SELECT *
     FROM myPorts
     WHERE portId = ?;
     `,

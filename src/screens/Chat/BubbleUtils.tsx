@@ -49,7 +49,7 @@ export function renderTimeStamp(
           }>
           {getTimeStamp(message.timestamp)}
         </NumberlessText>
-        <View style={{marginLeft: 2, paddingBottom: 1.5}}>
+        <View style={{marginLeft: 3}}>
           {message.sender &&
             (message.readTimestamp ? (
               <Read />
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 3,
     marginLeft: 4,
-    alignItems: 'flex-end',
+    alignItems: 'center',
     alignSelf: 'flex-end',
   },
   mediaReplyContainer: {

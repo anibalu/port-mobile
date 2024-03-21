@@ -1,18 +1,12 @@
 import Delete from '@assets/icons/DeleteIcon.svg';
 import Copy from '@assets/icons/copy.svg';
 import Forward from '@assets/icons/forward.svg';
-import Info from '@assets/icons/info.svg';
 import Reply from '@assets/icons/reply.svg';
 import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
-import {PortColors} from '@components/ComponentUtils';
-import DeleteModal from '@components/Modals/DeleteModal';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
+import {PortColors, isIOS} from '@components/ComponentUtils';
+
 import {
   cleanDeleteGroupMessage,
   cleanDeleteMessage,
@@ -21,8 +15,7 @@ import {
 } from '@utils/Storage/messages';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
-
-import {useErrorModal} from 'src/context/ErrorModalContext';
+import PopupBottomsheet from '@components/Reusable/BottomSheets/PopupBottomsheet';
 
 /**
  * Renders action bar based on messages that are selected
@@ -40,22 +33,21 @@ export function MessageActionsBar({
   setReplyTo,
   postDelete,
   onCopy,
-  onInfo,
   onForward,
   isGroup,
   isSharedMedia,
+  isDisconnected = false,
 }: {
   chatId: string;
   selectedMessages: string[];
   setReplyTo: any;
   postDelete: any;
   onCopy: any;
-  onInfo: () => void;
   isGroup: boolean;
   onForward: any;
   isSharedMedia?: boolean;
+  isDisconnected?: boolean;
 }): ReactNode {
-  const {somethingWentWrongError} = useErrorModal();
   const performReply = async (): Promise<void> => {
     setReplyTo(
       isGroup
@@ -72,7 +64,7 @@ export function MessageActionsBar({
       setOpenDeleteModal(false);
     } else {
       for (const msg of selectedMessages) {
-        await cleanDeleteMessage(chatId, msg);
+        await cleanDeleteMessage(chatId, msg, true);
       }
       postDelete(selectedMessages);
       setOpenDeleteModal(false);
@@ -93,20 +85,12 @@ export function MessageActionsBar({
 
   const performGlobalDelete = async (): Promise<void> => {
     for (const msg of selectedMessages) {
-      const sender = new SendMessage(chatId, ContentType.update, {
-        messageIdToBeUpdated: msg,
-        updatedContentType: ContentType.deleted,
+      const sender = new SendMessage(chatId, ContentType.deleted, {
+        messageIdToDelete: msg,
       });
-      sender.send(true, true, async (success: boolean) => {
-        if (success) {
-          await cleanDeleteMessage(chatId, msg);
-          postDelete(selectedMessages);
-        } else {
-          somethingWentWrongError();
-        }
-      });
+      await sender.send();
     }
-
+    postDelete(selectedMessages);
     setOpenDeleteModal(false);
   };
 
@@ -114,17 +98,33 @@ export function MessageActionsBar({
   const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
 
   return (
-    <View style={styles.parentContainer}>
-      <DeleteModal
+    <View
+      style={
+        isIOS
+          ? {
+              ...styles.parentContainer,
+              paddingBottom: 20,
+              marginBottom: -20,
+              paddingHorizontal: isDisconnected ? 45 : 10,
+            }
+          : {
+              ...styles.parentContainer,
+              paddingHorizontal: isDisconnected ? 45 : 10,
+            }
+      }>
+      <PopupBottomsheet
         showMore={showDeleteForEveryone}
-        openDeleteModal={openDeleteModal}
+        openModal={openDeleteModal}
         title={'Delete message'}
-        topButton="Delete for me"
-        topButtonFunction={performDelete}
-        middleButton="Delete for everyone"
-        middleButtonFunction={performGlobalDelete}
-        bottomButton="Cancel"
-        bottomButtonFunction={() => {
+        topButton={
+          showDeleteForEveryone ? 'Delete for everyone' : 'Delete for me'
+        }
+        topButtonFunction={
+          showDeleteForEveryone ? performGlobalDelete : performDelete
+        }
+        middleButton="Delete for me"
+        middleButtonFunction={performDelete}
+        onClose={() => {
           setOpenDeleteModal(false);
         }}
       />
@@ -134,49 +134,29 @@ export function MessageActionsBar({
             <Pressable style={styles.optionBox} onPress={onForward}>
               <Forward />
             </Pressable>
-            <NumberlessText
-              style={styles.optionText}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Forward
-            </NumberlessText>
           </View>
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onCopy}>
               <Copy />
             </Pressable>
-            <NumberlessText
-              style={styles.optionText}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Copy
-            </NumberlessText>
           </View>
-          <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={determineModalDisplay}>
-              <Delete />
-            </Pressable>
-            <NumberlessText
-              style={styles.optionText}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Delete
-            </NumberlessText>
-          </View>
+          {!isDisconnected && (
+            <View style={styles.optionContainer}>
+              <Pressable
+                style={styles.optionBox}
+                onPress={determineModalDisplay}>
+                <Delete />
+              </Pressable>
+            </View>
+          )}
         </View>
       ) : (
         <View style={styles.singleSelectedContainer}>
-          {!isSharedMedia && (
+          {!isSharedMedia && !isDisconnected && (
             <View style={styles.optionContainer}>
               <Pressable style={styles.optionBox} onPress={performReply}>
                 <Reply />
               </Pressable>
-              <NumberlessText
-                style={styles.optionText}
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                Reply
-              </NumberlessText>
             </View>
           )}
 
@@ -184,49 +164,24 @@ export function MessageActionsBar({
             <Pressable style={styles.optionBox} onPress={onForward}>
               <Forward />
             </Pressable>
-            <NumberlessText
-              style={styles.optionText}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Forward
-            </NumberlessText>
           </View>
           {!isSharedMedia && (
             <View style={styles.optionContainer}>
               <Pressable style={styles.optionBox} onPress={onCopy}>
                 <Copy />
               </Pressable>
-              <NumberlessText
-                style={styles.optionText}
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                Copy
-              </NumberlessText>
             </View>
           )}
 
-          <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onInfo}>
-              <Info />
-            </Pressable>
-            <NumberlessText
-              style={styles.optionText}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Info
-            </NumberlessText>
-          </View>
-          <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={determineModalDisplay}>
-              <Delete />
-            </Pressable>
-            <NumberlessText
-              style={styles.optionText}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              Delete
-            </NumberlessText>
-          </View>
+          {!isDisconnected && (
+            <View style={styles.optionContainer}>
+              <Pressable
+                style={styles.optionBox}
+                onPress={determineModalDisplay}>
+                <Delete />
+              </Pressable>
+            </View>
+          )}
         </View>
       )}
     </View>
@@ -240,18 +195,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     padding: 10,
-    paddingBottom: 20,
+    paddingBottom: 10,
     backgroundColor: PortColors.primary.white,
   },
   singleSelectedContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
   },
   multiSelectedContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
   },

@@ -1,7 +1,7 @@
 import {ChatType} from '@utils/Connections/interfaces';
 
 /**
- * superset of all permissions.
+ * Permissions that take boolean values
  */
 export interface BooleanPermissions {
   notifications?: boolean | null;
@@ -10,11 +10,6 @@ export interface BooleanPermissions {
   contactSharing?: boolean | null;
   readReceipts?: boolean | null;
 }
-export interface NumberPermissions {
-  disappearingMessages?: number | null;
-}
-
-export interface Permissions extends BooleanPermissions, NumberPermissions {}
 export const booleanKeysOfPermissions: (keyof BooleanPermissions)[] = [
   'notifications',
   'autoDownload',
@@ -22,11 +17,24 @@ export const booleanKeysOfPermissions: (keyof BooleanPermissions)[] = [
   'contactSharing',
   'readReceipts',
 ];
+/**
+ * Permissions that take number values
+ */
+export interface NumberPermissions {
+  disappearingMessages?: number | null;
+}
 export const numberKeysOfPermissions: (keyof NumberPermissions)[] = [
   'disappearingMessages',
 ];
+/**
+ * All permissions
+ */
+export interface Permissions extends BooleanPermissions, NumberPermissions {}
 
-export interface MasterPermissions extends Permissions {
+/**
+ * Strict version of Permissions
+ */
+export interface PermissionsStrict extends Permissions {
   notifications: boolean;
   autoDownload: boolean;
   displayPicture: boolean;
@@ -34,12 +42,6 @@ export interface MasterPermissions extends Permissions {
   readReceipts: boolean;
   disappearingMessages: number;
 }
-
-export interface PermissionKeyDictionaryParams {
-  key: keyof MasterPermissions;
-  name: string;
-}
-
 export const masterPermissionsName = {
   notifications: 'Notifications',
   autoDownload: 'Media auto download',
@@ -62,14 +64,7 @@ export interface BooleanDirectPermissions {
 export interface NumberDirectPermissions {
   disappearingMessages: number;
 }
-export interface DirectPermissions extends Permissions {
-  notifications: boolean;
-  autoDownload: boolean;
-  displayPicture: boolean;
-  contactSharing: boolean;
-  disappearingMessages: number;
-  readReceipts: boolean;
-}
+export interface DirectPermissions extends PermissionsStrict {}
 export const booleanKeysOfDirectPermissions: (keyof BooleanDirectPermissions)[] =
   [
     'notifications',

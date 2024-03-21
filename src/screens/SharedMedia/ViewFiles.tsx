@@ -39,18 +39,17 @@ export default function ViewFiles({route}: Props) {
     navigation.navigate('ForwardToContact', {
       chatId: chatId,
       messages: selectedMedia.map(item => item.messageId),
-      setSelectedMessages: setSelectedMedia,
-      mediaOnly: true,
     });
   };
   const toggleFileSelection = (path: MediaEntry) => {
-    if (selectedMedia.includes(path)) {
-      setSelectedMedia(prevSelected =>
-        prevSelected.filter(selectedPath => selectedPath !== path),
-      );
-    } else {
-      setSelectedMedia(prevSelected => [...prevSelected, path]);
-    }
+    console.log(path);
+    // if (selectedMedia.includes(path)) {
+    //   setSelectedMedia(prevSelected =>
+    //     prevSelected.filter(selectedPath => selectedPath !== path),
+    //   );
+    // } else {
+    //   setSelectedMedia(prevSelected => [...prevSelected, path]);
+    // }
   };
   const renderItem = ({item}: {item: MediaEntry}) => (
     <View style={styles.row}>
@@ -90,25 +89,34 @@ export default function ViewFiles({route}: Props) {
 
   return (
     <View style={styles.screen}>
-      <FlatList
-        data={media}
-        scrollEnabled={true}
-        showsHorizontalScrollIndicator={false}
-        horizontal={false}
-        keyExtractor={(item: any) => item.mediaId.toString()}
-        renderItem={renderItem}
-        ListEmptyComponent={
+      {media.length > 0 ? (
+        <FlatList
+          data={media}
+          scrollEnabled={true}
+          showsHorizontalScrollIndicator={false}
+          horizontal={false}
+          keyExtractor={(item: any) => item.mediaId.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={StyleSheet.compose(styles.container, {
+            paddingBottom: selectedMedia.length > 0 ? 100 : 20,
+          })}
+        />
+      ) : (
+        <View
+          style={{
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            transform: [{translateX: 0}, {translateY: -50}],
+          }}>
           <NumberlessText
-            fontSizeType={FontSizeType.m}
             fontType={FontType.rg}
+            fontSizeType={FontSizeType.m}
             style={styles.nocontentText}>
-            No Files yet
+            No files found
           </NumberlessText>
-        }
-        contentContainerStyle={StyleSheet.compose(styles.container, {
-          paddingBottom: selectedMedia.length > 0 ? 100 : 20,
-        })}
-      />
+        </View>
+      )}
 
       {selectedMedia.length > 0 && (
         <View style={styles.messagebar}>
@@ -126,7 +134,7 @@ export default function ViewFiles({route}: Props) {
 
 const styles = StyleSheet.create({
   nocontentText: {
-    color: '#747474',
+    color: PortColors.subtitle,
   },
   screen: {
     height: '100%',

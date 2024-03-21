@@ -1,3 +1,4 @@
+import {generateISOTimeStamp} from '@utils/Time';
 import {runSimpleQuery} from './dbCommon';
 import {
   ConnectionInfo,
@@ -10,6 +11,13 @@ function toBool(a: number | boolean | null | undefined): boolean {
   } else {
     return false;
   }
+}
+
+function toNumber(a: number | null): number {
+  if (a === null) {
+    return 0;
+  }
+  return a;
 }
 /**
  * Get all of the user's connections
@@ -84,8 +92,9 @@ export async function addConnection(connection: ConnectionInfo) {
       timestamp,
       newMessageCount,
       disconnected,
-      latestMessageId
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);`,
+      latestMessageId,
+      folderId
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`,
     [
       connection.chatId,
       connection.connectionType,
@@ -99,10 +108,53 @@ export async function addConnection(connection: ConnectionInfo) {
       connection.newMessageCount,
       connection.disconnected,
       connection.latestMessageId,
+      connection.folderId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, result) => {},
   );
+}
+
+export async function getNewMessageCount(folderId?: string) {
+  let count = 0;
+  if (folderId) {
+    await runSimpleQuery(
+      `
+      SELECT
+      SUM(newMessageCount) AS totalNewMessageCount
+      FROM
+      connections
+      WHERE
+      folderId = ?; 
+      `,
+      [folderId],
+
+      (tx, results) => {
+        const len = results.rows.length;
+        if (len > 0) {
+          count = toNumber(results.rows.item(0).totalNewMessageCount);
+        }
+      },
+    );
+  } else {
+    await runSimpleQuery(
+      `
+      SELECT
+      SUM(newMessageCount) AS totalNewMessageCount
+      FROM
+      connections
+      `,
+      [],
+
+      (tx, results) => {
+        const len = results.rows.length;
+        if (len > 0) {
+          count = toNumber(results.rows.item(0).totalNewMessageCount);
+        }
+      },
+    );
+  }
+  return count;
 }
 
 /**
@@ -135,7 +187,8 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
     timestamp = COALESCE(?, timestamp),
     newMessageCount = COALESCE(?, newMessageCount),
     disconnected = COALESCE(?, disconnected),
-    latestMessageId = COALESCE(?, latestMessageId)
+    latestMessageId = COALESCE(?, latestMessageId),
+    folderId = COALESCE(?, folderId)
     WHERE chatId = ?
     ;`,
     [
@@ -149,6 +202,51 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
       update.newMessageCount,
       update.disconnected,
       update.latestMessageId,
+      update.folderId,
+      update.chatId,
+    ],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, result) => {},
+  );
+}
+
+/**
+ * Updates connection timestamp and new message count appropriately
+ * @param update
+ */
+export async function updateConnectionOnNewMessage(
+  update: ConnectionInfoUpdate,
+) {
+  await runSimpleQuery(
+    `
+    UPDATE connections
+    SET
+    name = COALESCE(?, name),
+    text = COALESCE(?, text),
+    recentMessageType = COALESCE(?, recentMessageType),
+    pathToDisplayPic = COALESCE(?, pathToDisplayPic),
+    readStatus = COALESCE(?, readStatus),
+    authenticated = COALESCE(?, authenticated),
+    timestamp = COALESCE(?, timestamp),
+    newMessageCount = COALESCE(?, newMessageCount) + CASE WHEN ? = 0 THEN 1 ELSE 0 END,
+    disconnected = COALESCE(?, disconnected),
+    latestMessageId = COALESCE(?, latestMessageId),
+    folderId = COALESCE(?, folderId)
+    WHERE chatId = ?
+    ;`,
+    [
+      update.name,
+      update.text,
+      update.recentMessageType,
+      update.pathToDisplayPic,
+      update.readStatus,
+      update.authenticated,
+      update.timestamp || generateISOTimeStamp(),
+      update.newMessageCount,
+      update.readStatus, //added twice on purpose
+      update.disconnected,
+      update.latestMessageId,
+      update.folderId,
       update.chatId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

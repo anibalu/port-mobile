@@ -19,7 +19,6 @@ import ImageView from '@screens/MediaView/ImageView';
 import MyProfile from '@screens/MyProfile/Profile';
 import PendingRequests from '@screens/PendingRequests/PendingRequests';
 import Placeholder from '@screens/Placeholder/Placeholder';
-import ScannerModal from '@screens/Scanner/ScannerModal';
 import ShareContact from '@screens/ShareContact/ShareContact';
 import GalleryConfirmation from '@screens/ShareImage/GalleryConfirmation';
 import SelectShareContacts from '@screens/ShareImage/SelectShareContacts';
@@ -27,14 +26,18 @@ import SharedMedia from '@screens/SharedMedia/SharedMedia';
 import React from 'react';
 import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
 import {AppStackParamList} from './AppStackTypes';
-import Presets from '@screens/Presets/Presets';
 import Home from '@screens/Home/Home';
-import Scanner from '@screens/Scanner/Scanner';
-import SuperportModal from '@components/ConnectionModal/SuperportModal';
-import NewPortModal from '@components/ConnectionModal/NewPortModal';
-import CreateSuperportModal from '@components/ConnectionModal/CreateSuperportModal';
+import QRscanner from '@screens/Scanner/QRscanner';
 import CaptureMedia from '@screens/ShareImage/CaptureMedia';
 import Isolation from '@screens/Isolations/Isolation';
+import NewPortScreen from '@screens/NewPort/NewPort';
+import Superports from '@screens/Superport/Superports';
+import SuperportScreen from '@screens/Superport/SuperportScreen';
+import CreateFolder from '@screens/Folder/CreateFolder';
+import EditFolder from '@screens/Folder/EditFolder';
+import PreviewShareablePort from '@screens/Superport/PreviewSharablePort';
+import MoveToFolder from '@screens/Folder/MoveToFolder';
+import CreateNewGroup from '@screens/GroupsV2/CreateNewGroup';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -46,8 +49,11 @@ function AppStack() {
           initialRouteName="HomeTab"
           screenOptions={{headerShown: false, orientation: 'portrait'}}>
           <Stack.Screen name="HomeTab" component={Home} />
+          <Stack.Screen name="CreateFolder" component={CreateFolder} />
+          <Stack.Screen name="EditFolder" component={EditFolder} />
+          <Stack.Screen name="MoveToFolder" component={MoveToFolder} />
           <Stack.Screen name="MyProfile" component={MyProfile} />
-          <Stack.Screen name="Scan" component={Scanner} />
+          <Stack.Screen name="Scan" component={QRscanner} />
           <Stack.Screen name="GroupProfile" component={GroupProfile} />
           <Stack.Screen name="ManageMembers" component={ManageMembers} />
           <Stack.Screen name="AddMembers" component={AddMembers} />
@@ -77,16 +83,19 @@ function AppStack() {
             name="GalleryConfirmation"
             component={GalleryConfirmation}
           />
+          <Stack.Screen name="Superports" component={Superports} />
+          <Stack.Screen name="SuperportScreen" component={SuperportScreen} />
           <Stack.Screen name="PendingRequests" component={PendingRequests} />
           <Stack.Screen name="CaptureMedia" component={CaptureMedia} />
           <Stack.Screen name="SharedMedia" component={SharedMedia} />
-          <Stack.Screen name="Presets" component={Presets} />
           <Stack.Screen name="Isolation" component={Isolation} />
+          <Stack.Screen name="NewPortScreen" component={NewPortScreen} />
+          <Stack.Screen
+            name="PreviewShareablePort"
+            component={PreviewShareablePort}
+          />
+          <Stack.Screen name="CreateNewGroup" component={CreateNewGroup} />
         </Stack.Navigator>
-        <ScannerModal />
-        <NewPortModal />
-        <SuperportModal />
-        <CreateSuperportModal />
       </ConnectionModalProvider>
     </>
   );

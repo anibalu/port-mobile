@@ -1,4 +1,3 @@
-import {connectionFsSync} from '../Synchronization';
 import {checkBundleValidity} from '@utils/Ports';
 import {
   DirectSuperportBundle,
@@ -20,11 +19,7 @@ interface urlObject {
 export async function handleDeepLink(
   urlObj: urlObject,
 ): Promise<
-  | PortBundle
-  | GroupBundle
-  | DirectSuperportBundle
-  | GroupSuperportBundle
-  | undefined
+  PortBundle | GroupBundle | DirectSuperportBundle | GroupSuperportBundle
 > {
   const synced = async () => {
     const url = urlObj.url;
@@ -42,11 +37,10 @@ export async function handleDeepLink(
     }
     return undefined;
   };
-  try {
-    const bundle = checkBundleValidity(await connectionFsSync(synced));
+  const raw = await synced();
+  if (raw) {
+    const bundle = checkBundleValidity(raw);
     return bundle;
-  } catch (error) {
-    console.log('Error with deep linking: ', error);
-    return undefined;
   }
+  throw new Error('raw url is undefined');
 }

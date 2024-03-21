@@ -1,8 +1,19 @@
+import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
 
 export type AppStackParamList = {
-  HomeTab: undefined;
+  HomeTab: {selectedFolder?: FolderInfo};
+  Superports: {name: string; avatar: FileAttributes};
+  SuperportScreen: {
+    portId?: string;
+    name: string;
+    avatar: FileAttributes;
+    selectedFolder?: FolderInfo;
+  };
+  CreateFolder: {setSelectedFolder: any; portId?: string; chatId?: string};
+  EditFolder: {selectedFolder: FolderInfo};
+  MoveToFolder: {selectedFolder: FolderInfo};
   Scan: undefined;
   ConnectionCentre: undefined;
   MyProfile: {name: string; avatar: FileAttributes};
@@ -14,9 +25,14 @@ export type AppStackParamList = {
     isGroupChat: boolean;
     isConnected: boolean;
     profileUri: string | undefined | null;
-    latestMessageId?: string;
+    name?: string;
   };
-  ContactProfile: {chatId: string};
+  ContactProfile: {
+    chatId: string;
+    name: string;
+    profileUri: string;
+    permissionsId: string;
+  };
   Placeholder: undefined;
   ShareGroup: {groupId: string};
   ImageView: {imageURI: string; title: string};
@@ -29,9 +45,7 @@ export type AppStackParamList = {
   ViewFiles: {chatId: string};
   ForwardToContact: {
     messages: string[];
-    setSelectedMessages: any;
     chatId: string;
-    mediaOnly?: boolean;
   };
   ShareContact: {chatId: string};
   AddCategoryScreen: undefined;
@@ -47,14 +61,21 @@ export type AppStackParamList = {
   };
   GalleryConfirmation: {
     selectedMembers: ConnectionInfo[];
-    shareMessages: [];
+    shareMessages: any[];
     isChat?: boolean;
     isGroupChat?: boolean;
     fromCapture?: boolean;
     onRemove?: (item: any) => void;
   };
   CaptureMedia: {chatId: string; isGroupChat?: boolean};
-  Presets: undefined;
   PendingRequests: undefined;
   Isolation: undefined;
+  NewPortScreen: {name: string; avatar: FileAttributes};
+  PreviewShareablePort: {
+    qrData: string | null;
+    linkData: string | null;
+    title: string;
+    profileUri: string;
+  };
+  CreateNewGroup: undefined;
 };

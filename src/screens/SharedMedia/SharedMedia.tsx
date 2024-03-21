@@ -1,6 +1,5 @@
 import ChatBackground from '@components/ChatBackground';
 import {PortColors} from '@components/ComponentUtils';
-import GenericTopBar from '@components/GenericTopBar';
 import {
   FontSizeType,
   FontType,
@@ -14,11 +13,14 @@ import React from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import ViewFiles from './ViewFiles';
 import ViewPhotosVideos from './ViewPhotosVideos';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 type Props = NativeStackScreenProps<AppStackParamList, 'SharedMedia'>;
 
 export type TabStackParamList = {
   ViewPhotosVideos: {chatId: string};
   ViewFiles: {chatId: string};
+  ViewLinks: {chatId: string};
 };
 
 const Tab = createMaterialTopTabNavigator<TabStackParamList>();
@@ -103,8 +105,13 @@ const SharedMedia = ({navigation, route}: Props) => {
 
   return (
     <SafeAreaView>
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.white}
+      />
       <ChatBackground />
-      <GenericTopBar
+      <BackTopbar
+        bgColor="w"
         onBackPress={() => navigation.goBack()}
         title="Shared Media"
       />
@@ -128,6 +135,14 @@ const SharedMedia = ({navigation, route}: Props) => {
             title: 'Files',
           }}
         />
+        {/* <Tab.Screen
+          name="ViewLinks"
+          initialParams={{chatId: chatId}}
+          component={ViewLinks}
+          options={{
+            title: 'Links',
+          }}
+        /> */}
       </Tab.Navigator>
     </SafeAreaView>
   );
@@ -139,7 +154,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    height: 58,
+    height: 40,
     marginHorizontal: 4,
   },
   tabbarContainerStyle: {

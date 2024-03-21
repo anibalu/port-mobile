@@ -31,6 +31,14 @@ export async function getReadPortData(
 }
 
 /**
+ * expire a read port
+ * @param portId a 32 character identifier for a read port
+ */
+export async function expireReadPort(portId: string) {
+  await dbCalls.expireReadPort(portId);
+}
+
+/**
  * Delete a readPorts entry
  * @param portId a 32 character identifier for a readPorts
  */

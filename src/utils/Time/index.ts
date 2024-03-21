@@ -28,6 +28,89 @@ export function getTimeStamp(ISOTime: string | undefined): string {
 }
 
 /**
+ * converts an ISO timestamp into a user-readable 'time ago' timestamp string, used for superports.
+ * @param {string|undefined|null} isoTimeString - ISO timestamp or undefined
+ * @returns {string} - user-readable timestamp string
+ */
+export function formatTimeAgo(isoTimeString: string | undefined | null) {
+  if (!isoTimeString) {
+    return 'Unused';
+  }
+  const now = new Date();
+  const time = new Date(isoTimeString);
+  const diff = now.getTime() - time.getTime();
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+
+  if (years > 0) {
+    return years === 1 ? '1 year ago' : `${years} years ago`;
+  } else if (months > 0) {
+    return months === 1 ? '1 month ago' : `${months} months ago`;
+  } else if (weeks > 0) {
+    return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+  } else if (days > 0) {
+    return days === 1 ? '1 day ago' : `${days} days ago`;
+  } else if (hours > 0) {
+    return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+  } else if (minutes > 0) {
+    return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`;
+  } else {
+    return 'just now';
+  }
+}
+
+/**
+ * converts an ISO timestamp into a user-readable timestamp string, used for chattiles exclusively.
+ * @param {string|undefined} ISOTime - ISO timestamp or undefined
+ * @returns {string} - user-readable timestamp string
+ */
+export function getChatTileTimestamp(isoTimestamp: string): string {
+  if (!isoTimestamp) {
+    return '';
+  }
+  const date = new Date(isoTimestamp);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.round(diffMs / (1000 * 60));
+
+  if (diffMins < 1) {
+    return 'just now';
+  } else if (diffMins <= 30) {
+    return diffMins === 1 ? '1 min ago' : `${diffMins} mins ago`;
+  } else if (
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear()
+  ) {
+    return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  } else if (
+    now.getDate() - date.getDate() === 1 &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear()
+  ) {
+    return 'Yesterday';
+  } else {
+    const options: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'numeric',
+      year: '2-digit',
+    };
+    let formattedTime = date.toLocaleDateString('en-GB', options);
+    // Split the formatted string and remove leading zeros
+    const components = formattedTime.split('/');
+    formattedTime = components
+      .map(component => parseInt(component).toString()) // Convert to integer and back to string to remove leading zeros
+      .join('/');
+    return formattedTime;
+  }
+}
+
+/**
  * converts an ISO timestamp into a user-readable timestamp string, used for chattiles exclusively.
  * @param {string|undefined} ISOTime - ISO timestamp or undefined
  * @returns {string} - user-readable timestamp string
@@ -109,6 +192,11 @@ export function createDateBoundaryStamp(isoString: string | undefined): string {
 export function generateISOTimeStamp() {
   const now: Date = new Date();
   return now.toISOString();
+}
+
+export function getEpochTime() {
+  const now: Date = new Date();
+  return Math.floor(now.valueOf());
 }
 
 //if you want to add artificial wait anywhere

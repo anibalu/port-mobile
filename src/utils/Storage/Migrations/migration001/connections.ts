@@ -17,7 +17,9 @@ export default async function connections() {
       timestamp VARCHAR(64),
       newMessageCount INT,
       disconnected BOOL,
-      latestMessageId CHAR(32)
+      latestMessageId CHAR(32),
+      folderId CHAR(32),
+      FOREIGN KEY (folderId) REFERENCES folders(folderId)
       );`,
     [],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

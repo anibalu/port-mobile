@@ -22,15 +22,21 @@ export function AvatarBox({
   onPress,
 }: {
   profileUri?: string | null;
-  avatarSize: 's' | 'm' | 'l';
+  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+';
   onPress?: () => void;
 }) {
   // set size of avatar according to specs
   function avatarSizeStylePicker(avatarSize?: string) {
-    if (avatarSize === 's') {
+    if (avatarSize === 'es') {
+      return styles.extraSmall;
+    } else if (avatarSize === 's') {
       return styles.small;
+    } else if (avatarSize === 's+') {
+      return styles.smallMedium;
     } else if (avatarSize === 'm') {
       return styles.medium;
+    } else if (avatarSize === 'i') {
+      return styles.intermediate;
     } else if (avatarSize === 'l') {
       return styles.large;
     } else {
@@ -111,15 +117,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
+  extraSmall: {
+    height: 24,
+    width: 24,
+    borderRadius: 6,
+  },
   small: {
     height: 40,
     width: 40,
     borderRadius: 12,
   },
+  smallMedium: {
+    height: 58,
+    width: 58,
+    borderRadius: 16,
+  },
   large: {
     height: 170,
     width: 170,
     borderRadius: 56,
+  },
+  intermediate: {
+    height: 75,
+    width: 75,
+    borderRadius: 12,
   },
   medium: {
     height: 100,

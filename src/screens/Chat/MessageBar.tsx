@@ -34,7 +34,6 @@ import {
   Animated,
   Easing,
   Image,
-  KeyboardAvoidingView,
   Pressable,
   StyleSheet,
   TextInput,
@@ -99,7 +98,9 @@ const MessageBar = ({
   const [openGraphData, setOpenGraphData] = useState(null);
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPreview, setShowPreview] = useState<boolean>(true);
+  const [showPreview, setShowPreview] = useState<boolean>(
+    replyTo ? false : true,
+  );
 
   const [isPopUpVisible, setPopUpVisible] = useState(false);
   const groupHandler = isGroupChat ? new Group(chatId) : undefined;
@@ -112,6 +113,9 @@ const MessageBar = ({
     Image.resolveAssetSource(DefaultImage).uri,
   );
   useEffect(() => {
+    if (replyTo) {
+      setShowPreview(false);
+    }
     const reply = replyTo?.data as LargeDataParams;
     if (reply?.fileUri) {
       setReplyImageURI(getSafeAbsoluteURI(reply?.fileUri, 'doc'));
@@ -338,11 +342,12 @@ const MessageBar = ({
   useEffect(() => {
     if (hasLink) {
       setUrl(hasLink);
-      setShowPreview(true);
+      setShowPreview(replyTo ? false : true);
     } else {
       setShowPreview(false);
       setOpenGraphData(null);
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasLink, text]);
 
   const fetchData = useCallback(async () => {
@@ -395,188 +400,182 @@ const MessageBar = ({
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={isIOS ? 'padding' : 'height'}
-      keyboardVerticalOffset={50}
-      style={styles.main}>
-      <View style={{flexDirection: 'column'}}>
-        {replyTo && (
-          <View style={styles.replyContainerStyle}>
-            <View style={styles.replyTextBackgroundContainer}>
-              {/* Indicator bar for reply */}
-              <View
-                style={{
-                  width: 4,
-                  borderRadius: 2,
-                  alignSelf: 'stretch',
-                  backgroundColor: PortColors.primary.blue.app,
-                }}
-              />
-              <View
-                style={{
-                  marginLeft: 12,
-                  paddingRight: 8,
-                  paddingVertical: 8,
-                  minHeight: 50,
-                  flex: 1,
-                }}>
-                {renderReplyBar(replyTo, replyName, replyImageUri)}
-              </View>
-              {(replyTo.contentType === ContentType.image ||
-                replyTo.contentType === ContentType.video) && (
-                <Image
-                  source={{uri: replyImageUri}}
+    <View style={{flexDirection: 'column'}}>
+      <View style={styles.textInputContainer}>
+        <View
+          style={StyleSheet.compose(styles.textInput, {
+            flexDirection: 'column',
+            flex: 1,
+            marginRight: 4,
+          })}>
+          {replyTo && (
+            <View style={styles.replyContainerStyle}>
+              <View style={styles.replyTextBackgroundContainer}>
+                {/* Indicator bar for reply */}
+                <View
                   style={{
-                    height: 75,
-                    width: 70,
-                    borderTopRightRadius: 16,
-                    borderBottomRightRadius: 16,
-                    position: 'absolute',
-                    right: 0,
+                    width: 4,
+                    borderRadius: 2,
+                    alignSelf: 'stretch',
+                    backgroundColor: PortColors.primary.blue.app,
                   }}
                 />
-              )}
-            </View>
-            <Pressable
-              onPress={onSend}
-              style={{
-                position: 'absolute',
-                right: 15,
-                top: 14,
-                borderRadius: 12,
-                backgroundColor: '#F2F2F2',
-              }}>
-              <Plus
-                height={18}
-                width={18}
-                style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
-              />
-            </Pressable>
-          </View>
-        )}
-
-        <View style={styles.textInputContainer}>
-          <View
-            style={StyleSheet.compose(
-              styles.textInput,
-              {flexDirection: 'column', flex: 1, marginRight: 4},
-              replyTo ? {borderTopLeftRadius: 0, borderTopRightRadius: 0} : {},
-            )}>
-            {url && (
-              <View>
-                <LinkPreview
-                  showPreview={showPreview}
-                  setShowPreview={setShowPreview}
-                  link={url}
-                  loading={loading}
-                  data={openGraphData}
-                />
+                <View
+                  style={{
+                    marginLeft: 12,
+                    paddingRight: 8,
+                    paddingVertical: 8,
+                    minHeight: 50,
+                    flex: 1,
+                  }}>
+                  {renderReplyBar(replyTo, replyName, replyImageUri)}
+                </View>
+                {(replyTo.contentType === ContentType.image ||
+                  replyTo.contentType === ContentType.video) && (
+                  <Image
+                    source={{uri: replyImageUri}}
+                    style={{
+                      height: 75,
+                      width: 70,
+                      borderTopRightRadius: 16,
+                      borderBottomRightRadius: 16,
+                      position: 'absolute',
+                      right: 0,
+                    }}
+                  />
+                )}
               </View>
-            )}
-
-            <View
-              style={StyleSheet.compose(styles.textBox, {
-                flexDirection: 'row',
-                alignItems: 'center',
-              })}>
-              <Animated.View style={[styles.plus, animatedStyle]}>
-                <Pressable onPress={togglePopUp}>
-                  <Plus height={24} width={24} />
-                </Pressable>
-              </Animated.View>
-              <TextInput
-                style={styles.inputText}
-                ref={inputRef}
-                textAlign="left"
-                multiline
-                placeholder={isFocused ? '' : 'Type your message here'}
-                placeholderTextColor={PortColors.primary.grey.medium}
-                onChangeText={onChangeText}
-                value={text}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
+              <Pressable
+                onPress={onSend}
+                style={{
+                  position: 'absolute',
+                  right: 15,
+                  top: 14,
+                  borderRadius: 12,
+                  backgroundColor: '#F2F2F2',
+                }}>
+                <Plus
+                  height={18}
+                  width={18}
+                  style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
+                />
+              </Pressable>
+            </View>
+          )}
+          {url && (
+            <View>
+              <LinkPreview
+                showPreview={showPreview}
+                setShowPreview={setShowPreview}
+                link={url}
+                loading={loading}
+                data={openGraphData}
               />
             </View>
+          )}
+
+          <View
+            style={StyleSheet.compose(styles.textBox, {
+              flexDirection: 'row',
+              alignItems: 'center',
+            })}>
+            <Animated.View style={[styles.plus, animatedStyle]}>
+              <Pressable onPress={togglePopUp}>
+                <Plus height={24} width={24} />
+              </Pressable>
+            </Animated.View>
+            <TextInput
+              style={styles.inputText}
+              ref={inputRef}
+              textAlign="left"
+              multiline
+              placeholder={isFocused ? '' : 'Type your message here'}
+              placeholderTextColor={PortColors.primary.body}
+              onChangeText={onChangeText}
+              value={text}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
           </View>
-          <GenericButton
-            disabled={text.length < 0}
-            iconSizeRight={14}
-            buttonStyle={styles.send}
-            IconRight={text.length > 0 ? Send : SendDisabled}
-            onPress={onLinkSend}
-          />
         </View>
-        {isPopUpVisible && (
-          <View style={styles.popUpContainer}>
+        <GenericButton
+          disabled={text.trim().length <= 0}
+          iconSizeRight={14}
+          buttonStyle={styles.send}
+          IconRight={text.trim().length > 0 ? Send : SendDisabled}
+          onPress={onLinkSend}
+        />
+      </View>
+      {isPopUpVisible && (
+        <View style={styles.popUpContainer}>
+          <View style={styles.optionContainer}>
+            <Pressable
+              style={styles.optionBox}
+              onPress={() => {
+                navigation.navigate('CaptureMedia', {
+                  chatId: chatId,
+                  isGroupChat: isGroupChat,
+                });
+                togglePopUp();
+              }}>
+              <CameraIcon />
+            </Pressable>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              Camera
+            </NumberlessText>
+          </View>
+          <View style={styles.optionContainer}>
+            <Pressable style={styles.optionBox} onPress={onImagePressed}>
+              <ImageIcon />
+            </Pressable>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              Images
+            </NumberlessText>
+          </View>
+          <View style={styles.optionContainer}>
+            <Pressable style={styles.optionBox} onPress={onVideoPressed}>
+              <VideoIcon />
+            </Pressable>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              Videos
+            </NumberlessText>
+          </View>
+          <View style={styles.optionContainer}>
+            <Pressable style={styles.optionBox} onPress={onFilePressed}>
+              <FileIcon />
+            </Pressable>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              Files
+            </NumberlessText>
+          </View>
+          {!isGroupChat && (
             <View style={styles.optionContainer}>
               <Pressable
                 style={styles.optionBox}
                 onPress={() => {
-                  navigation.navigate('CaptureMedia', {
-                    chatId: chatId,
-                    isGroupChat: isGroupChat,
-                  });
-                  togglePopUp();
+                  navigation.navigate('ShareContact', {chatId: chatId});
                 }}>
-                <CameraIcon height={60} width={60} />
+                <ShareContactIcon />
               </Pressable>
               <NumberlessText
                 fontSizeType={FontSizeType.s}
+                style={{textAlign: 'center'}}
                 fontType={FontType.rg}>
-                Camera
+                Contact
               </NumberlessText>
             </View>
-            <View style={styles.optionContainer}>
-              <Pressable style={styles.optionBox} onPress={onImagePressed}>
-                <ImageIcon />
-              </Pressable>
-              <NumberlessText
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                Images
-              </NumberlessText>
-            </View>
-            <View style={styles.optionContainer}>
-              <Pressable style={styles.optionBox} onPress={onVideoPressed}>
-                <VideoIcon />
-              </Pressable>
-              <NumberlessText
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                Videos
-              </NumberlessText>
-            </View>
-            <View style={styles.optionContainer}>
-              <Pressable style={styles.optionBox} onPress={onFilePressed}>
-                <FileIcon />
-              </Pressable>
-              <NumberlessText
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                Files
-              </NumberlessText>
-            </View>
-            {!isGroupChat && (
-              <View style={styles.optionContainer}>
-                <Pressable
-                  style={styles.optionBox}
-                  onPress={() => {
-                    navigation.navigate('ShareContact', {chatId: chatId});
-                  }}>
-                  <ShareContactIcon />
-                </Pressable>
-                <NumberlessText
-                  fontSizeType={FontSizeType.s}
-                  style={{textAlign: 'center'}}
-                  fontType={FontType.rg}>
-                  Contact
-                </NumberlessText>
-              </View>
-            )}
-          </View>
-        )}
-      </View>
-    </KeyboardAvoidingView>
+          )}
+        </View>
+      )}
+    </View>
   );
 };
 
@@ -623,12 +622,6 @@ function renderReplyBar(
 }
 
 const styles = StyleSheet.create({
-  main: {
-    width: '100%',
-    flexDirection: 'column',
-
-    ...(isIOS && {marginBottom: 15}),
-  },
   popUpContainer: {
     flexDirection: 'row',
     paddingTop: 20,
@@ -661,7 +654,6 @@ const styles = StyleSheet.create({
     width: MESSAGE_INPUT_TEXT_WIDTH + 48,
     paddingTop: 8,
     paddingHorizontal: 8,
-    marginLeft: 10,
     justifyContent: 'center',
     alignItems: 'center',
     borderTopLeftRadius: 24,
@@ -673,6 +665,8 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
     borderRadius: 24,
+    borderWidth: 0.5,
+    borderColor: PortColors.stroke,
   },
   plus: {
     width: 48,

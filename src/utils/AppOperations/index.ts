@@ -1,7 +1,7 @@
 import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import pullBacklog from '@utils/Messaging/pullBacklog';
 import {cancelAllNotifications} from '@utils/Notifications';
-import {useReadBundles} from '@utils/Ports';
+import {cleanUpPorts, useReadBundles} from '@utils/Ports';
 import {
   deleteExpiredGroupMessages,
   deleteExpiredMessages,
@@ -13,6 +13,8 @@ import {debounce} from 'lodash';
  */
 const performBackgroundToForegroundOperations = async () => {
   console.log('[BTF OPERATIONS RUNNING]');
+
+  await cleanUpPorts();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   await useReadBundles();
   await cancelAllNotifications();
@@ -28,6 +30,9 @@ export const performPeriodicOperations = async () => {
   await sendJournaled();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   await useReadBundles();
+  // delete expired ports
+  await cleanUpPorts();
+  // delete expired direct and group messages
   await deleteExpiredGroupMessages();
   await deleteExpiredMessages();
   console.log('[PERIODIC OPERATIONS COMPLETE]');
@@ -35,7 +40,7 @@ export const performPeriodicOperations = async () => {
 
 export const debouncedPeriodicOperations = debounce(
   performPeriodicOperations,
-  2000,
+  1000,
 );
 export const debouncedBtFOperations = debounce(
   performBackgroundToForegroundOperations,

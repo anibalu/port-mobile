@@ -37,7 +37,6 @@ export enum ContentType {
   initialInfoRequest = 14,
   contactBundleDenialResponse = 15,
   deleted = 16,
-  update = 17,
   reaction = 18,
   link = 19,
   receipt = 20,
@@ -65,7 +64,6 @@ export const DisappearMessageExemptContentTypes = [
   ContentType.handshakeA1,
   ContentType.handshakeB2,
   ContentType.info,
-  ContentType.update,
   ContentType.contactBundle,
   ContentType.contactBundleRequest,
   ContentType.contactBundleResponse,
@@ -116,6 +114,7 @@ export interface LinkParams extends TextParams {
 export interface TextParams {
   text: string;
 }
+export interface DeletedParams {} // There is nothing in a deleted message
 export interface NameParams {
   name: string;
 }
@@ -168,14 +167,8 @@ export interface ContactBundleResponseParams extends PortBundle {}
 
 export interface ContactBundleDenialResponseParams {}
 
-export interface UpdateParams {
-  messageIdToBeUpdated: string;
-  updatedMessageStatus?: MessageStatus;
-  deliveredAtTimestamp?: string;
-  readAtTimestamp?: string;
-  updatedContentType?: ContentType;
-  //Only applies to a read receipt. If toggled, allows the receipt to acknowledge that the message has been read
-  shouldAck?: boolean;
+export interface DeletionParams {
+  messageIdToDelete: string;
 }
 
 export interface InitialInfoRequestParams {
@@ -216,8 +209,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? ContactBundleDenialResponseParams
     : T extends ContentType.initialInfoRequest
     ? InitialInfoRequestParams
-    : T extends ContentType.update
-    ? UpdateParams
+    : T extends ContentType.deleted
+    ? DeletionParams
     : T extends ContentType.link
     ? LinkParams
     : T extends ContentType.reaction
@@ -241,7 +234,7 @@ export interface SavedMessageParams {
   memberId?: string | null; //not null for received group messages
   expiresOn?: string | null; //when should the message expire.
   shouldAck?: boolean; // if the message should be ack'ed. Useful for controlling read receipts. This is present only for messages that have been received by a user
-  recipientID?: string | null; //used when message has to be sent to one
+  recipientId?: string | null; //used when message has to be sent to one
   hasReaction?: boolean;
   deliveredTimestamp?: string | null;
   readTimestamp?: string | null;
@@ -258,6 +251,7 @@ export interface ReactionParams {
   chatId: string;
   messageId: string;
   reaction: string;
+  tombstone?: boolean;
 }
 
 /**

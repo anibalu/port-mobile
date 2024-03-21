@@ -3,12 +3,12 @@ import latestReceivedMessage from './latestReceivedMessage';
 import latestSentMessage from './latestSentMessage';
 import latestNewConnection from './latestNewConnection';
 import connectionFsSyncMutex from './connectionFsSyncMutex';
-import connections from './connections';
 import profile from './profile';
 import authToken from './authToken';
 import triggerPendingRequestsReload from './triggerPendingRequestsReload';
 import latestMessageUpdate from './latestMessageUpdate';
 import ping from './ping';
+import initialLink from './initialLink';
 
 const rootReducer = combineReducers({
   latestReceivedMessage,
@@ -16,11 +16,11 @@ const rootReducer = combineReducers({
   latestMessageUpdate,
   latestNewConnection,
   connectionFsSyncMutex,
-  connections,
   profile,
   authToken,
   triggerPendingRequestsReload,
   ping,
+  initialLink,
 });
 
 const store = configureStore({

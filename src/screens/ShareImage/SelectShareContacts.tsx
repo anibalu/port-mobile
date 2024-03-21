@@ -1,207 +1,164 @@
-import Send from '@assets/icons/WhiteArrowUp.svg';
-import WhiteOverlay from '@assets/miscellaneous/whiteOverlay.svg';
-import {PortColors} from '@components/ComponentUtils';
-import {GenericButton} from '@components/GenericButton';
-import GenericTopBar from '@components/GenericTopBar';
 import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
+  PortColors,
+  PortSpacing,
+  isIOS,
+  screen,
+} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import MultiSelectMembers from '@components/Reusable/MultiSelectMembers/MultiSelectMembers';
+import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-import SearchBar from '@components/SearchBar';
-import {AppStackParamList} from '@navigation/AppStackTypes';
-import {useFocusEffect} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import AddMemberTile from '@screens/GroupScreens/AddMemberTile';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
-import {getDirectChats} from '@utils/DirectChats';
+import React, {useEffect, useMemo, useState} from 'react';
+import {KeyboardAvoidingView, StyleSheet, View, ScrollView} from 'react-native';
+import BackIcon from '@assets/navigation/backButton.svg';
+import SearchIcon from '@assets/icons/searchThin.svg';
+import {TOPBAR_HEIGHT} from '@configs/constants';
+import {getConnections} from '@utils/Connections';
+import SearchBar from '@components/Reusable/TopBars/SearchBar';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
-import React, {useEffect, useState} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SelectShareContacts'>;
 
 const SelectShareContacts = ({route, navigation}: Props) => {
   const {shareMessages = [], isText = false} = route.params;
-
-  const [searchText, setSearchText] = useState('');
-  const [allMembers, setAllMembers] = useState<ConnectionInfo[]>([]);
+  //for loader used in the screen
   const [loading, setLoading] = useState<boolean>(false);
-  const [viewableMembers, setViewableMembers] = useState<ConnectionInfo[]>([]);
-  //Members that have been selected via the checkbox
   const [selectedMembers, setSelectedMembers] = useState<ConnectionInfo[]>([]);
-  //focus effect to load connections from cache and count unread connections
-  useFocusEffect(
-    React.useCallback(() => {
-      (async () => {
-        loadConnections();
-      })();
-    }, []),
-  );
+  const [allMembers, setAllMembers] = useState<ConnectionInfo[]>([]);
+  const [viewableMembers, setViewableMembers] = useState<ConnectionInfo[]>([]);
 
-  async function loadConnections() {
-    setAllMembers(await getDirectChats());
-  }
-  //Updates list of viewable members if new members are added to the list.
-  useEffect(() => {
-    setViewableMembers(allMembers);
-  }, [allMembers]);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  //search text
+  const [searchText, setSearchText] = useState('');
 
-  const onMemberSelected = (member: ConnectionInfo) => {
-    //If member exists, we remove
-    if (selectedMembers.some(val => val.chatId === member.chatId)) {
-      setSelectedMembers(oldList =>
-        oldList.filter(val => val.chatId !== member.chatId),
-      );
-    } else {
-      setSelectedMembers(oldList => [...oldList, member]);
-    }
-  };
   useEffect(() => {
-    if (searchText === '' || searchText === undefined) {
-      setViewableMembers(allMembers);
-    } else {
-      setViewableMembers(
-        allMembers.filter(member =>
-          member.name.toLowerCase().includes(searchText.toLowerCase()),
-        ),
-      );
-    }
+    (async () => {
+      const connections = await getConnections();
+      setAllMembers(connections);
+      setViewableMembers(connections);
+    })();
+  }, []);
+
+  useMemo(() => {
+    const filteredData = allMembers.filter(item => {
+      return item.name.toLowerCase().includes(searchText.toLowerCase());
+    });
+    setViewableMembers(filteredData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
-  const renderTile = ({item}: {item: ConnectionInfo}) => {
-    return <AddMemberTile member={item} onToggle={onMemberSelected} />;
-  };
-
-  const renderItemTile = ({item}: {item: ConnectionInfo}) => {
-    return (
-      <NumberlessText
-        fontSizeType={FontSizeType.s}
-        numberOfLines={1}
-        ellipsizeMode="tail"
-        style={{
-          padding: 10,
-          borderRadius: 11,
-          textAlign: 'center',
-          backgroundColor: PortColors.primary.grey.light,
-        }}
-        textColor={PortColors.text.secondary}
-        fontType={FontType.sb}>
-        {item.name}
-      </NumberlessText>
-    );
-  };
-
-  const navigateToPreview = async () => {
-    if (isText) {
-      setLoading(true);
-      for (const mbr of selectedMembers) {
-        for (const data of shareMessages) {
-          const sender = new SendMessage(mbr.chatId, ContentType.text, {
-            text: data,
-          });
-          await sender.send();
-        }
-      }
-      setLoading(false);
-      navigation.popToTop();
-    } else {
-      navigation.navigate('GalleryConfirmation', {
-        selectedMembers,
-        shareMessages,
-      });
-    }
-  };
-
   return (
-    <SafeAreaView style={styles.screen}>
-      <GenericTopBar onBackPress={() => navigation.goBack()} title="Send to" />
-      <View style={styles.main}>
-        <SearchBar searchText={searchText} setSearchText={setSearchText} />
-      </View>
-      <FlatList
-        contentContainerStyle={{
-          marginTop: 12,
-        }}
-        data={viewableMembers}
-        showsVerticalScrollIndicator={false}
-        scrollEnabled={true}
-        keyExtractor={item => item.chatId}
-        renderItem={renderTile}
+    <>
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.white}
       />
-      {selectedMembers.length > 0 && (
-        <View style={styles.bottombar}>
-          <FlatList
-            data={selectedMembers}
-            horizontal={true}
-            contentContainerStyle={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              columnGap: 8,
-            }}
-            showsVerticalScrollIndicator={false}
-            scrollEnabled={true}
-            keyExtractor={item => item.chatId}
-            renderItem={renderItemTile}
-          />
-
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              gap: 0,
-            }}>
-            <WhiteOverlay style={{position: 'absolute', right: 2}} />
-            <GenericButton
-              onPress={navigateToPreview}
-              iconSizeRight={14}
-              IconRight={Send}
-              loading={loading}
-              buttonStyle={styles.button}
+      <SafeAreaView style={styles.screen}>
+        {isSearchActive ? (
+          <View style={styles.barWrapper}>
+            <SearchBar
+              setIsSearchActive={setIsSearchActive}
+              searchText={searchText}
+              setSearchText={setSearchText}
             />
           </View>
-        </View>
-      )}
-    </SafeAreaView>
+        ) : (
+          <SimpleTopbar
+            IconRight={SearchIcon}
+            onIconRightPress={() => setIsSearchActive(p => !p)}
+            IconLeft={BackIcon}
+            onIconLeftPress={() => navigation.goBack()}
+            heading={
+              selectedMembers.length > 0
+                ? `Selected ${selectedMembers?.length}`
+                : 'Select members'
+            }
+          />
+        )}
+        <KeyboardAvoidingView
+          behavior={isIOS ? 'padding' : 'height'}
+          keyboardVerticalOffset={isIOS ? 50 : 0}
+          style={styles.scrollViewContainer}>
+          <ScrollView
+            horizontal={false}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}>
+            <MultiSelectMembers
+              selectedMembers={selectedMembers}
+              setSelectedMembers={setSelectedMembers}
+              members={viewableMembers}
+            />
+          </ScrollView>
+          <View style={styles.buttonWrapper}>
+            <PrimaryButton
+              isLoading={loading}
+              disabled={selectedMembers.length === 0}
+              primaryButtonColor="b"
+              buttonText={'Send'}
+              onClick={async () => {
+                if (isText) {
+                  setLoading(true);
+                  for (const mbr of selectedMembers) {
+                    for (const data of shareMessages) {
+                      const sender = new SendMessage(
+                        mbr.chatId,
+                        ContentType.text,
+                        {
+                          text: data,
+                        },
+                      );
+                      await sender.send();
+                    }
+                  }
+                  setLoading(false);
+                  navigation.popToTop();
+                } else {
+                  navigation.navigate('GalleryConfirmation', {
+                    selectedMembers,
+                    shareMessages,
+                  });
+                }
+              }}
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </>
   );
 };
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    alignSelf: 'center',
+    justifyContent: 'flex-start',
+    width: screen.width,
+    backgroundColor: PortColors.background,
   },
-  main: {
+  scrollViewContainer: {
+    flex: 1,
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    paddingHorizontal: PortSpacing.secondary.uniform,
+  },
+  barWrapper: {
     paddingHorizontal: 15,
-    marginTop: 20,
-  },
-  bottombar: {
-    backgroundColor: 'white',
-    position: 'absolute',
-    bottom: 0,
     flexDirection: 'row',
-    paddingVertical: 8,
-    paddingLeft: 15,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: PortColors.primary.white,
+    borderBottomColor: '#EEE',
+    borderBottomWidth: 0.5,
+    height: TOPBAR_HEIGHT,
   },
-  item: {
-    paddingHorizontal: 10,
-    borderRadius: 11,
-    backgroundColor: '#F6F6F6',
-    paddingVertical: 10,
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  itemtext: {
-    fontSize: 12,
-    color: '#868686',
-  },
-  button: {
-    marginLeft: 10,
-    alignSelf: 'flex-end',
-    marginRight: 15,
-    borderRadius: 100,
+  buttonWrapper: {
+    paddingVertical: PortSpacing.secondary.top,
   },
 });
 

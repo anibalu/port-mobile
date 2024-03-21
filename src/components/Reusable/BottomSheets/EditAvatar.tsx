@@ -130,6 +130,7 @@ export default function EditAvatar(props: EditAvatarProps) {
 
   return (
     <PrimaryBottomSheet
+      bgColor="g"
       visible={visible}
       showClose={true}
       onClose={cleanClose}
@@ -146,7 +147,7 @@ export default function EditAvatar(props: EditAvatarProps) {
             />
           )}
         </View>
-        <SimpleCard style={{marginBottom: PortSpacing.intermediate.bottom}}>
+        <SimpleCard style={{marginBottom: PortSpacing.secondary.bottom}}>
           <OptionWithRightIcon
             title={'Choose from Gallery'}
             IconRight={GalleryOutline}
@@ -268,7 +269,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
     width: '100%',
     ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
   },
@@ -279,7 +279,10 @@ const styles = StyleSheet.create({
     height: 40,
   },
   mainAvatarContainer: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
     marginVertical: PortSpacing.intermediate.uniform,
+    alignItems: 'center',
   },
   avatarBoxPressable: {
     width: 48,
@@ -312,6 +315,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: PortColors.primary.white,
     borderColor: PortColors.primary.border.dullGrey,
-    marginBottom: PortSpacing.intermediate.bottom,
+    marginBottom: PortSpacing.secondary.bottom,
   },
 });

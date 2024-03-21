@@ -11,20 +11,26 @@ import {
 import * as storage from '@utils/Storage/messages';
 import {SendDirectMessage} from './AbstractSender';
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {generateISOTimeStamp} from '@utils/Time';
+import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
-import {ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
 import {checkFileSizeWithinLimits} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {saveNewMedia, updateMedia} from '@utils/Storage/media';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
+import {getChatPermissions} from '@utils/ChatPermissions';
 
 export const mediaContentTypes: ContentType[] = [
   ContentType.image,
   ContentType.video,
   ContentType.file,
   ContentType.displayImage,
+];
+const disappearingMediaTypes: ContentType[] = [
+  ContentType.image,
+  ContentType.video,
+  ContentType.file,
 ];
 
 export class SendMediaDirectMessage<
@@ -77,6 +83,7 @@ export class SendMediaDirectMessage<
     try {
       // Set up in Filesystem
       await this.validate();
+      this.setDisappearing();
       await this.preProcessMedia();
       await storage.saveMessage(this.savedMessage);
       this.storeCalls();
@@ -128,6 +135,22 @@ export class SendMediaDirectMessage<
       console.error('Error found in initial checks: ', error);
       throw new Error('InitialChecksError');
     }
+  }
+
+  /**
+   * Set up attributes based on whether the message should disappear
+   * @returns void
+   */
+  private async setDisappearing() {
+    if (!disappearingMediaTypes.includes(this.contentType)) {
+      return;
+    }
+    this.expiresOn = generateExpiresOnISOTimestamp(
+      (await getChatPermissions(this.chatId, ChatType.direct))
+        .disappearingMessages,
+    );
+    this.savedMessage.expiresOn = this.expiresOn;
+    this.payload.expiresOn = this.expiresOn;
   }
 
   /**

@@ -38,7 +38,7 @@ class ReceiveName extends DirectReceiveAction {
       displaySimpleNotification(
         notificationData.title,
         notificationData.body,
-        !connection.disconnected,
+        true,
         this.chatId,
       );
     }

@@ -37,6 +37,8 @@ export function GenericButton({
   iconStyleRight,
   loading,
   disabled = false,
+  onLongPress,
+  onPressOut,
 }: {
   children?: React.ReactNode;
   onPress: any;
@@ -50,17 +52,21 @@ export function GenericButton({
   iconSizeRight?: number;
   loading?: boolean;
   disabled?: boolean;
+  onLongPress?: any;
+  onPressOut?: any;
 }): ReactNode {
   return (
     <Pressable
       style={StyleSheet.compose(styles.button, buttonStyle)}
       disabled={disabled || loading}
-      onPress={onPress}>
+      onPressOut={onPressOut}
+      onLongPress={onLongPress}
+      onPress={loading ? () => {} : onPress}>
       {loading ? (
         <ActivityIndicator
           size={'small'}
           color={PortColors.primary.white}
-          style={{marginTop: 10}}
+          style={{marginTop: 5}}
         />
       ) : (
         <>

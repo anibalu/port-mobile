@@ -14,7 +14,7 @@ const Disconnected = ({name}: {name: string}) => {
         textColor={PortColors.primary.black}
         fontSizeType={FontSizeType.s}
         fontType={FontType.rg}>
-        You can no longer send messages as you and {name} disconnected
+        You can no longer send messages as you and {name} are disconnected
       </NumberlessText>
     </View>
   );

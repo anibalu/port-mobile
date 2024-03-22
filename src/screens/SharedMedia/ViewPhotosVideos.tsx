@@ -152,7 +152,7 @@ const ViewPhotosVideos = ({route}: Props) => {
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}
             style={styles.nocontentText}>
-            No media found
+            No files found
           </NumberlessText>
         </View>
       )}

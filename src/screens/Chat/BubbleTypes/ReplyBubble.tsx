@@ -18,6 +18,7 @@ import FileReplyBubble from './Reply/FileReplyBubble';
 import ImageReplyBubble from './Reply/ImageReplyBubble';
 import TextReplyBubble from './Reply/TextReplyBubble';
 import VideoReplyBubble from './Reply/VideoReplyBubble';
+import AudioReplyBubble from './Reply/AudioReplyBubble';
 
 /**
  * We get the message that needs to be shown, and the person who sent the message is the memberName.
@@ -140,6 +141,15 @@ const ReplyBubble = ({
       case ContentType.video: {
         return (
           <VideoReplyBubble
+            message={replyMessage}
+            memberName={displayMemberName}
+            isOriginalSender={message.sender}
+          />
+        );
+      }
+      case ContentType.audioRecording: {
+        return (
+          <AudioReplyBubble
             message={replyMessage}
             memberName={displayMemberName}
             isOriginalSender={message.sender}

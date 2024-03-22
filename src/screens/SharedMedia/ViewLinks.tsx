@@ -97,7 +97,7 @@ export default function ViewLinks({route}: Props) {
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}
               style={styles.nocontentText}>
-              No links found
+              No files found
             </NumberlessText>
           }
           contentContainerStyle={StyleSheet.compose(styles.container, {
@@ -110,7 +110,7 @@ export default function ViewLinks({route}: Props) {
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}
             style={styles.nocontentText}>
-            No links found
+            No files found
           </NumberlessText>
         </View>
       )}

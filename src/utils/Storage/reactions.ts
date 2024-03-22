@@ -58,7 +58,7 @@ export async function getReactionCounts(
   return DBCalls.messageReactionCounts(chatId, messageId);
 }
 
-interface richReaction {
+export interface RichReaction {
   senderName?: string;
   reaction: string;
   senderId?: string;
@@ -68,11 +68,11 @@ export async function getRichReactions(
   chatId: string,
   messageId: string,
   line: Boolean = true,
-): Promise<richReaction[]> {
+): Promise<RichReaction[]> {
   if (line) {
     const self_name = (await getProfileInfo())?.name;
     const peer_name = (await getConnection(chatId))?.name;
-    const richReactions: richReaction[] = await DBCalls.getAllReactions(
+    const richReactions: RichReaction[] = await DBCalls.getAllReactions(
       chatId,
       messageId,
     );

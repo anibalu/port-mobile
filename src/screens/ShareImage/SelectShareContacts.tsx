@@ -121,6 +121,7 @@ const SelectShareContacts = ({route, navigation}: Props) => {
                   navigation.navigate('GalleryConfirmation', {
                     selectedMembers,
                     shareMessages,
+                    fromShare: true,
                   });
                 }
               }}

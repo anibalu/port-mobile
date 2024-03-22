@@ -35,9 +35,8 @@ function HomescreenPlaceholder({
           style={{color: PortColors.text.secondary, textAlign: 'center'}}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}>
-          On Port, you create a connection by sharing a “Port” instead of your
-          phone number, email or username. This way, you always control who
-          docks in your conversation space.
+          On Port, you connect by sharing unique 'ports' instead of phone
+          numbers or usernames, giving you full control over who can reach you.
         </NumberlessText>
       </View>
       <View>

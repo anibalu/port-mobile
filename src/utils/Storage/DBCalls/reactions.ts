@@ -25,7 +25,6 @@ export async function addReaction(
     `,
     [chatId, messageId, senderId, reaction],
     (tx, res) => {
-      console.log(res);
       if (res.rowsAffected > 0) {
         needToUpdate = false;
       }

@@ -1,13 +1,20 @@
-import DefaultImage from '@assets/avatars/avatar.png';
-import FileIcon from '@assets/icons/FilesIcon.svg';
 import CameraIcon from '@assets/icons/Camera.svg';
+import FileIcon from '@assets/icons/FilesIcon.svg';
 import {default as ImageIcon} from '@assets/icons/GalleryIcon.svg';
+import Microphone from '@assets/icons/Microphone.svg';
 import ShareContactIcon from '@assets/icons/ShareContactIcon.svg';
 import VideoIcon from '@assets/icons/VideoBlack.svg';
+import Delete from '@assets/icons/Voicenotes/Delete.svg';
+import Pause from '@assets/icons/Voicenotes/Pause.svg';
+import Play from '@assets/icons/Voicenotes/Play.svg';
 import Send from '@assets/icons/WhiteArrowUp.svg';
-import SendDisabled from '@assets/icons/WhiteArrowUpDisabled.svg';
 import Plus from '@assets/icons/plus.svg';
-import {PortColors, isIOS, screen} from '@components/ComponentUtils';
+import {
+  PortColors,
+  PortSpacing,
+  isIOS,
+  screen,
+} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -16,7 +23,6 @@ import {
 } from '@components/NumberlessText';
 import {
   ContentType,
-  LargeDataParams,
   LinkParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
@@ -33,7 +39,6 @@ import React, {
 import {
   Animated,
   Easing,
-  Image,
   Pressable,
   StyleSheet,
   TextInput,
@@ -47,22 +52,22 @@ import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import {OpenGraphParser} from 'react-native-opengraph-kit';
 
 import {GenericButton} from '@components/GenericButton';
-import {DEFAULT_NAME} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
-import Group from '@utils/Groups/Group';
+import {ReplyBubbleMessageBar} from '@components/MessageBubbles/ReplyBubble';
+import {checkRecordingPermission} from '@utils/AppPermissions';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
   downloadImageToMediaDir,
-  getSafeAbsoluteURI,
+  moveToLargeFileDir,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {formatDuration} from '@utils/Time';
+import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
+import BlinkingDot from './BlinkingDot';
 import {extractLink} from './BubbleUtils';
 import LinkPreview from './LinkPreview';
-import FileReplyContainer from './ReplyContainers/FileReplyContainer';
-import ImageReplyContainer from './ReplyContainers/ImageReplyContainer';
-import LinkReplyContainer from './ReplyContainers/LinkReplyContainer';
-import TextReplyContainer from './ReplyContainers/TextReplyContainer';
-import VideoReplyContainer from './ReplyContainers/VideoReplyContainer';
+import ProgressBar from '../../components/Reusable/Loaders/ProgressBar';
+import AmplitudeBars from './Recording';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
 /**
@@ -80,13 +85,11 @@ const MessageBar = ({
   chatId,
   isGroupChat,
   replyTo,
-  name,
   onSend,
 }: {
   chatId: string;
-  replyTo: SavedMessageParams | undefined;
+  replyTo: SavedMessageParams | null | undefined;
   isGroupChat: boolean;
-  name: string;
   onSend: any;
 }): ReactNode => {
   const navigation = useNavigation<any>();
@@ -103,25 +106,14 @@ const MessageBar = ({
   );
 
   const [isPopUpVisible, setPopUpVisible] = useState(false);
-  const groupHandler = isGroupChat ? new Group(chatId) : undefined;
-  const [replyName, setReplyName] = useState<string | null | undefined>(
-    DEFAULT_NAME,
-  );
+
+  const [openRecord, setOpenRecord] = useState(false);
+
   const inputRef = useRef(null);
 
-  const [replyImageUri, setReplyImageURI] = useState(
-    Image.resolveAssetSource(DefaultImage).uri,
-  );
   useEffect(() => {
     if (replyTo) {
       setShowPreview(false);
-    }
-    const reply = replyTo?.data as LargeDataParams;
-    if (reply?.fileUri) {
-      setReplyImageURI(getSafeAbsoluteURI(reply?.fileUri, 'doc'));
-    }
-    if (reply?.previewUri) {
-      setReplyImageURI(getSafeAbsoluteURI(reply?.previewUri, 'cache'));
     }
     if (inputRef?.current && replyTo != undefined) {
       console.log('Calling focus');
@@ -205,25 +197,6 @@ const MessageBar = ({
     );
     await sender.send();
   };
-
-  useEffect(() => {
-    (async () => {
-      //If the reply ID exists i.e replying to anyone apart from sende
-      if (!replyTo?.sender) {
-        //If it is a group, and there is a member to reply to.
-        if (isGroupChat && groupHandler != undefined && replyTo?.memberId) {
-          const repName = (await groupHandler.getMember(replyTo!.memberId!))
-            ?.name;
-          setReplyName(repName ? repName : DEFAULT_NAME);
-        } else {
-          setReplyName(name);
-        }
-      } else {
-        setReplyName('You');
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [replyTo]);
 
   const goToConfirmation = (lst: any[]) => {
     if (lst.length > 0) {
@@ -347,6 +320,7 @@ const MessageBar = ({
       setShowPreview(false);
       setOpenGraphData(null);
     }
+
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasLink, text]);
 
@@ -395,13 +369,150 @@ const MessageBar = ({
     ) {
       sendLinkText();
     } else {
-      sendText();
+      onButtonPress();
     }
   };
+
+  const [isRecordingPermissionGranted, setIsRecordingPermissionGranted] =
+    useState(false);
+
+  useEffect(() => {
+    //   to make the view disappear in 2 seconds
+    const timer = setTimeout(() => {
+      setOpenRecord(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [openRecord]);
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [hasRecorded, setHasRecorded] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const {
+    audio,
+    duration,
+    onPausePlay,
+    onStartPlay,
+    onStartRecord,
+    onStopRecord,
+    deleteRecording,
+    clearRecordingListeners,
+    setAudio,
+  } = useAudioPlayerContext();
+  const [playTime, setPlayTime] = useState(formatDuration(duration));
+
+  // sets isRecording as true and starts re cording
+  const recordVoice = () => {
+    setIsRecording(true);
+    onStartRecord();
+  };
+
+  useEffect(() => {
+    setPlayTime(formatDuration(duration));
+  }, [duration]);
+
+  const onSendRecording = async () => {
+    setIsSending(true);
+    resetPlayer();
+    const fileName = generateRandomHexId() + '.mp4';
+    const newData = {
+      chatId,
+      fileName: fileName,
+      fileUri: await moveToLargeFileDir(
+        chatId,
+        audio,
+        fileName,
+        ContentType.audioRecording,
+      ),
+      fileType: 'audio/mp4',
+      duration: duration,
+    };
+    clearRecordingListeners();
+    const sender = new SendMessage(chatId, ContentType.audioRecording, newData);
+    await sender.send();
+
+    setIsSending(false);
+  };
+
+  const resetPlayer = () => {
+    setIsRecording(false);
+    setHasRecorded(false);
+    setProgress(0);
+    setIsPlaying(false);
+  };
+
+  const onButtonLongPress = () => {
+    // if text is entered, we dont need long press
+    if (text.length > 0) {
+      return;
+    }
+    // if audio already exists, we dont need long press
+    if (!isRecording && hasRecorded && audio) {
+      return;
+    }
+
+    recordVoice();
+  };
+
+  const onButtonPressOut = () => {
+    if (text.length > 0) {
+      return;
+    }
+    if (hasRecorded && !isRecording) {
+      return;
+    }
+    clearRecordingListeners();
+    onStopRecord();
+    setIsRecording(false);
+    if (audio) {
+      setHasRecorded(true);
+    } else {
+      setHasRecorded(false);
+    }
+  };
+
+  const onButtonPress = async () => {
+    if (text.length > 0) {
+      setOpenRecord(false);
+      sendText();
+      return;
+    } else if (audio) {
+      onSendRecording();
+      setAudio(null);
+      deleteRecording();
+    } else {
+      setOpenRecord(true);
+      if (!isRecordingPermissionGranted) {
+        await checkRecordingPermission(setIsRecordingPermissionGranted);
+      }
+    }
+  };
+
+  const startPlay = () => {
+    setIsPlaying(p => !p);
+    onStartPlay(setProgress, setPlayTime);
+  };
+
+  useEffect(() => {
+    if (!isPlaying) {
+      setProgress(0);
+    }
+  }, [isPlaying]);
 
   return (
     <View style={{flexDirection: 'column'}}>
       <View style={styles.textInputContainer}>
+        {openRecord && (
+          <View style={styles.recordingmodal}>
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.md}>
+              Hold to record
+            </NumberlessText>
+          </View>
+        )}
         <View
           style={StyleSheet.compose(styles.textInput, {
             flexDirection: 'column',
@@ -409,48 +520,20 @@ const MessageBar = ({
             marginRight: 4,
           })}>
           {replyTo && (
-            <View style={styles.replyContainerStyle}>
-              <View style={styles.replyTextBackgroundContainer}>
-                {/* Indicator bar for reply */}
-                <View
-                  style={{
-                    width: 4,
-                    borderRadius: 2,
-                    alignSelf: 'stretch',
-                    backgroundColor: PortColors.primary.blue.app,
-                  }}
+            <View style={styles.replyContainer}>
+              <View style={styles.replyContainerStyle}>
+                <ReplyBubbleMessageBar
+                  replyTo={replyTo}
+                  isGroupChat={isGroupChat}
                 />
-                <View
-                  style={{
-                    marginLeft: 12,
-                    paddingRight: 8,
-                    paddingVertical: 8,
-                    minHeight: 50,
-                    flex: 1,
-                  }}>
-                  {renderReplyBar(replyTo, replyName, replyImageUri)}
-                </View>
-                {(replyTo.contentType === ContentType.image ||
-                  replyTo.contentType === ContentType.video) && (
-                  <Image
-                    source={{uri: replyImageUri}}
-                    style={{
-                      height: 75,
-                      width: 70,
-                      borderTopRightRadius: 16,
-                      borderBottomRightRadius: 16,
-                      position: 'absolute',
-                      right: 0,
-                    }}
-                  />
-                )}
               </View>
               <Pressable
                 onPress={onSend}
+                hitSlop={24}
                 style={{
                   position: 'absolute',
-                  right: 15,
-                  top: 14,
+                  top: 8,
+                  right: 8,
                   borderRadius: 12,
                   backgroundColor: '#F2F2F2',
                 }}>
@@ -462,6 +545,7 @@ const MessageBar = ({
               </Pressable>
             </View>
           )}
+
           {url && (
             <View>
               <LinkPreview
@@ -474,35 +558,148 @@ const MessageBar = ({
             </View>
           )}
 
-          <View
-            style={StyleSheet.compose(styles.textBox, {
-              flexDirection: 'row',
-              alignItems: 'center',
-            })}>
-            <Animated.View style={[styles.plus, animatedStyle]}>
-              <Pressable onPress={togglePopUp}>
-                <Plus height={24} width={24} />
-              </Pressable>
-            </Animated.View>
-            <TextInput
-              style={styles.inputText}
-              ref={inputRef}
-              textAlign="left"
-              multiline
-              placeholder={isFocused ? '' : 'Type your message here'}
-              placeholderTextColor={PortColors.primary.body}
-              onChangeText={onChangeText}
-              value={text}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-            />
-          </View>
+          {/* this is the case where audio is being recorded */}
+          {isRecording && !hasRecorded && (
+            <View style={styles.whilerecordingbar}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <BlinkingDot />
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.rg}
+                  style={{color: '#C9C9C9', marginLeft: 8, marginRight: 20}}>
+                  Recording
+                </NumberlessText>
+
+                <AmplitudeBars />
+              </View>
+              <NumberlessText
+                style={{color: PortColors.primary.blue.app}}
+                fontSizeType={FontSizeType.l}
+                fontType={FontType.rg}>
+                {formatDuration(duration)}
+              </NumberlessText>
+            </View>
+          )}
+          {/* this is the case where audio has been recorded */}
+          {!isRecording && hasRecorded && audio && (
+            <View style={styles.recordingbar}>
+              {isPlaying ? (
+                <Pressable
+                  onPress={() => {
+                    setIsPlaying(p => !p);
+                    onPausePlay();
+                  }}
+                  hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}>
+                  <Pause style={{marginRight: 8}} />
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={startPlay}
+                  hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}>
+                  <Play style={{marginRight: 8}} />
+                </Pressable>
+              )}
+              <ProgressBar progress={progress} setIsPlaying={setIsPlaying} />
+              <NumberlessText
+                style={{
+                  color: PortColors.primary.grey.dark,
+                }}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                {playTime}
+              </NumberlessText>
+
+              <Delete
+                style={{marginTop: -3, marginLeft: 3}}
+                onPress={() => {
+                  deleteRecording();
+                  resetPlayer();
+                  setAudio(null);
+                }}
+              />
+            </View>
+          )}
+          {/* this is the case where audio recording doesnt exist */}
+          {!isRecording && !hasRecorded && (
+            <View
+              style={StyleSheet.compose(
+                styles.textInput,
+                replyTo
+                  ? {borderTopLeftRadius: 0, borderTopRightRadius: 0}
+                  : {},
+              )}>
+              <Animated.View style={[styles.plus, animatedStyle]}>
+                <Pressable onPress={togglePopUp}>
+                  <Plus height={24} width={24} />
+                </Pressable>
+              </Animated.View>
+
+              <View style={styles.textBox}>
+                <TextInput
+                  style={styles.inputText}
+                  ref={inputRef}
+                  textAlign="left"
+                  multiline
+                  placeholder={isFocused ? '' : 'Type your message here'}
+                  placeholderTextColor={PortColors.primary.grey.medium}
+                  onChangeText={onChangeText}
+                  value={text}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                />
+              </View>
+            </View>
+          )}
+          {/* this is the case where audio button is clicked for less than a second */}
+          {!isRecording && hasRecorded && audio === null && (
+            <View
+              style={StyleSheet.compose(
+                styles.textInput,
+                replyTo
+                  ? {borderTopLeftRadius: 0, borderTopRightRadius: 0}
+                  : {},
+              )}>
+              <Animated.View style={[styles.plus, animatedStyle]}>
+                <Pressable onPress={togglePopUp}>
+                  <Plus height={24} width={24} />
+                </Pressable>
+              </Animated.View>
+
+              <View style={styles.textBox}>
+                <TextInput
+                  style={styles.inputText}
+                  ref={inputRef}
+                  textAlign="left"
+                  multiline
+                  placeholder={isFocused ? '' : 'Type your message here'}
+                  placeholderTextColor={PortColors.primary.grey.medium}
+                  onChangeText={onChangeText}
+                  value={text}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                />
+              </View>
+            </View>
+          )}
         </View>
         <GenericButton
-          disabled={text.trim().length <= 0}
+          disabled={text.length < 0}
           iconSizeRight={14}
-          buttonStyle={styles.send}
-          IconRight={text.trim().length > 0 ? Send : SendDisabled}
+          buttonStyle={
+            isRecording
+              ? styles.recording
+              : isSending
+              ? StyleSheet.compose(styles.send, {paddingTop: 18})
+              : styles.send
+          }
+          IconRight={
+            text.length > 0 || (!isRecording && hasRecorded && audio)
+              ? Send
+              : Microphone
+          }
+          loading={isSending}
+          onLongPress={onButtonLongPress}
+          onPressOut={onButtonPressOut}
           onPress={onLinkSend}
         />
       </View>
@@ -579,48 +776,6 @@ const MessageBar = ({
   );
 };
 
-function renderReplyBar(
-  replyTo: SavedMessageParams,
-  replyName: string | null | undefined,
-  URI: string,
-): ReactNode {
-  switch (replyTo.contentType) {
-    case ContentType.text: {
-      return <TextReplyContainer message={replyTo} memberName={replyName} />;
-    }
-    case ContentType.link: {
-      return <LinkReplyContainer message={replyTo} memberName={replyName} />;
-    }
-    case ContentType.image: {
-      return (
-        <ImageReplyContainer
-          message={replyTo}
-          memberName={replyName}
-          URI={URI}
-        />
-      );
-    }
-    case ContentType.file: {
-      return (
-        <FileReplyContainer
-          message={replyTo}
-          memberName={replyName}
-          URI={URI}
-        />
-      );
-    }
-    case ContentType.video: {
-      return (
-        <VideoReplyContainer
-          message={replyTo}
-          memberName={replyName}
-          URI={URI}
-        />
-      );
-    }
-  }
-}
-
 const styles = StyleSheet.create({
   popUpContainer: {
     flexDirection: 'row',
@@ -629,56 +784,94 @@ const styles = StyleSheet.create({
     paddingLeft: 24,
     paddingRight: 24,
     backgroundColor: '#FFF',
-    borderRadius: 24,
+    borderRadius: 16,
     justifyContent: 'space-between',
     marginHorizontal: 10,
-  },
-  replyTextBackgroundContainer: {
-    backgroundColor: '#B7B6B64D',
-    borderRadius: 16,
-    alignSelf: 'stretch',
-
-    alignItems: 'center',
-    flexDirection: 'row',
-    overflow: 'hidden',
   },
   textInputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    marginHorizontal: 10,
-    paddingBottom: 10,
+    marginHorizontal: PortSpacing.tertiary.uniform,
+    paddingBottom: PortSpacing.tertiary.bottom,
   },
   replyContainerStyle: {
-    backgroundColor: PortColors.primary.white,
-    width: MESSAGE_INPUT_TEXT_WIDTH + 48,
-    paddingTop: 8,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    overflow: 'visible',
+    width: '100%',
+    overflow: 'hidden',
+    borderRadius: 12,
+    minHeight: PortSpacing.primary.uniform,
+    backgroundColor: PortColors.background,
+  },
+  replyContainer: {
+    width: '100%',
+    paddingHorizontal: 4,
+    paddingTop: 4,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
   },
   textInput: {
     flexDirection: 'row',
     backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
-    borderRadius: 24,
+    borderRadius: 16,
     borderWidth: 0.5,
     borderColor: PortColors.stroke,
+    alignItems: 'center',
+  },
+  recordingbar: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    overflow: 'hidden',
+    width: screen.width - 63,
+    borderRadius: 24,
+    height: 40,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    justifyContent: 'space-between',
+  },
+  whilerecordingbar: {
+    flexDirection: 'row',
+    backgroundColor: PortColors.primary.white,
+    overflow: 'hidden',
+    width: screen.width - 73,
+    borderRadius: 24,
+    height: 40,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    justifyContent: 'space-between',
+  },
+
+  recordingmodal: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: '#D4EBFF',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 70,
+    left: screen.width / 2 - 70,
   },
   plus: {
     width: 48,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingBottom: 2,
   },
   send: {
     width: 40,
     height: 40,
     borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#547CEF',
+  },
+  recording: {
+    width: 50,
+    height: 50,
+    borderRadius: 60,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#547CEF',

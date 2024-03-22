@@ -178,10 +178,9 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
                 style={styles.subtitle}
                 fontType={FontType.rg}
                 fontSizeType={FontSizeType.s}>
-                If you want multiple people to connect with you using the same
-                Port, you can create a Superport instead. Ex., publish a
-                Superport on your website or social channels to give people a
-                way to access you
+                To enable multiple connections with one Port, create a
+                Superport. Share it on your website or social channels for easy
+                access
               </NumberlessText>
               <SecondaryButton
                 secondaryButtonColor={'b'}
@@ -200,7 +199,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
           visible={openErrorModal}
           title={'Link could not be created'}
           description={
-            'Make sure you have an active internet connection to create a one-time use link'
+            "Please ensure you're connected to the internet to create a one-time use link."
           }
           onClose={() => setOpenErrorModal(false)}
           onTryAgain={fetchLinkData}
@@ -208,7 +207,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
         <SharePortLink
           visible={openShareModal}
           onClose={() => setOpenShareModal(false)}
-          title={'Share one-time use link'}
+          title={'Share link'}
           description={
             'Enter the name of the contact you are sending this link to.'
           }

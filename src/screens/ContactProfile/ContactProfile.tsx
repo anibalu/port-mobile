@@ -56,6 +56,7 @@ const ContactProfile = ({route, navigation}: Props) => {
   const [editingName, setEditingName] = useState(false);
   const [confirmSheet, setConfirmSheet] = useState(false);
   const chatHandler = new DirectChat(chatId);
+  // todo: pass as props @sumaanta
   const [connected, setConnected] = useState(true);
   const [selectedFolder, setSelectedFolder] = useState<FolderInfo>({
     ...defaultFolderInfo,
@@ -225,14 +226,14 @@ const ContactProfile = ({route, navigation}: Props) => {
                     }}
                     fontSizeType={FontSizeType.l}
                     fontType={FontType.md}>
-                    Disconnect Port
+                    Disconnect Chat?
                   </NumberlessText>
                   <NumberlessText
                     style={styles.footerDesc}
                     fontSizeType={FontSizeType.s}
                     fontType={FontType.rg}>
-                    When a port is disconnected, you can't contact the user
-                    until you both open a new port using a QR code or link.
+                    Your chat has been disconnected. Deleting history will erase
+                    all chat data.
                   </NumberlessText>
 
                   <PrimaryButton

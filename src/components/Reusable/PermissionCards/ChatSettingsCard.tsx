@@ -92,7 +92,7 @@ const ChatSettingsCard = ({
         <OptionWithToggle
           IconLeft={UserCircleIcon}
           toggleActiveState={permissions.displayPicture}
-          heading="Reveal my display picture"
+          heading="Show my profile photo"
           onToggle={async () =>
             await onUpdateBooleanPermission('displayPicture')
           }

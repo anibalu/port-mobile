@@ -60,6 +60,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     selectedMembers,
     shareMessages,
     isChat = false,
+    fromShare = false,
     isGroupChat,
     fromCapture = false,
     onRemove = undefined,
@@ -276,7 +277,10 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     for (const mbr of selectedMembers) {
       for (const data of dataList) {
         //If there are multiple messages and this has entered from chat, attach text to the last image that is sent.
-        if (isChat && dataList.indexOf(data) === dataList.length - 1) {
+        if (
+          (isChat || fromShare) &&
+          dataList.indexOf(data) === dataList.length - 1
+        ) {
           data.data.text = message;
         }
         if (data.contentType === ContentType.video) {
@@ -568,7 +572,7 @@ const styles = StyleSheet.create({
     maxHeight: 110,
     height: undefined,
     minHeight: 40,
-    backgroundColor: PortColors.text.primary,
+    backgroundColor: PortColors.primary.black,
     borderWidth: 0.5,
     borderColor: PortColors.text.backgroundGrey,
     color: PortColors.text.primaryWhite,

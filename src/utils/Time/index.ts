@@ -175,6 +175,26 @@ export function checkDateBoundary(
   }
 }
 
+export function checkMessageTimeGap(
+  ISOTimeString1: string | null,
+  ISOTimeString2: string | null,
+  timeGap: number,
+): boolean {
+  try {
+    if (!ISOTimeString1 || !ISOTimeString2) {
+      return false;
+    }
+    const date1 = new Date(ISOTimeString1);
+    const date2 = new Date(ISOTimeString2);
+
+    // Compare the year, month, and day components of the dates.
+    return date1.getTime() - date2.getTime() > timeGap;
+  } catch (error) {
+    console.log('Check date boundary error: ', error);
+    return false;
+  }
+}
+
 /**
  * converts an ISO timestamp into a user-readable date boundary string.
  * @deprecated
@@ -359,4 +379,21 @@ export function generateExpiresOnISOTimestamp(
   const currentTime = Date.now(); // Current time in milliseconds
   const expiresTime = new Date(currentTime + timeDiffMilliseconds); // Expiration time as a Date object
   return expiresTime.toISOString(); // Convert to ISO string
+}
+
+// convert milliseconds to MM:SS
+export function formatDuration(milliseconds: number): string {
+  // Convert milliseconds to seconds
+  let seconds = Math.floor(milliseconds / 1000);
+
+  // Calculate minutes
+  let minutes = Math.floor(seconds / 60);
+
+  // Calculate remaining seconds
+  seconds = seconds % 60;
+
+  // Format the result as "00:00 mins"
+  return `${minutes < 10 ? '0' : ''}${minutes}:${
+    seconds < 10 ? '0' : ''
+  }${seconds}`;
 }

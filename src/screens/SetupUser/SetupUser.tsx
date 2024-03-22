@@ -111,8 +111,8 @@ function SetupUser({route, navigation}: Props) {
               position: 'absolute',
               bottom: 44,
             }}>
-            This may take a few seconds. Please ensure you have an active
-            internet connection.
+            This might take a moment. Please make sure you're connected to the
+            internet.
           </NumberlessText>
         </View>
       </SafeAreaView>

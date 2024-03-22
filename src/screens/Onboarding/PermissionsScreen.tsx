@@ -138,7 +138,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
               textAlign: 'center',
               paddingHorizontal: PortSpacing.secondary.uniform,
             }}>
-            Optionally allow basic permissions
+            Allow basic permissions
           </NumberlessText>
           <NumberlessText
             fontSizeType={FontSizeType.m}
@@ -149,8 +149,8 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
               marginTop: PortSpacing.secondary.uniform,
               paddingHorizontal: PortSpacing.secondary.uniform,
             }}>
-            We need the following permissions to improve your app experience and
-            curate great features. You can restrict them if you want to.
+            We need these permissions to enhance your app experience and offer
+            great features. You can limit them according to your preference.
           </NumberlessText>
           <View style={styles.blockWrapper}>
             <Notification width={24} height={24} />
@@ -165,7 +165,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
                 style={{marginTop: 2}}
                 textColor={PortColors.primary.grey.bold}
                 fontSizeType={FontSizeType.s}>
-                Get notified of events like a new message
+                Get notified for events such as new messages
               </NumberlessText>
             </View>
           </View>
@@ -183,7 +183,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
                 style={{marginTop: 2}}
                 textColor={PortColors.primary.grey.bold}
                 fontSizeType={FontSizeType.s}>
-                Send voice notes on your chats and much more.
+                Send voice notes and more in your chats.
               </NumberlessText>
             </View>
           </View>
@@ -201,7 +201,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
                 style={{marginTop: 2}}
                 textColor={PortColors.primary.grey.bold}
                 fontSizeType={FontSizeType.s}>
-                Take and send pictures and videos, scan QR codes and more.
+                Capture and share media, scan QR codes, and more.
               </NumberlessText>
             </View>
           </View>

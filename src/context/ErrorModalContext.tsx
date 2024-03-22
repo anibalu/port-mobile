@@ -169,7 +169,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
 
   const copyingMessageError = () => {
     setErrorToShow({
-      text: 'Error! cannot copy this message ',
+      text: 'Error cannot copy this message',
       Icon: Info,
     });
   };

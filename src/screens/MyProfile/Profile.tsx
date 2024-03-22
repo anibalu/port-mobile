@@ -90,13 +90,13 @@ function MyProfile({route, navigation}: Props): ReactNode {
               <NumberlessText
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}
-                textColor={PortColors.primary.grey.bold}
+                textColor={PortColors.subtitle}
                 style={{
                   textAlign: 'center',
                   marginTop: PortSpacing.secondary.uniform,
                 }}>
-                Your profile picture and name is shared with your connections in
-                an end-to-end encrypted manner. Port’s servers never see
+                Your profile picture and name is shared with your contacts in an
+                end-to-end encrypted manner. Port’s servers never see
                 unencrypted data.
               </NumberlessText>
             </View>

@@ -41,6 +41,7 @@ import LinkPreviewBubble from './BubbleTypes/LinkPreviewBubble';
 import ReplyBubble from './BubbleTypes/ReplyBubble';
 import TextBubble from './BubbleTypes/TextBubble';
 import VideoBubble from './BubbleTypes/VideoBubble';
+import AudioBubble from './BubbleTypes/AudioBubble';
 import {reactionMapping} from '@configs/reactionmapping';
 import {getReactionCounts, getRichReactions} from '@utils/Storage/reactions';
 import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
@@ -639,6 +640,15 @@ function renderBubbleType(
           memberName={memberName}
           handlePress={handlePress}
           handleLongPress={handleLongPress}
+        />
+      );
+    case ContentType.audioRecording:
+      return (
+        <AudioBubble
+          handlePress={handlePress}
+          handleLongPress={handleLongPress}
+          message={message}
+          handleDownload={handleDownload}
         />
       );
     case ContentType.info:

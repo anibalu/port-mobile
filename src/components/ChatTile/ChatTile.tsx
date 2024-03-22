@@ -9,6 +9,8 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import {DEFAULT_AVATAR} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import {
   ChatType,
@@ -25,8 +27,6 @@ import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import {getChatTileTimestamp} from '@utils/Time';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {DEFAULT_AVATAR} from '@configs/constants';
 
 export interface ChatTileProps extends ConnectionInfo {
   expired?: boolean;
@@ -74,14 +74,7 @@ function ChatTile({
   }, [props]);
 
   return (
-    <Pressable
-      style={StyleSheet.compose(
-        styles.tile,
-        props.readStatus === ReadStatus.new
-          ? {backgroundColor: PortColors.primary.white}
-          : {backgroundColor: '#FFF9'},
-      )}
-      onPress={onClick}>
+    <Pressable style={styles.tile} onPress={onClick}>
       <AvatarBox profileUri={props.pathToDisplayPic} avatarSize="s+" />
       <View style={{flex: 1}}>
         <View style={styles.textInfoContainer}>
@@ -220,9 +213,16 @@ const RenderText = ({
       } else {
         text = '📎 ' + text;
       }
+    } else if (newMessage.contentType === ContentType.audioRecording) {
+      if (text === '') {
+        text = '🔊 audio';
+      } else {
+        text = '🔊 ' + text;
+      }
     } else if (newMessage.contentType === ContentType.contactBundle) {
       text = '👤 ' + (newMessage.data as ContactBundleParams).name;
     }
+
     return (
       <View style={{flexDirection: 'row', flex: 1}}>
         <NumberlessText
@@ -330,6 +330,7 @@ const styles = StyleSheet.create({
     height: 90,
     borderWidth: 0.5,
     borderColor: PortColors.primary.border.dullGrey,
+    backgroundColor: PortColors.primary.white,
   },
   textInfoContainer: {
     marginLeft: 12,

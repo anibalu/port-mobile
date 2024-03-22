@@ -37,6 +37,8 @@ export enum ContentType {
   initialInfoRequest = 14,
   contactBundleDenialResponse = 15,
   deleted = 16,
+  update = 17,
+  audioRecording = 21,
   reaction = 18,
   link = 19,
   receipt = 20,
@@ -50,6 +52,21 @@ export const UpdateRequiredMessageContentTypes = [
   ContentType.image,
   ContentType.file,
   ContentType.video,
+  ContentType.audioRecording,
+];
+
+export const InfoContentTypes = [ContentType.info];
+
+export const DisplayableContentTypes = [
+  ContentType.info,
+  ContentType.text,
+  ContentType.image,
+  ContentType.file,
+  ContentType.video,
+  ContentType.contactBundle,
+  ContentType.deleted,
+  ContentType.link,
+  ContentType.audioRecording,
 ];
 
 export const LargeDataMessageContentTypes = [
@@ -57,6 +74,7 @@ export const LargeDataMessageContentTypes = [
   ContentType.video,
   ContentType.file,
   ContentType.displayImage,
+  ContentType.audioRecording,
 ];
 export const DisappearMessageExemptContentTypes = [
   ContentType.newChat,
@@ -99,6 +117,7 @@ export type DataType =
   | ContactBundleResponseParams
   | ContactBundleDenialResponseParams
   | LinkParams
+  | AudioRecordingParams
   | ReactionParams
   | ReceiptParams
   | InitialInfoRequestParams;
@@ -145,6 +164,9 @@ export interface FileParams extends LargeDataParams {}
 export interface ImageParams extends LargeDataParams {}
 export interface VideoParams extends LargeDataParams {}
 export interface DisplayImageParams extends LargeDataParams {}
+export interface AudioRecordingParams extends LargeDataParams {
+  duration?: string;
+}
 export interface HandshakeA1Params {
   pubKey: string;
 }
@@ -209,6 +231,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? ContactBundleDenialResponseParams
     : T extends ContentType.initialInfoRequest
     ? InitialInfoRequestParams
+    : T extends ContentType.audioRecording
+    ? AudioRecordingParams
     : T extends ContentType.deleted
     ? DeletionParams
     : T extends ContentType.link

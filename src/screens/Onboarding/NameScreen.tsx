@@ -115,9 +115,8 @@ function NameScreen({navigation}: Props): ReactNode {
                 paddingHorizontal: PortSpacing.secondary.uniform,
               }}
               textColor={PortColors.text.secondary}>
-              Port is a numberless communication app. This means we don't need
-              your phone number or email to get you setup. Just a name will do
-              (and even this is never shared with Port's servers).
+              Port is a communication app that doesn't require your phone number
+              or email to get started. Just your name is enough to set up.
             </NumberlessText>
             <View style={styles.profilePictureHitbox}>
               <AvatarBox

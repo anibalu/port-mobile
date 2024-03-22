@@ -388,9 +388,12 @@ PODS:
   - React-jsinspector (0.72.10)
   - React-logger (0.72.10):
     - glog
-  - react-native-blob-util (0.19.6):
+  - react-native-blob-util (0.19.8):
     - React-Core
-  - react-native-compressor (1.8.23):
+  - react-native-cameraroll (7.4.3):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+  - react-native-compressor (1.8.24):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-create-thumbnail (1.6.4):
@@ -401,9 +404,9 @@ PODS:
     - React-Core
   - react-native-image-picker (5.7.0):
     - React-Core
-  - react-native-netinfo (11.2.1):
+  - react-native-netinfo (11.3.1):
     - React-Core
-  - react-native-numberless-crypto (0.2.3):
+  - react-native-numberless-crypto (0.2.4):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-pager-view (6.2.3):
@@ -416,6 +419,8 @@ PODS:
   - react-native-safe-area-context (4.9.0):
     - React-Core
   - react-native-sqlite-storage (6.0.1):
+    - React-Core
+  - react-native-view-shot (3.8.0):
     - React-Core
   - React-NativeModulesApple (0.72.10):
     - hermes-engine
@@ -529,16 +534,18 @@ PODS:
     - React-perflogger (= 0.72.10)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
+  - RNAudioRecorderPlayer (3.6.6):
+    - React-Core
   - RNBackgroundFetch (4.2.2):
     - React-Core
-  - RNBootSplash (5.3.0):
+  - RNBootSplash (5.4.1):
     - React-Core
   - RNCCheckbox (0.5.17):
     - BEMCheckBox (~> 1.4)
     - React-Core
   - RNCClipboard (1.13.2):
     - React-Core
-  - RNDeviceInfo (10.12.0):
+  - RNDeviceInfo (10.13.1):
     - React-Core
   - RNFBApp (17.5.0):
     - Firebase/CoreOnly (= 10.7.0)
@@ -562,7 +569,9 @@ PODS:
     - React-Core
   - RNPermissions (3.10.1):
     - React-Core
-  - RNReanimated (3.7.1):
+  - RNReactNativeHapticFeedback (2.2.0):
+    - React-Core
+  - RNReanimated (3.7.2):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
@@ -574,7 +583,7 @@ PODS:
   - RNSVG (13.14.0):
     - React-Core
   - SocketRocket (0.6.1)
-  - VisionCamera (3.8.2):
+  - VisionCamera (3.9.1):
     - React
     - React-callinvoker
     - React-Core
@@ -608,6 +617,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
+  - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
   - react-native-compressor (from `../node_modules/react-native-compressor`)
   - react-native-create-thumbnail (from `../node_modules/react-native-create-thumbnail`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
@@ -620,6 +630,7 @@ DEPENDENCIES:
   - react-native-receive-sharing-intent (from `../node_modules/react-native-receive-sharing-intent`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
+  - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -638,6 +649,7 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit`)
+  - RNAudioRecorderPlayer (from `../node_modules/react-native-audio-recorder-player`)
   - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - RNBootSplash (from `../node_modules/react-native-bootsplash`)
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
@@ -650,6 +662,7 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNPermissions (from `../node_modules/react-native-permissions`)
+  - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
@@ -721,6 +734,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-blob-util:
     :path: "../node_modules/react-native-blob-util"
+  react-native-cameraroll:
+    :path: "../node_modules/@react-native-camera-roll/camera-roll"
   react-native-compressor:
     :path: "../node_modules/react-native-compressor"
   react-native-create-thumbnail:
@@ -745,6 +760,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-sqlite-storage:
     :path: "../node_modules/react-native-sqlite-storage"
+  react-native-view-shot:
+    :path: "../node_modules/react-native-view-shot"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -781,6 +798,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeCameraKit:
     :path: "../node_modules/react-native-camera-kit"
+  RNAudioRecorderPlayer:
+    :path: "../node_modules/react-native-audio-recorder-player"
   RNBackgroundFetch:
     :path: "../node_modules/react-native-background-fetch"
   RNBootSplash:
@@ -805,6 +824,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@notifee/react-native"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
+  RNReactNativeHapticFeedback:
+    :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -854,19 +875,21 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 45ef2ec6dcde31b90469175ec76ddac77b91dfc3
   React-jsinspector: de0198127395fec3058140a20c045167f761bb16
   React-logger: dc3a2b174d79c2da635059212747d8d929b54e06
-  react-native-blob-util: d8fa1a7f726867907a8e43163fdd8b441d4489ea
-  react-native-compressor: d30f0cf83afec95099fb109919a58d484e00051a
+  react-native-blob-util: 26f1fb0c91f2b437380d4f3875769a7c3e06080e
+  react-native-cameraroll: 1b803904b899057fbd7a124161671d481a30eb25
+  react-native-compressor: d84e28c430c8022cc44a45ec9ec26071269992c3
   react-native-create-thumbnail: e022bcdcba8a0b4529a50d3fa1a832ec921be39d
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-encrypted-storage: db300a3f2f0aba1e818417c1c0a6be549038deb7
   react-native-image-picker: 3269f75c251cdcd61ab51b911dd30d6fff8c6169
-  react-native-netinfo: 8a7fd3f7130ef4ad2fb4276d5c9f8d3f28d2df3d
-  react-native-numberless-crypto: 34f6f6c1987feb7192682b09fe1217030cef5e51
+  react-native-netinfo: bdb108d340cdb41875c9ced535977cac6d2ff321
+  react-native-numberless-crypto: c83c8c97f7fb35d301dc032efd6d5ca0b5d7747a
   react-native-pager-view: e26d35e382d86950c936f8917e3beb9188115ccc
   react-native-pdf: 79aa75e39a80c1d45ffe58aa500f3cf08f267a2e
   react-native-receive-sharing-intent: 62ab28c50e6ae56d32b9e841d7452091312a0bc7
   react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
   react-native-sqlite-storage: f6d515e1c446d1e6d026aa5352908a25d4de3261
+  react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
   React-NativeModulesApple: c3e696ff867e4bc212266cbdf7e862e48a0166fd
   React-perflogger: 43287389ea08993c300897a46f95cfac04bb6c1a
   React-RCTActionSheet: 923afe77f9bb89da7c1f98e2730bfc9dde0eed6d
@@ -885,11 +908,12 @@ SPEC CHECKSUMS:
   React-utils: 372b83030a74347331636909278bf0a60ec30d59
   ReactCommon: 38824bfffaf4c51fbe03a2730b4fd874ef34d67b
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
+  RNAudioRecorderPlayer: f790fc1afb118552ae6285d60adde52ee6b5d9ef
   RNBackgroundFetch: 35c7183f6eeff69396d42c4b206e1ae2a21e9327
-  RNBootSplash: 73c2a97d761db234125638c24ad6da6d781d049d
+  RNBootSplash: eff8239c4f795ce42a0604873aef3733aac0dedd
   RNCCheckbox: a3ca9978cb0846b981d28da4e9914bd437403d77
   RNCClipboard: 60fed4b71560d7bfe40e9d35dea9762b024da86d
-  RNDeviceInfo: db5c64a060e66e5db3102d041ebe3ef307a85120
+  RNDeviceInfo: 4f9c7cfd6b9db1b05eb919620a001cf35b536423
   RNFBApp: 0d8bf86673bbad0524d1ceac3944d71ccf48a0e4
   RNFBMessaging: 4b8cb1215465bacca36d0fcfc2f51e7e2aa1bc91
   RNFileViewer: ce7ca3ac370e18554d35d6355cffd7c30437c592
@@ -897,12 +921,13 @@ SPEC CHECKSUMS:
   RNGestureHandler: 7909c50383a18f0cb10ce1db7262b9a6da504c03
   RNNotifee: 8e2d3df3f0e9ce8f5d1fe4c967431138190b6175
   RNPermissions: 3db62f78d33b53149e7e2e069411619097b02a5d
-  RNReanimated: 43675f1f0e704abe8ebf953fd79b00e66302cda2
+  RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
+  RNReanimated: ab1295f59541cb26000d394b4b4aea72cb7ca448
   RNScreens: 3c5b9f4a9dcde752466854b6109b79c0e205dad3
   RNShare: 32e97adc8d8c97d4a26bcdd3c45516882184f8b6
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: 4b98b273902ac18491bb68481b6601f1f0da0f2d
+  VisionCamera: 52f98e7628f9deea3e311c3b6d4870bb44445e05
   Yoga: d0003f849d2b5224c072cef6568b540d8bb15cd3
 
 PODFILE CHECKSUM: 35b2ef3945da0093716c9c5897aaf988dabf5f8e

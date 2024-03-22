@@ -62,24 +62,22 @@ export const NumberlessLinkText: React.FC<
   style,
   fontType,
   fontSizeType,
+  onLayout = () => {},
   textColor = PortColors.text.primary,
-  numberOfLines = 0,
-  ...rest
 }) => (
   <Autolink
     text={children}
     url
-    numberOfLines={numberOfLines}
     email
-    renderText={text => (
-      <NumberlessText
-        fontSizeType={fontSizeType}
-        textColor={textColor}
-        fontType={fontType}
-        style={style}
-        {...rest}>
-        {text}
-      </NumberlessText>
+    onLayout={onLayout}
+    style={StyleSheet.compose(
+      {
+        fontFamily: fontType,
+        fontSize: fontSizeType,
+        fontWeight: getWeight(fontType),
+        color: textColor,
+      },
+      style,
     )}
   />
 );

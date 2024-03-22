@@ -26,6 +26,7 @@ export const mediaContentTypes: ContentType[] = [
   ContentType.video,
   ContentType.file,
   ContentType.displayImage,
+  ContentType.audioRecording,
 ];
 const disappearingMediaTypes: ContentType[] = [
   ContentType.image,
@@ -198,6 +199,9 @@ export class SendMediaDirectMessage<
         break;
       case ContentType.video:
         text = 'Sent a video';
+        break;
+      case ContentType.audioRecording:
+        text = 'Sent an audio';
         break;
       default:
         return;

@@ -19,6 +19,7 @@ import ReceiveName from './ActionClasses/ReceiveName';
 import ReceiveReaction from './ActionClasses/ReceiveReaction';
 import ReceiveText from './ActionClasses/ReceiveText';
 import ReceiveLink from './ActionClasses/ReceiveLink';
+import ReceiveAudio from './ActionClasses/ReceiveAudio';
 import ReceiveVideo from './ActionClasses/ReceiveVideo';
 import DirectReceiveAction from './DirectReceiveAction';
 import ReceiveReceipt from './ActionClasses/ReceiveReceipt';
@@ -125,6 +126,13 @@ export async function directReceiveActionPicker(
         );
       case ContentType.file:
         return new ReceiveFile(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      case ContentType.audioRecording:
+        return new ReceiveAudio(
           chatId,
           message,
           receiveTime,

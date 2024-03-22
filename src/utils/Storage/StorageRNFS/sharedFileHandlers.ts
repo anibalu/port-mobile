@@ -70,8 +70,11 @@ export async function moveToLargeFileDir(
   if (contentType === ContentType.displayImage) {
     return fileUri;
   }
-
-  if (contentType === ContentType.image || contentType === ContentType.video) {
+  if (
+    contentType === ContentType.image ||
+    contentType === ContentType.video ||
+    contentType === ContentType.audioRecording
+  ) {
     return getRelativeURI(
       await moveToMediaDir(chatId, fileUri, fileName),
       'doc',
@@ -96,8 +99,12 @@ async function moveToFilesDir(
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath =
     chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
-  await RNFS.moveFile(fileUri, destinationPath);
-  console.log('Destination: ', destinationPath);
+  try {
+    await RNFS.moveFile(decodeURIComponent(fileUri), destinationPath);
+    console.log('Destination: ', destinationPath);
+  } catch (error) {
+    console.log('Error moving file: ', error);
+  }
   return destinationPath;
 }
 
@@ -113,9 +120,12 @@ async function moveToMediaDir(
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath =
     chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
-
-  await RNFS.moveFile(fileUri, destinationPath);
-
+  try {
+    await RNFS.moveFile(decodeURIComponent(fileUri), destinationPath);
+    console.log('Destination: ', destinationPath);
+  } catch (error) {
+    console.log('Error moving file: ', error);
+  }
   return destinationPath;
 }
 
@@ -134,6 +144,7 @@ export async function checkFileSizeWithinLimits(fileUri: string) {
   try {
     const absoluteURI = getSafeAbsoluteURI(fileUri, 'doc');
     const fileSize = (await RNFS.stat(absoluteURI)).size;
+    console.log('File size: ', fileSize);
     if (fileSize && fileSize < SHARED_FILE_SIZE_LIMIT_IN_BYTES) {
       return true;
     }
@@ -295,8 +306,8 @@ export function getSafeAbsoluteURI(
   switch (location) {
     case 'doc':
       if (
-        fileURI.includes('Documents/') ||
-        fileURI.includes('com.numberless/')
+        fileURI?.includes('Documents/') ||
+        fileURI?.includes('com.numberless/')
       ) {
         console.log(
           'Entered an absolute file path when a relative one was required',

@@ -36,7 +36,7 @@ const FolderPlaceholderQuickActions = ({
           <OptionWithChevron
             labelActiveState={false}
             IconLeft={Files}
-            heading="Move contacts to this folder"
+            heading="Move contacts to a chat folder"
             onClick={() =>
               navigation.navigate('MoveToFolder', {
                 selectedFolder: {...selectedFolder},
@@ -48,7 +48,7 @@ const FolderPlaceholderQuickActions = ({
           <OptionWithChevron
             labelActiveState={false}
             IconLeft={Superport}
-            heading="Create a Superport for this folder"
+            heading="Create Superport"
             onClick={() =>
               navigation.navigate('SuperportScreen', {
                 name: name,

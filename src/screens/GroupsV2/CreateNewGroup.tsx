@@ -20,6 +20,9 @@ import EditCameraIcon from '@assets/icons/EditCamera.svg';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import Group from '@utils/Groups/Group';
+import {fetchNewPorts} from '@utils/Ports';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 const CreateNewGroup = () => {
   const navigation = useNavigation();
@@ -33,6 +36,36 @@ const CreateNewGroup = () => {
   async function onSavePicture(profilePicAttr: FileAttributes) {
     console.log(profilePicAttr);
   }
+  const [setupLoading, setSetupLoading] = useState(false);
+  const {unableToCreateGroupError} = useErrorModal();
+
+  const generateLinks = async () => {
+    await fetchNewPorts(groupHandler.getGroupIdNotNull());
+  };
+  const groupHandler = new Group();
+
+  const onCreatePressed = async () => {
+    setSetupLoading(true);
+    try {
+      await groupHandler.createGroup(
+        groupName.trim(),
+        groupDescription.trim(),
+        null,
+      );
+      //generate ports for group
+      await generateLinks();
+      navigation.navigate('NewGroupPort', {
+        groupId: groupHandler.getGroupIdNotNull(),
+      });
+      console.log('group has been created', groupHandler.getGroupIdNotNull());
+    } catch (error) {
+      unableToCreateGroupError();
+      console.log('error in group creation: ', error);
+      return false;
+    } finally {
+      setSetupLoading(false);
+    }
+  };
   return (
     <>
       <CustomStatusBar
@@ -92,10 +125,10 @@ const CreateNewGroup = () => {
             }}>
             <PrimaryButton
               primaryButtonColor="b"
-              onClick={() => console.log('create a group')}
+              onClick={() => onCreatePressed()}
               buttonText="Create group"
               disabled={groupName.length <= 0}
-              isLoading={false}
+              isLoading={setupLoading}
             />
           </View>
         </KeyboardAvoidingView>

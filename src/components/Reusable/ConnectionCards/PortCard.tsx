@@ -89,18 +89,16 @@ const PortCard = ({
               style={{textAlign: 'center', color: PortColors.subtitle}}
               fontType={FontType.rg}
               fontSizeType={FontSizeType.s}>
-              You can ask people to scan this using their Port camera to connect
-              with you. Alternatively, you can send this Superport to them as a
-              link.
+              You can have someone scan this with their Port camera to connect
+              with you. Or, send it as a one-time use link.
             </NumberlessText>
           ) : (
             <NumberlessText
               style={{textAlign: 'center', color: PortColors.subtitle}}
               fontType={FontType.rg}
               fontSizeType={FontSizeType.s}>
-              You can ask someone to scan this using their Port camera to
-              connect with you. Alternatively, you can send this Port to them as
-              a one-time use link.
+              You can have someone scan this with their Port camera to connect
+              with you. Or, send it as a one-time use link.
             </NumberlessText>
           )}
         </View>
@@ -139,8 +137,8 @@ const PortCard = ({
             }}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.s}>
-            Sorry, but we can only allow 10 new Ports when you're offline.
-            Connect to the internet to share more.
+            You've reached your offline port limit of 10. Connect to the
+            internet to share more
           </NumberlessText>
           <SecondaryButton
             buttonText={'Try Again'}
@@ -154,7 +152,7 @@ const PortCard = ({
       {!hasFailed && !isLoading && isSuperport && (
         <View style={styles.shareBox}>
           <AlternateSecondaryButton
-            buttonText={'Share link'}
+            buttonText={'Share one-time use link'}
             onClick={onShareLinkClicked}
             Icon={Share}
             isLoading={isLinkLoading}
@@ -170,7 +168,7 @@ const PortCard = ({
       {!hasFailed && !isLoading && !isSuperport && (
         <View style={styles.shareBox}>
           <AlternateSecondaryButton
-            buttonText={'Share one-time use link'}
+            buttonText={'Create one-time use link'}
             onClick={onShareLinkClicked}
             Icon={Share}
             isLoading={isLinkLoading}

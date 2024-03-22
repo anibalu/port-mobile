@@ -131,9 +131,9 @@ const EditFolder = ({route, navigation}: Props) => {
                 style={{color: PortColors.subtitle}}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
-                These settings will be applied to all new chats moved to this
-                folder. If you modify an individual chat’s settings later on,
-                those settings will prevail for the chat.
+                These settings will apply to all chats in this folder. If you
+                change settings for a specific chat later, those changes will
+                take precedence for that chat.
               </NumberlessText>
             </View>
             <View style={styles.chatSettingsContainer}>
@@ -155,7 +155,7 @@ const EditFolder = ({route, navigation}: Props) => {
                 isLoading={false}
                 disabled={folderName.trim() === ''}
                 primaryButtonColor="b"
-                buttonText="Apply to existing"
+                buttonText="Save"
                 onClick={() => {
                   setOpenApplyToAllModal(true);
                 }}
@@ -181,7 +181,7 @@ const EditFolder = ({route, navigation}: Props) => {
           description="This will override whatever settings you have already set for chats in this folder. If you modify an individual chat’s settings later on,
             those settings will prevail for the chat."
           buttonColor="b"
-          buttonText="Apply to existing"
+          buttonText="Apply to all"
           onConfirm={async () => {
             await applyFolderPermissions(selectedFolder.folderId);
           }}
@@ -190,7 +190,7 @@ const EditFolder = ({route, navigation}: Props) => {
           visible={openDeleteModal}
           onClose={() => setOpenDeleteModal(false)}
           title="Are you sure you want to delete this folder?"
-          description="Deleting this folder will move chats inside it to your primary folder."
+          description="When you delete the folder, all your contacts will move to the Primary folder and inherit default contact settings."
           buttonColor="r"
           buttonText="Delete folder"
           onConfirm={async () => {

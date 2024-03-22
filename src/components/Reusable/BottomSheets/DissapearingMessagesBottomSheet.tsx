@@ -38,10 +38,8 @@ const DissapearingMessagesBottomsheet = ({
         }}
         fontSizeType={FontSizeType.m}
         fontType={FontType.rg}>
-        For more privacy and storage, all your new messages will disappear from
-        this chat for everyone after the selected duration, except when turner
-        off. Keep in mind that disappearing messages are one-sided .ie. only
-        your messages will disappear when turned on.
+        For increased privacy and storage, all new messages in this chat will
+        vanish after the chosen duration, unless turned off.
       </NumberlessText>
       <SimpleCard
         style={{

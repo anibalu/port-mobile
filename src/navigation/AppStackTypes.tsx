@@ -22,7 +22,6 @@ export type AppStackParamList = {
   Scanner: undefined;
   DirectChat: {
     chatId: string;
-    isGroupChat: boolean;
     isConnected: boolean;
     profileUri: string | undefined | null;
     name?: string;
@@ -63,6 +62,7 @@ export type AppStackParamList = {
     selectedMembers: ConnectionInfo[];
     shareMessages: any[];
     isChat?: boolean;
+    fromShare?: boolean;
     isGroupChat?: boolean;
     fromCapture?: boolean;
     onRemove?: (item: any) => void;
@@ -78,4 +78,5 @@ export type AppStackParamList = {
     profileUri: string;
   };
   CreateNewGroup: undefined;
+  NewGroupPort: {groupId: string};
 };

@@ -87,9 +87,9 @@ const CreateFolder = ({navigation, route}: Props) => {
                 style={{color: PortColors.subtitle}}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
-                These settings will be applied in bulk to all the chats under
-                this folder. If you modify an individual chat’s settings later
-                on, those settings will prevail for the chat.
+                These settings will apply to all chats in this folder. If you
+                change settings for a specific chat later, those changes will
+                take precedence for that chat.
               </NumberlessText>
             </View>
             <View style={styles.chatSettingsContainer}>

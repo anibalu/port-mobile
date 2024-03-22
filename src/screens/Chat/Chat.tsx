@@ -22,17 +22,19 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
 import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
 import {handleAsyncMediaDownload as groupMedia} from '@utils/Messaging/Receive/ReceiveGroup/HandleMediaDownload';
+import {getLatestMessages} from '@utils/Storage/messages';
 import {useSelector} from 'react-redux';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import ChatList from './ChatList';
 import ChatTopbar from './ChatTopbar';
 import {MessageActionsBar} from './MessageActionsBar';
 import MessageBar from './MessageBar';
-import {getLatestMessages} from '@utils/Storage/messages';
-import {PortColors, isIOS} from '@components/ComponentUtils';
+
+import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import RichReactionsBottomsheet from '@components/Reusable/BottomSheets/RichReactionsBottomsheet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import {AudioPlayerProvider} from 'src/context/AudioPlayerContext';
 import Disconnected from './Disconnected';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
@@ -244,6 +246,7 @@ function Chat({route, navigation}: Props) {
 
       return () => {
         //On losing focus, call this
+
         store.dispatch({
           type: 'ACTIVE_CHAT_CHANGED',
           payload: undefined,
@@ -334,7 +337,7 @@ function Chat({route, navigation}: Props) {
   };
 
   return (
-    <>
+    <AudioPlayerProvider>
       <CustomStatusBar
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
@@ -415,7 +418,7 @@ function Chat({route, navigation}: Props) {
           visible={showRichReaction}
         />
       </SafeAreaView>
-    </>
+    </AudioPlayerProvider>
   );
 }
 
@@ -447,6 +450,7 @@ const styles = StyleSheet.create({
   main: {
     flex: 1,
     width: '100%',
+    height: screen.height,
     flexDirection: 'column',
     justifyContent: 'flex-start',
   },

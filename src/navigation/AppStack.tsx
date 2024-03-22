@@ -6,7 +6,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import AddCategoryScreen from '@screens/BugReporting/AddCategoryScreen';
 import ReportIssueScreen from '@screens/BugReporting/ReportIssueScreen';
 import SuggestAFeature from '@screens/BugReporting/SuggestAFeature';
-import Chat from '@screens/Chat/Chat';
+import DirectChat from '@screens/DirectChat/Chat';
 import ContactProfile from '@screens/ContactProfile/ContactProfile';
 import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
 import AddMembers from '@screens/GroupScreens/AddMembers';
@@ -38,6 +38,7 @@ import EditFolder from '@screens/Folder/EditFolder';
 import PreviewShareablePort from '@screens/Superport/PreviewSharablePort';
 import MoveToFolder from '@screens/Folder/MoveToFolder';
 import CreateNewGroup from '@screens/GroupsV2/CreateNewGroup';
+import NewGroupPort from '@screens/GroupsV2/NewGroupPort';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -57,7 +58,7 @@ function AppStack() {
           <Stack.Screen name="GroupProfile" component={GroupProfile} />
           <Stack.Screen name="ManageMembers" component={ManageMembers} />
           <Stack.Screen name="AddMembers" component={AddMembers} />
-          <Stack.Screen name="DirectChat" component={Chat} />
+          <Stack.Screen name="DirectChat" component={DirectChat} />
           <Stack.Screen name="ContactProfile" component={ContactProfile} />
           <Stack.Screen name="Placeholder" component={Placeholder} />
           <Stack.Screen name="ImageView" component={ImageView} />
@@ -95,6 +96,7 @@ function AppStack() {
             component={PreviewShareablePort}
           />
           <Stack.Screen name="CreateNewGroup" component={CreateNewGroup} />
+          <Stack.Screen name="NewGroupPort" component={NewGroupPort} />
         </Stack.Navigator>
       </ConnectionModalProvider>
     </>

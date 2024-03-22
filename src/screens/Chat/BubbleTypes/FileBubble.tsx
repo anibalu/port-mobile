@@ -84,118 +84,83 @@ export default function FileBubble({
       style={styles.textBubbleContainer}
       onPress={handlePressFunction}
       onLongPress={handleLongPressFunction}>
-      {isReply ? (
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <View
-            style={{
-              backgroundColor: PortColors.primary.yellow.dull,
-              width: 35,
-              height: 35,
+      {renderProfileName(
+        shouldRenderProfileName(memberName),
+        memberName,
+        message.sender,
+        isReply,
+        message.sender,
+      )}
 
-              borderRadius: 10,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <FileIcon height={22} width={22} />
-          </View>
-          <View style={{marginLeft: 12}}>
-            {renderProfileName(
-              shouldRenderProfileName(memberName),
-              memberName,
-              message.sender,
-              isReply,
-              message.sender,
-            )}
-
+      <View style={styles.fileBox}>
+        <View style={styles.fileClip}>
+          <FileIcon />
+        </View>
+        <View
+          style={{
+            flexDirection: 'column',
+            paddingHorizontal: 6,
+          }}>
+          <View style={{flexDirection: 'row', flex: 1}}>
             <NumberlessText
               fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}
-              style={{marginTop: 3, marginRight: 20}}>
-              {message.data.text || 'File'}
-            </NumberlessText>
-          </View>
-        </View>
-      ) : (
-        <>
-          {renderProfileName(
-            shouldRenderProfileName(memberName),
-            memberName,
-            message.sender,
-            isReply,
-            message.sender,
-          )}
-
-          <View style={styles.fileBox}>
-            <View style={styles.fileClip}>
-              <FileIcon />
-            </View>
-            <View
               style={{
-                flexDirection: 'column',
-                paddingHorizontal: 6,
-              }}>
-              <View style={{flexDirection: 'row', flex: 1}}>
-                <NumberlessText
-                  fontSizeType={FontSizeType.m}
-                  style={{
-                    maxWidth:
-                      (message.data as LargeDataParams).fileUri != null
-                        ? 0.7 * screen.width - 100
-                        : 0.38 * screen.width - 20,
-                    paddingTop: 7,
-                    marginRight:
-                      (message.data as LargeDataParams).fileUri == null ||
-                      startedManualDownload
-                        ? 20
-                        : 10,
-                    overflow: 'hidden',
-                  }}
-                  fontType={FontType.rg}
-                  ellipsizeMode="tail"
-                  numberOfLines={2}>
-                  {(message.data as LargeDataParams).fileName}
-                </NumberlessText>
-                {(message.data as LargeDataParams).fileUri == null &&
-                  (startedManualDownload ? (
-                    <View style={{alignSelf: 'center'}}>
-                      <CircleSnail
-                        color={PortColors.primary.blue.app}
-                        duration={500}
-                      />
+                maxWidth:
+                  (message.data as LargeDataParams).fileUri != null
+                    ? 0.7 * screen.width - 100
+                    : 0.38 * screen.width - 20,
+                paddingTop: 7,
+                marginRight:
+                  (message.data as LargeDataParams).fileUri == null ||
+                  startedManualDownload
+                    ? 20
+                    : 10,
+                overflow: 'hidden',
+              }}
+              fontType={FontType.rg}
+              ellipsizeMode="tail"
+              numberOfLines={2}>
+              {(message.data as LargeDataParams).fileName}
+            </NumberlessText>
+            {(message.data as LargeDataParams).fileUri == null &&
+              (startedManualDownload ? (
+                <View style={{alignSelf: 'center'}}>
+                  <CircleSnail
+                    color={PortColors.primary.blue.app}
+                    duration={500}
+                  />
 
-                      {/* <CrossIcon
+                  {/* <CrossIcon
                         style={{
                           position: 'absolute',
                           left: 3,
                           top: 3,
                         }}
                       /> */}
-                    </View>
-                  ) : (
-                    <View style={styles.downloadIconWrapper}>
-                      <Download height={14} width={14} />
-                    </View>
-                  ))}
-              </View>
-              {text == undefined || (text == '' && renderTimeStamp(message))}
-            </View>
+                </View>
+              ) : (
+                <View style={styles.downloadIconWrapper}>
+                  <Download height={14} width={14} />
+                </View>
+              ))}
           </View>
+          {text == undefined || (text == '' && renderTimeStamp(message))}
+        </View>
+      </View>
 
-          {text ? (
-            <View style={getBubbleLayoutStyle(text)}>
-              <View>
-                <NumberlessLinkText
-                  fontSizeType={FontSizeType.m}
-                  fontType={FontType.rg}
-                  numberOfLines={0}>
-                  {text}
-                </NumberlessLinkText>
-              </View>
-              {renderTimeStamp(message)}
-            </View>
-          ) : null}
-        </>
-      )}
+      {text ? (
+        <View style={getBubbleLayoutStyle(text)}>
+          <View>
+            <NumberlessLinkText
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}
+              numberOfLines={0}>
+              {text}
+            </NumberlessLinkText>
+          </View>
+          {renderTimeStamp(message)}
+        </View>
+      ) : null}
     </Pressable>
   );
 }

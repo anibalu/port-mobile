@@ -58,8 +58,7 @@ const AdvanceSettingsCard = ({
           IconLeft={ContactShareIcon}
           toggleActiveState={permissions.contactSharing}
           heading="Contact sharing"
-          description="Allow contacts in this folder to connect you with others
-          on Port"
+          description="Allow a contact to connect you with others"
           onToggle={() => onUpdateBooleanPermission('contactSharing')}
         />
       </View>

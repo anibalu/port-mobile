@@ -94,7 +94,7 @@ const MoveContacts = ({
           style={{color: PortColors.subtitle}}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.s}>
-          All new contacts added using this superport will be moved to the
+          All new contacts added using this Superport will be moved to the
           selected folder and inherit the folder's contact settings.
         </NumberlessText>
       </View>

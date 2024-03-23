@@ -244,7 +244,6 @@ export function getTimeAndDateStamp(isoString: string | undefined): string {
 }
 
 export function getDateStamp(isoString: string | undefined): string {
-  console.log(isoString);
   if (!isoString) {
     return '';
   }

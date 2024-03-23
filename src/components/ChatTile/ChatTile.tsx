@@ -273,9 +273,6 @@ function DisplayStatus({
           return <Journaled />;
         case MessageStatus.read:
           return <Read />;
-        case MessageStatus.delivered:
-          console.log('running case');
-          return <Delivered />;
         case MessageStatus.sent:
           return <Sent />;
         case MessageStatus.failed:
@@ -284,7 +281,10 @@ function DisplayStatus({
           return <></>;
       }
     }
-    return <></>;
+    if (newMessage && !newMessage.sender) {
+      return <></>;
+    }
+    return <Delivered />;
   };
   if (readStatus === ReadStatus.new) {
     if (newMessageCount > 0) {

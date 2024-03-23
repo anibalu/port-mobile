@@ -19,7 +19,6 @@ import {TextBubble} from './TextBubble';
 import LinearGradient from 'react-native-linear-gradient';
 import Download from '@assets/icons/Download.svg';
 import Play from '@assets/icons/videoPlay.svg';
-import {SelectedMessagesSize} from '@screens/DirectChat/Chat';
 
 export const VideoBubble = ({
   message,
@@ -46,8 +45,8 @@ export const VideoBubble = ({
     setStartedManualDownload(false);
   };
   const handlePressFunction = () => {
-    const selectedMessagesSize = handlePress(message.messageId);
-    if (selectedMessagesSize === SelectedMessagesSize.empty) {
+    const selectionMode = handlePress(message.messageId);
+    if (!selectionMode) {
       handleMediaOpen(
         (message.data as LargeDataParams).fileUri,
         triggerDownload,

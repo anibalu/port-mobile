@@ -2,7 +2,7 @@ import Delete from '@assets/icons/DeleteIcon.svg';
 import Copy from '@assets/icons/copy.svg';
 import Forward from '@assets/icons/forward.svg';
 import Reply from '@assets/icons/reply.svg';
-import React, {ReactNode, useState} from 'react';
+import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
 import {PortColors, isIOS} from '@components/ComponentUtils';
@@ -37,6 +37,11 @@ export function MessageActionsBar({
   isGroup,
   isSharedMedia,
   isDisconnected = false,
+  openDeleteModal = false,
+  setOpenDeleteModal,
+  showDeleteForEveryone = false,
+  determineDeleteModalDisplay,
+  clearSelection,
 }: {
   chatId: string;
   selectedMessages: string[];
@@ -45,8 +50,13 @@ export function MessageActionsBar({
   onCopy: any;
   isGroup: boolean;
   onForward: any;
+  openDeleteModal: boolean;
   isSharedMedia?: boolean;
+  showDeleteForEveryone: boolean;
+  determineDeleteModalDisplay: () => void;
+  setOpenDeleteModal: (isOpen: boolean) => void;
   isDisconnected?: boolean;
+  clearSelection: any;
 }): ReactNode {
   const performReply = async (): Promise<void> => {
     setReplyTo(
@@ -54,6 +64,7 @@ export function MessageActionsBar({
         ? await getGroupMessage(chatId, selectedMessages[0])
         : await getMessage(chatId, selectedMessages[0]),
     );
+    clearSelection();
   };
   const performDelete = async (): Promise<void> => {
     if (isGroup) {
@@ -71,18 +82,6 @@ export function MessageActionsBar({
     }
   };
 
-  const determineModalDisplay = async () => {
-    setOpenDeleteModal(true);
-    for (const msg of selectedMessages) {
-      const message = await getMessage(chatId, msg);
-      //If sender is false for all selected, we can then allow the messsages to be deleted for all
-      if (!message?.sender) {
-        return;
-      }
-    }
-    setShowDeleteForEveryone(true);
-  };
-
   const performGlobalDelete = async (): Promise<void> => {
     for (const msg of selectedMessages) {
       const sender = new SendMessage(chatId, ContentType.deleted, {
@@ -93,9 +92,6 @@ export function MessageActionsBar({
     postDelete(selectedMessages);
     setOpenDeleteModal(false);
   };
-
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
 
   return (
     <View
@@ -144,7 +140,7 @@ export function MessageActionsBar({
             <View style={styles.optionContainer}>
               <Pressable
                 style={styles.optionBox}
-                onPress={determineModalDisplay}>
+                onPress={determineDeleteModalDisplay}>
                 <Delete />
               </Pressable>
             </View>
@@ -177,7 +173,7 @@ export function MessageActionsBar({
             <View style={styles.optionContainer}>
               <Pressable
                 style={styles.optionBox}
-                onPress={determineModalDisplay}>
+                onPress={determineDeleteModalDisplay}>
                 <Delete />
               </Pressable>
             </View>

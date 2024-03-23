@@ -1,4 +1,4 @@
-import {PortColors, isIOS} from '@components/ComponentUtils';
+import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -20,6 +20,10 @@ interface LinkPreviewData {
   'og:url'?: string;
   'og:image'?: string;
 }
+
+const LINK_MEDIA_WIDTH = '25%';
+const TEXT_WIDTH = '75%';
+const LINK_MEDIA_MIN_HEIGHT = 72;
 
 export default function LinkPreview({
   loading = false,
@@ -90,64 +94,46 @@ export default function LinkPreview({
           <View
             style={{
               flexDirection: 'row',
-              justifyContent: 'flex-start',
-              height: '100%',
-              borderWidth: 0.5,
-              borderColor: PortColors.primary.grey.medium,
-              borderRadius: 16,
+              justifyContent: 'space-between',
+              borderRadius: 12,
+              overflow: 'hidden',
             }}>
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: 76,
+                width: LINK_MEDIA_WIDTH,
                 backgroundColor: PortColors.primary.grey.medium,
-                borderTopLeftRadius: 16,
-                borderBottomLeftRadius: 16,
               }}>
               <Animated.View style={{opacity: opacityAnimation}}>
                 <LinkGrey height={20} width={20} />
               </Animated.View>
             </View>
-            <View
-              style={{
-                padding: 8,
-                gap: 2,
-                flex: 1,
-                borderTopRightRadius: 16,
-                borderBottomRightRadius: 16,
-                backgroundColor: PortColors.primary.grey.light,
-              }}>
-              <GenericButton
-                iconSizeRight={25}
-                buttonStyle={StyleSheet.compose(styles.cancel, {
-                  top: 8,
-                  right: 8,
-                })}
-                IconRight={Cross}
-                onPress={onCancelPreview}
-              />
+            <View style={styles.descContainer}>
+              <View style={styles.detailsContainer}>
+                <GenericButton
+                  iconSizeRight={24}
+                  buttonStyle={styles.cancel}
+                  IconRight={Cross}
+                  onPress={onCancelPreview}
+                />
+              </View>
             </View>
           </View>
         ) : (
           <View
             style={{
               flexDirection: 'row',
-              justifyContent: 'flex-start',
-              height: '100%',
-              borderWidth: 0.5,
-              borderColor: PortColors.primary.grey.medium,
-              borderRadius: 16,
+              justifyContent: 'space-between',
+              borderRadius: 12,
+              overflow: 'hidden',
             }}>
             {OgImage || image ? (
               <Image
-                resizeMode="contain"
                 source={{uri: OgImage || image}}
                 style={{
-                  width: 76,
-                  borderTopLeftRadius: 16,
-                  borderBottomLeftRadius: 16,
+                  width: LINK_MEDIA_WIDTH,
                 }}
               />
             ) : (
@@ -156,20 +142,16 @@ export default function LinkPreview({
                   flexDirection: 'row',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: 76,
+                  width: LINK_MEDIA_WIDTH,
                   backgroundColor: PortColors.primary.grey.medium,
-                  borderTopLeftRadius: 16,
-                  borderBottomLeftRadius: 16,
                 }}>
                 <LinkGrey height={20} width={20} />
               </View>
             )}
-
             <View style={styles.descContainer}>
               <View style={styles.detailsContainer}>
                 {(OgTitle || title) && (
                   <NumberlessText
-                    style={{flex: 1, maxWidth: '90%'}}
                     numberOfLines={2}
                     textColor={PortColors.text.primary}
                     fontSizeType={FontSizeType.m}
@@ -195,15 +177,6 @@ export default function LinkPreview({
               )}
               {(OgUrl || url || link) && (
                 <NumberlessText
-                  style={
-                    !data?.title || !data?.description
-                      ? {
-                          textAlignVertical: 'center',
-                          lineHeight: isIOS ? 70 : 50,
-                          flex: 1,
-                        }
-                      : {flex: 1}
-                  }
                   textColor={PortColors.text.secondary}
                   fontSizeType={FontSizeType.s}
                   fontType={FontType.rg}>
@@ -222,9 +195,11 @@ export default function LinkPreview({
 
 const styles = StyleSheet.create({
   previewContainer: {
-    borderRadius: 16,
-    margin: 8,
-    height: 90,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    padding: 4,
+    minHeight: LINK_MEDIA_MIN_HEIGHT,
+    width: '100%',
   },
   detailsContainer: {
     flexDirection: 'row',
@@ -235,11 +210,8 @@ const styles = StyleSheet.create({
   descContainer: {
     padding: 8,
     gap: 2,
-    borderTopRightRadius: 16,
-    borderBottomRightRadius: 16,
-    flex: 1,
-    backgroundColor: PortColors.primary.grey.light,
-    marginRight: 1,
+    width: TEXT_WIDTH,
+    backgroundColor: PortColors.background,
   },
   cancel: {
     backgroundColor: 'transparent',

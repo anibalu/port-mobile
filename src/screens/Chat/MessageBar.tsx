@@ -547,15 +547,13 @@ const MessageBar = ({
           )}
 
           {url && (
-            <View>
-              <LinkPreview
-                showPreview={showPreview}
-                setShowPreview={setShowPreview}
-                link={url}
-                loading={loading}
-                data={openGraphData}
-              />
-            </View>
+            <LinkPreview
+              showPreview={showPreview}
+              setShowPreview={setShowPreview}
+              link={url}
+              loading={loading}
+              data={openGraphData}
+            />
           )}
 
           {/* this is the case where audio is being recorded */}
@@ -683,7 +681,7 @@ const MessageBar = ({
           )}
         </View>
         <GenericButton
-          disabled={text.length < 0}
+          disabled={text.trim().length === 0}
           iconSizeRight={14}
           buttonStyle={
             isRecording
@@ -693,9 +691,8 @@ const MessageBar = ({
               : styles.send
           }
           IconRight={
-            text.length > 0 || (!isRecording && hasRecorded && audio)
-              ? Send
-              : Microphone
+            // text.length > 0 || (!isRecording && hasRecorded && audio)
+            true ? Send : Microphone
           }
           loading={isSending}
           onLongPress={onButtonLongPress}
@@ -783,7 +780,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingLeft: 24,
     paddingRight: 24,
-    backgroundColor: '#FFF',
+    backgroundColor: PortColors.primary.white,
     borderRadius: 16,
     justifyContent: 'space-between',
     marginHorizontal: 10,
@@ -815,13 +812,11 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
     borderRadius: 16,
-    borderWidth: 0.5,
-    borderColor: PortColors.stroke,
     alignItems: 'center',
   },
   recordingbar: {
     flexDirection: 'row',
-    backgroundColor: 'white',
+    backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
     width: screen.width - 63,
     borderRadius: 24,

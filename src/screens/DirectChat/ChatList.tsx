@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import {getRichReactions} from '@utils/Storage/reactions';
 import {MessageBubbleParent} from '@components/MessageBubbles/MessageBubbleParent';
+import {debouncedPeriodicOperations} from '@utils/AppOperations';
 
 const MESSAGE_TIME_GAP_FOR_PADDING = 60 * 60 * 1000;
 
@@ -72,6 +73,8 @@ const handleReaction = async (
  */
 function ChatList({
   messages,
+  onForward,
+  onCopy,
   selectedMessages,
   handlePress,
   handleLongPress,
@@ -79,21 +82,29 @@ function ChatList({
   onEndReached,
   isGroupChat,
   clearSelection,
+  chatId,
   setReplyTo,
   setReaction,
   isConnected,
+  selectionMode,
+  setSelectionMode,
 }: {
+  onForward: () => void;
+  onCopy: () => void;
   messages: SavedMessageParams[];
   selectedMessages: string[];
   onStartReached: any;
   onEndReached: any;
   handlePress: any;
   handleLongPress: any;
+  chatId: string;
   isGroupChat: boolean;
   clearSelection: () => void;
-  setReplyTo: (x: SavedMessageParams) => void;
+  setReplyTo: (x: SavedMessageParams | null) => void;
   setReaction: Function;
   isConnected: boolean;
+  selectionMode: boolean;
+  setSelectionMode: (x: boolean) => void;
 }): ReactNode {
   //render function to display message bubbles
   const renderMessage = ({
@@ -122,6 +133,11 @@ function ChatList({
 
     return (
       <MessageBubbleParent
+        selectionMode={selectionMode}
+        setSelectionMode={setSelectionMode}
+        chatId={chatId}
+        onForward={onForward}
+        onCopy={onCopy}
         isDateBoundary={isDateBoundary}
         hasExtraPadding={shouldHaveExtraPadding}
         handlePress={handlePress}
@@ -133,6 +149,7 @@ function ChatList({
         setReplyTo={setReplyTo}
         setReaction={setReaction}
         isConnected={isConnected}
+        clearSelection={clearSelection}
       />
     );
   };
@@ -163,6 +180,7 @@ function ChatList({
       flatlistRef.current.scrollToOffset({animated: true, offset: 0});
     }
   };
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
   return (
     <>
@@ -180,6 +198,12 @@ function ChatList({
         scrollEventThrottle={1000}
         onMomentumScrollEnd={handleMomentumEnd}
         onEndReached={onStartReached}
+        refreshing={refreshing}
+        onRefresh={async () => {
+          setRefreshing(true);
+          await debouncedPeriodicOperations();
+          setRefreshing(false);
+        }}
       />
       {showScrollToEnd && (
         <Pressable style={styles.handleStyle} onPress={onHandlePress}>

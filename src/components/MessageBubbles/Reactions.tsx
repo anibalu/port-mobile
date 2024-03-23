@@ -12,8 +12,10 @@ import {Pressable, StyleSheet, View} from 'react-native';
 export const RenderReactionBar = ({
   handleReaction,
   message,
+  setFocusVisible,
   richReactions,
 }: {
+  setFocusVisible: (visible: boolean) => void;
   handleReaction: (arg0: any, arg1: string) => void;
   message: SavedMessageParams;
   richReactions: any;
@@ -22,7 +24,6 @@ export const RenderReactionBar = ({
     (reaction: {senderId: string}) => reaction.senderId === 'SELF',
   );
   const selfReaction = selfReactionObj ? selfReactionObj.reaction : false;
-
   return (
     <View style={styles.reactionSelection}>
       {reactionMapping.map(item => (
@@ -43,11 +44,12 @@ export const RenderReactionBar = ({
             )}
             key={item}
             onPress={() => {
-              handleReaction(message, item);
+              setFocusVisible(false), handleReaction(message, item);
             }}>
             <NumberlessText
               fontSizeType={FontSizeType.exs}
-              fontType={FontType.rg}>
+              fontType={FontType.rg}
+              allowFontScaling={false}>
               {item}
             </NumberlessText>
           </Pressable>
@@ -98,6 +100,7 @@ const styles = StyleSheet.create({
     padding: 4,
     marginBottom: 4,
     alignItems: 'center',
+    height: 50,
   },
   reactionsWrapper: {
     padding: 2,

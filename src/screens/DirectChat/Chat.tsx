@@ -1,6 +1,6 @@
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet} from 'react-native';
 
 import {DEFAULT_AVATAR, SELECTED_MESSAGES_LIMIT} from '@configs/constants';
@@ -36,10 +36,7 @@ import Disconnected from '@screens/Chat/Disconnected';
 import {AudioPlayerProvider} from 'src/context/AudioPlayerContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
-export enum SelectedMessagesSize {
-  empty,
-  notEmpty,
-}
+
 /**
  * Renders a chat screen. The chatlist that is rendered is INVERTED, which means that any `top` function is a `bottom` function and vice versa.
  * @returns Component for rendered chat window
@@ -98,20 +95,14 @@ function Chat({route, navigation}: Props) {
   };
 
   //Handles selecting messages once select messages flow is toggled
-  const handleMessageBubbleShortPress = (
-    messageId: string,
-  ): SelectedMessagesSize => {
+  const handleMessageBubbleShortPress = (messageId: string): boolean => {
     // removes messageId from selected messages on short press
-    let selectedMessagesSize: SelectedMessagesSize =
-      selectedMessages.length >= 1
-        ? SelectedMessagesSize.notEmpty
-        : SelectedMessagesSize.empty;
+    let isSelectionMode = selectionMode ? true : false;
     if (selectedMessages.includes(messageId)) {
-      setSelectedMessages(
-        selectedMessages.filter(
-          selectedMessageId => selectedMessageId !== messageId,
-        ),
+      const newSelection = selectedMessages.filter(
+        selectedMessageId => selectedMessageId !== messageId,
       );
+      setSelectedMessages(newSelection);
     } else {
       //makes short press select a message if atleast one message is already selected.
       if (selectedMessages.length >= 1) {
@@ -122,7 +113,7 @@ function Chat({route, navigation}: Props) {
         }
       }
     }
-    return selectedMessagesSize;
+    return isSelectionMode;
   };
 
   const updateChatState = (newState: any) => {
@@ -183,8 +174,11 @@ function Chat({route, navigation}: Props) {
   };
 
   const clearSelected = () => {
-    setReplyToMessage(null);
     setSelectedMessages([]);
+  };
+  const clearEverything = () => {
+    setSelectedMessages([]);
+    setReplyToMessage(null);
   };
 
   //effect runs when screen is focused
@@ -221,7 +215,7 @@ function Chat({route, navigation}: Props) {
         });
       };
       // eslint-disable-next-line
-        }, []),
+    }, []),
   );
 
   useEffect(() => {
@@ -258,13 +252,37 @@ function Chat({route, navigation}: Props) {
   };
 
   const onBackPress = async (): Promise<void> => {
-    setSelectedMessages([]);
     await toggleRead(chatId);
     navigation.navigate('HomeTab');
   };
 
   const onCancelPressed = () => {
     setSelectedMessages([]);
+    setSelectionMode(false);
+  };
+  //whether the screen is in seletion mode
+  const [selectionMode, setSelectionMode] = useState(false);
+  useMemo(() => {
+    if (selectedMessages.length === 0) {
+      setSelectionMode(false);
+    }
+  }, [selectedMessages]);
+  //responsible for opening deletion modal
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  //if delete for everyone should be available
+  const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
+  const determineDeleteModalDisplay = async () => {
+    setOpenDeleteModal(true);
+    let senderExists = true;
+    for (const msg of selectedMessages) {
+      const message = await getMessage(chatId, msg);
+      if (message && !message.sender) {
+        senderExists = false;
+        break;
+      }
+    }
+    setShowDeleteForEveryone(senderExists);
+    return senderExists; // Return whether to show delete for everyone or not
   };
 
   return (
@@ -282,12 +300,18 @@ function Chat({route, navigation}: Props) {
           onSettingsPressed={onSettingsPressed}
           onBackPress={onBackPress}
           onCancelPressed={onCancelPressed}
+          selectionMode={selectionMode}
         />
         <KeyboardAvoidingView
           behavior={isIOS ? 'padding' : 'height'}
           keyboardVerticalOffset={isIOS ? 50 : 0}
           style={styles.main}>
           <ChatList
+            selectionMode={selectionMode}
+            setSelectionMode={setSelectionMode}
+            chatId={chatId}
+            onCopy={onCopy}
+            onForward={onForward}
             messages={messages}
             setReplyTo={setReplyToMessage}
             clearSelection={clearSelected}
@@ -302,8 +326,12 @@ function Chat({route, navigation}: Props) {
           />
           {chatState.connectionConnected ? (
             <>
-              {selectedMessages.length > 0 && !replyToMessage ? (
+              {selectionMode ? (
                 <MessageActionsBar
+                  showDeleteForEveryone={showDeleteForEveryone}
+                  determineDeleteModalDisplay={determineDeleteModalDisplay}
+                  setOpenDeleteModal={setOpenDeleteModal}
+                  openDeleteModal={openDeleteModal}
                   chatId={chatId}
                   onCopy={onCopy}
                   isGroup={false}
@@ -311,18 +339,23 @@ function Chat({route, navigation}: Props) {
                   selectedMessages={selectedMessages}
                   setReplyTo={setReplyToMessage}
                   postDelete={updateAfterDeletion}
+                  clearSelection={clearSelected}
                 />
               ) : (
                 <MessageBar
-                  onSend={clearSelected}
+                  onSend={clearEverything}
                   chatId={chatId}
                   replyTo={replyToMessage}
                   isGroupChat={false}
                 />
               )}
             </>
-          ) : selectedMessages.length > 0 && !replyToMessage ? (
+          ) : selectionMode ? (
             <MessageActionsBar
+              showDeleteForEveryone={showDeleteForEveryone}
+              determineDeleteModalDisplay={determineDeleteModalDisplay}
+              setOpenDeleteModal={setOpenDeleteModal}
+              openDeleteModal={openDeleteModal}
               isDisconnected={true}
               chatId={chatId}
               onCopy={onCopy}
@@ -331,6 +364,7 @@ function Chat({route, navigation}: Props) {
               selectedMessages={selectedMessages}
               setReplyTo={setReplyToMessage}
               postDelete={updateAfterDeletion}
+              clearSelection={clearSelected}
             />
           ) : (
             <Disconnected name={chatState.name} />

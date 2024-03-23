@@ -15,7 +15,7 @@ export const DeletedBubble = ({
 }: {
   message: SavedMessageParams;
 }): ReactNode => {
-  const text = 'You deleted this message';
+  const text = 'This message was deleted';
 
   return (
     <View style={styles.textContainerRow}>

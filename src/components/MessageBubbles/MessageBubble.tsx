@@ -2,7 +2,7 @@ import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useState} from 'react';
-import {StyleSheet, View, Animated} from 'react-native';
+import {StyleSheet, View, Animated, Pressable} from 'react-native';
 import {ContentBubble} from './ContentBubble';
 import {ReplyBubble} from './ReplyBubble';
 import {MAX_WIDTH} from './BubbleUtils';
@@ -13,6 +13,7 @@ import {RenderReactionBar, RenderReactions} from './Reactions';
 import {getReactionCounts, getRichReactions} from '@utils/Storage/reactions';
 import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
 import {getMessage} from '@utils/Storage/messages';
+import BubbleFocusOptions from './BubbleFocusOptions';
 
 export const MessageBubble = ({
   handlePress,
@@ -21,13 +22,20 @@ export const MessageBubble = ({
   message,
   setReplyTo,
   setReaction,
-  isSelected,
-  selectedMessages,
+  setFocusVisible,
   isConnected,
   handleReaction,
+  swipeable = true,
+  onDelete = () => {},
+  onReply = () => {},
+  onForward = () => {},
+  onCopy = () => {},
+  onSelect = () => {},
+  optionsBubblePosition = 100,
 }: {
   handlePress: any;
   handleLongPress: any;
+  setFocusVisible: (visible: boolean) => void;
   isGroupChat: boolean;
   message: SavedMessageParams;
   setReplyTo: (x: SavedMessageParams) => void;
@@ -36,6 +44,13 @@ export const MessageBubble = ({
   selectedMessages: string[];
   isConnected: boolean;
   handleReaction: any;
+  swipeable?: boolean;
+  onDelete?: any;
+  onReply?: any;
+  onForward?: any;
+  onCopy?: any;
+  onSelect?: any;
+  optionsBubblePosition?: number;
 }): ReactNode => {
   const [reactions, setReactions] = useState<any[]>([]);
   const [richReactions, setRichReactions] = useState<any>([]);
@@ -112,14 +127,72 @@ export const MessageBubble = ({
       </Animated.View>
     );
   };
-
-  return (
-    <Swipeable
-      friction={3}
-      leftThreshold={1000}
-      leftTrigger={64}
-      onSwipeableLeftTrigger={() => handleSwipe()}
-      renderLeftActions={renderLeftActions}>
+  if (swipeable) {
+    return (
+      <Swipeable
+        friction={3}
+        leftThreshold={1000}
+        leftTrigger={64}
+        onSwipeableLeftTrigger={() => handleSwipe()}
+        renderLeftActions={renderLeftActions}>
+        <View
+          style={
+            message.sender
+              ? {...styles.container, justifyContent: 'flex-end'}
+              : {...styles.container, justifyContent: 'flex-start'}
+          }>
+          {isGroupChat && !message.sender && <AvatarBox avatarSize="es" />}
+          <View
+            style={{
+              flexDirection: 'column',
+              alignItems: message.sender ? 'flex-end' : 'flex-start',
+            }}>
+            <View
+              style={{
+                ...styles.main,
+                backgroundColor: message.sender
+                  ? PortColors.primary.sender
+                  : PortColors.primary.white,
+              }}>
+              {message.replyId && (
+                <View style={styles.replyContainer}>
+                  <View
+                    style={{
+                      ...styles.replyBubbleContainer,
+                      backgroundColor: message.sender
+                        ? PortColors.primary.senderReply
+                        : PortColors.background,
+                    }}>
+                    {/* Reply bubble goes here */}
+                    <ReplyBubble message={message} isGroupChat={isGroupChat} />
+                  </View>
+                </View>
+              )}
+              <View style={styles.contentContainer}>
+                <View style={styles.contentBubbleContainer}>
+                  {/* Content bubble goes here */}
+                  <ContentBubble
+                    message={message}
+                    handlePress={handlePress}
+                    handleLongPress={handleLongPress}
+                  />
+                </View>
+              </View>
+            </View>
+            <View style={{}}>
+              {reactions.length > 0 && (
+                <RenderReactions
+                  reactions={reactions}
+                  showReactionRibbon={showReactionRibbon}
+                />
+              )}
+            </View>
+          </View>
+        </View>
+      </Swipeable>
+    );
+  } else {
+    return (
       <View
         style={
           message.sender
@@ -132,20 +205,22 @@ export const MessageBubble = ({
             flexDirection: 'column',
             alignItems: message.sender ? 'flex-end' : 'flex-start',
           }}>
-          {isSelected && isConnected && selectedMessages.length === 1 && (
+          {isConnected && (
             <RenderReactionBar
+              setFocusVisible={setFocusVisible}
               handleReaction={handleReaction}
               message={message}
               richReactions={richReactions}
             />
           )}
-          <View
+          <Pressable
             style={{
               ...styles.main,
               backgroundColor: message.sender
                 ? PortColors.primary.sender
                 : PortColors.primary.white,
-            }}>
+            }}
+            pointerEvents="box-only">
             {message.replyId && (
               <View style={styles.replyContainer}>
                 <View
@@ -170,19 +245,36 @@ export const MessageBubble = ({
                 />
               </View>
             </View>
-          </View>
-          <View style={{}}>
+          </Pressable>
+          <Pressable style={{}} pointerEvents="box-only">
             {reactions.length > 0 && (
               <RenderReactions
                 reactions={reactions}
                 showReactionRibbon={showReactionRibbon}
               />
             )}
-          </View>
+          </Pressable>
+        </View>
+        <View
+          style={{
+            position: 'absolute',
+            alignSelf: message.sender ? 'flex-end' : 'flex-start',
+            paddingHorizontal: PortSpacing.secondary.uniform,
+            paddingTop: 2,
+            top: optionsBubblePosition,
+          }}>
+          <BubbleFocusOptions
+            isConnected={isConnected}
+            onDelete={onDelete}
+            onReply={onReply}
+            onForward={onForward}
+            onCopy={onCopy}
+            onSelect={onSelect}
+          />
         </View>
       </View>
-    </Swipeable>
-  );
+    );
+  }
 };
 
 const styles = StyleSheet.create({

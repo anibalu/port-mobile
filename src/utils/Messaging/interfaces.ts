@@ -53,6 +53,8 @@ export const UpdateRequiredMessageContentTypes = [
   ContentType.file,
   ContentType.video,
   ContentType.audioRecording,
+  ContentType.link,
+  ContentType.contactBundle,
 ];
 
 export const InfoContentTypes = [ContentType.info];

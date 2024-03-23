@@ -116,7 +116,7 @@ const ReplyExistsBubble = ({
             style={{color: PortColors.primary.body}}
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>
-            This is an unsupported reply content type.
+            This message no longer exists
           </NumberlessText>
         </View>
       );

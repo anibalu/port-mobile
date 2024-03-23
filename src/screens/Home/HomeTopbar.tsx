@@ -124,8 +124,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: PortColors.primary.white,
-    borderBottomColor: '#EEE',
-    borderBottomWidth: 0.5,
     height: TOPBAR_HEIGHT,
   },
   blueDot: {

@@ -30,6 +30,7 @@ function ChatTopbar({
   onSettingsPressed,
   onBackPress,
   onCancelPressed,
+  selectionMode,
   profileURI = DEFAULT_AVATAR,
 }: {
   name: string;
@@ -38,6 +39,7 @@ function ChatTopbar({
   onSettingsPressed: () => void;
   onBackPress: () => void;
   onCancelPressed: () => void;
+  selectionMode: boolean;
 }): ReactNode {
   const handlePress = () => {
     if (selectedMessagesLength >= 1) {
@@ -48,22 +50,22 @@ function ChatTopbar({
   };
 
   const handleCancellation = () => {
-    if (selectedMessagesLength >= 1) {
-      onCancelPressed();
-    } else {
-      onSettingsPressed();
-    }
+    onCancelPressed();
+  };
+
+  const handleSettings = () => {
+    onSettingsPressed();
   };
 
   return (
     <View style={styles.bar}>
-      {selectedMessagesLength === 0 && (
+      {!selectionMode && (
         <BackButton style={styles.backIcon} onPress={onBackPress} />
       )}
 
       <Pressable style={styles.profileBar} onPress={handlePress}>
         <View style={styles.titleBar}>
-          {selectedMessagesLength === 0 && (
+          {!selectionMode && (
             <View style={styles.profile}>
               <AvatarBox
                 avatarSize="s"
@@ -80,18 +82,16 @@ function ChatTopbar({
               selectedMessagesLength >= 1 ? styles.selectedCount : styles.title
             }
             numberOfLines={1}>
-            {selectedMessagesLength >= 1
+            {selectionMode
               ? 'Selected (' + selectedMessagesLength.toString() + ')'
               : name}
           </NumberlessText>
         </View>
         <View>
           <GenericButton
-            buttonStyle={
-              selectedMessagesLength >= 1 ? styles.crossBox : styles.settingsBox
-            }
-            IconLeft={selectedMessagesLength >= 1 ? Cross : SettingsIcon}
-            onPress={handleCancellation}
+            buttonStyle={selectionMode ? styles.crossBox : styles.settingsBox}
+            IconLeft={selectionMode ? Cross : SettingsIcon}
+            onPress={selectionMode ? handleCancellation : handleSettings}
           />
         </View>
       </Pressable>

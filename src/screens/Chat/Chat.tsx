@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 import {SafeAreaView} from '@components/SafeAreaView';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';

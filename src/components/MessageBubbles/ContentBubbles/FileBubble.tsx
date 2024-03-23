@@ -11,7 +11,6 @@ import {useErrorModal} from 'src/context/ErrorModalContext';
 import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import Download from '@assets/icons/Download.svg';
-import {SelectedMessagesSize} from '@screens/DirectChat/Chat';
 import {
   FontSizeType,
   FontType,
@@ -44,8 +43,8 @@ export const FileBubble = ({
     setStartedManualDownload(false);
   };
   const handlePressFunction = () => {
-    const selectedMessagesSize = handlePress(message.messageId);
-    if (selectedMessagesSize === SelectedMessagesSize.empty) {
+    const selectionMode = handlePress(message.messageId);
+    if (!selectionMode) {
       handleMediaOpen(
         (message.data as LargeDataParams).fileUri,
         triggerDownload,

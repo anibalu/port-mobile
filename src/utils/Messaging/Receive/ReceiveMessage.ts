@@ -11,7 +11,7 @@ class ReceiveMessage {
   //construct the class
   constructor(messageRaw: any, receiveTime: string = new Date().toISOString()) {
     this.message = this.processRawMessage(messageRaw);
-    this.receiveTime = receiveTime;
+    this.receiveTime = this.message.timestamp || receiveTime;
     this.chatId = this.assignChatId();
     this.isGroupMessage = this.checkIfGroupMessage();
     this.senderId = this.assignSenderId();

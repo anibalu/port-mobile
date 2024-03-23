@@ -11,6 +11,7 @@ export async function sendObject(
   chatId: string,
   processedPayload: object,
   isGroup: boolean,
+  silent: boolean = false,
 ): Promise<MessageStatus.sent | MessageStatus.journaled> {
   try {
     const token: ServerAuthToken = await getToken();
@@ -32,6 +33,7 @@ export async function sendObject(
         {
           message: processedPayload,
           line: chatId,
+          silent,
         },
         {headers: {Authorization: `${token}`}},
       );

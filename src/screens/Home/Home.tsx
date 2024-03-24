@@ -28,17 +28,16 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import {FlatList, KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import HomeTopbar from './HomeTopbar';
 import HomescreenPlaceholder from './HomescreenPlaceholder';
 import {GenericButton} from '@components/GenericButton';
 import ConnectionOptions from './ConnectionOptions';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   DEFAULT_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
-  TOPBAR_HEIGHT,
   defaultFolderId,
   defaultFolderInfo,
   safeModalCloseDuration,
@@ -61,6 +60,12 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 import {cleanDeleteReadPort} from '@utils/Ports/direct';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
 import ErrorSimpleBottomSheet from '@components/Reusable/BottomSheets/ErrorSimpleBottomSheet';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import ChatBackground from '@components/ChatBackground';
 
 //Handles notification routing on tapping notification
 const performNotificationRouting = (
@@ -157,6 +162,7 @@ function Home({route, navigation}: Props) {
   const [selectedProps, setSelectedProps] = useState<ChatTileProps | null>(
     null,
   );
+  const [searchReturnedNull, setSearchReturnedNull] = useState(false);
 
   const getUnread = (folderId: string) => {
     const found = folders.find(item => item.folderId === folderId);
@@ -286,9 +292,14 @@ function Home({route, navigation}: Props) {
 
   //filter by search string
   const getFilteredConnectionsBySearch = (chats: ConnectionInfo[]) => {
-    return chats.filter(connection =>
+    setSearchReturnedNull(false);
+    const filteredSearch = chats.filter(connection =>
       connection.name.toLowerCase().includes(searchText.toLowerCase()),
     );
+    if (filteredSearch.length === 0) {
+      setSearchReturnedNull(true);
+    }
+    return filteredSearch;
   };
 
   //sets up selected folder
@@ -303,6 +314,7 @@ function Home({route, navigation}: Props) {
   //sets up viewable connections
   useMemo(() => {
     if (searchText === '') {
+      setSearchReturnedNull(false);
       setViewableConnections(getFilteredConnectionsByFolder(connections));
     } else {
       setViewableConnections(getFilteredConnectionsBySearch(connections));
@@ -392,22 +404,23 @@ function Home({route, navigation}: Props) {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
-      />
-      <SafeAreaView style={{backgroundColor: PortColors.background}}>
-        <SideDrawerWrapper
-          setDisableTileClicks={setDisableTileClicks}
-          selectedFolderData={selectedFolderData}
-          setSelectedFolderData={setSelectedFolderData}
-          openSideDrawer={openSideDrawer}
-          setOpenSideDrawer={setOpenSideDrawer}
-          folders={folders}
-          name={name}
-          profilePicAttr={profilePicAttr}
-          superportsLength={superportsLength}
-          pendingRequestsLength={pendingRequestsLength}>
+      <SideDrawerWrapper
+        setDisableTileClicks={setDisableTileClicks}
+        selectedFolderData={selectedFolderData}
+        setSelectedFolderData={setSelectedFolderData}
+        openSideDrawer={openSideDrawer}
+        setOpenSideDrawer={setOpenSideDrawer}
+        folders={folders}
+        name={name}
+        profilePicAttr={profilePicAttr}
+        superportsLength={superportsLength}
+        pendingRequestsLength={pendingRequestsLength}>
+        <CustomStatusBar
+          barStyle="dark-content"
+          backgroundColor={PortColors.primary.white}
+        />
+        <SafeAreaView style={{backgroundColor: PortColors.background}}>
+          <ChatBackground />
           <HomeTopbar
             showPrompt={totalUnreadCount > 0}
             searchText={searchText}
@@ -418,88 +431,107 @@ function Home({route, navigation}: Props) {
             folder={selectedFolderData}
             pendingRequestsLength={pendingRequestsLength}
           />
-          <View pointerEvents={disableTileClicks ? 'none' : 'auto'}>
-            <FlatList
-              data={viewableConnections}
-              renderItem={element =>
-                renderChatTile(element.item, setSelectedProps)
-              }
-              style={styles.chats}
-              scrollEnabled={viewableConnections.length > 0}
-              contentContainerStyle={
-                viewableConnections.length > 0 && {
-                  rowGap: PortSpacing.tertiary.uniform,
-                }
-              }
-              ListHeaderComponent={
-                <View style={{height: PortSpacing.tertiary.top}} />
-              }
-              refreshing={refreshing}
-              onRefresh={async () => {
-                setRefreshing(true);
-                await debouncedPeriodicOperations();
-                await onRefresh();
-                setRefreshing(false);
+          <KeyboardAvoidingView
+            behavior={isIOS ? 'padding' : 'height'}
+            keyboardVerticalOffset={isIOS ? 50 : 0}
+            style={styles.scrollViewContainer}>
+            <View pointerEvents={disableTileClicks ? 'none' : 'auto'}>
+              {!searchReturnedNull ? (
+                <FlatList
+                  data={viewableConnections}
+                  renderItem={element =>
+                    renderChatTile(element.item, setSelectedProps)
+                  }
+                  style={styles.chats}
+                  scrollEnabled={viewableConnections.length > 0}
+                  contentContainerStyle={
+                    viewableConnections.length > 0 && {
+                      rowGap: PortSpacing.tertiary.uniform,
+                    }
+                  }
+                  ListHeaderComponent={
+                    <View style={{height: PortSpacing.tertiary.top}} />
+                  }
+                  ListFooterComponent={
+                    <View style={{height: PortSpacing.tertiary.bottom}} />
+                  }
+                  refreshing={refreshing}
+                  onRefresh={async () => {
+                    setRefreshing(true);
+                    await debouncedPeriodicOperations();
+                    await onRefresh();
+                    setRefreshing(false);
+                  }}
+                  keyExtractor={connection => connection.chatId}
+                  ListEmptyComponent={() =>
+                    renderDefaultTile(name, profilePicAttr, selectedFolderData)
+                  }
+                />
+              ) : (
+                <View style={{alignSelf: 'center', marginTop: 50}}>
+                  <NumberlessText
+                    textColor={PortColors.subtitle}
+                    fontType={FontType.rg}
+                    fontSizeType={FontSizeType.m}>
+                    No results found!
+                  </NumberlessText>
+                </View>
+              )}
+            </View>
+            <GenericButton
+              onPress={() => {
+                setIsConnectionOptionsModalOpen(p => !p);
               }}
-              keyExtractor={connection => connection.chatId}
-              ListEmptyComponent={() =>
-                renderDefaultTile(name, profilePicAttr, selectedFolderData)
-              }
+              iconSize={24}
+              IconLeft={BluePlusIcon}
+              buttonStyle={styles.addButtonWrapper}
             />
-          </View>
-          <GenericButton
-            onPress={() => {
-              setIsConnectionOptionsModalOpen(p => !p);
-            }}
-            iconSize={24}
-            IconLeft={BluePlusIcon}
-            buttonStyle={styles.addButtonWrapper}
-          />
+          </KeyboardAvoidingView>
           {/* go to component isolation playground */}
           {/* <GenericButton
             onPress={() => navigation.navigate('Isolation')}
             buttonStyle={styles.isolationButton}>
             🔑
           </GenericButton> */}
-        </SideDrawerWrapper>
-        <ConnectionOptions
-          visible={isConnectionOptionsModalOpen}
-          setVisible={setIsConnectionOptionsModalOpen}
-          name={name}
-          avatar={profilePicAttr}
-        />
-        <ErrorAddingContactBottomSheet
-          visible={openFailedModal}
-          title="Failed to add new contact"
-          description="Looks like this Port has expired. Please use a valid Port to connect"
-          onClose={() => {
-            setSelectedProps(null);
-            setOpenFailedModal(false);
-          }}
-        />
-        <LoadingBottomSheet
-          visible={openAddingNewContactModal}
-          onClose={() => {
-            setSelectedProps(null);
-            setOpenAddingNewContactModal(false);
-          }}
-          title="Adding new contact..."
-          onStopPress={async () => {
-            if (selectedProps) {
-              await onStopAddingPress(selectedProps);
-            }
-          }}
-        />
-        <ErrorSimpleBottomSheet
-          visible={openLinkUseErrorModal}
-          onClose={() => {
-            setLinkUseError(0);
-            setOpenLinkUseErrorModal(false);
-          }}
-          title={'Error using Port link'}
-          description={getLinkUseErrorDescription()}
-        />
-      </SafeAreaView>
+          <ConnectionOptions
+            visible={isConnectionOptionsModalOpen}
+            setVisible={setIsConnectionOptionsModalOpen}
+            name={name}
+            avatar={profilePicAttr}
+          />
+          <ErrorAddingContactBottomSheet
+            visible={openFailedModal}
+            title="Failed to add new contact"
+            description="Looks like this Port has expired. Please use a valid Port to connect"
+            onClose={() => {
+              setSelectedProps(null);
+              setOpenFailedModal(false);
+            }}
+          />
+          <LoadingBottomSheet
+            visible={openAddingNewContactModal}
+            onClose={() => {
+              setSelectedProps(null);
+              setOpenAddingNewContactModal(false);
+            }}
+            title="Adding new contact..."
+            onStopPress={async () => {
+              if (selectedProps) {
+                await onStopAddingPress(selectedProps);
+              }
+            }}
+          />
+          <ErrorSimpleBottomSheet
+            visible={openLinkUseErrorModal}
+            onClose={() => {
+              setLinkUseError(0);
+              setOpenLinkUseErrorModal(false);
+            }}
+            title={'Error using Port link'}
+            description={getLinkUseErrorDescription()}
+          />
+        </SafeAreaView>
+      </SideDrawerWrapper>
     </>
   );
 }
@@ -507,7 +539,6 @@ function Home({route, navigation}: Props) {
 const styles = StyleSheet.create({
   chats: {
     paddingHorizontal: PortSpacing.secondary.uniform,
-    height: screen.height - TOPBAR_HEIGHT,
   },
   isolationButton: {
     alignSelf: 'flex-end',
@@ -524,6 +555,12 @@ const styles = StyleSheet.create({
     right: PortSpacing.secondary.right,
     height: 56,
     width: 56,
+  },
+  scrollViewContainer: {
+    flex: 1,
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
   },
 });
 

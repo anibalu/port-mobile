@@ -77,7 +77,7 @@ const SharePortLink = ({
       <View style={styles.mainWrapper}>
         <View style={{marginBottom: PortSpacing.secondary.bottom}}>
           <SimpleInput
-            placeholderText="Enter name"
+            placeholderText="Contact name"
             maxLength={NAME_LENGTH_LIMIT}
             text={newName}
             setText={setNewName}

@@ -6,7 +6,7 @@
  * 3. Placeholder text
  */
 
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {useState} from 'react';
@@ -59,7 +59,7 @@ const SimpleInput = ({
 
 const styles = StyleSheet.create({
   textInput: {
-    padding: 16,
+    padding: PortSpacing.secondary.uniform,
     alignSelf: 'stretch',
     borderWidth: 1,
     fontFamily: FontType.rg,

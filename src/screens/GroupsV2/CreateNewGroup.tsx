@@ -6,7 +6,7 @@ import {
 } from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {KeyboardAvoidingView, ScrollView, StyleSheet, View} from 'react-native';
 import Cross from '@assets/icons/BlackCross.svg';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
@@ -15,55 +15,65 @@ import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {GenericButton} from '@components/GenericButton';
 import {FileAttributes} from '@utils/Storage/interfaces';
-import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+import {
+  DEFAULT_PROFILE_AVATAR_INFO,
+  safeModalCloseDuration,
+} from '@configs/constants';
 import EditCameraIcon from '@assets/icons/EditCamera.svg';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import Group from '@utils/Groups/Group';
-import {fetchNewPorts} from '@utils/Ports';
-import {useErrorModal} from 'src/context/ErrorModalContext';
+// import Group from '@utils/Groups/Group';
+// import {fetchNewPorts} from '@utils/Ports';
+import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
+import {wait} from '@utils/Time';
 
 const CreateNewGroup = () => {
   const navigation = useNavigation();
+  const scrollViewRef = useRef();
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [imageAttr, setImageAttr] = useState<FileAttributes>(
     DEFAULT_PROFILE_AVATAR_INFO,
   );
+  //controls error bottom sheet
+  const [errorVisible, setErrorVisible] = useState(false);
   //controls opening of bottom sheet to edit profile picture
   const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
   async function onSavePicture(profilePicAttr: FileAttributes) {
     console.log(profilePicAttr);
   }
   const [setupLoading, setSetupLoading] = useState(false);
-  const {unableToCreateGroupError} = useErrorModal();
-
-  const generateLinks = async () => {
-    await fetchNewPorts(groupHandler.getGroupIdNotNull());
-  };
-  const groupHandler = new Group();
 
   const onCreatePressed = async () => {
+    if (errorVisible) {
+      setErrorVisible(false);
+      await wait(safeModalCloseDuration);
+    }
     setSetupLoading(true);
     try {
-      await groupHandler.createGroup(
-        groupName.trim(),
-        groupDescription.trim(),
-        null,
-      );
-      //generate ports for group
-      await generateLinks();
-      navigation.navigate('NewGroupPort', {
-        groupId: groupHandler.getGroupIdNotNull(),
-      });
-      console.log('group has been created', groupHandler.getGroupIdNotNull());
+      throw new Error('Groups unsupported at the moment');
+      // const groupHandler = new Group();
+      // await groupHandler.createGroup(
+      //   groupName.trim(),
+      //   groupDescription.trim(),
+      //   null,
+      // );
+      // //generate ports for group
+      // await fetchNewPorts(groupHandler.getGroupIdNotNull());
+      // navigation.navigate('NewGroupPort', {
+      //   groupId: groupHandler.getGroupIdNotNull(),
+      // });
     } catch (error) {
-      unableToCreateGroupError();
+      setErrorVisible(true);
       console.log('error in group creation: ', error);
-      return false;
-    } finally {
-      setSetupLoading(false);
+    }
+    setSetupLoading(false);
+  };
+  const scrollToBottom = async () => {
+    if (scrollViewRef.current) {
+      await wait(200);
+      scrollViewRef.current.scrollToEnd({animated: true});
     }
   };
   return (
@@ -83,6 +93,7 @@ const CreateNewGroup = () => {
           behavior={isIOS ? 'padding' : 'height'}
           keyboardVerticalOffset={isIOS ? 50 : 0}>
           <ScrollView
+            ref={scrollViewRef}
             horizontal={false}
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}>
@@ -108,24 +119,23 @@ const CreateNewGroup = () => {
               text={groupName}
               placeholderText="Group name"
             />
-            <View style={{marginTop: PortSpacing.tertiary.top, width: '100%'}}>
-              <LargeTextInput
-                showLimit={true}
-                inputStyle={{backgroundColor: 'white'}}
-                setText={setGroupDescription}
-                text={groupDescription}
-                placeholderText="Add a description"
-                maxLength={250}
-              />
-            </View>
+            <View style={{height: PortSpacing.tertiary.uniform}} />
+            <LargeTextInput
+              showLimit={true}
+              setText={setGroupDescription}
+              text={groupDescription}
+              placeholderText="Add a description"
+              maxLength={250}
+              scrollToFocus={scrollToBottom}
+            />
           </ScrollView>
           <View
             style={{
-              marginHorizontal: PortSpacing.secondary.uniform,
+              paddingVertical: PortSpacing.secondary.uniform,
             }}>
             <PrimaryButton
               primaryButtonColor="b"
-              onClick={() => onCreatePressed()}
+              onClick={onCreatePressed}
               buttonText="Create group"
               disabled={groupName.length <= 0}
               isLoading={setupLoading}
@@ -143,6 +153,13 @@ const CreateNewGroup = () => {
           }}
         />
       </SafeAreaView>
+      <ErrorBottomSheet
+        visible={errorVisible}
+        onTryAgain={onCreatePressed}
+        title="Failed to create new group"
+        onClose={() => setErrorVisible(false)}
+        description="Please ensure you're connected to the internet to create a new group."
+      />
     </>
   );
 };

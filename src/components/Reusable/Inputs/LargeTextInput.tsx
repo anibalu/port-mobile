@@ -8,15 +8,16 @@
  * 4. Show limit
  */
 
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
+  getWeight,
 } from '@components/NumberlessText';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {useState} from 'react';
-import {StyleSheet, TextInput} from 'react-native';
+import {StyleSheet, TextInput, View} from 'react-native';
 
 const LargeTextInput = ({
   text,
@@ -25,7 +26,7 @@ const LargeTextInput = ({
   placeholderText = 'Type here..',
   showLimit,
   bgColor = 'w',
-  ...rest
+  scrollToFocus = () => {},
 }: {
   text: string;
   placeholderText?: string;
@@ -33,6 +34,7 @@ const LargeTextInput = ({
   maxLength?: number | 'inf';
   showLimit?: boolean;
   bgColor?: 'w' | 'g';
+  scrollToFocus?: any;
 }) => {
   const onTextChange = (newText: string) => {
     setText(newText);
@@ -40,55 +42,67 @@ const LargeTextInput = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <>
-      <>
-        <TextInput
-          style={StyleSheet.compose(styles.inputText, {
-            borderColor: isFocused
-              ? PortColors.primary.blue.app
-              : PortColors.stroke,
-            backgroundColor:
-              bgColor && bgColor === 'g'
-                ? PortColors.primary.grey.light
-                : PortColors.primary.white,
-          })}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          multiline
-          placeholder={placeholderText}
-          maxLength={maxLength === 'inf' ? undefined : maxLength}
-          placeholderTextColor={PortColors.primary.grey.medium}
-          onChangeText={onTextChange}
-          value={text}
-          {...rest}
-        />
-        {showLimit && (
-          <NumberlessText
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.s}
-            textColor={PortColors.text.secondary}
-            style={styles.inputCounterStyle}>
-            {text.length}/{maxLength}
-          </NumberlessText>
-        )}
-      </>
-    </>
+    <View
+      style={{
+        borderWidth: 1,
+        borderRadius: 12,
+        overflow: 'hidden',
+        paddingTop: PortSpacing.tertiary.top,
+        paddingBottom: PortSpacing.intermediate.bottom,
+        ...{
+          borderColor: isFocused
+            ? PortColors.primary.blue.app
+            : PortColors.stroke,
+          backgroundColor:
+            bgColor && bgColor === 'g'
+              ? PortColors.primary.grey.light
+              : PortColors.primary.white,
+        },
+      }}>
+      <TextInput
+        style={styles.inputText}
+        onFocus={async () => {
+          setIsFocused(true);
+          await scrollToFocus();
+        }}
+        onBlur={() => setIsFocused(false)}
+        multiline
+        placeholder={placeholderText}
+        maxLength={maxLength === 'inf' ? undefined : maxLength}
+        placeholderTextColor={PortColors.primary.grey.medium}
+        onChangeText={onTextChange}
+        textAlignVertical="top"
+        value={text}
+      />
+      {showLimit && (
+        <NumberlessText
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.s}
+          textColor={PortColors.text.secondary}
+          style={styles.inputCounterStyle}>
+          {text.length}/{maxLength}
+        </NumberlessText>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   inputText: {
-    height: 120,
     alignSelf: 'stretch',
-    color: PortColors.primary.grey.dark,
-    backgroundColor: PortColors.primary.grey.light,
-    borderRadius: 16,
-    padding: 16,
+    fontFamily: FontType.rg,
+    fontSize: FontSizeType.m,
+    fontWeight: getWeight(FontType.rg),
+    color: PortColors.subtitle,
+    maxHeight: 100,
+    height: undefined,
+    minHeight: 100,
+    paddingHorizontal: 16,
   },
   inputCounterStyle: {
-    alignSelf: 'flex-end',
-    top: -24,
-    right: 15,
+    position: 'absolute',
+    bottom: PortSpacing.tertiary.bottom,
+    right: 16,
   },
 });
 

@@ -116,6 +116,7 @@ class Group {
       };
       await this.addGroup(folderId);
     } catch (error) {
+      console.log('running cleanup. error creating a group', error);
       //run cleanup
       //cleanup cryptoId
       await cryptoDriver.deleteCryptoData();

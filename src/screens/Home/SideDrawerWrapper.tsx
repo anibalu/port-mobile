@@ -5,6 +5,7 @@ import SideDrawer from './SideDrawer';
 import {StyleSheet} from 'react-native';
 import {FolderInfo, FolderInfoWithUnread} from '@utils/ChatFolders/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
+import {isIOS} from '@components/ComponentUtils';
 
 interface SideDrawerWrapperProps {
   children: ReactNode;
@@ -33,14 +34,24 @@ function SideDrawerWrapper({
   children,
   superportsLength,
 }: SideDrawerWrapperProps) {
+  const onOpen = () => {
+    if (isIOS) {
+      setOpenSideDrawer(true);
+      return;
+    }
+    if (!openSideDrawer) {
+      setOpenSideDrawer(true);
+    }
+  };
   const onClose = () => {
+    if (isIOS) {
+      setOpenSideDrawer(false);
+      return;
+    }
     if (openSideDrawer) {
       setOpenSideDrawer(false);
-      setDisableTileClicks(false);
     }
-    return;
   };
-
   return (
     <Drawer
       swipeEdgeWidth={DRAWER_SWIPE_EDGE_WIDTH}
@@ -49,8 +60,9 @@ function SideDrawerWrapper({
       open={openSideDrawer}
       onGestureEnd={() => setDisableTileClicks(false)}
       onGestureStart={() => setDisableTileClicks(true)}
-      onOpen={() => setOpenSideDrawer(true)}
+      onOpen={onOpen}
       onClose={onClose}
+      swipeMinDistance={10}
       renderDrawerContent={() => {
         return (
           <SideDrawer

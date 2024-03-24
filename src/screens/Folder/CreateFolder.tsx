@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     marginBottom: PortSpacing.secondary.bottom,
   },
   buttonWrapper: {
-    paddingVertical: PortSpacing.secondary.top,
+    paddingVertical: PortSpacing.secondary.uniform,
   },
 });
 

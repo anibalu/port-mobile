@@ -226,14 +226,14 @@ const ContactProfile = ({route, navigation}: Props) => {
                     }}
                     fontSizeType={FontSizeType.l}
                     fontType={FontType.md}>
-                    Disconnect Chat?
+                    Disconnect Port?
                   </NumberlessText>
                   <NumberlessText
                     style={styles.footerDesc}
                     fontSizeType={FontSizeType.s}
                     fontType={FontType.rg}>
-                    Your chat has been disconnected. Deleting history will erase
-                    all chat data.
+                    When a port is disconnected, you can't contact the user
+                    until you both open a new port using a QR code or link.
                   </NumberlessText>
 
                   <PrimaryButton
@@ -260,9 +260,8 @@ const ContactProfile = ({route, navigation}: Props) => {
                     }}
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}>
-                    You can't chat with this connection anymore because you're
-                    disconnected. If you delete the history, you'll lose full
-                    access to this contact.
+                    Your chat has been disconnected. Deleting history will erase
+                    all chat data.
                   </NumberlessText>
                 </View>
                 <View>

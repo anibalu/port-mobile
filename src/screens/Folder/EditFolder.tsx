@@ -155,7 +155,7 @@ const EditFolder = ({route, navigation}: Props) => {
                 isLoading={false}
                 disabled={folderName.trim() === ''}
                 primaryButtonColor="b"
-                buttonText="Save"
+                buttonText="Apply to all"
                 onClick={() => {
                   setOpenApplyToAllModal(true);
                 }}

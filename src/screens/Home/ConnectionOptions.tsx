@@ -3,6 +3,7 @@ import {StyleSheet, View} from 'react-native';
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import NewPortIcon from 'assets/icons/NewPortBlack.svg';
 import NewSuperportIcon from '@assets/icons/NewSuperportBlack.svg';
+import NewGroupIcon from '@assets/icons/NewGroupBlack.svg';
 import ScanIcon from '@assets/icons/ScanThinBlack.svg';
 import {useNavigation} from '@react-navigation/native';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
@@ -28,10 +29,10 @@ export default function ConnectionOptions(props: ConnectionOptionsProps) {
     });
   };
 
-  // const handleOpenNewGroup = () => {
-  //   setVisible(false);
-  //   navigation.navigate('CreateNewGroup');
-  // };
+  const handleOpenNewGroup = () => {
+    setVisible(false);
+    navigation.navigate('CreateNewGroup');
+  };
 
   const handleOpenSuperport = () => {
     setVisible(false);
@@ -67,12 +68,12 @@ export default function ConnectionOptions(props: ConnectionOptionsProps) {
             IconLeft={NewSuperportIcon}
             onClick={handleOpenSuperport}
           />
-          {/* <TouchableOption
+          <TouchableOption
             title={'New Group'}
             subtitle={'A private group with other Port users'}
             IconLeft={NewGroupIcon}
             onClick={handleOpenNewGroup}
-          /> */}
+          />
           <TouchableOption
             showBorderBottom={false}
             title={'Scan QR'}

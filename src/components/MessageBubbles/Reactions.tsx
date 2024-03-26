@@ -5,21 +5,19 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {reactionMapping} from '@configs/reactionmapping';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
 export const RenderReactionBar = ({
-  handleReaction,
   message,
-  setFocusVisible,
   richReactions,
 }: {
-  setFocusVisible: (visible: boolean) => void;
-  handleReaction: (arg0: any, arg1: string) => void;
   message: SavedMessageParams;
   richReactions: any;
 }) => {
+  const {onReaction, setVisible} = useChatContext();
   const selfReactionObj = richReactions.find(
     (reaction: {senderId: string}) => reaction.senderId === 'SELF',
   );
@@ -44,7 +42,7 @@ export const RenderReactionBar = ({
             )}
             key={item}
             onPress={() => {
-              setFocusVisible(false), handleReaction(message, item);
+              setVisible(false), onReaction(message, item);
             }}>
             <NumberlessText
               fontSizeType={FontSizeType.exs}

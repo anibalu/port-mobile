@@ -11,22 +11,12 @@ import SelectImage from '@assets/icons/CheckCircle.svg';
 import CopyImage from '@assets/icons/copy.svg';
 import DeleteImage from '@assets/icons/deleteRed.svg';
 import React from 'react';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
 
-const BubbleFocusOptions = ({
-  isConnected,
-  onSelect,
-  onReply,
-  onForward,
-  onDelete,
-  onCopy,
-}: {
-  isConnected: boolean;
-  onDelete: () => void;
-  onReply: () => void;
-  onSelect: () => void;
-  onForward: () => void;
-  onCopy: () => void;
-}) => {
+const BubbleFocusOptions = () => {
+  const {isConnected, onReply, onSelect, onDelete, onForward, onCopy} =
+    useChatContext();
+
   return (
     <View style={styles.optionsContainer}>
       {isConnected && (

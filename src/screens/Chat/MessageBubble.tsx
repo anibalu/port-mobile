@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 import React, {ReactNode, useEffect, useRef, useState} from 'react';
 
 import DefaultImage from '@assets/avatars/avatar.png';

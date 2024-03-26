@@ -1,6 +1,5 @@
 import DownArrow from '@assets/icons/DownArrowWhite.svg';
 import {PortColors} from '@components/ComponentUtils';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {checkDateBoundary, checkMessageTimeGap} from '@utils/Time';
 import React, {ReactNode, useRef, useState} from 'react';
@@ -11,7 +10,6 @@ import {
   Pressable,
   StyleSheet,
 } from 'react-native';
-import {getRichReactions} from '@utils/Storage/reactions';
 import {MessageBubbleParent} from '@components/MessageBubbles/MessageBubbleParent';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 
@@ -23,41 +21,6 @@ function isDataMessage(contentType: ContentType) {
   }
   return false;
 }
-
-const handleReaction = async (
-  message: SavedMessageParams,
-  reaction: string,
-) => {
-  const richReactionsData = await getRichReactions(
-    message.chatId,
-    message.messageId,
-  );
-
-  const selfReactionObj = richReactionsData.find(
-    reaction => reaction.senderId === 'SELF',
-  );
-
-  const selfReaction = selfReactionObj ? selfReactionObj.reaction : false;
-
-  if (selfReaction === reaction) {
-    const sender = new SendMessage(message.chatId, ContentType.reaction, {
-      chatId: message.chatId,
-      messageId: message.messageId,
-      reaction: '',
-      tombstone: true,
-    });
-    await sender.send();
-  } else {
-    const sender = new SendMessage(message.chatId, ContentType.reaction, {
-      chatId: message.chatId,
-      messageId: message.messageId,
-      //Since these are for DMs we will define an ID that identifies the sender locally.
-      //Note that for the recevier, this flips and they themselves are the sender
-      reaction,
-    });
-    await sender.send();
-  }
-};
 
 /**
  * Renders an inverted flatlist that displays all chat messages.
@@ -71,40 +34,15 @@ const handleReaction = async (
  * @param groupInfo
  * @returns {ReactNode} flatlist that renders chat.
  */
+
 function ChatList({
   messages,
-  onForward,
-  onCopy,
-  selectedMessages,
-  handlePress,
-  handleLongPress,
   onStartReached,
   onEndReached,
-  isGroupChat,
-  clearSelection,
-  chatId,
-  setReplyTo,
-  setReaction,
-  isConnected,
-  selectionMode,
-  setSelectionMode,
 }: {
-  onForward: () => void;
-  onCopy: () => void;
   messages: SavedMessageParams[];
-  selectedMessages: string[];
   onStartReached: any;
   onEndReached: any;
-  handlePress: any;
-  handleLongPress: any;
-  chatId: string;
-  isGroupChat: boolean;
-  clearSelection: () => void;
-  setReplyTo: (x: SavedMessageParams | null) => void;
-  setReaction: Function;
-  isConnected: boolean;
-  selectionMode: boolean;
-  setSelectionMode: (x: boolean) => void;
 }): ReactNode {
   //render function to display message bubbles
   const renderMessage = ({
@@ -126,30 +64,11 @@ function ChatList({
     const shouldHaveExtraPadding =
       isDateBoundary || determineSpacing(item, messages[index + 1]);
 
-    const onReaction = (message: SavedMessageParams, reaction: string) => {
-      handleReaction(message, reaction);
-      clearSelection();
-    };
-
     return (
       <MessageBubbleParent
-        selectionMode={selectionMode}
-        setSelectionMode={setSelectionMode}
-        chatId={chatId}
-        onForward={onForward}
-        onCopy={onCopy}
+        message={item}
         isDateBoundary={isDateBoundary}
         hasExtraPadding={shouldHaveExtraPadding}
-        handlePress={handlePress}
-        handleReaction={onReaction}
-        handleLongPress={handleLongPress}
-        isGroupChat={isGroupChat}
-        selectedMessages={selectedMessages}
-        message={item}
-        setReplyTo={setReplyTo}
-        setReaction={setReaction}
-        isConnected={isConnected}
-        clearSelection={clearSelection}
       />
     );
   };
@@ -224,10 +143,7 @@ const determineSpacing = (
   message: SavedMessageParams,
   nextMessage: SavedMessageParams,
 ): boolean => {
-  if (
-    isDataMessage(message.contentType) !==
-    isDataMessage(nextMessage.contentType)
-  ) {
+  if (isDataMessage(message.contentType)) {
     return true;
   } else if (message.sender !== nextMessage.sender) {
     //Comparing if the message and the next message don't have the same sender

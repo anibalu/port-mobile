@@ -435,7 +435,9 @@ function Home({route, navigation}: Props) {
             behavior={isIOS ? 'padding' : 'height'}
             keyboardVerticalOffset={isIOS ? 50 : 0}
             style={styles.scrollViewContainer}>
-            <View pointerEvents={disableTileClicks ? 'none' : 'auto'}>
+            <View
+              pointerEvents={disableTileClicks ? 'none' : 'auto'}
+              style={{flex: 1}}>
               {!searchReturnedNull ? (
                 <FlatList
                   data={viewableConnections}
@@ -539,6 +541,7 @@ function Home({route, navigation}: Props) {
 const styles = StyleSheet.create({
   chats: {
     paddingHorizontal: PortSpacing.secondary.uniform,
+    flex: 1,
   },
   isolationButton: {
     alignSelf: 'flex-end',

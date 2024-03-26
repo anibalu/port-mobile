@@ -1,37 +1,24 @@
 import {TouchableOpacity, View} from 'react-native';
-import Modal from 'react-native-modal';
 import React from 'react';
-import {PortSpacing, screen} from '@components/ComponentUtils';
+import {screen} from '@components/ComponentUtils';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
 
-const BlurViewModal = ({
-  onClose,
-  children,
-  visible,
-  elementPositionY = 200,
-}: {
-  onClose: () => void;
-  children?: any;
-  visible: boolean;
-  elementPositionY?: any;
-}) => {
-  const adjustedPositionY = elementPositionY;
+const BlurViewModal = () => {
+  const {onCleanCloseFocus, visible, elementPositionY, childElement} =
+    useChatContext();
 
   return (
-    <Modal
-      backdropTransitionInTiming={0.1}
-      backdropTransitionOutTiming={0.1}
-      hideModalContentWhileAnimating={false}
-      animationInTiming={0.1}
-      animationOutTiming={0.1}
-      animationIn={'fadeIn'}
-      animationOut={'fadeOut'}
-      backdropOpacity={0.8}
-      isVisible={visible}>
+    visible && (
       <TouchableOpacity
         activeOpacity={1}
-        onPress={onClose}
+        onPress={onCleanCloseFocus}
         style={{
-          left: -PortSpacing.secondary.left - 4,
+          position: 'absolute',
+          height: screen.height,
+          width: screen.width,
+          bottom: 0,
+          right: 0,
+          backgroundColor: '#000000BF',
         }}>
         <View
           style={{
@@ -41,13 +28,13 @@ const BlurViewModal = ({
           <View
             style={{
               position: 'absolute',
-              top: adjustedPositionY,
+              top: elementPositionY,
             }}>
-            {children}
+            {childElement}
           </View>
         </View>
       </TouchableOpacity>
-    </Modal>
+    )
   );
 };
 

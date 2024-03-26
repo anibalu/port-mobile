@@ -14,12 +14,11 @@ import {
   UpdateRequiredMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp, getDateStamp} from '@utils/Time';
-import React, {ReactNode, useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useRef} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {MessageBubble} from './MessageBubble';
 import {InfoBubble} from './InfoBubble';
-import BlurViewModal from '@components/Reusable/BlurView/BlurView';
-import {getGroupMessage, getMessage} from '@utils/Storage/messages';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
 
 //Currently only sends read receipts for DMs
 const sendReadReceipt = async (chatId: string, message: SavedMessageParams) => {
@@ -74,54 +73,31 @@ const MessagePrecursor = ({
 };
 
 export const MessageBubbleParent = ({
+  message,
   isDateBoundary,
   hasExtraPadding,
-  onForward,
-  onCopy,
-  handlePress,
-  chatId,
-  handleLongPress,
-  handleReaction,
-  isGroupChat,
-  selectedMessages,
-  message,
-  setReplyTo,
-  setReaction,
-  isConnected,
-  selectionMode,
-  setSelectionMode,
-  clearSelection,
 }: {
+  message: SavedMessageParams;
   isDateBoundary: boolean;
   hasExtraPadding: boolean;
-  onForward: () => void;
-  onCopy: () => void;
-  handlePress: any;
-  handleLongPress: any;
-  chatId: string;
-  handleReaction: any;
-  isGroupChat: boolean;
-  selectedMessages: string[];
-  message: SavedMessageParams;
-  setReplyTo: (x: SavedMessageParams | null) => void;
-  setReaction: any;
-  isConnected: boolean;
-  selectionMode: boolean;
-  setSelectionMode: (x: boolean) => void;
-  clearSelection: any;
 }): ReactNode => {
-  //responsible for focusing a message
-  const [focusVisible, setFocusVisible] = useState<boolean>(false);
-  const DEFAULT_FOCUS_Y_POSITION = 125;
-  const DEFAULT_OFFSET_X_POSITION = 100;
+  const {
+    chatId,
+    isConnected,
+    selectedMessages,
+    selectionMode,
+    handlePress,
+    handleLongPress,
+    onCleanCloseFocus,
+    setChildElement,
+    setElementPositionY,
+    setOptionBubblePosition,
+    DEFAULT_FOCUS_Y_POSITION,
+  } = useChatContext();
+
+  const DEFAULT_OFFSET_X_POSITION = 50;
   const DEFAULT_BUBBLE_OPTIONS_HEIGHT = isConnected ? 271 : 218;
   const DEFAULT_REACTIONS_BAR_HEIGHT = isConnected ? 50 : 0;
-  const [bubblePositionY, setBubblePositionY] = useState(
-    DEFAULT_FOCUS_Y_POSITION,
-  );
-  const [optionBubblePosition, setOptionBubblePosition] = useState(
-    DEFAULT_FOCUS_Y_POSITION,
-  );
   const bubbleRef = useRef(null);
   //understands where to focus the message bubble and focuses the message bubble.
   const handleMessageBubbleLongPress = (messageId: any) => {
@@ -129,6 +105,7 @@ export const MessageBubbleParent = ({
       handleLongPress(messageId);
       try {
         bubbleRef.current.measure((x, y, width, height, pageX, pageY) => {
+          const paddingOffset = 4;
           const availableHeight =
             screen.height -
             DEFAULT_OFFSET_X_POSITION -
@@ -137,9 +114,8 @@ export const MessageBubbleParent = ({
             DEFAULT_REACTIONS_BAR_HEIGHT +
             height +
             DEFAULT_BUBBLE_OPTIONS_HEIGHT;
-          setFocusVisible(true);
           if (pageY < DEFAULT_FOCUS_Y_POSITION) {
-            setBubblePositionY(DEFAULT_FOCUS_Y_POSITION);
+            setElementPositionY(DEFAULT_FOCUS_Y_POSITION);
             if (focusElementHeight > availableHeight) {
               setOptionBubblePosition(
                 availableHeight -
@@ -151,7 +127,7 @@ export const MessageBubbleParent = ({
             }
           } else {
             if (focusElementHeight > availableHeight) {
-              setBubblePositionY(DEFAULT_FOCUS_Y_POSITION);
+              setElementPositionY(DEFAULT_FOCUS_Y_POSITION);
               setOptionBubblePosition(
                 availableHeight -
                   DEFAULT_REACTIONS_BAR_HEIGHT -
@@ -163,63 +139,42 @@ export const MessageBubbleParent = ({
                 screen.height - (pageY - DEFAULT_REACTIONS_BAR_HEIGHT) >
                 focusElementHeight
               ) {
-                setBubblePositionY(pageY - DEFAULT_REACTIONS_BAR_HEIGHT);
+                setElementPositionY(
+                  pageY - DEFAULT_REACTIONS_BAR_HEIGHT - paddingOffset,
+                );
               } else {
-                setBubblePositionY(
+                setElementPositionY(
                   screen.height -
                     DEFAULT_OFFSET_X_POSITION -
-                    focusElementHeight,
+                    focusElementHeight -
+                    paddingOffset,
                 );
               }
             }
           }
         });
+        setChildElement(
+          <MessageBubble
+            message={message}
+            handleLongPress={() => {}}
+            swipeable={false}
+          />,
+        );
       } catch (error) {
         console.log('Unable to measure: ', error);
+        onCleanCloseFocus();
       }
     }
   };
 
   const isSelected = selectedMessages.includes(message.messageId);
 
-  const onCloseModal = () => {
-    clearSelection();
-    setFocusVisible(false);
-  };
-
-  const onSelect = () => {
-    setSelectionMode(true);
-    setFocusVisible(false);
-  };
-
-  const onDelete = () => {
-    onSelect();
-  };
-
-  const performReply = async (): Promise<void> => {
-    setFocusVisible(false);
-    setReplyTo(
-      isGroupChat
-        ? await getGroupMessage(chatId, selectedMessages[0])
-        : await getMessage(chatId, selectedMessages[0]),
-    );
-  };
-
-  const onMsgCopy = () => {
-    setFocusVisible(false);
-    onCopy();
-  };
-
-  const onMsgForward = () => {
-    setFocusVisible(false);
-    onForward();
-  };
-
   //responsible for sending read receipts
   useEffect(() => {
-    sendReadReceipt(message.chatId, message);
+    sendReadReceipt(chatId, message);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <View>
       <MessagePrecursor
@@ -251,45 +206,15 @@ export const MessageBubbleParent = ({
               onPress={() => handlePress(message.messageId)}
               onLongPress={() =>
                 handleMessageBubbleLongPress(message.messageId)
-              }>
+              }
+              delayLongPress={200}>
               <MessageBubble
-                setFocusVisible={setFocusVisible}
-                handlePress={handlePress}
-                handleLongPress={handleMessageBubbleLongPress}
-                isGroupChat={isGroupChat}
                 message={message}
-                setReplyTo={setReplyTo}
-                setReaction={setReaction}
-                isSelected={selectedMessages.length === 1 ? false : isSelected}
-                selectedMessages={selectedMessages}
-                isConnected={isConnected}
-                handleReaction={handleReaction}
+                handleLongPress={() =>
+                  handleMessageBubbleLongPress(message.messageId)
+                }
+                swipeable={true}
               />
-              <BlurViewModal
-                elementPositionY={bubblePositionY}
-                visible={focusVisible}
-                onClose={onCloseModal}>
-                <MessageBubble
-                  setFocusVisible={setFocusVisible}
-                  handlePress={handlePress}
-                  handleLongPress={handleMessageBubbleLongPress}
-                  isGroupChat={isGroupChat}
-                  message={message}
-                  setReplyTo={setReplyTo}
-                  setReaction={setReaction}
-                  isSelected={true}
-                  selectedMessages={selectedMessages}
-                  isConnected={isConnected}
-                  handleReaction={handleReaction}
-                  swipeable={false}
-                  onDelete={onDelete}
-                  onReply={performReply}
-                  onForward={onMsgForward}
-                  onCopy={onMsgCopy}
-                  onSelect={onSelect}
-                  optionsBubblePosition={optionBubblePosition}
-                />
-              </BlurViewModal>
             </Pressable>
           )}
           <Pressable

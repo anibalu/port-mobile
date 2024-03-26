@@ -10,39 +10,54 @@ import {
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {DEFAULT_AVATAR} from '@configs/constants';
+import {useNavigation} from '@react-navigation/native';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
+import {toggleRead} from '@utils/Connections';
+import DirectChat from '@utils/DirectChats/DirectChat';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
 /**
  * Handles top bar for chat
- * @param name, of user being interacted with, or group
- * @param chatId
- * @param selectedMessagesLength
- * @param profileURI, URI for the user/group.
- * @param onSettingsPressed
- * @param onBackPress
- * @param onCancelPressed
  * @returns {ReactNode} topbar for chat
  */
-function ChatTopbar({
-  name,
-  selectedMessagesLength,
-  onSettingsPressed,
-  onBackPress,
-  onCancelPressed,
-  selectionMode,
-  profileURI = DEFAULT_AVATAR,
-}: {
-  name: string;
-  selectedMessagesLength: number;
-  profileURI?: string | null;
-  onSettingsPressed: () => void;
-  onBackPress: () => void;
-  onCancelPressed: () => void;
-  selectionMode: boolean;
-}): ReactNode {
+function ChatTopbar(): ReactNode {
+  //setup navigation
+  const navigation = useNavigation();
+  //chat screen context
+  const {
+    chatId,
+    name,
+    profileUri,
+    selectionMode,
+    setSelectionMode,
+    selectedMessages,
+    setSelectedMessages,
+  } = useChatContext();
+
+  const onSettingsPressed = async () => {
+    const dataHandler = new DirectChat(chatId);
+    const chatData = await dataHandler.getChatData();
+    navigation.navigate('ContactProfile', {
+      chatId: chatId,
+      name: name,
+      profileUri: profileUri || DEFAULT_AVATAR,
+      permissionsId: chatData.permissionsId,
+    });
+  };
+
+  const onBackPress = async (): Promise<void> => {
+    await toggleRead(chatId);
+    navigation.navigate('HomeTab');
+  };
+
+  const onCancelPressed = () => {
+    setSelectedMessages([]);
+    setSelectionMode(false);
+  };
+
   const handlePress = () => {
-    if (selectedMessagesLength >= 1) {
+    if (selectedMessages.length >= 1) {
       return;
     } else {
       onSettingsPressed();
@@ -70,7 +85,7 @@ function ChatTopbar({
               <AvatarBox
                 avatarSize="s"
                 onPress={handlePress}
-                profileUri={profileURI}
+                profileUri={profileUri}
               />
             </View>
           )}
@@ -79,11 +94,11 @@ function ChatTopbar({
             fontType={FontType.md}
             ellipsizeMode="tail"
             style={
-              selectedMessagesLength >= 1 ? styles.selectedCount : styles.title
+              selectedMessages.length >= 1 ? styles.selectedCount : styles.title
             }
             numberOfLines={1}>
             {selectionMode
-              ? 'Selected (' + selectedMessagesLength.toString() + ')'
+              ? 'Selected (' + selectedMessages.length.toString() + ')'
               : name}
           </NumberlessText>
         </View>

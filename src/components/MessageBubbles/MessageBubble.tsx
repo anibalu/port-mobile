@@ -14,46 +14,29 @@ import {getReactionCounts, getRichReactions} from '@utils/Storage/reactions';
 import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
 import {getMessage} from '@utils/Storage/messages';
 import BubbleFocusOptions from './BubbleFocusOptions';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
 
 export const MessageBubble = ({
-  handlePress,
   handleLongPress,
-  isGroupChat,
   message,
-  setReplyTo,
-  setReaction,
-  setFocusVisible,
-  isConnected,
-  handleReaction,
   swipeable = true,
-  onDelete = () => {},
-  onReply = () => {},
-  onForward = () => {},
-  onCopy = () => {},
-  onSelect = () => {},
-  optionsBubblePosition = 100,
 }: {
-  handlePress: any;
   handleLongPress: any;
-  setFocusVisible: (visible: boolean) => void;
-  isGroupChat: boolean;
   message: SavedMessageParams;
-  setReplyTo: (x: SavedMessageParams) => void;
-  setReaction: any;
-  isSelected: boolean;
-  selectedMessages: string[];
-  isConnected: boolean;
-  handleReaction: any;
   swipeable?: boolean;
-  onDelete?: any;
-  onReply?: any;
-  onForward?: any;
-  onCopy?: any;
-  onSelect?: any;
-  optionsBubblePosition?: number;
 }): ReactNode => {
+  const {
+    isConnected,
+    setReaction,
+    handlePress,
+    isGroupChat,
+    setReplyToMessage,
+    optionBubblePosition,
+  } = useChatContext();
+
   const [reactions, setReactions] = useState<any[]>([]);
   const [richReactions, setRichReactions] = useState<any>([]);
+
   const updateSendStatus = () => {
     if (message.deliveredTimestamp) {
       message.messageStatus = MessageStatus.delivered;
@@ -70,6 +53,7 @@ export const MessageBubble = ({
         message.data;
     }
   };
+
   //fetches reactions from storage
   const fetchReactions = async () => {
     if (message.hasReaction) {
@@ -94,9 +78,10 @@ export const MessageBubble = ({
     fetchReactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message.mtime, message.contentType]);
+
   //opens reactions bottom sheet
   const showReactionRibbon = () => {
-    setReaction(message.chatId, message.messageId);
+    setReaction(message.messageId);
   };
 
   const options = {
@@ -107,7 +92,7 @@ export const MessageBubble = ({
   function handleSwipe() {
     // Trigger haptic feedback
     ReactNativeHapticFeedback.trigger('impactMedium', options);
-    setReplyTo(message);
+    setReplyToMessage(message);
   }
 
   const renderLeftActions = (progress, dragX) => {
@@ -130,7 +115,7 @@ export const MessageBubble = ({
   if (swipeable) {
     return (
       <Swipeable
-        friction={3}
+        friction={2}
         leftThreshold={1000}
         leftTrigger={64}
         onSwipeableLeftTrigger={() => handleSwipe()}
@@ -207,8 +192,6 @@ export const MessageBubble = ({
           }}>
           {isConnected && (
             <RenderReactionBar
-              setFocusVisible={setFocusVisible}
-              handleReaction={handleReaction}
               message={message}
               richReactions={richReactions}
             />
@@ -261,16 +244,9 @@ export const MessageBubble = ({
             alignSelf: message.sender ? 'flex-end' : 'flex-start',
             paddingHorizontal: PortSpacing.secondary.uniform,
             paddingTop: 2,
-            top: optionsBubblePosition,
+            top: optionBubblePosition,
           }}>
-          <BubbleFocusOptions
-            isConnected={isConnected}
-            onDelete={onDelete}
-            onReply={onReply}
-            onForward={onForward}
-            onCopy={onCopy}
-            onSelect={onSelect}
-          />
+          <BubbleFocusOptions />
         </View>
       </View>
     );

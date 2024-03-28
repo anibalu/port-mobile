@@ -68,7 +68,8 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
           payloadFile.fileUri === 'file://null' ||
           payloadFile.fileUri === null
         ) {
-          sharingMessageObjects.push(file.text);
+          const text = file.text ? file.text : file.weblink;
+          sharingMessageObjects.push(text);
           isText = true;
           console.log('File received is: ', sharingMessageObjects);
         } else {

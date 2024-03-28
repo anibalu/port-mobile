@@ -24,6 +24,7 @@ import ReceiveVideo from './ActionClasses/ReceiveVideo';
 import DirectReceiveAction from './DirectReceiveAction';
 import ReceiveReceipt from './ActionClasses/ReceiveReceipt';
 import ReceiveMessageDeletion from './ActionClasses/ReceiveMessageDeletion';
+import ReceiveDisappearingMessage from './ActionClasses/ReceiveDisappearingMessage';
 
 export enum PossibleDirectReceiveActions {
   deletion,
@@ -82,6 +83,14 @@ export async function directReceiveActionPicker(
           receiveTime,
           decryptedMessageContent,
         );
+      case ContentType.disappearingMessages: {
+        return new ReceiveDisappearingMessage(
+          chatId,
+          message,
+          receiveTime,
+          decryptedMessageContent,
+        );
+      }
       case ContentType.displayAvatar:
         return new ReceiveAvatar(
           chatId,

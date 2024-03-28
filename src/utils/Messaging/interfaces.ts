@@ -42,6 +42,7 @@ export enum ContentType {
   reaction = 18,
   link = 19,
   receipt = 20,
+  disappearingMessages = 22,
 }
 
 /**
@@ -57,7 +58,10 @@ export const UpdateRequiredMessageContentTypes = [
   ContentType.contactBundle,
 ];
 
-export const InfoContentTypes = [ContentType.info];
+export const InfoContentTypes = [
+  ContentType.info,
+  ContentType.disappearingMessages,
+];
 
 export const DisplayableContentTypes = [
   ContentType.info,
@@ -69,6 +73,7 @@ export const DisplayableContentTypes = [
   ContentType.deleted,
   ContentType.link,
   ContentType.audioRecording,
+  ContentType.disappearingMessages,
 ];
 
 export const LargeDataMessageContentTypes = [
@@ -90,6 +95,7 @@ export const DisappearMessageExemptContentTypes = [
   ContentType.initialInfoRequest,
   ContentType.contactBundleDenialResponse,
   ContentType.receipt,
+  ContentType.disappearingMessages,
 ];
 
 export const SelectableMessageContentTypes = [
@@ -122,7 +128,8 @@ export type DataType =
   | AudioRecordingParams
   | ReactionParams
   | ReceiptParams
-  | InitialInfoRequestParams;
+  | InitialInfoRequestParams
+  | DisappearingMessageParams;
 
 export interface LinkParams extends TextParams {
   title?: string | null;
@@ -138,6 +145,10 @@ export interface TextParams {
 export interface DeletedParams {} // There is nothing in a deleted message
 export interface NameParams {
   name: string;
+}
+
+export interface DisappearingMessageParams {
+  timeoutValue: number;
 }
 export interface ReceiptParams {
   messageId: string;
@@ -243,6 +254,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? ReactionParams
     : T extends ContentType.receipt
     ? ReceiptParams
+    : T extends ContentType.disappearingMessages
+    ? DisappearingMessageParams
     : never;
 
 /**

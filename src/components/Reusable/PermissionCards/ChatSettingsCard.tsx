@@ -1,33 +1,37 @@
+import CheckIcon from '@assets/icons/CheckCircle.svg';
+import ClockIcon from '@assets/icons/ClockIcon.svg';
+import DownloadIcon from '@assets/icons/DownloadArrowDown.svg';
+import NotificationIcon from '@assets/icons/NotificationOutline.svg';
+import UserCircleIcon from '@assets/icons/UserCircle.svg';
 import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import NotificationIcon from '@assets/icons/NotificationOutline.svg';
-import UserCircleIcon from '@assets/icons/UserCircle.svg';
-import DownloadIcon from '@assets/icons/DownloadArrowDown.svg';
-import ClockIcon from '@assets/icons/ClockIcon.svg';
-import CheckIcon from '@assets/icons/CheckCircle.svg';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
-import React, {useEffect, useState} from 'react';
 import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
-import {View} from 'react-native';
+import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
-import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
 import {getLabelByTimeDiff} from '@utils/ChatPermissions';
 import {
   BooleanPermissions,
   PermissionsStrict,
 } from '@utils/ChatPermissions/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
+import React, {useEffect, useState} from 'react';
+import {View} from 'react-native';
+import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
 
 const ChatSettingsCard = ({
+  chatId,
   permissionsId,
   permissions,
   setPermissions,
 }: {
+  chatId?: string;
   permissionsId?: string;
   permissions: PermissionsStrict;
   setPermissions: (permissions: PermissionsStrict) => void;
@@ -57,14 +61,30 @@ const ChatSettingsCard = ({
   };
 
   const onUpdateDisappearingMessagedPermission = async (newValue: number) => {
-    const updatedPermissions = {
-      ...permissions,
-      ['disappearingMessages']: newValue,
-    };
-    if (permissionsId) {
-      await updatePermissions(permissionsId, updatedPermissions);
+    if (permissions.disappearingMessages !== newValue) {
+      const updatedPermissions = {
+        ...permissions,
+        ['disappearingMessages']: newValue,
+      };
+
+      if (permissionsId) {
+        await updatePermissions(permissionsId, updatedPermissions);
+      }
+
+      if (chatId) {
+        const sender = new SendMessage(
+          chatId,
+          ContentType.disappearingMessages,
+          {
+            timeoutValue: newValue,
+          },
+        );
+        await sender.send();
+      }
+
+      //Send broadcast here
+      setPermissions(updatedPermissions);
     }
-    setPermissions(updatedPermissions);
   };
 
   return (

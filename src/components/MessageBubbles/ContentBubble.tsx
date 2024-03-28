@@ -7,14 +7,14 @@ import {
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {TextBubble} from './ContentBubbles/TextBubble';
-import {LinkPreviewBubble} from './ContentBubbles/LinkPreviewBubble';
-import {DeletedBubble} from './ContentBubbles/DeletedBubble';
-import {ImageBubble} from './ContentBubbles/ImageBubble';
-import {VideoBubble} from './ContentBubbles/VideoBubble';
-import {FileBubble} from './ContentBubbles/FileBubble';
-import ContactBubble from './ContentBubbles/ContactBubble';
 import AudioBubble from './ContentBubbles/AudioBubble';
+import ContactBubble from './ContentBubbles/ContactBubble';
+import {DeletedBubble} from './ContentBubbles/DeletedBubble';
+import {FileBubble} from './ContentBubbles/FileBubble';
+import {ImageBubble} from './ContentBubbles/ImageBubble';
+import {LinkPreviewBubble} from './ContentBubbles/LinkPreviewBubble';
+import {TextBubble} from './ContentBubbles/TextBubble';
+import {VideoBubble} from './ContentBubbles/VideoBubble';
 /**
  * Extend supported content types to support more types of content bubbles.
  */
@@ -49,6 +49,7 @@ export const ContentBubble = ({
           handleLongPress={handleLongPress}
         />
       );
+
     case ContentType.video:
       return (
         <VideoBubble

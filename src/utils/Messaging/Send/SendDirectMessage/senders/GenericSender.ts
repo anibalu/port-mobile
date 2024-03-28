@@ -29,6 +29,7 @@ export const genericContentTypes: ContentType[] = [
   ContentType.info,
   ContentType.initialInfoRequest,
   ContentType.displayAvatar,
+  ContentType.disappearingMessages,
 ];
 
 const genericDisappearingTypes: ContentType[] = [
@@ -125,7 +126,7 @@ export class SendGenericDirectMessage<
         throw new Error('MessageDataTooBigError');
       }
     } catch (error) {
-      console.error('Error found in initial checks: ', error);
+      console.error('Error found in initial checks for generic: ', error);
       throw new Error('InitialChecksError');
     }
   }

@@ -206,6 +206,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                 </View>
                 <View style={styles.chatSettingsContainer}>
                   <ChatSettingsCard
+                    chatId={chatId}
                     permissionsId={permissionsId}
                     permissions={permissions}
                     setPermissions={setPermissions}

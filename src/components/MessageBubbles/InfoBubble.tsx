@@ -4,9 +4,14 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {InfoParams, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  InfoParams,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
+import {DisappearingMessageInfoBubble} from './ContentBubbles/DisappearingMessageInfoBubble';
 
 export const InfoBubble = ({
   message,
@@ -15,16 +20,25 @@ export const InfoBubble = ({
 }): ReactNode => {
   return (
     <>
-      <View style={styles.container}>
+      <View style={styles.container}>{renderInfoBubble(message)}</View>
+    </>
+  );
+};
+
+const renderInfoBubble = (message: SavedMessageParams) => {
+  switch (message.contentType) {
+    case ContentType.disappearingMessages:
+      return <DisappearingMessageInfoBubble message={message} />;
+    default:
+      return (
         <NumberlessText
           fontSizeType={FontSizeType.s}
           fontType={FontType.rg}
           textColor={PortColors.text.primary}>
           {(message.data as InfoParams).info}
         </NumberlessText>
-      </View>
-    </>
-  );
+      );
+  }
 };
 
 const styles = StyleSheet.create({

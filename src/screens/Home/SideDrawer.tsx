@@ -23,7 +23,7 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 
 function SideDrawer({
-  setOpenSideDrawer,
+  closeSwipeable,
   selectedFolderData,
   setSelectedFolderData,
   folders,
@@ -32,7 +32,7 @@ function SideDrawer({
   pendingRequestsLength,
   superportsLength,
 }: {
-  setOpenSideDrawer: (p: boolean) => void;
+  closeSwipeable: () => void;
   selectedFolderData: FolderInfo;
   setSelectedFolderData: (folder: FolderInfo) => void;
   folders: FolderInfoWithUnread[];
@@ -43,13 +43,13 @@ function SideDrawer({
 }) {
   const navigation = useNavigation();
 
-  const handleFolderOptionClick = (folder: FolderInfo | null) => {
+  const handleFolderOptionClick = (folder: FolderInfo) => {
     setSelectedFolderData(folder);
-    setOpenSideDrawer(false);
+    closeSwipeable();
   };
 
   const navigateToMyprofile = () => {
-    setOpenSideDrawer(false);
+    closeSwipeable();
     navigation.navigate('MyProfile', {
       name: name,
       avatar: profilePicAttr,
@@ -57,12 +57,12 @@ function SideDrawer({
   };
 
   const navigateToPendingReq = () => {
-    setOpenSideDrawer(false);
+    closeSwipeable();
     navigation.navigate('PendingRequests');
   };
 
   const handleNewSuperportsClick = () => {
-    setOpenSideDrawer(false);
+    closeSwipeable();
     navigation.navigate('Superports', {name: name, avatar: profilePicAttr});
   };
 

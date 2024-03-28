@@ -19,9 +19,8 @@ import SearchBar from '../../components/Reusable/TopBars/SearchBar';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
 
 type TopbarProps = {
+  openSwipeable: any;
   unread: number;
-  openSideDrawer?: boolean;
-  setOpenSideDrawer?: any;
   searchText: string;
   setSearchText: (text: string) => void;
   folder: FolderInfo;
@@ -30,8 +29,8 @@ type TopbarProps = {
 };
 
 function HomeTopbar({
+  openSwipeable,
   unread = 0,
-  setOpenSideDrawer,
   searchText,
   setSearchText,
   folder,
@@ -42,7 +41,6 @@ function HomeTopbar({
   const navigation = useNavigation<any>();
 
   const [isSearchActive, setIsSearchActive] = useState(false);
-
   return (
     <View style={styles.bar}>
       {isSearchActive ? (
@@ -62,7 +60,7 @@ function HomeTopbar({
                 alignItems: 'center',
                 gap: PortSpacing.secondary.uniform,
               }}
-              onPress={() => setOpenSideDrawer(p => !p)}>
+              onPress={openSwipeable}>
               <View style={styles.iconWrapper2}>
                 <SidebarMenu width={24} height={24} />
 

@@ -26,23 +26,35 @@ import React, {
   ReactNode,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
-import {FlatList, KeyboardAvoidingView, StyleSheet, View} from 'react-native';
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  StyleSheet,
+  View,
+  Animated,
+} from 'react-native';
 import {useSelector} from 'react-redux';
 import HomeTopbar from './HomeTopbar';
 import HomescreenPlaceholder from './HomescreenPlaceholder';
 import {GenericButton} from '@components/GenericButton';
 import ConnectionOptions from './ConnectionOptions';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import {
+  PortColors,
+  PortSpacing,
+  isIOS,
+  screen,
+} from '@components/ComponentUtils';
 import {
   DEFAULT_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
+  SIDE_DRAWER_WIDTH,
   defaultFolderId,
   defaultFolderInfo,
   safeModalCloseDuration,
 } from '@configs/constants';
-import SideDrawerWrapper from './SideDrawerWrapper';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {getProfileName, getProfilePicture} from '@utils/Profile';
 import {FileAttributes} from '@utils/Storage/interfaces';
@@ -66,6 +78,10 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import ChatBackground from '@components/ChatBackground';
+import {GestureHandlerRootView, Swipeable} from 'react-native-gesture-handler';
+import SideDrawer from './SideDrawer';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
 
 //Handles notification routing on tapping notification
 const performNotificationRouting = (
@@ -133,7 +149,6 @@ function Home({route, navigation}: Props) {
   const ping: any = useSelector(state => state.ping.ping);
   const params = route.params;
   const [name, setName] = useState<string>(DEFAULT_NAME);
-  const [disableTileClicks, setDisableTileClicks] = useState<boolean>(false);
   const [profilePicAttr, setProfilePicAttr] = useState(
     DEFAULT_PROFILE_AVATAR_INFO,
   );
@@ -341,9 +356,6 @@ function Home({route, navigation}: Props) {
     // eslint-disable-next-line
   }, []);
 
-  //controls whether side drawer is open
-  const [openSideDrawer, setOpenSideDrawer] = useState(false);
-
   //control whether connections modal is open
   const [isConnectionOptionsModalOpen, setIsConnectionOptionsModalOpen] =
     useState(false);
@@ -402,139 +414,217 @@ function Home({route, navigation}: Props) {
     }
   }, [linkUseError]);
 
+  const swipeOpacity = new Animated.Value(0);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const insets = useSafeAreaInsets();
+  const swipeableRef = useRef(null);
+  const openSwipeable = () => {
+    if (swipeableRef.current) {
+      swipeableRef.current.openLeft();
+      setShowOverlay(true);
+    }
+  };
+  const closeSwipeable = () => {
+    if (swipeableRef.current) {
+      swipeableRef.current.close();
+      setShowOverlay(false);
+    }
+  };
   return (
-    <>
-      <SideDrawerWrapper
-        setDisableTileClicks={setDisableTileClicks}
-        selectedFolderData={selectedFolderData}
-        setSelectedFolderData={setSelectedFolderData}
-        openSideDrawer={openSideDrawer}
-        setOpenSideDrawer={setOpenSideDrawer}
-        folders={folders}
-        name={name}
-        profilePicAttr={profilePicAttr}
-        superportsLength={superportsLength}
-        pendingRequestsLength={pendingRequestsLength}>
-        <CustomStatusBar
-          barStyle="dark-content"
-          backgroundColor={PortColors.primary.white}
-        />
-        <SafeAreaView style={{backgroundColor: PortColors.background}}>
-          <ChatBackground />
-          <HomeTopbar
-            showPrompt={totalUnreadCount > 0}
-            searchText={searchText}
-            setSearchText={setSearchText}
-            openSideDrawer={openSideDrawer}
-            setOpenSideDrawer={setOpenSideDrawer}
-            unread={totalUnread}
-            folder={selectedFolderData}
-            pendingRequestsLength={pendingRequestsLength}
+    <GestureHandlerRootView>
+      <Swipeable
+        ref={swipeableRef}
+        overshootLeft={false}
+        leftThreshold={SIDE_DRAWER_WIDTH / 2}
+        onSwipeableOpenStartDrag={direction => {
+          if (direction === 'left') {
+            setShowOverlay(true);
+          }
+        }}
+        onSwipeableWillClose={() => setShowOverlay(false)}
+        renderLeftActions={(progress, dragX) => {
+          const trans = dragX.interpolate({
+            inputRange: [0, SIDE_DRAWER_WIDTH],
+            outputRange: [-SIDE_DRAWER_WIDTH, 0],
+          });
+          const interpolatedValue = dragX.interpolate({
+            inputRange: [0, SIDE_DRAWER_WIDTH],
+            outputRange: [-SIDE_DRAWER_WIDTH, 0],
+          });
+          Animated.timing(swipeOpacity, {
+            toValue: interpolatedValue, // Change opacity to 0.5 when swiped left
+            duration: 0, // Animation duration (in milliseconds)
+            useNativeDriver: true, // Set to true if possible
+          }).start();
+          return (
+            <Animated.View
+              style={[
+                {width: SIDE_DRAWER_WIDTH},
+                {
+                  transform: [{translateX: trans}],
+                },
+              ]}>
+              <SideDrawer
+                selectedFolderData={selectedFolderData}
+                setSelectedFolderData={setSelectedFolderData}
+                closeSwipeable={closeSwipeable}
+                folders={folders}
+                name={name}
+                profilePicAttr={profilePicAttr}
+                superportsLength={superportsLength}
+                pendingRequestsLength={pendingRequestsLength}
+              />
+            </Animated.View>
+          );
+        }}>
+        <View
+          style={{
+            width: screen.width,
+            height: isIOS ? screen.height : screen.height + insets.top,
+          }}>
+          <CustomStatusBar
+            barStyle="dark-content"
+            backgroundColor={PortColors.primary.white}
           />
-          <KeyboardAvoidingView
-            behavior={isIOS ? 'padding' : 'height'}
-            keyboardVerticalOffset={isIOS ? 50 : 0}
-            style={styles.scrollViewContainer}>
-            <View
-              pointerEvents={disableTileClicks ? 'none' : 'auto'}
-              style={{flex: 1}}>
-              {!searchReturnedNull ? (
-                <FlatList
-                  data={viewableConnections}
-                  renderItem={element =>
-                    renderChatTile(element.item, setSelectedProps)
-                  }
-                  style={styles.chats}
-                  scrollEnabled={viewableConnections.length > 0}
-                  contentContainerStyle={
-                    viewableConnections.length > 0 && {
-                      rowGap: PortSpacing.tertiary.uniform,
-                    }
-                  }
-                  ListHeaderComponent={
-                    <View style={{height: PortSpacing.tertiary.top}} />
-                  }
-                  ListFooterComponent={
-                    <View style={{height: PortSpacing.tertiary.bottom}} />
-                  }
-                  refreshing={refreshing}
-                  onRefresh={async () => {
-                    setRefreshing(true);
-                    await debouncedPeriodicOperations();
-                    await onRefresh();
-                    setRefreshing(false);
-                  }}
-                  keyExtractor={connection => connection.chatId}
-                  ListEmptyComponent={() =>
-                    renderDefaultTile(name, profilePicAttr, selectedFolderData)
-                  }
-                />
-              ) : (
-                <View style={{alignSelf: 'center', marginTop: 50}}>
-                  <NumberlessText
-                    textColor={PortColors.subtitle}
-                    fontType={FontType.rg}
-                    fontSizeType={FontSizeType.m}>
-                    No results found!
-                  </NumberlessText>
-                </View>
-              )}
-            </View>
-            <GenericButton
-              onPress={() => {
-                setIsConnectionOptionsModalOpen(p => !p);
-              }}
-              iconSize={24}
-              IconLeft={BluePlusIcon}
-              buttonStyle={styles.addButtonWrapper}
+          <SafeAreaView style={{backgroundColor: PortColors.background}}>
+            <ChatBackground />
+            <HomeTopbar
+              openSwipeable={openSwipeable}
+              showPrompt={totalUnreadCount > 0}
+              searchText={searchText}
+              setSearchText={setSearchText}
+              unread={totalUnread}
+              folder={selectedFolderData}
+              pendingRequestsLength={pendingRequestsLength}
             />
-          </KeyboardAvoidingView>
-          {/* go to component isolation playground */}
-          {/* <GenericButton
+            <KeyboardAvoidingView
+              behavior={isIOS ? 'padding' : 'height'}
+              keyboardVerticalOffset={isIOS ? 50 : 0}
+              style={styles.scrollViewContainer}>
+              <View style={{flex: 1}}>
+                {!searchReturnedNull ? (
+                  <FlatList
+                    data={viewableConnections}
+                    renderItem={element =>
+                      renderChatTile(element.item, setSelectedProps)
+                    }
+                    style={styles.chats}
+                    scrollEnabled={viewableConnections.length > 0}
+                    contentContainerStyle={
+                      viewableConnections.length > 0 && {
+                        rowGap: PortSpacing.tertiary.uniform,
+                      }
+                    }
+                    ListHeaderComponent={
+                      <View style={{height: PortSpacing.tertiary.top}} />
+                    }
+                    ListFooterComponent={
+                      <View style={{height: PortSpacing.tertiary.bottom}} />
+                    }
+                    refreshing={refreshing}
+                    onRefresh={async () => {
+                      setRefreshing(true);
+                      await debouncedPeriodicOperations();
+                      await onRefresh();
+                      setRefreshing(false);
+                    }}
+                    keyExtractor={connection => connection.chatId}
+                    ListEmptyComponent={() =>
+                      renderDefaultTile(
+                        name,
+                        profilePicAttr,
+                        selectedFolderData,
+                      )
+                    }
+                  />
+                ) : (
+                  <View style={{alignSelf: 'center', marginTop: 50}}>
+                    <NumberlessText
+                      textColor={PortColors.subtitle}
+                      fontType={FontType.rg}
+                      fontSizeType={FontSizeType.m}>
+                      No results found!
+                    </NumberlessText>
+                  </View>
+                )}
+              </View>
+              <GenericButton
+                onPress={() => {
+                  setIsConnectionOptionsModalOpen(p => !p);
+                }}
+                iconSize={24}
+                IconLeft={BluePlusIcon}
+                buttonStyle={styles.addButtonWrapper}
+              />
+            </KeyboardAvoidingView>
+            {/* go to component isolation playground */}
+            {/* <GenericButton
             onPress={() => navigation.navigate('Isolation')}
             buttonStyle={styles.isolationButton}>
             🔑
           </GenericButton> */}
-          <ConnectionOptions
-            visible={isConnectionOptionsModalOpen}
-            setVisible={setIsConnectionOptionsModalOpen}
-            name={name}
-            avatar={profilePicAttr}
-          />
-          <ErrorAddingContactBottomSheet
-            visible={openFailedModal}
-            title="Failed to add new contact"
-            description="Looks like this Port has expired. Please use a valid Port to connect"
-            onClose={() => {
-              setSelectedProps(null);
-              setOpenFailedModal(false);
-            }}
-          />
-          <LoadingBottomSheet
-            visible={openAddingNewContactModal}
-            onClose={() => {
-              setSelectedProps(null);
-              setOpenAddingNewContactModal(false);
-            }}
-            title="Adding new contact..."
-            onStopPress={async () => {
-              if (selectedProps) {
-                await onStopAddingPress(selectedProps);
-              }
-            }}
-          />
-          <ErrorSimpleBottomSheet
-            visible={openLinkUseErrorModal}
-            onClose={() => {
-              setLinkUseError(0);
-              setOpenLinkUseErrorModal(false);
-            }}
-            title={'Error using Port link'}
-            description={getLinkUseErrorDescription()}
-          />
-        </SafeAreaView>
-      </SideDrawerWrapper>
-    </>
+            <ConnectionOptions
+              visible={isConnectionOptionsModalOpen}
+              setVisible={setIsConnectionOptionsModalOpen}
+              name={name}
+              avatar={profilePicAttr}
+            />
+            <ErrorAddingContactBottomSheet
+              visible={openFailedModal}
+              title="Failed to add new contact"
+              description="Looks like this Port has expired. Please use a valid Port to connect"
+              onClose={() => {
+                setSelectedProps(null);
+                setOpenFailedModal(false);
+              }}
+            />
+            <LoadingBottomSheet
+              visible={openAddingNewContactModal}
+              onClose={() => {
+                setSelectedProps(null);
+                setOpenAddingNewContactModal(false);
+              }}
+              title="Adding new contact..."
+              onStopPress={async () => {
+                if (selectedProps) {
+                  await onStopAddingPress(selectedProps);
+                }
+              }}
+            />
+            <ErrorSimpleBottomSheet
+              visible={openLinkUseErrorModal}
+              onClose={() => {
+                setLinkUseError(0);
+                setOpenLinkUseErrorModal(false);
+              }}
+              title={'Error using Port link'}
+              description={getLinkUseErrorDescription()}
+            />
+          </SafeAreaView>
+          {showOverlay && (
+            <View
+              style={[
+                {
+                  width: SIDE_DRAWER_WIDTH,
+                  height: '100%',
+                  position: 'absolute',
+                },
+              ]}>
+              <LinearGradient
+                colors={[
+                  'rgba(0, 0, 0, 0.1)',
+                  'rgba(0, 0, 0, 0)',
+                  'rgba(0, 0, 0, 0)',
+                ]}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
+                style={{width: '100%', height: '100%'}}
+              />
+            </View>
+          )}
+        </View>
+      </Swipeable>
+    </GestureHandlerRootView>
   );
 }
 

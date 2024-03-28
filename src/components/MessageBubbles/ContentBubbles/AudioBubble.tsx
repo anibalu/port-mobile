@@ -47,7 +47,7 @@ const AudioBubble = ({
   const [progress, setProgress] = useState(0);
   const [playTime, setPlayTime] = useState(formatDuration(durationTime));
 
-  const {onStartPlay, onPausePlay, currentlyPlaying, clearRecordingListeners} =
+  const {onStartPlay, currentlyPlaying, clearRecordingListeners, onStopPlayer} =
     useAudioPlayerContext();
 
   const startPlay = (fileUri, setPlayTime, setProgress) => {
@@ -56,7 +56,7 @@ const AudioBubble = ({
 
   const handleStartPlay = () => {
     if (message.data?.fileUri !== null) {
-      setIsPlaying(p => !p);
+      setIsPlaying(true);
       clearRecordingListeners();
       startPlay(fileUri, setPlayTime, setProgress);
     } else {
@@ -65,11 +65,16 @@ const AudioBubble = ({
   };
 
   useEffect(() => {
-    if (currentlyPlaying !== fileUri) {
-      setIsPlaying(false);
-      setProgress(0);
+    //If the active player changes
+    if (currentlyPlaying) {
+      //If the changed value is not the same as the message, it means that the message has to be reset.
+      if (currentlyPlaying !== fileUri) {
+        setIsPlaying(false);
+        setProgress(0);
+      }
     }
-  }, [currentlyPlaying, fileUri, isPlaying]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentlyPlaying]);
 
   return (
     <Pressable
@@ -83,7 +88,7 @@ const AudioBubble = ({
         }}>
         {message.data?.fileUri === null ? (
           !downloading ? (
-            <Pressable onPress={handleStartPlay}>
+            <Pressable onPress={handleStartPlay} style={{height: 16}}>
               <Download
                 style={{
                   marginRight: 8,
@@ -94,7 +99,7 @@ const AudioBubble = ({
           ) : (
             <CircleSnail
               style={{marginRight: 6, marginLeft: -4}}
-              size={20}
+              size={16}
               thickness={2}
               color={PortColors.primary.blue.app}
               duration={500}
@@ -104,8 +109,8 @@ const AudioBubble = ({
           <Pressable
             hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}
             onPress={() => {
-              setIsPlaying(p => !p);
-              onPausePlay();
+              setIsPlaying(false);
+              onStopPlayer();
             }}>
             <Pause style={{marginRight: 8}} />
           </Pressable>

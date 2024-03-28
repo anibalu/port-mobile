@@ -1,9 +1,9 @@
 /**
  * This screens informs a user of the permissions the App requires and requests those permissions
  */
+import Camera from '@assets/icons/CameraOutline.svg';
 import Microphone from '@assets/icons/MicrophoneOutline.svg';
 import Notification from '@assets/icons/NotificationOutline.svg';
-import Camera from '@assets/icons/CameraOutline.svg';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {
@@ -11,19 +11,19 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import notifee, {AuthorizationStatus} from '@notifee/react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {
+  checkAndGrantRecordingPermission,
+  checkCameraPermission,
+  checkSavingImagesPermission,
+} from '@utils/AppPermissions';
 import {processName} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {BackHandler, StyleSheet, View} from 'react-native';
-import {
-  checkCameraPermission,
-  checkRecordingPermission,
-  checkSavingImagesPermission,
-} from '@utils/AppPermissions';
-import {SafeAreaView} from '@components/SafeAreaView';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
@@ -37,11 +37,11 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
   //state of camera permission
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
     useState(false);
-  //state of audio permission
-  const [isRecordingPermissionGranted, setIsRecordingPermissionGranted] =
-    useState(false);
 
   const [isSavingImagesPermissionGranted, setIsSavingImagesPermissionGranted] =
+    useState(false);
+
+  const [isRecordingPermissionGranted, setIsRecordingPermissionGranted] =
     useState(false);
 
   //setup notification channels for the app. this also requests permissions.
@@ -71,7 +71,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
       try {
         await setupNotificationChannels();
         await checkCameraPermission(setIsCameraPermissionGranted);
-        await checkRecordingPermission(setIsRecordingPermissionGranted);
+        await checkAndGrantRecordingPermission(setIsRecordingPermissionGranted);
         await checkSavingImagesPermission(setIsSavingImagesPermissionGranted);
         await checkNotificationPermission();
       } catch (error) {
@@ -85,10 +85,10 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
   //If all permissions are granted, automatically go to next screen where your profile gets setup.
   useEffect(() => {
     if (
-      isRecordingPermissionGranted &&
       isCameraPermissionGranted &&
       isSavingImagesPermissionGranted &&
-      isNotifPermissionGranted
+      isNotifPermissionGranted &&
+      isRecordingPermissionGranted
     ) {
       navigation.navigate('SetupUser', {
         name: processName(route.params.name),

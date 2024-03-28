@@ -15,18 +15,28 @@ import {
   isIOS,
   screen,
 } from '@components/ComponentUtils';
+import {GenericButton} from '@components/GenericButton';
+import {ReplyBubbleMessageBar} from '@components/MessageBubbles/ReplyBubble';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
+import {useNavigation} from '@react-navigation/native';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
   ContentType,
   LinkParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
+import {
+  downloadImageToMediaDir,
+  moveToLargeFileDir,
+} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {FileAttributes} from '@utils/Storage/interfaces';
+import {formatDuration} from '@utils/Time';
 import {debounce} from 'lodash';
 import React, {
   ReactNode,
@@ -50,23 +60,11 @@ import DocumentPicker, {
 } from 'react-native-document-picker';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import {OpenGraphParser} from 'react-native-opengraph-kit';
-
-import {GenericButton} from '@components/GenericButton';
-import {useNavigation} from '@react-navigation/native';
-import {ReplyBubbleMessageBar} from '@components/MessageBubbles/ReplyBubble';
-import {checkRecordingPermission} from '@utils/AppPermissions';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {
-  downloadImageToMediaDir,
-  moveToLargeFileDir,
-} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {formatDuration} from '@utils/Time';
 import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
+import ProgressBar from '../../components/Reusable/Loaders/ProgressBar';
 import BlinkingDot from './BlinkingDot';
 import {extractLink} from './BubbleUtils';
 import LinkPreview from './LinkPreview';
-import ProgressBar from '../../components/Reusable/Loaders/ProgressBar';
 import AmplitudeBars from './Recording';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
@@ -116,7 +114,6 @@ const MessageBar = ({
       setShowPreview(false);
     }
     if (inputRef?.current && replyTo != undefined) {
-      console.log('Calling focus');
       inputRef.current.focus();
     }
   }, [replyTo]);
@@ -373,9 +370,6 @@ const MessageBar = ({
     }
   };
 
-  const [isRecordingPermissionGranted, setIsRecordingPermissionGranted] =
-    useState(false);
-
   useEffect(() => {
     //   to make the view disappear in 2 seconds
     const timer = setTimeout(() => {
@@ -393,13 +387,13 @@ const MessageBar = ({
   const {
     audio,
     duration,
-    onPausePlay,
     onStartPlay,
+    onStopPlayer,
     onStartRecord,
     onStopRecord,
     deleteRecording,
-    clearRecordingListeners,
     setAudio,
+    currentlyPlaying,
   } = useAudioPlayerContext();
   const [playTime, setPlayTime] = useState(formatDuration(duration));
 
@@ -409,6 +403,8 @@ const MessageBar = ({
     onStartRecord();
   };
 
+  const debouncedRecordVoice = debounce(recordVoice, 300);
+
   useEffect(() => {
     setPlayTime(formatDuration(duration));
   }, [duration]);
@@ -416,7 +412,10 @@ const MessageBar = ({
   const onSendRecording = async () => {
     setIsSending(true);
     resetPlayer();
-    const fileName = generateRandomHexId() + '.mp4';
+    //Android to iOS requires .mp4, as Android AAC will not play on iOS
+    //iOS to Android requires .aac, as iOS .m4a/.mp4 won't play on Android.
+    const ext = isIOS ? '.aac' : '.mp4';
+    const fileName = generateRandomHexId() + ext;
     const newData = {
       chatId,
       fileName: fileName,
@@ -426,10 +425,10 @@ const MessageBar = ({
         fileName,
         ContentType.audioRecording,
       ),
-      fileType: 'audio/mp4',
+      fileType: isIOS ? 'audio/aac' : 'audio/mp4',
       duration: duration,
     };
-    clearRecordingListeners();
+    onStopRecord();
     const sender = new SendMessage(chatId, ContentType.audioRecording, newData);
     await sender.send();
 
@@ -453,18 +452,19 @@ const MessageBar = ({
       return;
     }
 
-    recordVoice();
+    debouncedRecordVoice();
   };
 
-  const onButtonPressOut = () => {
+  const onButtonPressOut = async () => {
     if (text.length > 0) {
       return;
     }
     if (hasRecorded && !isRecording) {
       return;
     }
-    clearRecordingListeners();
-    onStopRecord();
+    if (audio) {
+      onStopRecord();
+    }
     setIsRecording(false);
     if (audio) {
       setHasRecorded(true);
@@ -484,9 +484,6 @@ const MessageBar = ({
       deleteRecording();
     } else {
       setOpenRecord(true);
-      if (!isRecordingPermissionGranted) {
-        await checkRecordingPermission(setIsRecordingPermissionGranted);
-      }
     }
   };
 
@@ -500,6 +497,18 @@ const MessageBar = ({
       setProgress(0);
     }
   }, [isPlaying]);
+
+  useEffect(() => {
+    //If the active player changes
+    if (currentlyPlaying) {
+      //If the changed value is not the same as the message, it means that the message has to be reset.
+      if (currentlyPlaying !== audio) {
+        setIsPlaying(false);
+        setProgress(0);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentlyPlaying]);
 
   return (
     <View style={{flexDirection: 'column'}}>
@@ -584,8 +593,8 @@ const MessageBar = ({
               {isPlaying ? (
                 <Pressable
                   onPress={() => {
-                    setIsPlaying(p => !p);
-                    onPausePlay();
+                    setIsPlaying(false);
+                    onStopPlayer();
                   }}
                   hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}>
                   <Pause style={{marginRight: 8}} />
@@ -681,7 +690,7 @@ const MessageBar = ({
           )}
         </View>
         <GenericButton
-          disabled={text.trim().length === 0}
+          // disabled={ text.trim().length === 0}
           iconSizeRight={14}
           buttonStyle={
             isRecording
@@ -691,8 +700,9 @@ const MessageBar = ({
               : styles.send
           }
           IconRight={
-            // text.length > 0 || (!isRecording && hasRecorded && audio)
-            true ? Send : Microphone
+            text.length > 0 || (!isRecording && hasRecorded && audio)
+              ? Send
+              : Microphone
           }
           loading={isSending}
           onLongPress={onButtonLongPress}

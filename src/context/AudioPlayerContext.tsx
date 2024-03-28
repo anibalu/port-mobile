@@ -1,17 +1,20 @@
 import React, {
+  ReactNode,
   createContext,
   useContext,
-  ReactNode,
   useEffect,
   useState,
 } from 'react';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import AudioRecorderPlayer, {
+  AVEncodingOption,
+  AudioEncoderAndroidType,
+  AudioSet,
+  OutputFormatAndroidType,
+} from 'react-native-audio-recorder-player';
 
 type ModalContextType = {
   audio: string | null;
   duration: any;
-  progress: number;
-  onPausePlay: () => void;
   onStartPlay: (
     setProgress: Function,
     setPlayTime: Function,
@@ -21,7 +24,7 @@ type ModalContextType = {
   onStopRecord: () => void;
   deleteRecording: () => void;
   clearRecordingListeners: () => void;
-  currentlyPlaying: string;
+  currentlyPlaying: string | undefined;
   onStopPlayer: () => void;
   setAudio: (audiorec: any) => void;
 };
@@ -44,11 +47,19 @@ type ModalProviderProps = {
   children: ReactNode;
 };
 
+//Defines how audio is recorded, with specified formats for iOS and Android
+const audioSet: AudioSet = {
+  OutputFormatAndroid: OutputFormatAndroidType.MPEG_4,
+  AudioEncoderAndroid: AudioEncoderAndroidType.DEFAULT,
+  AVFormatIDKeyIOS: AVEncodingOption.aac,
+};
+
 export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
   children,
 }) => {
   // sets the instance of the record player
-  const [recorderPlayer, setRecorderPlayer] = useState(null);
+  const [recorderPlayer, setRecorderPlayer] =
+    useState<AudioRecorderPlayer | null>(null);
 
   // sets the duration of the audio being recorded
   const [duration, setDuration] = useState(0);
@@ -62,27 +73,39 @@ export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
 
     return () => {
       if (player) {
-        player.stopRecorder();
-        player.removeRecordBackListener();
-        player.removePlayBackListener();
+        try {
+          player.stopRecorder();
+          player.removeRecordBackListener();
+          player.removePlayBackListener();
+        } catch {
+          console.log('Error in cleanup');
+        }
       }
     };
   }, []);
 
   // util to handle start recording
   const onStartRecord = async () => {
-    try {
-      const msg = await recorderPlayer?.startRecorder();
+    if (recorderPlayer) {
+      try {
+        const msg = await recorderPlayer.startRecorder(
+          undefined,
+          audioSet,
+          undefined,
+        );
 
-      recorderPlayer?.addRecordBackListener(e => {
-        // only set audio if the duration is more than a second
-        if (e.currentPosition > 1000) {
-          setAudio(msg);
-        }
-        setDuration(e.currentPosition);
-      });
-    } catch (error) {
-      console.error('Error starting recording:', error);
+        recorderPlayer.addRecordBackListener(e => {
+          // only set audio if the duration is more than a second
+          if (e.currentPosition > 1000) {
+            setAudio(msg);
+          }
+          setDuration(e.currentPosition);
+        });
+      } catch (error) {
+        console.error('Error starting recording:', error);
+      }
+    } else {
+      console.log('No player attached');
     }
   };
 
@@ -90,7 +113,7 @@ export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
   const onStopRecord = async () => {
     try {
       if (recorderPlayer) {
-        await recorderPlayer?.stopRecorder();
+        await recorderPlayer.stopRecorder();
       }
     } catch (error) {
       console.error('Error stopping recording:', error);
@@ -101,14 +124,20 @@ export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
 
   // util to stop the player instance, incase we hadn't cleared the listener earlier
   const onStopPlayer = async () => {
-    await recorderPlayer?.stopPlayer();
-    if (listenRef) {
-      await listenRef?.remove();
+    try {
+      if (recorderPlayer) {
+        await recorderPlayer.stopPlayer();
+        if (listenRef) {
+          await listenRef.remove();
+        }
+      }
+    } catch {
+      console.log('Error stopping player');
     }
   };
 
   // util to convert duration of milliseconds to MM:SS
-  function convertToMMSS(inputString) {
+  function convertToMMSS(inputString: string) {
     let parts = inputString.split(':');
 
     let minutes = parseInt(parts[0]);
@@ -141,64 +170,71 @@ export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
     fileUri?: string,
   ) => {
     await onStopPlayer();
-
-    if (fileUri) {
-      setCurrentlyPlaying(fileUri);
-      try {
-        await recorderPlayer?.startPlayer(fileUri);
-        const listener = recorderPlayer?.addPlayBackListener(e => {
-          setPlayTime(
-            convertToMMSS(
-              recorderPlayer?.mmssss(Math.floor(e.currentPosition)),
-            ),
-          );
-          setProgress(e.currentPosition / e.duration);
-        });
-        setListenRef(listener);
-      } catch (error) {
-        console.error('Error playing recording:', error);
+    if (recorderPlayer) {
+      if (fileUri) {
+        setCurrentlyPlaying(fileUri);
+        try {
+          await recorderPlayer.startPlayer(fileUri);
+          const listener = recorderPlayer.addPlayBackListener(e => {
+            setPlayTime(
+              convertToMMSS(
+                recorderPlayer.mmssss(Math.floor(e.currentPosition)),
+              ),
+            );
+            setProgress(e.currentPosition / e.duration);
+          });
+          setListenRef(listener);
+        } catch (error) {
+          console.error('Error playing recording:', error);
+        }
+      } else {
+        try {
+          await recorderPlayer.startPlayer();
+          recorderPlayer.addPlayBackListener(e => {
+            setPlayTime(
+              convertToMMSS(
+                recorderPlayer.mmssss(Math.floor(e.currentPosition)),
+              ),
+            );
+            setProgress(e.currentPosition / duration);
+          });
+        } catch (error) {
+          console.error('Error playing recording:', error);
+        }
       }
     } else {
-      try {
-        await recorderPlayer?.startPlayer();
-        recorderPlayer?.addPlayBackListener(e => {
-          setPlayTime(
-            convertToMMSS(
-              recorderPlayer?.mmssss(Math.floor(e.currentPosition)),
-            ),
-          );
-          setProgress(e.currentPosition / duration);
-        });
-      } catch (error) {
-        console.error('Error playing recording:', error);
-      }
-    }
-  };
-  // util to pause any audio
-  const onPausePlay = async () => {
-    try {
-      await recorderPlayer?.pausePlayer();
-    } catch (error) {
-      console.error('Error pausing recording:', error);
+      console.log('No recorder attached');
     }
   };
 
   // util to delete a recording
   const deleteRecording = async () => {
     try {
-      await recorderPlayer?.stopPlayer();
-
-      setDuration(0);
-    } catch (error) {
-      console.error('Error deleting recording:', error);
+      if (recorderPlayer) {
+        try {
+          recorderPlayer.stopPlayer().finally(() => {
+            setDuration(0);
+          });
+        } catch (error) {
+          console.error('Error deleting recording:', error);
+        }
+      }
+    } catch {
+      console.log('Error deleting recording');
     }
   };
 
   // clears any unwanted recording listeners
   const clearRecordingListeners = async () => {
-    recorderPlayer?.stopRecorder();
-    recorderPlayer?.removeRecordBackListener();
-    recorderPlayer?.removePlayBackListener();
+    try {
+      if (recorderPlayer) {
+        recorderPlayer.stopRecorder();
+        recorderPlayer.removeRecordBackListener();
+        recorderPlayer.removePlayBackListener();
+      }
+    } catch {
+      console.log('Error clearing listeners');
+    }
   };
 
   return (
@@ -207,7 +243,6 @@ export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
         duration,
         audio,
         currentlyPlaying,
-        onPausePlay,
         onStartPlay,
         onStartRecord,
         onStopRecord,

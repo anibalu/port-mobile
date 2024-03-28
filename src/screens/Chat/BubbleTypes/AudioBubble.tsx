@@ -49,7 +49,7 @@ const AudioBubble = ({
   const [progress, setProgress] = useState(0);
   const [playTime, setPlayTime] = useState(formatDuration(durationTime));
 
-  const {onStartPlay, onPausePlay, currentlyPlaying, clearRecordingListeners} =
+  const {onStartPlay, onStopPlayer, currentlyPlaying, clearRecordingListeners} =
     useAudioPlayerContext();
 
   const startPlay = (fileUri, setPlayTime, setProgress) => {
@@ -107,7 +107,7 @@ const AudioBubble = ({
             hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}
             onPress={() => {
               setIsPlaying(p => !p);
-              onPausePlay();
+              onStopPlayer();
             }}>
             <Pause style={{marginRight: 8}} />
           </Pressable>

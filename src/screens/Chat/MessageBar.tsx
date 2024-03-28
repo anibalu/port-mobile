@@ -1,7 +1,7 @@
 import CameraIcon from '@assets/icons/Camera.svg';
 import FileIcon from '@assets/icons/FilesIcon.svg';
 import {default as ImageIcon} from '@assets/icons/GalleryIcon.svg';
-import Microphone from '@assets/icons/Microphone.svg';
+import Microphone from '@assets/icons/MicrophoneFilled.svg';
 import ShareContactIcon from '@assets/icons/ShareContactIcon.svg';
 import VideoIcon from '@assets/icons/VideoBlack.svg';
 import Delete from '@assets/icons/Voicenotes/Delete.svg';
@@ -690,8 +690,10 @@ const MessageBar = ({
           )}
         </View>
         <GenericButton
-          // disabled={ text.trim().length === 0}
-          iconSizeRight={14}
+          disabled={text.trim().length === 0}
+          iconSizeRight={
+            text.length > 0 || (!isRecording && hasRecorded && audio) ? 14 : 20
+          }
           buttonStyle={
             isRecording
               ? styles.recording

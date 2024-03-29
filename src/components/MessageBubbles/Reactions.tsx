@@ -1,59 +1,138 @@
-import {PortColors} from '@components/ComponentUtils';
+import React, {useEffect, useRef, useState} from 'react';
+import {Animated, Pressable, StyleSheet, View} from 'react-native';
+import Plus from '@assets/icons/plus.svg';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {reactionMapping} from '@configs/reactionmapping';
+import {PortColors} from '@components/ComponentUtils';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {reactionMapping} from '@configs/reactionmapping';
+import {getRichReactions} from '@utils/Storage/reactions';
+import EmojiSelector from '@components/Reusable/BottomSheets/EmojiSelector';
+import {getMessage} from '@utils/Storage/messages';
 
-export const RenderReactionBar = ({
-  message,
-  richReactions,
-}: {
-  message: SavedMessageParams;
-  richReactions: any;
-}) => {
-  const {onReaction, setVisible} = useChatContext();
+export const RenderReactionBar = () => {
+  const [richReactions, setRichReactions] = useState<any>([]);
+  const [message, setMessage] = useState<SavedMessageParams | null>(null);
+  const [isEmojiSelectorVisible, setIsEmojiSelectorVisible] =
+    useState<boolean>(false);
+
+  const {onReaction, setVisible, selectedMessages, chatId} = useChatContext();
+  const messageId = selectedMessages[0];
   const selfReactionObj = richReactions.find(
     (reaction: {senderId: string}) => reaction.senderId === 'SELF',
   );
   const selfReaction = selfReactionObj ? selfReactionObj.reaction : false;
+
+  const barWidth = useRef(new Animated.Value(20)).current;
+  const emojiScales = useRef(
+    reactionMapping.map(() => new Animated.Value(0)),
+  ).current;
+
+  useEffect(() => {
+    const fetchRichReactionsAndMessage = async () => {
+      const messageData = await getMessage(chatId, messageId);
+      setMessage(messageData);
+      // Fetch rich reactions asynchronously
+      const richReactionsData = await getRichReactions(chatId, messageId);
+      setRichReactions(richReactionsData);
+
+      // Start animations
+      Animated.parallel([
+        Animated.timing(barWidth, {
+          toValue: 270,
+          duration: reactionMapping.length * 50,
+          useNativeDriver: false,
+        }),
+        Animated.stagger(
+          70,
+          emojiScales.map(scale =>
+            Animated.timing(scale, {
+              toValue: 1,
+              duration: 160,
+              useNativeDriver: true,
+            }),
+          ),
+        ),
+      ]).start();
+    };
+
+    fetchRichReactionsAndMessage();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onReactionPress = (item: any) => {
+    setVisible(false);
+    message && onReaction(message, item);
+  };
+
   return (
-    <View style={styles.reactionSelection}>
-      {reactionMapping.map(item => (
+    <Animated.View
+      style={StyleSheet.compose(styles.reactionSelection, {
+        width: barWidth,
+      })}>
+      {reactionMapping.map((item, index) => (
         <View key={item} style={styles.reactionsWrapper}>
-          <Pressable
-            style={StyleSheet.compose(
-              styles.reactionsWrapper,
-              message.hasReaction &&
-                selfReaction === item &&
-                richReactions && {
-                  backgroundColor: PortColors.stroke,
-                  padding: 5,
-                  borderRadius: 12,
-                  alignItems: 'center',
-                  textAlign: 'center',
-                  justifyContent: 'center',
-                },
-            )}
-            key={item}
-            onPress={() => {
-              setVisible(false), onReaction(message, item);
+          <Animated.View
+            style={{
+              transform: [{scale: emojiScales[index]}],
             }}>
-            <NumberlessText
-              fontSizeType={FontSizeType.exs}
-              fontType={FontType.rg}
-              allowFontScaling={false}>
-              {item}
-            </NumberlessText>
-          </Pressable>
+            <Pressable
+              style={StyleSheet.compose(
+                styles.reactionsWrapper,
+                message &&
+                  message.hasReaction &&
+                  selfReaction === item &&
+                  richReactions &&
+                  styles.hasReactionMessage,
+              )}
+              onPress={() => onReactionPress(item)}>
+              <NumberlessText
+                fontSizeType={FontSizeType.exs}
+                fontType={FontType.rg}
+                allowFontScaling={false}>
+                {item}
+              </NumberlessText>
+            </Pressable>
+          </Animated.View>
         </View>
       ))}
-    </View>
+      <View style={styles.reactionsWrapper}>
+        <Pressable
+          style={StyleSheet.compose(
+            styles.reactionsWrapper,
+            styles.hasReactionMessage,
+          )}
+          onPress={() => {
+            if (!selfReaction || reactionMapping.includes(selfReaction)) {
+              setIsEmojiSelectorVisible(true);
+            } else {
+              setVisible(false);
+              message && onReaction(message, selfReaction);
+            }
+          }}>
+          <NumberlessText
+            fontSizeType={FontSizeType.exs}
+            fontType={FontType.rg}
+            allowFontScaling={false}>
+            {!selfReaction || reactionMapping.includes(selfReaction) ? (
+              <Plus />
+            ) : (
+              selfReaction
+            )}
+          </NumberlessText>
+        </Pressable>
+      </View>
+      <EmojiSelector
+        isEmojiSelectorVisible={isEmojiSelectorVisible}
+        setIsEmojiSelectorVisible={setIsEmojiSelectorVisible}
+        onEmojiSelected={emoji => message && onReaction(message, emoji)}
+      />
+    </Animated.View>
   );
 };
 
@@ -63,7 +142,7 @@ export function RenderReactions({
 }: {
   reactions: any[];
   showReactionRibbon?: Function;
-}): ReactNode {
+}) {
   return (
     <Pressable
       style={styles.reactionDisplay}
@@ -98,7 +177,15 @@ const styles = StyleSheet.create({
     padding: 4,
     marginBottom: 4,
     alignItems: 'center',
-    height: 50,
+    justifyContent: 'center',
+  },
+  hasReactionMessage: {
+    backgroundColor: PortColors.stroke,
+    padding: 5,
+    borderRadius: 12,
+    alignItems: 'center',
+    textAlign: 'center',
+    justifyContent: 'center',
   },
   reactionsWrapper: {
     padding: 2,

@@ -8,9 +8,9 @@ import {ReplyBubble} from './ReplyBubble';
 import {MAX_WIDTH} from './BubbleUtils';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Swipeable from './SwipeableCustom';
-import Reply from '@assets/icons/reply.svg';
+import Reply from '@assets/icons/ReplyNew.svg';
 import {RenderReactionBar, RenderReactions} from './Reactions';
-import {getReactionCounts, getRichReactions} from '@utils/Storage/reactions';
+import {getReactionCounts} from '@utils/Storage/reactions';
 import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
 import {getMessage} from '@utils/Storage/messages';
 import BubbleFocusOptions from './BubbleFocusOptions';
@@ -35,8 +35,6 @@ export const MessageBubble = ({
   } = useChatContext();
 
   const [reactions, setReactions] = useState<any[]>([]);
-  const [richReactions, setRichReactions] = useState<any>([]);
-
   const updateSendStatus = () => {
     if (message.deliveredTimestamp) {
       message.messageStatus = MessageStatus.delivered;
@@ -66,9 +64,6 @@ export const MessageBubble = ({
         reactions.push([reactionCounts[i].reaction, reactionCounts[i].count]);
       }
       setReactions(reactions);
-      setRichReactions(
-        await getRichReactions(message.chatId, message.messageId),
-      );
     }
   };
 
@@ -164,7 +159,7 @@ export const MessageBubble = ({
                 </View>
               </View>
             </View>
-            <View style={{}}>
+            <View>
               {reactions.length > 0 && (
                 <RenderReactions
                   reactions={reactions}
@@ -190,12 +185,7 @@ export const MessageBubble = ({
             flexDirection: 'column',
             alignItems: message.sender ? 'flex-end' : 'flex-start',
           }}>
-          {isConnected && (
-            <RenderReactionBar
-              message={message}
-              richReactions={richReactions}
-            />
-          )}
+          {isConnected && <RenderReactionBar />}
           <Pressable
             style={{
               ...styles.main,
@@ -229,7 +219,7 @@ export const MessageBubble = ({
               </View>
             </View>
           </Pressable>
-          <Pressable style={{}} pointerEvents="box-only">
+          <Pressable pointerEvents="box-only">
             {reactions.length > 0 && (
               <RenderReactions
                 reactions={reactions}
@@ -239,13 +229,10 @@ export const MessageBubble = ({
           </Pressable>
         </View>
         <View
-          style={{
-            position: 'absolute',
+          style={StyleSheet.compose(styles.focusOptionsContainer, {
             alignSelf: message.sender ? 'flex-end' : 'flex-start',
-            paddingHorizontal: PortSpacing.secondary.uniform,
-            paddingTop: 2,
             top: optionBubblePosition,
-          }}>
+          })}>
           <BubbleFocusOptions />
         </View>
       </View>
@@ -259,6 +246,11 @@ const styles = StyleSheet.create({
     width: screen.width,
     paddingVertical: 2,
     paddingHorizontal: PortSpacing.secondary.uniform,
+  },
+  focusOptionsContainer: {
+    position: 'absolute',
+    paddingHorizontal: PortSpacing.secondary.uniform,
+    paddingTop: 2,
   },
   main: {
     maxWidth: MAX_WIDTH,

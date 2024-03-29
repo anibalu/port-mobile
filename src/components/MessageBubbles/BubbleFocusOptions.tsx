@@ -5,10 +5,10 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {StyleSheet, TouchableHighlight, View} from 'react-native';
-import ReplyImage from '@assets/icons/reply.svg';
-import ForwardImage from '@assets/icons/forward.svg';
+import ReplyImage from '@assets/icons/ReplyNew.svg';
+import ForwardImage from '@assets/icons/ForwardNew.svg';
 import SelectImage from '@assets/icons/CheckCircle.svg';
-import CopyImage from '@assets/icons/copy.svg';
+import CopyImage from '@assets/icons/CopyNew.svg';
 import DeleteImage from '@assets/icons/deleteRed.svg';
 import React from 'react';
 import {useChatContext} from '@screens/DirectChat/ChatContext';

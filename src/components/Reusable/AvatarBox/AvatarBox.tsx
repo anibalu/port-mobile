@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   smallMedium: {
     height: 58,
     width: 58,
-    borderRadius: 16,
+    borderRadius: 12,
     borderWidth: 0.5,
     borderColor: PortColors.stroke,
   },

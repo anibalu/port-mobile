@@ -23,11 +23,13 @@ const Disconnected = ({name}: {name: string}) => {
 const styles = StyleSheet.create({
   main: {
     backgroundColor: PortColors.primary.grey.medium,
-    height: 60,
+    height: 70,
     justifyContent: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
+    position: 'absolute',
+    bottom: -20,
     paddingHorizontal: PortSpacing.tertiary.uniform,
   },
 });

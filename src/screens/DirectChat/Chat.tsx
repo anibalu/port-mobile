@@ -1,7 +1,7 @@
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useState} from 'react';
-import {KeyboardAvoidingView, StyleSheet} from 'react-native';
+import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -232,7 +232,9 @@ function ChatScreen() {
               clearSelection={clearSelection}
             />
           ) : (
-            <Disconnected name={name} />
+            <View style={{paddingTop: 60}}>
+              <Disconnected name={name} />
+            </View>
           )}
         </KeyboardAvoidingView>
         <RichReactionsBottomsheet

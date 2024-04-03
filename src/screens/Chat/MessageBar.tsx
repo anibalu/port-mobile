@@ -767,6 +767,7 @@ const MessageBar = ({
               <Pressable
                 style={styles.optionBox}
                 onPress={() => {
+                  togglePopUp();
                   navigation.navigate('ShareContact', {chatId: chatId});
                 }}>
                 <ShareContactIcon />

@@ -52,5 +52,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#FFF6C4',
+    marginBottom: PortSpacing.tertiary.uniform,
   },
 });

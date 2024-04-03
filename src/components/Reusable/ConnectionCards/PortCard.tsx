@@ -152,7 +152,7 @@ const PortCard = ({
       {!hasFailed && !isLoading && isSuperport && (
         <View style={styles.shareBox}>
           <AlternateSecondaryButton
-            buttonText={'Share one-time use link'}
+            buttonText={'Share multi-use link'}
             onClick={onShareLinkClicked}
             Icon={Share}
             isLoading={isLinkLoading}

@@ -17,6 +17,7 @@ class ReceiveText extends GroupReceiveAction {
       readStatus: ReadStatus.new,
       recentMessageType: this.decryptedMessageContent.contentType,
       latestMessageId: this.decryptedMessageContent.messageId,
+      timestamp: this.receiveTime,
     });
     //notify user if notifications are ON
     const permissions = await getChatPermissions(this.chatId, ChatType.group);

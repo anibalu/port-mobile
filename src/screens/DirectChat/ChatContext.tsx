@@ -6,14 +6,19 @@ import {
   SavedMessageParams,
   TextParams,
 } from '@utils/Messaging/interfaces';
-import React, {createContext, useState, useContext, useMemo} from 'react';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import React, {createContext, useState, useContext} from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import {getRichReactions} from '@utils/Storage/reactions';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {useNavigation} from '@react-navigation/native';
+
+export interface SelectedMessageType {
+  pageY: number;
+  height: number;
+  message: SavedMessageParams;
+}
 
 type ChatContextType = {
   //basic chat params
@@ -45,6 +50,10 @@ type ChatContextType = {
   selectedMessages: string[];
   setSelectedMessages: (x: string[]) => void;
 
+  //selected message
+  selectedMessage: SelectedMessageType | null;
+  setSelectedMessage: (x: SelectedMessageType | null) => void;
+
   //whether the chat screen is in selection mode
   selectionMode: boolean;
   setSelectionMode: (x: boolean) => void;
@@ -60,15 +69,6 @@ type ChatContextType = {
   clearEverything: () => void;
 
   //controls the visibility of a focused message bubble
-  childElement: any;
-  setChildElement: any;
-  elementPositionY: number;
-  setElementPositionY: (x: number) => void;
-  optionBubblePosition: number;
-  setOptionBubblePosition: (x: number) => void;
-  DEFAULT_FOCUS_Y_POSITION: number;
-  visible: boolean;
-  setVisible: (x: boolean) => void;
   onCloseFocus: () => void;
   onCleanCloseFocus: () => void;
   onSelect: () => void;
@@ -170,15 +170,9 @@ export const ChatContextProvider = ({
   const [replyToMessage, setReplyToMessage] =
     useState<SavedMessageParams | null>(null);
 
-  //haptic feedback options
-  const options = {
-    enableVibrateFallback: true /* iOS Only */,
-    ignoreAndroidSystemSettings: true /* Android Only */,
-  };
   //handles toggling the select messages flow.
   const handleLongPress = (messageId: string): void => {
-    //adds messageId to selected messages on long press and vibrates
-    ReactNativeHapticFeedback.trigger('impactMedium', options);
+    //adds messageId to selected messages
     if (!selectedMessages.includes(messageId)) {
       setSelectedMessages([...selectedMessages, messageId]);
     }
@@ -192,6 +186,9 @@ export const ChatContextProvider = ({
       const newSelection = selectedMessages.filter(
         selectedMessageId => selectedMessageId !== messageId,
       );
+      if (newSelection.length === 0) {
+        setSelectionMode(false);
+      }
       setSelectedMessages(newSelection);
     } else {
       //makes short press select a message if atleast one message is already selected.
@@ -264,32 +261,24 @@ export const ChatContextProvider = ({
 
   const clearSelection = () => {
     setSelectedMessages([]);
+    setSelectedMessage(null);
   };
   const clearEverything = () => {
     setSelectedMessages([]);
     setReplyToMessage(null);
   };
 
-  const DEFAULT_FOCUS_Y_POSITION = 125;
-  const [childElement, setChildElement] = useState<any>(null);
-  const [visible, setVisible] = useState(false);
-  const [elementPositionY, setElementPositionY] = useState(0);
-  const [optionBubblePosition, setOptionBubblePosition] = useState(0);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+  const [selectedMessage, setSelectedMessage] =
+    useState<SelectedMessageType | null>(null);
   const [selectionMode, setSelectionMode] = useState(false);
 
   const onCloseFocus = () => {
-    setVisible(false);
-    setChildElement(null);
-    setElementPositionY(0);
-    setOptionBubblePosition(0);
+    setSelectedMessage(null);
   };
 
   const onCleanCloseFocus = () => {
     clearSelection();
-    setChildElement(null);
-    setElementPositionY(0);
-    setOptionBubblePosition(0);
   };
 
   const onSelect = () => {
@@ -311,18 +300,6 @@ export const ChatContextProvider = ({
     }
     onCleanCloseFocus();
   };
-
-  useMemo(() => {
-    if (selectedMessages.length === 1) {
-      if (elementPositionY !== 0) {
-        setVisible(true);
-      }
-    }
-    if (selectedMessages.length === 0) {
-      setSelectionMode(false);
-      setVisible(false);
-    }
-  }, [selectedMessages, elementPositionY]);
 
   return (
     <ChatContext.Provider
@@ -356,15 +333,8 @@ export const ChatContextProvider = ({
         onForward,
         clearSelection,
         clearEverything,
-        childElement,
-        setChildElement,
-        visible,
-        setVisible,
-        DEFAULT_FOCUS_Y_POSITION,
-        elementPositionY,
-        setElementPositionY,
-        optionBubblePosition,
-        setOptionBubblePosition,
+        selectedMessage,
+        setSelectedMessage,
         onCloseFocus,
         onCleanCloseFocus,
         onSelect,

@@ -57,7 +57,7 @@ const Categories = EmojiCategories;
 const charFromUtf16 = (utf16: string): string =>
   String.fromCodePoint(...utf16.split('-').map(u => '0x' + u));
 const charFromEmojiObject = (obj: Emoji): string => charFromUtf16(obj.unified);
-const filteredEmojis = emoji.filter(e => !e['obsoleted_by']);
+const filteredEmojis = emoji.filter(e => !e.obsoleted_by);
 const emojiByCategory = (category: string) =>
   filteredEmojis.filter(e => e.category === category);
 const sortEmoji = (list: Emoji[]) =>
@@ -186,8 +186,9 @@ const EmojiSelector: React.FC<EmojiSelectorProps> = ({
             name === Categories.history.name
               ? history
               : emojiList && emojiList[name];
-          if (c !== 'all' && c !== 'history')
+          if (c !== 'all' && c !== 'history') {
             largeList = largeList.concat(list || []);
+          }
         });
 
         return largeList.map(emoji => ({key: emoji.unified, emoji}));
@@ -199,7 +200,9 @@ const EmojiSelector: React.FC<EmojiSelectorProps> = ({
           const filtered = emoji.filter(e => {
             let display = false;
             e.short_names.forEach(name => {
-              if (name.includes(searchQuery.toLowerCase())) display = true;
+              if (name.includes(searchQuery.toLowerCase())) {
+                display = true;
+              }
             });
             return display;
           });

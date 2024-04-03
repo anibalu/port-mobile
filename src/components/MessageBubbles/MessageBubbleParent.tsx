@@ -19,6 +19,7 @@ import {Pressable, StyleSheet, View} from 'react-native';
 import {MessageBubble} from './MessageBubble';
 import {InfoBubble} from './InfoBubble';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 //Currently only sends read receipts for DMs
 const sendReadReceipt = async (chatId: string, message: SavedMessageParams) => {
@@ -83,83 +84,30 @@ export const MessageBubbleParent = ({
 }): ReactNode => {
   const {
     chatId,
-    isConnected,
     selectedMessages,
     selectionMode,
     handlePress,
     handleLongPress,
     onCleanCloseFocus,
-    setChildElement,
-    setElementPositionY,
-    setOptionBubblePosition,
-    DEFAULT_FOCUS_Y_POSITION,
+    setSelectedMessage,
   } = useChatContext();
 
-  const DEFAULT_OFFSET_X_POSITION = 50;
-  const DEFAULT_BUBBLE_OPTIONS_HEIGHT = isConnected ? 271 : 218;
-  const DEFAULT_REACTIONS_BAR_HEIGHT = isConnected ? 50 : 0;
   const bubbleRef = useRef(null);
-  //understands where to focus the message bubble and focuses the message bubble.
+
+  //haptic feedback options
+  const options = {
+    enableVibrateFallback: true /* iOS Only */,
+    ignoreAndroidSystemSettings: true /* Android Only */,
+  };
+  //understands where to focus the message bubble.
   const handleMessageBubbleLongPress = (messageId: any) => {
     if (selectedMessages.length <= 1 && bubbleRef.current) {
-      handleLongPress(messageId);
       try {
         bubbleRef.current.measure((x, y, width, height, pageX, pageY) => {
-          const paddingOffset = 4;
-          const availableHeight =
-            screen.height -
-            DEFAULT_OFFSET_X_POSITION -
-            DEFAULT_FOCUS_Y_POSITION;
-          const focusElementHeight =
-            DEFAULT_REACTIONS_BAR_HEIGHT +
-            height +
-            DEFAULT_BUBBLE_OPTIONS_HEIGHT;
-          if (pageY < DEFAULT_FOCUS_Y_POSITION) {
-            setElementPositionY(DEFAULT_FOCUS_Y_POSITION);
-            if (focusElementHeight > availableHeight) {
-              setOptionBubblePosition(
-                availableHeight -
-                  DEFAULT_REACTIONS_BAR_HEIGHT -
-                  DEFAULT_BUBBLE_OPTIONS_HEIGHT,
-              );
-            } else {
-              setOptionBubblePosition(height + DEFAULT_REACTIONS_BAR_HEIGHT);
-            }
-          } else {
-            if (focusElementHeight > availableHeight) {
-              setElementPositionY(DEFAULT_FOCUS_Y_POSITION);
-              setOptionBubblePosition(
-                availableHeight -
-                  DEFAULT_REACTIONS_BAR_HEIGHT -
-                  DEFAULT_BUBBLE_OPTIONS_HEIGHT,
-              );
-            } else {
-              setOptionBubblePosition(height + DEFAULT_REACTIONS_BAR_HEIGHT);
-              if (
-                screen.height - (pageY - DEFAULT_REACTIONS_BAR_HEIGHT) >
-                focusElementHeight
-              ) {
-                setElementPositionY(
-                  pageY - DEFAULT_REACTIONS_BAR_HEIGHT - paddingOffset,
-                );
-              } else {
-                setElementPositionY(
-                  screen.height -
-                    DEFAULT_OFFSET_X_POSITION -
-                    focusElementHeight -
-                    paddingOffset,
-                );
-              }
-            }
-          }
+          setSelectedMessage({message, pageY, height});
+          ReactNativeHapticFeedback.trigger('impactMedium', options);
+          handleLongPress(messageId);
         });
-        setChildElement(
-          <MessageBubble
-            message={message}
-            handleLongPress={() => {}}
-            swipeable={false}
-          />,
-        );
       } catch (error) {
         console.log('Unable to measure: ', error);
         onCleanCloseFocus();
@@ -207,7 +155,7 @@ export const MessageBubbleParent = ({
               onLongPress={() =>
                 handleMessageBubbleLongPress(message.messageId)
               }
-              delayLongPress={200}>
+              delayLongPress={300}>
               <MessageBubble
                 message={message}
                 handleLongPress={() =>

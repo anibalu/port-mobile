@@ -10,11 +10,11 @@ import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio'
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import {getAllFolders} from '@utils/ChatFolders';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import BluePlus from '@assets/icons/bluePlusWithCircle.svg';
 import {moveConnectionToNewFolder} from '@utils/Connections';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 
 const AddFolderBottomsheet = ({
   chatId,
@@ -31,14 +31,16 @@ const AddFolderBottomsheet = ({
 }) => {
   const [folders, setFolders] = useState<FolderInfo[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedFolders = await getAllFolders();
-      setFolders(fetchedFolders);
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        const fetchedFolders = await getAllFolders();
+        setFolders(fetchedFolders);
+      };
 
-    fetchData();
-  }, []);
+      fetchData();
+    }, []),
+  );
 
   const onRadioClick = async (item: FolderInfo) => {
     setSelectedFolder(item);

@@ -4,21 +4,36 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {StyleSheet, TouchableHighlight, View} from 'react-native';
+import {Animated, StyleSheet, TouchableHighlight, View} from 'react-native';
 import ReplyImage from '@assets/icons/ReplyNew.svg';
 import ForwardImage from '@assets/icons/ForwardNew.svg';
 import SelectImage from '@assets/icons/CheckCircle.svg';
 import CopyImage from '@assets/icons/CopyNew.svg';
-import DeleteImage from '@assets/icons/deleteRed.svg';
-import React from 'react';
+import DeleteImage from '@assets/icons/DeleteIcon.svg';
+import React, {useEffect, useRef} from 'react';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 
 const BubbleFocusOptions = () => {
   const {isConnected, onReply, onSelect, onDelete, onForward, onCopy} =
     useChatContext();
-
+  const barWidth = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    // Start animations
+    Animated.timing(barWidth, {
+      toValue: 1,
+      duration: 50,
+      useNativeDriver: true,
+    }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
-    <View style={styles.optionsContainer}>
+    <Animated.View
+      style={[
+        styles.optionsContainer,
+        {
+          transform: [{scaleX: barWidth}],
+        },
+      ]}>
       {isConnected && (
         <TouchableHighlight
           underlayColor={PortColors.background}
@@ -28,7 +43,8 @@ const BubbleFocusOptions = () => {
           <View style={styles.optionButton}>
             <ReplyImage width={20} height={20} />
             <NumberlessText
-              fontSizeType={FontSizeType.l}
+              textColor={PortColors.title}
+              fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               Reply
             </NumberlessText>
@@ -42,7 +58,10 @@ const BubbleFocusOptions = () => {
         style={styles.optionButtonWrapper}>
         <View style={styles.optionButton}>
           <ForwardImage width={20} height={20} />
-          <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.rg}>
+          <NumberlessText
+            textColor={PortColors.title}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}>
             Forward
           </NumberlessText>
         </View>
@@ -54,7 +73,10 @@ const BubbleFocusOptions = () => {
         style={styles.optionButtonWrapper}>
         <View style={styles.optionButton}>
           <CopyImage width={20} height={20} />
-          <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.rg}>
+          <NumberlessText
+            textColor={PortColors.title}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}>
             Copy
           </NumberlessText>
         </View>
@@ -66,7 +88,10 @@ const BubbleFocusOptions = () => {
         style={styles.optionButtonWrapper}>
         <View style={styles.optionButton}>
           <SelectImage width={20} height={20} />
-          <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.rg}>
+          <NumberlessText
+            textColor={PortColors.title}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}>
             Select
           </NumberlessText>
         </View>
@@ -80,12 +105,15 @@ const BubbleFocusOptions = () => {
         })}>
         <View style={styles.optionButton}>
           <DeleteImage width={20} height={20} />
-          <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.rg}>
+          <NumberlessText
+            textColor={PortColors.title}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}>
             Delete
           </NumberlessText>
         </View>
       </TouchableHighlight>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -109,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
     borderRadius: 12,
     overflow: 'hidden',
-    width: 180,
+    width: 160,
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'space-between',

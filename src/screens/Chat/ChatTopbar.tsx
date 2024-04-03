@@ -33,6 +33,7 @@ function ChatTopbar(): ReactNode {
     setSelectionMode,
     selectedMessages,
     setSelectedMessages,
+    isConnected,
   } = useChatContext();
 
   const onSettingsPressed = async () => {
@@ -43,6 +44,7 @@ function ChatTopbar(): ReactNode {
       name: name,
       profileUri: profileUri || DEFAULT_AVATAR,
       permissionsId: chatData.permissionsId,
+      isConnected: isConnected,
     });
   };
 

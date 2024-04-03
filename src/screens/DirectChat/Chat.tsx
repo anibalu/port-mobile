@@ -70,6 +70,7 @@ function ChatScreen() {
     onForward,
     clearSelection,
     clearEverything,
+    selectedMessage,
   } = useChatContext();
 
   //cursor for number of messages on screen
@@ -244,7 +245,7 @@ function ChatScreen() {
           visible={showRichReaction}
         />
       </GestureSafeAreaView>
-      <BlurViewModal />
+      {selectedMessage && <BlurViewModal />}
     </AudioPlayerProvider>
   );
 }

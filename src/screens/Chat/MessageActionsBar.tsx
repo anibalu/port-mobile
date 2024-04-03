@@ -1,11 +1,11 @@
 import Delete from '@assets/icons/DeleteIcon.svg';
 import Copy from '@assets/icons/copy.svg';
-import Forward from '@assets/icons/forward.svg';
-import Reply from '@assets/icons/reply.svg';
+import Forward from '@assets/icons/ForwardNew.svg';
+import Reply from '@assets/icons/ReplyNew.svg';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
-import {PortColors, isIOS} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 
 import {
   cleanDeleteGroupMessage,
@@ -16,6 +16,11 @@ import {
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import PopupBottomsheet from '@components/Reusable/BottomSheets/PopupBottomsheet';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 
 /**
  * Renders action bar based on messages that are selected
@@ -128,12 +133,24 @@ export function MessageActionsBar({
         <View style={styles.multiSelectedContainer}>
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onForward}>
-              <Forward />
+              <Forward height={20} width={20} />
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}
+                textColor={PortColors.title}>
+                Forward
+              </NumberlessText>
             </Pressable>
           </View>
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onCopy}>
-              <Copy />
+              <Copy height={20} width={20} />
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}
+                textColor={PortColors.title}>
+                Copy
+              </NumberlessText>
             </Pressable>
           </View>
           {!isDisconnected && (
@@ -141,7 +158,13 @@ export function MessageActionsBar({
               <Pressable
                 style={styles.optionBox}
                 onPress={determineDeleteModalDisplay}>
-                <Delete />
+                <Delete height={20} width={20} />
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.rg}
+                  textColor={PortColors.title}>
+                  Delete
+                </NumberlessText>
               </Pressable>
             </View>
           )}
@@ -151,20 +174,38 @@ export function MessageActionsBar({
           {!isSharedMedia && !isDisconnected && (
             <View style={styles.optionContainer}>
               <Pressable style={styles.optionBox} onPress={performReply}>
-                <Reply />
+                <Reply height={20} width={20} />
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.rg}
+                  textColor={PortColors.title}>
+                  Reply
+                </NumberlessText>
               </Pressable>
             </View>
           )}
 
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onForward}>
-              <Forward />
+              <Forward height={20} width={20} />
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}
+                textColor={PortColors.title}>
+                Forward
+              </NumberlessText>
             </Pressable>
           </View>
           {!isSharedMedia && (
             <View style={styles.optionContainer}>
               <Pressable style={styles.optionBox} onPress={onCopy}>
-                <Copy />
+                <Copy height={20} width={20} />
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.rg}
+                  textColor={PortColors.title}>
+                  Copy
+                </NumberlessText>
               </Pressable>
             </View>
           )}
@@ -174,7 +215,13 @@ export function MessageActionsBar({
               <Pressable
                 style={styles.optionBox}
                 onPress={determineDeleteModalDisplay}>
-                <Delete />
+                <Delete width={20} height={20} />
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.rg}
+                  textColor={PortColors.title}>
+                  Delete
+                </NumberlessText>
               </Pressable>
             </View>
           )}
@@ -190,7 +237,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    padding: 10,
+    padding: PortSpacing.tertiary.top,
     paddingBottom: 10,
     backgroundColor: PortColors.primary.white,
   },
@@ -207,15 +254,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   optionContainer: {
+    flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 10,
-    paddingRight: 10,
   },
   optionBox: {
     width: 55,
     height: 55,
+    gap: PortSpacing.tertiary.uniform,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',

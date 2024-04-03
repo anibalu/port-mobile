@@ -308,6 +308,7 @@ function Chat({route, navigation}: Props) {
         name: chatData.name,
         profileUri: chatData.displayPic || DEFAULT_AVATAR,
         permissionsId: chatData.permissionsId,
+        isConnected: isConnected,
       });
     }
   };

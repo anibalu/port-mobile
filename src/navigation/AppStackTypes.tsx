@@ -31,6 +31,7 @@ export type AppStackParamList = {
     name: string;
     profileUri: string;
     permissionsId: string;
+    isConnected: boolean;
   };
   Placeholder: undefined;
   ShareGroup: {groupId: string};

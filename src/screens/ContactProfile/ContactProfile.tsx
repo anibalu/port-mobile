@@ -44,7 +44,7 @@ import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/Confirmat
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
 const ContactProfile = ({route, navigation}: Props) => {
-  const {chatId, name, profileUri, permissionsId} = route.params;
+  const {chatId, name, profileUri, permissionsId, isConnected} = route.params;
   const [media, setMedia] = useState<MediaEntry[]>([]);
   const [showUserInfoInTopbar, setShowUserInfoInTopbar] = useState(false);
   const userAvatarViewRef = useRef<View>(null);
@@ -55,9 +55,8 @@ const ContactProfile = ({route, navigation}: Props) => {
 
   const [editingName, setEditingName] = useState(false);
   const [confirmSheet, setConfirmSheet] = useState(false);
-  const chatHandler = new DirectChat(chatId);
   // todo: pass as props @sumaanta
-  const [connected, setConnected] = useState(true);
+  const [connected, setConnected] = useState(isConnected);
   const [selectedFolder, setSelectedFolder] = useState<FolderInfo>({
     ...defaultFolderInfo,
   });
@@ -82,6 +81,7 @@ const ContactProfile = ({route, navigation}: Props) => {
   useEffect(() => {
     (async () => {
       try {
+        const chatHandler = new DirectChat(chatId);
         const chatData = await chatHandler.getChatData();
         const connection = await getConnection(chatId);
         const folders = await getAllFolders();
@@ -103,12 +103,14 @@ const ContactProfile = ({route, navigation}: Props) => {
 
   const onDeleteChat = async () => {
     setLoading(true);
+    const chatHandler = new DirectChat(chatId);
     await chatHandler.delete();
     setLoading(false);
     navigation.navigate('HomeTab', {selectedFolder: {...selectedFolder}});
   };
 
   const onSaveName = async () => {
+    const chatHandler = new DirectChat(chatId);
     await chatHandler.updateName(displayName);
     setEditingName(false);
   };
@@ -121,7 +123,7 @@ const ContactProfile = ({route, navigation}: Props) => {
     const {contentOffset} = event.nativeEvent;
     if (contentOffset) {
       const {y} = contentOffset;
-      if (y >= 170) {
+      if (y >= 120) {
         setShowUserInfoInTopbar(true);
       } else {
         setShowUserInfoInTopbar(false);
@@ -150,6 +152,7 @@ const ContactProfile = ({route, navigation}: Props) => {
           <ScrollView
             contentContainerStyle={{height: connected ? 'auto' : '100%'}}
             onScroll={handleScroll}
+            scrollEventThrottle={16}
             horizontal={false}
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}>
@@ -296,6 +299,7 @@ const ContactProfile = ({route, navigation}: Props) => {
           visible={confirmSheet}
           onClose={() => setConfirmSheet(false)}
           onConfirm={async () => {
+            const chatHandler = new DirectChat(chatId);
             await chatHandler.disconnect();
             navigation.navigate('HomeTab', {
               selectedFolder: {...selectedFolder},

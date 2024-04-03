@@ -1,9 +1,12 @@
+import DirectChat from '@utils/DirectChats/DirectChat';
 import DirectReceiveAction from '../DirectReceiveAction';
-import {updateConnection} from '@utils/Connections';
+import {setConnectionDisconnected} from '@utils/Connections';
 
 class Deletion extends DirectReceiveAction {
   async performAction(): Promise<void> {
-    await updateConnection({chatId: this.chatId, disconnected: true});
+    const chatHandler = new DirectChat(this.chatId);
+    await chatHandler.updateChatData({disconnected: true});
+    await setConnectionDisconnected(this.chatId);
   }
 }
 

@@ -8,73 +8,70 @@ import {
 } from '@components/NumberlessText';
 import {PortColors} from '@components/ComponentUtils';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import {reactionMapping} from '@configs/reactionmapping';
 import {getRichReactions} from '@utils/Storage/reactions';
 import EmojiSelector from '@components/Reusable/BottomSheets/EmojiSelector';
-import {getMessage} from '@utils/Storage/messages';
 
 export const RenderReactionBar = () => {
   const [richReactions, setRichReactions] = useState<any>([]);
-  const [message, setMessage] = useState<SavedMessageParams | null>(null);
   const [isEmojiSelectorVisible, setIsEmojiSelectorVisible] =
     useState<boolean>(false);
 
-  const {onReaction, setVisible, selectedMessages, chatId} = useChatContext();
-  const messageId = selectedMessages[0];
+  const {onReaction, chatId, selectedMessage} = useChatContext();
+  const message = selectedMessage?.message;
+  const messageId = selectedMessage?.message.messageId;
   const selfReactionObj = richReactions.find(
     (reaction: {senderId: string}) => reaction.senderId === 'SELF',
   );
   const selfReaction = selfReactionObj ? selfReactionObj.reaction : false;
 
-  const barWidth = useRef(new Animated.Value(20)).current;
+  const barWidth = useRef(new Animated.Value(0)).current;
   const emojiScales = useRef(
     reactionMapping.map(() => new Animated.Value(0)),
   ).current;
 
   useEffect(() => {
-    const fetchRichReactionsAndMessage = async () => {
-      const messageData = await getMessage(chatId, messageId);
-      setMessage(messageData);
-      // Fetch rich reactions asynchronously
-      const richReactionsData = await getRichReactions(chatId, messageId);
-      setRichReactions(richReactionsData);
-
-      // Start animations
-      Animated.parallel([
-        Animated.timing(barWidth, {
-          toValue: 270,
-          duration: reactionMapping.length * 50,
-          useNativeDriver: false,
-        }),
-        Animated.stagger(
-          70,
-          emojiScales.map(scale =>
-            Animated.timing(scale, {
-              toValue: 1,
-              duration: 160,
-              useNativeDriver: true,
-            }),
-          ),
-        ),
-      ]).start();
+    const fetchRichReactions = async () => {
+      if (messageId) {
+        const richReactionsData = await getRichReactions(chatId, messageId);
+        setRichReactions(richReactionsData);
+      }
     };
 
-    fetchRichReactionsAndMessage();
-
+    // Start animations
+    Animated.parallel([
+      Animated.timing(barWidth, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.stagger(
+        40,
+        emojiScales.map(scale =>
+          Animated.timing(scale, {
+            toValue: 1,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+        ),
+      ),
+    ]).start();
+    fetchRichReactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [messageId]);
 
   const onReactionPress = (item: any) => {
-    setVisible(false);
     message && onReaction(message, item);
   };
 
   return (
     <Animated.View
-      style={StyleSheet.compose(styles.reactionSelection, {
-        width: barWidth,
-      })}>
+      style={[
+        styles.reactionSelection,
+        {
+          transform: [{scaleX: barWidth}],
+        },
+      ]}>
       {reactionMapping.map((item, index) => (
         <View key={item} style={styles.reactionsWrapper}>
           <Animated.View
@@ -111,11 +108,20 @@ export const RenderReactionBar = () => {
             if (!selfReaction || reactionMapping.includes(selfReaction)) {
               setIsEmojiSelectorVisible(true);
             } else {
-              setVisible(false);
               message && onReaction(message, selfReaction);
             }
           }}>
           <NumberlessText
+            style={{
+              transform: [
+                {
+                  translateY:
+                    selfReaction && !reactionMapping.includes(selfReaction)
+                      ? 0
+                      : 3,
+                },
+              ],
+            }}
             fontSizeType={FontSizeType.exs}
             fontType={FontType.rg}
             allowFontScaling={false}>
@@ -154,8 +160,7 @@ export function RenderReactions({
               key={item[0]}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}
-              textColor={PortColors.subtitle}
-              style={{textAlign: 'center'}}>
+              textColor={PortColors.subtitle}>
               {item[0]} {item[1] > 1 && item[1]}
             </NumberlessText>
           );
@@ -170,6 +175,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: PortColors.primary.white,
     borderRadius: 16,
+    height: 47,
     borderWidth: 0.5,
     borderColor: PortColors.stroke,
     flexDirection: 'row',
@@ -181,7 +187,8 @@ const styles = StyleSheet.create({
   },
   hasReactionMessage: {
     backgroundColor: PortColors.stroke,
-    padding: 5,
+    paddingVertical: 3,
+    paddingHorizontal: 5,
     borderRadius: 12,
     alignItems: 'center',
     textAlign: 'center',
@@ -192,15 +199,15 @@ const styles = StyleSheet.create({
   },
   reactionDisplay: {
     backgroundColor: PortColors.primary.grey.light,
+    overflow: 'hidden',
     borderRadius: 12,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 0.5,
     borderColor: PortColors.primary.border.dullGrey,
     paddingVertical: 4,
-    paddingHorizontal: 4,
-    gap: 4,
+    paddingLeft: 5,
     marginTop: -4,
   },
 });

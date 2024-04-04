@@ -5,9 +5,8 @@ class ReceiveImage extends ReceiveLargeData {
   generatePreviewText(): string {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     return (
-      (this.decryptedMessageContent.data as LargeDataParams).text ||
-      'received image: ' +
-        (this.decryptedMessageContent.data as LargeDataParams).fileName
+      '📷 ' +
+      ((this.decryptedMessageContent.data as LargeDataParams).text || 'Image')
     );
   }
 }

@@ -5,9 +5,8 @@ class ReceiveVideo extends ReceiveLargeData {
   generatePreviewText(): string {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     return (
-      (this.decryptedMessageContent.data as LargeDataParams).text ||
-      'received video: ' +
-        (this.decryptedMessageContent.data as LargeDataParams).fileName
+      '🎥 ' +
+      ((this.decryptedMessageContent.data as LargeDataParams).text || 'Video')
     );
   }
 }

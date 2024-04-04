@@ -5,9 +5,9 @@ class ReceiveAudio extends ReceiveLargeData {
   generatePreviewText(): string {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     return (
-      (this.decryptedMessageContent.data as LargeDataParams).text ||
-      'received audio: ' +
-        (this.decryptedMessageContent.data as LargeDataParams).fileName
+      '🔊 ' +
+      ((this.decryptedMessageContent.data as LargeDataParams).text ||
+        'Voice note')
     );
   }
 }

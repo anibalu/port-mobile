@@ -20,7 +20,7 @@ export async function displaySimpleNotification(
    * Guard to remove client-generated notifications on iOS until
    * we receive NSE Entitlement
    */
-  if ('ios' == Platform.OS) {
+  if (Platform.OS == 'ios') {
     return;
   }
   const channelId = await setupNotifee();

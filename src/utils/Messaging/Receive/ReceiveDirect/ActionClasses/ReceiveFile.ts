@@ -4,9 +4,8 @@ class ReceiveFile extends ReceiveLargeData {
   generatePreviewText(): string {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     return (
-      (this.decryptedMessageContent.data as LargeDataParams).text ||
-      'received file: ' +
-        (this.decryptedMessageContent.data as LargeDataParams).fileName
+      '📎 ' +
+      ((this.decryptedMessageContent.data as LargeDataParams).text || 'File')
     );
   }
 }

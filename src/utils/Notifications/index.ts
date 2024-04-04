@@ -1,5 +1,6 @@
 import notifee, {AndroidVisibility, Notification} from '@notifee/react-native';
 import store from '@store/appStore';
+import {Platform} from 'react-native';
 
 /**
  * Displays all notifications for the app.
@@ -15,6 +16,13 @@ export async function displaySimpleNotification(
   chatId?: string,
   isGroup: boolean = false,
 ) {
+  /*
+   * Guard to remove client-generated notifications on iOS until
+   * we receive NSE Entitlement
+   */
+  if ('ios' == Platform.OS) {
+    return;
+  }
   const channelId = await setupNotifee();
   const entireState = store.getState();
   const currentActiveChatId = entireState.profile.activeChat;

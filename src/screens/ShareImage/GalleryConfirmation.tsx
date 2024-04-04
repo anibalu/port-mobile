@@ -77,7 +77,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   const [userNameInDM, setUserNameInDM] = useState('');
   const [groupMembers, setGroupMembers] = useState<GroupMemberStrict[]>([]);
 
-  const {compressionError} = useErrorModal();
+  const {compressionError, FileTooLarge} = useErrorModal();
 
   // On receiving messages, we need to generate thumbnails if videos
   useEffect(() => {
@@ -297,7 +297,11 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         };
 
         const sender = new SendMessage(mbr.chatId, data.contentType, newData);
-        await sender.send();
+        try {
+          await sender.send();
+        } catch (error) {
+          FileTooLarge();
+        }
       }
     }
     setSending(false);

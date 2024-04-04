@@ -103,7 +103,7 @@ export class SendMediaDirectMessage<
       await this.updateConnectionInfo(sendStatus);
     } catch (e) {
       console.error('Could not send message', e);
-      await this.onFailure();
+      await this.onFailure(e);
       this.storeCalls();
       return false;
     }
@@ -118,23 +118,18 @@ export class SendMediaDirectMessage<
    * Perform the initial DBCalls and attempt API calls
    */
   private async validate(): Promise<void> {
-    try {
-      if (!mediaContentTypes.includes(this.contentType)) {
-        throw new Error('NotMediaContentTypeError');
-      }
-      if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
-        throw new Error('MessageDataTooBigError');
-      }
-      const fileUri = (this.data as LargeDataParams).fileUri;
-      if (!fileUri) {
-        throw new Error('LargeDataFileUriNullError');
-      }
-      if (!(await checkFileSizeWithinLimits(fileUri))) {
-        throw new Error('FileTooLarge');
-      }
-    } catch (error) {
-      console.error('Error found in initial checks: ', error);
-      throw new Error('InitialChecksError');
+    if (!mediaContentTypes.includes(this.contentType)) {
+      throw new Error('NotMediaContentTypeError');
+    }
+    if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
+      throw new Error('MessageDataTooBigError');
+    }
+    const fileUri = (this.data as LargeDataParams).fileUri;
+    if (!fileUri) {
+      throw new Error('LargeDataFileUriNullError');
+    }
+    if (!(await checkFileSizeWithinLimits(fileUri))) {
+      throw new Error('FileTooLarge');
     }
   }
 
@@ -168,12 +163,15 @@ export class SendMediaDirectMessage<
     return false;
   }
 
-  private async onFailure() {
+  private async onFailure(error: any = null) {
     this.updateConnectionInfo(MessageStatus.failed);
     storage.updateMessageSendStatus(this.chatId, {
       messageIdToBeUpdated: this.messageId,
       updatedMessageStatus: MessageStatus.failed,
     });
+    if (typeof error === 'object' && error.message === 'FileTooLarge') {
+      throw new Error(error.message);
+    }
   }
 
   private async updateConnectionInfo(newSendStatus: MessageStatus) {

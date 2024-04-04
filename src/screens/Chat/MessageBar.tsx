@@ -66,6 +66,7 @@ import BlinkingDot from './BlinkingDot';
 import {extractLink} from './BubbleUtils';
 import LinkPreview from './LinkPreview';
 import AmplitudeBars from './Recording';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
 /**
@@ -92,6 +93,7 @@ const MessageBar = ({
 }): ReactNode => {
   const navigation = useNavigation<any>();
   const rotationValue = useRef(new Animated.Value(0)).current;
+  const {MessageDataTooBigError} = useErrorModal();
 
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -159,7 +161,11 @@ const MessageBar = ({
 
         replyTo ? replyTo.messageId : null,
       );
-      await sender.send();
+      try {
+        await sender.send();
+      } catch (error) {
+        MessageDataTooBigError();
+      }
     }
   };
 

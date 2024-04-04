@@ -1,22 +1,30 @@
 import React from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {StyleSheet, View} from 'react-native';
-import {PortColors, screen} from '../ComponentUtils';
+import {PortColors, PortSpacing, screen} from '../ComponentUtils';
 import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
+import Error from '@assets/icons/InfoRed.svg';
+import Success from '@assets/icons/SuccessTick.svg';
 
 function ErrorModal() {
   const {modalVisible, errorToShow} = useErrorModal();
-  const {Icon, text, showGreen} = errorToShow;
+  const {text, type} = errorToShow;
 
   return (
     <>
       {modalVisible && (
-        <View style={showGreen ? styles.greenModalView : styles.modalView}>
-          {Icon && <Icon />}
+        <View
+          style={StyleSheet.compose(
+            styles.modalView,
+            type === 'success'
+              ? styles.successModalView
+              : styles.errorModalView,
+          )}>
+          {type === 'success' ? <Success /> : <Error />}
           <NumberlessText
-            fontType={FontType.md}
+            fontType={FontType.rg}
             fontSizeType={FontSizeType.s}
-            style={showGreen ? styles.greenModaltext : styles.modaltext}>
+            style={styles.modaltext}>
             {text}
           </NumberlessText>
         </View>
@@ -27,43 +35,33 @@ function ErrorModal() {
 
 const styles = StyleSheet.create({
   modalView: {
-    backgroundColor: PortColors.primary.red.light,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
     flexDirection: 'row',
-    width: screen.width - 70,
-    marginTop: 100,
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 20,
+    maxWidth: screen.width - 70,
+    width: 'auto',
+    bottom: 100,
+    borderRadius: 10,
+    padding: PortSpacing.tertiary.uniform,
     position: 'absolute',
     alignSelf: 'center',
     borderWidth: 1,
     borderColor: PortColors.primary.red.error,
   },
-  greenModalView: {
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    width: 150,
-    marginTop: 100,
-    borderRadius: 8,
-    paddingHorizontal: 5,
-    paddingVertical: 5,
-    position: 'absolute',
-    alignSelf: 'center',
-    borderWidth: 1,
-    borderColor: '#A0D995',
+  successModalView: {
+    backgroundColor: '#D9F5E7',
+    borderColor: 'rgba(18, 183, 106, 0.50)',
+  },
+  errorModalView: {
+    backgroundColor: '#FDE8E6',
+    borderColor: 'rgba(239, 77, 65, 0.50)',
   },
   modaltext: {
-    color: '#D84646',
-    marginLeft: 5,
+    color: PortColors.title,
+    marginLeft: 4,
+    textAlign: 'left',
     lineHeight: 15,
-  },
-  greenModaltext: {
-    color: '#A0D995',
-    textAlign: 'center',
+    paddingTop: 3,
   },
 });
 export default ErrorModal;

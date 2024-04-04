@@ -3,12 +3,9 @@ import React, {
   useState,
   useContext,
   ReactNode,
-  FC,
   useEffect,
 } from 'react';
-import Info from '@assets/icons/RedInfo.svg';
-import Error from '@assets/icons/sadError.svg';
-import {SvgProps} from 'react-native-svg';
+
 import {ERROR_MODAL_VALIDITY_TIMEOUT} from '@configs/constants';
 
 type ModalContextType = {
@@ -20,6 +17,8 @@ type ModalContextType = {
   imageSelectionError: () => void;
   mediaDownloadError: () => void;
   compressionError: () => void;
+  MessageDataTooBigError: () => void;
+  FileTooLarge: () => void;
   mediaLoadError: () => void;
   copyingMessageError: () => void;
   somethingWentWrongError: () => void;
@@ -36,8 +35,7 @@ type ModalContextType = {
 };
 type ErrorObject = {
   text: string;
-  Icon?: FC<SvgProps>;
-  showGreen?: boolean;
+  type: 'success' | 'error';
 };
 
 const ErrorModalContext = createContext<ModalContextType | undefined>(
@@ -62,135 +60,148 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [errorToShow, setErrorToShow] = useState<ErrorObject>({
     text: '',
-    Icon: Info,
-    showGreen: false,
+    type: 'error',
   });
 
   // all error scenarios
+  const FileTooLarge = () => {
+    setErrorToShow({
+      text: 'Your media was too large to share',
+      type: 'error',
+    });
+  };
+
+  const MessageDataTooBigError = () => {
+    setErrorToShow({
+      text: 'Your message was too long',
+      type: 'error',
+    });
+  };
+
   const personOfflineError = () => {
     setErrorToShow({
       text: 'Error establishing connection. Other person is offline.',
-      Icon: Info,
+      type: 'error',
     });
   };
   const mediaDownloadError = () => {
     setErrorToShow({
       text: 'Error downloading media, please try again later!',
-      Icon: Info,
+      type: 'error',
     });
   };
   const compressionError = () => {
     setErrorToShow({
       text: 'Error compressing media, your media will be sent as is.',
-      Icon: Info,
+      type: 'error',
     });
   };
   const componentNotSupportedyetError = () => {
     setErrorToShow({
       text: 'This is not supported yet!',
-      Icon: Info,
+      type: 'error',
     });
   };
 
   const onboardingFailureError = () => {
     setErrorToShow({
       text: 'Error in setting you up, please check your network.',
-      Icon: Error,
+      type: 'error',
     });
   };
   const mediaLoadError = () => {
     setErrorToShow({
       text: 'Error loading media, please check if you have the necessary apps for the media.',
-      Icon: Error,
+      type: 'error',
     });
   };
 
   const unableToDisconnectError = () => {
     setErrorToShow({
       text: 'Unable to disconnect. Please try again when online.',
-      Icon: Error,
+      type: 'error',
     });
   };
 
   const unableToSharelinkError = () => {
     setErrorToShow({
       text: 'Unable to share link. Please try again when online.',
-      Icon: Error,
+      type: 'error',
     });
   };
 
   const unableToCreateGroupError = () => {
     setErrorToShow({
       text: 'Unable to create group. Please try again when online.',
-      Icon: Error,
+      type: 'error',
     });
   };
 
   const establishingConnectionError = () => {
     setErrorToShow({
       text: 'Error establishing connection. Generate new link.',
-      Icon: Info,
+      type: 'error',
     });
   };
   const checkingProfileError = () => {
     setErrorToShow({
       text: 'Error checking profile exists or not as app launches',
-      Icon: Info,
+      type: 'error',
     });
   };
 
   const portConnectionError = () => {
     setErrorToShow({
       text: 'Error using port. This link has expired',
-      Icon: Info,
+      type: 'error',
     });
   };
 
   const portCreationError = () => {
     setErrorToShow({
       text: 'Network Error in creating new Port.',
-      Icon: Info,
+      type: 'error',
     });
   };
 
   const incorrectQRError = () => {
     setErrorToShow({
       text: 'QR code not a numberless QR code',
-      Icon: Info,
+      type: 'error',
     });
   };
 
   const imageSelectionError = () => {
     setErrorToShow({
       text: 'Image selection error',
-      Icon: Info,
+      type: 'error',
     });
   };
 
   const copyingMessageError = () => {
     setErrorToShow({
       text: 'Error cannot copy this message',
-      Icon: Info,
+      type: 'error',
     });
   };
 
   const somethingWentWrongError = () => {
     setErrorToShow({
       text: 'Oops something went wrong',
-      Icon: Info,
+      type: 'error',
     });
   };
 
   const networkError = () => {
     setErrorToShow({
       text: 'Error network error in creating new port',
-      Icon: Info,
+      type: 'error',
     });
   };
   const messageCopied = () => {
     setErrorToShow({
       text: 'Copied!',
-      showGreen: true,
+      type: 'success',
     });
   };
 
@@ -221,6 +232,8 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         networkError,
         mediaDownloadError,
         personOfflineError,
+        MessageDataTooBigError,
+        FileTooLarge,
         unableToDisconnectError,
         mediaLoadError,
         unableToSharelinkError,

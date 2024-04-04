@@ -103,7 +103,7 @@ export class SendGenericDirectMessage<
       // this.storeCalls();
     } catch (e) {
       console.error('Could not send message', e);
-      await this.onFailure();
+      await this.onFailure(e);
       this.storeCalls();
       return false;
     }
@@ -118,16 +118,16 @@ export class SendGenericDirectMessage<
    * Perform the initial DBCalls and attempt API calls
    */
   private validate(): void {
-    try {
-      if (!genericContentTypes.includes(this.contentType)) {
-        throw new Error('NotGenericContentTypeError');
-      }
-      if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
-        throw new Error('MessageDataTooBigError');
-      }
-    } catch (error) {
-      console.error('Error found in initial checks for generic: ', error);
-      throw new Error('InitialChecksError');
+    /**
+     * If you're seeing this, bring it up to Abhi. This has debt
+     * since it needs custom error types to remove dependence on
+     * error message strings
+     */
+    if (!genericContentTypes.includes(this.contentType)) {
+      throw new Error('NotGenericContentTypeError');
+    }
+    if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
+      throw new Error('MessageDataTooBigError');
     }
   }
   private async setDisappearing() {
@@ -188,12 +188,18 @@ export class SendGenericDirectMessage<
     return true;
   }
 
-  private async onFailure() {
+  private async onFailure(error: any = null) {
     this.updateConnectionInfo(MessageStatus.failed);
     storage.updateMessageSendStatus(this.chatId, {
       messageIdToBeUpdated: this.messageId,
       updatedMessageStatus: MessageStatus.failed,
     });
+    if (
+      typeof error === 'object' &&
+      error.message === 'MessageDataTooBigError'
+    ) {
+      throw new Error(error.message);
+    }
   }
 
   /**

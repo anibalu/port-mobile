@@ -106,7 +106,7 @@ const BubbleFocusOptions = () => {
         <View style={styles.optionButton}>
           <DeleteImage width={20} height={20} />
           <NumberlessText
-            textColor={PortColors.title}
+            textColor={PortColors.primary.red.error}
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>
             Delete

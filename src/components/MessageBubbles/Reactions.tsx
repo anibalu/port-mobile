@@ -111,26 +111,16 @@ export const RenderReactionBar = () => {
               message && onReaction(message, selfReaction);
             }
           }}>
-          <NumberlessText
-            style={{
-              transform: [
-                {
-                  translateY:
-                    selfReaction && !reactionMapping.includes(selfReaction)
-                      ? 0
-                      : 3,
-                },
-              ],
-            }}
-            fontSizeType={FontSizeType.exs}
-            fontType={FontType.rg}
-            allowFontScaling={false}>
-            {!selfReaction || reactionMapping.includes(selfReaction) ? (
-              <Plus />
-            ) : (
-              selfReaction
-            )}
-          </NumberlessText>
+          {!selfReaction || reactionMapping.includes(selfReaction) ? (
+            <Plus />
+          ) : (
+            <NumberlessText
+              fontSizeType={FontSizeType.exs}
+              fontType={FontType.rg}
+              allowFontScaling={false}>
+              {selfReaction}
+            </NumberlessText>
+          )}
         </Pressable>
       </View>
       <EmojiSelector
@@ -174,28 +164,31 @@ const styles = StyleSheet.create({
   reactionSelection: {
     overflow: 'hidden',
     backgroundColor: PortColors.primary.white,
-    borderRadius: 16,
+    borderRadius: 24,
     height: 47,
+    width: 272,
     borderWidth: 0.5,
     borderColor: PortColors.stroke,
     flexDirection: 'row',
-    gap: 4,
-    padding: 4,
     marginBottom: 4,
     alignItems: 'center',
+    paddingHorizontal: 4,
+    gap: 2,
     justifyContent: 'center',
   },
   hasReactionMessage: {
     backgroundColor: PortColors.stroke,
-    paddingVertical: 3,
-    paddingHorizontal: 5,
-    borderRadius: 12,
     alignItems: 'center',
     textAlign: 'center',
     justifyContent: 'center',
   },
   reactionsWrapper: {
-    padding: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 36,
+    height: 36,
+    overflow: 'hidden',
+    borderRadius: 20,
   },
   reactionDisplay: {
     backgroundColor: PortColors.primary.grey.light,

@@ -74,19 +74,22 @@ const PendingRequests = () => {
           ) : (
             <View
               style={{
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flex: 1,
               }}>
               {isLoading ? (
-                <DefaultLoader />
+                <View style={{marginBottom: 50}}>
+                  <DefaultLoader />
+                </View>
               ) : (
-                <View>
+                <View style={{marginBottom: 50}}>
                   <NumberlessText
-                    fontSizeType={FontSizeType.s}
+                    textColor={PortColors.subtitle}
                     fontType={FontType.rg}
-                    textColor={PortColors.subtitle}>
-                    No pending requests
+                    fontSizeType={FontSizeType.m}>
+                    No pending ports
                   </NumberlessText>
                 </View>
               )}

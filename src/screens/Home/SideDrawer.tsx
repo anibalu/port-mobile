@@ -6,6 +6,9 @@ import AddFolder from '@assets/icons/AddFolder.svg';
 import {useNavigation} from '@react-navigation/native';
 import NewSuperportIcon from '@assets/icons/NewSuperportBlack.svg';
 import DefaultFolder from '@assets/icons/DefaultFolder.svg';
+import PrimaryFolder from '@assets/icons/PrimaryFolder.svg';
+import AllChatsFolder from '@assets/icons/AllChatsFolder.svg';
+
 import PendingRequestIcon from '@assets/icons/pendingRequestThin.svg';
 import {
   FontSizeType,
@@ -21,6 +24,7 @@ import {FolderInfo, FolderInfoWithUnread} from '@utils/ChatFolders/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
+import {defaultFolderId} from '@configs/constants';
 
 function SideDrawer({
   closeSwipeable,
@@ -119,7 +123,16 @@ function SideDrawer({
                   }
                   badge={element.item.unread}
                   title={element.item.name}
-                  IconLeft={DefaultFolder}
+                  IconLeft={(() => {
+                    switch (element.item.folderId) {
+                      case defaultFolderId:
+                        return PrimaryFolder;
+                      case 'all':
+                        return AllChatsFolder;
+                      default:
+                        return DefaultFolder;
+                    }
+                  })()}
                   isBadgeFilled={true}
                   onClick={() =>
                     handleFolderOptionClick(element.item as FolderInfo)

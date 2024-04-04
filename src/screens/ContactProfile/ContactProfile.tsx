@@ -35,7 +35,7 @@ import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
 
 import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import AddFolderBottomsheet from './AddFolderBottomsheet';
+import AddFolderBottomsheet from '@components/Reusable/BottomSheets/AddFolderBottomsheet';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {getAllFolders} from '@utils/ChatFolders';
 import {getConnection} from '@utils/Connections';
@@ -51,11 +51,11 @@ const ContactProfile = ({route, navigation}: Props) => {
   const [displayName, setDisplayName] = useState<string>(name);
   const [displayPic, setDisplayPic] = useState<string>(profileUri);
   const [showAddFolderModal, setShowAddFolderModal] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const [editingName, setEditingName] = useState(false);
   const [confirmSheet, setConfirmSheet] = useState(false);
-  // todo: pass as props @sumaanta
+  const [confirmSheetDelete, setConfirmSheetDelete] = useState(false);
+
   const [connected, setConnected] = useState(isConnected);
   const [selectedFolder, setSelectedFolder] = useState<FolderInfo>({
     ...defaultFolderInfo,
@@ -100,14 +100,6 @@ const ContactProfile = ({route, navigation}: Props) => {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const onDeleteChat = async () => {
-    setLoading(true);
-    const chatHandler = new DirectChat(chatId);
-    await chatHandler.delete();
-    setLoading(false);
-    navigation.navigate('HomeTab', {selectedFolder: {...selectedFolder}});
-  };
 
   const onSaveName = async () => {
     const chatHandler = new DirectChat(chatId);
@@ -241,7 +233,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                   </NumberlessText>
 
                   <PrimaryButton
-                    isLoading={loading}
+                    isLoading={false}
                     disabled={false}
                     primaryButtonColor="r"
                     buttonText="Disconnect"
@@ -270,11 +262,13 @@ const ContactProfile = ({route, navigation}: Props) => {
                 </View>
                 <View>
                   <PrimaryButton
-                    isLoading={loading}
+                    isLoading={false}
                     disabled={false}
                     primaryButtonColor="r"
                     buttonText="Delete history"
-                    onClick={onDeleteChat}
+                    onClick={() => {
+                      setConfirmSheetDelete(true);
+                    }}
                   />
                 </View>
               </View>
@@ -305,11 +299,26 @@ const ContactProfile = ({route, navigation}: Props) => {
               selectedFolder: {...selectedFolder},
             });
           }}
-          title={'Are you sure you want to close this Port?'}
+          title={'Are you sure you want to disconnect this chat?'}
           description={
-            'Once you close this Port, you cannot send messages to this contact. Chat history will be saved.'
+            'Once you disconnect this chat, you cannot send messages to this contact. Chat history will be saved.'
           }
           buttonText={'Disconnect'}
+          buttonColor="r"
+        />
+        <ConfirmationBottomSheet
+          visible={confirmSheetDelete}
+          onClose={() => setConfirmSheetDelete(false)}
+          onConfirm={async () => {
+            const chatHandler = new DirectChat(chatId);
+            await chatHandler.delete();
+            navigation.navigate('HomeTab', {
+              selectedFolder: {...selectedFolder},
+            });
+          }}
+          title={'Are you sure you want to delete chat history?'}
+          description={'Deleting history will erase all chat data'}
+          buttonText={'Delete History'}
           buttonColor="r"
         />
       </SafeAreaView>

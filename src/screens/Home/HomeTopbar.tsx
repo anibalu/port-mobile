@@ -3,7 +3,7 @@
  */
 import SearchIcon from '@assets/icons/searchThin.svg';
 import PendingRequestIcon from '@assets/icons/PendingRequests.svg';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -12,11 +12,14 @@ import {
 import {TOPBAR_HEIGHT, defaultFolderId} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import SidebarMenu from '@assets/icons/SidebarMenu.svg';
-import SettingsIcon from '@assets/icons/Settings.svg';
+import SettingsIcon from '@assets/icons/FolderSettings.svg';
 import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import SearchBar from '../../components/Reusable/TopBars/SearchBar';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import {GenericButton} from '@components/GenericButton';
+import Cross from '@assets/icons/cross.svg';
+import {ChatTileProps} from '@components/ChatTile/ChatTile';
 
 type TopbarProps = {
   openSwipeable: any;
@@ -26,6 +29,10 @@ type TopbarProps = {
   folder: FolderInfo;
   pendingRequestsLength: number;
   showPrompt?: boolean;
+  selectionMode: boolean;
+  setSelectionMode: (x: boolean) => void;
+  selectedConnections: ChatTileProps[];
+  setSelectedConnections: (x: ChatTileProps[]) => void;
 };
 
 function HomeTopbar({
@@ -36,88 +43,131 @@ function HomeTopbar({
   folder,
   pendingRequestsLength,
   showPrompt = false,
+  selectionMode,
+  setSelectionMode,
+  selectedConnections,
+  setSelectedConnections,
 }: TopbarProps): ReactNode {
   const title = unread ? `${folder.name} (${unread})` : `${folder.name}`;
   const navigation = useNavigation<any>();
 
   const [isSearchActive, setIsSearchActive] = useState(false);
+
+  const handleCancel = () => {
+    setSelectedConnections([]);
+    setSelectionMode(false);
+  };
   return (
-    <View style={styles.bar}>
-      {isSearchActive ? (
-        <View style={{flex: 1}}>
-          <SearchBar
-            setIsSearchActive={setIsSearchActive}
-            searchText={searchText}
-            setSearchText={setSearchText}
-          />
+    <>
+      {selectionMode ? (
+        <View style={styles.selectedBar}>
+          <View style={styles.profileBar}>
+            <View style={styles.titleBar}>
+              <NumberlessText
+                fontSizeType={FontSizeType.l}
+                fontType={FontType.md}
+                ellipsizeMode="tail"
+                style={styles.selectedCount}
+                numberOfLines={1}>
+                {'Selected (' + selectedConnections.length.toString() + ')'}
+              </NumberlessText>
+            </View>
+            <View>
+              <GenericButton
+                buttonStyle={styles.crossBox}
+                IconLeft={Cross}
+                onPress={handleCancel}
+              />
+            </View>
+          </View>
         </View>
       ) : (
-        <>
-          <View style={styles.menuLeft}>
-            <Pressable
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: PortSpacing.secondary.uniform,
-              }}
-              onPress={openSwipeable}>
-              <View style={styles.iconWrapper2}>
-                <SidebarMenu width={24} height={24} />
+        <View style={styles.bar}>
+          {isSearchActive ? (
+            <View style={{flex: 1}}>
+              <SearchBar
+                setIsSearchActive={setIsSearchActive}
+                searchText={searchText}
+                setSearchText={setSearchText}
+              />
+            </View>
+          ) : (
+            <>
+              <View style={styles.menuLeft}>
+                <Pressable
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: PortSpacing.secondary.uniform,
+                  }}
+                  onPress={openSwipeable}>
+                  <View style={styles.iconWrapper2}>
+                    <SidebarMenu width={24} height={24} />
 
-                {showPrompt && <View style={styles.blueDot} />}
-              </View>
-              <NumberlessText
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                fontType={FontType.md}
-                fontSizeType={FontSizeType.l}>
-                {title}
-              </NumberlessText>
-            </Pressable>
-          </View>
-          <View style={styles.optionsRight}>
-            {(folder.folderId === defaultFolderId ||
-              folder.folderId === 'all') && (
-              <Pressable
-                style={styles.iconWrapper3}
-                onPress={() => navigation.navigate('PendingRequests')}>
-                <PendingRequestIcon width={24} height={24} />
-                <View style={styles.badgeWrapper}>
+                    {showPrompt && <View style={styles.blueDot} />}
+                  </View>
                   <NumberlessText
-                    textColor={PortColors.primary.blue.app}
-                    fontType={FontType.rg}
-                    fontSizeType={FontSizeType.s}>
-                    {pendingRequestsLength}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    fontType={FontType.md}
+                    fontSizeType={FontSizeType.l}>
+                    {title}
                   </NumberlessText>
-                </View>
-              </Pressable>
-            )}
-            <Pressable
-              style={styles.iconWrapper}
-              onPress={() => setIsSearchActive(p => !p)}>
-              <SearchIcon width={24} height={24} />
-            </Pressable>
-            {folder.folderId !== 'all' && (
-              <Pressable
-                style={styles.iconWrapper2}
-                onPress={() =>
-                  navigation.navigate('EditFolder', {
-                    selectedFolder: folder,
-                  })
-                }>
-                <SettingsIcon width={24} height={24} />
-              </Pressable>
-            )}
-          </View>
-        </>
+                </Pressable>
+              </View>
+              <View style={styles.optionsRight}>
+                {(folder.folderId === defaultFolderId ||
+                  folder.folderId === 'all') && (
+                  <Pressable
+                    style={styles.iconWrapper3}
+                    onPress={() => navigation.navigate('PendingRequests')}>
+                    <PendingRequestIcon width={24} height={24} />
+                    <View style={styles.badgeWrapper}>
+                      <NumberlessText
+                        textColor={PortColors.primary.blue.app}
+                        fontType={FontType.rg}
+                        fontSizeType={FontSizeType.s}>
+                        {pendingRequestsLength}
+                      </NumberlessText>
+                    </View>
+                  </Pressable>
+                )}
+                <Pressable
+                  style={styles.iconWrapper}
+                  onPress={() => setIsSearchActive(p => !p)}>
+                  <SearchIcon width={24} height={24} />
+                </Pressable>
+                {folder.folderId !== 'all' && (
+                  <Pressable
+                    style={styles.iconWrapper2}
+                    onPress={() =>
+                      navigation.navigate('EditFolder', {
+                        selectedFolder: folder,
+                      })
+                    }>
+                    <SettingsIcon width={24} height={24} />
+                  </Pressable>
+                )}
+              </View>
+            </>
+          )}
+        </View>
       )}
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   bar: {
     paddingHorizontal: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: PortColors.primary.white,
+    height: TOPBAR_HEIGHT,
+  },
+  selectedBar: {
+    paddingHorizontal: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -192,6 +242,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     top: 19,
     left: 12,
+  },
+  profileBar: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  titleBar: {
+    flex: 1,
+    marginLeft: 10,
+    maxWidth: '60%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    gap: PortSpacing.tertiary.uniform,
+  },
+  selectedCount: {
+    color: PortColors.primary.black,
+    overflow: 'hidden',
+    width: screen.width / 2,
+  },
+  crossBox: {
+    backgroundColor: PortColors.primary.white,
+    alignItems: 'flex-end',
+    height: 40,
+    top: 7,
+    width: 40,
   },
 });
 

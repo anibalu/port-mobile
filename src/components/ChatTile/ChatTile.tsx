@@ -3,13 +3,14 @@ import Read from '@assets/icons/statusIndicators/read.svg';
 import Delivered from '@assets/icons/statusIndicators/received.svg';
 import {default as Journaled} from '@assets/icons/statusIndicators/sending.svg';
 import Sent from '@assets/icons/statusIndicators/sent.svg';
-import {PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -27,32 +28,54 @@ import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import {getChatTileTimestamp} from '@utils/Time';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 export interface ChatTileProps extends ConnectionInfo {
   expired?: boolean;
   isReadPort?: boolean;
 }
 
+const AVATAR_WIDTH = 86;
+const CHECKBOX_WIDTH = 40;
+
 function ChatTile({
   props,
   setSelectedProps,
+  selectedConnections,
+  setSelectedConnections,
+  selectionMode,
+  setSelectionMode,
 }: {
+  //controls display
   props: ChatTileProps;
+  //responsible for passing connection information to modals
   setSelectedProps: (p: ChatTileProps | null) => void;
+  //selected connections
+  selectedConnections: ChatTileProps[];
+  //set selected connectiosn
+  setSelectedConnections: (p: ChatTileProps[]) => void;
+  //whether home screen is in selection mode
+  selectionMode: boolean;
+  setSelectionMode: (p: boolean) => void;
 }): ReactNode {
+  const isSelected = selectedConnections.some(x => x.chatId === props.chatId);
   const navigation = useNavigation<any>();
   //handles navigation to a chat screen and toggles chat to read.
   const onClick = (): void => {
-    if (props.authenticated) {
-      navigation.navigate('DirectChat', {
-        chatId: props.chatId,
-        isGroupChat: props.connectionType === ChatType.group,
-        isConnected: !props.disconnected,
-        profileUri: props.pathToDisplayPic || DEFAULT_AVATAR,
-        name: props.name,
-      });
+    if (selectionMode) {
+      select();
     } else {
-      setSelectedProps(props);
+      if (props.authenticated) {
+        navigation.navigate('DirectChat', {
+          chatId: props.chatId,
+          isGroupChat: props.connectionType === ChatType.group,
+          isConnected: !props.disconnected,
+          profileUri: props.pathToDisplayPic || DEFAULT_AVATAR,
+          name: props.name,
+        });
+      } else {
+        setSelectedProps(props);
+      }
     }
   };
 
@@ -73,117 +96,176 @@ function ChatTile({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
 
+  const options = {
+    enableVibrateFallback: true /* iOS Only */,
+    ignoreAndroidSystemSettings: true /* Android Only */,
+  };
+  const select = () => {
+    setSelectedConnections([...selectedConnections, props]);
+  };
+  const unselect = () => {
+    const newSelectedConnections = selectedConnections.filter(
+      x => x.chatId !== props.chatId,
+    );
+    setSelectedConnections(newSelectedConnections);
+    if (newSelectedConnections.length === 0) {
+      setSelectionMode(false);
+    }
+  };
+  const selectWithHaptic = () => {
+    if (!isSelected) {
+      setSelectedConnections([...selectedConnections, props]);
+      RNReactNativeHapticFeedback.trigger('impactMedium', options);
+      setSelectionMode(true);
+    }
+  };
   return (
-    <Pressable style={styles.tile} onPress={onClick}>
-      <AvatarBox profileUri={props.pathToDisplayPic} avatarSize="s+" />
-      <View style={{flex: 1}}>
-        <View style={styles.textInfoContainer}>
-          <NumberlessText
-            ellipsizeMode="tail"
-            numberOfLines={1}
-            fontType={FontType.md}
-            style={{
-              flex: 1,
-              alignSelf: 'stretch',
-              marginRight: 12,
-            }}
-            fontSizeType={FontSizeType.l}>
-            {props.name || 'New contact'}
-          </NumberlessText>
-          <View style={styles.dateAndStatusBox}>
-            <NumberlessText
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}
-              textColor={PortColors.text.body}>
-              {getChatTileTimestamp(props.timestamp)}
-            </NumberlessText>
-          </View>
+    <View style={styles.container}>
+      {selectionMode && (
+        <Pressable
+          style={{
+            width: CHECKBOX_WIDTH,
+            height: 54,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          pointerEvents="box-only"
+          onPress={() => {
+            if (!isSelected) {
+              select();
+            } else {
+              unselect();
+            }
+          }}>
+          <CheckBox value={isSelected} />
+        </Pressable>
+      )}
+      <Pressable
+        style={selectionMode ? styles.tileSelectionMode : styles.tile}
+        onPress={onClick}
+        onLongPress={selectWithHaptic}
+        pointerEvents="box-only">
+        <View style={styles.avatarArea}>
+          <AvatarBox profileUri={props.pathToDisplayPic} avatarSize="s+" />
         </View>
-        <View style={styles.columnview}>
-          {props.disconnected ? (
+        <View
+          style={
+            selectionMode
+              ? styles.nonAvatarAreaSelectionMode
+              : styles.nonAvatarArea
+          }>
+          <View style={styles.nameAndTimestamp}>
             <NumberlessText
               ellipsizeMode="tail"
               numberOfLines={1}
-              fontType={FontType.rg}
+              fontType={FontType.md}
               style={{
                 flex: 1,
-                alignSelf: 'stretch',
               }}
-              fontSizeType={FontSizeType.m}
-              textColor={PortColors.primary.red.error}>
-              Disconnected
+              fontSizeType={FontSizeType.l}>
+              {props.name || 'New contact'}
             </NumberlessText>
-          ) : (
-            <>
-              {props.authenticated ? (
-                <>
-                  {props.recentMessageType === ContentType.newChat ? (
-                    <NumberlessText
-                      ellipsizeMode="tail"
-                      numberOfLines={1}
-                      fontType={FontType.rg}
-                      style={{
-                        flex: 1,
-                        alignSelf: 'stretch',
-                      }}
-                      fontSizeType={FontSizeType.m}
-                      textColor={PortColors.text.title}>
-                      New connection
-                    </NumberlessText>
-                  ) : (
-                    <>
-                      <RenderText newMessage={newMessage} />
-                      <DisplayStatus
-                        readStatus={props.readStatus}
-                        newMessageCount={props.newMessageCount}
-                        newMessage={newMessage}
-                      />
-                    </>
-                  )}
-                </>
-              ) : (
-                <>
-                  {
-                    //if not authenticated yet, could be a read port
-                    props.expired ? (
+            <NumberlessText
+              numberOfLines={1}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}
+              textColor={PortColors.text.body}
+              style={{
+                paddingRight: PortSpacing.secondary.right,
+                paddingLeft: PortSpacing.tertiary.left,
+              }}>
+              {getChatTileTimestamp(props.timestamp)}
+            </NumberlessText>
+          </View>
+          <View style={styles.textAndStatus}>
+            {props.disconnected ? (
+              <NumberlessText
+                ellipsizeMode="tail"
+                numberOfLines={1}
+                fontType={FontType.rg}
+                style={{
+                  flex: 1,
+                }}
+                fontSizeType={FontSizeType.m}
+                textColor={PortColors.primary.red.error}>
+                Disconnected
+              </NumberlessText>
+            ) : (
+              <>
+                {props.authenticated ? (
+                  <>
+                    {props.recentMessageType === ContentType.newChat ? (
+                      <NumberlessText
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                        fontType={FontType.rg}
+                        style={{
+                          flex: 1,
+                        }}
+                        fontSizeType={FontSizeType.m}
+                        textColor={PortColors.text.title}>
+                        New connection
+                      </NumberlessText>
+                    ) : (
                       <>
+                        <RenderText newMessage={newMessage} />
+                        <DisplayStatus
+                          readStatus={props.readStatus}
+                          newMessageCount={props.newMessageCount}
+                          newMessage={newMessage}
+                        />
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {
+                      //if not authenticated yet, could be a read port
+                      props.expired ? (
                         <NumberlessText
                           ellipsizeMode="tail"
                           numberOfLines={2}
                           fontType={FontType.rg}
                           style={{
                             flex: 1,
-                            alignSelf: 'stretch',
                           }}
                           fontSizeType={FontSizeType.m}
                           textColor={PortColors.primary.red.error}>
                           Failed to add this contact. You used an expired Port.
                         </NumberlessText>
-                      </>
-                    ) : (
-                      <>
+                      ) : (
                         <NumberlessText
                           ellipsizeMode="tail"
                           numberOfLines={1}
                           fontType={FontType.rg}
                           style={{
                             flex: 1,
-                            alignSelf: 'stretch',
                           }}
                           fontSizeType={FontSizeType.m}
                           textColor={PortColors.text.title}>
                           Adding new contact...
                         </NumberlessText>
-                      </>
-                    )
-                  }
-                </>
-              )}
-            </>
-          )}
+                      )
+                    }
+                  </>
+                )}
+              </>
+            )}
+          </View>
         </View>
-      </View>
-    </Pressable>
+      </Pressable>
+      {isSelected && (
+        <Pressable
+          style={
+            selectionMode
+              ? styles.selectionOverlaySelectionMode
+              : styles.selectionOverlay
+          }
+          onPress={unselect}
+          pointerEvents="box-only"
+        />
+      )}
+    </View>
   );
 }
 
@@ -222,19 +304,16 @@ const RenderText = ({
     } else if (newMessage.contentType === ContentType.contactBundle) {
       text = '👤 ' + (newMessage.data as ContactBundleParams).name;
     }
-
     return (
-      <View style={{flexDirection: 'row', flex: 1}}>
-        <NumberlessText
-          ellipsizeMode="tail"
-          numberOfLines={2}
-          style={{width: screen.width - 160}}
-          fontType={FontType.rg}
-          fontSizeType={FontSizeType.m}
-          textColor={PortColors.subtitle}>
-          {text}
-        </NumberlessText>
-      </View>
+      <NumberlessText
+        ellipsizeMode="tail"
+        numberOfLines={2}
+        style={{flex: 1}}
+        fontType={FontType.rg}
+        fontSizeType={FontSizeType.m}
+        textColor={PortColors.subtitle}>
+        {text}
+      </NumberlessText>
     );
   }
   return (
@@ -289,24 +368,43 @@ function DisplayStatus({
   if (readStatus === ReadStatus.new) {
     if (newMessageCount > 0) {
       return (
-        <View style={{paddingTop: 4}}>
+        <View
+          style={{
+            paddingRight: PortSpacing.secondary.right,
+            paddingTop: 4,
+            paddingLeft: PortSpacing.tertiary.left,
+          }}>
           <View style={styles.new}>
             <NumberlessText
               fontSizeType={FontSizeType.s}
               fontType={FontType.rg}
-              textColor={PortColors.text.primaryWhite}>
+              textColor={PortColors.text.primaryWhite}
+              numberOfLines={1}
+              allowFontScaling={false}>
               {displayNumber(newMessageCount)}
             </NumberlessText>
           </View>
         </View>
       );
     } else {
-      return null;
+      return (
+        <View
+          style={{
+            paddingRight: PortSpacing.secondary.right,
+            paddingTop: 4,
+          }}
+        />
+      );
     }
   } else {
     return (
-      <View style={{paddingTop: 4}}>
-        <View style={styles.indicatorBox}>
+      <View
+        style={{
+          paddingRight: PortSpacing.secondary.right,
+          paddingTop: 4,
+          paddingLeft: PortSpacing.tertiary.left,
+        }}>
+        <View>
           <MessageStatusIndicator />
         </View>
       </View>
@@ -323,32 +421,88 @@ function displayNumber(newMsgCount: number): string {
 }
 
 const styles = StyleSheet.create({
-  tile: {
-    borderRadius: 14,
+  container: {
     flexDirection: 'row',
-    padding: 16,
-    height: 90,
+    width: screen.width,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tile: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    borderRadius: 16,
     borderWidth: 0.5,
     borderColor: PortColors.primary.border.dullGrey,
     backgroundColor: PortColors.primary.white,
+    width: screen.width - 2 * PortSpacing.tertiary.uniform,
+    paddingVertical: PortSpacing.secondary.uniform,
+    overflow: 'hidden',
   },
-  textInfoContainer: {
-    marginLeft: 12,
+  tileSelectionMode: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    borderRadius: 16,
+    borderWidth: 0.5,
+    borderColor: PortColors.primary.border.dullGrey,
+    backgroundColor: PortColors.primary.white,
+    width: screen.width - 2 * PortSpacing.tertiary.uniform - CHECKBOX_WIDTH,
+    paddingVertical: PortSpacing.secondary.uniform,
+    overflow: 'hidden',
   },
-  metadataContainer: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    height: 50,
-    paddingLeft: 5,
+  selectionOverlay: {
+    position: 'absolute',
+    width: screen.width - 2 * PortSpacing.tertiary.uniform,
+    height: '100%',
+    backgroundColor: 'rgba(78, 117, 255, 0.25)',
+    borderWidth: 2,
+    borderColor: PortColors.primary.blue.app,
+    borderRadius: 16,
   },
-  dateAndStatusBox: {
+  selectionOverlaySelectionMode: {
+    position: 'absolute',
+    width: screen.width - 2 * PortSpacing.tertiary.uniform - CHECKBOX_WIDTH,
+    left: PortSpacing.tertiary.left + CHECKBOX_WIDTH,
+    height: '100%',
+    backgroundColor: 'rgba(78, 117, 255, 0.25)',
+    borderWidth: 2,
+    borderColor: PortColors.primary.blue.app,
+    borderRadius: 16,
+  },
+  avatarArea: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: AVATAR_WIDTH,
+    alignSelf: 'center',
+  },
+  nonAvatarArea: {
     flexDirection: 'column',
-    alignItems: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: screen.width - 2 * PortSpacing.tertiary.uniform - AVATAR_WIDTH,
+  },
+  nonAvatarAreaSelectionMode: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width:
+      screen.width -
+      2 * PortSpacing.tertiary.uniform -
+      AVATAR_WIDTH -
+      CHECKBOX_WIDTH,
+  },
+  nameAndTimestamp: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: 3,
+    alignItems: 'center',
+    width: '100%',
+  },
+  textAndStatus: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    width: '100%',
   },
   new: {
     backgroundColor: PortColors.primary.blue.app,
@@ -358,23 +512,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 4,
     minWidth: 20,
-  },
-  indicatorBox: {
-    height: 20,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    minWidth: 20,
-  },
-  newTextDot: {
-    fontSize: 12,
-    textAlign: 'center',
-    color: '#FFF',
-  },
-  columnview: {
-    alignSelf: 'stretch',
-    marginLeft: 12,
-    flexDirection: 'row',
   },
 });
 

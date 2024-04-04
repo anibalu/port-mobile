@@ -1,5 +1,5 @@
 import DownArrow from '@assets/icons/DownArrowWhite.svg';
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {checkDateBoundary, checkMessageTimeGap} from '@utils/Time';
 import React, {ReactNode, useRef, useState} from 'react';
@@ -9,6 +9,7 @@ import {
   NativeSyntheticEvent,
   Pressable,
   StyleSheet,
+  View,
 } from 'react-native';
 import {MessageBubbleParent} from '@components/MessageBubbles/MessageBubbleParent';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
@@ -118,6 +119,9 @@ function ChatList({
         onMomentumScrollEnd={handleMomentumEnd}
         onEndReached={onStartReached}
         refreshing={refreshing}
+        ListHeaderComponent={
+          <View style={{height: PortSpacing.tertiary.bottom}} />
+        }
         onRefresh={async () => {
           setRefreshing(true);
           await debouncedPeriodicOperations();

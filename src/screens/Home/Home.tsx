@@ -77,11 +77,13 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import ChatBackground from '@components/ChatBackground';
 import {GestureHandlerRootView, Swipeable} from 'react-native-gesture-handler';
 import SideDrawer from './SideDrawer';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import {ChatActionsBar} from './ChatActionsBar';
+import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import MoveToFolder from '@components/Reusable/BottomSheets/MoveToFolderBottomsheet';
 
 //Handles notification routing on tapping notification
 const performNotificationRouting = (
@@ -106,18 +108,6 @@ const performNotificationRouting = (
     }
   }
 };
-
-//rendered chat tile of a connection
-function renderChatTile(
-  connection: ChatTileProps,
-  setSelected: (p: ChatTileProps | null) => void,
-): ReactElement {
-  try {
-    return <ChatTile props={connection} setSelectedProps={setSelected} />;
-  } catch (error) {
-    return <></>;
-  }
-}
 
 //renders default chat tile when there are no connections to display
 function renderDefaultTile(
@@ -165,6 +155,15 @@ function Home({route, navigation}: Props) {
   const [viewableConnections, setViewableConnections] = useState<
     ChatTileProps[]
   >([]);
+
+  //whether the screen is in selection mode
+  const [selectionMode, setSelectionMode] = useState(false);
+
+  //selected connection Ids
+  const [selectedConnections, setSelectedConnections] = useState<
+    ChatTileProps[]
+  >([]);
+
   const [searchText, setSearchText] = useState<string>('');
   //total unread messages
   const [totalUnread, setTotalUnread] = useState<number>(0);
@@ -288,6 +287,8 @@ function Home({route, navigation}: Props) {
           await chatHandler.delete();
         }
       }
+      setSelectedConnections([]);
+      setSelectionMode(false);
     } catch (error) {
       console.log('Error stopping adding process', error);
     }
@@ -383,6 +384,9 @@ function Home({route, navigation}: Props) {
       })();
     }, []),
   );
+  const [moveToFolderSheet, setMoveToFolderSheet] = useState(false);
+  const [confirmSheetDelete, setConfirmSheetDelete] = useState(false);
+  const [confirmSheet, setConfirmSheet] = useState(false);
 
   //responsible for providing information about what kind of error occured while trying to connect with a link.
   const {linkUseError, setLinkUseError} = useConnectionModal();
@@ -390,10 +394,15 @@ function Home({route, navigation}: Props) {
   const [openLinkUseErrorModal, setOpenLinkUseErrorModal] = useState(false);
   //close all other modal before opening this modal
   const cleanOpenLinkUseErrorModal = async () => {
+    setSelectedConnections([]);
+    setSelectionMode(false);
     setIsConnectionOptionsModalOpen(false);
     setOpenFailedModal(false);
     setOpenAddingNewContactModal(false);
     setOpenLinkUseErrorModal(false);
+    setConfirmSheet(false);
+    setConfirmSheetDelete(false);
+    setMoveToFolderSheet(false);
     await wait(safeModalCloseDuration);
     setOpenLinkUseErrorModal(true);
   };
@@ -430,12 +439,54 @@ function Home({route, navigation}: Props) {
       setShowOverlay(false);
     }
   };
+
+  const openRightModal = () => {
+    if (selectedConnections[0]) {
+      if (selectedConnections[0].isReadPort) {
+        //open adding new contact modal
+        setOpenAddingNewContactModal(true);
+      } else {
+        if (selectedConnections[0].connectionType === ChatType.direct) {
+          if (selectedConnections[0].authenticated) {
+            if (selectedConnections[0].disconnected) {
+              setConfirmSheetDelete(true);
+            } else {
+              setConfirmSheet(true);
+            }
+          } else {
+            //open adding new contact modal
+            setOpenAddingNewContactModal(true);
+          }
+        }
+      }
+    }
+  };
+
+  //rendered chat tile of a connection
+  function renderChatTile(connection: ChatTileProps): ReactElement {
+    try {
+      return (
+        <ChatTile
+          props={connection}
+          setSelectedProps={setSelectedProps}
+          selectedConnections={selectedConnections}
+          setSelectedConnections={setSelectedConnections}
+          selectionMode={selectionMode}
+          setSelectionMode={setSelectionMode}
+        />
+      );
+    } catch (error) {
+      return <></>;
+    }
+  }
+
   return (
     <GestureHandlerRootView>
       <Swipeable
         ref={swipeableRef}
         overshootLeft={false}
         leftThreshold={SIDE_DRAWER_WIDTH / 2}
+        enabled={!selectionMode}
         onSwipeableOpenStartDrag={direction => {
           if (direction === 'left') {
             setShowOverlay(true);
@@ -487,7 +538,6 @@ function Home({route, navigation}: Props) {
             backgroundColor={PortColors.primary.white}
           />
           <SafeAreaView style={{backgroundColor: PortColors.background}}>
-            <ChatBackground />
             <HomeTopbar
               openSwipeable={openSwipeable}
               showPrompt={totalUnreadCount > 0}
@@ -496,6 +546,10 @@ function Home({route, navigation}: Props) {
               unread={totalUnread}
               folder={selectedFolderData}
               pendingRequestsLength={pendingRequestsLength}
+              selectionMode={selectionMode}
+              setSelectionMode={setSelectionMode}
+              selectedConnections={selectedConnections}
+              setSelectedConnections={setSelectedConnections}
             />
             <KeyboardAvoidingView
               behavior={isIOS ? 'padding' : 'height'}
@@ -505,9 +559,7 @@ function Home({route, navigation}: Props) {
                 {!searchReturnedNull ? (
                   <FlatList
                     data={viewableConnections}
-                    renderItem={element =>
-                      renderChatTile(element.item, setSelectedProps)
-                    }
+                    renderItem={element => renderChatTile(element.item)}
                     style={styles.chats}
                     scrollEnabled={viewableConnections.length > 0}
                     contentContainerStyle={
@@ -515,9 +567,7 @@ function Home({route, navigation}: Props) {
                         rowGap: PortSpacing.tertiary.uniform,
                       }
                     }
-                    ListHeaderComponent={
-                      <View style={{height: PortSpacing.tertiary.top}} />
-                    }
+                    ListHeaderComponent={<View style={{height: 4}} />}
                     ListFooterComponent={
                       <View style={{height: PortSpacing.tertiary.bottom}} />
                     }
@@ -543,26 +593,28 @@ function Home({route, navigation}: Props) {
                       textColor={PortColors.subtitle}
                       fontType={FontType.rg}
                       fontSizeType={FontSizeType.m}>
-                      No results found!
+                      No results found
                     </NumberlessText>
                   </View>
                 )}
               </View>
-              <GenericButton
-                onPress={() => {
-                  setIsConnectionOptionsModalOpen(p => !p);
-                }}
-                iconSize={24}
-                IconLeft={BluePlusIcon}
-                buttonStyle={styles.addButtonWrapper}
-              />
+              {!selectionMode && (
+                <GenericButton
+                  onPress={() => {
+                    setIsConnectionOptionsModalOpen(p => !p);
+                  }}
+                  iconSize={24}
+                  IconLeft={BluePlusIcon}
+                  buttonStyle={styles.addButtonWrapper}
+                />
+              )}
             </KeyboardAvoidingView>
             {/* go to component isolation playground */}
             {/* <GenericButton
-            onPress={() => navigation.navigate('Isolation')}
-            buttonStyle={styles.isolationButton}>
-            🔑
-          </GenericButton> */}
+              onPress={() => navigation.navigate('Isolation')}
+              buttonStyle={styles.isolationButton}>
+              🔑
+            </GenericButton> */}
             <ConnectionOptions
               visible={isConnectionOptionsModalOpen}
               setVisible={setIsConnectionOptionsModalOpen}
@@ -588,8 +640,57 @@ function Home({route, navigation}: Props) {
               onStopPress={async () => {
                 if (selectedProps) {
                   await onStopAddingPress(selectedProps);
+                } else if (selectedConnections[0]) {
+                  await onStopAddingPress(selectedConnections[0]);
                 }
               }}
+            />
+            <ConfirmationBottomSheet
+              visible={confirmSheet}
+              onClose={() => setConfirmSheet(false)}
+              onConfirm={async () => {
+                const chatHandler = new DirectChat(
+                  selectedConnections[0].chatId,
+                );
+                await chatHandler.disconnect();
+                setSelectedConnections([]);
+                setSelectionMode(false);
+                await onRefresh();
+              }}
+              title={'Are you sure you want to disconnect this chat?'}
+              description={
+                'Once you disconnect this chat, you cannot send messages to this contact. Chat history will be saved.'
+              }
+              buttonText={'Disconnect'}
+              buttonColor="r"
+            />
+            <ConfirmationBottomSheet
+              visible={confirmSheetDelete}
+              onClose={() => setConfirmSheetDelete(false)}
+              onConfirm={async () => {
+                const chatHandler = new DirectChat(
+                  selectedConnections[0].chatId,
+                );
+                await chatHandler.delete();
+                setSelectedConnections([]);
+                setSelectionMode(false);
+                await onRefresh();
+              }}
+              title={'Are you sure you want to delete chat history?'}
+              description={'Deleting history will erase all chat data'}
+              buttonText={'Delete History'}
+              buttonColor="r"
+            />
+            <MoveToFolder
+              selectedConnections={selectedConnections}
+              setSelectedConnections={setSelectedConnections}
+              setSelectionMode={setSelectionMode}
+              onRefresh={onRefresh}
+              visible={moveToFolderSheet}
+              onClose={() => setMoveToFolderSheet(false)}
+              buttonText={'Move to folder'}
+              buttonColor="b"
+              currentFolder={selectedFolderData}
             />
             <ErrorSimpleBottomSheet
               visible={openLinkUseErrorModal}
@@ -600,6 +701,13 @@ function Home({route, navigation}: Props) {
               title={'Error using Port link'}
               description={getLinkUseErrorDescription()}
             />
+            {selectionMode && (
+              <ChatActionsBar
+                selectedConnections={selectedConnections}
+                openModal={openRightModal}
+                openMoveToFolder={() => setMoveToFolderSheet(true)}
+              />
+            )}
           </SafeAreaView>
           {showOverlay && (
             <View
@@ -630,7 +738,6 @@ function Home({route, navigation}: Props) {
 
 const styles = StyleSheet.create({
   chats: {
-    paddingHorizontal: PortSpacing.secondary.uniform,
     flex: 1,
   },
   isolationButton: {

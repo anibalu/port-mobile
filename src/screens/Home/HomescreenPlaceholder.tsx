@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
     marginTop: PortSpacing.primary.top,
     justifyContent: 'flex-end',
     flex: 1,
+    paddingHorizontal: PortSpacing.secondary.uniform,
   },
   headingWrapper: {
     flexDirection: 'column',

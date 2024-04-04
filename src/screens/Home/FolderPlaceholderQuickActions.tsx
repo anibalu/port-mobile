@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     width: '100%',
     rowGap: 10,
     marginTop: PortSpacing.tertiary.top,
+    paddingHorizontal: PortSpacing.secondary.uniform,
   },
 });
 

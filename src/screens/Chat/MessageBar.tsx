@@ -690,7 +690,6 @@ const MessageBar = ({
           )}
         </View>
         <GenericButton
-          disabled={text.trim().length === 0}
           iconSizeRight={
             text.length > 0 || (!isRecording && hasRecorded && audio) ? 14 : 20
           }

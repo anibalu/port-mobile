@@ -212,27 +212,27 @@ export const ChatContextProvider = ({
           switch (msg.contentType) {
             case ContentType.text: {
               //Formatting multiple messages into a single string.
-              copyString += (msg.data as TextParams).text;
+              copyString += (msg.data as TextParams).text + '\n';
               setSelectedMessages([]);
               break;
             }
             case ContentType.link: {
-              copyString += (msg.data as LinkParams).text;
+              copyString += (msg.data as LinkParams).text + '\n';
               setSelectedMessages([]);
               break;
             }
             case ContentType.image: {
-              copyString += (msg.data as LargeDataParams).text || '';
+              copyString += ((msg.data as LargeDataParams).text || '') + '\n';
               setSelectedMessages([]);
               break;
             }
             case ContentType.video: {
-              copyString += (msg.data as LargeDataParams).text || '';
+              copyString += ((msg.data as LargeDataParams).text || '') + '\n';
               setSelectedMessages([]);
               break;
             }
             case ContentType.file: {
-              copyString += (msg.data as LargeDataParams).text || '';
+              copyString += ((msg.data as LargeDataParams).text || '') + '\n';
               setSelectedMessages([]);
               break;
             }

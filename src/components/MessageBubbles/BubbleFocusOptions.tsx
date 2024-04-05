@@ -14,8 +14,15 @@ import React, {useEffect, useRef} from 'react';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 
 const BubbleFocusOptions = () => {
-  const {isConnected, onReply, onSelect, onDelete, onForward, onCopy} =
-    useChatContext();
+  const {
+    isConnected,
+    onReply,
+    onSelect,
+    onDelete,
+    onForward,
+    onCopy,
+    setSelectedMessage,
+  } = useChatContext();
   const barWidth = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     // Start animations
@@ -26,6 +33,11 @@ const BubbleFocusOptions = () => {
     }).start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const onCopyClicked = () => {
+    onCopy();
+    setSelectedMessage(null);
+  };
   return (
     <Animated.View
       style={[
@@ -69,7 +81,7 @@ const BubbleFocusOptions = () => {
       <TouchableHighlight
         underlayColor={PortColors.background}
         activeOpacity={1}
-        onPress={onCopy}
+        onPress={onCopyClicked}
         style={styles.optionButtonWrapper}>
         <View style={styles.optionButton}>
           <CopyImage width={20} height={20} />

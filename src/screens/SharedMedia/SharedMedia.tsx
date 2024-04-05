@@ -1,4 +1,3 @@
-import ChatBackground from '@components/ChatBackground';
 import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
@@ -109,7 +108,6 @@ const SharedMedia = ({navigation, route}: Props) => {
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
       />
-      <ChatBackground />
       <BackTopbar
         bgColor="w"
         onBackPress={() => navigation.goBack()}

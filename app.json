@@ -10,13 +10,13 @@
     },
     "version": "1.2.1",
     "ios": {
-      "buildNumber": "1.2.11"
+      "buildNumber": "1.2.13"
     },
     "android": {
       "versionCode": 2
     }
   },
-  "version": "1.0.6",
+  "version": "1.2.1",
   "ios": {
     "buildNumber": "1.0.3"
   },

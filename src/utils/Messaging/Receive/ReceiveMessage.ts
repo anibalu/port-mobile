@@ -1,4 +1,3 @@
-import store from '@store/appStore';
 import ReceiveDirectMessage from './ReceiveDirect/ReceiveDirectMessage';
 import ReceiveGroupMessage from './ReceiveGroup/ReceiveGroupMessage';
 
@@ -63,10 +62,6 @@ class ReceiveMessage {
           this.receiveTime,
         );
         await receiver.receive();
-        store.dispatch({
-          type: 'PING',
-          payload: 'PONG',
-        });
       }
     } catch (error) {
       console.log('Error receiving message: ', error);

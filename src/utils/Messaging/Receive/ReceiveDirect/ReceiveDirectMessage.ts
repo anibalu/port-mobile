@@ -3,7 +3,6 @@ import DirectReceiveAction from './DirectReceiveAction';
 import {directReceiveActionPicker} from './possibleActions';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import store from '@store/appStore';
 
 class ReceiveDirectMessage {
   private message: any;
@@ -70,10 +69,6 @@ class ReceiveDirectMessage {
     if (this.receiveClass) {
       await this.receiveClass.performAction();
     }
-    store.dispatch({
-      type: 'PING',
-      payload: 'PONG',
-    });
   }
 }
 

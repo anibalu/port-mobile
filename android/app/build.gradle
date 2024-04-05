@@ -101,7 +101,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2
-        versionName "1.0.6"
+        versionName "1.2.1"
     }
    packagingOptions {
       pickFirst 'lib/x86/libc++_shared.so'

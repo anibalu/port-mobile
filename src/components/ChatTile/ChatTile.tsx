@@ -465,9 +465,9 @@ const styles = StyleSheet.create({
     width: screen.width - 2 * PortSpacing.tertiary.uniform - CHECKBOX_WIDTH,
     left: PortSpacing.tertiary.left + CHECKBOX_WIDTH,
     height: '100%',
-    backgroundColor: 'rgba(78, 117, 255, 0.25)',
-    borderWidth: 2,
-    borderColor: PortColors.primary.blue.app,
+    backgroundColor: 'rgba(78, 117, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: '#CCD7FF',
     borderRadius: 16,
   },
   avatarArea: {

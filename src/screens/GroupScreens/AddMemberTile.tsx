@@ -7,7 +7,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import CheckBox from '@react-native-community/checkbox';
+import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import React, {useState} from 'react';
 import {Pressable, StyleSheet} from 'react-native';

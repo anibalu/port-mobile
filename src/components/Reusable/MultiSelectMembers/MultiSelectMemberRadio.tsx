@@ -16,7 +16,7 @@ import React, {useMemo, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import CheckBox from '@react-native-community/checkbox';
+import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
 import {
   FontSizeType,
   FontType,
@@ -75,10 +75,7 @@ const MultiSelectMemberRadio = ({
           {member.name}
         </NumberlessText>
       </View>
-      <CheckBox
-        tintColors={{true: PortColors.primary.blue.app}}
-        value={toggleCheckBox}
-      />
+      <CheckBox value={toggleCheckBox} />
     </Pressable>
   );
 };

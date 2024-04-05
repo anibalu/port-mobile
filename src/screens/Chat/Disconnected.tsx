@@ -1,9 +1,10 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 
@@ -23,14 +24,15 @@ const Disconnected = ({name}: {name: string}) => {
 const styles = StyleSheet.create({
   main: {
     backgroundColor: PortColors.primary.grey.medium,
-    height: 70,
+    height: BOTTOMBAR_HEIGHT,
     justifyContent: 'center',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
     position: 'absolute',
-    bottom: -20,
+    ...(isIOS ? {bottom: -20} : {bottom: -10}),
     paddingHorizontal: PortSpacing.tertiary.uniform,
+    paddingTop: PortSpacing.secondary.top,
   },
 });
 export default Disconnected;

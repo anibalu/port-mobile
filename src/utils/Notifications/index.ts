@@ -1,6 +1,6 @@
 import notifee, {AndroidVisibility, Notification} from '@notifee/react-native';
 import store from '@store/appStore';
-import {Platform} from 'react-native';
+import {AppState, Platform} from 'react-native';
 
 /**
  * Displays all notifications for the app.
@@ -20,7 +20,7 @@ export async function displaySimpleNotification(
    * Guard to remove client-generated notifications on iOS until
    * we receive NSE Entitlement
    */
-  if (Platform.OS == 'ios') {
+  if (Platform.OS === 'ios') {
     return;
   }
   const channelId = await setupNotifee();
@@ -44,15 +44,16 @@ export async function displaySimpleNotification(
       },
     },
   };
-  if (currentActiveChatId) {
-    //Display notifications when it's not for the active chat
-    if (chatId !== currentActiveChatId) {
-      // Display a notification
-      await notifee.displayNotification(notification);
-    }
-  } else {
-    // Display a notification since there is no defined tracker for this
+
+  // If app is not in the foreground, display no matter what
+  if (AppState.currentState !== 'active') {
     await notifee.displayNotification(notification);
+    return;
+  }
+  // Display a notification if I am on any screen that isn't the current chat
+  if (currentActiveChatId && currentActiveChatId !== chatId) {
+    await notifee.displayNotification(notification);
+    return;
   }
 }
 
@@ -82,7 +83,9 @@ export async function showDefaultNotification() {
  */
 const setupNotifee = async (): Promise<string> => {
   // Needed for iOS
-  await notifee.requestPermission();
+  if (Platform.OS === 'ios') {
+    await notifee.requestPermission();
+  }
   // Needed for Android
   return await notifee.createChannel({
     id: 'default',

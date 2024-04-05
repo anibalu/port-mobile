@@ -271,7 +271,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
     React.useCallback(() => {
       fetchPort();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
+    }, [portId]),
   );
 
   const updateConnectionCount = async () => {

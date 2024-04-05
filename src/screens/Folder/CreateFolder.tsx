@@ -123,7 +123,12 @@ const CreateFolder = ({navigation, route}: Props) => {
                   setSelectedFolder(folder);
                 }
                 setIsLoading(false);
-                navigation.goBack();
+                if (portId) {
+                  navigation.navigate('SuperportScreen', {portId: portId});
+                } else {
+                  navigation.goBack();
+                }
+
                 // navigation.navigate('HomeTab', {selectedFolder: folder});
               }}
             />

@@ -21,6 +21,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
 
 /**
  * Renders action bar based on messages that are selected
@@ -63,6 +64,7 @@ export function MessageActionsBar({
   isDisconnected?: boolean;
   clearSelection: any;
 }): ReactNode {
+  const {setSelectionMode} = useChatContext();
   const performReply = async (): Promise<void> => {
     setReplyTo(
       isGroup
@@ -96,6 +98,11 @@ export function MessageActionsBar({
     }
     postDelete(selectedMessages);
     setOpenDeleteModal(false);
+  };
+
+  const onCopyClicked = () => {
+    onCopy();
+    setSelectionMode(false);
   };
 
   return (
@@ -143,7 +150,7 @@ export function MessageActionsBar({
             </Pressable>
           </View>
           <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onCopy}>
+            <Pressable style={styles.optionBox} onPress={onCopyClicked}>
               <Copy height={20} width={20} />
               <NumberlessText
                 fontSizeType={FontSizeType.s}
@@ -198,7 +205,7 @@ export function MessageActionsBar({
           </View>
           {!isSharedMedia && (
             <View style={styles.optionContainer}>
-              <Pressable style={styles.optionBox} onPress={onCopy}>
+              <Pressable style={styles.optionBox} onPress={onCopyClicked}>
                 <Copy height={20} width={20} />
                 <NumberlessText
                   fontSizeType={FontSizeType.s}

@@ -1,5 +1,10 @@
 import Play from '@assets/icons/videoPlay.svg';
-import {PortColors, isIOS, screen} from '@components/ComponentUtils';
+import {
+  PortColors,
+  PortSpacing,
+  isIOS,
+  screen,
+} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -16,6 +21,7 @@ import React, {useCallback, useState} from 'react';
 import {Image, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import {TabStackParamList} from './SharedMedia';
+import Icon from '@assets/icons/NoFilesFound.svg';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewPhotosVideos'>;
 
@@ -148,11 +154,23 @@ const ViewPhotosVideos = ({route}: Props) => {
             alignItems: 'center',
             transform: [{translateX: 0}, {translateY: -50}],
           }}>
+          <Icon />
           <NumberlessText
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}
-            style={styles.nocontentText}>
+            style={{textAlign: 'center'}}
+            fontSizeType={FontSizeType.xl}
+            fontType={FontType.md}
+            textColor={PortColors.primary.black}>
             No files found
+          </NumberlessText>
+          <NumberlessText
+            style={{
+              textAlign: 'center',
+              marginTop: PortSpacing.tertiary.top,
+            }}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}
+            textColor={PortColors.subtitle}>
+            Tap + to share media with this group
           </NumberlessText>
         </View>
       )}

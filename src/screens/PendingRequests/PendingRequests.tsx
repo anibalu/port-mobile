@@ -12,9 +12,10 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
+import Icon from '@assets/icons/NoPendingRequests.svg';
 
 //rendered chat tile of a connection
 function renderPendingRequest(pendingRequest: PendingCardInfo): ReactElement {
@@ -60,8 +61,6 @@ const PendingRequests = () => {
         <View
           style={{
             width: '100%',
-            paddingTop: PortSpacing.secondary.top,
-            flex: 1,
           }}>
           {pendingRequests.length > 0 ? (
             <FlatList
@@ -77,19 +76,36 @@ const PendingRequests = () => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flex: 1,
               }}>
               {isLoading ? (
                 <View style={{marginBottom: 50}}>
                   <DefaultLoader />
                 </View>
               ) : (
-                <View style={{marginBottom: 50}}>
+                <View
+                  style={{
+                    alignSelf: 'center',
+                    paddingTop: screen.height / 4,
+                    height: screen.height,
+                    width: screen.width / 1.5,
+                  }}>
+                  <Icon style={{alignSelf: 'center'}} />
                   <NumberlessText
-                    textColor={PortColors.subtitle}
+                    style={{textAlign: 'center'}}
+                    fontSizeType={FontSizeType.xl}
+                    fontType={FontType.md}
+                    textColor={PortColors.primary.black}>
+                    No pending requests
+                  </NumberlessText>
+                  <NumberlessText
+                    style={{
+                      textAlign: 'center',
+                      marginTop: PortSpacing.tertiary.top,
+                    }}
+                    fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}
-                    fontSizeType={FontSizeType.m}>
-                    No pending ports
+                    textColor={PortColors.subtitle}>
+                    When you send a port creation link, they will appear here.
                   </NumberlessText>
                 </View>
               )}

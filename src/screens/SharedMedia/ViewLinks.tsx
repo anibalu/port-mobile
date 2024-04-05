@@ -11,13 +11,14 @@ import {MediaEntry} from '@utils/Media/interfaces';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getMedia} from '@utils/Storage/media';
 import FileViewer from 'react-native-file-viewer';
+import Icon from '@assets/icons/NoFilesFound.svg';
 
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
 import {MediaActionsBar} from '@screens/SharedMedia/MediaActionsBar';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import LinkTile from './LinkTile';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewLinks'>;
@@ -93,12 +94,26 @@ export default function ViewLinks({route}: Props) {
           keyExtractor={(item: any) => item.mediaId.toString()}
           renderItem={renderItem}
           ListEmptyComponent={
-            <NumberlessText
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}
-              style={styles.nocontentText}>
-              No files found
-            </NumberlessText>
+            <>
+              <Icon />
+              <NumberlessText
+                style={{textAlign: 'center'}}
+                fontSizeType={FontSizeType.xl}
+                fontType={FontType.md}
+                textColor={PortColors.primary.black}>
+                No files found
+              </NumberlessText>
+              <NumberlessText
+                style={{
+                  textAlign: 'center',
+                  marginTop: PortSpacing.tertiary.top,
+                }}
+                fontSizeType={FontSizeType.m}
+                fontType={FontType.rg}
+                textColor={PortColors.subtitle}>
+                Tap + to share media with this group
+              </NumberlessText>
+            </>
           }
           contentContainerStyle={StyleSheet.compose(styles.container, {
             paddingBottom: selectedMedia.length > 0 ? 100 : 20,
@@ -106,11 +121,23 @@ export default function ViewLinks({route}: Props) {
         />
       ) : (
         <View style={styles.nocontentTextWrapper}>
+          <Icon />
           <NumberlessText
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}
-            style={styles.nocontentText}>
+            style={{textAlign: 'center'}}
+            fontSizeType={FontSizeType.xl}
+            fontType={FontType.md}
+            textColor={PortColors.primary.black}>
             No files found
+          </NumberlessText>
+          <NumberlessText
+            style={{
+              textAlign: 'center',
+              marginTop: PortSpacing.tertiary.top,
+            }}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}
+            textColor={PortColors.subtitle}>
+            Tap + to share media with this group
           </NumberlessText>
         </View>
       )}

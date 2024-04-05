@@ -18,7 +18,8 @@ import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
 import {MediaActionsBar} from '@screens/SharedMedia/MediaActionsBar';
 import FileTile from './FileTile';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import Icon from '@assets/icons/NoFilesFound.svg';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewFiles'>;
 
@@ -109,11 +110,23 @@ export default function ViewFiles({route}: Props) {
             alignItems: 'center',
             transform: [{translateX: 0}, {translateY: -50}],
           }}>
+          <Icon />
           <NumberlessText
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}
-            style={styles.nocontentText}>
+            style={{textAlign: 'center'}}
+            fontSizeType={FontSizeType.xl}
+            fontType={FontType.md}
+            textColor={PortColors.primary.black}>
             No files found
+          </NumberlessText>
+          <NumberlessText
+            style={{
+              textAlign: 'center',
+              marginTop: PortSpacing.tertiary.top,
+            }}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}
+            textColor={PortColors.subtitle}>
+            Tap + to share media with this group
           </NumberlessText>
         </View>
       )}

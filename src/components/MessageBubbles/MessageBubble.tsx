@@ -24,8 +24,13 @@ export const MessageBubble = ({
   message: SavedMessageParams;
   swipeable?: boolean;
 }): ReactNode => {
-  const {setReaction, handlePress, isGroupChat, setReplyToMessage} =
-    useChatContext();
+  const {
+    setReaction,
+    handlePress,
+    isGroupChat,
+    setReplyToMessage,
+    selectionMode,
+  } = useChatContext();
 
   const [reactions, setReactions] = useState<any[]>([]);
   const updateSendStatus = () => {
@@ -103,6 +108,7 @@ export const MessageBubble = ({
   if (swipeable) {
     return (
       <Swipeable
+        enabled={!selectionMode}
         friction={2}
         leftThreshold={1000}
         leftTrigger={64}

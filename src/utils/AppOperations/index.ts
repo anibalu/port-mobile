@@ -1,3 +1,4 @@
+import store from '@store/appStore';
 import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import pullBacklog from '@utils/Messaging/pullBacklog';
 import {cancelAllNotifications} from '@utils/Notifications';
@@ -11,15 +12,20 @@ import {debounce} from 'lodash';
 /**
  * All actions that need to be performed when the app goes from foreground to background
  */
-const performBackgroundToForegroundOperations = async () => {
+export async function performBackgroundToForegroundOperations() {
   console.log('[BTF OPERATIONS RUNNING]');
+  // Ping to redraw as needed
+  store.dispatch({
+    type: 'PING',
+    payload: 'PONG',
+  });
 
   await cleanUpPorts();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   await useReadBundles();
   await cancelAllNotifications();
   console.log('[BTF OPERATIONS COMPLETE]');
-};
+}
 
 /**̦
  * All actions that need to be performed periodically.

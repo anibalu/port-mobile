@@ -1,7 +1,7 @@
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useState} from 'react';
-import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
+import {AppState, KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -134,6 +134,14 @@ function ChatScreen() {
   useEffect(() => {
     (async () => {
       console.log('[PINGING] ', ping);
+      // Guard against being in the background state
+      // This helps prevent read receipts from being sent when they shouldn't be
+      if (AppState.currentState !== 'active') {
+        console.log(
+          '[PING] Skipping redraw on chat screen since app is not foregrounded',
+        );
+        return;
+      }
       const resp = await getLatestMessages(chatId, cursor);
       setMessages(resp);
     })();

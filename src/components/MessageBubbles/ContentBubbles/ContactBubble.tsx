@@ -276,8 +276,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 12,
     backgroundColor: PortColors.primary.blue.app,
-    width: MAX_WIDTH_CONTENT - 16,
-    marginTop: 4,
+    width: MAX_WIDTH_CONTENT - 24,
+    marginVertical: 4,
   },
 });
 export default ContactBubble;

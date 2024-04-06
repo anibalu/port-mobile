@@ -7,6 +7,7 @@ import {SavedMessageParams, TextParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {REPLY_MEDIA_HEIGHT} from '../BubbleUtils';
 
 export const TextReplyBubble = ({
   reply,
@@ -41,6 +42,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
+    minHeight: REPLY_MEDIA_HEIGHT,
   },
   replyContainer: {
     flexDirection: 'column',

@@ -61,6 +61,8 @@ const PendingRequests = () => {
         <View
           style={{
             width: '100%',
+            flex: 1,
+            marginTop: PortSpacing.tertiary.top,
           }}>
           {pendingRequests.length > 0 ? (
             <FlatList
@@ -95,7 +97,7 @@ const PendingRequests = () => {
                     fontSizeType={FontSizeType.xl}
                     fontType={FontType.md}
                     textColor={PortColors.primary.black}>
-                    No pending requests
+                    No pending ports
                   </NumberlessText>
                   <NumberlessText
                     style={{
@@ -105,7 +107,8 @@ const PendingRequests = () => {
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}
                     textColor={PortColors.subtitle}>
-                    When you send a port creation link, they will appear here.
+                    When you create a new unused port, they will appear here
+                    until they are used.
                   </NumberlessText>
                 </View>
               )}

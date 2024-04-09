@@ -240,6 +240,8 @@ export function MessageActionsBar({
 
 const styles = StyleSheet.create({
   parentContainer: {
+    borderTopColor: PortColors.stroke,
+    borderTopWidth: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',

@@ -15,10 +15,9 @@ import {
   FontSizeType,
   FontType,
   NumberlessText,
-  getWeight,
 } from '@components/NumberlessText';
 import React, {FC} from 'react';
-import {StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import {View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
@@ -39,24 +38,21 @@ const OptionWithChevron = ({
 }) => {
   return (
     <TouchableOpacity
-      style={StyleSheet.compose(styles.optionContainer, {
-        height: description ? 67 : 40,
-      })}
       onPress={onClick}
+      style={styles.optionWrapper}
       accessibilityIgnoresInvertColors
       activeOpacity={0.6}>
-      <View style={styles.optionWrapper}>
+      <View style={styles.topContainer}>
         <IconLeft height={20} width={20} />
-        <View style={styles.textContainer}>
-          <Text numberOfLines={1} style={styles.heading}>
-            {heading}
-          </Text>
-          <Text numberOfLines={2} style={styles.description}>
-            {description}
-          </Text>
-        </View>
-
-        <View style={styles.sectionRight}>
+        <NumberlessText
+          textColor={PortColors.title}
+          numberOfLines={1}
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}
+          style={styles.heading}>
+          {heading}
+        </NumberlessText>
+        <View style={styles.labelContainer}>
           {labelText && (
             <View style={styles.labelWrapper}>
               <NumberlessText
@@ -75,20 +71,31 @@ const OptionWithChevron = ({
           <RightChevron width={20} height={20} />
         </View>
       </View>
+      {!description && (
+        <NumberlessText
+          textColor={PortColors.subtitle}
+          numberOfLines={2}
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.rg}
+          style={styles.description}>
+          {description}
+        </NumberlessText>
+      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  optionContainer: {
-    paddingHorizontal: 16,
-  },
   optionWrapper: {
-    flexDirection: 'row',
-    paddingTop: PortSpacing.tertiary.bottom + 2,
-    paddingBottom: PortSpacing.tertiary.bottom,
-    alignItems: 'flex-start',
+    flexDirection: 'column',
+    paddingHorizontal: PortSpacing.secondary.uniform,
+    paddingVertical: 10,
     flex: 1,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   labelWrapper: {
     borderRadius: 6,
@@ -98,30 +105,18 @@ const styles = StyleSheet.create({
     height: 25,
     backgroundColor: PortColors.background,
   },
-  sectionRight: {
+  topContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    height: 20,
-  },
-  textContainer: {
-    paddingLeft: 16,
-    paddingRight: 5,
-    flexDirection: 'column',
-    flex: 1,
   },
   heading: {
-    lineHeight: 20,
-    color: PortColors.title,
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.m,
-    fontWeight: getWeight(FontType.rg),
+    marginHorizontal: PortSpacing.secondary.uniform,
+
+    flex: 1,
   },
   description: {
-    color: PortColors.subtitle,
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.s,
-    fontWeight: getWeight(FontType.rg),
+    marginLeft: PortSpacing.secondary.uniform + 20,
+    marginRight: PortSpacing.secondary.uniform + 55,
   },
 });
 

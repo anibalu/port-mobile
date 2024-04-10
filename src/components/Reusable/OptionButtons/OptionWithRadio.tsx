@@ -34,22 +34,18 @@ const OptionWithRadio = ({
       onPress={onClick}
       accessibilityIgnoresInvertColors
       activeOpacity={0.6}>
-      <View style={styles.optionContainer}>
-        <View style={styles.optionWrapper}>
-          <View style={styles.textContainer}>
-            <NumberlessText
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}>
-              {title}
-            </NumberlessText>
-          </View>
-          <View>
-            {selectedOption === selectedOptionComparision ? (
-              <RadioOn width={20} height={20} />
-            ) : (
-              <RadioOff width={20} height={20} />
-            )}
-          </View>
+      <View style={styles.optionWrapper}>
+        <View style={styles.textContainer}>
+          <NumberlessText fontSizeType={FontSizeType.m} fontType={FontType.rg}>
+            {title}
+          </NumberlessText>
+        </View>
+        <View>
+          {selectedOption === selectedOptionComparision ? (
+            <RadioOn width={20} height={20} />
+          ) : (
+            <RadioOff width={20} height={20} />
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -57,13 +53,10 @@ const OptionWithRadio = ({
 };
 
 const styles = StyleSheet.create({
-  optionContainer: {
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    height: 40,
-  },
   optionWrapper: {
+    paddingHorizontal: PortSpacing.secondary.uniform,
+    paddingVertical: 10,
     flexDirection: 'row',
-    paddingVertical: PortSpacing.tertiary.uniform,
     alignItems: 'center',
     flex: 1,
   },

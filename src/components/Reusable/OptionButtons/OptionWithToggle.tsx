@@ -9,9 +9,13 @@
  */
 
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import React, {FC} from 'react';
-import {StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import {View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import ToggleSwitch from 'toggle-switch-react-native';
@@ -30,64 +34,60 @@ const OptionWithToggle = ({
   description?: string;
 }) => {
   return (
-    <TouchableOpacity accessibilityIgnoresInvertColors activeOpacity={0.6}>
-      <View
-        style={StyleSheet.compose(styles.optionContainer, {
-          height: description ? 67 : 40,
-        })}>
-        <View style={styles.optionWrapper}>
-          <IconLeft height={20} width={20} />
-          <View style={styles.textContainer}>
-            <Text numberOfLines={1} style={styles.heading}>
-              {heading}
-            </Text>
-            <Text numberOfLines={2} style={styles.description}>
-              {description}
-            </Text>
-          </View>
-          <View style={{height: 20, justifyContent: 'center'}}>
-            <ToggleSwitch
-              isOn={toggleActiveState}
-              onColor={PortColors.primary.blue.app}
-              offColor={PortColors.background}
-              onToggle={onToggle}
-            />
-          </View>
-        </View>
+    <TouchableOpacity
+      style={styles.optionWrapper}
+      accessibilityIgnoresInvertColors
+      activeOpacity={0.6}>
+      <View style={styles.topContainer}>
+        <IconLeft height={20} width={20} />
+        <NumberlessText
+          textColor={PortColors.title}
+          numberOfLines={1}
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}
+          style={styles.heading}>
+          {heading}
+        </NumberlessText>
+        <ToggleSwitch
+          isOn={toggleActiveState}
+          onColor={PortColors.primary.blue.app}
+          offColor={PortColors.background}
+          onToggle={onToggle}
+        />
       </View>
+      {description && (
+        <NumberlessText
+          textColor={PortColors.subtitle}
+          numberOfLines={2}
+          fontSizeType={FontSizeType.s}
+          fontType={FontType.rg}
+          style={styles.description}>
+          {description}
+        </NumberlessText>
+      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  optionContainer: {
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
   optionWrapper: {
-    flexDirection: 'row',
-    paddingTop: PortSpacing.tertiary.bottom + 2,
-    paddingBottom: PortSpacing.tertiary.bottom,
-    alignItems: 'flex-start',
+    flexDirection: 'column',
+    paddingHorizontal: PortSpacing.secondary.uniform,
+    paddingVertical: 10,
     flex: 1,
   },
-  textContainer: {
-    paddingLeft: PortSpacing.secondary.uniform,
-    paddingRight: 5,
-    flexDirection: 'column',
-    flex: 1,
+  topContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   heading: {
-    lineHeight: 20,
-    color: PortColors.title,
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.m,
-    fontWeight: getWeight(FontType.rg),
+    marginHorizontal: PortSpacing.secondary.uniform,
+
+    flex: 1,
   },
   description: {
-    color: PortColors.subtitle,
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.s,
-    fontWeight: getWeight(FontType.rg),
+    marginLeft: PortSpacing.secondary.uniform + 20,
+    marginRight: PortSpacing.secondary.uniform + 46,
   },
 });
 

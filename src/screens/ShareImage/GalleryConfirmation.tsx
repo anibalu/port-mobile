@@ -168,13 +168,21 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
             uri: item.thumbnailUri,
           }}
         />
-        <Play
+        <View
           style={{
             position: 'absolute',
-            top: 0.34 * screen.height,
-            left: 0.4 * screen.width,
-          }}
-        />
+            flex: 1,
+            height: '100%',
+            width: '100%',
+          }}>
+          <Play
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: [{translateX: -30}, {translateY: -20}],
+            }}
+          />
+        </View>
       </Pressable>
     ) : (
       <>

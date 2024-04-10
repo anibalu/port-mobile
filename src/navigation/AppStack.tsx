@@ -3,9 +3,6 @@
  * User is navigated here if onboarding is done or if profile is already setup.
  */
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import AddCategoryScreen from '@screens/BugReporting/AddCategoryScreen';
-import ReportIssueScreen from '@screens/BugReporting/ReportIssueScreen';
-import SuggestAFeature from '@screens/BugReporting/SuggestAFeature';
 import DirectChat from '@screens/DirectChat/Chat';
 import ContactProfile from '@screens/ContactProfile/ContactProfile';
 import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
@@ -39,6 +36,7 @@ import PreviewShareablePort from '@screens/Superport/PreviewSharablePort';
 import MoveToFolder from '@screens/Folder/MoveToFolder';
 import CreateNewGroup from '@screens/GroupsV2/CreateNewGroup';
 import NewGroupPort from '@screens/GroupsV2/NewGroupPort';
+import GiveUsFeedbackScreen from '@screens/Feedback/GiveUsFeedbackScreen';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -65,15 +63,7 @@ function AppStack() {
           <Stack.Screen name="GroupOnboarding" component={GroupOnboarding} />
           <Stack.Screen name="NewGroup" component={NewGroup} />
           <Stack.Screen name="ShareGroup" component={ShareGroup} />
-          <Stack.Screen
-            name="AddCategoryScreen"
-            component={AddCategoryScreen}
-          />
-          <Stack.Screen
-            name="ReportIssueScreen"
-            component={ReportIssueScreen}
-          />
-          <Stack.Screen name="SuggestAFeature" component={SuggestAFeature} />
+
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
           <Stack.Screen name="ShareContact" component={ShareContact} />
           <Stack.Screen
@@ -97,6 +87,10 @@ function AppStack() {
           />
           <Stack.Screen name="CreateNewGroup" component={CreateNewGroup} />
           <Stack.Screen name="NewGroupPort" component={NewGroupPort} />
+          <Stack.Screen
+            name="GiveUsFeedbackScreen"
+            component={GiveUsFeedbackScreen}
+          />
         </Stack.Navigator>
       </ConnectionModalProvider>
     </>

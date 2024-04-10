@@ -5,7 +5,6 @@
 import EditCameraIcon from '@assets/icons/EditCamera.svg';
 
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
-import GenericModal from '@components/Modals/GenericModal';
 import {
   FontSizeType,
   FontType,
@@ -23,7 +22,6 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {setNewProfilePicture, updateProfileName} from '@utils/Profile';
 import React, {ReactNode, useMemo, useState} from 'react';
 import {StyleSheet, View, Pressable} from 'react-native';
-import ReportIssueModal from '../BugReporting/ReportIssueModal';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import {FileAttributes} from '@utils/Storage/interfaces';
 
@@ -46,7 +44,6 @@ function MyProfile({route, navigation}: Props): ReactNode {
     useState<FileAttributes>(processedAvatar);
   const [newName, setNewName] = useState<string>(processedName);
   const [editingName, setEditingName] = useState(false);
-  const [reportbugModalOpen, setReportBugModalOpen] = useState(false);
   const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
 
   async function onSavePicture(newProfilePicAttr: FileAttributes) {
@@ -112,7 +109,7 @@ function MyProfile({route, navigation}: Props): ReactNode {
             <PrimaryButton
               disabled={false}
               isLoading={false}
-              onClick={() => console.log('bug reporting clicked')}
+              onClick={() => navigation.navigate('GiveUsFeedbackScreen')}
               // onClick={() => setReportBugModalOpen(p => !p)}
               buttonText="Give us feedback"
               primaryButtonColor={'b'}
@@ -139,13 +136,6 @@ function MyProfile({route, navigation}: Props): ReactNode {
             setOpenEditAvatarModal(false);
           }}
         />
-        <GenericModal
-          visible={reportbugModalOpen}
-          onClose={() => {
-            setReportBugModalOpen(false);
-          }}>
-          <ReportIssueModal setReportBugModalOpen={setReportBugModalOpen} />
-        </GenericModal>
       </SafeAreaView>
     </>
   );

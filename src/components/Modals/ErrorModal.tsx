@@ -35,7 +35,7 @@ function ErrorModal() {
 
 const styles = StyleSheet.create({
   modalView: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     maxWidth: screen.width - 70,
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   modaltext: {
     color: PortColors.title,
-    marginLeft: 4,
+    marginLeft: 6,
     textAlign: 'left',
     lineHeight: 15,
     paddingTop: 3,

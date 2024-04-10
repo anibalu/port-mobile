@@ -31,6 +31,8 @@ type ModalContextType = {
   incorrectQRError: () => void;
   messageCopied: () => void;
   componentNotSupportedyetError: () => void;
+  shareFeedbackSucceess: () => void;
+  shareFeedbackError: () => void;
   errorToShow: ErrorObject;
 };
 type ErrorObject = {
@@ -205,6 +207,20 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
     });
   };
 
+  const shareFeedbackSucceess = () => {
+    setErrorToShow({
+      text: 'Thanks for sharing your feedback.',
+      type: 'success',
+    });
+  };
+
+  const shareFeedbackError = () => {
+    setErrorToShow({
+      text: 'Network error in sending feedback.Please try again later',
+      type: 'error',
+    });
+  };
+
   useEffect(() => {
     //   to make the view disappear in 3 seconds
     if (errorToShow.text !== '') {
@@ -242,6 +258,8 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         onboardingFailureError,
         messageCopied,
         componentNotSupportedyetError,
+        shareFeedbackSucceess,
+        shareFeedbackError,
       }}>
       {children}
     </ErrorModalContext.Provider>

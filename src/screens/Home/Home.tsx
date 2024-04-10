@@ -480,6 +480,19 @@ function Home({route, navigation}: Props) {
     }
   }
 
+  const showPrompt = useMemo(() => {
+    if (selectedFolderData.folderId === 'all') {
+      return false;
+    } else if (totalUnreadCount > 0) {
+      return !folders.some(
+        folder =>
+          folder.folderId === selectedFolderData.folderId && folder.unread > 0,
+      );
+    } else {
+      return false;
+    }
+  }, [totalUnreadCount, folders, selectedFolderData]);
+
   return (
     <GestureHandlerRootView>
       <Swipeable
@@ -540,7 +553,7 @@ function Home({route, navigation}: Props) {
           <SafeAreaView style={{backgroundColor: PortColors.background}}>
             <HomeTopbar
               openSwipeable={openSwipeable}
-              showPrompt={totalUnreadCount > 0}
+              showPrompt={showPrompt}
               searchText={searchText}
               setSearchText={setSearchText}
               unread={totalUnread}

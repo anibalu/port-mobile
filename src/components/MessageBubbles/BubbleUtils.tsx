@@ -15,7 +15,6 @@ import Sending from '@assets/icons/statusIndicators/sending.svg';
 import Sent from '@assets/icons/statusIndicators/sent.svg';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
-import store from '@store/appStore';
 import FileViewer from 'react-native-file-viewer';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
@@ -89,10 +88,6 @@ export const getReplyBubbleName = async (
 
 export const handleDownload = async (chatId: string, messageId: string) => {
   await directMedia(chatId, messageId);
-  store.dispatch({
-    type: 'PING',
-    payload: 'PONG',
-  });
 };
 
 export const handleMediaOpen = (

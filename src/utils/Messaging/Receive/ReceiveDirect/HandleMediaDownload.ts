@@ -46,8 +46,8 @@ export const handleAsyncMediaDownload = async (
       const data = {
         ...(message.data as LargeDataParams),
         fileUri: getRelativeURI(fileUri, 'doc'),
-        mediaId: null,
-        key: null,
+        // mediaId: null,
+        // key: null,
         previewUri: previewPath?.path
           ? getRelativeURI(previewPath.path, 'cache')
           : undefined,
@@ -76,6 +76,10 @@ export const handleAsyncMediaDownload = async (
           messageId: messageId,
           data: data,
         },
+      });
+      store.dispatch({
+        type: 'PING',
+        payload: 'PONG',
       });
     }
   }

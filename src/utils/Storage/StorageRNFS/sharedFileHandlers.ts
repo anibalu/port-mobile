@@ -166,8 +166,9 @@ export async function initialiseEncryptedTempFile(
 }
 
 export async function deleteFile(tempFilePath: string) {
+  const filePath = getSafeAbsoluteURI(tempFilePath, 'doc');
   try {
-    await RNFS.unlink(tempFilePath);
+    await RNFS.unlink(filePath);
   } catch (error) {
     console.log('Error deleting file: ', error);
   }

@@ -17,20 +17,28 @@ import {MessageBubble} from '@components/MessageBubbles/MessageBubble';
 import {wait} from '@utils/Time';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import {ContentType} from '@utils/Messaging/interfaces';
 
 const BlurViewModal = () => {
   const {onCleanCloseFocus, selectedMessage, isConnected} = useChatContext();
   const messageObj = selectedMessage as SelectedMessageType;
+  const isDeleted = messageObj.message.contentType === ContentType.deleted;
   const STATUSBAR_HEIGHT = StatusBar.currentHeight || 0;
   const TOPBAR_HEIGHT = 56;
-  const REACTIONBAR_HEIGHT = 51;
+  const REACTIONBAR_HEIGHT = isDeleted ? 0 : 51;
   const TOP_OFFSET_INITIAL =
     STATUSBAR_HEIGHT + TOPBAR_HEIGHT + REACTIONBAR_HEIGHT;
   const TOP_OFFSET = isIOS ? TOP_OFFSET_INITIAL + 50 : TOP_OFFSET_INITIAL;
 
   const AVAILABLE_HEIGHT_FOR_OPTIONS =
     screen.height - TOP_OFFSET - messageObj.height;
-  const OPTION_BUBBLE_HEIGHT = isIOS ? 300 : 320;
+  const OPTION_BUBBLE_HEIGHT = isIOS
+    ? isDeleted
+      ? 130
+      : 300
+    : isDeleted
+    ? 140
+    : 320;
   const AVAILABLE_HEIGHT = screen.height - TOPBAR_HEIGHT;
   const REQUIRED_HEIGHT =
     REACTIONBAR_HEIGHT + OPTION_BUBBLE_HEIGHT + messageObj.height;
@@ -110,7 +118,9 @@ const BlurViewModal = () => {
                 minHeight: 51,
                 alignSelf: isSender ? 'flex-end' : 'flex-start',
               }}>
-              {isConnected && <RenderReactionBar />}
+              {isConnected && message.contentType !== ContentType.deleted && (
+                <RenderReactionBar />
+              )}
             </View>
             <View
               style={{

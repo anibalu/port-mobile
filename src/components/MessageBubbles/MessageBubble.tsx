@@ -1,6 +1,10 @@
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  MessageStatus,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {StyleSheet, View, Animated, Pressable} from 'react-native';
 import {ContentBubble} from './ContentBubble';
@@ -158,14 +162,16 @@ export const MessageBubble = ({
                 </View>
               </View>
             </View>
-            <View>
-              {reactions.length > 0 && (
-                <RenderReactions
-                  reactions={reactions}
-                  showReactionRibbon={showReactionRibbon}
-                />
-              )}
-            </View>
+            {message.contentType !== ContentType.deleted && (
+              <View>
+                {reactions.length > 0 && (
+                  <RenderReactions
+                    reactions={reactions}
+                    showReactionRibbon={showReactionRibbon}
+                  />
+                )}
+              </View>
+            )}
           </View>
         </View>
       </Swipeable>
@@ -217,14 +223,15 @@ export const MessageBubble = ({
               </View>
             </View>
           </Pressable>
-          {reactions.length > 0 && (
-            <Pressable pointerEvents="box-only">
-              <RenderReactions
-                reactions={reactions}
-                showReactionRibbon={showReactionRibbon}
-              />
-            </Pressable>
-          )}
+          {message.contentType !== ContentType.deleted &&
+            reactions.length > 0 && (
+              <Pressable pointerEvents="box-only">
+                <RenderReactions
+                  reactions={reactions}
+                  showReactionRibbon={showReactionRibbon}
+                />
+              </Pressable>
+            )}
         </View>
       </View>
     );

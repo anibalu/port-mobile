@@ -9,7 +9,12 @@ import {
 import React, {createContext, useState, useContext} from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {getGroupMessage, getMessage} from '@utils/Storage/messages';
+import {
+  cleanDeleteGroupMessage,
+  cleanDeleteMessage,
+  getGroupMessage,
+  getMessage,
+} from '@utils/Storage/messages';
 import {getRichReactions} from '@utils/Storage/reactions';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {useNavigation} from '@react-navigation/native';
@@ -32,7 +37,13 @@ type ChatContextType = {
   setName: (x: string) => void;
   messagesLoaded: boolean;
   setMessagesLoaded: (x: boolean) => void;
-
+  performGlobalDelete: () => void;
+  performDelete: () => void;
+  openDeleteMessageModal: boolean;
+  setOpenDeleteMessageModal: (x: boolean) => void;
+  showDeleteForEveryone: boolean;
+  setShowDeleteForEveryone: (x: boolean) => void;
+  determineDeleteModalDisplay: () => void;
   //reactions context
   currentReactionMessage: string[];
   setCurrentReactionMessage: (x: string[]) => void;
@@ -59,7 +70,10 @@ type ChatContextType = {
   setSelectionMode: (x: boolean) => void;
 
   //message bubble press
-  handlePress: (messageId: string) => boolean;
+  handlePress: (
+    messageId: string,
+    contentType: ContentType,
+  ) => boolean | undefined;
   handleLongPress: (messageId: string) => void;
 
   //message actions
@@ -74,6 +88,10 @@ type ChatContextType = {
   onSelect: () => void;
   onDelete: () => void;
   onReply: () => Promise<void>;
+  messages: SavedMessageParams[];
+  setMessages: (message: SavedMessageParams[]) => void;
+  updateAfterDeletion: (messageId: string[]) => void;
+  updateAfterGlobalDeletion: (messageId: string[]) => void;
 };
 
 export const ChatContext = createContext<ChatContextType | undefined>(
@@ -110,7 +128,28 @@ export const ChatContextProvider = ({
   const [profileUri, setProfileUri] = useState(avatar);
   const [name, setName] = useState<string>(displayName || '');
   const [messagesLoaded, setMessagesLoaded] = useState(false);
+  const [messages, setMessages] = useState<SavedMessageParams[]>([]);
+  //responsible for opening deletion modal
+  const [openDeleteMessageModal, setOpenDeleteMessageModal] = useState(false);
+  //if delete for everyone should be available
+  const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
 
+  const determineDeleteModalDisplay = async () => {
+    let senderExists = true;
+    const isDeleted =
+      selectedMessage?.message.contentType === ContentType.deleted;
+    for (const msg of selectedMessages) {
+      const message = await getMessage(chatId, msg);
+      if (message && !message.sender) {
+        senderExists = false;
+        break;
+      }
+    }
+    let showGlobalDelete = isDeleted ? !isDeleted : senderExists;
+    setShowDeleteForEveryone(showGlobalDelete);
+    setOpenDeleteMessageModal(true);
+    return senderExists; // Return whether to show delete for everyone or not
+  };
   const [currentReactionMessage, setCurrentReactionMessage] = useState<
     string[]
   >([]);
@@ -166,6 +205,42 @@ export const ChatContextProvider = ({
     clearSelection();
   };
 
+  const performDelete = async (): Promise<void> => {
+    if (isGroupChat) {
+      for (const msg of selectedMessages) {
+        await cleanDeleteGroupMessage(chatId, msg);
+      }
+      updateAfterDeletion(selectedMessages);
+      setSelectionMode(false);
+      setOpenDeleteMessageModal(false);
+    } else {
+      for (const msg of selectedMessages) {
+        await cleanDeleteMessage(chatId, msg, false);
+      }
+      updateAfterDeletion(selectedMessages);
+      setSelectionMode(false);
+      setOpenDeleteMessageModal(false);
+    }
+    if (selectedMessage) {
+      onCloseFocus();
+    }
+  };
+
+  const performGlobalDelete = async (): Promise<void> => {
+    for (const msg of selectedMessages) {
+      const sender = new SendMessage(chatId, ContentType.deleted, {
+        messageIdToDelete: msg,
+      });
+      await sender.send();
+    }
+    updateAfterGlobalDeletion(selectedMessages);
+    setSelectionMode(false);
+    setOpenDeleteMessageModal(false);
+    if (selectedMessage) {
+      onCloseFocus();
+    }
+  };
+
   //message to be replied to
   const [replyToMessage, setReplyToMessage] =
     useState<SavedMessageParams | null>(null);
@@ -179,7 +254,13 @@ export const ChatContextProvider = ({
   };
 
   //Handles selecting messages once select messages flow is toggled
-  const handlePress = (messageId: string): boolean => {
+  const handlePress = (
+    messageId: string,
+    contentType: ContentType,
+  ): boolean | undefined => {
+    if (contentType === ContentType.deleted) {
+      return;
+    }
     // removes messageId from selected messages on short press
     let isSelectionMode = selectionMode ? true : false;
     if (selectedMessages.includes(messageId)) {
@@ -276,6 +357,7 @@ export const ChatContextProvider = ({
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [selectedMessage, setSelectedMessage] =
     useState<SelectedMessageType | null>(null);
+
   const [selectionMode, setSelectionMode] = useState(false);
 
   const onCloseFocus = () => {
@@ -292,7 +374,7 @@ export const ChatContextProvider = ({
   };
 
   const onDelete = () => {
-    onSelect();
+    determineDeleteModalDisplay();
   };
 
   const onReply = async (): Promise<void> => {
@@ -304,6 +386,25 @@ export const ChatContextProvider = ({
       );
     }
     onCleanCloseFocus();
+  };
+
+  const updateAfterDeletion = (messageIds: string[]): void => {
+    setMessages(messages =>
+      messages.filter(message => !messageIds.includes(message.messageId)),
+    );
+    setSelectedMessages([]);
+  };
+
+  const updateAfterGlobalDeletion = (messageIds: string[]): void => {
+    const newMessages = messages.map(x => {
+      if (messageIds.includes(x.messageId)) {
+        x.contentType = ContentType.deleted;
+        x.mtime = 'RESET';
+      }
+      return x;
+    });
+    setMessages(newMessages);
+    setSelectedMessages([]);
   };
 
   return (
@@ -329,6 +430,10 @@ export const ChatContextProvider = ({
         replyToMessage,
         setReplyToMessage,
         selectedMessages,
+        performGlobalDelete,
+        performDelete,
+        openDeleteMessageModal,
+        setOpenDeleteMessageModal,
         setSelectedMessages,
         selectionMode,
         setSelectionMode,
@@ -342,9 +447,15 @@ export const ChatContextProvider = ({
         setSelectedMessage,
         onCloseFocus,
         onCleanCloseFocus,
+        showDeleteForEveryone,
+        determineDeleteModalDisplay,
         onSelect,
         onDelete,
         onReply,
+        setMessages,
+        messages,
+        updateAfterDeletion,
+        updateAfterGlobalDeletion,
       }}>
       {children}
     </ChatContext.Provider>

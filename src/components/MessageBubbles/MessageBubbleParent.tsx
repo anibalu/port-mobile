@@ -151,7 +151,9 @@ export const MessageBubbleParent = ({
                     }
                   : styles.messageBubbleContainer
               }
-              onPress={() => handlePress(message.messageId)}
+              onPress={() =>
+                handlePress(message.messageId, message.contentType)
+              }
               onLongPress={() =>
                 handleMessageBubbleLongPress(message.messageId)
               }
@@ -166,7 +168,7 @@ export const MessageBubbleParent = ({
             </Pressable>
           )}
           <Pressable
-            onPress={() => handlePress(message.messageId)}
+            onPress={() => handlePress(message.messageId, message.contentType)}
             onLongPress={() => handleLongPress(message.messageId)}
             style={selectionMode && isSelected ? styles.overlay : styles.empty}
           />

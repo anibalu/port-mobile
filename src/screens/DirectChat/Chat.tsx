@@ -7,9 +7,6 @@ import {DEFAULT_AVATAR} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 //import store from '@store/appStore';
 import {toggleRead} from '@utils/Connections';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
-import {getMessage} from '@utils/Storage/messages';
-
 import store from '@store/appStore';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import DirectChat from '@utils/DirectChats/DirectChat';
@@ -28,6 +25,7 @@ import Disconnected from '@screens/Chat/Disconnected';
 import {AudioPlayerProvider} from 'src/context/AudioPlayerContext';
 import {ChatContextProvider, useChatContext} from './ChatContext';
 import BlurViewModal from '@components/Reusable/BlurView/BlurView';
+import DualActionBottomSheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 
@@ -62,39 +60,23 @@ function ChatScreen() {
     showRichReaction,
     unsetRichReaction,
     replyToMessage,
-    setReplyToMessage,
-    selectedMessages,
-    setSelectedMessages,
     selectionMode,
-    onCopy,
-    onForward,
-    clearSelection,
     clearEverything,
     selectedMessage,
+    messages,
+    setMessages,
+    showDeleteForEveryone,
+    openDeleteMessageModal,
+    setOpenDeleteMessageModal,
+    performDelete,
+    performGlobalDelete,
   } = useChatContext();
 
   //cursor for number of messages on screen
   const [cursor, setCursor] = useState(50);
-  //messages to display
-  const [messages, setMessages] = useState<SavedMessageParams[]>([]);
 
   //re-render trigger
   const ping: any = useSelector(state => (state as any).ping.ping);
-
-  const updateAfterDeletion = (messageIds: string[]): void => {
-    // setMessages(messages =>
-    //   messages.filter(message => !messageIds.includes(message.messageId)),
-    // );
-    const newMessages = messages.map(x => {
-      if (messageIds.includes(x.messageId)) {
-        x.contentType = ContentType.deleted;
-        x.mtime = 'RESET';
-      }
-      return x;
-    });
-    setMessages(newMessages);
-    setSelectedMessages([]);
-  };
 
   //effect runs when screen is focused
   //retrieves name of connection
@@ -161,25 +143,6 @@ function ChatScreen() {
     await toggleRead(chatId);
   };
 
-  //responsible for opening deletion modal
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  //if delete for everyone should be available
-  const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
-
-  const determineDeleteModalDisplay = async () => {
-    setOpenDeleteModal(true);
-    let senderExists = true;
-    for (const msg of selectedMessages) {
-      const message = await getMessage(chatId, msg);
-      if (message && !message.sender) {
-        senderExists = false;
-        break;
-      }
-    }
-    setShowDeleteForEveryone(senderExists);
-    return senderExists; // Return whether to show delete for everyone or not
-  };
-
   return (
     <AudioPlayerProvider>
       <CustomStatusBar
@@ -198,23 +161,26 @@ function ChatScreen() {
             onStartReached={onStartReached}
             onEndReached={onEndReached}
           />
+          <DualActionBottomSheet
+            showMore={showDeleteForEveryone}
+            openModal={openDeleteMessageModal}
+            title={'Delete message'}
+            topButton={
+              showDeleteForEveryone ? 'Delete for everyone' : 'Delete for me'
+            }
+            topButtonFunction={
+              showDeleteForEveryone ? performGlobalDelete : performDelete
+            }
+            middleButton="Delete for me"
+            middleButtonFunction={performDelete}
+            onClose={() => {
+              setOpenDeleteMessageModal(false);
+            }}
+          />
           {isConnected ? (
             <>
               {selectionMode ? (
-                <MessageActionsBar
-                  showDeleteForEveryone={showDeleteForEveryone}
-                  determineDeleteModalDisplay={determineDeleteModalDisplay}
-                  setOpenDeleteModal={setOpenDeleteModal}
-                  openDeleteModal={openDeleteModal}
-                  chatId={chatId}
-                  onCopy={onCopy}
-                  isGroup={false}
-                  onForward={onForward}
-                  selectedMessages={selectedMessages}
-                  setReplyTo={setReplyToMessage}
-                  postDelete={updateAfterDeletion}
-                  clearSelection={clearSelection}
-                />
+                <MessageActionsBar />
               ) : (
                 <MessageBar
                   onSend={clearEverything}
@@ -225,21 +191,7 @@ function ChatScreen() {
               )}
             </>
           ) : selectionMode ? (
-            <MessageActionsBar
-              showDeleteForEveryone={showDeleteForEveryone}
-              determineDeleteModalDisplay={determineDeleteModalDisplay}
-              setOpenDeleteModal={setOpenDeleteModal}
-              openDeleteModal={openDeleteModal}
-              isDisconnected={true}
-              chatId={chatId}
-              onCopy={onCopy}
-              isGroup={false}
-              onForward={onForward}
-              selectedMessages={selectedMessages}
-              setReplyTo={setReplyToMessage}
-              postDelete={updateAfterDeletion}
-              clearSelection={clearSelection}
-            />
+            <MessageActionsBar />
           ) : (
             <View style={{paddingTop: 60}}>
               <Disconnected name={name} />

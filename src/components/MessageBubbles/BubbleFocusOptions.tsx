@@ -12,6 +12,7 @@ import CopyImage from '@assets/icons/CopyNew.svg';
 import DeleteImage from '@assets/icons/DeleteIcon.svg';
 import React, {useEffect, useRef} from 'react';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
+import {ContentType} from '@utils/Messaging/interfaces';
 
 const BubbleFocusOptions = () => {
   const {
@@ -21,8 +22,11 @@ const BubbleFocusOptions = () => {
     onDelete,
     onForward,
     onCopy,
+    selectedMessage,
     setSelectedMessage,
   } = useChatContext();
+  const isDeleted =
+    selectedMessage?.message.contentType === ContentType.deleted;
   const barWidth = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     // Start animations
@@ -46,7 +50,7 @@ const BubbleFocusOptions = () => {
           transform: [{scaleX: barWidth}],
         },
       ]}>
-      {isConnected && (
+      {isConnected && !isDeleted && (
         <TouchableHighlight
           underlayColor={PortColors.background}
           activeOpacity={1}
@@ -63,51 +67,59 @@ const BubbleFocusOptions = () => {
           </View>
         </TouchableHighlight>
       )}
-      <TouchableHighlight
-        underlayColor={PortColors.background}
-        activeOpacity={1}
-        onPress={onForward}
-        style={styles.optionButtonWrapper}>
-        <View style={styles.optionButton}>
-          <ForwardImage width={20} height={20} />
-          <NumberlessText
-            textColor={PortColors.title}
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.rg}>
-            Forward
-          </NumberlessText>
-        </View>
-      </TouchableHighlight>
-      <TouchableHighlight
-        underlayColor={PortColors.background}
-        activeOpacity={1}
-        onPress={onCopyClicked}
-        style={styles.optionButtonWrapper}>
-        <View style={styles.optionButton}>
-          <CopyImage width={20} height={20} />
-          <NumberlessText
-            textColor={PortColors.title}
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.rg}>
-            Copy
-          </NumberlessText>
-        </View>
-      </TouchableHighlight>
-      <TouchableHighlight
-        underlayColor={PortColors.background}
-        activeOpacity={1}
-        onPress={onSelect}
-        style={styles.optionButtonWrapper}>
-        <View style={styles.optionButton}>
-          <SelectImage width={20} height={20} />
-          <NumberlessText
-            textColor={PortColors.title}
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.rg}>
-            Select
-          </NumberlessText>
-        </View>
-      </TouchableHighlight>
+      {!isDeleted && (
+        <TouchableHighlight
+          underlayColor={PortColors.background}
+          activeOpacity={1}
+          onPress={onForward}
+          style={styles.optionButtonWrapper}>
+          <View style={styles.optionButton}>
+            <ForwardImage width={20} height={20} />
+            <NumberlessText
+              textColor={PortColors.title}
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}>
+              Forward
+            </NumberlessText>
+          </View>
+        </TouchableHighlight>
+      )}
+      {!isDeleted && (
+        <TouchableHighlight
+          underlayColor={PortColors.background}
+          activeOpacity={1}
+          onPress={onCopyClicked}
+          style={styles.optionButtonWrapper}>
+          <View style={styles.optionButton}>
+            <CopyImage width={20} height={20} />
+            <NumberlessText
+              textColor={PortColors.title}
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}>
+              Copy
+            </NumberlessText>
+          </View>
+        </TouchableHighlight>
+      )}
+
+      {!isDeleted && (
+        <TouchableHighlight
+          underlayColor={PortColors.background}
+          activeOpacity={1}
+          onPress={onSelect}
+          style={styles.optionButtonWrapper}>
+          <View style={styles.optionButton}>
+            <SelectImage width={20} height={20} />
+            <NumberlessText
+              textColor={PortColors.title}
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}>
+              Select
+            </NumberlessText>
+          </View>
+        </TouchableHighlight>
+      )}
+
       <TouchableHighlight
         underlayColor={PortColors.background}
         activeOpacity={1}

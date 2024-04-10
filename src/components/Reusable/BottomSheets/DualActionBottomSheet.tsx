@@ -1,14 +1,14 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 
-function PopupBottomsheet({
+function DualActionBottomSheet({
   showMore,
   openModal,
   title,
@@ -27,6 +27,22 @@ function PopupBottomsheet({
   middleButtonFunction?: any;
   onClose?: any;
 }) {
+  const [topButtonLoading, setTopButtonLoading] = useState<boolean>(false);
+  const [middleButtonLoading, setMiddleButtonLoading] =
+    useState<boolean>(false);
+
+  const onTopButtonClick = async () => {
+    setTopButtonLoading(true);
+    await topButtonFunction();
+    setTopButtonLoading(false);
+  };
+
+  const onMiddleButtonClick = async () => {
+    setMiddleButtonLoading(true);
+    await middleButtonFunction();
+    setMiddleButtonLoading(false);
+  };
+
   return (
     <PrimaryBottomSheet
       visible={openModal}
@@ -34,26 +50,36 @@ function PopupBottomsheet({
       title={title}
       onClose={onClose}>
       <View style={styles.mainContainer}>
-        <Pressable
-          style={styles.topButtonContainer}
-          onPress={topButtonFunction}>
-          <NumberlessText
-            style={styles.topButtonText}
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}>
-            {topButton}
-          </NumberlessText>
+        <Pressable style={styles.topButtonContainer} onPress={onTopButtonClick}>
+          {topButtonLoading ? (
+            <View style={styles.loader}>
+              <ActivityIndicator size={'small'} color={'white'} />
+            </View>
+          ) : (
+            <NumberlessText
+              style={styles.topButtonText}
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.md}>
+              {topButton}
+            </NumberlessText>
+          )}
         </Pressable>
         {showMore && (
           <Pressable
             style={styles.bottomButtonContainer}
-            onPress={middleButtonFunction}>
-            <NumberlessText
-              style={styles.bottomButtonText}
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.md}>
-              {middleButton}
-            </NumberlessText>
+            onPress={onMiddleButtonClick}>
+            {middleButtonLoading ? (
+              <View style={styles.loader}>
+                <ActivityIndicator size={'small'} color={'black'} />
+              </View>
+            ) : (
+              <NumberlessText
+                style={styles.bottomButtonText}
+                fontSizeType={FontSizeType.m}
+                fontType={FontType.md}>
+                {middleButton}
+              </NumberlessText>
+            )}
           </Pressable>
         )}
       </View>
@@ -67,6 +93,11 @@ const styles = StyleSheet.create({
     paddingTop: PortSpacing.secondary.uniform,
     paddingHorizontal: PortSpacing.secondary.uniform,
     borderRadius: 30,
+  },
+  loader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   titleStyles: {
     textAlign: 'left',
@@ -108,4 +139,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PopupBottomsheet;
+export default DualActionBottomSheet;

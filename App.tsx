@@ -22,8 +22,8 @@ import {ProfileStatus} from '@utils/Profile/interfaces';
 
 import {addEventListener} from '@react-native-community/netinfo';
 import {
-  debouncedBtFOperations,
   debouncedPeriodicOperations,
+  performBackgroundToForegroundOperations,
 } from '@utils/AppOperations';
 import {AppState, Linking} from 'react-native';
 import BootSplash from 'react-native-bootsplash';
@@ -89,7 +89,7 @@ function App(): JSX.Element {
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        debouncedBtFOperations();
+        performBackgroundToForegroundOperations();
       }
 
       appState.current = nextAppState;

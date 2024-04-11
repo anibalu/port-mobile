@@ -10,38 +10,42 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 class ReceiveName extends DirectReceiveAction {
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    const chat = new DirectChat(this.chatId);
+    const newName = (this.decryptedMessageContent.data as NameParams).name;
+    const oldName = (await chat.getChatData()).name;
+    // Guard against setting name when already set
+    if (!newName || oldName !== DEFAULT_NAME) {
+      return;
+    }
     //save message to storage
     await this.saveMessage();
     //update connection
     await updateConnection({
       chatId: this.chatId,
-      name:
-        (this.decryptedMessageContent.data as NameParams).name || DEFAULT_NAME,
+      name: newName,
     });
-    const chat = new DirectChat(this.chatId);
-    await chat.updateName(
-      (this.decryptedMessageContent.data as NameParams).name || DEFAULT_NAME,
-    );
+    await chat.updateName(newName || DEFAULT_NAME);
     //notify user if notifications are ON
-    const permissions = await getChatPermissions(this.chatId, ChatType.direct);
-    this.notify(permissions.notifications);
+    await this.notify(newName);
   }
-  notify(shouldNotify: boolean) {
-    if (shouldNotify) {
-      this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-      const notificationData = {
-        title: 'New connection',
-        body:
-          (this.decryptedMessageContent.data as NameParams).name ||
-          DEFAULT_NAME + ' has connected with you.',
-      };
-      displaySimpleNotification(
-        notificationData.title,
-        notificationData.body,
-        true,
-        this.chatId,
-      );
+
+  /**
+   * Notify user that a new connection has been formed
+   * @param name New contactname
+   * @returns void
+   */
+  async notify(name: string) {
+    const permissions = await getChatPermissions(this.chatId, ChatType.direct);
+    const shouldNotify = permissions.notifications;
+    if (!shouldNotify) {
+      return;
     }
+    displaySimpleNotification(
+      'New connection',
+      name || DEFAULT_NAME + ' has connected with you.',
+      true,
+      this.chatId,
+    );
   }
 }
 

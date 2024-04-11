@@ -74,7 +74,7 @@ export async function handshakeActionsA2(
     await chat.toggleAuthenticated();
     let shouldAskToSendName = true;
     if (fromSuperport || fromContact) {
-      shouldAskToSendName = true;
+      shouldAskToSendName = false;
     }
     //save info messages
     if (fromSuperport) {
@@ -85,8 +85,8 @@ export async function handshakeActionsA2(
     }
     //send profile picture request
     const sender = new SendMessage(chatId, ContentType.initialInfoRequest, {
-      sendName: shouldAskToSendName,
-      sendProfilePicture: true,
+      sendName: shouldAskToSendName, // To support older clients, unnecessary since 1.2.13
+      sendProfilePicture: true, // To support older clients, unnecessary since 1.2.13
     });
     await sender.send();
     //send profile picture if that permission is given

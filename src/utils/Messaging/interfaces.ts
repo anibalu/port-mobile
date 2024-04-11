@@ -206,10 +206,7 @@ export interface DeletionParams {
   messageIdToDelete: string;
 }
 
-export interface InitialInfoRequestParams {
-  sendName: boolean;
-  sendProfilePicture: boolean;
-}
+export interface InitialInfoRequestParams {}
 
 export type MessageDataTypeBasedOnContentType<T extends ContentType> =
   T extends ContentType.newChat

@@ -3,7 +3,7 @@ import {useNavigation} from '@react-navigation/native';
 import store from '@store/appStore';
 import {handleDeepLink} from '@utils/DeepLinking';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {readBundle} from '@utils/Ports';
+import {processReadBundles, readBundle} from '@utils/Ports';
 import {FileAttributes} from '@utils/Storage/interfaces';
 import React, {
   ReactNode,
@@ -118,7 +118,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
           type: 'PING',
           payload: 'PONG',
         });
-        // await processReadBundles();
+        await processReadBundles();
       }
     } catch (error: any) {
       if (typeof error === 'object' && error.response) {

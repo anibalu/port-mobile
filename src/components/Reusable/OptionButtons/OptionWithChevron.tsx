@@ -71,7 +71,7 @@ const OptionWithChevron = ({
           <RightChevron width={20} height={20} />
         </View>
       </View>
-      {!description && (
+      {description && (
         <NumberlessText
           textColor={PortColors.subtitle}
           numberOfLines={2}
@@ -90,7 +90,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     paddingHorizontal: PortSpacing.secondary.uniform,
     paddingVertical: 10,
-    flex: 1,
   },
   labelContainer: {
     flexDirection: 'row',
@@ -111,7 +110,6 @@ const styles = StyleSheet.create({
   },
   heading: {
     marginHorizontal: PortSpacing.secondary.uniform,
-
     flex: 1,
   },
   description: {

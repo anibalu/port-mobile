@@ -10,7 +10,16 @@ class ReceiveMessage {
   //construct the class
   constructor(messageRaw: any, receiveTime: string = new Date().toISOString()) {
     this.message = this.processRawMessage(messageRaw);
-    this.receiveTime = this.message.timestamp || receiveTime;
+    let messageTime = receiveTime;
+    try {
+      if (this.message.timestamp) {
+        const serverTime = new Date(this.message.timestamp).toISOString();
+        messageTime = serverTime;
+      }
+    } catch (error) {
+      console.log('Incompatible time stamp received', error);
+    }
+    this.receiveTime = messageTime;
     this.chatId = this.assignChatId();
     this.isGroupMessage = this.checkIfGroupMessage();
     this.senderId = this.assignSenderId();

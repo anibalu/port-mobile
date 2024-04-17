@@ -1,10 +1,5 @@
 import Play from '@assets/icons/videoPlay.svg';
-import {
-  PortColors,
-  PortSpacing,
-  isIOS,
-  screen,
-} from '@components/ComponentUtils';
+import {PortColors, isIOS, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -160,17 +155,7 @@ const ViewPhotosVideos = ({route}: Props) => {
             fontSizeType={FontSizeType.xl}
             fontType={FontType.md}
             textColor={PortColors.primary.black}>
-            No files found
-          </NumberlessText>
-          <NumberlessText
-            style={{
-              textAlign: 'center',
-              marginTop: PortSpacing.tertiary.top,
-            }}
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.rg}
-            textColor={PortColors.subtitle}>
-            Tap + to share media with this group
+            No Media found
           </NumberlessText>
         </View>
       )}

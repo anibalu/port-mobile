@@ -22,12 +22,7 @@ export async function newMedia(
     INSERT INTO media
     (mediaId, chatId,messageId, createdOn) VALUES (?,?,?,?) ;
     `,
-    [
-      mediaId.slice(0, 32),
-      chatId ? chatId?.slice(0, 32) : null,
-      messageId ? messageId?.slice(0, 32) : null,
-      currentTimestamp.slice(0, 27),
-    ],
+    [mediaId, chatId, messageId, currentTimestamp],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
@@ -63,8 +58,8 @@ export async function updateMedia(mediaId: string, update: MediaUpdate) {
     [
       update.type,
       update.name ? update.name.slice(0, 256) : null,
-      update.filePath ? update.filePath.slice(0, 256) : null,
-      update.previewPath ? update.previewPath.slice(0, 256) : null,
+      update.filePath,
+      update.previewPath,
       mediaId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

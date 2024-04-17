@@ -423,20 +423,16 @@ function Home({route, navigation}: Props) {
     }
   }, [linkUseError]);
 
-  const swipeOpacity = new Animated.Value(0);
-  const [showOverlay, setShowOverlay] = useState(false);
   const insets = useSafeAreaInsets();
   const swipeableRef = useRef(null);
   const openSwipeable = () => {
     if (swipeableRef.current) {
       swipeableRef.current.openLeft();
-      setShowOverlay(true);
     }
   };
   const closeSwipeable = () => {
     if (swipeableRef.current) {
       swipeableRef.current.close();
-      setShowOverlay(false);
     }
   };
 
@@ -500,26 +496,11 @@ function Home({route, navigation}: Props) {
         overshootLeft={false}
         leftThreshold={SIDE_DRAWER_WIDTH / 2}
         enabled={!selectionMode}
-        onSwipeableOpenStartDrag={direction => {
-          if (direction === 'left') {
-            setShowOverlay(true);
-          }
-        }}
-        onSwipeableWillClose={() => setShowOverlay(false)}
         renderLeftActions={(progress, dragX) => {
           const trans = dragX.interpolate({
             inputRange: [0, SIDE_DRAWER_WIDTH],
             outputRange: [-SIDE_DRAWER_WIDTH, 0],
           });
-          const interpolatedValue = dragX.interpolate({
-            inputRange: [0, SIDE_DRAWER_WIDTH],
-            outputRange: [-SIDE_DRAWER_WIDTH, 0],
-          });
-          Animated.timing(swipeOpacity, {
-            toValue: interpolatedValue, // Change opacity to 0.5 when swiped left
-            duration: 0, // Animation duration (in milliseconds)
-            useNativeDriver: true, // Set to true if possible
-          }).start();
           return (
             <Animated.View
               style={[
@@ -551,6 +532,26 @@ function Home({route, navigation}: Props) {
             backgroundColor={PortColors.primary.white}
           />
           <SafeAreaView style={{backgroundColor: PortColors.background}}>
+            <View
+              style={[
+                {
+                  width: SIDE_DRAWER_WIDTH,
+                  height: isIOS ? screen.height : screen.height + insets.top,
+                  position: 'absolute',
+                },
+              ]}>
+              <LinearGradient
+                colors={[
+                  'rgba(0, 0, 0, 0.05)',
+                  'rgba(0, 0, 0, 0)',
+                  'rgba(0, 0, 0, 0)',
+                  'rgba(0, 0, 0, 0)',
+                ]}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
+                style={{width: '100%', height: '100%'}}
+              />
+            </View>
             <HomeTopbar
               openSwipeable={openSwipeable}
               showPrompt={showPrompt}
@@ -721,27 +722,6 @@ function Home({route, navigation}: Props) {
               />
             )}
           </SafeAreaView>
-          {showOverlay && (
-            <View
-              style={[
-                {
-                  width: SIDE_DRAWER_WIDTH,
-                  height: '100%',
-                  position: 'absolute',
-                },
-              ]}>
-              <LinearGradient
-                colors={[
-                  'rgba(0, 0, 0, 0.1)',
-                  'rgba(0, 0, 0, 0)',
-                  'rgba(0, 0, 0, 0)',
-                ]}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
-                style={{width: '100%', height: '100%'}}
-              />
-            </View>
-          )}
         </View>
       </Swipeable>
     </GestureHandlerRootView>

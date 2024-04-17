@@ -192,10 +192,11 @@ const styles = StyleSheet.create({
     paddingVertical: PortSpacing.tertiary.uniform,
   },
   container: {
-    width: screen.width,
+    width: screen.width - PortSpacing.secondary.uniform,
+    alignSelf: 'flex-end',
   },
   messageBubbleContainer: {
-    width: screen.width,
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'flex-start',
   },

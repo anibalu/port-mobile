@@ -93,20 +93,29 @@ export const MessageBubble = ({
   }
 
   const renderLeftActions = (progress, dragX) => {
-    const trans = dragX.interpolate({
-      inputRange: [0, 50, 75, 100],
-      outputRange: [-24, 24, 30, 32],
+    const scale = dragX.interpolate({
+      inputRange: [0, 100],
+      outputRange: [0, 1], // Scale from 0.5 to 1 as you drag
+      extrapolate: 'clamp', // Ensures that scaling doesn't go below 0 or above 1
     });
     return (
-      <Animated.View
-        style={[
-          {width: 64, flexDirection: 'column', justifyContent: 'center'},
-          {
-            transform: [{translateX: trans}],
-          },
-        ]}>
-        <Reply height={20} width={20} />
-      </Animated.View>
+      <View style={{flexDirection: 'column', justifyContent: 'center'}}>
+        <Animated.View
+          style={[
+            {
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: '#0000000F',
+              overflow: 'hidden',
+            },
+            {transform: [{scale}]},
+          ]}>
+          <Reply height={20} width={20} />
+        </Animated.View>
+      </View>
     );
   };
   if (swipeable) {
@@ -241,9 +250,9 @@ export const MessageBubble = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    width: screen.width,
+    width: screen.width - PortSpacing.secondary.uniform,
     paddingVertical: 2,
-    paddingHorizontal: PortSpacing.secondary.uniform,
+    paddingRight: PortSpacing.secondary.right,
   },
   main: {
     maxWidth: MAX_WIDTH,

@@ -76,7 +76,8 @@ const UsageLimitsBottomSheet = ({
       titleStyle={styles.title}
       onClose={onClose}>
       <View style={styles.mainWrapper}>
-        <View style={{marginBottom: PortSpacing.secondary.bottom}}>
+        <View
+          style={{width: '100%', marginBottom: PortSpacing.secondary.bottom}}>
           {description && (
             <NumberlessText
               style={{

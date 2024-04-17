@@ -54,7 +54,8 @@ const ConfirmationBottomSheet = ({
       onClose={onClose}>
       <View style={styles.mainWrapper}>
         {description && (
-          <View style={{marginBottom: PortSpacing.secondary.bottom}}>
+          <View
+            style={{marginBottom: PortSpacing.secondary.bottom, width: '100%'}}>
             <NumberlessText
               style={{color: PortColors.subtitle}}
               fontSizeType={FontSizeType.m}

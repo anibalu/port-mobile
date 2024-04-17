@@ -9,7 +9,7 @@ import DefaultFolder from '@assets/icons/DefaultFolder.svg';
 import PrimaryFolder from '@assets/icons/PrimaryFolder.svg';
 import AllChatsFolder from '@assets/icons/AllChatsFolder.svg';
 
-import PendingRequestIcon from '@assets/icons/pendingRequestThin.svg';
+import PendingRequestIcon from '@assets/icons/PendingRequestNew.svg';
 import {
   FontSizeType,
   FontType,
@@ -105,7 +105,6 @@ function SideDrawer({
             <SideDrawerOption
               title={'Pending Ports'}
               showPending={true}
-              pendingCount={pendingRequestsLength}
               IconLeft={PendingRequestIcon}
               onClick={navigateToPendingReq}
               badge={pendingRequestsLength}

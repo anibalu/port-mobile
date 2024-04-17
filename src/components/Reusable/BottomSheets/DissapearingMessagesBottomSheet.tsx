@@ -32,6 +32,7 @@ const DissapearingMessagesBottomsheet = ({
       title="Disappearing messages">
       <NumberlessText
         style={{
+          width: '100%',
           color: PortColors.subtitle,
           marginBottom: PortSpacing.intermediate.bottom,
           marginTop: PortSpacing.secondary.top,

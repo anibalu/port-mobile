@@ -18,7 +18,6 @@ import {
   Pressable,
   StyleProp,
   StyleSheet,
-  Text,
   TextStyle,
   View,
 } from 'react-native';
@@ -31,7 +30,11 @@ import {
   screen,
 } from '@components/ComponentUtils';
 import BlackCross from '@assets/icons/BlackCross.svg';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import SmallLoader from '../Loaders/SmallLoader';
 
 const PrimaryBottomSheet = ({
@@ -100,18 +103,38 @@ const PrimaryBottomSheet = ({
               </View>
             )}
             {title && (
-              <Text style={StyleSheet.compose(styles.titleText, titleStyle)}>
+              <NumberlessText
+                style={StyleSheet.compose(styles.title, titleStyle)}
+                fontType={FontType.md}
+                fontSizeType={FontSizeType.l}
+                textColor={PortColors.text.primary}>
                 {title}
-              </Text>
+              </NumberlessText>
             )}
           </View>
-          <View>
-            {showClose && (
-              <Pressable onPress={neatClose}>
-                <BlackCross width={24} height={24} />
-              </Pressable>
-            )}
-          </View>
+          {showClose && (
+            <Pressable
+              onPress={neatClose}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+              }}>
+              <NumberlessText
+                numberOfLines={1}
+                style={StyleSheet.compose(styles.title, titleStyle)}
+                fontType={FontType.md}
+                fontSizeType={FontSizeType.l}
+                textColor={PortColors.text.primary}>
+                {' '}
+              </NumberlessText>
+              <BlackCross
+                width={24}
+                height={24}
+                style={{position: 'absolute'}}
+              />
+            </Pressable>
+          )}
         </View>
         {children}
       </View>
@@ -142,12 +165,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: PortColors.primary.body,
   },
-  titleText: {
-    fontFamily: FontType.md,
-    fontSize: FontSizeType.l,
-    fontWeight: getWeight(FontType.md),
-    color: PortColors.text.primary,
+  title: {
     maxWidth: screen.width - 52,
+    height: '100%',
+    flex: 1,
   },
   backButton: {
     padding: 3,
@@ -155,6 +176,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'none',
   },
   topRow: {
+    overflow: 'hidden',
     width: '100%',
     flexDirection: 'row',
     alignItems: 'flex-start',

@@ -63,6 +63,7 @@ const AddFolderBottomsheet = ({
       <NumberlessText
         textColor={PortColors.subtitle}
         style={{
+          width: '100%',
           marginVertical: PortSpacing.secondary.uniform,
         }}
         fontSizeType={FontSizeType.m}

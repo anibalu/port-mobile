@@ -62,7 +62,8 @@ const EditName = ({
       onClose={onClose}>
       <View style={styles.mainWrapper}>
         {description && (
-          <View style={{marginBottom: PortSpacing.secondary.bottom}}>
+          <View
+            style={{width: '100%', marginBottom: PortSpacing.secondary.bottom}}>
             <NumberlessText
               style={{color: PortColors.subtitle}}
               fontSizeType={FontSizeType.m}

@@ -51,6 +51,7 @@ const LoadingBottomSheet = ({
         <View style={styles.descriptionWrapper}>
           <NumberlessText
             style={{
+              width: '100%',
               color: PortColors.subtitle,
               marginBottom: PortSpacing.secondary.bottom,
             }}

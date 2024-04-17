@@ -8,20 +8,18 @@ import React, {FC} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import BlackAngleRight from '@assets/icons/BlackAngleRight.svg';
-import PendingRequestIcon from '@assets/icons/PendingRequests.svg';
+import PendingRequestIcon from '@assets/icons/PendingRequestNew.svg';
 
 const SideDrawerOption = ({
   onClick,
   IconLeft,
   showPending = false,
-  pendingCount = 0,
   title,
   badge = 0,
 }: {
   onClick: () => void;
   IconLeft: FC<SvgProps>;
   showPending?: boolean;
-  pendingCount?: number;
   title: string;
   badge?: number;
 }) => {
@@ -32,16 +30,8 @@ const SideDrawerOption = ({
       activeOpacity={0.6}>
       <View style={styles.listItem}>
         {showPending ? (
-          <View style={{width: 24, paddingLeft: 2}}>
+          <View style={{width: 24}}>
             <PendingRequestIcon width={20} height={20} />
-            <View style={styles.badgeWrapper2}>
-              <NumberlessText
-                textColor={PortColors.primary.blue.app}
-                fontType={FontType.rg}
-                fontSizeType={FontSizeType.s}>
-                {pendingCount}
-              </NumberlessText>
-            </View>
           </View>
         ) : (
           <View style={{width: 24}}>
@@ -121,17 +111,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-  },
-  badgeWrapper2: {
-    position: 'absolute',
-    height: 14,
-    overflow: 'hidden',
-    backgroundColor: PortColors.primary.white,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    alignItems: 'center',
-    top: 8,
-    left: 12,
   },
 });
 

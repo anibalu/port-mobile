@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
     color: PortColors.primary.red.error,
   },
   description: {
+    width: '100%',
     color: PortColors.subtitle,
     marginBottom: PortSpacing.intermediate.bottom,
   },

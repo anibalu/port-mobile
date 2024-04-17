@@ -85,7 +85,8 @@ const SharePortLink = ({
           />
         </View>
         {description && (
-          <View style={{marginBottom: PortSpacing.primary.bottom}}>
+          <View
+            style={{width: '100%', marginBottom: PortSpacing.primary.bottom}}>
             <NumberlessText
               style={{color: PortColors.subtitle}}
               fontSizeType={FontSizeType.m}

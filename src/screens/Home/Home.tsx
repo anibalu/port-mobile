@@ -558,7 +558,6 @@ function Home({route, navigation}: Props) {
               setSearchText={setSearchText}
               unread={totalUnread}
               folder={selectedFolderData}
-              pendingRequestsLength={pendingRequestsLength}
               selectionMode={selectionMode}
               setSelectionMode={setSelectionMode}
               selectedConnections={selectedConnections}

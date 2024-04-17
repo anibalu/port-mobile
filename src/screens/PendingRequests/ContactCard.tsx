@@ -7,67 +7,70 @@ import {
 import {cleanDeletePort} from '@utils/Ports';
 import {PendingCardInfo, PortTable} from '@utils/Ports/interfaces';
 import {formatTimeAgo} from '@utils/Time';
-import React from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import Delete from '@assets/icons/Trashwhite.svg';
+import React, {useState} from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import Link from '@assets/icons/LinkIcon.svg';
 import QRIcon from '@assets/icons/QRIcon.svg';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 
 const ContactCard = (props: PendingCardInfo) => {
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   return (
-    <SimpleCard style={styles.card}>
-      <View style={styles.row}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            flex: 1,
-          }}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => setShowDeleteModal(true)}>
+      <SimpleCard style={styles.card}>
+        <View style={styles.row}>
           <View
             style={{
-              padding: PortSpacing.secondary.uniform,
-              backgroundColor: PortColors.primary.grey.light,
-              borderRadius: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+              flex: 1,
             }}>
-            {props.isLink ? <Link /> : <QRIcon />}
-          </View>
+            <View
+              style={{
+                padding: PortSpacing.secondary.uniform,
+                backgroundColor: PortColors.primary.grey.light,
+                borderRadius: 12,
+              }}>
+              {props.isLink ? <Link /> : <QRIcon />}
+            </View>
 
-          <View style={styles.textrow}>
-            <NumberlessText
-              fontType={FontType.rg}
-              ellipsizeMode="tail"
-              numberOfLines={1}
-              fontSizeType={FontSizeType.l}
-              style={styles.text}>
-              {props.name}
-            </NumberlessText>
-            <NumberlessText
-              fontType={FontType.rg}
-              ellipsizeMode="tail"
-              numberOfLines={1}
-              fontSizeType={FontSizeType.s}
-              style={styles.subtitle}>
-              Created {formatTimeAgo(props.createdOn)}
-            </NumberlessText>
+            <View style={styles.textrow}>
+              <NumberlessText
+                fontType={FontType.rg}
+                ellipsizeMode="tail"
+                numberOfLines={1}
+                fontSizeType={FontSizeType.l}
+                style={styles.text}>
+                {props.name}
+              </NumberlessText>
+              <NumberlessText
+                fontType={FontType.rg}
+                ellipsizeMode="tail"
+                numberOfLines={1}
+                fontSizeType={FontSizeType.s}
+                style={styles.subtitle}>
+                Created {formatTimeAgo(props.createdOn)}
+              </NumberlessText>
+            </View>
           </View>
+          <ConfirmationBottomSheet
+            visible={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={async () =>
+              await cleanDeletePort(props.portId, PortTable.generated)
+            }
+            title={`Your connection with ${props.name} is pending`}
+            description="Your connection is formed when your contact clicks on the link you
+          sent. If you decide not to connect, you can delete the connection."
+            buttonText="Delete Port"
+            buttonColor="r"
+          />
         </View>
-
-        <Pressable
-          onPress={async () => {
-            await cleanDeletePort(props.portId, PortTable.generated);
-          }}
-          style={styles.declinebutton}>
-          <Delete />
-          <NumberlessText
-            textColor={PortColors.primary.white}
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.s}>
-            Delete
-          </NumberlessText>
-        </Pressable>
-      </View>
-    </SimpleCard>
+      </SimpleCard>
+    </TouchableOpacity>
   );
 };
 
@@ -77,6 +80,11 @@ const styles = StyleSheet.create({
     marginBottom: PortSpacing.tertiary.bottom,
     justifyContent: 'center',
     padding: PortSpacing.tertiary.uniform,
+  },
+  descriptionText: {
+    textAlign: 'left',
+    width: '100%',
+    marginTop: PortSpacing.secondary.top,
   },
   text: {
     color: 'black',

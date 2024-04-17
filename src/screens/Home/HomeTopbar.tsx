@@ -2,7 +2,7 @@
  * Top Bar of the home screen containing sidebar menu, pending request count and search.
  */
 import SearchIcon from '@assets/icons/searchThin.svg';
-import PendingRequestIcon from '@assets/icons/PendingRequests.svg';
+import PendingRequestIcon from '@assets/icons/PendingRequestNew.svg';
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
@@ -27,7 +27,6 @@ type TopbarProps = {
   searchText: string;
   setSearchText: (text: string) => void;
   folder: FolderInfo;
-  pendingRequestsLength: number;
   showPrompt?: boolean;
   selectionMode: boolean;
   setSelectionMode: (x: boolean) => void;
@@ -41,7 +40,6 @@ function HomeTopbar({
   searchText,
   setSearchText,
   folder,
-  pendingRequestsLength,
   showPrompt = false,
   selectionMode,
   setSelectionMode,
@@ -122,14 +120,6 @@ function HomeTopbar({
                     style={styles.iconWrapper3}
                     onPress={() => navigation.navigate('PendingRequests')}>
                     <PendingRequestIcon width={24} height={24} />
-                    <View style={styles.badgeWrapper}>
-                      <NumberlessText
-                        textColor={PortColors.primary.blue.app}
-                        fontType={FontType.rg}
-                        fontSizeType={FontSizeType.s}>
-                        {pendingRequestsLength}
-                      </NumberlessText>
-                    </View>
                   </Pressable>
                 )}
                 <Pressable
@@ -231,17 +221,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
-  },
-  badgeWrapper: {
-    position: 'absolute',
-    height: 14,
-    overflow: 'hidden',
-    backgroundColor: PortColors.primary.white,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    alignItems: 'center',
-    top: 19,
-    left: 12,
   },
   profileBar: {
     flexDirection: 'row',

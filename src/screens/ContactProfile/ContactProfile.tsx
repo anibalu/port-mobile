@@ -12,7 +12,7 @@ import {
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import RightChevron from '@assets/icons/BlackAngleRight.svg';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import EditIcon from '@assets/icons/BluePencilCircle.svg';
 import Alert from '@assets/icons/Alert.svg';
 import {
@@ -155,10 +155,13 @@ const ContactProfile = ({route, navigation}: Props) => {
                 onPress={() => setEditingName(true)}>
                 <NumberlessText
                   style={{
-                    marginRight: PortSpacing.tertiary.right,
+                    maxWidth:
+                      screen.width - 2 * PortSpacing.secondary.uniform - 30,
                   }}
                   fontSizeType={FontSizeType.xl}
-                  fontType={FontType.sb}>
+                  fontType={FontType.sb}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
                   {displayName}
                 </NumberlessText>
                 <EditIcon height={20} width={20} />

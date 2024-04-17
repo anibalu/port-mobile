@@ -22,7 +22,6 @@ import {useChatContext} from '@screens/DirectChat/ChatContext';
  */
 export function MessageActionsBar(): ReactNode {
   const {
-    setSelectionMode,
     determineDeleteModalDisplay,
     clearSelection,
     setReplyToMessage,
@@ -40,11 +39,6 @@ export function MessageActionsBar(): ReactNode {
         : await getMessage(chatId, selectedMessages[0]),
     );
     clearSelection();
-  };
-
-  const onCopyClicked = () => {
-    onCopy();
-    setSelectionMode(false);
   };
 
   return (
@@ -77,7 +71,7 @@ export function MessageActionsBar(): ReactNode {
           </View>
 
           <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onCopyClicked}>
+            <Pressable style={styles.optionBox} onPress={onCopy}>
               <Copy height={20} width={20} />
               <NumberlessText
                 fontSizeType={FontSizeType.s}
@@ -96,7 +90,7 @@ export function MessageActionsBar(): ReactNode {
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
-                textColor={PortColors.title}>
+                textColor={PortColors.primary.red.error}>
                 Delete
               </NumberlessText>
             </Pressable>
@@ -131,7 +125,7 @@ export function MessageActionsBar(): ReactNode {
           </View>
 
           <View style={styles.optionContainer}>
-            <Pressable style={styles.optionBox} onPress={onCopyClicked}>
+            <Pressable style={styles.optionBox} onPress={onCopy}>
               <Copy height={20} width={20} />
               <NumberlessText
                 fontSizeType={FontSizeType.s}
@@ -151,7 +145,7 @@ export function MessageActionsBar(): ReactNode {
                 <NumberlessText
                   fontSizeType={FontSizeType.s}
                   fontType={FontType.rg}
-                  textColor={PortColors.title}>
+                  textColor={PortColors.primary.red.error}>
                   Delete
                 </NumberlessText>
               </Pressable>

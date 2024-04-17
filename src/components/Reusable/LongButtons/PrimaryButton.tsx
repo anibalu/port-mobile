@@ -81,7 +81,10 @@ const PrimaryButton = ({
             style={StyleSheet.compose(
               textStyle,
               primaryButtonColor === 'w'
-                ? {...styles.buttonText, color: PortColors.text.primary}
+                ? {
+                    ...styles.buttonText,
+                    color: textStyle?.color ?? PortColors.text.primary,
+                  }
                 : styles.buttonText,
             )}
             numberOfLines={1}

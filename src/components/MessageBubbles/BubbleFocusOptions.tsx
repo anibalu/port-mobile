@@ -57,13 +57,13 @@ const BubbleFocusOptions = () => {
           onPress={onReply}
           style={styles.optionButtonWrapper}>
           <View style={styles.optionButton}>
-            <ReplyImage width={20} height={20} />
             <NumberlessText
               textColor={PortColors.title}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               Reply
             </NumberlessText>
+            <ReplyImage width={20} height={20} />
           </View>
         </TouchableHighlight>
       )}
@@ -74,13 +74,13 @@ const BubbleFocusOptions = () => {
           onPress={onForward}
           style={styles.optionButtonWrapper}>
           <View style={styles.optionButton}>
-            <ForwardImage width={20} height={20} />
             <NumberlessText
               textColor={PortColors.title}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               Forward
             </NumberlessText>
+            <ForwardImage width={20} height={20} />
           </View>
         </TouchableHighlight>
       )}
@@ -91,13 +91,13 @@ const BubbleFocusOptions = () => {
           onPress={onCopyClicked}
           style={styles.optionButtonWrapper}>
           <View style={styles.optionButton}>
-            <CopyImage width={20} height={20} />
             <NumberlessText
               textColor={PortColors.title}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               Copy
             </NumberlessText>
+            <CopyImage width={20} height={20} />
           </View>
         </TouchableHighlight>
       )}
@@ -109,13 +109,13 @@ const BubbleFocusOptions = () => {
           onPress={onSelect}
           style={styles.optionButtonWrapper}>
           <View style={styles.optionButton}>
-            <SelectImage width={20} height={20} />
             <NumberlessText
               textColor={PortColors.title}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               Select
             </NumberlessText>
+            <SelectImage width={20} height={20} />
           </View>
         </TouchableHighlight>
       )}
@@ -128,13 +128,13 @@ const BubbleFocusOptions = () => {
           borderBottomWidth: 0,
         })}>
         <View style={styles.optionButton}>
-          <DeleteImage width={20} height={20} />
           <NumberlessText
             textColor={PortColors.primary.red.error}
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>
             Delete
           </NumberlessText>
+          <DeleteImage width={20} height={20} />
         </View>
       </TouchableHighlight>
     </Animated.View>
@@ -145,23 +145,21 @@ const styles = StyleSheet.create({
   optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     width: '100%',
-    gap: 15,
   },
   optionButtonWrapper: {
     width: '100%',
     padding: PortSpacing.secondary.uniform,
     borderBottomWidth: 0.5,
-    borderBottomColor: PortColors.stroke,
+    borderBottomColor: PortColors.text.body,
   },
   optionsContainer: {
     marginTop: 4,
-    borderWidth: 0.5,
-    borderColor: PortColors.stroke,
-    backgroundColor: PortColors.primary.white,
+    backgroundColor: PortColors.stroke,
     borderRadius: 12,
     overflow: 'hidden',
-    width: 160,
+    width: 200,
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'space-between',

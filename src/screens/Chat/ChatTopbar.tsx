@@ -1,7 +1,7 @@
 import SettingsIcon from '@assets/icons/Settings.svg';
 import Cross from '@assets/icons/cross.svg';
 import {BackButton} from '@components/BackButton';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
@@ -95,9 +95,7 @@ function ChatTopbar(): ReactNode {
             fontSizeType={FontSizeType.l}
             fontType={FontType.md}
             ellipsizeMode="tail"
-            style={
-              selectedMessages.length >= 1 ? styles.selectedCount : styles.title
-            }
+            style={selectionMode ? styles.selected : styles.title}
             numberOfLines={1}>
             {selectionMode
               ? 'Selected (' + selectedMessages.length.toString() + ')'
@@ -135,21 +133,22 @@ const styles = StyleSheet.create({
   },
   titleBar: {
     flex: 1,
-    marginLeft: 10,
-    maxWidth: '60%',
+    maxWidth: '90%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
     gap: PortSpacing.tertiary.uniform,
   },
-  selectedCount: {
-    color: PortColors.primary.black,
-    overflow: 'hidden',
-    width: screen.width / 2,
-  },
   title: {
     color: PortColors.primary.black,
     overflow: 'hidden',
+    flex: 1,
+  },
+  selected: {
+    color: PortColors.primary.black,
+    overflow: 'hidden',
+    flex: 1,
+    paddingLeft: 8,
   },
   backIcon: {
     alignItems: 'center',
@@ -175,7 +174,6 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     borderRadius: 20,
-    marginLeft: -14,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',

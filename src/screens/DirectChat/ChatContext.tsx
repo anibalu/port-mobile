@@ -211,18 +211,18 @@ export const ChatContextProvider = ({
         await cleanDeleteGroupMessage(chatId, msg);
       }
       updateAfterDeletion(selectedMessages);
-      setSelectionMode(false);
+      clearSelection();
       setOpenDeleteMessageModal(false);
     } else {
       for (const msg of selectedMessages) {
         await cleanDeleteMessage(chatId, msg, false);
       }
       updateAfterDeletion(selectedMessages);
-      setSelectionMode(false);
+      clearSelection();
       setOpenDeleteMessageModal(false);
     }
     if (selectedMessage) {
-      onCloseFocus();
+      onCleanCloseFocus();
     }
   };
 
@@ -234,10 +234,10 @@ export const ChatContextProvider = ({
       await sender.send();
     }
     updateAfterGlobalDeletion(selectedMessages);
-    setSelectionMode(false);
+    clearSelection();
     setOpenDeleteMessageModal(false);
     if (selectedMessage) {
-      onCloseFocus();
+      onCleanCloseFocus();
     }
   };
 
@@ -289,37 +289,32 @@ export const ChatContextProvider = ({
     try {
       for (let i = 0; i < selectedMessages.length; i++) {
         const message = selectedMessages[i];
-        const endChar = i !== selectedMessages.length - 1 ? '\n' : '';
+        const endChar = i === selectedMessages.length - 1 ? '' : '\n';
         const msg = await getMessage(chatId, message);
         if (msg) {
           switch (msg.contentType) {
             case ContentType.text: {
               //Formatting multiple messages into a single string.
               copyString += (msg.data as TextParams).text + endChar;
-              setSelectedMessages([]);
               break;
             }
             case ContentType.link: {
               copyString += (msg.data as LinkParams).text + endChar;
-              setSelectedMessages([]);
               break;
             }
             case ContentType.image: {
               copyString +=
                 ((msg.data as LargeDataParams).text || '') + endChar;
-              setSelectedMessages([]);
               break;
             }
             case ContentType.video: {
               copyString +=
                 ((msg.data as LargeDataParams).text || '') + endChar;
-              setSelectedMessages([]);
               break;
             }
             case ContentType.file: {
               copyString +=
                 ((msg.data as LargeDataParams).text || '') + endChar;
-              setSelectedMessages([]);
               break;
             }
             default:
@@ -334,6 +329,7 @@ export const ChatContextProvider = ({
     } catch (error) {
       console.log('Error copying messages', error);
     }
+    clearSelection();
   };
 
   const onForward = () => {
@@ -348,10 +344,13 @@ export const ChatContextProvider = ({
   const clearSelection = () => {
     setSelectedMessages([]);
     setSelectedMessage(null);
+    setSelectionMode(false);
   };
   const clearEverything = () => {
     setSelectedMessages([]);
     setReplyToMessage(null);
+    setSelectedMessage(null);
+    setSelectionMode(false);
   };
 
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);

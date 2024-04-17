@@ -5,7 +5,7 @@
 import Logo from '@assets/miscellaneous/portBranding.svg';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -62,9 +62,11 @@ function Welcome({navigation}: Props) {
           <Logo height={175} />
         </View>
         <View style={styles.buttonContainer}>
-          <TertiaryButton
+          <PrimaryButton
+            isLoading={false}
+            primaryButtonColor="w"
+            textStyle={{color: PortColors.primary.blue.app}}
             buttonText={'Get Started'}
-            tertiaryButtonColor={'w'}
             disabled={false}
             onClick={onPress}
           />

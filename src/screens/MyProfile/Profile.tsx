@@ -32,6 +32,7 @@ import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import EditName from '@components/Reusable/BottomSheets/EditName';
 import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import BackupCard from '@components/BackupCard';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -95,6 +96,18 @@ function MyProfile({route, navigation}: Props): ReactNode {
                 Your profile picture and name is shared with your contacts in an
                 end-to-end encrypted manner. Port’s servers never see
                 unencrypted data.
+              </NumberlessText>
+              <BackupCard />
+              <NumberlessText
+                fontSizeType={FontSizeType.m}
+                fontType={FontType.rg}
+                textColor={PortColors.subtitle}
+                style={{
+                  textAlign: 'center',
+                  marginTop: PortSpacing.secondary.uniform,
+                }}>
+                To restore a backup, install a new copy of the Port app. Open
+                the app and tap restore backup, then locate the backup file.
               </NumberlessText>
             </View>
           </View>

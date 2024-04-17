@@ -1,5 +1,6 @@
 import {
   Permissions,
+  PermissionsEntry,
   PermissionsStrict,
 } from '@utils/ChatPermissions/interfaces';
 import * as dbCalls from './DBCalls/permissions';
@@ -10,6 +11,10 @@ import * as dbCalls from './DBCalls/permissions';
  */
 export async function newPermissionEntry(permissionsId: string) {
   await dbCalls.newPermissionEntry(permissionsId);
+}
+
+export async function getAllPermissions(): Promise<PermissionsEntry[]> {
+  return await dbCalls.getAllPermissions();
 }
 
 /**

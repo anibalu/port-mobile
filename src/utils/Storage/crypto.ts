@@ -1,4 +1,4 @@
-import {CryptoData} from '@utils/Crypto/interfaces';
+import {CryptoData, CryptoDataEntry} from '@utils/Crypto/interfaces';
 import * as dbCalls from './DBCalls/crypto';
 
 /**
@@ -7,6 +7,10 @@ import * as dbCalls from './DBCalls/crypto';
  */
 export async function newCryptoEntry(id: string) {
   await dbCalls.newCryptoEntry(id);
+}
+
+export async function getAllCryptoData(): Promise<CryptoDataEntry[]> {
+  return await dbCalls.getAllCryptoData();
 }
 
 /**

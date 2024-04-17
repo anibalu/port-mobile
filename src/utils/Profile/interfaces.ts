@@ -9,6 +9,8 @@ export interface ProfileInfo extends ProfileInfoUpdate {
   privateKey: string;
   //details of user's profile picture
   profilePicInfo: FileAttributes;
+  //last backup time
+  lastBackupTime: string;
 }
 
 export interface ProfileInfoUpdate {
@@ -20,6 +22,8 @@ export interface ProfileInfoUpdate {
   privateKey?: string;
   //details of user's profile picture
   profilePicInfo?: FileAttributes;
+  //last backup time
+  lastBackupTime: string;
 }
 
 /**

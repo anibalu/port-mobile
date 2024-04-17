@@ -29,6 +29,7 @@ type ModalContextType = {
   unableToCreateGroupError: () => void;
   portCreationError: () => void;
   incorrectQRError: () => void;
+  BackupRestoreError: () => void;
   messageCopied: () => void;
   componentNotSupportedyetError: () => void;
   shareFeedbackSucceess: () => void;
@@ -76,6 +77,13 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
   const MessageDataTooBigError = () => {
     setErrorToShow({
       text: 'Your message was too long',
+      type: 'error',
+    });
+  };
+
+  const BackupRestoreError = () => {
+    setErrorToShow({
+      text: 'Error restoring backup',
       type: 'error',
     });
   };
@@ -251,6 +259,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         MessageDataTooBigError,
         FileTooLarge,
         unableToDisconnectError,
+        BackupRestoreError,
         mediaLoadError,
         unableToSharelinkError,
         portCreationError,

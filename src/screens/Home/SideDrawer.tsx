@@ -85,13 +85,22 @@ function SideDrawer({
             <Pressable
               style={styles.mrpyofileButton}
               onPress={navigateToMyprofile}>
-              <NumberlessText
-                style={{marginLeft: PortSpacing.tertiary.left}}
-                textColor={PortColors.primary.black}
-                fontType={FontType.rg}
-                fontSizeType={FontSizeType.l}>
-                {name}
-              </NumberlessText>
+              <View>
+                <NumberlessText
+                  style={{marginLeft: PortSpacing.tertiary.left}}
+                  textColor={PortColors.primary.black}
+                  fontType={FontType.rg}
+                  fontSizeType={FontSizeType.l}>
+                  {name}
+                </NumberlessText>
+                <NumberlessText
+                  style={{marginLeft: PortSpacing.tertiary.left}}
+                  textColor={PortColors.subtitle}
+                  fontType={FontType.rg}
+                  fontSizeType={FontSizeType.s}>
+                  Profile, Backups
+                </NumberlessText>
+              </View>
               <BlackAngleRight width={20} height={20} />
             </Pressable>
           </View>

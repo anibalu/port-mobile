@@ -19,3 +19,7 @@ export interface LineDataStrict extends LineData {
   connectedUsing?: string | null;
   permissionsId: string;
 }
+
+export interface LineDataEntry extends LineData {
+  lineId: string;
+}

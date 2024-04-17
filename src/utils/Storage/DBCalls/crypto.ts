@@ -1,5 +1,5 @@
 import {runSimpleQuery} from './dbCommon';
-import {CryptoData} from '@utils/Crypto/interfaces';
+import {CryptoData, CryptoDataEntry} from '@utils/Crypto/interfaces';
 
 /**
  * Add a new cryptoData entry with no other columns set
@@ -15,6 +15,37 @@ export async function newCryptoEntry(id: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
+}
+
+export async function addCryptoEntry(data: CryptoDataEntry) {
+  await runSimpleQuery(
+    `
+    INSERT INTO cryptoData (
+    cryptoId, privateKey, publicKey, sharedSecret, peerPublicKeyHash, rad) VALUES (?,?,?,?,?,?);
+    `,
+    [
+      data.cryptoId,
+      data.privateKey,
+      data.publicKey,
+      data.sharedSecret,
+      data.peerPublicKeyHash,
+      data.rad,
+    ],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
+}
+
+export async function getAllCryptoData(): Promise<CryptoDataEntry[]> {
+  const crypto: CryptoDataEntry[] = [];
+  await runSimpleQuery('SELECT * FROM cryptoData;', [], (tx, results) => {
+    const len = results.rows.length;
+
+    for (let i = 0; i < len; i++) {
+      crypto.push(results.rows.item(i));
+    }
+  });
+  return crypto;
 }
 
 /**

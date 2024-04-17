@@ -156,6 +156,35 @@ function NameScreen({navigation}: Props): ReactNode {
                   primaryButtonColor={'b'}
                   isLoading={false}
                 />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    marginVertical: PortSpacing.tertiary.uniform,
+                    gap: 2,
+                  }}>
+                  <NumberlessText
+                    fontType={FontType.rg}
+                    fontSizeType={FontSizeType.m}
+                    style={{
+                      textAlign: 'center',
+                      marginTop: PortSpacing.secondary.uniform,
+                    }}
+                    textColor={PortColors.subtitle}>
+                    Have a backup?
+                  </NumberlessText>
+                  <NumberlessText
+                    onPress={() => navigation.navigate('RestoreAccount')}
+                    fontType={FontType.rg}
+                    fontSizeType={FontSizeType.m}
+                    style={{
+                      textAlign: 'center',
+                      marginTop: PortSpacing.secondary.uniform,
+                    }}
+                    textColor={PortColors.primary.blue.app}>
+                    Restore account
+                  </NumberlessText>
+                </View>
               </View>
             </KeyboardAvoidingView>
             <EditAvatar

@@ -1,0 +1,296 @@
+import {isIOS} from '@components/ComponentUtils';
+import {addConnection, getConnections} from '@utils/Connections';
+import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
+import {fetchNewPorts} from '@utils/Ports';
+import {updateBackupTime} from '@utils/Profile';
+import {ProfileInfo} from '@utils/Profile/interfaces';
+import {addLine, getLines} from '@utils/Storage/DBCalls/lines';
+import {generateISOTimeStamp} from '@utils/Time';
+import Papa from 'papaparse';
+import DocumentPicker, {
+  DocumentPickerResponse,
+} from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
+import {addCryptoEntry} from '../Storage/DBCalls/crypto';
+import {addPermissionEntry} from '../Storage/DBCalls/permissions';
+import {getProfileInfoRNSS} from '../Storage/RNSecure/secureProfileHandler';
+import {getAllCryptoData} from '../Storage/crypto';
+import {getAllPermissions} from '../Storage/permissions';
+import {saveProfileInfo} from '../Storage/profile';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {addFolderEntry, getAllFolders} from '@utils/ChatFolders';
+
+const BACKUP_VERSION = '20240412'; // Write as date to guesstimate when the backup code was written
+const sectionSplitMagic = '\n<---SECTION SPLIT--->\n'; // TODO Debt: need to account for and escape this sequence across sections
+const tableSplitMagic = '\n<---TABLE SPLIT--->\n'; // TODO Debt: need to account for and escape this sequence across tables
+type tableOpt = 'connections' | 'permissions' | 'crypto' | 'lines' | 'folders';
+const tablesToSertialize: tableOpt[] = [
+  'connections',
+  'permissions',
+  'crypto',
+  'lines',
+  'folders',
+];
+
+/**
+ * This interface is never actually used, but outlines everything needed to serialize a table
+ */
+// eslint-disable-next-line
+interface serializationData {
+  columns: string[];
+  booleanColumns: string[];
+  inserter: () => Promise<void>;
+  ennumerator: () => Promise<void>;
+}
+const tableSerializationData = {
+  connections: {
+    columns: [
+      'authenticated',
+      'chatId',
+      'connectionType',
+      'disconnected',
+      'folderId',
+      'name',
+    ],
+    booleanColumns: ['disconnected', 'authenticated'],
+    inserter: addConnection,
+    ennumerator: getConnections,
+  },
+  crypto: {
+    columns: [
+      'cryptoId',
+      'peerPublicKeyHash',
+      'privateKey',
+      'publicKey',
+      'rad',
+      'sharedSecret',
+    ],
+    booleanColumns: [],
+    inserter: addCryptoEntry,
+    ennumerator: getAllCryptoData,
+  },
+  permissions: {
+    columns: [
+      'autoDownload',
+      'contactSharing',
+      'disappearingMessages',
+      'displayPicture',
+      'notifications',
+      'permissionsId',
+      'readReceipts',
+    ],
+    booleanColumns: [
+      'autoDownload',
+      'contactSharing',
+      'disappearingMessages',
+      'displayPicture',
+      'notifications',
+      'permissionsId',
+      'readReceipts',
+    ],
+    inserter: addPermissionEntry,
+    ennumerator: getAllPermissions,
+  },
+  lines: {
+    columns: [
+      'authenticated',
+      'connectedOn',
+      'connectedUsing',
+      'cryptoId',
+      'disconnected',
+      'lineId',
+      'name',
+      'permissionsId',
+    ],
+    booleanColumns: ['authenticated', 'disconnected'],
+    inserter: addLine,
+    ennumerator: getLines,
+  },
+  folders: {
+    columns: ['folderId', 'name', 'permissionsId'],
+    booleanColumns: [],
+    inserter: addFolderEntry,
+    ennumerator: getAllFolders,
+  },
+};
+
+/**
+ * Filter a list of entries to only include columns relevant for backups
+ * @param tableName
+ * @param data
+ * @returns
+ */
+function applyColumnMask(tableName: tableOpt, data: any[]): any[] {
+  const outBuf: any[] = [];
+  data.forEach((entry: object) => {
+    const maskedEntry = {};
+    tableSerializationData[tableName].columns.forEach((column: string) => {
+      maskedEntry[column] = entry[column];
+    });
+    outBuf.push(maskedEntry);
+  });
+  return outBuf;
+}
+
+/**
+ * Serialized database section
+ * @returns string
+ */
+async function serializedDatabaseSection() {
+  // TODO Debt: clean this up to use a list instead
+  let tableOrderHeader = '';
+  const tableCSVList: string[] = [];
+  for (let i = 0; i < tablesToSertialize.length; i++) {
+    const tableName = tablesToSertialize[i];
+    console.log(tableName);
+    const tableData = await tableSerializationData[tableName].ennumerator();
+    const tableCSV = Papa.unparse(applyColumnMask(tableName, tableData));
+    tableOrderHeader += tableName + '\n';
+    tableCSVList.push(tableCSV);
+  }
+  tableOrderHeader = tableOrderHeader.slice(0, -1); // Strip out last newline
+  const dataList = [tableOrderHeader].concat(tableCSVList);
+  const serializedTables = dataList.join(tableSplitMagic);
+  return serializedTables;
+}
+
+async function serializeProfileInfo() {
+  return JSON.stringify(await getProfileInfoRNSS());
+}
+
+/**
+ * Load profile metadata from a string
+ * @param profilestr
+ */
+async function deserializeProfileData(profilestr: string) {
+  const profile = JSON.parse(profilestr) as ProfileInfo;
+  await saveProfileInfo(profile);
+}
+
+/**
+ * Populate a serializable table from a csv
+ * @param tableName
+ * @param tableCSV
+ * @returns
+ */
+async function populateTable(tableName: tableOpt, tableCSV: string) {
+  console.log(tableName, tableCSV);
+  if (!tableSerializationData[tableName]) {
+    console.warn('[BACKUP] invalid table option in populateTable, skipping');
+    return;
+  }
+  const parsedData = Papa.parse(tableCSV, {
+    header: true,
+  }).data;
+  console.log(parsedData);
+  // Rewrite boolean columns as proper booleans
+  parsedData.forEach(entry => {
+    tableSerializationData[tableName].booleanColumns.forEach(column => {
+      if (entry[column] === 'true') {
+        entry[column] = true;
+      } else if (entry[column] === 'false') {
+        entry[column] = false;
+      }
+    });
+  });
+
+  const insertIntoTable = tableSerializationData[tableName].inserter;
+  parsedData.forEach(async entry => {
+    await insertIntoTable(entry);
+  });
+}
+
+/**
+ * Load up an account from a backup
+ * @param onSuccess
+ * @param onFailure
+ * @returns
+ */
+export async function readSecureDataBackup(
+  onSuccess: Function,
+  onFailure: Function,
+) {
+  const selections: DocumentPickerResponse[] = await DocumentPicker.pick({
+    type: [DocumentPicker.types.plainText],
+    //We need to copy documents to a directory locally before sharing on newer Android.
+    ...(!isIOS && {copyTo: 'cachesDirectory'}),
+  });
+  const selected = selections[0];
+  if (!selected) {
+    console.warn('[BACKUP] no file selected');
+    onFailure();
+    return;
+  }
+
+  var path = selected.fileCopyUri ? selected.fileCopyUri : selected.uri;
+
+  let backup: string | null;
+  try {
+    backup = await RNFS.readFile(path, 'utf8');
+  } catch (e) {
+    console.error('[BACKUP] file not found');
+    onFailure();
+    return;
+  }
+  if (!backup) {
+    onFailure();
+    return;
+  }
+  const sections: string[] = backup.split(sectionSplitMagic);
+  const profileData = sections[1] as string;
+  await deserializeProfileData(profileData);
+  const dbData = sections[2] as string;
+  const dbOrder = dbData.split(tableSplitMagic)[0].split('\n') as tableOpt[];
+  const dbCSVs = dbData.split(tableSplitMagic).slice(1) as string[];
+  for (let i = 0; i < dbOrder.length; i++) {
+    await populateTable(dbOrder[i], dbCSVs[i]);
+  }
+  await fetchNewPorts();
+  try {
+    await initialiseFCM();
+  } catch (e) {
+    console.warn(
+      '[BACKUP] Could not finish initialize FCM (This is expected on iOS emulators): ',
+      e,
+    );
+  }
+  onSuccess();
+  return;
+}
+
+/**
+ * Create a backup for a user's account and connections
+ */
+export async function createSecureDataBackup() {
+  const backupFileName = `/portBackup-${generateRandomHexId()}.txt`;
+  const path = RNFS.CachesDirectoryPath + backupFileName;
+
+  const header =
+    'Port data backup file\n' +
+    'Created on: ' +
+    generateISOTimeStamp() +
+    '\n' +
+    'backup version: ' +
+    BACKUP_VERSION +
+    '\n';
+  const profileInfo = await serializeProfileInfo();
+  const dbCSV = await serializedDatabaseSection();
+
+  const finalStr = [header, profileInfo, dbCSV].join(sectionSplitMagic);
+
+  await RNFS.writeFile(path, finalStr, 'utf8');
+  const shareContent = {
+    title: 'Save your backup file ',
+    filename: backupFileName,
+    url: 'file://' + path,
+  };
+  try {
+    const shareResult = await Share.open(shareContent);
+    if (shareResult.success) {
+      updateBackupTime(generateISOTimeStamp());
+    }
+  } catch (e) {
+    console.warn('[BACKUP] user did not save backup');
+  }
+}

@@ -17,6 +17,10 @@ export const booleanKeysOfPermissions: (keyof BooleanPermissions)[] = [
   'contactSharing',
   'readReceipts',
 ];
+
+export interface PermissionsEntry extends PermissionsStrict {
+  permissionsId: string;
+}
 /**
  * Permissions that take number values
  */

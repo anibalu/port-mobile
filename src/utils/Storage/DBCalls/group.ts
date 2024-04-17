@@ -1,5 +1,9 @@
 import {runSimpleQuery} from './dbCommon';
-import {GroupData, GroupDataStrict} from '@utils/Groups/interfaces';
+import {
+  GroupData,
+  GroupDataEntry,
+  GroupDataStrict,
+} from '@utils/Groups/interfaces';
 
 function toBool(a: number) {
   if (a) {
@@ -21,6 +25,20 @@ export async function newGroup(id: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
+}
+
+export async function getAllGroups(): Promise<GroupDataEntry[]> {
+  const groups: GroupDataEntry[] = [];
+  await runSimpleQuery('SELECT * FROM groups;', [], (tx, results) => {
+    const len = results.rows.length;
+    let entry;
+    for (let i = 0; i < len; i++) {
+      entry = results.rows.item(i);
+      entry.amAdmin = toBool(entry.amAdmin);
+      groups.push(results.rows.item(i));
+    }
+  });
+  return groups;
 }
 
 /**

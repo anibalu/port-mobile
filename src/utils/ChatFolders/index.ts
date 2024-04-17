@@ -63,6 +63,15 @@ export async function addNewFolder(
 }
 
 /**
+ * USE FOR RECOVERY ONLY
+ * Add a folder entry to the database
+ * @param folderData The folder entry to add
+ */
+export async function addFolderEntry(folderData: FolderInfo) {
+  await folderStorage.addNewFolder(folderData);
+}
+
+/**
  * Get a folder's permissions
  */
 export async function getFolderPermissions(folderId: string) {

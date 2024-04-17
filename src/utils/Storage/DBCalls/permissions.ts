@@ -2,6 +2,7 @@ import {defaultPermissions} from '@configs/constants';
 import {runSimpleQuery} from './dbCommon';
 import {
   Permissions,
+  PermissionsEntry,
   PermissionsStrict,
   booleanKeysOfPermissions,
   numberKeysOfPermissions,
@@ -34,6 +35,48 @@ export async function newPermissionEntry(permissionsId: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
+}
+
+export async function addPermissionEntry(data: PermissionsEntry) {
+  await runSimpleQuery(
+    `
+    INSERT INTO permissions (
+      permissionsId, autoDownload, contactSharing, disappearingMessages, displayPicture, notifications,readReceipts) VALUES (?,?,?,?,?,?,?);
+    `,
+    [
+      data.permissionsId,
+      data.autoDownload,
+      data.contactSharing,
+      data.disappearingMessages,
+      data.displayPicture,
+      data.notifications,
+      data.readReceipts,
+    ],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
+}
+
+export async function getAllPermissions(): Promise<PermissionsEntry[]> {
+  const permissions: PermissionsEntry[] = [];
+  await runSimpleQuery('SELECT * FROM permissions;', [], (tx, results) => {
+    const len = results.rows.length;
+    for (let i = 0; i < len; i++) {
+      const entry = results.rows.item(i);
+      const match: PermissionsEntry = {
+        ...defaultPermissions,
+        permissionsId: entry.permissionsId,
+      };
+      booleanKeysOfPermissions.forEach(key => {
+        match[key] = toBool(entry[key]);
+      });
+      numberKeysOfPermissions.forEach(key => {
+        match[key] = entry[key];
+      });
+      permissions.push(match);
+    }
+  });
+  return permissions;
 }
 
 /**

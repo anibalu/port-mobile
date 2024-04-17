@@ -7,4 +7,5 @@ export type OnboardingStackParamList = {
   RequestPermissions: undefined;
   NameScreen: undefined;
   PermissionsScreen: {name: string; avatar: FileAttributes};
+  RestoreAccount: undefined;
 };

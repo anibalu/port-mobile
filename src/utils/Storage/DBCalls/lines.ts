@@ -1,6 +1,10 @@
 import {DEFAULT_NAME} from '@configs/constants';
 import {runSimpleQuery} from './dbCommon';
-import {LineData, LineDataStrict} from '@utils/DirectChats/interfaces';
+import {
+  LineData,
+  LineDataEntry,
+  LineDataStrict,
+} from '@utils/DirectChats/interfaces';
 
 function toBool(a: number | boolean | null | undefined): boolean {
   if (a) {
@@ -9,6 +13,52 @@ function toBool(a: number | boolean | null | undefined): boolean {
     return false;
   }
 }
+
+export async function addLine(lineData: LineDataEntry) {
+  await runSimpleQuery(
+    `
+    INSERT INTO lines
+    (lineId,
+    name ,
+    displayPic ,
+    authenticated ,
+    disconnected ,
+    cryptoId ,
+    connectedOn ,
+    connectedUsing ,
+    permissionsId ) VALUES (?,?,?,?,?,?,?,?,?) ;
+    `,
+    [
+      lineData.lineId,
+      lineData.name,
+      lineData.displayPic,
+      lineData.authenticated,
+      lineData.disconnected,
+      lineData.cryptoId,
+      lineData.connectedOn,
+      lineData.connectedUsing,
+      lineData.permissionsId,
+    ],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
+}
+
+export async function getLines(): Promise<LineDataEntry[]> {
+  const lines: LineDataEntry[] = [];
+  await runSimpleQuery('SELECT * FROM lines;', [], (tx, results) => {
+    const len = results.rows.length;
+    let entry;
+    for (let i = 0; i < len; i++) {
+      entry = results.rows.item(i);
+      entry.authenticated = toBool(entry.authenticated);
+      entry.disconnected = toBool(entry.disconnected);
+      lines.push(results.rows.item(i));
+    }
+  });
+  return lines;
+}
+
 /**
  * Save a new, unauthenticated line
  * @param lineId a 32 character lineId

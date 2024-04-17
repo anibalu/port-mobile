@@ -14,6 +14,10 @@ export interface CryptoDataStrict extends CryptoData {
   rad: string | null;
 }
 
+export interface CryptoDataEntry extends CryptoData {
+  cryptoId: string;
+}
+
 export interface CryptoDataMember extends CryptoData {
   publicKey?: string;
   sharedSecret: string;

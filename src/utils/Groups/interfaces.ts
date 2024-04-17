@@ -17,6 +17,10 @@ export interface GroupDataStrict extends GroupData {
   permissionsId: string;
 }
 
+export interface GroupDataEntry extends GroupDataStrict {
+  groupId: string;
+}
+
 export interface GroupMemberUpdate {
   name?: string | null;
   joinedAt?: string | null;

@@ -53,6 +53,12 @@
         </dict>
       </dict>
     </dict>
+    <key>UIFileSharingEnabled</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>UISupportsDocumentBrowser</key>
+    <true/>
     <key>NSAppleMusicUsageDescription</key>
     <string>Port would like to access your music for sounds</string>
     <key>NSCameraUsageDescription</key>

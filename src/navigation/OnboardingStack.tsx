@@ -5,6 +5,7 @@ import SetupUser from '@screens/SetupUser/SetupUser';
 import Welcome from '@screens/Welcome/Welcome';
 import React from 'react';
 import {OnboardingStackParamList} from './OnboardingStackTypes';
+import RestoreAccount from '@screens/Onboarding/RestoreAccount';
 
 const Stack = createNativeStackNavigator<OnboardingStackParamList>();
 
@@ -22,6 +23,7 @@ function OnboardingStack() {
         <Stack.Screen name="NameScreen" component={NameScreen} />
         <Stack.Screen name="PermissionsScreen" component={PermissionsScreen} />
         <Stack.Screen name="SetupUser" component={SetupUser} />
+        <Stack.Screen name="RestoreAccount" component={RestoreAccount} />
       </Stack.Navigator>
     </>
   );

@@ -169,6 +169,9 @@ export async function updateProfileInfo(
     currentProfile.profilePicInfo = profileUpdate.profilePicInfo
       ? profileUpdate.profilePicInfo
       : currentProfile.profilePicInfo;
+    currentProfile.lastBackupTime = profileUpdate.lastBackupTime
+      ? profileUpdate.lastBackupTime
+      : currentProfile.lastBackupTime;
     const profile: ProfileInfo = currentProfile;
     //update cache and storage
     await storage.saveProfileInfo(profile, false);
@@ -191,6 +194,13 @@ export async function updateProfileName(
   await updateProfileInfo({name: name}, blocking);
 }
 
+export async function updateBackupTime(
+  timestamp: string,
+  blocking: boolean = true,
+) {
+  await updateProfileInfo({lastBackupTime: timestamp}, blocking);
+}
+
 export async function updateProfileAvatar(
   avatar: FileAttributes,
   blocking: boolean = true,
@@ -210,6 +220,11 @@ export async function getProfileName(): Promise<string> {
 export async function getProfilePicture(): Promise<FileAttributes> {
   const profile: ProfileInfo | undefined = await getProfileInfo();
   return profile ? profile.profilePicInfo : getDefaultAvatarInfo();
+}
+
+export async function getLastBackupTime(): Promise<string | undefined> {
+  const profile: ProfileInfo | undefined = await getProfileInfo();
+  return profile ? profile.lastBackupTime : undefined;
 }
 
 /**

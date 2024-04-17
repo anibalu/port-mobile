@@ -15,7 +15,10 @@ import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
 import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
-import {checkFileSizeWithinLimits} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {
+  checkFileSizeWithinLimits,
+  moveToLargeFileDir,
+} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {saveNewMedia, updateMedia} from '@utils/Storage/media';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
@@ -214,18 +217,27 @@ export class SendMediaDirectMessage<
   }
   private async preProcessMedia() {
     //create valid media Id and key.
+    let mediaId = (this.data as LargeDataParams).mediaId;
+    let key = (this.data as LargeDataParams).key;
     const largeData = this.data as LargeDataParamsStrict;
-    const uploader = new LargeDataUpload(
-      largeData.fileUri,
-      largeData.fileName,
-      largeData.fileType,
-    );
-    await uploader.upload();
-    const newMediaIdAndKey = uploader.getMediaIdAndKey();
+    if (!mediaId || !key) {
+      const uploader = new LargeDataUpload(
+        largeData.fileUri,
+        largeData.fileName,
+        largeData.fileType,
+      );
+      await uploader.upload();
+      const newMediaIdAndKey = uploader.getMediaIdAndKey();
+      mediaId = newMediaIdAndKey.mediaId;
+      key = newMediaIdAndKey.key;
+      console.log('[MediaSender] Uploaded media due to missing mediaId or key');
+    } else {
+      console.log('[MediaSender] Skipping upload');
+    }
 
     //Add entry into media table
     await saveNewMedia(
-      newMediaIdAndKey.mediaId,
+      mediaId,
       this.chatId,
       this.messageId,
       this.savedMessage.timestamp,
@@ -235,12 +247,24 @@ export class SendMediaDirectMessage<
     this.payload.data = {
       ...this.data,
       fileUri: null,
-      mediaId: newMediaIdAndKey.mediaId,
-      key: newMediaIdAndKey.key,
+      mediaId: mediaId,
+      key: key,
     };
 
+    // If media is not in our folder, make a copy
+    if (!largeData.fileUri.includes(this.chatId)) {
+      try {
+        moveToLargeFileDir(
+          this.chatId,
+          largeData.fileUri,
+          largeData.fileName,
+          this.contentType,
+          false,
+        );
+      } catch (e) {}
+    }
     //Saves relative URIs for the paths
-    await updateMedia(newMediaIdAndKey.mediaId, {
+    await updateMedia(mediaId, {
       type: this.contentType,
       filePath: largeData.fileUri,
       name: largeData.fileName,

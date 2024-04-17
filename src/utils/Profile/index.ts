@@ -4,7 +4,7 @@ import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
 import {generateKeys} from '@utils/Crypto/ed25519';
 import {pickRandomAvatarId} from '@utils/IdGenerator';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
+import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {FileAttributes} from '@utils/Storage/interfaces';
 import {DEFAULT_NAME, NAME_LENGTH_LIMIT} from '../../configs/constants';
@@ -14,6 +14,7 @@ import {connectionFsSync} from '../Synchronization';
 import * as API from './APICalls';
 import {ProfileInfo, ProfileInfoUpdate, ProfileStatus} from './interfaces';
 import {getChatPermissions} from '@utils/ChatPermissions';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 
 function getDefaultAvatarInfo(): FileAttributes {
   return {...DEFAULT_PROFILE_AVATAR_INFO};
@@ -274,7 +275,19 @@ export async function setNewProfilePicture(
       }
       await updateProfileInfo({profilePicInfo: file});
     } else {
-      const newFile = await storage.moveProfilePictureToProfileDir(file);
+      const newFile = (await storage.moveProfilePictureToProfileDir(
+        file,
+      )) as LargeDataParams;
+      // Upload the profile picture to prevent re-uploads for each chat
+      const uploader = new LargeDataUpload(
+        newFile.fileUri || 'missing file path in profile upload',
+        newFile.fileName,
+        newFile.fileType,
+      );
+      await uploader.upload();
+      const {mediaId, key} = uploader.getMediaIdAndKey();
+      newFile.mediaId = mediaId;
+      newFile.key = key;
       for (const conn of connections) {
         const isAllowed = (
           await getChatPermissions(
@@ -290,12 +303,14 @@ export async function setNewProfilePicture(
             ContentType.displayImage,
             {
               ...newFile,
+              mediaId,
+              key,
             },
           );
           sendDisplayPicture.send();
         }
       }
-      await updateProfileInfo({profilePicInfo: newFile});
+      await updateProfileInfo({profilePicInfo: newFile as FileAttributes});
     }
   } catch (error) {
     console.log('error saving profile pic: ', error);

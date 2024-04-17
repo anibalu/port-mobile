@@ -52,6 +52,7 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {GroupMemberStrict} from '@utils/Groups/interfaces';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -282,35 +283,49 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
 
   const onSend = async () => {
     setSending(true);
-    for (const mbr of selectedMembers) {
+    try {
       for (const data of dataList) {
-        //If there are multiple messages and this has entered from chat, attach text to the last image that is sent.
-        if (
-          (isChat || fromShare) &&
-          dataList.indexOf(data) === dataList.length - 1
-        ) {
-          data.data.text = message;
-        }
-        if (data.contentType === ContentType.video) {
-          data.data.previewUri = getRelativeURI(data.thumbnailUri, 'cache');
-        }
-        const newData = {
-          ...data.data,
-          fileUri: await moveToLargeFileDir(
-            mbr.chatId,
-            data.data.fileUri,
-            data.data.fileName,
-            data.contentType,
-          ),
-        };
+        const uploader = new LargeDataUpload(
+          getRelativeURI(data.data.fileUri, 'doc'),
+          data.fileName,
+          'unused filetype',
+        );
+        await uploader.upload();
+        const uploadData = uploader.getMediaIdAndKey();
+        for (const mbr of selectedMembers) {
+          //If there are multiple messages and this has entered from chat, attach text to the last image that is sent.
+          if (
+            (isChat || fromShare) &&
+            dataList.indexOf(data) === dataList.length - 1
+          ) {
+            data.data.text = message;
+          }
+          if (data.contentType === ContentType.video) {
+            data.data.previewUri = getRelativeURI(data.thumbnailUri, 'cache');
+          }
+          const newData = {
+            ...data.data,
+            mediaId: uploadData.mediaId,
+            key: uploadData.key,
+            fileUri: await moveToLargeFileDir(
+              mbr.chatId,
+              data.data.fileUri,
+              data.data.fileName,
+              data.contentType,
+              false,
+            ),
+          };
 
-        const sender = new SendMessage(mbr.chatId, data.contentType, newData);
-        try {
-          await sender.send();
-        } catch (error) {
-          FileTooLarge();
+          const sender = new SendMessage(mbr.chatId, data.contentType, newData);
+          try {
+            await sender.send();
+          } catch (error) {
+            FileTooLarge();
+          }
         }
       }
+    } catch (error) {
+      console.error('Error sending multimedia: ', error);
     }
     setSending(false);
     if (fromCapture) {

@@ -61,11 +61,21 @@ async function initialiseLargeFileDirAsync(chatId: string): Promise<string> {
   return chatIdDir;
 }
 
+/**
+ *
+ * @param chatId
+ * @param fileUri
+ * @param fileName
+ * @param contentType
+ * @param deleteOriginal should fileUri be removed
+ * @returns
+ */
 export async function moveToLargeFileDir(
   chatId: string,
   fileUri: string,
   fileName: string,
   contentType: ContentType,
+  deleteOriginal: boolean = true,
 ): Promise<string> {
   if (contentType === ContentType.displayImage) {
     return fileUri;
@@ -76,12 +86,12 @@ export async function moveToLargeFileDir(
     contentType === ContentType.audioRecording
   ) {
     return getRelativeURI(
-      await moveToMediaDir(chatId, fileUri, fileName),
+      await moveToMediaDir(chatId, fileUri, fileName, deleteOriginal),
       'doc',
     );
   } else {
     return getRelativeURI(
-      await moveToFilesDir(chatId, fileUri, fileName),
+      await moveToFilesDir(chatId, fileUri, fileName, deleteOriginal),
       'doc',
     );
   }
@@ -95,12 +105,14 @@ async function moveToFilesDir(
   chatId: string,
   fileUri: string,
   fileName: string,
+  deleteOriginal: boolean = true,
 ): Promise<string> {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath =
     chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
+  const moveOrCopy = deleteOriginal ? RNFS.moveFile : RNFS.copyFile;
   try {
-    await RNFS.moveFile(decodeURIComponent(fileUri), destinationPath);
+    await moveOrCopy(decodeURIComponent(fileUri), destinationPath);
     console.log('Destination: ', destinationPath);
   } catch (error) {
     console.log('Error moving file: ', error);
@@ -109,19 +121,21 @@ async function moveToFilesDir(
 }
 
 /**
- * Creates a copy of the large file in the media directory of a chat.
+ * Moves the large file in the media directory of a chat.
  * @returns {Promise<string>} A Promise that resolves to the destination path.
  */
 async function moveToMediaDir(
   chatId: string,
   fileUri: string,
   fileName: string,
+  deleteOriginal: boolean = true,
 ): Promise<string> {
   const chatIdDir = await initialiseLargeFileDirAsync(chatId);
   const destinationPath =
     chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
+  const moveOrCopy = deleteOriginal ? RNFS.moveFile : RNFS.copyFile;
   try {
-    await RNFS.moveFile(decodeURIComponent(fileUri), destinationPath);
+    await moveOrCopy(decodeURIComponent(fileUri), destinationPath);
     console.log('Destination: ', destinationPath);
   } catch (error) {
     console.log('Error moving file: ', error);

@@ -14,13 +14,16 @@ import {KeyboardAvoidingView, StyleSheet, View, ScrollView} from 'react-native';
 import BackIcon from '@assets/navigation/backButton.svg';
 import SearchIcon from '@assets/icons/searchThin.svg';
 import {TOPBAR_HEIGHT} from '@configs/constants';
-import {getConnections} from '@utils/Connections';
+import {getConnection, getConnections} from '@utils/Connections';
 import SearchBar from '@components/Reusable/TopBars/SearchBar';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
+import {LargeDataParams} from '@utils/Messaging/interfaces';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ForwardToContact'>;
 
@@ -54,21 +57,28 @@ const ForwardToContact = ({route, navigation}: Props) => {
 
   const onForward = async () => {
     setLoading(true);
-    for (const mbr of selectedMembers) {
+    try {
+      const getMessageFromChat =
+        (await getConnection(chatId)).connectionType === ChatType.group
+          ? getGroupMessage
+          : getMessage;
       for (const id of messages) {
-        if (mbr.connectionType === ChatType.group) {
-          const msg = await getGroupMessage(chatId, id);
-          if (msg) {
-            const sender = new SendMessage(
-              mbr.chatId,
-              msg.contentType,
-              msg.data,
+        const msg = await getMessageFromChat(chatId, id);
+        if (msg) {
+          if (mediaContentTypes.includes(msg.contentType)) {
+            // Pre upload data to prevent iteration
+            const mediaData = msg.data as LargeDataParams;
+            const uploader = new LargeDataUpload(
+              mediaData.fileUri || 'Bad file uri',
+              mediaData.fileName,
+              'unused filetype',
             );
-            sender.send();
+            await uploader.upload();
+            const {mediaId, key} = uploader.getMediaIdAndKey();
+            mediaData.mediaId = mediaId;
+            mediaData.key = key;
           }
-        } else {
-          const msg = await getMessage(chatId, id);
-          if (msg) {
+          for (const mbr of selectedMembers) {
             const sender = new SendMessage(
               mbr.chatId,
               msg.contentType,
@@ -78,6 +88,8 @@ const ForwardToContact = ({route, navigation}: Props) => {
           }
         }
       }
+    } catch (error) {
+      console.error('Error forwarding', error);
     }
     setLoading(false);
     navigation.goBack();

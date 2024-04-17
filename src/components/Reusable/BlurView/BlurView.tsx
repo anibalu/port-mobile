@@ -104,11 +104,13 @@ const BlurViewModal = () => {
       }}>
       {!isIOS && <CustomStatusBar backgroundColor="#00000000" />}
       <Animated.View style={initialStyle}>
-        <MessageBubble
-          message={message}
-          handleLongPress={() => {}}
-          swipeable={false}
-        />
+        <View style={{marginLeft: PortSpacing.secondary.left}}>
+          <MessageBubble
+            message={message}
+            handleLongPress={() => {}}
+            swipeable={false}
+          />
+        </View>
         {showOptions && (
           <View style={{position: 'absolute', width: '100%'}}>
             <View

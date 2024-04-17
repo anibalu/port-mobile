@@ -85,7 +85,6 @@ export const MessageBubbleParent = ({
   const {
     chatId,
     selectedMessages,
-    selectionMode,
     handlePress,
     handleLongPress,
     onCleanCloseFocus,
@@ -114,8 +113,6 @@ export const MessageBubbleParent = ({
       }
     }
   };
-
-  const isSelected = selectedMessages.includes(message.messageId);
 
   //responsible for sending read receipts
   useEffect(() => {
@@ -167,11 +164,6 @@ export const MessageBubbleParent = ({
               />
             </Pressable>
           )}
-          <Pressable
-            onPress={() => handlePress(message.messageId, message.contentType)}
-            onLongPress={() => handleLongPress(message.messageId)}
-            style={selectionMode && isSelected ? styles.overlay : styles.empty}
-          />
         </View>
       )}
     </View>
@@ -192,13 +184,14 @@ const styles = StyleSheet.create({
     paddingVertical: PortSpacing.tertiary.uniform,
   },
   container: {
-    width: screen.width - PortSpacing.secondary.uniform,
+    width: screen.width,
     alignSelf: 'flex-end',
   },
   messageBubbleContainer: {
-    width: '100%',
+    width: screen.width - PortSpacing.secondary.left,
     flexDirection: 'row',
     justifyContent: 'flex-start',
+    alignSelf: 'flex-end',
   },
   empty: {},
   overlay: {

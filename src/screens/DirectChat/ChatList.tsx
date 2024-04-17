@@ -115,7 +115,7 @@ function ChatList({
           autoscrollToTopThreshold: minimumThreshold,
         }}
         onScroll={handleScroll}
-        scrollEventThrottle={1000}
+        scrollEventThrottle={100}
         onMomentumScrollEnd={handleMomentumEnd}
         onEndReached={onStartReached}
         refreshing={refreshing}

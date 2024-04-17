@@ -40,9 +40,13 @@ const NumberPill = ({
         }}
         fontType={FontType.rg}
         fontSizeType={FontSizeType.m}>
-        {isCustom ? (value == 0 ? '+ Custom' : value) : value}
+        {isCustom
+          ? value == 0 || value !== connectionLimit
+            ? '+ Custom'
+            : value
+          : value}
       </NumberlessText>
-      {isCustom && value > 0 && (
+      {isCustom && !(value == 0 || value !== connectionLimit) && (
         <EditIcon width={16} height={16} style={{marginLeft: 3}} />
       )}
     </Pressable>

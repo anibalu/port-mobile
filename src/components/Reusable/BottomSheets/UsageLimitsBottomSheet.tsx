@@ -97,13 +97,25 @@ const UsageLimitsBottomSheet = ({
             bgColor="w"
             keyboardType="numeric"
           />
+          {connectionsMade >= parseInt(newLocalLimit) && (
+            <NumberlessText
+              textColor={PortColors.primary.red.error}
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.s}>
+              Connection limit has to be a value greater than connections made.
+            </NumberlessText>
+          )}
         </View>
+
         <PrimaryButton
           buttonText={'Save'}
           primaryButtonColor={'b'}
           isLoading={false}
           disabled={
-            connectionsMade >= parseInt(newLocalLimit) || newLocalLimit === ''
+            connectionsMade >= parseInt(newLocalLimit) ||
+            newLocalLimit === '' ||
+            parseInt(newLocalLimit) === newLimit ||
+            limitsArray.includes(parseInt(newLocalLimit))
           }
           onClick={onSavePress}
         />

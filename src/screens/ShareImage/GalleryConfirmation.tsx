@@ -29,7 +29,7 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {
   getRelativeURI,
-  moveToLargeFileDir,
+  moveToTmp,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -111,6 +111,14 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         );
         item.data.fileUri = compressedUri ? compressedUri : item.data.fileUri;
       }
+      if (item.contentType === ContentType.file) {
+        const movedUri = await moveToTmp(
+          item.data.fileUri,
+          item.data.fileName || 'file',
+        );
+        item.data.fileUri = movedUri ? movedUri : item.data.fileUri;
+      }
+      //at the end of this process, media fileUri points to a file in the tmp directory.
       newList.push(item);
     }
     setDataList(newList);
@@ -205,7 +213,6 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
             {item.data.fileName}
           </NumberlessText>
         </View>
-
         <Pdf
           key={index}
           source={{uri: item.data.fileUri}}
@@ -284,14 +291,17 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   const onSend = async () => {
     setSending(true);
     try {
+      console.log('entered sender');
       for (const data of dataList) {
         const uploader = new LargeDataUpload(
-          getRelativeURI(data.data.fileUri, 'doc'),
+          getRelativeURI(data.data.fileUri, 'tmp'),
           data.fileName,
           'unused filetype',
+          'tmp',
         );
         await uploader.upload();
         const uploadData = uploader.getMediaIdAndKey();
+        console.log('multimedia uploaded successfully', uploadData);
         for (const mbr of selectedMembers) {
           //If there are multiple messages and this has entered from chat, attach text to the last image that is sent.
           if (
@@ -303,19 +313,12 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
           if (data.contentType === ContentType.video) {
             data.data.previewUri = getRelativeURI(data.thumbnailUri, 'cache');
           }
+          //creates a copy of the media in each selected member's chat
           const newData = {
             ...data.data,
             mediaId: uploadData.mediaId,
             key: uploadData.key,
-            fileUri: await moveToLargeFileDir(
-              mbr.chatId,
-              data.data.fileUri,
-              data.data.fileName,
-              data.contentType,
-              false,
-            ),
           };
-
           const sender = new SendMessage(mbr.chatId, data.contentType, newData);
           try {
             await sender.send();

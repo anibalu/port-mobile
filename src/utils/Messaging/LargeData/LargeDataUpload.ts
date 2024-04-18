@@ -13,9 +13,16 @@ class LargeDataUpload {
   private key: string | null;
   private mediaId: string | null;
   private encryptedTempFilePath: string | null;
-  constructor(fileUri: string, fileName: string, fileType: string) {
+  constructor(
+    fileUri: string,
+    fileName: string,
+    fileType: string,
+    fileSource: 'doc' | 'cache' | 'tmp' = 'doc',
+  ) {
     //we can assume this file uri is correctly prepended with "file://"
-    this.fileUri = getSafeAbsoluteURI(fileUri, 'doc');
+    this.fileUri = getSafeAbsoluteURI(fileUri, fileSource);
+    console.log('file uri', fileUri);
+    console.log('file uri 2', this.fileUri);
     this.fileName = fileName;
     this.fileType = fileType;
     this.key = null;
@@ -36,7 +43,6 @@ class LargeDataUpload {
   getMediaIdAndKey() {
     if (!this.mediaId || !this.key) {
       console.error('MediaId: ', this.mediaId, 'Key: ', this.key);
-      console.log('MediaId: ', this.mediaId, 'Key: ', this.key);
       throw new Error('MediaIdOrKeyNull');
     }
     return {mediaId: this.mediaId, key: this.key};

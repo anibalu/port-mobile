@@ -23,7 +23,7 @@ export interface ProfileInfoUpdate {
   //details of user's profile picture
   profilePicInfo?: FileAttributes;
   //last backup time
-  lastBackupTime: string;
+  lastBackupTime?: string;
 }
 
 /**

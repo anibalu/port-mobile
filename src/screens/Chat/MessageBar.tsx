@@ -33,7 +33,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import {
   downloadImageToMediaDir,
-  moveToLargeFileDir,
+  moveToTmp,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {FileAttributes} from '@utils/Storage/interfaces';
 import {formatDuration} from '@utils/Time';
@@ -422,15 +422,14 @@ const MessageBar = ({
     //iOS to Android requires .aac, as iOS .m4a/.mp4 won't play on Android.
     const ext = isIOS ? '.aac' : '.mp4';
     const fileName = generateRandomHexId() + ext;
+    console.log('audio dir', audio);
+    if (!audio) {
+      throw new Error('No audio location');
+    }
     const newData = {
       chatId,
       fileName: fileName,
-      fileUri: await moveToLargeFileDir(
-        chatId,
-        audio,
-        fileName,
-        ContentType.audioRecording,
-      ),
+      fileUri: await moveToTmp(audio, fileName),
       fileType: isIOS ? 'audio/aac' : 'audio/mp4',
       duration: duration,
     };
@@ -480,16 +479,20 @@ const MessageBar = ({
   };
 
   const onButtonPress = async () => {
-    if (text.length > 0) {
-      setOpenRecord(false);
-      sendText();
-      return;
-    } else if (audio) {
-      onSendRecording();
-      setAudio(null);
-      deleteRecording();
-    } else {
-      setOpenRecord(true);
+    try {
+      if (text.length > 0) {
+        setOpenRecord(false);
+        sendText();
+        return;
+      } else if (audio) {
+        onSendRecording();
+        setAudio(null);
+        deleteRecording();
+      } else {
+        setOpenRecord(true);
+      }
+    } catch (error) {
+      console.log('send press error', error);
     }
   };
 

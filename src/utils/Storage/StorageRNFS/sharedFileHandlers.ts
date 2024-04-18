@@ -154,9 +154,12 @@ async function initialiseTempDirAsync() {
   }
 }
 
-export async function checkFileSizeWithinLimits(fileUri: string) {
+export async function checkFileSizeWithinLimits(
+  fileUri: string,
+  location: 'doc' | 'tmp' | 'cache' = 'doc',
+) {
   try {
-    const absoluteURI = getSafeAbsoluteURI(fileUri, 'doc');
+    const absoluteURI = getSafeAbsoluteURI(fileUri, location);
     const fileSize = (await RNFS.stat(absoluteURI)).size;
     console.log('File size: ', fileSize);
     if (fileSize && fileSize < SHARED_FILE_SIZE_LIMIT_IN_BYTES) {
@@ -316,29 +319,37 @@ export function removeFilePrefix(fileUri: string) {
  */
 export function getSafeAbsoluteURI(
   fileURI: string,
-  location: 'doc' | 'cache',
+  location: 'doc' | 'cache' | 'tmp',
 ): string {
   switch (location) {
     case 'doc':
-      if (
-        fileURI?.includes('Documents/') ||
-        fileURI?.includes('com.numberless/')
-      ) {
+      if (fileURI?.includes(RNFS.DocumentDirectoryPath)) {
         console.log(
-          'Entered an absolute file path when a relative one was required',
+          'Entered an absolute file path when a relative one was expected. This is not an issue.',
         );
         return addFilePrefix(fileURI);
       } else {
         return addFilePrefix(RNFS.DocumentDirectoryPath + '/' + fileURI);
       }
     case 'cache':
-      if (fileURI.includes('Caches/') || fileURI.includes('com.numberless/')) {
-        console.warn(
-          'Entered an absolute cache path when a relative one was required',
+      if (fileURI?.includes(RNFS.CachesDirectoryPath)) {
+        console.log(
+          'Entered an absolute file path when a relative one was expected. This is not an issue.',
         );
         return addFilePrefix(fileURI);
       } else {
         return addFilePrefix(RNFS.CachesDirectoryPath + '/' + fileURI);
+      }
+    case 'tmp':
+      if (fileURI?.includes(RNFS.TemporaryDirectoryPath)) {
+        console.log(
+          'Entered an absolute file path when a relative one was expected. This is not an issue.',
+        );
+        return addFilePrefix(fileURI);
+      } else {
+        //edge case on ios where temp director has a / at the end.
+        const separator = isIOS ? '' : '/';
+        return addFilePrefix(RNFS.TemporaryDirectoryPath + separator + fileURI);
       }
   }
 }
@@ -351,7 +362,7 @@ export function getSafeAbsoluteURI(
  */
 export function getRelativeURI(
   fileURI: string,
-  location: 'doc' | 'cache',
+  location: 'doc' | 'cache' | 'tmp',
 ): string {
   switch (location) {
     case 'doc':
@@ -370,5 +381,59 @@ export function getRelativeURI(
         const cachesIndex = fileURI.indexOf('cache/');
         return fileURI.substring(cachesIndex + 'cache/'.length);
       }
+    case 'tmp':
+      if (isIOS) {
+        const tmpIndex = fileURI.indexOf('tmp/');
+        return fileURI.substring(tmpIndex + 'tmp/'.length);
+      } else {
+        const tmpIndex = fileURI.indexOf('cache/');
+        return fileURI.substring(tmpIndex + 'cache/'.length);
+      }
+  }
+}
+
+//tmp directory name repeats are not handled in ios. thus, we need to handle it.
+async function checkRepeteInTmp(fileUri: string) {
+  // check if repeat exists and delete if exists
+  const doesExist = await RNFS.exists(fileUri);
+  if (doesExist) {
+    await RNFS.unlink(fileUri);
+  }
+}
+
+export async function moveToTmp(source: string, fileName: string) {
+  try {
+    //edge case on ios where temp director has a / at the end.
+    const separator = isIOS ? '' : '/';
+    const newPath =
+      RNFS.TemporaryDirectoryPath + separator + fileName.replace(/\//g, '');
+    await checkRepeteInTmp(newPath);
+    await RNFS.moveFile(decodeURIComponent(source), newPath);
+    return addFilePrefix(newPath);
+  } catch (error) {
+    console.log('Unable to move to tmp dir', error);
+    return null;
+  }
+}
+
+export async function copyToTmp(
+  fileUri: string | null | undefined,
+  fileName: string = 'unknown.unknown',
+) {
+  try {
+    if (!fileUri) {
+      throw new Error('No file Uri');
+    }
+    //edge case on ios where temp director has a / at the end.
+    const separator = isIOS ? '' : '/';
+    const source = getSafeAbsoluteURI(decodeURIComponent(fileUri), 'doc');
+    const newPath =
+      RNFS.TemporaryDirectoryPath + separator + fileName.replace(/\//g, '');
+    await checkRepeteInTmp(newPath);
+    await RNFS.copyFile(source, newPath);
+    return addFilePrefix(newPath);
+  } catch (error) {
+    console.log('Unable to copy to tmp dir', error);
+    return null;
   }
 }

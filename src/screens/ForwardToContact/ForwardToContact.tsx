@@ -24,6 +24,7 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {LargeDataParams} from '@utils/Messaging/interfaces';
+import {copyToTmp} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ForwardToContact'>;
 
@@ -67,11 +68,20 @@ const ForwardToContact = ({route, navigation}: Props) => {
         if (msg) {
           if (mediaContentTypes.includes(msg.contentType)) {
             // Pre upload data to prevent iteration
+            //forward screen fileUri to be forwarded is always from app storage.
+            //create copy of file in tmp dir.
+            const tmpUri = await copyToTmp(
+              (msg.data as LargeDataParams).fileUri,
+              (msg.data as LargeDataParams).fileName,
+            );
+            //then upload and send.
             const mediaData = msg.data as LargeDataParams;
+            mediaData.fileUri = tmpUri;
             const uploader = new LargeDataUpload(
               mediaData.fileUri || 'Bad file uri',
               mediaData.fileName,
-              'unused filetype',
+              mediaData.fileType || 'unused filetype',
+              'tmp',
             );
             await uploader.upload();
             const {mediaId, key} = uploader.getMediaIdAndKey();

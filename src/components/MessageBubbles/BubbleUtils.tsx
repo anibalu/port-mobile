@@ -95,6 +95,7 @@ export const handleMediaOpen = (
   onUndefined: () => void,
   onError: () => void,
 ) => {
+  console.log('invoking file opener', getSafeAbsoluteURI(fileURI, 'doc'));
   if (fileURI != undefined && fileURI != null) {
     FileViewer.open(getSafeAbsoluteURI(fileURI, 'doc'), {
       showOpenWithDialog: true,

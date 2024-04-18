@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   optionButtonWrapper: {
     width: '100%',
     padding: PortSpacing.secondary.uniform,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 0.25,
     borderBottomColor: PortColors.text.body,
   },
   optionsContainer: {

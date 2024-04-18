@@ -37,6 +37,7 @@ const disappearingMediaTypes: ContentType[] = [
   ContentType.file,
 ];
 
+//IMPORTANT: Assumes that the file Uri of the media about to be sent is located in the tmp directory.
 export class SendMediaDirectMessage<
   T extends ContentType,
 > extends SendDirectMessage<T> {
@@ -131,7 +132,12 @@ export class SendMediaDirectMessage<
     if (!fileUri) {
       throw new Error('LargeDataFileUriNullError');
     }
-    if (!(await checkFileSizeWithinLimits(fileUri))) {
+    if (
+      !(await checkFileSizeWithinLimits(
+        fileUri,
+        this.contentType === ContentType.displayImage ? 'doc' : 'tmp',
+      ))
+    ) {
       throw new Error('FileTooLarge');
     }
   }
@@ -225,6 +231,7 @@ export class SendMediaDirectMessage<
         largeData.fileUri,
         largeData.fileName,
         largeData.fileType,
+        'tmp',
       );
       await uploader.upload();
       const newMediaIdAndKey = uploader.getMediaIdAndKey();
@@ -235,14 +242,6 @@ export class SendMediaDirectMessage<
       console.log('[MediaSender] Skipping upload');
     }
 
-    //Add entry into media table
-    await saveNewMedia(
-      mediaId,
-      this.chatId,
-      this.messageId,
-      this.savedMessage.timestamp,
-    );
-
     //prep payload
     this.payload.data = {
       ...this.data,
@@ -251,27 +250,38 @@ export class SendMediaDirectMessage<
       key: key,
     };
 
-    // If media is not in our folder, make a copy
-    if (!largeData.fileUri.includes(this.chatId)) {
-      try {
-        moveToLargeFileDir(
+    // when about to send multimedia, make a local copy and add to media DB. Unless it's a display picture.
+    try {
+      if (this.contentType !== ContentType.displayImage) {
+        const newLocation = await moveToLargeFileDir(
           this.chatId,
           largeData.fileUri,
           largeData.fileName,
           this.contentType,
           false,
         );
-      } catch (e) {}
+        largeData.fileUri = newLocation;
+        (this.savedMessage.data as LargeDataParamsStrict).fileUri = newLocation;
+      }
+      //Add entry into media table
+      await saveNewMedia(
+        mediaId,
+        this.chatId,
+        this.messageId,
+        this.savedMessage.timestamp,
+      );
+      //Saves relative URIs for the paths
+      await updateMedia(mediaId, {
+        type: this.contentType,
+        filePath: largeData.fileUri,
+        name: largeData.fileName,
+        previewPath:
+          this.contentType === ContentType.video
+            ? largeData.previewUri || undefined
+            : undefined,
+      });
+    } catch (e) {
+      console.log('ERROR MAKING LOCAL COPY AND ADDING TO MEDIA DB: ', e);
     }
-    //Saves relative URIs for the paths
-    await updateMedia(mediaId, {
-      type: this.contentType,
-      filePath: largeData.fileUri,
-      name: largeData.fileName,
-      previewPath:
-        this.contentType === ContentType.video
-          ? largeData.previewUri || undefined
-          : undefined,
-    });
   }
 }

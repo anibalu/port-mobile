@@ -27,7 +27,7 @@ import {
 import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import {getChatTileTimestamp} from '@utils/Time';
 import React, {ReactNode, useEffect, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {Animated, Easing, Pressable, StyleSheet, View} from 'react-native';
 import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 export interface ChatTileProps extends ConnectionInfo {
@@ -119,17 +119,32 @@ function ChatTile({
       setSelectionMode(true);
     }
   };
+  const [selectionScale] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    if (selectionMode) {
+      Animated.timing(selectionScale, {
+        toValue: 1,
+        duration: 150,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }).start();
+    } else {
+      Animated.timing(selectionScale, {
+        toValue: 0,
+        duration: 150,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }).start();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectionMode]);
+
   return (
     <View style={styles.container}>
       {selectionMode && (
         <Pressable
-          style={{
-            width: CHECKBOX_WIDTH,
-            height: 54,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          pointerEvents="box-only"
+          style={styles.checkboxContainer}
           onPress={() => {
             if (!isSelected) {
               select();
@@ -140,100 +155,65 @@ function ChatTile({
           <CheckBox value={isSelected} />
         </Pressable>
       )}
-      <Pressable
-        style={selectionMode ? styles.tileSelectionMode : styles.tile}
-        onPress={onClick}
-        onLongPress={selectWithHaptic}
-        pointerEvents="box-only">
-        <View style={styles.avatarArea}>
-          <AvatarBox profileUri={props.pathToDisplayPic} avatarSize="s+" />
-        </View>
-        <View
-          style={
-            selectionMode
-              ? styles.nonAvatarAreaSelectionMode
-              : styles.nonAvatarArea
-          }>
-          <View style={styles.nameAndTimestamp}>
-            <NumberlessText
-              ellipsizeMode="tail"
-              numberOfLines={1}
-              fontType={FontType.md}
-              style={{
-                flex: 1,
-              }}
-              fontSizeType={FontSizeType.l}>
-              {props.name || 'New contact'}
-            </NumberlessText>
-            <NumberlessText
-              numberOfLines={1}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}
-              textColor={PortColors.text.body}
-              style={{
-                paddingRight: PortSpacing.secondary.right,
-                paddingLeft: PortSpacing.tertiary.left,
-              }}>
-              {getChatTileTimestamp(props.timestamp)}
-            </NumberlessText>
+      <Animated.View
+        style={{
+          flex: 1,
+          overflow: 'hidden',
+          marginLeft: selectionScale.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, CHECKBOX_WIDTH],
+          }),
+        }}>
+        <Pressable
+          style={styles.tile}
+          onPress={onClick}
+          onLongPress={selectWithHaptic}
+          pointerEvents="box-only">
+          <View style={styles.avatarArea}>
+            <AvatarBox profileUri={props.pathToDisplayPic} avatarSize="s+" />
           </View>
-          <View style={styles.textAndStatus}>
-            {props.disconnected ? (
+          <View style={styles.nonAvatarArea}>
+            <View style={styles.nameAndTimestamp}>
               <NumberlessText
                 ellipsizeMode="tail"
                 numberOfLines={1}
-                fontType={FontType.rg}
+                fontType={FontType.md}
                 style={{
                   flex: 1,
                 }}
-                fontSizeType={FontSizeType.m}
-                textColor={PortColors.primary.red.error}>
-                Disconnected
+                fontSizeType={FontSizeType.l}>
+                {props.name || 'New contact'}
               </NumberlessText>
-            ) : (
-              <>
-                {props.authenticated ? (
-                  <>
-                    {props.recentMessageType === ContentType.newChat ? (
-                      <NumberlessText
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                        fontType={FontType.rg}
-                        style={{
-                          flex: 1,
-                        }}
-                        fontSizeType={FontSizeType.m}
-                        textColor={PortColors.text.title}>
-                        New connection
-                      </NumberlessText>
-                    ) : (
-                      <>
-                        <RenderText newMessage={newMessage} />
-                        <DisplayStatus
-                          readStatus={props.readStatus}
-                          newMessageCount={props.newMessageCount}
-                          newMessage={newMessage}
-                        />
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {
-                      //if not authenticated yet, could be a read port
-                      props.expired ? (
-                        <NumberlessText
-                          ellipsizeMode="tail"
-                          numberOfLines={2}
-                          fontType={FontType.rg}
-                          style={{
-                            flex: 1,
-                          }}
-                          fontSizeType={FontSizeType.m}
-                          textColor={PortColors.primary.red.error}>
-                          Failed to add this contact. You used an expired Port.
-                        </NumberlessText>
-                      ) : (
+              <NumberlessText
+                numberOfLines={1}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}
+                textColor={PortColors.text.body}
+                style={{
+                  paddingRight: PortSpacing.secondary.right,
+                  paddingLeft: PortSpacing.tertiary.left,
+                }}>
+                {getChatTileTimestamp(props.timestamp)}
+              </NumberlessText>
+            </View>
+            <View style={styles.textAndStatus}>
+              {props.disconnected ? (
+                <NumberlessText
+                  ellipsizeMode="tail"
+                  numberOfLines={1}
+                  fontType={FontType.rg}
+                  style={{
+                    flex: 1,
+                  }}
+                  fontSizeType={FontSizeType.m}
+                  textColor={PortColors.primary.red.error}>
+                  Disconnected
+                </NumberlessText>
+              ) : (
+                <>
+                  {props.authenticated ? (
+                    <>
+                      {props.recentMessageType === ContentType.newChat ? (
                         <NumberlessText
                           ellipsizeMode="tail"
                           numberOfLines={1}
@@ -243,27 +223,75 @@ function ChatTile({
                           }}
                           fontSizeType={FontSizeType.m}
                           textColor={PortColors.text.title}>
-                          Adding new contact...
+                          New connection
                         </NumberlessText>
-                      )
-                    }
-                  </>
-                )}
-              </>
-            )}
+                      ) : (
+                        <>
+                          <RenderText newMessage={newMessage} />
+                          <DisplayStatus
+                            readStatus={props.readStatus}
+                            newMessageCount={props.newMessageCount}
+                            newMessage={newMessage}
+                          />
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {
+                        //if not authenticated yet, could be a read port
+                        props.expired ? (
+                          <NumberlessText
+                            ellipsizeMode="tail"
+                            numberOfLines={2}
+                            fontType={FontType.rg}
+                            style={{
+                              flex: 1,
+                            }}
+                            fontSizeType={FontSizeType.m}
+                            textColor={PortColors.primary.red.error}>
+                            Failed to add this contact. You used an expired
+                            Port.
+                          </NumberlessText>
+                        ) : (
+                          <NumberlessText
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                            fontType={FontType.rg}
+                            style={{
+                              flex: 1,
+                            }}
+                            fontSizeType={FontSizeType.m}
+                            textColor={PortColors.text.title}>
+                            Adding new contact...
+                          </NumberlessText>
+                        )
+                      }
+                    </>
+                  )}
+                </>
+              )}
+            </View>
           </View>
-        </View>
-      </Pressable>
+        </Pressable>
+      </Animated.View>
       {isSelected && (
-        <Pressable
-          style={
-            selectionMode
-              ? styles.selectionOverlaySelectionMode
-              : styles.selectionOverlay
-          }
-          onPress={unselect}
-          pointerEvents="box-only"
-        />
+        <Animated.View
+          style={StyleSheet.compose(styles.selectionOverlaySelectionMode, {
+            left: selectionScale.interpolate({
+              inputRange: [0, 1],
+              outputRange: [
+                PortSpacing.tertiary.uniform,
+                PortSpacing.tertiary.uniform + CHECKBOX_WIDTH,
+              ],
+            }),
+          })}>
+          <Pressable
+            style={{flex: 1}}
+            onPress={unselect}
+            pointerEvents="box-only"
+          />
+        </Animated.View>
       )}
     </View>
   );
@@ -427,43 +455,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  checkboxContainer: {
+    height: 54,
+    paddingLeft: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    left: 0,
+  },
   tile: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'flex-start',
+    marginHorizontal: PortSpacing.tertiary.uniform,
     borderRadius: 16,
     borderWidth: 0.5,
     borderColor: PortColors.primary.border.dullGrey,
     backgroundColor: PortColors.primary.white,
-    width: screen.width - 2 * PortSpacing.tertiary.uniform,
     paddingVertical: PortSpacing.secondary.uniform,
     overflow: 'hidden',
-  },
-  tileSelectionMode: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    borderRadius: 16,
-    borderWidth: 0.5,
-    borderColor: PortColors.primary.border.dullGrey,
-    backgroundColor: PortColors.primary.white,
-    width: screen.width - 2 * PortSpacing.tertiary.uniform - CHECKBOX_WIDTH,
-    paddingVertical: PortSpacing.secondary.uniform,
-    overflow: 'hidden',
-  },
-  selectionOverlay: {
-    position: 'absolute',
-    width: screen.width - 2 * PortSpacing.tertiary.uniform,
-    height: '100%',
-    backgroundColor: 'rgba(78, 117, 255, 0.25)',
-    borderWidth: 2,
-    borderColor: PortColors.primary.blue.app,
-    borderRadius: 16,
   },
   selectionOverlaySelectionMode: {
     position: 'absolute',
-    width: screen.width - 2 * PortSpacing.tertiary.uniform - CHECKBOX_WIDTH,
-    left: PortSpacing.tertiary.left + CHECKBOX_WIDTH,
+    flex: 1,
+    right: PortSpacing.tertiary.uniform,
     height: '100%',
     backgroundColor: 'rgba(78, 117, 255, 0.15)',
     borderWidth: 1,
@@ -480,17 +494,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    width: screen.width - 2 * PortSpacing.tertiary.uniform - AVATAR_WIDTH,
-  },
-  nonAvatarAreaSelectionMode: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width:
-      screen.width -
-      2 * PortSpacing.tertiary.uniform -
-      AVATAR_WIDTH -
-      CHECKBOX_WIDTH,
+    flex: 1,
   },
   nameAndTimestamp: {
     flexDirection: 'row',

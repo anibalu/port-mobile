@@ -6,13 +6,13 @@ import {
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
-import {StyleSheet, View, Animated, Pressable} from 'react-native';
+import {StyleSheet, View, Animated, Pressable, Easing} from 'react-native';
 import {ContentBubble} from './ContentBubble';
 import {ReplyBubble} from './ReplyBubble';
 import {MAX_WIDTH} from './BubbleUtils';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Swipeable from './SwipeableCustom';
-import Reply from '@assets/icons/ReplyNew.svg';
+import ReplyFilled from '@assets/icons/ReplyFilled.svg';
 import {RenderReactions} from './Reactions';
 import {getReactionCounts} from '@utils/Storage/reactions';
 import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
@@ -83,7 +83,8 @@ export const MessageBubble = ({
     // Animated.timing is used to animate the value over time
     Animated.timing(moveAnim, {
       toValue: 40, // Move 100 units to the right
-      duration: 500, // Animation should last 1000 milliseconds (1 second)
+      duration: 150,
+      easing: Easing.linear,
       useNativeDriver: true, // Use native driver for better performance
     }).start();
   };
@@ -91,7 +92,8 @@ export const MessageBubble = ({
     // Animated.timing is used to animate the value over time
     Animated.timing(moveAnim, {
       toValue: 0, // Move 100 units to the right
-      duration: 500, // Animation should last 1000 milliseconds (1 second)
+      duration: 150,
+      easing: Easing.linear,
       useNativeDriver: true, // Use native driver for better performance
     }).start();
   };
@@ -134,13 +136,13 @@ export const MessageBubble = ({
               justifyContent: 'center',
               width: 40,
               height: 40,
-              borderRadius: 20,
+              borderRadius: 16,
               backgroundColor: '#0000000F',
               overflow: 'hidden',
             },
             {transform: [{scale}]},
           ]}>
-          <Reply height={20} width={20} />
+          <ReplyFilled height={20} width={20} />
         </Animated.View>
       </View>
     );
@@ -153,11 +155,13 @@ export const MessageBubble = ({
             {position: 'absolute', left: -40, alignSelf: 'center'},
             {transform: [{translateX: moveAnim}]},
           ]}>
-          <CheckBox
-            value={
-              selectionMode && selectedMessages.includes(message.messageId)
-            }
-          />
+          {message.contentType !== ContentType.deleted && (
+            <CheckBox
+              value={
+                selectionMode && selectedMessages.includes(message.messageId)
+              }
+            />
+          )}
         </Animated.View>
         <Swipeable
           enabled={!selectionMode}

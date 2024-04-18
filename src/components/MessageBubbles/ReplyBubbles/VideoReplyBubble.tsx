@@ -32,14 +32,14 @@ export const VideoReplyBubble = ({
     <View style={styles.container}>
       <View style={styles.replyContainer}>
         <NumberlessText
-          fontSizeType={FontSizeType.s}
+          fontSizeType={FontSizeType.m}
           fontType={FontType.md}
           textColor={PortColors.text.primary}
           numberOfLines={1}>
           {memberName}
         </NumberlessText>
         <NumberlessText
-          fontSizeType={FontSizeType.xs}
+          fontSizeType={FontSizeType.m}
           fontType={FontType.rg}
           textColor={PortColors.text.primary}
           numberOfLines={3}>

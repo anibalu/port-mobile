@@ -26,7 +26,7 @@ export default function LinkReplyContainer({
       }}>
       <View style={{flex: 1}}>
         <NumberlessText
-          fontSizeType={FontSizeType.s}
+          fontSizeType={FontSizeType.m}
           fontType={FontType.md}
           numberOfLines={1}
           style={{
@@ -38,7 +38,7 @@ export default function LinkReplyContainer({
         </NumberlessText>
         <View style={{marginTop: 3, marginRight: ogImage ? 80 : 20}}>
           <NumberlessText
-            fontSizeType={FontSizeType.s}
+            fontSizeType={FontSizeType.m}
             fontType={FontType.rg}
             numberOfLines={3}
             ellipsizeMode="tail">

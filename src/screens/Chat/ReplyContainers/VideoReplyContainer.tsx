@@ -35,7 +35,7 @@ export default function VideoReplyContainer({
           numberOfLines={1}
           ellipsizeMode="tail"
           textColor={PortColors.text.title}
-          fontSizeType={FontSizeType.s}
+          fontSizeType={FontSizeType.m}
           fontType={FontType.md}>
           {memberName}
         </NumberlessText>
@@ -43,7 +43,7 @@ export default function VideoReplyContainer({
           <VideoIcon style={{marginRight: 4}} />
 
           <NumberlessText
-            fontSizeType={FontSizeType.s}
+            fontSizeType={FontSizeType.m}
             fontType={FontType.rg}
             numberOfLines={3}
             ellipsizeMode="tail">

@@ -22,7 +22,7 @@ export default function AudioReplyContainer({
     <Pressable style={styles.replyImageContainer}>
       <View>
         <NumberlessText
-          fontSizeType={FontSizeType.s}
+          fontSizeType={FontSizeType.m}
           textColor={PortColors.text.title}
           fontType={FontType.md}>
           {memberName}

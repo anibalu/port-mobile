@@ -32,7 +32,7 @@ export default function ImageReplyContainer({
           overflow: 'hidden',
         }}>
         <NumberlessText
-          fontSizeType={FontSizeType.s}
+          fontSizeType={FontSizeType.m}
           fontType={FontType.md}
           ellipsizeMode="tail"
           textColor={PortColors.text.title}
@@ -42,7 +42,7 @@ export default function ImageReplyContainer({
         <View style={{flexDirection: 'row', marginTop: 2}}>
           <Gallery style={{marginRight: 2}} height={16} width={16} />
           <NumberlessText
-            fontSizeType={FontSizeType.s}
+            fontSizeType={FontSizeType.m}
             fontType={FontType.rg}
             numberOfLines={3}
             ellipsizeMode="tail">

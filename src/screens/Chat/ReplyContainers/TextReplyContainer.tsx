@@ -18,7 +18,7 @@ export default function TextReplyContainer({
   return (
     <>
       <NumberlessText
-        fontSizeType={FontSizeType.s}
+        fontSizeType={FontSizeType.m}
         fontType={FontType.md}
         numberOfLines={1}
         style={{
@@ -30,7 +30,7 @@ export default function TextReplyContainer({
       </NumberlessText>
       <View style={{marginTop: 3, marginRight: 20}}>
         <NumberlessText
-          fontSizeType={FontSizeType.s}
+          fontSizeType={FontSizeType.m}
           fontType={FontType.rg}
           numberOfLines={3}
           ellipsizeMode="tail">

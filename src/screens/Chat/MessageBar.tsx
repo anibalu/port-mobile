@@ -528,12 +528,24 @@ const MessageBar = ({
             </NumberlessText>
           </View>
         )}
+
         <View
-          style={StyleSheet.compose(styles.textInput, {
-            flexDirection: 'column',
-            flex: 1,
-            marginRight: 4,
-          })}>
+          style={StyleSheet.compose(
+            styles.textInput,
+            replyTo
+              ? {
+                  flexDirection: 'column',
+                  flex: 1,
+                  marginRight: 4,
+                  borderTopLeftRadius: 12,
+                  borderTopRightRadius: 12,
+                }
+              : {
+                  flexDirection: 'column',
+                  flex: 1,
+                  marginRight: 4,
+                },
+          )}>
           {replyTo && (
             <View style={styles.replyContainer}>
               <View style={styles.replyContainerStyle}>
@@ -638,7 +650,10 @@ const MessageBar = ({
               style={StyleSheet.compose(
                 styles.textInput,
                 replyTo
-                  ? {borderTopLeftRadius: 0, borderTopRightRadius: 0}
+                  ? {
+                      borderTopLeftRadius: 0,
+                      borderTopRightRadius: 0,
+                    }
                   : {},
               )}>
               <Animated.View style={[styles.plus, animatedStyle]}>
@@ -829,7 +844,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
-    borderRadius: 16,
+    borderRadius: 30,
     alignItems: 'center',
   },
   recordingbar: {
@@ -912,7 +927,7 @@ const styles = StyleSheet.create({
     ...(isIOS && {paddingTop: 10, paddingBottom: 10, paddingLeft: 5}),
 
     fontFamily: FontType.rg,
-    fontSize: FontSizeType.m,
+    fontSize: FontSizeType.l,
     fontWeight: getWeight(FontType.rg),
   },
   optionContainer: {

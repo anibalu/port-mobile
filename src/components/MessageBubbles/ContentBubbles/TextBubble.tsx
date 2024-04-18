@@ -47,7 +47,7 @@ export const TextBubble = ({
         </View>
       ) : (
         <NumberlessLinkText
-          fontSizeType={FontSizeType.m}
+          fontSizeType={FontSizeType.l}
           fontType={FontType.rg}>
           {text}
         </NumberlessLinkText>

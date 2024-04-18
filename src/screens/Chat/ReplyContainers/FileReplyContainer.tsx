@@ -44,13 +44,13 @@ export default function FileReplyContainer({
           marginRight: 0.15 * screen.width,
         }}>
         <NumberlessText
-          fontSizeType={FontSizeType.s}
+          fontSizeType={FontSizeType.m}
           textColor={PortColors.text.title}
           fontType={FontType.md}>
           {memberName}
         </NumberlessText>
 
-        <NumberlessText fontSizeType={FontSizeType.s} fontType={FontType.rg}>
+        <NumberlessText fontSizeType={FontSizeType.m} fontType={FontType.rg}>
           {message.data.text ? message.data.text : 'File'}
         </NumberlessText>
       </View>

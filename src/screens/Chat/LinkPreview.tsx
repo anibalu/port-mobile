@@ -95,7 +95,7 @@ export default function LinkPreview({
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
-              borderRadius: 12,
+              borderRadius: 24,
               overflow: 'hidden',
             }}>
             <View
@@ -126,7 +126,7 @@ export default function LinkPreview({
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
-              borderRadius: 12,
+              borderRadius: 24,
               overflow: 'hidden',
             }}>
             {OgImage || image ? (

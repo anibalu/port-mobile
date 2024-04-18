@@ -59,7 +59,7 @@ const BubbleFocusOptions = () => {
           <View style={styles.optionButton}>
             <NumberlessText
               textColor={PortColors.title}
-              fontSizeType={FontSizeType.m}
+              fontSizeType={FontSizeType.l}
               fontType={FontType.rg}>
               Reply
             </NumberlessText>
@@ -76,7 +76,7 @@ const BubbleFocusOptions = () => {
           <View style={styles.optionButton}>
             <NumberlessText
               textColor={PortColors.title}
-              fontSizeType={FontSizeType.m}
+              fontSizeType={FontSizeType.l}
               fontType={FontType.rg}>
               Forward
             </NumberlessText>
@@ -93,7 +93,7 @@ const BubbleFocusOptions = () => {
           <View style={styles.optionButton}>
             <NumberlessText
               textColor={PortColors.title}
-              fontSizeType={FontSizeType.m}
+              fontSizeType={FontSizeType.l}
               fontType={FontType.rg}>
               Copy
             </NumberlessText>
@@ -111,7 +111,7 @@ const BubbleFocusOptions = () => {
           <View style={styles.optionButton}>
             <NumberlessText
               textColor={PortColors.title}
-              fontSizeType={FontSizeType.m}
+              fontSizeType={FontSizeType.l}
               fontType={FontType.rg}>
               Select
             </NumberlessText>
@@ -130,7 +130,7 @@ const BubbleFocusOptions = () => {
         <View style={styles.optionButton}>
           <NumberlessText
             textColor={PortColors.primary.red.error}
-            fontSizeType={FontSizeType.m}
+            fontSizeType={FontSizeType.l}
             fontType={FontType.rg}>
             Delete
           </NumberlessText>

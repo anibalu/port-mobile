@@ -1,7 +1,7 @@
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import React from 'react';
 import IconLabel from '@assets/icons/Bookmark.svg';
-import {View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {
   FontSizeType,
   FontType,
@@ -12,8 +12,10 @@ import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
 
 const SuperportLabelCard = ({
   label,
+  showEmptyLabelError,
   setOpenModal,
 }: {
+  showEmptyLabelError: boolean;
   label: string;
   setOpenModal: (p: boolean) => void;
 }) => {
@@ -23,12 +25,7 @@ const SuperportLabelCard = ({
         paddingVertical: PortSpacing.secondary.uniform,
         paddingHorizontal: PortSpacing.secondary.uniform,
       }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: PortSpacing.tertiary.bottom,
-        }}>
+      <View style={styles.mainWrapper}>
         <IconLabel width={20} height={20} />
         <NumberlessText
           style={{
@@ -50,14 +47,43 @@ const SuperportLabelCard = ({
         </NumberlessText>
       </View>
       <View>
-        <EditableInputCard
-          setOpenModal={setOpenModal}
-          text={label}
-          placeholder={'Ex. "My Website superport"'}
-        />
+        <View style={showEmptyLabelError && styles.inputcard}>
+          <EditableInputCard
+            setOpenModal={setOpenModal}
+            text={label}
+            placeholder={'Ex. "My Website superport"'}
+          />
+        </View>
+        {showEmptyLabelError && (
+          <NumberlessText
+            style={styles.errorContainer}
+            fontType={FontType.rg}
+            fontSizeType={FontSizeType.s}>
+            This field is mandatory.
+          </NumberlessText>
+        )}
       </View>
     </SimpleCard>
   );
 };
+
+const styles = StyleSheet.create({
+  errorContainer: {
+    color: PortColors.primary.red.error,
+    paddingTop: 4,
+    paddingLeft: PortSpacing.tertiary.left,
+  },
+  inputcard: {
+    borderWidth: 1,
+    borderColor: PortColors.primary.red.error,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  mainWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: PortSpacing.tertiary.bottom,
+  },
+});
 
 export default SuperportLabelCard;

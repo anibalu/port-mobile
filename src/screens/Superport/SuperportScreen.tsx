@@ -1,9 +1,10 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {SafeAreaView} from '@components/SafeAreaView';
 import CrossButton from '@assets/navigation/crossButton.svg';
-import React, {useEffect, useMemo, useState} from 'react';
+import SuperportsInfo from '@assets/miscellaneous/SuperportsInfo.svg';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {StyleSheet, View, ScrollView} from 'react-native';
 import {
   FontSizeType,
@@ -49,17 +50,19 @@ import UsageLimitsBottomSheet from '@components/Reusable/BottomSheets/UsageLimit
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import {changePausedStateOfSuperport} from '@utils/Ports/superport';
 import {useSelector} from 'react-redux';
-
 type Props = NativeStackScreenProps<AppStackParamList, 'SuperportScreen'>;
 
 const SuperportScreen = ({route, navigation}: Props) => {
   const {portId, name, avatar, selectedFolder} = route.params;
+
+  const scrollViewRef = useRef<ScrollView>(null);
+
   const processedName: string = name || DEFAULT_NAME;
   const processedAvatar: FileAttributes = avatar || DEFAULT_PROFILE_AVATAR_INFO;
   const [profilePicAttr] = useState(processedAvatar);
   const [displayName] = useState<string>(processedName);
   //state of qr code generation
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   //whether qr code generation has failed
   const [hasFailed, setHasFailed] = useState(false);
   //qr code data to display
@@ -73,7 +76,9 @@ const SuperportScreen = ({route, navigation}: Props) => {
 
   //control label assigned to superport
   const [label, setLabel] = useState('');
+  const [newPortId, setNewPortId] = useState<string | undefined>(portId);
   const [openLabelModal, setOpenLabelModal] = useState(false);
+  const [showEmptyLabelError, setShowEmptyLabelError] = useState(false);
 
   //control usage limits of superport
   const [connectionMade, setConnectionMade] = useState(0);
@@ -133,36 +138,57 @@ const SuperportScreen = ({route, navigation}: Props) => {
   const [foldersArray, setFoldersArray] = useState<FolderInfo[]>([]);
   //fetches a port
   const fetchPort = async () => {
-    try {
-      const folders = await getAllFolders();
-      setFoldersArray(folders);
-      setIsLoading(true);
-      setHasFailed(false);
-      const {bundle, superport} = await fetchSuperport(
-        portId,
-        '',
-        defaultSuperportConnectionsLimit,
-        chosenFolder.folderId,
-      );
-      setIsPaused(superport.paused);
-      setLabel(superport.label);
-      setInitialConnectionLimit(superport.connectionsLimit);
-      setConnectionLimit(superport.connectionsLimit);
-      setConnectionMade(superport.connectionsMade);
-      setSelectedFolder(
-        folders.find(folder => folder.folderId === superport.folderId) || {
-          ...defaultFolderInfo,
-        },
-      );
-      setQrData(JSON.stringify(bundle));
-      setIsLoading(false);
-    } catch (error) {
-      console.log('Failed to fetch superport: ', error);
-      setHasFailed(true);
-      setIsLoading(false);
-      setQrData(null);
+    if (portId || label) {
+      try {
+        setIsLoading(true);
+        setHasFailed(false);
+        const {bundle, superport} = await fetchSuperport(
+          portId,
+          label,
+          defaultSuperportConnectionsLimit,
+          chosenFolder.folderId,
+        );
+        setNewPortId(bundle.portId);
+        setIsPaused(superport.paused);
+        setLabel(superport.label);
+        setInitialConnectionLimit(superport.connectionsLimit);
+        setConnectionLimit(superport.connectionsLimit);
+        setConnectionMade(superport.connectionsMade);
+        setSelectedFolder(
+          foldersArray.find(
+            folder => folder.folderId === superport.folderId,
+          ) || {
+            ...defaultFolderInfo,
+          },
+        );
+        setQrData(JSON.stringify(bundle));
+        setIsLoading(false);
+      } catch (error) {
+        console.log('Failed to fetch superport: ', error);
+        setHasFailed(true);
+        setIsLoading(false);
+        setQrData(null);
+      }
+    } else {
+      scrollToTop();
+      setShowEmptyLabelError(true);
     }
   };
+  const scrollToTop = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({y: 0, animated: true});
+    }
+  };
+
+  useEffect(() => {
+    scrollToTop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newPortId]);
+
+  useEffect(() => {
+    setShowEmptyLabelError(false);
+  }, [label]);
+
   //converts qr bundle into link.
   const fetchLinkData = async () => {
     //If error sheet is opened when this function is called, wait for the error sheet to close.
@@ -266,12 +292,20 @@ const SuperportScreen = ({route, navigation}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectionLimit]);
 
+  const fetchFoldersData = async () => {
+    const folders = await getAllFolders();
+    setFoldersArray(folders);
+  };
+
   //loads up initial data
   useFocusEffect(
     React.useCallback(() => {
-      fetchPort();
+      fetchFoldersData();
+      if (portId) {
+        fetchPort();
+      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [portId]),
+    }, []),
   );
 
   const updateConnectionCount = async () => {
@@ -323,85 +357,131 @@ const SuperportScreen = ({route, navigation}: Props) => {
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}
           IconRight={CrossButton}
-          heading={portId ? 'Superport' : 'New Superport'}
+          heading={newPortId ? 'Superport' : 'New Superport'}
         />
-        <ScrollView style={styles.mainContainer}>
-          <View style={styles.qrArea}>
-            <PortCard
-              isLoading={isLoading}
-              isLinkLoading={isLoadingLink}
-              hasFailed={hasFailed}
-              isSuperport={true}
-              title={displayName}
-              profileUri={profilePicAttr.fileUri}
-              qrData={qrData}
-              onShareLinkClicked={fetchLinkData}
-              onTryAgainClicked={fetchPort}
-              onPreviewImageClicked={previewImage}
-            />
-          </View>
-          <NumberlessText
-            style={{
-              color: PortColors.subtitle,
-              marginBottom: PortSpacing.secondary.bottom,
-              marginTop: PortSpacing.intermediate.top,
-            }}
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.rg}>
-            Customize your Port
-          </NumberlessText>
-          <View style={{marginBottom: PortSpacing.tertiary.bottom}}>
-            <SuperportLabelCard
-              label={label}
-              setOpenModal={setOpenLabelModal}
-            />
-          </View>
-          <View style={{marginBottom: PortSpacing.tertiary.bottom}}>
-            <SuperportUsageLimit
-              connectionsMade={connectionMade}
-              onSetUsageLimit={setConnectionLimit}
-              connectionLimit={connectionLimit}
-              setOpenUsageLimitsModal={setOpenUsageLimitsModal}
-              limitsArray={usageLimitsArray}
-            />
-          </View>
-          <View style={{marginBottom: PortSpacing.secondary.bottom}}>
-            <MoveContacts
-              setSelectedFolder={setFolder}
-              selectedFolder={chosenFolder}
-              foldersArray={foldersArray}
-              onAddNewFolder={() => {
-                let portId;
-                if (qrData) {
-                  const bundle: DirectSuperportBundle = JSON.parse(qrData);
-                  portId = bundle.portId;
-                }
-                navigation.navigate('CreateFolder', {
-                  setSelectedFolder: setFolder,
-                  portId: portId,
-                });
+
+        <ScrollView ref={scrollViewRef} style={styles.mainContainer}>
+          {newPortId ? (
+            <View style={styles.qrArea}>
+              <PortCard
+                isLoading={isLoading}
+                isLinkLoading={isLoadingLink}
+                hasFailed={hasFailed}
+                isSuperport={true}
+                title={displayName}
+                profileUri={profilePicAttr.fileUri}
+                qrData={qrData}
+                onShareLinkClicked={fetchLinkData}
+                onTryAgainClicked={fetchPort}
+                onPreviewImageClicked={previewImage}
+              />
+            </View>
+          ) : (
+            <View
+              style={{
+                alignItems: 'center',
+                paddingHorizontal: PortSpacing.tertiary.uniform,
+                gap: PortSpacing.medium.right,
+
+                width: screen.width,
+                backgroundColor: '#E5EAF8',
+              }}>
+              <SuperportsInfo width={260} />
+              <NumberlessText
+                style={{
+                  textAlign: 'center',
+                  width: '85%',
+                  flex: 1,
+                  marginBottom: PortSpacing.secondary.bottom,
+                }}
+                textColor={PortColors.title}
+                fontSizeType={FontSizeType.l}
+                fontType={FontType.rg}>
+                Superports are multi-use codes that let you connect with
+                multiple people at once
+              </NumberlessText>
+            </View>
+          )}
+
+          <View style={{paddingHorizontal: PortSpacing.secondary.uniform}}>
+            <NumberlessText
+              style={{
+                color: PortColors.subtitle,
+                marginBottom: PortSpacing.medium.bottom,
+                marginTop: PortSpacing.intermediate.top,
               }}
-            />
-          </View>
-          <View
-            style={{
-              marginBottom: PortSpacing.secondary.bottom,
-              gap: PortSpacing.secondary.uniform,
-            }}>
-            <PrimaryButton
-              primaryButtonColor="r"
-              buttonText="Delete Superport"
-              onClick={() => setIsDeleteConfirmOpen(true)}
-              isLoading={false}
-              disabled={false}
-            />
-            <PrimaryButton
-              primaryButtonColor="b"
-              buttonText={isPaused ? 'Unpause superport' : 'Pause superport'}
-              onClick={() => setIsPauseConfirmOpen(true)}
-              isLoading={false}
-              disabled={false}
-            />
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}>
+              Customize your Port
+            </NumberlessText>
+            <View style={{marginBottom: PortSpacing.tertiary.bottom}}>
+              <SuperportLabelCard
+                showEmptyLabelError={showEmptyLabelError}
+                label={label}
+                setOpenModal={setOpenLabelModal}
+              />
+            </View>
+            <View style={{marginBottom: PortSpacing.tertiary.bottom}}>
+              <SuperportUsageLimit
+                connectionsMade={connectionMade}
+                onSetUsageLimit={setConnectionLimit}
+                connectionLimit={connectionLimit}
+                setOpenUsageLimitsModal={setOpenUsageLimitsModal}
+                limitsArray={usageLimitsArray}
+              />
+            </View>
+            <View style={{marginBottom: PortSpacing.secondary.bottom}}>
+              <MoveContacts
+                setSelectedFolder={setFolder}
+                selectedFolder={chosenFolder}
+                foldersArray={foldersArray}
+                onAddNewFolder={() => {
+                  let portId;
+                  if (qrData) {
+                    const bundle: DirectSuperportBundle = JSON.parse(qrData);
+                    portId = bundle.portId;
+                  }
+                  navigation.navigate('CreateFolder', {
+                    setSelectedFolder: setFolder,
+                    portId: portId,
+                  });
+                }}
+              />
+            </View>
+            <View
+              style={{
+                marginBottom: PortSpacing.secondary.bottom,
+                gap: PortSpacing.secondary.uniform,
+              }}>
+              {newPortId ? (
+                <>
+                  <PrimaryButton
+                    primaryButtonColor="r"
+                    buttonText="Delete Superport"
+                    onClick={() => setIsDeleteConfirmOpen(true)}
+                    isLoading={false}
+                    disabled={false}
+                  />
+                  <PrimaryButton
+                    primaryButtonColor="b"
+                    buttonText={
+                      isPaused ? 'Unpause superport' : 'Pause superport'
+                    }
+                    onClick={() => setIsPauseConfirmOpen(true)}
+                    isLoading={false}
+                    disabled={false}
+                  />
+                </>
+              ) : (
+                <PrimaryButton
+                  primaryButtonColor="b"
+                  buttonText={'Create superport'}
+                  onClick={fetchPort}
+                  isLoading={isLoading}
+                  disabled={false}
+                />
+              )}
+            </View>
           </View>
         </ScrollView>
         <ErrorBottomSheet
@@ -478,11 +558,11 @@ const styles = StyleSheet.create({
     marginBottom: PortSpacing.intermediate.bottom,
   },
   mainContainer: {
-    paddingHorizontal: PortSpacing.secondary.uniform,
     width: '100%',
     paddingBottom: PortSpacing.secondary.bottom,
   },
   qrArea: {
+    paddingHorizontal: PortSpacing.secondary.uniform,
     marginTop: 30 + PortSpacing.primary.top, //accounts for profile picture offset
   },
 });

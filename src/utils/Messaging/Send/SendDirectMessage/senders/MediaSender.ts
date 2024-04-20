@@ -88,6 +88,12 @@ export class SendMediaDirectMessage<
     try {
       // Set up in Filesystem
       await this.validate();
+      if (!this.isAuthenticated()) {
+        console.warn(
+          '[SEND MEDIA DIRECT MESSAGE] Attempted to send before authentication. Failed.',
+        );
+        return false;
+      }
       this.setDisappearing();
       await this.preProcessMedia();
       await storage.saveMessage(this.savedMessage);

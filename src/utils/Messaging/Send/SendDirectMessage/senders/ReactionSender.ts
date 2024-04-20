@@ -71,6 +71,12 @@ export class SendReactionDirectMessage<
    */
   async send(_onUpdateSuccess?: (success: boolean) => void): Promise<boolean> {
     try {
+      if (!(await this.isAuthenticated())) {
+        console.warn(
+          '[SEND REACTION DIRECT MESSAGE] Attempted to send before authentication. Failed.',
+        );
+        return false;
+      }
       // Set up in Filesystem
       this.validate();
       const reactionData = this.data as ReactionParams;

@@ -89,6 +89,8 @@ export class SendGenericDirectMessage<
       // Set up in Filesystem
       this.validate();
       await this.setDisappearing();
+      // Set initial message statud
+      this.savedMessage.messageStatus = MessageStatus.journaled;
       try {
         await storage.saveMessage(this.savedMessage);
         this.storeCalls();
@@ -161,7 +163,14 @@ export class SendGenericDirectMessage<
    */
   async retry(): Promise<boolean> {
     try {
+      if (!(await this.isAuthenticated())) {
+        console.warn(
+          '[SendPlaintextDirectMessage] tried sending message when unauthenticated. Journalling',
+        );
+        return false;
+      }
       await this.loadSavedMessage();
+      console.log('Attempting to send: ', this.data);
       const processedPayload = await this.encryedtMessage();
       // Perform API call
       const udpatedStatus = await API.sendObject(

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import {MessageBubbleParent} from '@components/MessageBubbles/MessageBubbleParent';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
+import {AuthenticatedStateBubble} from '@components/MessageBubbles/AuthenticatedStateBubble';
 
 const MESSAGE_TIME_GAP_FOR_PADDING = 60 * 60 * 1000;
 
@@ -119,6 +120,7 @@ function ChatList({
         onMomentumScrollEnd={handleMomentumEnd}
         onEndReached={onStartReached}
         refreshing={refreshing}
+        ListFooterComponent={<AuthenticatedStateBubble />}
         ListHeaderComponent={
           <View style={{height: PortSpacing.tertiary.bottom}} />
         }

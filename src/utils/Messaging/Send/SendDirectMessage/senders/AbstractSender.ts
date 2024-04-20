@@ -70,6 +70,10 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
    * Retry sending a journalled message using only API calls
    */
   abstract retry(): Promise<boolean>;
+  async isAuthenticated() {
+    const chat = new DirectChat(this.chatId);
+    return (await chat.getChatData()).authenticated;
+  }
 
   async encryedtMessage() {
     const plaintext = JSON.stringify(this.payload);

@@ -69,6 +69,12 @@ export class SendDeleteDirectMessage<
    * @returns whether errors found
    */
   async send(_onUpdateSuccess?: (success: boolean) => void): Promise<boolean> {
+    if (!(await this.isAuthenticated())) {
+      console.warn(
+        '[SendDeleteDirectMessage] Trying to send before authentication. Failed.',
+      );
+      return false;
+    }
     try {
       this.validate();
       const deletionData = this.data as DeletionParams;

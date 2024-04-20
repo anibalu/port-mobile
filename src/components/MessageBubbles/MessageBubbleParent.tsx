@@ -130,11 +130,7 @@ export const MessageBubbleParent = ({
       {DisplayableContentTypes.includes(message.contentType) && (
         <View style={styles.container}>
           {InfoContentTypes.includes(message.contentType) ? (
-            <View
-              style={{
-                ...styles.messageBubbleContainer,
-                justifyContent: 'center',
-              }}>
+            <View style={styles.infoBubbleContainer}>
               <InfoBubble message={message} />
             </View>
           ) : (
@@ -192,6 +188,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignSelf: 'flex-end',
+  },
+  infoBubbleContainer: {
+    width: screen.width,
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   empty: {},
   overlay: {

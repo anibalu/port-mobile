@@ -31,6 +31,8 @@ type ChatContextType = {
   isGroupChat: boolean;
   isConnected: boolean;
   setIsConnected: (x: boolean) => void;
+  isAuthenticated: boolean;
+  setIsAuthenticated: (x: boolean) => void;
   profileUri: string | undefined | null;
   setProfileUri: (x: string | undefined | null) => void;
   name: string;
@@ -112,6 +114,7 @@ export const ChatContextProvider = ({
   connected,
   avatar,
   displayName,
+  authenticated,
   children,
 }: {
   chatId: string;
@@ -119,12 +122,15 @@ export const ChatContextProvider = ({
   connected: boolean;
   avatar: string | undefined | null;
   displayName: string | undefined;
+  authenticated: boolean;
   children: any;
 }) => {
   const navigation = useNavigation();
   const {copyingMessageError, messageCopied} = useErrorModal();
 
   const [isConnected, setIsConnected] = useState(connected);
+  const [isAuthenticated, setIsAuthenticated] = useState(authenticated);
+
   const [profileUri, setProfileUri] = useState(avatar);
   const [name, setName] = useState<string>(displayName || '');
   const [messagesLoaded, setMessagesLoaded] = useState(false);
@@ -413,6 +419,8 @@ export const ChatContextProvider = ({
         isGroupChat,
         isConnected,
         setIsConnected,
+        isAuthenticated,
+        setIsAuthenticated,
         profileUri,
         setProfileUri,
         name,
@@ -447,6 +455,7 @@ export const ChatContextProvider = ({
         onCloseFocus,
         onCleanCloseFocus,
         showDeleteForEveryone,
+        setShowDeleteForEveryone,
         determineDeleteModalDisplay,
         onSelect,
         onDelete,

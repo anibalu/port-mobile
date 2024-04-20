@@ -157,6 +157,18 @@ export const RenderTimeStamp = ({
   }
 };
 
+export const extractLink = (text: string): string | null => {
+  const urlRegex: RegExp =
+    /^(?:https?:\/\/)(?:www\.)?[\w.-]+\.[a-zA-Z]{2,}(?:\/\S*)?$/;
+  const words = text.trim().split(/\s+|'/);
+  for (const word of words) {
+    if (urlRegex.test(word)) {
+      return word;
+    }
+  }
+  return null;
+};
+
 const styles = StyleSheet.create({
   timestampContainer: {
     flexDirection: 'row',

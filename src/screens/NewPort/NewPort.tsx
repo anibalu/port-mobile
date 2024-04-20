@@ -32,6 +32,7 @@ import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet
 import SharePortLink from '@components/Reusable/BottomSheets/SharePortLink';
 import {wait} from '@utils/Time';
 import {useSelector} from 'react-redux';
+import {cleanDeleteGeneratedPort} from '@utils/Ports/direct';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 
@@ -117,7 +118,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     try {
       if (latestNewConnection) {
         const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
-        if (qrData) {
+        if (qrData && !linkData) {
           const bundle: PortBundle = JSON.parse(qrData);
           if (bundle.portId === latestUsedConnectionLinkId) {
             navigation.navigate('HomeTab', {
@@ -141,7 +142,22 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
       />
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
-          onIconRightPress={() => navigation.goBack()}
+          onIconRightPress={async () => {
+            try {
+              if (linkData) {
+                navigation.goBack();
+                return;
+              }
+              if (qrData) {
+                const bundle: PortBundle = JSON.parse(qrData);
+                await cleanDeleteGeneratedPort(bundle.portId);
+              }
+            } catch (error) {
+              console.log('Error deleting port', error);
+            }
+            navigation.goBack();
+            return;
+          }}
           IconRight={CrossButton}
           heading={'New Port'}
         />

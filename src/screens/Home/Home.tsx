@@ -92,7 +92,8 @@ const performNotificationRouting = (
   navigation: any,
 ) => {
   if (type === EventType.PRESS && detail.notification?.data) {
-    const {chatId, isGroup, isConnected} = detail.notification.data;
+    const {chatId, isGroup, isConnected, isAuthenticated} =
+      detail.notification.data;
 
     if (
       chatId != undefined &&
@@ -104,6 +105,9 @@ const performNotificationRouting = (
         isGroupChat: (isGroup as string).toLowerCase() === 'true',
         isConnected: (isConnected as string).toLowerCase() === 'true',
         profileUri: '',
+        isAuthenticated: isAuthenticated
+          ? (isAuthenticated as string).toLowerCase() === 'true'
+          : false,
       });
     }
   }

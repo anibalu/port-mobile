@@ -34,14 +34,15 @@ type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
  * @returns Component for rendered chat window
  */
 function Chat({route}: Props) {
-  const {chatId, isConnected, profileUri, name} = route.params;
+  const {chatId, isConnected, profileUri, name, isAuthenticated} = route.params;
   return (
     <ChatContextProvider
       chatId={chatId}
       connected={isConnected}
       avatar={profileUri}
       displayName={name}
-      isGroupChat={false}>
+      isGroupChat={false}
+      authenticated={isAuthenticated}>
       <ChatScreen />
     </ChatContextProvider>
   );
@@ -59,9 +60,7 @@ function ChatScreen() {
     currentReactionMessage,
     showRichReaction,
     unsetRichReaction,
-    replyToMessage,
     selectionMode,
-    clearEverything,
     selectedMessage,
     messages,
     setMessages,
@@ -70,6 +69,7 @@ function ChatScreen() {
     setOpenDeleteMessageModal,
     performDelete,
     performGlobalDelete,
+    setIsAuthenticated,
   } = useChatContext();
 
   //cursor for number of messages on screen
@@ -94,6 +94,7 @@ function ChatScreen() {
         setProfileUri(
           chatData.displayPic ? chatData.displayPic : DEFAULT_AVATAR,
         );
+        setIsAuthenticated(chatData.authenticated);
         //set saved messages
         const resp = await getLatestMessages(chatId, cursor);
         setMessages(resp);
@@ -124,6 +125,9 @@ function ChatScreen() {
         );
         return;
       }
+      const dataHandler = new DirectChat(chatId);
+      const chatData = await dataHandler.getChatData();
+      setIsAuthenticated(chatData.authenticated);
       const resp = await getLatestMessages(chatId, cursor);
       setMessages(resp);
     })();
@@ -178,18 +182,7 @@ function ChatScreen() {
             }}
           />
           {isConnected ? (
-            <>
-              {selectionMode ? (
-                <MessageActionsBar />
-              ) : (
-                <MessageBar
-                  onSend={clearEverything}
-                  chatId={chatId}
-                  replyTo={replyToMessage}
-                  isGroupChat={false}
-                />
-              )}
-            </>
+            <>{selectionMode ? <MessageActionsBar /> : <MessageBar />}</>
           ) : selectionMode ? (
             <MessageActionsBar />
           ) : (

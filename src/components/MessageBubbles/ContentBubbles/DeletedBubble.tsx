@@ -8,7 +8,7 @@ import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 
 import {PortColors} from '@components/ComponentUtils';
-import {renderTimeStamp} from '@screens/Chat/BubbleUtils';
+import {RenderTimeStamp} from '../BubbleUtils';
 
 export const DeletedBubble = ({
   message,
@@ -26,7 +26,7 @@ export const DeletedBubble = ({
           fontType={FontType.rg}>
           {text}
         </NumberlessText>
-        {renderTimeStamp(message)}
+        <RenderTimeStamp message={message} />
       </View>
     </View>
   );

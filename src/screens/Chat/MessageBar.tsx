@@ -26,11 +26,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {
-  ContentType,
-  LinkParams,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
+import {ContentType, LinkParams} from '@utils/Messaging/interfaces';
 import {
   downloadImageToMediaDir,
   moveToTmp,
@@ -63,10 +59,11 @@ import {OpenGraphParser} from 'react-native-opengraph-kit';
 import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
 import ProgressBar from '../../components/Reusable/Loaders/ProgressBar';
 import BlinkingDot from './BlinkingDot';
-import {extractLink} from './BubbleUtils';
+import {extractLink} from '@components/MessageBubbles/BubbleUtils';
 import LinkPreview from './LinkPreview';
 import AmplitudeBars from './Recording';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
 /**
@@ -80,17 +77,9 @@ const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
  * @param chatId
  * @returns {ReactNode}, message bar that handles all inputs
  */
-const MessageBar = ({
-  chatId,
-  isGroupChat,
-  replyTo,
-  onSend,
-}: {
-  chatId: string;
-  replyTo: SavedMessageParams | null | undefined;
-  isGroupChat: boolean;
-  onSend: any;
-}): ReactNode => {
+const MessageBar = (): ReactNode => {
+  const {chatId, isGroupChat, replyToMessage, clearEverything} =
+    useChatContext();
   const navigation = useNavigation<any>();
   const rotationValue = useRef(new Animated.Value(0)).current;
   const {MessageDataTooBigError} = useErrorModal();
@@ -102,7 +91,7 @@ const MessageBar = ({
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState<boolean>(
-    replyTo ? false : true,
+    replyToMessage ? false : true,
   );
 
   const [isPopUpVisible, setPopUpVisible] = useState(false);
@@ -112,13 +101,13 @@ const MessageBar = ({
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (replyTo) {
+    if (replyToMessage) {
       setShowPreview(false);
     }
-    if (inputRef?.current && replyTo != undefined) {
+    if (inputRef?.current && replyToMessage != undefined) {
       inputRef.current.focus();
     }
-  }, [replyTo]);
+  }, [replyToMessage]);
 
   const togglePopUp = (): void => {
     setPopUpVisible(!isPopUpVisible);
@@ -153,13 +142,13 @@ const MessageBar = ({
     if (processedText !== '') {
       setText('');
       //send text message
-      onSend();
+      clearEverything();
       const sender = new SendMessage(
         chatId,
         ContentType.text,
         {text: processedText},
 
-        replyTo ? replyTo.messageId : null,
+        replyToMessage ? replyToMessage.messageId : null,
       );
       try {
         await sender.send();
@@ -173,7 +162,7 @@ const MessageBar = ({
     setShowPreview(false);
     const processedText = text.trim();
     setText('');
-    onSend();
+    clearEverything();
     const fileName = generateRandomHexId();
     const fileUri = await downloadImageToMediaDir(
       chatId,
@@ -196,7 +185,7 @@ const MessageBar = ({
       chatId,
       ContentType.link,
       dataObj,
-      replyTo ? replyTo.messageId : null,
+      replyToMessage ? replyToMessage.messageId : null,
     );
     await sender.send();
   };
@@ -318,7 +307,7 @@ const MessageBar = ({
   useEffect(() => {
     if (hasLink) {
       setUrl(hasLink);
-      setShowPreview(replyTo ? false : true);
+      setShowPreview(replyToMessage ? false : true);
     } else {
       setShowPreview(false);
       setOpenGraphData(null);
@@ -535,7 +524,7 @@ const MessageBar = ({
         <View
           style={StyleSheet.compose(
             styles.textInput,
-            replyTo
+            replyToMessage
               ? {
                   flexDirection: 'column',
                   flex: 1,
@@ -549,16 +538,16 @@ const MessageBar = ({
                   marginRight: 4,
                 },
           )}>
-          {replyTo && (
+          {replyToMessage && (
             <View style={styles.replyContainer}>
               <View style={styles.replyContainerStyle}>
                 <ReplyBubbleMessageBar
-                  replyTo={replyTo}
+                  replyTo={replyToMessage}
                   isGroupChat={isGroupChat}
                 />
               </View>
               <Pressable
-                onPress={onSend}
+                onPress={clearEverything}
                 hitSlop={24}
                 style={{
                   position: 'absolute',
@@ -652,7 +641,7 @@ const MessageBar = ({
             <View
               style={StyleSheet.compose(
                 styles.textInput,
-                replyTo
+                replyToMessage
                   ? {
                       borderTopLeftRadius: 0,
                       borderTopRightRadius: 0,
@@ -686,7 +675,7 @@ const MessageBar = ({
             <View
               style={StyleSheet.compose(
                 styles.textInput,
-                replyTo
+                replyToMessage
                   ? {borderTopLeftRadius: 0, borderTopRightRadius: 0}
                   : {},
               )}>

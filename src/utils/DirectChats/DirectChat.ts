@@ -10,16 +10,15 @@ import {
   updateConnectionName,
 } from '@utils/Connections';
 import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {ContentType} from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {saveMessage} from '@utils/Storage/messages';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {
   DirectPermissions,
   Permissions,
 } from '@utils/ChatPermissions/interfaces';
 import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
+import store from '@store/appStore';
 
 class DirectChat {
   private chatId: string | null;
@@ -135,19 +134,14 @@ class DirectChat {
   public async toggleAuthenticated() {
     this.chatId = this.checkChatIdNotNull();
     this.chatData = this.checkChatDataNotNull();
-    const savedMessage: SavedMessageParams = {
-      messageId: generateRandomHexId(),
-      contentType: ContentType.info,
-      data: {
-        info: '🔒 This chat is now end-to-end encrypted',
-      },
-      chatId: this.chatId,
-      sender: true,
-      timestamp: generateISOTimeStamp(),
-    };
-    await saveMessage(savedMessage);
     await this.updateChatData({authenticated: true});
     await toggleConnectionAuthenticated(this.chatId);
+    console.log('[TOGGLING AUTHENTICATED]');
+    // Ping to re-render
+    store.dispatch({
+      type: 'PING',
+      payload: 'PONG',
+    });
   }
   public async didConnectUsingSuperport(): Promise<string | null> {
     await this.loadChatData();

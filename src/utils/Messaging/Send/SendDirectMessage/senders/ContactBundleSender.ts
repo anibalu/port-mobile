@@ -71,6 +71,8 @@ export class SendContactBundleDirectMessage<
     try {
       // Set up in Filesystem
       this.validate();
+      // Set initial message status
+      this.savedMessage.messageStatus = MessageStatus.journaled;
       try {
         await storage.saveMessage(this.savedMessage);
         this.storeCalls();
@@ -131,6 +133,12 @@ export class SendContactBundleDirectMessage<
    * Retry sending a journalled message using only API calls
    */
   async retry(): Promise<boolean> {
+    if (!(await this.isAuthenticated())) {
+      console.warn(
+        '[SendContactBundleDirect] Attempting to send prior to authentication. Journalled.',
+      );
+      return true;
+    }
     try {
       await this.loadSavedMessage();
       const processedPayload = await this.encryedtMessage();

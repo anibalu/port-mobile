@@ -53,6 +53,7 @@ const ContactBubble = ({message}: {message: SavedMessageParams}) => {
             chatId: goToChatId,
             isGroupChat: false,
             isConnected: !chatData.disconnected,
+            isAuthenticated: chatData.authenticated,
           });
         }
       } else {
@@ -117,6 +118,7 @@ const ContactBubble = ({message}: {message: SavedMessageParams}) => {
           chatId: goToChatId,
           isGroupChat: false,
           isConnected: !chatData.disconnected,
+          isAuthenticated: chatData.authenticated,
         });
       }
     }

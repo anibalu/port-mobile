@@ -25,6 +25,7 @@ export type AppStackParamList = {
     isConnected: boolean;
     profileUri: string | undefined | null;
     name?: string;
+    isAuthenticated: boolean;
   };
   ContactProfile: {
     chatId: string;

@@ -70,13 +70,15 @@ function ChatTile({
     if (selectionMode) {
       select();
     } else {
-      if (props.authenticated) {
+      // TODO stop doing this bullshit true stuff, needed for testing in sandbox for sending prior to auth
+      if (!props.isReadPort) {
         navigation.navigate('DirectChat', {
           chatId: props.chatId,
           isGroupChat: props.connectionType === ChatType.group,
           isConnected: !props.disconnected,
           profileUri: props.pathToDisplayPic || DEFAULT_AVATAR,
           name: props.name,
+          isAuthenticated: props.authenticated,
         });
       } else {
         setSelectedProps(props);
@@ -254,7 +256,7 @@ function ChatTile({
                 </NumberlessText>
               ) : (
                 <>
-                  {props.authenticated ? (
+                  {!props.isReadPort ? (
                     <>
                       {props.recentMessageType === ContentType.newChat ? (
                         <NumberlessText

@@ -157,6 +157,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                   style={{
                     maxWidth:
                       screen.width - 2 * PortSpacing.secondary.uniform - 30,
+                    marginRight: 4,
                   }}
                   fontSizeType={FontSizeType.xl}
                   fontType={FontType.sb}
@@ -227,14 +228,14 @@ const ContactProfile = ({route, navigation}: Props) => {
                     }}
                     fontSizeType={FontSizeType.l}
                     fontType={FontType.md}>
-                    Disconnect Port?
+                    Disconnect Chat?
                   </NumberlessText>
                   <NumberlessText
                     style={styles.footerDesc}
-                    fontSizeType={FontSizeType.s}
+                    fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}>
-                    When a port is disconnected, you can't contact the user
-                    until you both open a new port using a QR code or link.
+                    When a chat is disconnected, you can't contact the user
+                    until you connect again using a new Port.
                   </NumberlessText>
 
                   <PrimaryButton

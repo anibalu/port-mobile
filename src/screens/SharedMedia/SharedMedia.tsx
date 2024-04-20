@@ -111,7 +111,7 @@ const SharedMedia = ({navigation, route}: Props) => {
       <BackTopbar
         bgColor="w"
         onBackPress={() => navigation.goBack()}
-        title="Shared Media"
+        title="Shared media"
       />
 
       <Tab.Navigator

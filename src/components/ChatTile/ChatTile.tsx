@@ -412,12 +412,10 @@ function DisplayStatus({
   newMessage: SavedMessageParams | undefined | null;
 }): ReactNode {
   const MessageStatusIndicator = () => {
-    if (
-      newMessage &&
-      newMessage.messageStatus !== null &&
-      newMessage.messageStatus !== undefined &&
-      newMessage.sender
-    ) {
+    if (newMessage && newMessage.sender) {
+      if (!newMessage.messageStatus) {
+        return <Delivered />;
+      }
       switch (newMessage.messageStatus) {
         case MessageStatus.journaled:
           return <Journaled />;
@@ -434,7 +432,7 @@ function DisplayStatus({
     if (newMessage && !newMessage.sender) {
       return <></>;
     }
-    return <Delivered />;
+    return <></>;
   };
   if (readStatus === ReadStatus.new) {
     if (newMessageCount > 0) {

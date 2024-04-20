@@ -155,7 +155,7 @@ const ViewPhotosVideos = ({route}: Props) => {
             fontSizeType={FontSizeType.xl}
             fontType={FontType.md}
             textColor={PortColors.primary.black}>
-            No Media found
+            No media found
           </NumberlessText>
         </View>
       )}

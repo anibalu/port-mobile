@@ -21,6 +21,7 @@ import {
   StyleSheet,
   View,
   TouchableWithoutFeedback,
+  Linking,
 } from 'react-native';
 import {
   DEFAULT_PROFILE_AVATAR_INFO,
@@ -115,8 +116,8 @@ function NameScreen({navigation}: Props): ReactNode {
                 paddingHorizontal: PortSpacing.secondary.uniform,
               }}
               textColor={PortColors.text.secondary}>
-              Port is a communication app that doesn't require your phone number
-              or email to get started. Just your name is enough to set up.
+              Port does not require your phone number or email to get you setup.
+              Just your name is enough.
             </NumberlessText>
             <View style={styles.profilePictureHitbox}>
               <AvatarBox
@@ -147,6 +148,46 @@ function NameScreen({navigation}: Props): ReactNode {
                 bgColor="g"
               />
               <View style={styles.buttonContainer}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    width: '100%',
+                    marginVertical: PortSpacing.secondary.uniform,
+                  }}>
+                  <NumberlessText
+                    fontType={FontType.rg}
+                    fontSizeType={FontSizeType.m}
+                    textColor={PortColors.text.secondary}>
+                    By Clicking on 'Next' or by restoring your account, you
+                    acknowledge that you have read and agree to our{' '}
+                    <NumberlessText
+                      style={{textDecorationLine: 'underline'}}
+                      onPress={() =>
+                        Linking.openURL(
+                          'https://port.numberless.tech/TermsAndConditions',
+                        )
+                      }
+                      fontType={FontType.rg}
+                      fontSizeType={FontSizeType.m}
+                      textColor={PortColors.primary.blue.app}>
+                      Terms
+                    </NumberlessText>{' '}
+                    and our{' '}
+                    <NumberlessText
+                      style={{textDecorationLine: 'underline'}}
+                      fontType={FontType.rg}
+                      onPress={() =>
+                        Linking.openURL(
+                          'https://port.numberless.tech/PrivacyPolicy',
+                        )
+                      }
+                      fontSizeType={FontSizeType.m}
+                      textColor={PortColors.primary.blue.app}>
+                      Privacy Policy
+                    </NumberlessText>
+                    .
+                  </NumberlessText>
+                </View>
                 <PrimaryButton
                   buttonText={'Next'}
                   disabled={

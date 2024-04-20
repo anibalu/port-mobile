@@ -64,7 +64,7 @@ const SharedMediaCard = ({
       }}>
       <View style={styles.headerWrapper}>
         <NumberlessText fontType={FontType.md} fontSizeType={FontSizeType.l}>
-          Shared Media
+          Shared media
         </NumberlessText>
         <Pressable
           onPress={() => navigation.navigate('SharedMedia', {chatId: chatId})}

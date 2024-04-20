@@ -40,7 +40,6 @@ const RestoreAccount = () => {
         barStyle="dark-content"
         backgroundColor={PortColors.primary.white}
       />
-
       <SafeAreaView style={{backgroundColor: PortColors.background}}>
         <BackTopbar
           bgColor="w"
@@ -66,7 +65,6 @@ const RestoreAccount = () => {
               style={{
                 textAlign: 'center',
                 marginTop: PortSpacing.medium.uniform,
-                paddingHorizontal: PortSpacing.secondary.uniform,
               }}
               textColor={PortColors.subtitle}>
               If you have previously registered on Port, you can restore your
@@ -74,17 +72,19 @@ const RestoreAccount = () => {
               you won’t be able to restore later.
             </NumberlessText>
           </View>
-          <PrimaryButton
-            buttonText="Choose backup file"
-            disabled={false}
-            isLoading={isLoading}
-            onClick={async () => {
-              setIsLoading(true);
-              await readSecureDataBackup(onSuccess, onFailure);
-              setIsLoading(false);
-            }}
-            primaryButtonColor="b"
-          />
+          <View style={styles.buttonContainer}>
+            <PrimaryButton
+              buttonText="Choose backup file"
+              disabled={false}
+              isLoading={isLoading}
+              onClick={async () => {
+                setIsLoading(true);
+                await readSecureDataBackup(onSuccess, onFailure);
+                setIsLoading(false);
+              }}
+              primaryButtonColor="b"
+            />
+          </View>
         </View>
       </SafeAreaView>
     </>
@@ -97,11 +97,16 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'space-between',
     width: screen.width,
-    padding: PortSpacing.medium.uniform,
   },
   mainText: {
     justifyContent: 'center',
     flex: 1,
+    paddingHorizontal: PortSpacing.secondary.uniform,
+  },
+  buttonContainer: {
+    width: '100%',
+    paddingHorizontal: PortSpacing.secondary.uniform,
+    marginBottom: PortSpacing.secondary.bottom,
   },
 });
 

@@ -104,9 +104,9 @@ const GiveUsFeedbackScreen = () => {
                 Give us feedback
               </NumberlessText>
               <NumberlessText
-                fontSizeType={FontSizeType.l}
+                fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}
-                textColor={PortColors.subtitle}
+                textColor={PortColors.text.secondary}
                 style={{
                   marginTop: PortSpacing.tertiary.top,
                   marginBottom: PortSpacing.secondary.top,

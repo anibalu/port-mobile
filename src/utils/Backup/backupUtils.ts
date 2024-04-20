@@ -211,52 +211,57 @@ export async function readSecureDataBackup(
   onSuccess: Function,
   onFailure: Function,
 ) {
-  const selections: DocumentPickerResponse[] = await DocumentPicker.pick({
-    type: [DocumentPicker.types.plainText],
-    //We need to copy documents to a directory locally before sharing on newer Android.
-    ...(!isIOS && {copyTo: 'cachesDirectory'}),
-  });
-  const selected = selections[0];
-  if (!selected) {
-    console.warn('[BACKUP] no file selected');
-    onFailure();
-    return;
-  }
-
-  var path = selected.fileCopyUri ? selected.fileCopyUri : selected.uri;
-
-  let backup: string | null;
   try {
-    backup = await RNFS.readFile(path, 'utf8');
-  } catch (e) {
-    console.error('[BACKUP] file not found');
+    const selections: DocumentPickerResponse[] = await DocumentPicker.pick({
+      type: [DocumentPicker.types.plainText],
+      //We need to copy documents to a directory locally before sharing on newer Android.
+      ...(!isIOS && {copyTo: 'cachesDirectory'}),
+    });
+    const selected = selections[0];
+    if (!selected) {
+      console.warn('[BACKUP] no file selected');
+      onFailure();
+      return;
+    }
+    var path = selected.fileCopyUri ? selected.fileCopyUri : selected.uri;
+
+    let backup: string | null;
+    try {
+      backup = await RNFS.readFile(path, 'utf8');
+    } catch (e) {
+      console.error('[BACKUP] file not found');
+      onFailure();
+      return;
+    }
+    if (!backup) {
+      onFailure();
+      return;
+    }
+    const sections: string[] = backup.split(sectionSplitMagic);
+    const profileData = sections[1] as string;
+    await deserializeProfileData(profileData);
+    const dbData = sections[2] as string;
+    const dbOrder = dbData.split(tableSplitMagic)[0].split('\n') as tableOpt[];
+    const dbCSVs = dbData.split(tableSplitMagic).slice(1) as string[];
+    for (let i = 0; i < dbOrder.length; i++) {
+      await populateTable(dbOrder[i], dbCSVs[i]);
+    }
+    await fetchNewPorts();
+    try {
+      await initialiseFCM();
+    } catch (e) {
+      console.warn(
+        '[BACKUP] Could not finish initialize FCM (This is expected on iOS emulators): ',
+        e,
+      );
+    }
+    onSuccess();
+    return;
+  } catch (error) {
+    console.warn('[BACKUP] failed: ', error);
     onFailure();
     return;
   }
-  if (!backup) {
-    onFailure();
-    return;
-  }
-  const sections: string[] = backup.split(sectionSplitMagic);
-  const profileData = sections[1] as string;
-  await deserializeProfileData(profileData);
-  const dbData = sections[2] as string;
-  const dbOrder = dbData.split(tableSplitMagic)[0].split('\n') as tableOpt[];
-  const dbCSVs = dbData.split(tableSplitMagic).slice(1) as string[];
-  for (let i = 0; i < dbOrder.length; i++) {
-    await populateTable(dbOrder[i], dbCSVs[i]);
-  }
-  await fetchNewPorts();
-  try {
-    await initialiseFCM();
-  } catch (e) {
-    console.warn(
-      '[BACKUP] Could not finish initialize FCM (This is expected on iOS emulators): ',
-      e,
-    );
-  }
-  onSuccess();
-  return;
 }
 
 /**

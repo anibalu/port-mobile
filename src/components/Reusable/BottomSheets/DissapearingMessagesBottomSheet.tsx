@@ -39,7 +39,7 @@ const DissapearingMessagesBottomsheet = ({
         }}
         fontSizeType={FontSizeType.m}
         fontType={FontType.rg}>
-        For increased privacy and storage, all new messages in this chat will
+        For increased privacy and storage, all new messages in a chat will
         vanish after the chosen duration, unless turned off.
       </NumberlessText>
       <SimpleCard

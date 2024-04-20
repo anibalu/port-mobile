@@ -83,7 +83,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
 
   const BackupRestoreError = () => {
     setErrorToShow({
-      text: 'Error restoring backup',
+      text: 'Did not restore from backup',
       type: 'error',
     });
   };

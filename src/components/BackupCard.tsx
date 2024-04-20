@@ -55,9 +55,9 @@ const BackupCard = () => {
         textColor={PortColors.subtitle}
         fontType={FontType.rg}
         fontSizeType={FontSizeType.s}>
-        An encrypted local backup will be created on your device. Only your
-        connections will be included in the backup. Currently, Port does not
-        support chat backups.
+        A local backup containing all your connections and folders will be
+        created on your device. Currently, Port does not support backing up chat
+        history.
       </NumberlessText>
       <View style={styles.button}>
         <TertiaryButton

@@ -7,7 +7,7 @@ import {
 import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import Files from '@assets/icons/FolderBlack.svg';
+import Files from '@assets/icons/MoveToFolder.svg';
 import Superport from '@assets/icons/NewSuperportBlack.svg';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {useNavigation} from '@react-navigation/native';
@@ -48,7 +48,7 @@ const FolderPlaceholderQuickActions = ({
           <OptionWithChevron
             labelActiveState={false}
             IconLeft={Superport}
-            heading="Create Superport"
+            heading="Create a new Superport"
             onClick={() =>
               navigation.navigate('SuperportScreen', {
                 name: name,

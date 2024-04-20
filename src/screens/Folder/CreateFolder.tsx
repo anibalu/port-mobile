@@ -85,11 +85,11 @@ const CreateFolder = ({navigation, route}: Props) => {
               </NumberlessText>
               <NumberlessText
                 style={{color: PortColors.subtitle}}
-                fontSizeType={FontSizeType.s}
+                fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}>
-                These settings will apply to all chats in this folder. If you
-                change settings for a specific chat later, those changes will
-                take precedence for that chat.
+                Changes to these settings will apply to all new chats added to
+                this folder. If you change settings for a specific chat later,
+                those changes will take precedence for that chat.
               </NumberlessText>
             </View>
             <View style={styles.chatSettingsContainer}>

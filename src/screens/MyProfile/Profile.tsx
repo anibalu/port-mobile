@@ -93,9 +93,8 @@ function MyProfile({route, navigation}: Props): ReactNode {
                   textAlign: 'center',
                   marginTop: PortSpacing.secondary.uniform,
                 }}>
-                Your profile picture and name is shared with your contacts in an
-                end-to-end encrypted manner. Port’s servers never see
-                unencrypted data.
+                Your profile picture and name is shared with your contacts using
+                end-to-end encryption.
               </NumberlessText>
               <BackupCard />
               <NumberlessText
@@ -106,8 +105,9 @@ function MyProfile({route, navigation}: Props): ReactNode {
                   textAlign: 'center',
                   marginTop: PortSpacing.secondary.uniform,
                 }}>
-                To restore a backup, install a new copy of the Port app. Open
-                the app and tap restore backup, then locate the backup file.
+                To restore from a backup, install a new copy of the Port app.
+                Open the app, tap 'Restore backup' and then locate the backup
+                file.
               </NumberlessText>
             </View>
           </View>

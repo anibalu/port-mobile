@@ -129,11 +129,11 @@ const EditFolder = ({route, navigation}: Props) => {
               </NumberlessText>
               <NumberlessText
                 style={{color: PortColors.subtitle}}
-                fontSizeType={FontSizeType.s}
+                fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}>
-                These settings will apply to all chats in this folder. If you
-                change settings for a specific chat later, those changes will
-                take precedence for that chat.
+                Changes to these settings will apply to all new chats added to
+                this folder. If you change settings for a specific chat later,
+                those changes will take precedence for that chat.
               </NumberlessText>
             </View>
             <View style={styles.chatSettingsContainer}>
@@ -155,7 +155,7 @@ const EditFolder = ({route, navigation}: Props) => {
                 isLoading={false}
                 disabled={folderName.trim() === ''}
                 primaryButtonColor="b"
-                buttonText="Apply to all"
+                buttonText="Apply to existing"
                 onClick={() => {
                   setOpenApplyToAllModal(true);
                 }}
@@ -177,11 +177,11 @@ const EditFolder = ({route, navigation}: Props) => {
         <ConfirmationBottomSheet
           visible={openApplyToAllModal}
           onClose={() => setOpenApplyToAllModal(false)}
-          title="Are you sure you want to apply these settings to chats already in this folder?"
+          title="Do you want to apply these settings to existing chats in this folder?"
           description="This will override whatever settings you have already set for chats in this folder. If you modify an individual chat’s settings later on,
             those settings will prevail for the chat."
           buttonColor="b"
-          buttonText="Apply to all"
+          buttonText="Apply to existing"
           onConfirm={async () => {
             await applyFolderPermissions(selectedFolder.folderId);
           }}
@@ -190,7 +190,7 @@ const EditFolder = ({route, navigation}: Props) => {
           visible={openDeleteModal}
           onClose={() => setOpenDeleteModal(false)}
           title="Are you sure you want to delete this folder?"
-          description="When you delete the folder, all your contacts will move to the Primary folder and inherit default contact settings."
+          description="When you delete the folder, all your contacts will move to the Primary folder and inherit its contact settings."
           buttonColor="r"
           buttonText="Delete folder"
           onConfirm={async () => {

@@ -12,7 +12,10 @@ async function getDB() {
   }
   try {
     const db = await SQLite.openDatabase(
-      {name: 'numberless.db', location: 'default'},
+      {
+        name: 'numberless.db',
+        location: 'default',
+      },
       () => console.log('Successfully opened database.'),
       (err: any) => console.log('Failed to open database:', err),
     );

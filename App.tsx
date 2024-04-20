@@ -29,6 +29,7 @@ import {AppState, Linking} from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import Toast from 'react-native-toast-message';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
+import {syncShared} from '@utils/Storage/IOSGroupShare/syncShare';
 
 function App(): JSX.Element {
   const appState = useRef(AppState.currentState);
@@ -77,6 +78,7 @@ function App(): JSX.Element {
         });
       }
     })();
+    syncShared();
   }, []);
 
   /**

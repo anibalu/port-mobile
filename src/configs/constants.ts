@@ -2,6 +2,7 @@ import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
 
+export const APP_GROUP_IDENTIFIER = 'group.tech.numberless.port';
 export const NAME_LENGTH_LIMIT = 30;
 export const MIN_NAME_LENGTH = 1;
 export const PAGINATION_LIMIT = 60;

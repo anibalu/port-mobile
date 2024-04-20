@@ -20,6 +20,8 @@
 		95759D684ED244A4B8B28FAF /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2DD988CA88D9480E91B30A7B /* Rubik-Black.ttf */; };
 		98031FF711FE485E9C2A6A14 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 11B82E9A06C44E178EFC9EA6 /* Rubik-Regular.ttf */; };
 		A93A07E0EA5048BEA126661E /* Rubik-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4BB7053FA53F48C69AB69699 /* Rubik-ExtraBold.ttf */; };
+		AD0DC8A32BD3415A00A57768 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0DC8A22BD3415A00A57768 /* NotificationService.swift */; };
+		AD0DC8A72BD3415A00A57768 /* portnse.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AD0DC8A02BD3415A00A57768 /* portnse.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		ADF5513596814CF58BAB083D /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9BB0D4F5CB1E419FB64571BA /* Rubik-SemiBoldItalic.ttf */; };
 		B74853B6FF604AB18646F323 /* libPods-Port-PortTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3C0CB032270A90980C4825 /* libPods-Port-PortTests.a */; };
 		C35227316CC141E3B4116802 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6CE2419BF3A84F09B2CF2A6E /* Rubik-Light.ttf */; };
@@ -42,6 +44,13 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = Port;
 		};
+		AD0DC8A52BD3415A00A57768 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AD0DC89F2BD3415A00A57768;
+			remoteInfo = portnse;
+		};
 		EF6D2D422B287D6C004B63B1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -58,6 +67,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				AD0DC8A72BD3415A00A57768 /* portnse.appex in Embed Foundation Extensions */,
 				EF6D2D442B287D6C004B63B1 /* PortShare.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -90,6 +100,10 @@
 		9A3C0CB032270A90980C4825 /* libPods-Port-PortTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Port-PortTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BB0D4F5CB1E419FB64571BA /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBoldItalic.ttf"; path = "../assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		A228269647EE46F8A305E2B1 /* Rubik-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-MediumItalic.ttf"; path = "../assets/fonts/Rubik-MediumItalic.ttf"; sourceTree = "<group>"; };
+		AD0DC8A02BD3415A00A57768 /* portnse.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = portnse.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD0DC8A22BD3415A00A57768 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		AD0DC8A42BD3415A00A57768 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AD0DC8AB2BD3A96A00A57768 /* portnse.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = portnse.entitlements; sourceTree = "<group>"; };
 		AD1CF344CFCB406EB5AE1240 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
 		AFA2CE3A865144AF96BAEAD0 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
 		BA2B26E72BA84A858CDCAD23 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
@@ -120,6 +134,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				48FC66D9347F20A5DD5EEA1A /* libPods-Port.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD0DC89D2BD3415A00A57768 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,6 +210,7 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* PortTests */,
 				EF6D2D3B2B287D6C004B63B1 /* PortShare */,
+				AD0DC8A12BD3415A00A57768 /* portnse */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
@@ -205,6 +227,7 @@
 				13B07F961A680F5B00A75B9A /* Port.app */,
 				00E356EE1AD99517003FC87E /* PortTests.xctest */,
 				EF6D2D3A2B287D6C004B63B1 /* PortShare.appex */,
+				AD0DC8A02BD3415A00A57768 /* portnse.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -228,6 +251,16 @@
 				9BB0D4F5CB1E419FB64571BA /* Rubik-SemiBoldItalic.ttf */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		AD0DC8A12BD3415A00A57768 /* portnse */ = {
+			isa = PBXGroup;
+			children = (
+				AD0DC8AB2BD3A96A00A57768 /* portnse.entitlements */,
+				AD0DC8A22BD3415A00A57768 /* NotificationService.swift */,
+				AD0DC8A42BD3415A00A57768 /* Info.plist */,
+			);
+			path = portnse;
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -295,11 +328,29 @@
 			);
 			dependencies = (
 				EF6D2D432B287D6C004B63B1 /* PBXTargetDependency */,
+				AD0DC8A62BD3415A00A57768 /* PBXTargetDependency */,
 			);
 			name = Port;
 			productName = Port;
 			productReference = 13B07F961A680F5B00A75B9A /* Port.app */;
 			productType = "com.apple.product-type.application";
+		};
+		AD0DC89F2BD3415A00A57768 /* portnse */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD0DC8AA2BD3415A00A57768 /* Build configuration list for PBXNativeTarget "portnse" */;
+			buildPhases = (
+				AD0DC89C2BD3415A00A57768 /* Sources */,
+				AD0DC89D2BD3415A00A57768 /* Frameworks */,
+				AD0DC89E2BD3415A00A57768 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = portnse;
+			productName = portnse;
+			productReference = AD0DC8A02BD3415A00A57768 /* portnse.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		EF6D2D392B287D6C004B63B1 /* PortShare */ = {
 			isa = PBXNativeTarget;
@@ -334,6 +385,9 @@
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1120;
 					};
+					AD0DC89F2BD3415A00A57768 = {
+						CreatedOnToolsVersion = 15.0.1;
+					};
 					EF6D2D392B287D6C004B63B1 = {
 						CreatedOnToolsVersion = 15.0.1;
 					};
@@ -355,6 +409,7 @@
 				13B07F861A680F5B00A75B9A /* Port */,
 				00E356ED1AD99517003FC87E /* PortTests */,
 				EF6D2D392B287D6C004B63B1 /* PortShare */,
+				AD0DC89F2BD3415A00A57768 /* portnse */,
 			);
 		};
 /* End PBXProject section */
@@ -388,6 +443,13 @@
 				98031FF711FE485E9C2A6A14 /* Rubik-Regular.ttf in Resources */,
 				F0C543D902AE476DACE47756 /* Rubik-SemiBold.ttf in Resources */,
 				ADF5513596814CF58BAB083D /* Rubik-SemiBoldItalic.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD0DC89E2BD3415A00A57768 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -582,6 +644,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AD0DC89C2BD3415A00A57768 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD0DC8A32BD3415A00A57768 /* NotificationService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EF6D2D362B287D6C004B63B1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -597,6 +667,11 @@
 			isa = PBXTargetDependency;
 			target = 13B07F861A680F5B00A75B9A /* Port */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
+		};
+		AD0DC8A62BD3415A00A57768 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AD0DC89F2BD3415A00A57768 /* portnse */;
+			targetProxy = AD0DC8A52BD3415A00A57768 /* PBXContainerItemProxy */;
 		};
 		EF6D2D432B287D6C004B63B1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -886,6 +961,95 @@
 			};
 			name = Release;
 		};
+		AD0DC8A82BD3415A00A57768 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = portnse/portnse.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 7J3M566K66;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = portnse/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = portnse;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = tech.numberless.port.portnse;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AD0DC8A92BD3415A00A57768 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = portnse/portnse.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 7J3M566K66;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = portnse/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = portnse;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = tech.numberless.port.portnse;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		EF6D2D462B287D6C004B63B1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -997,6 +1161,15 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AD0DC8AA2BD3415A00A57768 /* Build configuration list for PBXNativeTarget "portnse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD0DC8A82BD3415A00A57768 /* Debug */,
+				AD0DC8A92BD3415A00A57768 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

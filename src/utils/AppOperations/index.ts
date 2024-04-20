@@ -3,6 +3,7 @@ import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import pullBacklog from '@utils/Messaging/pullBacklog';
 import {cancelAllNotifications} from '@utils/Notifications';
 import {cleanUpPorts, useReadBundles} from '@utils/Ports';
+import {syncShared} from '@utils/Storage/IOSGroupShare/syncShare';
 import {
   deleteExpiredGroupMessages,
   deleteExpiredMessages,
@@ -24,6 +25,7 @@ export async function performBackgroundToForegroundOperations() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   await useReadBundles();
   await cancelAllNotifications();
+  await syncShared();
   console.log('[BTF OPERATIONS COMPLETE]');
 }
 

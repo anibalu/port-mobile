@@ -182,7 +182,6 @@ const SuperportScreen = ({route, navigation}: Props) => {
 
   useEffect(() => {
     scrollToTop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newPortId]);
 
   useEffect(() => {

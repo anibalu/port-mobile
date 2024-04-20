@@ -236,21 +236,23 @@ const Superports = ({route, navigation}: Props) => {
             showsVerticalScrollIndicator={false}
             data={filteredSuperportsData}
             keyExtractor={item => item.portId}
-            renderItem={({item}) => (
-              <SuperportCard
-                selectedFolder={foldersArray.find(
-                  folder => folder.folderId === item.folderId,
-                )}
-                superportData={item}
-                onClick={() =>
-                  navigation.navigate('SuperportScreen', {
-                    portId: item.portId,
-                    name: displayName,
-                    avatar: profilePicAttr,
-                  })
-                }
-              />
-            )}
+            renderItem={({item}) => {
+              return (
+                <SuperportCard
+                  selectedFolder={foldersArray.find(
+                    folder => folder.folderId === item.folderId,
+                  )}
+                  superportData={item}
+                  onClick={() =>
+                    navigation.navigate('SuperportScreen', {
+                      portId: item.portId,
+                      name: displayName,
+                      avatar: profilePicAttr,
+                    })
+                  }
+                />
+              );
+            }}
           />
           <View style={styles.buttonWrapper}>
             <SecondaryButton

@@ -193,7 +193,9 @@ const ContactProfile = ({route, navigation}: Props) => {
                                 : PortColors.primary.blue.app
                             }
                             fontSizeType={FontSizeType.m}
-                            fontType={FontType.rg}>
+                            fontType={FontType.rg}
+                            numberOfLines={1}
+                            ellipsizeMode="tail">
                             {selectedFolder.name}
                           </NumberlessText>
                         </View>
@@ -340,11 +342,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 4,
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    flex: 1,
   },
   cardTitle: {
     flexDirection: 'column',
-    gap: 10,
     alignItems: 'flex-start',
+    marginRight: 24,
   },
   disconnectedwrapper: {
     flexDirection: 'column',

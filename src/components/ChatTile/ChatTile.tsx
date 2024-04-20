@@ -10,9 +10,12 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import LabelChip from '@components/Reusable/Chip/LabelChip';
 import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
-import {DEFAULT_AVATAR} from '@configs/constants';
-import {useNavigation} from '@react-navigation/native';
+import {DEFAULT_AVATAR, defaultFolderId} from '@configs/constants';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {getAllFolders} from '@utils/ChatFolders';
+import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {
   ChatType,
   ConnectionInfo,
@@ -26,7 +29,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import {getChatTileTimestamp} from '@utils/Time';
-import React, {ReactNode, useEffect, useState} from 'react';
+import React, {ReactNode, useCallback, useEffect, useState} from 'react';
 import {Animated, Easing, Pressable, StyleSheet, View} from 'react-native';
 import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
@@ -45,9 +48,11 @@ function ChatTile({
   setSelectedConnections,
   selectionMode,
   setSelectionMode,
+  selectedFolder,
 }: {
   //controls display
   props: ChatTileProps;
+  selectedFolder: FolderInfo;
   //responsible for passing connection information to modals
   setSelectedProps: (p: ChatTileProps | null) => void;
   //selected connections
@@ -120,6 +125,34 @@ function ChatTile({
     }
   };
   const [selectionScale] = useState(new Animated.Value(0));
+  const [folders, setFolders] = useState<FolderInfo[]>([]);
+
+  const findFolderNameById = (
+    folderArray: FolderInfo[],
+    folderId: string,
+  ): string | null => {
+    if (folderId === defaultFolderId) {
+      return null;
+    } else {
+      const foundFolder = folderArray.find(
+        folder => folder.folderId === folderId,
+      );
+      return foundFolder ? foundFolder.name : null;
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedFolder.folderId === 'all') {
+        const fetchData = async () => {
+          const fetchedFolders = await getAllFolders();
+          setFolders(fetchedFolders);
+        };
+
+        fetchData();
+      }
+    }, [selectedFolder]),
+  );
 
   useEffect(() => {
     if (selectionMode) {
@@ -174,16 +207,26 @@ function ChatTile({
           </View>
           <View style={styles.nonAvatarArea}>
             <View style={styles.nameAndTimestamp}>
-              <NumberlessText
-                ellipsizeMode="tail"
-                numberOfLines={1}
-                fontType={FontType.md}
-                style={{
-                  flex: 1,
-                }}
-                fontSizeType={FontSizeType.l}>
-                {props.name || 'New contact'}
-              </NumberlessText>
+              <View style={styles.nameContainer}>
+                <NumberlessText
+                  style={{flexShrink: 1}}
+                  ellipsizeMode="tail"
+                  numberOfLines={1}
+                  fontType={FontType.md}
+                  fontSizeType={FontSizeType.l}>
+                  {props.name || 'New contact'}
+                </NumberlessText>
+                {selectedFolder.folderId === 'all' &&
+                  props.folderId !== defaultFolderId && (
+                    <View style={styles.labelWrapper}>
+                      <LabelChip
+                        text={findFolderNameById(folders, props.folderId)}
+                        bgColor="#E0E7FF"
+                        textColor={PortColors.primary.blue.app}
+                      />
+                    </View>
+                  )}
+              </View>
               <NumberlessText
                 numberOfLines={1}
                 fontSizeType={FontSizeType.s}
@@ -507,6 +550,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     width: '100%',
+  },
+  nameContainer: {
+    overflow: 'hidden',
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    gap: PortSpacing.tertiary.right,
+  },
+  labelWrapper: {
+    flexBasis: 45,
+    flexGrow: 1,
+    alignItems: 'flex-start',
   },
   new: {
     backgroundColor: PortColors.primary.blue.app,

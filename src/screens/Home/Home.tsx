@@ -463,6 +463,7 @@ function Home({route, navigation}: Props) {
     try {
       return (
         <ChatTile
+          selectedFolder={selectedFolderData}
           props={connection}
           setSelectedProps={setSelectedProps}
           selectedConnections={selectedConnections}

@@ -263,7 +263,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}>
                     Your chat has been disconnected. Deleting history will erase
-                    all chat data.
+                    all chat data and remove this contact from your home screen.
                   </NumberlessText>
                 </View>
                 <View>
@@ -307,7 +307,7 @@ const ContactProfile = ({route, navigation}: Props) => {
           }}
           title={'Are you sure you want to disconnect this chat?'}
           description={
-            'Once you disconnect this chat, you cannot send messages to this contact. Chat history will be saved.'
+            'Disconnecting a chat will prevent further messaging. Current chat history will be saved, but you can subsequently choose to delete it.'
           }
           buttonText={'Disconnect'}
           buttonColor="r"

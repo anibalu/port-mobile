@@ -535,8 +535,8 @@ const MessageBar = (): ReactNode => {
                   flexDirection: 'column',
                   flex: 1,
                   marginRight: 4,
-                  borderTopLeftRadius: 12,
-                  borderTopRightRadius: 12,
+                  borderTopLeftRadius: 16,
+                  borderTopRightRadius: 16,
                 }
               : {
                   flexDirection: 'column',
@@ -842,7 +842,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: PortColors.primary.white,
     overflow: 'hidden',
-    borderRadius: 30,
+    borderRadius: 20,
     alignItems: 'center',
   },
   recordingbar: {

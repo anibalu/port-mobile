@@ -189,7 +189,7 @@ export const MessageBubble = ({
                 style={{
                   ...styles.main,
                   backgroundColor: message.sender
-                    ? PortColors.primary.sender
+                    ? '#D9E1F8'
                     : PortColors.primary.white,
                 }}>
                 {message.replyId && (
@@ -198,8 +198,8 @@ export const MessageBubble = ({
                       style={{
                         ...styles.replyBubbleContainer,
                         backgroundColor: message.sender
-                          ? PortColors.primary.senderReply
-                          : PortColors.background,
+                          ? '#EDF2FF'
+                          : PortColors.stroke,
                       }}>
                       {/* Reply bubble goes here */}
                       <ReplyBubble

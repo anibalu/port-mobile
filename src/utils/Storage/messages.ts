@@ -250,9 +250,6 @@ export async function updateMessageSendStatus(
   chatId: string,
   updateParams: UpdateParams,
 ): Promise<void> {
-  console.log(
-    `Updating message ${updateParams.messageIdToBeUpdated} to status ${updateParams.updatedMessageStatus}`,
-  );
   if (
     updateParams.updatedMessageStatus ||
     updateParams.updatedMessageStatus === 0

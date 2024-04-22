@@ -79,9 +79,9 @@ export function getChatTileTimestamp(isoTimestamp: string): string {
   const diffMins = Math.round(diffMs / (1000 * 60));
 
   if (diffMins < 1) {
-    return 'just now';
-  } else if (diffMins <= 30) {
-    return diffMins === 1 ? '1 min ago' : `${diffMins} mins ago`;
+    return 'now';
+  } else if (diffMins < 60) {
+    return diffMins === 1 ? '1m' : `${diffMins}m`;
   } else if (
     date.getDate() === now.getDate() &&
     date.getMonth() === now.getMonth() &&
@@ -100,7 +100,7 @@ export function getChatTileTimestamp(isoTimestamp: string): string {
       month: 'numeric',
       year: '2-digit',
     };
-    let formattedTime = date.toLocaleDateString('en-GB', options);
+    let formattedTime = date.toLocaleDateString(undefined, options);
     // Split the formatted string and remove leading zeros
     const components = formattedTime.split('/');
     formattedTime = components
@@ -138,7 +138,7 @@ export function getReadableTimestamp(
         month: 'numeric', // Full month name
         year: 'numeric', // Four-digit year
       };
-      formattedTime = date.toLocaleDateString('en-US', options);
+      formattedTime = date.toLocaleDateString(undefined, options);
       return formattedTime;
     }
     formattedTime = formattedTime
@@ -235,7 +235,7 @@ export function getTimeAndDateStamp(isoString: string | undefined): string {
   }
   const formattedDate = getDateStamp(isoString);
   const inputDate = new Date(isoString);
-  const formattedTime = inputDate.toLocaleTimeString('en-US', {
+  const formattedTime = inputDate.toLocaleTimeString(undefined, {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
@@ -262,12 +262,17 @@ export function getDateStamp(isoString: string | undefined): string {
   cmpDate.setDate(cmpDate.getDate() - 6); // 6 Because we decremented by 1 already
   if (targetDate.toISOString() >= cmpDate.toISOString()) {
     // The message was sent in the last week
-    return targetDate.toLocaleDateString('en-us', {weekday: 'long'});
+    return (
+      targetDate
+        .toLocaleString(undefined, {weekday: 'long'})
+        .split(' ')
+        .at(0) as string
+    ).slice(0, -1);
   }
   // Check this year
   cmpDate = new Date();
   if (cmpDate.getFullYear() === targetDate.getFullYear()) {
-    return targetDate.toLocaleDateString('en-us', {
+    return targetDate.toLocaleDateString(undefined, {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
@@ -275,7 +280,7 @@ export function getDateStamp(isoString: string | undefined): string {
   }
 
   // Finally, we resort to the whole string
-  return targetDate.toLocaleDateString('en-us', {
+  return targetDate.toLocaleDateString(undefined, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

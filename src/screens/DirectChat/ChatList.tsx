@@ -63,7 +63,6 @@ function ChatList({
     index: number;
   }) => {
     const hasThereBeenNonHandshakeMessage = () => {
-      console.log('checking data stamp');
       const limit = messages.length > 8 ? 8 : messages.length;
       for (
         let index = messages.length - 1;

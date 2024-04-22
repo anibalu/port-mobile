@@ -46,13 +46,11 @@ const CaptureMedia = ({navigation, route}: Props) => {
   const {hasPermission, requestPermission} = useMicrophonePermission();
 
   useEffect(() => {
+    checkCameraPermission(setIsCameraPermissionGranted);
     if (!hasPermission) {
       requestPermission();
-    }
-    checkCameraPermission(setIsCameraPermissionGranted);
-
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    } // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkCameraPermission, hasPermission, isCameraPermissionGranted]);
 
   const [mediaList, setMediaList] = useState<any>([]);
 

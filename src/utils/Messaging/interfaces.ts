@@ -105,6 +105,16 @@ export const SelectableMessageContentTypes = [
   ContentType.video,
 ];
 
+export const connectionUpdateExemptTypes = [
+  ContentType.displayAvatar,
+  ContentType.displayImage,
+  ContentType.name,
+  ContentType.info,
+  ContentType.handshakeB2,
+  ContentType.handshakeA1,
+  ContentType.initialInfoRequest,
+];
+
 /**
  * Data interfaces corresponding to various content types.
  */

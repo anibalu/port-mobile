@@ -10,15 +10,15 @@ import {useChatContext} from '@screens/DirectChat/ChatContext';
 import Lock from '@assets/icons/LockIconBlack.svg';
 
 export const AuthenticatedStateBubble = (): ReactNode => {
-  const {isAuthenticated, isConnected} = useChatContext();
+  const {isAuthenticated, isConnected, name} = useChatContext();
   if (isConnected) {
     return (
       <View style={{width: screen.width, alignItems: 'center'}}>
         {isAuthenticated ? (
           <View style={styles.container}>
-            <Lock height={20} width={20} />
+            <Lock height={16} width={16} />
             <NumberlessText
-              fontSizeType={FontSizeType.m}
+              fontSizeType={FontSizeType.s}
               fontType={FontType.rg}
               textColor={PortColors.text.primary}>
               This chat is now end-to-end encrypted.
@@ -27,11 +27,10 @@ export const AuthenticatedStateBubble = (): ReactNode => {
         ) : (
           <View style={styles.container}>
             <NumberlessText
-              fontSizeType={FontSizeType.m}
+              fontSizeType={FontSizeType.s}
               fontType={FontType.rg}
               textColor={PortColors.text.primary}>
-              Your messages will be delivered when encyryption is setup. This
-              may sometime take till your contact opens Port.
+              {`Your encrypted messages will be sent once ${name} reopens Port`}
             </NumberlessText>
           </View>
         )}

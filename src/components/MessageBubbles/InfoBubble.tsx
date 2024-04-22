@@ -32,7 +32,7 @@ const renderInfoBubble = (message: SavedMessageParams) => {
     default:
       return (
         <NumberlessText
-          fontSizeType={FontSizeType.m}
+          fontSizeType={FontSizeType.s}
           fontType={FontType.rg}
           textColor={PortColors.text.primary}>
           {(message.data as InfoParams).info}

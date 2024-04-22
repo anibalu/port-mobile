@@ -209,8 +209,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
           const shareContent = {
             title: 'Share a Superport link',
             message:
-              `${displayName} would like to connect with you on Port! Click the link to start chatting: \n` +
-              link,
+              `Click the link to connect with ${displayName} on Port.\n` + link,
           };
           await Share.open(shareContent);
         } catch (error) {

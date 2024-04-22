@@ -40,21 +40,22 @@ const BackupCard = () => {
             Backup
           </NumberlessText>
         </View>
-        <NumberlessText
-          style={styles.pill}
-          textColor={PortColors.subtitle}
-          fontType={FontType.rg}
-          fontSizeType={FontSizeType.m}>
-          {lastBackup
-            ? getChatTileTimestamp(lastBackup)
-            : 'No backups available'}
-        </NumberlessText>
+        <View style={styles.pill}>
+          <NumberlessText
+            textColor={PortColors.subtitle}
+            fontType={FontType.rg}
+            fontSizeType={FontSizeType.m}>
+            {lastBackup
+              ? getChatTileTimestamp(lastBackup)
+              : 'No backups available'}
+          </NumberlessText>
+        </View>
       </View>
       <NumberlessText
         style={{marginLeft: PortSpacing.tertiary.left}}
         textColor={PortColors.subtitle}
         fontType={FontType.rg}
-        fontSizeType={FontSizeType.s}>
+        fontSizeType={FontSizeType.m}>
         A local backup containing all your connections and folders will be
         created on your device. Currently, Port does not support backing up chat
         history.

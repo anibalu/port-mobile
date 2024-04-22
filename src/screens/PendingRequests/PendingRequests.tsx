@@ -107,8 +107,8 @@ const PendingRequests = () => {
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}
                     textColor={PortColors.subtitle}>
-                    When you create a new unused port, they will appear here
-                    until they are used.
+                    When you share a new Port, they will appear here until the
+                    connection forms
                   </NumberlessText>
                 </View>
               )}

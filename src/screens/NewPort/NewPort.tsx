@@ -26,13 +26,18 @@ import {
   defaultFolderInfo,
   safeModalCloseDuration,
 } from '@configs/constants';
-import {generateBundle, getBundleClickableLink} from '@utils/Ports';
-import {BundleTarget, PortBundle} from '@utils/Ports/interfaces';
+import {
+  generateBundle,
+  getBundleClickableLink,
+  getGeneratedPortData,
+} from '@utils/Ports';
+import {BundleTarget, PortBundle, PortData} from '@utils/Ports/interfaces';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 import SharePortLink from '@components/Reusable/BottomSheets/SharePortLink';
 import {wait} from '@utils/Time';
 import {useSelector} from 'react-redux';
 import {cleanDeleteGeneratedPort} from '@utils/Ports/direct';
+import Share from 'react-native-share';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 
@@ -90,6 +95,9 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
       setIsLoadingLink(true);
       if (qrData) {
         const bundle: PortBundle = JSON.parse(qrData);
+        const generatedPort: PortData = await getGeneratedPortData(
+          bundle.portId,
+        );
         const link = await getBundleClickableLink(
           BundleTarget.direct,
           bundle.portId,
@@ -97,7 +105,25 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
         );
         setLinkData(link);
         setIsLoadingLink(false);
-        setOpenShareModal(true);
+        if (
+          generatedPort.label &&
+          generatedPort.label !== '' &&
+          generatedPort.label !== DEFAULT_NAME
+        ) {
+          try {
+            const shareContent = {
+              title: `Share a one-time use link with ${generatedPort.label}`,
+              message:
+                `Click the link to connect with ${displayName} on Port.\n` +
+                linkData,
+            };
+            await Share.open(shareContent);
+          } catch (error) {
+            console.log('Link not shared', error);
+          }
+        } else {
+          setOpenShareModal(true);
+        }
         return;
       }
       throw new Error('No qr data');
@@ -143,17 +169,14 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
           onIconRightPress={async () => {
-            try {
-              if (linkData) {
-                navigation.goBack();
-                return;
-              }
+            if (linkData) {
+              navigation.goBack();
+              return;
+            } else {
               if (qrData) {
                 const bundle: PortBundle = JSON.parse(qrData);
                 await cleanDeleteGeneratedPort(bundle.portId);
               }
-            } catch (error) {
-              console.log('Error deleting port', error);
             }
             navigation.goBack();
             return;
@@ -223,7 +246,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
         <SharePortLink
           visible={openShareModal}
           onClose={() => setOpenShareModal(false)}
-          title={'Share link'}
+          title={'Share one-time use link'}
           description={
             'Enter the name of the contact you are sending this link to.'
           }

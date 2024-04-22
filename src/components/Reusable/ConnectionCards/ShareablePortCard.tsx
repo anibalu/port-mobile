@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 60,
     width: 60,
-    borderRadius: 16,
+    borderRadius: 12,
     backgroundColor: PortColors.primary.white,
     marginTop: -30,
   },

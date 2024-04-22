@@ -6,8 +6,7 @@ import DirectReceiveAction from '../DirectReceiveAction';
 class ReceiveAvatar extends DirectReceiveAction {
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    //save message to storage
-    await this.saveMessage();
+    // await this.saveMessage();
     const chat = new DirectChat(this.chatId);
 
     //Avatars are saved as is since they are not relative URIs

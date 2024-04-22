@@ -64,7 +64,7 @@ const ContactCard = (props: PendingCardInfo) => {
             }
             title={`Your connection with ${props.name} is pending`}
             description="Your connection is formed when your contact clicks on the link you
-          sent. If you decide not to connect, you can delete the connection."
+          sent. If you decide not to connect, you can delete the Port."
             buttonText="Delete Port"
             buttonColor="r"
           />

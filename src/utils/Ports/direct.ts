@@ -79,7 +79,7 @@ function getOrganisationName() {
  * @param portId
  * @returns - generated data
  */
-async function getGeneratedPortData(portId: string): Promise<PortData> {
+export async function getGeneratedPortData(portId: string): Promise<PortData> {
   const portData = await storageMyPorts.getPortData(portId);
   if (portData && portData.usedOnTimestamp) {
     const generatedPortData = {portId: portId, ...portData} as PortData;

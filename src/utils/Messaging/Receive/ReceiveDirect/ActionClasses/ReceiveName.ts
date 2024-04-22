@@ -17,8 +17,7 @@ class ReceiveName extends DirectReceiveAction {
     if (!newName || oldName !== DEFAULT_NAME) {
       return;
     }
-    //save message to storage
-    await this.saveMessage();
+    // await this.saveMessage();
     //update connection
     await updateConnection({
       chatId: this.chatId,

@@ -18,6 +18,7 @@ import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {PortBundle} from '@utils/Ports/interfaces';
 import {updateGeneratedPortLabel} from '@utils/Ports';
 import Share from 'react-native-share';
+import {useNavigation} from '@react-navigation/native';
 
 const SharePortLink = ({
   visible,
@@ -42,7 +43,7 @@ const SharePortLink = ({
 }) => {
   const [newName, setNewName] = useState<string>(contactName);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const navigation = useNavigation();
   const onEnterContactName = async () => {
     try {
       setIsLoading(true);
@@ -54,11 +55,13 @@ const SharePortLink = ({
         const shareContent = {
           title: `Share a one-time use link with ${newName}`,
           message:
-            `${userName} would like to connect with you on Port! Click the link to start chatting: \n` +
-            linkData,
+            `Click the link to connect with ${userName} on Port.\n` + linkData,
         };
         await Share.open(shareContent);
       }
+      setIsLoading(false);
+      onClose();
+      navigation.goBack();
     } catch (error) {
       console.log('Error sharing link to contact', error);
     } finally {
@@ -75,6 +78,17 @@ const SharePortLink = ({
       titleStyle={styles.title}
       onClose={onClose}>
       <View style={styles.mainWrapper}>
+        {description && (
+          <View
+            style={{width: '100%', marginBottom: PortSpacing.secondary.bottom}}>
+            <NumberlessText
+              style={{color: PortColors.subtitle}}
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.rg}>
+              {description}
+            </NumberlessText>
+          </View>
+        )}
         <View style={{marginBottom: PortSpacing.secondary.bottom}}>
           <SimpleInput
             placeholderText="Contact name"
@@ -84,17 +98,6 @@ const SharePortLink = ({
             bgColor="w"
           />
         </View>
-        {description && (
-          <View
-            style={{width: '100%', marginBottom: PortSpacing.primary.bottom}}>
-            <NumberlessText
-              style={{color: PortColors.subtitle}}
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}>
-              {description}
-            </NumberlessText>
-          </View>
-        )}
         <PrimaryButton
           buttonText={'Share'}
           primaryButtonColor={'b'}

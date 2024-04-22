@@ -7,6 +7,7 @@ import {
   MessageStatus,
   PayloadMessageParams,
   SavedMessageParams,
+  connectionUpdateExemptTypes,
 } from '@utils/Messaging/interfaces';
 import * as storage from '@utils/Storage/messages';
 import {SendDirectMessage} from './AbstractSender';
@@ -217,15 +218,17 @@ export class SendMediaDirectMessage<
         text = 'Sent an audio';
         break;
       default:
-        return;
+        break;
     }
-    await updateConnectionOnNewMessage({
-      chatId: this.chatId,
-      text,
-      readStatus: readStatus,
-      recentMessageType: this.contentType,
-      latestMessageId: this.messageId,
-    });
+    if (!connectionUpdateExemptTypes.includes(this.contentType)) {
+      await updateConnectionOnNewMessage({
+        chatId: this.chatId,
+        text,
+        readStatus: readStatus,
+        recentMessageType: this.contentType,
+        latestMessageId: this.messageId,
+      });
+    }
   }
   private async preProcessMedia() {
     //create valid media Id and key.

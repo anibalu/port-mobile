@@ -21,12 +21,14 @@ import {
   ConnectionInfo,
   ReadStatus,
 } from '@utils/Connections/interfaces';
+import DirectChat from '@utils/DirectChats/DirectChat';
 import {
   ContactBundleParams,
   ContentType,
   MessageStatus,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
+import {fetchSuperport} from '@utils/Ports';
 import {getGroupMessage, getMessage} from '@utils/Storage/messages';
 import {getChatTileTimestamp} from '@utils/Time';
 import React, {ReactNode, useCallback, useEffect, useState} from 'react';
@@ -87,9 +89,11 @@ function ChatTile({
   };
 
   const [newMessage, setNewMessage] = useState<SavedMessageParams | null>(null);
+  const [superportTag, setSuperportTag] = useState<string>('');
+  const [contactshareTag, setContactShareTag] = useState<string>('');
 
   const getNewMessage = async (): Promise<void> => {
-    if (props.latestMessageId) {
+    if (props.latestMessageId && !props.isReadPort) {
       const msg =
         props.connectionType === ChatType.group
           ? await getGroupMessage(props.chatId, props.latestMessageId)
@@ -97,9 +101,61 @@ function ChatTile({
       setNewMessage(msg);
     }
   };
+  function getSuperportDisplayName(
+    id: string,
+    label: string | null | undefined,
+  ) {
+    if (label && label !== '') {
+      return label;
+    } else {
+      return '#' + id;
+    }
+  }
+  async function getFromSuperportName(superportId: string) {
+    try {
+      const superport = await fetchSuperport(superportId);
+      return `via ${getSuperportDisplayName(
+        superport.superport.portId,
+        superport.superport.label,
+      )}`;
+    } catch (error) {
+      console.log('error saving superport info message: ', error);
+      return '';
+    }
+  }
+
+  async function getFromContactName(fromContact: string) {
+    try {
+      const chat = new DirectChat(fromContact);
+      const chatData = await chat.getChatData();
+      return `via ${chatData.name}`;
+    } catch (error) {
+      console.log('error saving contact share info message: ', error);
+      return '';
+    }
+  }
+
+  async function setTags() {
+    if (props.chatId && !props.isReadPort) {
+      try {
+        const chat = new DirectChat(props.chatId);
+        const isSuperport = await chat.didConnectUsingSuperport();
+        const isContactSharing = await chat.didConnectUsingContactSharing();
+        if (isSuperport) {
+          setSuperportTag(await getFromSuperportName(isSuperport));
+        }
+        if (isContactSharing) {
+          setContactShareTag(await getFromContactName(isContactSharing));
+        }
+      } catch (error) {
+        console.log('error setting tags', error);
+      }
+    }
+  }
 
   useEffect(() => {
     getNewMessage();
+    setTags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
 
@@ -268,7 +324,7 @@ function ChatTile({
                           }}
                           fontSizeType={FontSizeType.m}
                           textColor={PortColors.text.title}>
-                          New connection
+                          {'New connection ' + superportTag + contactshareTag}
                         </NumberlessText>
                       ) : (
                         <>
@@ -348,6 +404,7 @@ const RenderText = ({
   newMessage: SavedMessageParams | undefined | null;
 }) => {
   let text = '';
+  let italic = false;
   if (newMessage && newMessage.data) {
     text = newMessage.data.text ? newMessage.data.text : '';
     if (newMessage.contentType === ContentType.image) {
@@ -376,13 +433,16 @@ const RenderText = ({
       }
     } else if (newMessage.contentType === ContentType.contactBundle) {
       text = '👤 ' + (newMessage.data as ContactBundleParams).name;
+    } else if (newMessage.contentType === ContentType.disappearingMessages) {
+      text = 'disappearing messages have been turned ON';
+      italic = true;
     }
     return (
       <NumberlessText
         ellipsizeMode="tail"
         numberOfLines={2}
         style={{flex: 1}}
-        fontType={FontType.rg}
+        fontType={italic ? FontType.it : FontType.rg}
         fontSizeType={FontSizeType.m}
         textColor={PortColors.subtitle}>
         {text}

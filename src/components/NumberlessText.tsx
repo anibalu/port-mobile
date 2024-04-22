@@ -16,6 +16,7 @@ export enum FontType {
   'sb' = 'Rubik-SemiBold',
   'md' = 'Rubik-Medium',
   'rg' = 'Rubik-Regular',
+  'it' = 'Rubik-Italic',
 }
 
 export enum FontSizeType {

@@ -306,9 +306,7 @@ export async function newChatOverCreatedSuperportBundle(
   //create direct chat
   await chat.createChat(
     {
-      name: createdSuperport.label
-        ? DEFAULT_NAME + ' via' + createdSuperport.label
-        : DEFAULT_NAME + ' via Superport',
+      name: DEFAULT_NAME,
       authenticated: false,
       disconnected: false,
       cryptoId: cryptoId,

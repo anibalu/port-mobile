@@ -7,6 +7,7 @@ import {
   GroupSuperportBundle,
   PendingCardInfo,
   PortBundle,
+  PortData,
   PortTable,
   ReadPortData,
   SuperportData,
@@ -179,6 +180,15 @@ export async function fetchSuperport(
   } else {
     return await superport.createNewSuperport(label, connectionLimit, folderId);
   }
+}
+
+/**
+ * Fetches a generated port's data
+ * @param portId
+ * @returns - generated data
+ */
+export async function getGeneratedPortData(portId: string): Promise<PortData> {
+  return await direct.getGeneratedPortData(portId);
 }
 
 /**
@@ -379,7 +389,9 @@ export async function getPendingRequests(): Promise<PendingCardInfo[]> {
     return pendingRequest;
   });
   pendingRequests.push(...morphedGeneratedPorts);
-  return pendingRequests;
+  return pendingRequests.sort(
+    (a, b) => new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime(),
+  );
 }
 
 /**

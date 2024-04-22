@@ -1,6 +1,10 @@
 import DownArrow from '@assets/icons/DownArrowWhite.svg';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  DisplayableContentTypes,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
 import {checkDateBoundary, checkMessageTimeGap} from '@utils/Time';
 import React, {ReactNode, useRef, useState} from 'react';
 import {
@@ -18,7 +22,11 @@ import {AuthenticatedStateBubble} from '@components/MessageBubbles/Authenticated
 const MESSAGE_TIME_GAP_FOR_PADDING = 60 * 60 * 1000;
 
 function isDataMessage(contentType: ContentType) {
-  if (contentType === ContentType.name || contentType === ContentType.info) {
+  if (
+    contentType === ContentType.name ||
+    contentType === ContentType.info ||
+    contentType === ContentType.disappearingMessages
+  ) {
     return true;
   }
   return false;
@@ -54,10 +62,24 @@ function ChatList({
     item: SavedMessageParams;
     index: number;
   }) => {
+    const hasThereBeenNonHandshakeMessage = () => {
+      console.log('checking data stamp');
+      const limit = messages.length > 8 ? 8 : messages.length;
+      for (
+        let index = messages.length - 1;
+        index > messages.length - 1 - limit;
+        index--
+      ) {
+        if (DisplayableContentTypes.includes(messages[index].contentType)) {
+          return true;
+        }
+      }
+      return false;
+    };
     //Checks if a date bubbled needs to be displayed.
     const isDateBoundary =
-      index >= messages.length - 1
-        ? true
+      index === messages.length - 1
+        ? hasThereBeenNonHandshakeMessage()
         : checkDateBoundary(item.timestamp, messages[index + 1].timestamp);
 
     //Should have spacing when: data bubble was previous, previous message was not own, timestamp is different
@@ -122,7 +144,7 @@ function ChatList({
         refreshing={refreshing}
         ListFooterComponent={<AuthenticatedStateBubble />}
         ListHeaderComponent={
-          <View style={{height: PortSpacing.tertiary.bottom}} />
+          <View style={{height: PortSpacing.intermediate.bottom}} />
         }
         onRefresh={async () => {
           setRefreshing(true);
@@ -149,7 +171,9 @@ const determineSpacing = (
   message: SavedMessageParams,
   nextMessage: SavedMessageParams,
 ): boolean => {
-  if (isDataMessage(message.contentType)) {
+  if (!DisplayableContentTypes.includes(message.contentType)) {
+    return false;
+  } else if (isDataMessage(message.contentType)) {
     return true;
   } else if (message.sender !== nextMessage.sender) {
     //Comparing if the message and the next message don't have the same sender

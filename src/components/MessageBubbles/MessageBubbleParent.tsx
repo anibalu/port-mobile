@@ -59,7 +59,7 @@ const MessagePrecursor = ({
       {isDateBoundary && (
         <View style={styles.dateContainer}>
           <NumberlessText
-            fontSizeType={FontSizeType.m}
+            fontSizeType={FontSizeType.s}
             fontType={FontType.md}
             textColor={PortColors.title}>
             {getDateStamp(message.timestamp)}

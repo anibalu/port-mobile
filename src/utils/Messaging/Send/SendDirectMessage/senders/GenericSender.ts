@@ -8,6 +8,7 @@ import {
   PayloadMessageParams,
   SavedMessageParams,
   TextParams,
+  connectionUpdateExemptTypes,
 } from '@utils/Messaging/interfaces';
 import * as storage from '@utils/Storage/messages';
 import {SendDirectMessage} from './AbstractSender';
@@ -243,14 +244,17 @@ export class SendGenericDirectMessage<
         text = 'shared contact of ' + (this.data as ContactBundleParams).name;
         break;
       default:
-        return;
+        break;
     }
-    await updateConnectionOnNewMessage({
-      chatId: this.chatId,
-      text,
-      readStatus: readStatus,
-      recentMessageType: this.contentType,
-      latestMessageId: this.messageId,
-    });
+    if (!connectionUpdateExemptTypes.includes(this.contentType)) {
+      console.log('updating connection', this.contentType);
+      await updateConnectionOnNewMessage({
+        chatId: this.chatId,
+        text,
+        readStatus: readStatus,
+        recentMessageType: this.contentType,
+        latestMessageId: this.messageId,
+      });
+    }
   }
 }

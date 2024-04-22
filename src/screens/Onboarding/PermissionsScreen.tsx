@@ -1,8 +1,6 @@
 /**
  * This screens informs a user of the permissions the App requires and requests those permissions
  */
-import Camera from '@assets/icons/CameraOutline.svg';
-import Microphone from '@assets/icons/MicrophoneOutline.svg';
 import Notification from '@assets/icons/NotificationOutline.svg';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
@@ -16,11 +14,7 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import notifee, {AuthorizationStatus} from '@notifee/react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {
-  checkAndGrantRecordingPermission,
-  checkCameraPermission,
-  checkSavingImagesPermission,
-} from '@utils/AppPermissions';
+
 import {processName} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {BackHandler, StyleSheet, View} from 'react-native';
@@ -33,15 +27,6 @@ type Props = NativeStackScreenProps<
 function PermissionsScreen({route, navigation}: Props): ReactNode {
   //state of notification permission
   const [isNotifPermissionGranted, setIsNotifPermissionGranted] =
-    useState(false);
-  //state of camera permission
-  const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
-    useState(false);
-
-  const [isSavingImagesPermissionGranted, setIsSavingImagesPermissionGranted] =
-    useState(false);
-
-  const [isRecordingPermissionGranted, setIsRecordingPermissionGranted] =
     useState(false);
 
   //setup notification channels for the app. this also requests permissions.
@@ -70,9 +55,6 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
     const setupPermissions = async () => {
       try {
         await setupNotificationChannels();
-        await checkCameraPermission(setIsCameraPermissionGranted);
-        await checkAndGrantRecordingPermission(setIsRecordingPermissionGranted);
-        await checkSavingImagesPermission(setIsSavingImagesPermissionGranted);
         await checkNotificationPermission();
       } catch (error) {
         console.log('Error occurred during setup:', error);
@@ -84,22 +66,14 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
 
   //If all permissions are granted, automatically go to next screen where your profile gets setup.
   useEffect(() => {
-    if (
-      isCameraPermissionGranted &&
-      isSavingImagesPermissionGranted &&
-      isNotifPermissionGranted &&
-      isRecordingPermissionGranted
-    ) {
+    if (isNotifPermissionGranted) {
       navigation.navigate('SetupUser', {
         name: processName(route.params.name),
         avatar: route.params.avatar,
       });
     }
   }, [
-    isRecordingPermissionGranted,
-    isCameraPermissionGranted,
     isNotifPermissionGranted,
-    isSavingImagesPermissionGranted,
     route.params.name,
     route.params.avatar,
     navigation,
@@ -169,42 +143,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
               </NumberlessText>
             </View>
           </View>
-          <View style={styles.blockWrapper}>
-            <Microphone width={24} height={24} />
 
-            <View style={styles.textColumnWrapper}>
-              <NumberlessText
-                fontType={FontType.rg}
-                fontSizeType={FontSizeType.l}>
-                Microphone
-              </NumberlessText>
-              <NumberlessText
-                fontType={FontType.rg}
-                style={{marginTop: 2}}
-                textColor={PortColors.primary.grey.bold}
-                fontSizeType={FontSizeType.s}>
-                Send voice notes and more in your chats.
-              </NumberlessText>
-            </View>
-          </View>
-          <View style={styles.blockWrapper}>
-            <Camera width={24} height={24} />
-
-            <View style={styles.textColumnWrapper}>
-              <NumberlessText
-                fontType={FontType.rg}
-                fontSizeType={FontSizeType.l}>
-                Camera
-              </NumberlessText>
-              <NumberlessText
-                fontType={FontType.rg}
-                style={{marginTop: 2}}
-                textColor={PortColors.primary.grey.bold}
-                fontSizeType={FontSizeType.s}>
-                Capture and share media, scan QR codes, and more.
-              </NumberlessText>
-            </View>
-          </View>
           <View style={{flex: 1}} />
           <View style={styles.buttonContainer}>
             <PrimaryButton

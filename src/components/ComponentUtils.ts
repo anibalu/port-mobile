@@ -37,7 +37,7 @@ export const PortColors = {
       overlay: '#BAD0E3',
       overlayLight: '#C6CFE5',
     },
-    sender: '#CCD5F8',
+    sender: '#D9E1F8',
     senderReply: '#BAC5EF',
     white: '#FFFFFF',
     black: '#000000',

@@ -286,6 +286,7 @@ export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
 export async function newChatOverGeneratedPortBundle(
   portId: string,
   chatId: string,
+  pairHash: string | null = null,
 ) {
   const generatedPort: PortData = await getGeneratedPortData(portId);
   if (!generatedPort.cryptoId) {
@@ -321,6 +322,7 @@ export async function newChatOverGeneratedPortBundle(
     generatedPort.portId,
     chatId,
     false,
+    pairHash,
   );
   await storageMyPorts.deletePortData(generatedPort.portId);
   const sender = new SendMessage(chatId, ContentType.handshakeA1, {

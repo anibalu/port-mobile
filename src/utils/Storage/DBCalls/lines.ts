@@ -123,7 +123,8 @@ export async function updateLine(lineId: string, update: LineData) {
     cryptoId = COALESCE(?, cryptoId),
     connectedOn = COALESCE(?, connectedOn),
     connectedUsing = COALESCE(? , connectedUsing),
-    permissionsId = COALESCE(? , permissionsId)
+    permissionsId = COALESCE(? , permissionsId),
+    pairHash = COALESCE(pairHash, ?)
     WHERE lineId = ? ;
     `,
     [
@@ -135,6 +136,7 @@ export async function updateLine(lineId: string, update: LineData) {
       update.connectedOn,
       update.connectedUsing,
       update.permissionsId,
+      update.pairHash,
       lineId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

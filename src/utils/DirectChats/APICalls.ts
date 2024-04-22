@@ -2,7 +2,13 @@ import {LINE_MANAGEMENT_RESOURCE} from '@configs/api';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
 
-export async function newDirectChatFromPort(linkId: string): Promise<string> {
+interface newLineData {
+  chatId: string;
+  pairHash: string;
+}
+export async function newDirectChatFromPort(
+  linkId: string,
+): Promise<newLineData> {
   const token = await getToken();
   const response = await axios.post(
     LINE_MANAGEMENT_RESOURCE,
@@ -13,14 +19,15 @@ export async function newDirectChatFromPort(linkId: string): Promise<string> {
   );
   if (response.data.newLine) {
     const chatId: string = response.data.newLine;
-    return chatId;
+    const pairHash: string = response.data.pairHash;
+    return {chatId, pairHash};
   }
   throw new Error('APIError');
 }
 
 export async function newDirectChatFromSuperport(
   superportId: string,
-): Promise<string> {
+): Promise<newLineData> {
   const token = await getToken();
   const response = await axios.post(
     LINE_MANAGEMENT_RESOURCE,
@@ -31,7 +38,8 @@ export async function newDirectChatFromSuperport(
   );
   if (response.data.newLine) {
     const chatId: string = response.data.newLine;
-    return chatId;
+    const pairHash: string = response.data.pairHash;
+    return {chatId, pairHash};
   }
   throw new Error('APIError');
 }

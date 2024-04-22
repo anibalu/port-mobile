@@ -60,19 +60,22 @@ class DirectChat {
     linkId: string | null = null,
     lineId: string | null = null,
     isSuperport: boolean = false,
+    pairHash: string | null = null,
   ) {
     if (lineId) {
       const newChatId = lineId;
       await storage.newLine(newChatId);
       this.chatId = newChatId;
+      update.pairHash = pairHash;
       await storage.updateLine(this.chatId, update);
       await this.loadChatData();
     } else if (linkId) {
-      const newChatId = isSuperport
+      const {chatId, pairHash} = isSuperport
         ? await API.newDirectChatFromSuperport(linkId)
         : await API.newDirectChatFromPort(linkId);
-      await storage.newLine(newChatId);
-      this.chatId = newChatId;
+      await storage.newLine(chatId);
+      this.chatId = chatId;
+      update.pairHash = pairHash;
       await storage.updateLine(this.chatId, update);
       await this.loadChatData();
     }

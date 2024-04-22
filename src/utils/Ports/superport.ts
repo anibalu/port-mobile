@@ -277,6 +277,7 @@ export async function newChatOverReadSuperportBundle(
 export async function newChatOverCreatedSuperportBundle(
   portId: string,
   chatId: string,
+  pairHash: string | null = null,
 ) {
   const createdSuperport: SuperportData = await getCreatedSuperportData(portId);
   if (!createdSuperport.cryptoId) {
@@ -318,6 +319,7 @@ export async function newChatOverCreatedSuperportBundle(
     createdSuperport.portId,
     chatId,
     true,
+    pairHash,
   );
   //increase the count of connections made using this superport
   await storageSuperports.incrementConnectionsMade(

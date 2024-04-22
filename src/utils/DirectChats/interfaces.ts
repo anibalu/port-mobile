@@ -7,6 +7,7 @@ export interface LineData {
   connectedOn?: string | null;
   connectedUsing?: string | null;
   permissionsId?: string | null;
+  pairHash?: string | null;
 }
 
 export interface LineDataStrict extends LineData {

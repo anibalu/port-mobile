@@ -22,7 +22,7 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import React, {useEffect, useState} from 'react';
-import {View} from 'react-native';
+import {Platform, View} from 'react-native';
 import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
 
 const ChatSettingsCard = ({
@@ -97,17 +97,22 @@ const ChatSettingsCard = ({
         fontSizeType={FontSizeType.l}>
         Chat settings
       </NumberlessText>
-      <View>
-        <OptionWithToggle
-          IconLeft={NotificationIcon}
-          toggleActiveState={permissions.notifications}
-          heading="Notifications"
-          onToggle={async () =>
-            await onUpdateBooleanPermission('notifications')
-          }
-        />
-      </View>
-      <LineSeparator />
+      {Platform.OS === 'android' && (
+        <>
+          <View>
+            <OptionWithToggle
+              IconLeft={NotificationIcon}
+              toggleActiveState={permissions.notifications}
+              heading="Notifications"
+              onToggle={async () =>
+                await onUpdateBooleanPermission('notifications')
+              }
+            />
+          </View>
+          <LineSeparator />
+        </>
+      )}
+
       <View>
         <OptionWithToggle
           IconLeft={UserCircleIcon}

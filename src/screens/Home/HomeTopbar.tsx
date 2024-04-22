@@ -32,6 +32,7 @@ type TopbarProps = {
   setSelectionMode: (x: boolean) => void;
   selectedConnections: ChatTileProps[];
   setSelectedConnections: (x: ChatTileProps[]) => void;
+  totalUnreadCount: number;
 };
 
 function HomeTopbar({
@@ -45,6 +46,7 @@ function HomeTopbar({
   setSelectionMode,
   selectedConnections,
   setSelectedConnections,
+  totalUnreadCount,
 }: TopbarProps): ReactNode {
   const title = unread ? `${folder.name} (${unread})` : `${folder.name}`;
   const navigation = useNavigation<any>();
@@ -55,6 +57,7 @@ function HomeTopbar({
     setSelectedConnections([]);
     setSelectionMode(false);
   };
+  const unreadCount = totalUnreadCount > 99 ? '99+' : totalUnreadCount;
   return (
     <>
       {selectionMode ? (
@@ -102,7 +105,22 @@ function HomeTopbar({
                   <View style={styles.iconWrapper2}>
                     <SidebarMenu width={24} height={24} />
 
-                    {showPrompt && <View style={styles.blueDot} />}
+                    {showPrompt && (
+                      <View
+                        style={
+                          totalUnreadCount > 99
+                            ? styles.blueDotOval
+                            : styles.blueDot
+                        }>
+                        <NumberlessText
+                          style={styles.text}
+                          textColor={PortColors.primary.white}
+                          fontType={FontType.rg}
+                          fontSizeType={FontSizeType.s}>
+                          {unreadCount}
+                        </NumberlessText>
+                      </View>
+                    )}
                   </View>
                   <NumberlessText
                     numberOfLines={1}
@@ -166,12 +184,31 @@ const styles = StyleSheet.create({
   },
   blueDot: {
     backgroundColor: PortColors.primary.blue.app,
-    height: 7,
-    width: 7,
+    height: 20,
+    width: 20,
     position: 'absolute',
-    top: 8,
+    top: 0,
     right: -3,
     borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  blueDotOval: {
+    backgroundColor: PortColors.primary.blue.app,
+    height: 20,
+    width: 30,
+    position: 'absolute',
+    top: 0,
+    left: 20,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  text: {
+    height: '100%',
+    width: '100%',
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   modal: {
     margin: 0,
@@ -208,8 +245,8 @@ const styles = StyleSheet.create({
   },
   iconWrapper2: {
     backgroundColor: 'transparent',
-    height: 40,
-    width: 24,
+    height: 50,
+    width: 35,
     alignItems: 'center',
     justifyContent: 'center',
   },

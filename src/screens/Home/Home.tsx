@@ -563,6 +563,7 @@ function Home({route, navigation}: Props) {
               searchText={searchText}
               setSearchText={setSearchText}
               unread={totalUnread}
+              totalUnreadCount={totalUnreadCount}
               folder={selectedFolderData}
               selectionMode={selectionMode}
               setSelectionMode={setSelectionMode}

@@ -1,7 +1,13 @@
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useState} from 'react';
-import {AppState, KeyboardAvoidingView, StyleSheet, View} from 'react-native';
+import {
+  AppState,
+  BackHandler,
+  KeyboardAvoidingView,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -75,6 +81,8 @@ function ChatScreen() {
   //cursor for number of messages on screen
   const [cursor, setCursor] = useState(50);
 
+  const navigation = useNavigation();
+
   //re-render trigger
   const ping: any = useSelector(state => (state as any).ping.ping);
 
@@ -147,6 +155,21 @@ function ChatScreen() {
     await toggleRead(chatId);
   };
 
+  useEffect(() => {
+    const backAction = async () => {
+      await toggleRead(chatId);
+      navigation.goBack();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <AudioPlayerProvider>
       <CustomStatusBar

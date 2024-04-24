@@ -80,34 +80,30 @@ export function getChatTileTimestamp(isoTimestamp: string): string {
 
   if (diffMins < 1) {
     return 'now';
-  } else if (diffMins < 60) {
+  }
+  if (diffMins < 60) {
     return diffMins === 1 ? '1m' : `${diffMins}m`;
-  } else if (
+  }
+  if (
     date.getDate() === now.getDate() &&
     date.getMonth() === now.getMonth() &&
     date.getFullYear() === now.getFullYear()
   ) {
     return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-  } else if (
+  }
+  if (
     now.getDate() - date.getDate() === 1 &&
     date.getMonth() === now.getMonth() &&
     date.getFullYear() === now.getFullYear()
   ) {
     return 'Yesterday';
-  } else {
-    const options: Intl.DateTimeFormatOptions = {
-      day: 'numeric',
-      month: 'numeric',
-      year: '2-digit',
-    };
-    let formattedTime = date.toLocaleDateString(undefined, options);
-    // Split the formatted string and remove leading zeros
-    const components = formattedTime.split('/');
-    formattedTime = components
-      .map(component => parseInt(component).toString()) // Convert to integer and back to string to remove leading zeros
-      .join('/');
-    return formattedTime;
   }
+  const options: Intl.DateTimeFormatOptions = {
+    day: 'numeric',
+    month: 'numeric',
+    year: '2-digit',
+  };
+  return date.toLocaleDateString(undefined, options);
 }
 
 /**

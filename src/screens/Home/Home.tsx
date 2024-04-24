@@ -7,7 +7,11 @@ import BluePlusIcon from '../../../assets/icons/plusWhite.svg';
 import ChatTile, {ChatTileProps} from '@components/ChatTile/ChatTile';
 import {SafeAreaView} from '@components/SafeAreaView';
 
-import notifee, {EventDetail, EventType} from '@notifee/react-native';
+import notifee, {
+  AuthorizationStatus,
+  EventDetail,
+  EventType,
+} from '@notifee/react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import {
@@ -188,6 +192,47 @@ function Home({route, navigation}: Props) {
       setTotalUnread(found.unread);
     }
   };
+
+  const [isNotifPermissionGranted, setIsNotifPermissionGranted] =
+    useState(false);
+
+  //setup notification channels for the app. this also requests permissions.
+  const setupNotificationChannels = async () => {
+    // Needed for iOS
+    await notifee.requestPermission();
+    // Needed for Android
+    await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+    });
+  };
+
+  //checks if notification permission is granted
+  async function checkNotificationPermission() {
+    const settings = await notifee.getNotificationSettings();
+    if (settings.authorizationStatus == AuthorizationStatus.AUTHORIZED) {
+      setIsNotifPermissionGranted(true);
+    } else if (settings.authorizationStatus == AuthorizationStatus.DENIED) {
+      setIsNotifPermissionGranted(false);
+    }
+  }
+  // whenever home screen has been brought into focus, we ask for notification
+  useFocusEffect(
+    React.useCallback(() => {
+      const setupPermissions = async () => {
+        try {
+          console.log({isNotifPermissionGranted});
+          await setupNotificationChannels();
+          await checkNotificationPermission();
+        } catch (error) {
+          console.log('Error occurred during setup:', error);
+        }
+      };
+      setupPermissions();
+      // eslint-disable-next-line
+    }, []),
+  );
+
   //loads up initial user name, profile picture
   useFocusEffect(
     React.useCallback(() => {

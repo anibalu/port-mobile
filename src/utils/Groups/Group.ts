@@ -228,7 +228,7 @@ class Group {
       const permissions = await getPermissions(this.groupData.permissionsId);
       return permissions as GroupPermissions;
     }
-    throw new Error('No permissions setup for group');
+    throw new Error('No permissions set up for group');
   }
   public async updatePermissions(update: Permissions) {
     this.groupId = this.checkGroupIdNotNull();

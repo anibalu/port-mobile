@@ -67,9 +67,8 @@ const RestoreAccount = () => {
                 marginTop: PortSpacing.medium.uniform,
               }}
               textColor={PortColors.subtitle}>
-              If you have previously registered on Port, you can restore your
-              account connections from a local backup. If you don’t restore now,
-              you won’t be able to restore later.
+              You can restore your connection from a local backup. If you choose
+              not to, you won't be able to later.
             </NumberlessText>
           </View>
           <View style={styles.buttonContainer}>

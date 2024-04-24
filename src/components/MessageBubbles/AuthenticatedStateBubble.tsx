@@ -21,7 +21,7 @@ export const AuthenticatedStateBubble = (): ReactNode => {
               fontSizeType={FontSizeType.s}
               fontType={FontType.rg}
               textColor={PortColors.text.primary}>
-              This chat is now end-to-end encrypted.
+              This chat is end-to-end encrypted.
             </NumberlessText>
           </View>
         ) : (

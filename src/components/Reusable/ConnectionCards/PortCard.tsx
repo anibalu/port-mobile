@@ -89,16 +89,16 @@ const PortCard = ({
               style={{textAlign: 'center', color: PortColors.subtitle}}
               fontType={FontType.rg}
               fontSizeType={FontSizeType.s}>
-              You can have someone scan this with their Port camera to connect
-              with you. Or, send it as a one-time use link.
+              Show this Port or share it as a one-time use link to form a new
+              chat.
             </NumberlessText>
           ) : (
             <NumberlessText
               style={{textAlign: 'center', color: PortColors.subtitle}}
               fontType={FontType.rg}
               fontSizeType={FontSizeType.s}>
-              You can have someone scan this with their Port camera to connect
-              with you. Or, send it as a one-time use link.
+              Show this Port or share it as a one-time use link to form a new
+              chat.
             </NumberlessText>
           )}
         </View>
@@ -137,8 +137,8 @@ const PortCard = ({
             }}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.s}>
-            You've reached your offline port limit of 10. Connect to the
-            internet to share more
+            You've reached your offline Port limit of 10. Connect to the
+            internet to continue connecting.
           </NumberlessText>
           <SecondaryButton
             buttonText={'Try Again'}

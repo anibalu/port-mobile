@@ -200,7 +200,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
               />
               <TertiaryButton
                 tertiaryButtonColor={'b'}
-                buttonText={'Scan Instead'}
+                buttonText={'Scan instead'}
                 Icon={ScanIcon}
                 onClick={() => navigation.navigate('Scan')}
                 disabled={false}
@@ -223,7 +223,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
               </NumberlessText>
               <SecondaryButton
                 secondaryButtonColor={'b'}
-                buttonText={'Create a superport'}
+                buttonText={'Create a Superport'}
                 onClick={() =>
                   navigation.navigate('SuperportScreen', {
                     name: displayName,
@@ -248,7 +248,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
           onClose={() => setOpenShareModal(false)}
           title={'Share one-time use link'}
           description={
-            'Enter the name of the contact you are sending this link to.'
+            'Enter the name of the contact to whom you are sending the Port.'
           }
           contactName={shareContactName}
           setContactName={setShareContactName}

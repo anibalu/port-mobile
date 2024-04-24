@@ -395,8 +395,8 @@ const SuperportScreen = ({route, navigation}: Props) => {
                 textColor={PortColors.title}
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.rg}>
-                Superports are multi-use codes that let you connect with
-                multiple people at once
+                Superports are multi-use Ports that let you connect with
+                multiple people at once.
               </NumberlessText>
             </View>
           )}
@@ -463,7 +463,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
                   <PrimaryButton
                     primaryButtonColor="b"
                     buttonText={
-                      isPaused ? 'Unpause superport' : 'Pause superport'
+                      isPaused ? 'Unpause Superport' : 'Pause Superport'
                     }
                     onClick={() => setIsPauseConfirmOpen(true)}
                     isLoading={false}
@@ -473,7 +473,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
               ) : (
                 <PrimaryButton
                   primaryButtonColor="b"
-                  buttonText={'Create superport'}
+                  buttonText={'Create Superport'}
                   onClick={fetchPort}
                   isLoading={isLoading}
                   disabled={false}
@@ -501,7 +501,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
           onTryAgain={previewImage}
         />
         <EditName
-          title="Edit Superport Label"
+          title="Edit Superport label"
           description="Choose a label that describes the purpose or destination for the Superport."
           onClose={() => setOpenLabelModal(false)}
           visible={openLabelModal}
@@ -509,7 +509,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
           name={label}
         />
         <UsageLimitsBottomSheet
-          title="Custom usage limits"
+          title="Custom usage limit"
           connectionsMade={connectionMade}
           visible={openUsageLimitsModal}
           setNewLimit={setConnectionLimit}
@@ -517,15 +517,15 @@ const SuperportScreen = ({route, navigation}: Props) => {
           setLimitsArray={setUsageLimitsArray}
           onClose={() => setOpenUsageLimitsModal(false)}
           newLimit={connectionLimit}
-          description="Setup the maximum number of connections that can be made using this Superport"
+          description="Set up the maximum number of connections that can be made using this Superport"
         />
         <ConfirmationBottomSheet
           visible={isDeleteConfirmOpen}
           onClose={() => setIsDeleteConfirmOpen(false)}
           onConfirm={async () => await deleteSuperport()}
           title="Are you sure you want to delete this Superport?"
-          description="Deleting this superport is will prevent new connections from forming using this superport.
-          Connections already formed using this superport will remain unaffected."
+          description="Deleting this Superport is will prevent new connections from forming using this Superport.
+          Connections already formed using this Superport will remain unaffected."
           buttonText="Delete Superport"
           buttonColor="r"
         />
@@ -540,8 +540,8 @@ const SuperportScreen = ({route, navigation}: Props) => {
           }
           description={
             isPaused
-              ? 'Unpausing this superport will allow new connections to form using this superport. You can always pause the superport anytime.'
-              : 'Pausing this superport will prevent new connections from forming using this superport. You can always unpause at anytime.'
+              ? 'Unpausing this Superport will allow new connections to form using this Superport. You can always pause the Superport anytime.'
+              : 'Pausing this Superport will prevent new connections from forming using this Superport. You can always unpause at anytime.'
           }
           buttonText={isPaused ? 'Unpause Superport' : 'Pause Superport'}
           buttonColor="b"

@@ -144,7 +144,7 @@ const GiveUsFeedbackScreen = () => {
                 </>
               ) : (
                 <SecondaryButton
-                  buttonText="Upload Image"
+                  buttonText="Upload image"
                   secondaryButtonColor="b"
                   Icon={Upload}
                   iconSize="s"
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     top: -5,
   },
   component: {
-    marginHorizontal: PortSpacing.secondary.uniform,
+    marginHorizontal: 20,
     justifyContent: 'space-between',
     flex: 1,
     marginBottom: PortSpacing.secondary.uniform,

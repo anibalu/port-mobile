@@ -90,7 +90,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
 
   const personOfflineError = () => {
     setErrorToShow({
-      text: 'Error establishing connection. Other person is offline.',
+      text: 'Error establishing connection. Peer is offline.',
       type: 'error',
     });
   };
@@ -162,7 +162,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
 
   const portConnectionError = () => {
     setErrorToShow({
-      text: 'Error using port. This link has expired',
+      text: 'Error using Port. This link has expired.',
       type: 'error',
     });
   };
@@ -176,35 +176,35 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
 
   const incorrectQRError = () => {
     setErrorToShow({
-      text: 'QR code not a numberless QR code',
+      text: 'QR code not a Port!',
       type: 'error',
     });
   };
 
   const imageSelectionError = () => {
     setErrorToShow({
-      text: 'Image selection error',
+      text: 'Could not select this image',
       type: 'error',
     });
   };
 
   const copyingMessageError = () => {
     setErrorToShow({
-      text: 'Error cannot copy this message',
+      text: 'cannot copy this message',
       type: 'error',
     });
   };
 
   const somethingWentWrongError = () => {
     setErrorToShow({
-      text: 'Oops something went wrong',
+      text: 'Oops something went wrong...',
       type: 'error',
     });
   };
 
   const networkError = () => {
     setErrorToShow({
-      text: 'Error network error in creating new port',
+      text: 'Network error while creating a new Port',
       type: 'error',
     });
   };
@@ -224,7 +224,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
 
   const shareFeedbackError = () => {
     setErrorToShow({
-      text: 'Network error in sending feedback.Please try again later',
+      text: 'Network error while sending feedback. Please try again later',
       type: 'error',
     });
   };

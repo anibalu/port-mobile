@@ -50,9 +50,9 @@ export const categories = [
     value: 'Superports',
     Img: SuperPorts,
     subCategory: [
-      {index: '1', content: 'Creating a superport'},
-      {index: '2', content: 'Using a superport'},
-      {index: '3', content: 'Deleting a superport'},
+      {index: '1', content: 'Creating a Superport'},
+      {index: '2', content: 'Using a Superport'},
+      {index: '3', content: 'Deleting a Superport'},
     ],
   },
   {

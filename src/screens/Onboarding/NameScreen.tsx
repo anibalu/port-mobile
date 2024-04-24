@@ -155,6 +155,7 @@ function NameScreen({navigation}: Props): ReactNode {
                     marginVertical: PortSpacing.secondary.uniform,
                   }}>
                   <NumberlessText
+                    style={{textAlign: 'center'}}
                     fontType={FontType.rg}
                     fontSizeType={FontSizeType.m}
                     textColor={PortColors.text.secondary}>

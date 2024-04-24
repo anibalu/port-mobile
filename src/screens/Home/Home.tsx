@@ -742,7 +742,7 @@ function Home({route, navigation}: Props) {
               }}
               title={'Are you sure you want to delete chat history?'}
               description={'Deleting history will erase all chat data'}
-              buttonText={'Delete History'}
+              buttonText={'Delete history'}
               buttonColor="r"
             />
             <MoveToFolder

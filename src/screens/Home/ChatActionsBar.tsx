@@ -73,9 +73,9 @@ export function ChatActionsBar({
                     fontType={FontType.rg}
                     textColor={PortColors.primary.red.error}>
                     {selectedConnections[0].disconnected
-                      ? 'Delete History'
+                      ? 'Delete history'
                       : selectedConnections[0].authenticated
-                      ? 'Disconnect Chat'
+                      ? 'Disconnect chat'
                       : 'Stop adding'}
                   </NumberlessText>
                 </Pressable>

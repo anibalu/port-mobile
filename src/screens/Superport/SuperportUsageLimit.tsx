@@ -49,7 +49,7 @@ const SuperportUsageLimit = ({
             }}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}>
-            Setup usage limits
+            Set up usage limit
           </NumberlessText>
           <NumberlessText
             style={{
@@ -67,7 +67,7 @@ const SuperportUsageLimit = ({
           style={{color: PortColors.subtitle}}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.s}>
-          Setup the maximum number of connections that can be made using this
+          Set up the maximum number of connections that can be made using this
           Superport.
         </NumberlessText>
       </View>

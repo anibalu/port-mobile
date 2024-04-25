@@ -89,7 +89,7 @@ const PortCard = ({
               style={{textAlign: 'center', color: PortColors.subtitle}}
               fontType={FontType.rg}
               fontSizeType={FontSizeType.s}>
-              Show this Port or share it as a one-time use link to form a new
+              Show this Superport or share it as a multi-use link to form a new
               chat.
             </NumberlessText>
           ) : (

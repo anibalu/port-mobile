@@ -257,7 +257,7 @@ const Superports = ({route, navigation}: Props) => {
           <View style={styles.buttonWrapper}>
             <SecondaryButton
               secondaryButtonColor="b"
-              buttonText="+ Add Superport"
+              buttonText="New Superport"
               onClick={() =>
                 navigation.navigate('SuperportScreen', {
                   name: displayName,

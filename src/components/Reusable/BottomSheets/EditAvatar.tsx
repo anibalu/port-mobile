@@ -149,13 +149,13 @@ export default function EditAvatar(props: EditAvatarProps) {
         </View>
         <SimpleCard style={{marginBottom: PortSpacing.secondary.bottom}}>
           <OptionWithRightIcon
-            title={'Choose from Gallery'}
+            title={'Choose from gallery'}
             IconRight={GalleryOutline}
             onClick={setNewPicture}
           />
         </SimpleCard>
         <SimpleCard style={styles.avatarArea}>
-          <OptionWithRightIcon title={'Choose an Avatar'} onClick={() => {}} />
+          <OptionWithRightIcon title={'Choose an avatar'} onClick={() => {}} />
           <FlatList
             data={avatarArray}
             keyExtractor={item => item.id.toString()}

@@ -524,7 +524,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
           onClose={() => setIsDeleteConfirmOpen(false)}
           onConfirm={async () => await deleteSuperport()}
           title="Are you sure you want to delete this Superport?"
-          description="Deleting this Superport is will prevent new connections from forming using this Superport.
+          description="Deleting this Superport will prevent new connections from forming using this Superport.
           Connections already formed using this Superport will remain unaffected."
           buttonText="Delete Superport"
           buttonColor="r"

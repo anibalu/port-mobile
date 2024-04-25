@@ -24,7 +24,7 @@ export const disappearOptions: disappearOptionsTypes[] = [
   '12 hours',
   '1 day',
   '1 week',
-  '90 Days',
+  '90 days',
   'Off',
 ];
 export type disappearOptionsTypes =
@@ -32,7 +32,7 @@ export type disappearOptionsTypes =
   | '12 hours'
   | '1 day'
   | '1 week'
-  | '90 Days'
+  | '90 days'
   | 'Off';
 
 export const disappearDuration: {[key in disappearOptionsTypes]: number} = {
@@ -40,6 +40,6 @@ export const disappearDuration: {[key in disappearOptionsTypes]: number} = {
   '12 hours': 12 * 60 * 60 * 1000,
   '1 day': 24 * 60 * 60 * 1000,
   '1 week': 7 * 24 * 60 * 60 * 1000,
-  '90 Days': 90 * 24 * 60 * 60 * 1000,
+  '90 days': 90 * 24 * 60 * 60 * 1000,
   Off: 0,
 };

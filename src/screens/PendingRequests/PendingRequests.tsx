@@ -97,7 +97,7 @@ const PendingRequests = () => {
                     fontSizeType={FontSizeType.xl}
                     fontType={FontType.md}
                     textColor={PortColors.primary.black}>
-                    No pending ports
+                    No pending Ports
                   </NumberlessText>
                   <NumberlessText
                     style={{

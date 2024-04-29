@@ -100,7 +100,7 @@ android {
         applicationId "com.numberless"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
+        versionCode 3
         versionName "1.2.1"
     }
    packagingOptions {

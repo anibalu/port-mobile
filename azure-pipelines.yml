@@ -1,7 +1,7 @@
 pool:
   vmImage: ubuntu-latest
 
-# container: reactnativecommunity/react-native-android:latest
+trigger: none
 
 steps:
 - task: NodeTool@0

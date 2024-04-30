@@ -13,6 +13,8 @@ type ModalContextType = {
   establishingConnectionError: () => void;
   onboardingFailureError: () => void;
   checkingProfileError: () => void;
+  notifyUserOfConnectionError: () => void;
+  unableToNotifyUserError: () => void;
   portConnectionError: () => void;
   imageSelectionError: () => void;
   mediaDownloadError: () => void;
@@ -160,6 +162,20 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
     });
   };
 
+  const notifyUserOfConnectionError = () => {
+    setErrorToShow({
+      text: 'Notification sent to user',
+      type: 'success',
+    });
+  };
+
+  const unableToNotifyUserError = () => {
+    setErrorToShow({
+      text: 'Error while notifying user',
+      type: 'error',
+    });
+  };
+
   const portConnectionError = () => {
     setErrorToShow({
       text: 'Error using Port. This link has expired.',
@@ -248,6 +264,8 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         unableToCreateGroupError,
         establishingConnectionError,
         checkingProfileError,
+        notifyUserOfConnectionError,
+        unableToNotifyUserError,
         portConnectionError,
         compressionError,
         imageSelectionError,

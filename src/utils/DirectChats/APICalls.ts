@@ -1,4 +1,4 @@
-import {LINE_MANAGEMENT_RESOURCE} from '@configs/api';
+import {LINE_MANAGEMENT_RESOURCE, LINE_RETRY_URL} from '@configs/api';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
 
@@ -17,6 +17,7 @@ export async function newDirectChatFromPort(
     },
     {headers: {Authorization: `${token}`}},
   );
+
   if (response.data.newLine) {
     const chatId: string = response.data.newLine;
     const pairHash: string = response.data.pairHash;
@@ -61,6 +62,25 @@ export async function disconnectChat(chatId: string) {
         return true;
       }
     }
+    return false;
+  }
+}
+
+export async function retryDirectChatFromPort(
+  lineId: string,
+): Promise<boolean> {
+  try {
+    const token = await getToken();
+    await axios.post(
+      LINE_RETRY_URL,
+      {
+        lineId: lineId,
+      },
+      {headers: {Authorization: `${token}`}},
+    );
+    return true;
+  } catch (error) {
+    console.log('Error while retrying from port:', error);
     return false;
   }
 }

@@ -12,6 +12,8 @@ export const IDEAL_UNUSED_PORTS_NUMBER = 5;
 export const DEFAULT_NAME = 'New contact';
 export const APP_VERSION = '1.0';
 
+export const RETRY_INTERVAL = 2 * 60 * 60 * 1000; //2 hours
+
 export const BUNDLE_VALIDITY_INTERVAL = 24 * 60 * 60 * 1000;
 export const ERROR_MODAL_VALIDITY_TIMEOUT = 3000;
 export const SELECTED_MESSAGES_LIMIT = 20;

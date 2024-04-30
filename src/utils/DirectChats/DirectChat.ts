@@ -19,6 +19,7 @@ import {
 } from '@utils/ChatPermissions/interfaces';
 import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import store from '@store/appStore';
+import {isUserBlocked} from '@utils/UserBlocking';
 
 class DirectChat {
   private chatId: string | null;
@@ -63,9 +64,14 @@ class DirectChat {
     pairHash: string | null = null,
   ) {
     if (lineId) {
-      const newChatId = lineId;
-      await storage.newLine(newChatId);
-      this.chatId = newChatId;
+      this.chatId = lineId;
+      const isBlocked = await isUserBlocked(pairHash || '');
+      if (isBlocked) {
+        await this.disconnect();
+
+        return;
+      }
+      await storage.newLine(this.chatId);
       update.pairHash = pairHash;
       await storage.updateLine(this.chatId, update);
       await this.loadChatData();
@@ -73,8 +79,13 @@ class DirectChat {
       const {chatId, pairHash} = isSuperport
         ? await API.newDirectChatFromSuperport(linkId)
         : await API.newDirectChatFromPort(linkId);
-      await storage.newLine(chatId);
       this.chatId = chatId;
+      const isBlocked = await isUserBlocked(pairHash);
+      if (isBlocked) {
+        await this.disconnect();
+        return;
+      }
+      await storage.newLine(chatId);
       update.pairHash = pairHash;
       await storage.updateLine(this.chatId, update);
       await this.loadChatData();

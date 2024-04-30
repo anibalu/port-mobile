@@ -40,6 +40,8 @@ import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {getAllFolders} from '@utils/ChatFolders';
 import {getConnection} from '@utils/Connections';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import * as storage from '@utils/UserBlocking';
+import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -55,6 +57,9 @@ const ContactProfile = ({route, navigation}: Props) => {
   const [editingName, setEditingName] = useState(false);
   const [confirmSheet, setConfirmSheet] = useState(false);
   const [confirmSheetDelete, setConfirmSheetDelete] = useState(false);
+  const [confirmBlockUserSheet, setConfirmBlockUserSheet] = useState(false);
+  const [pairHash, setPairHash] = useState<string | null>(null);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   const [connected, setConnected] = useState(isConnected);
   const [selectedFolder, setSelectedFolder] = useState<FolderInfo>({
@@ -83,7 +88,12 @@ const ContactProfile = ({route, navigation}: Props) => {
       try {
         const chatHandler = new DirectChat(chatId);
         const chatData = await chatHandler.getChatData();
+        if (chatData.pairHash) {
+          setPairHash(chatData.pairHash);
+        }
+
         const connection = await getConnection(chatId);
+
         const folders = await getAllFolders();
         const folder = folders.find(f => f.folderId === connection.folderId);
         if (folder) {
@@ -98,8 +108,16 @@ const ContactProfile = ({route, navigation}: Props) => {
         console.log('Error running initial effect', error);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [chatId]);
+
+  useMemo(() => {
+    if (pairHash) {
+      (async () => {
+        const userBlocked = await storage.isUserBlocked(pairHash);
+        setIsBlocked(userBlocked);
+      })();
+    }
+  }, [pairHash]);
 
   const onSaveName = async () => {
     const chatHandler = new DirectChat(chatId);
@@ -120,6 +138,28 @@ const ContactProfile = ({route, navigation}: Props) => {
       } else {
         setShowUserInfoInTopbar(false);
       }
+    }
+  };
+
+  const blockUser = async () => {
+    try {
+      await storage.blockUser({
+        name: name,
+        pairHash: pairHash,
+        time: new Date().toISOString(),
+      });
+      setIsBlocked(true);
+    } catch {
+      console.log('Error in blocking user');
+    }
+  };
+
+  const unblockUser = async () => {
+    try {
+      await storage.unblockUser(pairHash);
+      setIsBlocked(false);
+    } catch {
+      console.log('Error in unblocking user');
     }
   };
 
@@ -266,7 +306,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                     all chat data and remove this contact from your home screen.
                   </NumberlessText>
                 </View>
-                <View>
+                <View style={{gap: 10}}>
                   <PrimaryButton
                     isLoading={false}
                     disabled={false}
@@ -275,6 +315,11 @@ const ContactProfile = ({route, navigation}: Props) => {
                     onClick={() => {
                       setConfirmSheetDelete(true);
                     }}
+                  />
+                  <SecondaryButton
+                    secondaryButtonColor="r"
+                    buttonText={isBlocked ? 'Unblock contact' : 'Block contact'}
+                    onClick={() => setConfirmBlockUserSheet(true)}
                   />
                 </View>
               </View>
@@ -325,6 +370,25 @@ const ContactProfile = ({route, navigation}: Props) => {
           title={'Are you sure you want to delete chat history?'}
           description={'Deleting history will erase all chat data'}
           buttonText={'Delete history'}
+          buttonColor="r"
+        />
+        <ConfirmationBottomSheet
+          visible={confirmBlockUserSheet}
+          onClose={() => setConfirmBlockUserSheet(false)}
+          onConfirm={async () => {
+            isBlocked ? await unblockUser() : await blockUser();
+          }}
+          title={
+            isBlocked
+              ? `Are you sure you want to unblock ${name}?`
+              : `Are you sure you want to block ${name}?`
+          }
+          description={
+            isBlocked
+              ? `After you unblock ${name}, you may connect with them over Ports or Superports.`
+              : `Blocking ${name} will prevent them from connecting with you over Ports, Superports or contact sharing until you unblock them.`
+          }
+          buttonText={isBlocked ? 'Unblock contact' : 'Block contact'}
           buttonColor="r"
         />
       </SafeAreaView>

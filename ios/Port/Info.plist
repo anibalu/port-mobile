@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Port would like access to your Microphone for video and voice capture.</string>
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>BGTaskSchedulerPermittedIdentifiers</key>
@@ -57,10 +59,12 @@
     <true/>
     <key>UISupportsDocumentBrowser</key>
     <true/>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Port would like access to your Microphone for video and voice capture.</string>
+    <key>NSAppleMusicUsageDescription</key>
+    <string>Port would like to access your music for sounds</string>
     <key>NSCameraUsageDescription</key>
     <string>Port would like to access your camera to take pictures or scan QR codes</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Port would like to access your location when using the app if you wish to shae your location with a contact</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
     <string>Port would like to access your photo library to add new pictures sent to you</string>
     <key>NSPhotoLibraryUsageDescription</key>

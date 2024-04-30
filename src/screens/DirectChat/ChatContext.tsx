@@ -45,6 +45,8 @@ type ChatContextType = {
   setOpenDeleteMessageModal: (x: boolean) => void;
   showDeleteForEveryone: boolean;
   setShowDeleteForEveryone: (x: boolean) => void;
+  reportedMessages: string[] | null;
+  setReportedMessages: (x: any) => void;
   determineDeleteModalDisplay: () => void;
   //reactions context
   currentReactionMessage: string[];
@@ -89,6 +91,9 @@ type ChatContextType = {
   onCleanCloseFocus: () => void;
   onSelect: () => void;
   onDelete: () => void;
+  onReport: () => void;
+  showReportModal: boolean;
+  setShowReportModal: (isShown: boolean) => void;
   onReply: () => Promise<void>;
   messages: SavedMessageParams[];
   setMessages: (message: SavedMessageParams[]) => void;
@@ -126,9 +131,13 @@ export const ChatContextProvider = ({
   children: any;
 }) => {
   const navigation = useNavigation();
-  const {copyingMessageError, messageCopied} = useErrorModal();
+  const {copyingMessageError, messageCopied, MessageAlreadyReportedError} =
+    useErrorModal();
 
   const [isConnected, setIsConnected] = useState(connected);
+  const [reportedMessages, setReportedMessages] = useState<string[] | null>(
+    null,
+  );
   const [isAuthenticated, setIsAuthenticated] = useState(authenticated);
 
   const [profileUri, setProfileUri] = useState(avatar);
@@ -139,7 +148,7 @@ export const ChatContextProvider = ({
   const [openDeleteMessageModal, setOpenDeleteMessageModal] = useState(false);
   //if delete for everyone should be available
   const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
-
+  const [showReportModal, setShowReportModal] = useState(false);
   const determineDeleteModalDisplay = async () => {
     let senderExists = true;
     const isDeleted =
@@ -378,6 +387,21 @@ export const ChatContextProvider = ({
     onCloseFocus();
   };
 
+  const onReport = () => {
+    const isReported =
+      reportedMessages?.length === 0 || reportedMessages === null
+        ? false
+        : selectedMessage?.message &&
+          reportedMessages.includes(selectedMessage?.message?.messageId);
+
+    if (isReported) {
+      MessageAlreadyReportedError();
+      onCleanCloseFocus();
+    } else {
+      setShowReportModal(true);
+    }
+  };
+
   const onDelete = () => {
     determineDeleteModalDisplay();
   };
@@ -456,9 +480,14 @@ export const ChatContextProvider = ({
         onCleanCloseFocus,
         showDeleteForEveryone,
         setShowDeleteForEveryone,
+        reportedMessages,
+        setReportedMessages,
         determineDeleteModalDisplay,
         onSelect,
         onDelete,
+        onReport,
+        showReportModal,
+        setShowReportModal,
         onReply,
         setMessages,
         messages,

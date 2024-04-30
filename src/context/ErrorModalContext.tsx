@@ -26,6 +26,8 @@ type ModalContextType = {
   somethingWentWrongError: () => void;
   networkError: () => void;
   personOfflineError: () => void;
+  ReportSubmittedError: () => void;
+  ReportSubmittedSuccess: () => void;
   unableToDisconnectError: () => void;
   unableToSharelinkError: () => void;
   unableToCreateGroupError: () => void;
@@ -33,6 +35,7 @@ type ModalContextType = {
   incorrectQRError: () => void;
   BackupRestoreError: () => void;
   messageCopied: () => void;
+  MessageAlreadyReportedError: () => void;
   componentNotSupportedyetError: () => void;
   shareFeedbackSucceess: () => void;
   shareFeedbackError: () => void;
@@ -86,6 +89,20 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
   const BackupRestoreError = () => {
     setErrorToShow({
       text: 'Did not restore from backup',
+      type: 'error',
+    });
+  };
+
+  const ReportSubmittedSuccess = () => {
+    setErrorToShow({
+      text: 'Report submitted',
+      type: 'success',
+    });
+  };
+
+  const ReportSubmittedError = () => {
+    setErrorToShow({
+      text: 'Error submitting report. Please check your network connection',
       type: 'error',
     });
   };
@@ -224,6 +241,12 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
       type: 'error',
     });
   };
+  const MessageAlreadyReportedError = () => {
+    setErrorToShow({
+      text: 'Message already reported!',
+      type: 'error',
+    });
+  };
   const messageCopied = () => {
     setErrorToShow({
       text: 'Copied!',
@@ -274,6 +297,8 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         networkError,
         mediaDownloadError,
         personOfflineError,
+        ReportSubmittedError,
+        ReportSubmittedSuccess,
         MessageDataTooBigError,
         FileTooLarge,
         unableToDisconnectError,
@@ -284,6 +309,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         incorrectQRError,
         onboardingFailureError,
         messageCopied,
+        MessageAlreadyReportedError,
         componentNotSupportedyetError,
         shareFeedbackSucceess,
         shareFeedbackError,

@@ -89,7 +89,7 @@ const PrimaryButton = ({
             )}
             numberOfLines={1}
             ellipsizeMode={'tail'}>
-            {buttonText.substring(0, 20)}
+            {buttonText.substring(0, 24)}
           </Text>
         </>
       )}

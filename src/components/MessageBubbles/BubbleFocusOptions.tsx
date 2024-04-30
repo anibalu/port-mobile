@@ -8,6 +8,7 @@ import {Animated, StyleSheet, TouchableHighlight, View} from 'react-native';
 import ReplyImage from '@assets/icons/ReplyNew.svg';
 import ForwardImage from '@assets/icons/ForwardNew.svg';
 import SelectImage from '@assets/icons/CheckCircle.svg';
+import CautionImage from '@assets/icons/cautionBlack.svg';
 import CopyImage from '@assets/icons/CopyNew.svg';
 import DeleteImage from '@assets/icons/DeleteIcon.svg';
 import React, {useEffect, useRef} from 'react';
@@ -20,11 +21,21 @@ const BubbleFocusOptions = () => {
     onReply,
     onSelect,
     onDelete,
+    onReport,
     onForward,
     onCopy,
     selectedMessage,
     setSelectedMessage,
+    messages,
   } = useChatContext();
+
+  const allowReport =
+    selectedMessage?.message.contentType === ContentType.text ||
+    ContentType.image ||
+    ContentType.video ||
+    ContentType.link ||
+    ContentType.audioRecording;
+
   const isDeleted =
     selectedMessage?.message.contentType === ContentType.deleted;
   const barWidth = useRef(new Animated.Value(0)).current;
@@ -37,6 +48,10 @@ const BubbleFocusOptions = () => {
     }).start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const isSender = messages.filter(
+    (msg: any) => msg.messageId === selectedMessage?.message.messageId,
+  )[0].sender;
 
   const onCopyClicked = () => {
     onCopy();
@@ -116,6 +131,23 @@ const BubbleFocusOptions = () => {
               Select
             </NumberlessText>
             <SelectImage width={20} height={20} />
+          </View>
+        </TouchableHighlight>
+      )}
+      {!isDeleted && !isSender && allowReport && (
+        <TouchableHighlight
+          underlayColor={PortColors.background}
+          activeOpacity={1}
+          onPress={onReport}
+          style={styles.optionButtonWrapper}>
+          <View style={styles.optionButton}>
+            <NumberlessText
+              textColor={PortColors.title}
+              fontSizeType={FontSizeType.l}
+              fontType={FontType.rg}>
+              Report
+            </NumberlessText>
+            <CautionImage width={20} height={20} />
           </View>
         </TouchableHighlight>
       )}

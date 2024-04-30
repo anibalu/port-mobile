@@ -35,10 +35,10 @@ const BlurViewModal = () => {
   const OPTION_BUBBLE_HEIGHT = isIOS
     ? isDeleted
       ? 130
-      : 300
+      : 355
     : isDeleted
     ? 140
-    : 320;
+    : 375;
   const AVAILABLE_HEIGHT = screen.height - TOPBAR_HEIGHT;
   const REQUIRED_HEIGHT =
     REACTIONBAR_HEIGHT + OPTION_BUBBLE_HEIGHT + messageObj.height;

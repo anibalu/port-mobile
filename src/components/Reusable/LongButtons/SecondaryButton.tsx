@@ -18,16 +18,19 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  ActivityIndicator,
 } from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
 const SecondaryButton = ({
   buttonText,
+  isLoading = false,
   secondaryButtonColor,
   Icon,
   iconSize,
   onClick,
 }: {
+  isLoading?: boolean;
   buttonText: string;
   secondaryButtonColor: 'b' | 'r' | 'w' | 'black';
   Icon?: FC<SvgProps>;
@@ -62,28 +65,35 @@ const SecondaryButton = ({
   }
   return (
     <TouchableOpacity
+      disabled={isLoading}
       style={StyleSheet.compose(
         secondaryButtonBorderColorPicker(secondaryButtonColor),
         styles.button,
       )}
       activeOpacity={0.6}
       onPress={() => onClick()}>
-      {Icon && (
-        <Icon
-          style={{marginRight: 5}}
-          height={iconSize === 'm' ? 24 : 20}
-          width={iconSize === 'm' ? 24 : 20}
-        />
+      {isLoading ? (
+        <ActivityIndicator color={PortColors.primary.blue.app} />
+      ) : (
+        <>
+          {Icon && (
+            <Icon
+              style={{marginRight: 5}}
+              height={iconSize === 'm' ? 24 : 20}
+              width={iconSize === 'm' ? 24 : 20}
+            />
+          )}
+          <Text
+            style={StyleSheet.compose(
+              secondaryButtonTextColorPicker(secondaryButtonColor),
+              styles.buttonText,
+            )}
+            numberOfLines={1}
+            ellipsizeMode={'tail'}>
+            {buttonText.substring(0, 22)}
+          </Text>
+        </>
       )}
-      <Text
-        style={StyleSheet.compose(
-          secondaryButtonTextColorPicker(secondaryButtonColor),
-          styles.buttonText,
-        )}
-        numberOfLines={1}
-        ellipsizeMode={'tail'}>
-        {buttonText.substring(0, 20)}
-      </Text>
     </TouchableOpacity>
   );
 };

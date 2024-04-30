@@ -1,4 +1,7 @@
 const BASE_URL = process.env.BASE_URL || 'https://uat.numberless.tech';
+const REPORTING_RESOURCE = BASE_URL + '/report';
+export const LINE_MESSAGE_REPORTING_RESOURCE = REPORTING_RESOURCE + '/line';
+export const GROUP_MESSAGE_REPORTING_RESOURCE = REPORTING_RESOURCE + '/group';
 const MANAGEMENT_BASE_URL = BASE_URL + '/management';
 const MESSAGING_BASE_URL = BASE_URL + '/messaging';
 export const INITIAL_POST_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + '/user';

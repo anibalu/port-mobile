@@ -32,6 +32,7 @@ import {AudioPlayerProvider} from 'src/context/AudioPlayerContext';
 import {ChatContextProvider, useChatContext} from './ChatContext';
 import BlurViewModal from '@components/Reusable/BlurView/BlurView';
 import DualActionBottomSheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
+import ReportMessageBottomSheet from '@components/Reusable/BottomSheets/ReportMessageBottomSheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 
@@ -71,6 +72,8 @@ function ChatScreen() {
     messages,
     setMessages,
     showDeleteForEveryone,
+    showReportModal,
+    setShowReportModal,
     openDeleteMessageModal,
     setOpenDeleteMessageModal,
     performDelete,
@@ -170,6 +173,7 @@ function ChatScreen() {
     return () => backHandler.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <AudioPlayerProvider>
       <CustomStatusBar
@@ -187,6 +191,15 @@ function ChatScreen() {
             messages={messages}
             onStartReached={onStartReached}
             onEndReached={onEndReached}
+          />
+          <ReportMessageBottomSheet
+            description="If you report this message, an unencrypted copy of this message is sent to our servers."
+            openModal={showReportModal}
+            topButton={'Report and Disconnect'}
+            middleButton={'Report'}
+            onClose={() => {
+              setShowReportModal(false);
+            }}
           />
           <DualActionBottomSheet
             showMore={showDeleteForEveryone}

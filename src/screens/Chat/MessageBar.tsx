@@ -64,7 +64,7 @@ import LinkPreview from './LinkPreview';
 import AmplitudeBars from './Recording';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
-import {checkAndGrantRecordingPermission} from '@utils/AppPermissions';
+import {useMicrophonePermission} from 'react-native-vision-camera';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
 /**
@@ -379,8 +379,6 @@ const MessageBar = (): ReactNode => {
   const [isSending, setIsSending] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [isRecordingPermissionGranted, setIsRecordingPermissionGranted] =
-    useState(false);
 
   const {
     audio,
@@ -438,19 +436,23 @@ const MessageBar = (): ReactNode => {
     setProgress(0);
     setIsPlaying(false);
   };
+  const {hasPermission, requestPermission} = useMicrophonePermission();
 
   const onButtonLongPress = async () => {
     // if text is entered, we dont need long press
     if (text.length > 0) {
       return;
     }
-    await checkAndGrantRecordingPermission(setIsRecordingPermissionGranted);
-    if (isRecordingPermissionGranted) {
+    // await checkAndGrantRecordingPermission(setIsRecordingPermissionGranted);
+    if (!hasPermission) {
+      await requestPermission();
+      return;
+    }
+    if (hasPermission) {
       // if audio already exists, we dont need long press
       if (!isRecording && hasRecorded && audio) {
         return;
       }
-
       debouncedRecordVoice();
     }
   };

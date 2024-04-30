@@ -569,7 +569,7 @@ PODS:
     - RNNotifee/NotifeeCore (= 7.8.2)
   - RNNotifee/NotifeeCore (7.8.2):
     - React-Core
-  - RNPermissions (3.10.1):
+  - RNPermissions (4.1.5):
     - React-Core
   - RNReactNativeHapticFeedback (2.2.0):
     - React-Core
@@ -926,7 +926,7 @@ SPEC CHECKSUMS:
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 7909c50383a18f0cb10ce1db7262b9a6da504c03
   RNNotifee: 8e2d3df3f0e9ce8f5d1fe4c967431138190b6175
-  RNPermissions: 3db62f78d33b53149e7e2e069411619097b02a5d
+  RNPermissions: 838a609322bb8ca24b53fc2285ae3914813c072e
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
   RNReanimated: f4798af7dede23d41039f0bc372710ead86e90c7
   RNScreens: bb06f14b5c352e603f2527caac02ca0d6398c6e5
@@ -936,6 +936,6 @@ SPEC CHECKSUMS:
   VisionCamera: 52f98e7628f9deea3e311c3b6d4870bb44445e05
   Yoga: d0003f849d2b5224c072cef6568b540d8bb15cd3
 
-PODFILE CHECKSUM: 35b2ef3945da0093716c9c5897aaf988dabf5f8e
+PODFILE CHECKSUM: 4108d2fb9edd64ede800f21c60521f639c3f5c87
 
 COCOAPODS: 1.14.3

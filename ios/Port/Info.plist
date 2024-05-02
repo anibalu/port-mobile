@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Port would like access to your Microphone for video and voice capture.</string>
+    <string>Port would like access to your Microphone to take videos or send voice notes</string>
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>BGTaskSchedulerPermittedIdentifiers</key>
@@ -23,7 +23,7 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.2.1</string>
+    <string>1.5.1</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>
@@ -39,7 +39,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>1.2.24</string>
+    <string>1.5.4</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSAppTransportSecurity</key>
@@ -63,10 +63,6 @@
     <string>Port would like to access your music for sounds</string>
     <key>NSCameraUsageDescription</key>
     <string>Port would like to access your camera to take pictures or scan QR codes</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Port would like to access your location when using the app if you wish to shae your location with a contact</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Port would like to access your photo library to add new pictures sent to you</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Port would like to access your photo library so you can share pictures with others on the app</string>
     <key>UIAppFonts</key>

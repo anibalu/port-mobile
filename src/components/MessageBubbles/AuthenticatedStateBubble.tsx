@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#FFF6C4',
-    marginBottom: PortSpacing.tertiary.uniform,
+    marginVertical: PortSpacing.tertiary.uniform,
     gap: PortSpacing.tertiary.uniform,
   },
   retryButton: {

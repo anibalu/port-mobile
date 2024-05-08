@@ -67,8 +67,20 @@ class NotificationService: UNNotificationServiceExtension {
       if let bestAttemptContent = bestAttemptContent {
             // Modify the notification content here...
         bestAttemptContent.title = "\(getNotificationTitleNameFromChatId(providedSource))"
-        contentHandler(bestAttemptContent)
         bestAttemptContent.body = "Open app to see new secure messages"
+        let defaults = UserDefaults(suiteName: GROUP_IDENTIFIER)
+        let maybeCount: Int? = defaults?.value(forKey: "count") as? Int
+        var count: Int;
+        if maybeCount == nil{
+          count = 1
+        } else {
+          count = maybeCount!
+        }
+        print(count)
+        bestAttemptContent.badge = NSNumber(value: count)
+        count = count + 1
+        defaults?.set(count, forKey: "count")
+        contentHandler(bestAttemptContent)
       }
     }
     

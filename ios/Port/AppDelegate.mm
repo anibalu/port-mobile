@@ -8,6 +8,9 @@
 
 #import "RNFBMessagingModule.h"
 #import <TSBackgroundFetch/TSBackgroundFetch.h>
+#import <UIKit/UIKit.h>
+
+#define GROUP_IDENTIFIER "group.tech.numberless.port"
 
 /**
  Deletes all Keychain items accessible by this app if this is the first time the user launches the app
@@ -78,6 +81,18 @@ static void ClearKeychainIfNecessary() {
   [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView];
 
   return rootView;
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *) application {
+  
+  // App badge count shenanigans
+  NSString *suiteName = @GROUP_IDENTIFIER;
+  NSUserDefaults *suiteDefaults = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+  
+  [suiteDefaults setInteger:1 forKey:@"count"];
+  [suiteDefaults synchronize];
+  [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+  
 }
 
 @end

@@ -19,9 +19,21 @@ export function ChatActionsBar({
   openModal: () => void;
   openMoveToFolder: () => void;
 }): ReactNode {
+  // Check if all connections are un authenticated
+  const allUnAuthenticated = selectedConnections.every(
+    connection => !connection.authenticated,
+  );
+  // Check if all connections are disconnected
+  const allDisconnected = selectedConnections.every(
+    connection => connection.disconnected,
+  );
+  // Check if all connections are not disconnected
+  const allNotDisconnected = selectedConnections.every(
+    connection => !connection.disconnected,
+  );
   return (
     <>
-      {selectedConnections[0] && (
+      {selectedConnections.length > 0 && (
         <View
           style={
             isIOS
@@ -34,54 +46,60 @@ export function ChatActionsBar({
                   ...styles.parentContainer,
                 }
           }>
-          {selectedConnections.length > 1 ? (
-            <View style={styles.multiSelectedContainer}>
-              <View style={styles.optionContainer}>
-                <Pressable style={styles.optionBox} onPress={openMoveToFolder}>
-                  <MoveFolder height={20} width={20} />
-                  <NumberlessText
-                    fontSizeType={FontSizeType.s}
-                    fontType={FontType.rg}
-                    textColor={PortColors.title}>
-                    Move to a folder
-                  </NumberlessText>
-                </Pressable>
-              </View>
+          <View style={styles.singleSelectedContainer}>
+            <View style={styles.optionContainer}>
+              <Pressable style={styles.optionBox} onPress={openMoveToFolder}>
+                <MoveFolder height={20} width={20} />
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.rg}
+                  textColor={PortColors.title}>
+                  Move to a folder
+                </NumberlessText>
+              </Pressable>
             </View>
-          ) : (
-            <View style={styles.singleSelectedContainer}>
-              <View style={styles.optionContainer}>
-                <Pressable style={styles.optionBox} onPress={openMoveToFolder}>
-                  <MoveFolder height={20} width={20} />
-                  <NumberlessText
-                    fontSizeType={FontSizeType.s}
-                    fontType={FontType.rg}
-                    textColor={PortColors.title}>
-                    Move to a folder
-                  </NumberlessText>
-                </Pressable>
-              </View>
+            {allDisconnected && (
               <View style={styles.optionContainer}>
                 <Pressable style={styles.optionBox} onPress={openModal}>
-                  {selectedConnections[0].disconnected ? (
-                    <Delete width={20} height={20} />
-                  ) : (
-                    <Disconnect width={20} height={20} />
-                  )}
+                  <Delete width={20} height={20} />
                   <NumberlessText
                     fontSizeType={FontSizeType.s}
                     fontType={FontType.rg}
                     textColor={PortColors.primary.red.error}>
-                    {selectedConnections[0].disconnected
-                      ? 'Delete history'
-                      : selectedConnections[0].authenticated
-                      ? 'Disconnect chat'
-                      : 'Stop adding'}
+                    Delete history
                   </NumberlessText>
                 </Pressable>
               </View>
-            </View>
-          )}
+            )}
+            {allNotDisconnected && (
+              <View style={styles.optionContainer}>
+                <Pressable style={styles.optionBox} onPress={openModal}>
+                  <Disconnect width={20} height={20} />
+                  <NumberlessText
+                    fontSizeType={FontSizeType.s}
+                    fontType={FontType.rg}
+                    textColor={PortColors.primary.red.error}>
+                    {selectedConnections.length > 1
+                      ? 'Disconnect chats'
+                      : 'Disconnect chat'}
+                  </NumberlessText>
+                </Pressable>
+              </View>
+            )}
+            {!allNotDisconnected && !allDisconnected && allUnAuthenticated && (
+              <View style={styles.optionContainer}>
+                <Pressable style={styles.optionBox} onPress={openModal}>
+                  <Disconnect width={20} height={20} />
+                  <NumberlessText
+                    fontSizeType={FontSizeType.s}
+                    fontType={FontType.rg}
+                    textColor={PortColors.primary.red.error}>
+                    Stop adding
+                  </NumberlessText>
+                </Pressable>
+              </View>
+            )}
+          </View>
         </View>
       )}
     </>
@@ -99,12 +117,6 @@ const styles = StyleSheet.create({
     backgroundColor: PortColors.primary.white,
   },
   singleSelectedContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-  multiSelectedContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

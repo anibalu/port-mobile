@@ -713,15 +713,19 @@ function Home({route, navigation}: Props) {
               visible={confirmSheet}
               onClose={() => setConfirmSheet(false)}
               onConfirm={async () => {
-                const chatHandler = new DirectChat(
-                  selectedConnections[0].chatId,
+                await Promise.all(
+                  selectedConnections.map(async connection => {
+                    const chatHandler = new DirectChat(connection.chatId);
+                    await chatHandler.disconnect();
+                  }),
                 );
-                await chatHandler.disconnect();
                 setSelectedConnections([]);
                 setSelectionMode(false);
                 await onRefresh();
               }}
-              title={'Are you sure you want to disconnect this chat?'}
+              title={`Are you sure you want to disconnect ${
+                selectedConnections.length > 1 ? 'these chats' : 'this chat'
+              } ?`}
               description={
                 'Disconnecting a chat will prevent further messaging. Current chat history will be saved, but you can subsequently choose to delete it.'
               }
@@ -732,10 +736,12 @@ function Home({route, navigation}: Props) {
               visible={confirmSheetDelete}
               onClose={() => setConfirmSheetDelete(false)}
               onConfirm={async () => {
-                const chatHandler = new DirectChat(
-                  selectedConnections[0].chatId,
+                await Promise.all(
+                  selectedConnections.map(async connection => {
+                    const chatHandler = new DirectChat(connection.chatId);
+                    await chatHandler.delete();
+                  }),
                 );
-                await chatHandler.delete();
                 setSelectedConnections([]);
                 setSelectionMode(false);
                 await onRefresh();

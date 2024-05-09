@@ -26,7 +26,6 @@ const BubbleFocusOptions = () => {
     onCopy,
     selectedMessage,
     setSelectedMessage,
-    messages,
   } = useChatContext();
 
   const allowReport =
@@ -49,9 +48,7 @@ const BubbleFocusOptions = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isSender = messages.filter(
-    (msg: any) => msg.messageId === selectedMessage?.message.messageId,
-  )[0].sender;
+  const isSender = selectedMessage?.message.sender;
 
   const onCopyClicked = () => {
     onCopy();

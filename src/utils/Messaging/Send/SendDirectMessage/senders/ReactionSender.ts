@@ -71,23 +71,40 @@ export class SendReactionDirectMessage<
    */
   async send(_onUpdateSuccess?: (success: boolean) => void): Promise<boolean> {
     try {
+      // Set up in Filesystem
+      this.validate();
+      // Set initial message statud
+      this.savedMessage.messageStatus = MessageStatus.journaled;
+      try {
+        await MessageStorage.saveMessage(this.savedMessage);
+        this.storeCalls();
+      } catch {
+        this.retry();
+        return true;
+      }
+    } catch (e) {
+      await this.onFailure(e);
+      return false;
+    }
+    this.retry();
+    return true;
+  }
+
+  /**
+   * Retry sending a journalled message using only API calls
+   */
+  async retry(): Promise<boolean> {
+    try {
       if (!(await this.isAuthenticated())) {
         console.warn(
           '[SEND REACTION DIRECT MESSAGE] Attempted to send before authentication. Failed.',
         );
         return false;
       }
-      // Set up in Filesystem
-      this.validate();
+      // await this.loadSavedMessage();
+      console.log('Attempting to send: ', this.data);
       const reactionData = this.data as ReactionParams;
-      try {
-        await MessageStorage.setHasReactions(
-          this.chatId,
-          reactionData.messageId,
-        );
-      } catch (e) {
-        throw new Error('MessageDoesNotExist');
-      }
+      await MessageStorage.setHasReactions(this.chatId, reactionData.messageId);
       if (reactionData.tombstone) {
         // TODO delete my reaction
         ReactionStorage.deleteReaction(
@@ -109,13 +126,19 @@ export class SendReactionDirectMessage<
         processedPayload,
         false,
       );
-      this.storeCalls();
-      return newSendStatus === MessageStatus.sent;
+      if (newSendStatus === MessageStatus.sent) {
+        await this.cleanup();
+      } else {
+        return true;
+      }
     } catch (e) {
       console.error('Could not send message', e);
-      await this.onFailure();
+      await this.onFailure(e);
+      this.storeCalls();
       return false;
     }
+    this.storeCalls();
+    return true;
   }
   /**
    * Perform the initial DBCalls and attempt API calls
@@ -139,19 +162,27 @@ export class SendReactionDirectMessage<
     throw new Error('UnloadableMessageType');
   }
 
-  /**
-   * Retry sending a journalled message using only API calls
-   */
-  async retry(): Promise<boolean> {
-    throw new Error('NotJournallable');
+  private async onFailure(e: any) {
+    console.error('Could not send message', e);
+    this.storeCalls();
+    console.error('Cleaning message of info:', this.chatId, this.messageId);
+    await this.cleanup();
   }
 
-  private async onFailure() {}
-
   /**
-   * Perform necessary cleanup after sending succeeds
+   * Perform necessary this. after sending succeeds
    */
   private async cleanup(): Promise<boolean> {
+    try {
+      await MessageStorage.cleanDeleteMessage(
+        this.savedMessage.chatId,
+        this.savedMessage.messageId,
+        false,
+      );
+    } catch (e) {
+      console.log('error cleaning up message', e);
+    }
+
     return true;
   }
 }

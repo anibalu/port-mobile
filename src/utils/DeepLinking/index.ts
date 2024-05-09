@@ -6,9 +6,10 @@ import {
   PortBundle,
 } from '@utils/Ports/interfaces';
 import * as API from './APICalls';
+import {urlToJson} from '@utils/JsonToUrl';
 
 interface urlObject {
-  url: string | null;
+  url: string;
 }
 
 /**
@@ -23,7 +24,7 @@ export async function handleDeepLink(
 > {
   const synced = async () => {
     const url = urlObj.url;
-    console.log('URL is: ', url);
+    const jsonUrlObj = urlToJson(url);
     if (url) {
       let regex = /[?&]([^=#]+)=([^&#]*)/g,
         params: any = {},
@@ -32,8 +33,12 @@ export async function handleDeepLink(
         params[match[1]] = match[2];
       }
       const bundleId = params.bundleId;
-      const bundle = await API.getBundle(bundleId);
-      return bundle;
+      if (bundleId) {
+        const bundle = await API.getBundle(bundleId);
+        return urlToJson(bundle);
+      } else {
+        return jsonUrlObj;
+      }
     }
     return undefined;
   };

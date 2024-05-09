@@ -50,6 +50,7 @@ import UsageLimitsBottomSheet from '@components/Reusable/BottomSheets/UsageLimit
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import {changePausedStateOfSuperport} from '@utils/Ports/superport';
 import {useSelector} from 'react-redux';
+import {jsonToUrl, urlToJson} from '@utils/JsonToUrl';
 type Props = NativeStackScreenProps<AppStackParamList, 'SuperportScreen'>;
 
 const SuperportScreen = ({route, navigation}: Props) => {
@@ -69,6 +70,8 @@ const SuperportScreen = ({route, navigation}: Props) => {
   const [qrData, setQrData] = useState<string | null>(null);
   //whether is link is being generated
   const [isLoadingLink, setIsLoadingLink] = useState(false);
+  //whether is sharable image is being generated
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   //whether is error bottom sheet should open
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const [openErrorModalPreviewImage, setOpenErrorModalPreviewImage] =
@@ -161,7 +164,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
             ...defaultFolderInfo,
           },
         );
-        setQrData(JSON.stringify(bundle));
+        setQrData(jsonToUrl(bundle));
         setIsLoading(false);
       } catch (error) {
         console.log('Failed to fetch superport: ', error);
@@ -198,11 +201,13 @@ const SuperportScreen = ({route, navigation}: Props) => {
     try {
       setIsLoadingLink(true);
       if (qrData) {
-        const bundle: DirectSuperportBundle = JSON.parse(qrData);
+        const bundle: DirectSuperportBundle = qrData.startsWith('https://')
+          ? urlToJson(qrData)
+          : JSON.parse(qrData);
         const link = await getBundleClickableLink(
           BundleTarget.superportDirect,
           bundle.portId,
-          qrData,
+          JSON.stringify(urlToJson(qrData)),
         );
         setIsLoadingLink(false);
         try {
@@ -231,17 +236,19 @@ const SuperportScreen = ({route, navigation}: Props) => {
       await wait(safeModalCloseDuration);
     }
     try {
-      setIsLoadingLink(true);
+      setIsPreviewLoading(true);
       if (qrData) {
-        const bundle: DirectSuperportBundle = JSON.parse(qrData);
+        const bundle: DirectSuperportBundle = qrData.startsWith('https://')
+          ? urlToJson(qrData)
+          : JSON.parse(qrData);
         const link = await getBundleClickableLink(
           BundleTarget.superportDirect,
           bundle.portId,
-          qrData,
+          JSON.stringify(urlToJson(qrData)),
         );
-        setIsLoadingLink(false);
+        setIsPreviewLoading(false);
         navigation.navigate('PreviewShareablePort', {
-          qrData: qrData,
+          qrData: JSON.stringify(urlToJson(qrData)),
           linkData: link,
           title: displayName,
           profileUri: profilePicAttr.fileUri,
@@ -251,7 +258,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
       throw new Error('No qr data');
     } catch (error) {
       console.log('Failed to preview superport: ', error);
-      setIsLoadingLink(false);
+      setIsPreviewLoading(false);
       setOpenErrorModalPreviewImage(true);
     }
   };
@@ -311,7 +318,9 @@ const SuperportScreen = ({route, navigation}: Props) => {
       if (latestNewConnection) {
         const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
         if (qrData) {
-          const bundle: DirectSuperportBundle = JSON.parse(qrData);
+          const bundle:
+            | DirectSuperportBundle
+            | Record<string, string | number> = urlToJson(qrData);
           if (bundle.portId === latestUsedConnectionLinkId) {
             setConnectionMade(connectionMade + 1);
             return;
@@ -364,6 +373,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
               <PortCard
                 isLoading={isLoading}
                 isLinkLoading={isLoadingLink}
+                isPreviewLoading={isPreviewLoading}
                 hasFailed={hasFailed}
                 isSuperport={true}
                 title={displayName}

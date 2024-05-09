@@ -25,6 +25,7 @@ import store from '@store/appStore';
 import {hasExpired} from '@utils/Time';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {ChatType} from '@utils/Connections/interfaces';
+import {jsonToUrl} from '@utils/JsonToUrl';
 
 export function bundleTargetToChatType(x: BundleTarget) {
   if (x === BundleTarget.direct || x === BundleTarget.superportDirect) {
@@ -87,30 +88,35 @@ export async function generateBundle<T extends BundleTarget>(
   expiry: expiryOptionsTypes = expiryOptions[4],
   channel: string | null = null,
   folderId: string = defaultFolderId,
-): Promise<BundleType<T>> {
+): Promise<string | BundleType<T> | null> {
   if (type === BundleTarget.direct) {
     if (!label) {
       throw new Error('LabelNull');
     }
-    const newBundle = (await direct.generateNewPortBundle(
+    const newBundle = await direct.generateNewPortBundle(
       label,
       expiry,
       channel,
       folderId,
-    )) as BundleType<T>;
+    );
     triggerPendingRequestsReload();
-    return newBundle;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {expiryTimestamp, ...newObj} = newBundle;
+    const updatedBundle = jsonToUrl(newObj as any);
+    return updatedBundle;
   } else if (type === BundleTarget.group) {
     if (!id) {
       throw new Error('GroupIdNull');
     }
     const newBundle = (await group.generateNewGroupPortBundle(
       id,
-      expiry,
       channel,
       folderId,
     )) as BundleType<T>;
-    return newBundle;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {expiryTimestamp, ...newObj} = newBundle;
+    const updatedBundle = jsonToUrl(newObj as any);
+    return updatedBundle;
   } else {
     return {} as BundleType<T>;
   }
@@ -174,7 +180,10 @@ export async function fetchSuperport(
   label: string = '',
   connectionLimit: number = defaultSuperportConnectionsLimit,
   folderId: string = defaultFolderId,
-): Promise<{bundle: DirectSuperportBundle; superport: SuperportData}> {
+): Promise<{
+  bundle: DirectSuperportBundle;
+  superport: SuperportData;
+}> {
   if (superportId) {
     return await superport.fetchCreatedSuperportBundle(superportId);
   } else {
@@ -223,9 +232,10 @@ export async function getBundleClickableLink(
  * @returns - valid bundle
  */
 export function checkBundleValidity(
-  rawString: string,
+  rawString: string | Record<string, string | number>,
 ): PortBundle | GroupBundle | DirectSuperportBundle | GroupSuperportBundle {
-  const bundle = JSON.parse(rawString);
+  const bundle =
+    typeof rawString === 'string' ? JSON.parse(rawString) : rawString;
   if (bundle.org !== 'numberless.tech') {
     throw new Error('Organisation data incorrect');
   }

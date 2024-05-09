@@ -1,5 +1,6 @@
 import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import {
+  CURRENT_SUPERPORT_VERSION,
   DEFAULT_NAME,
   defaultFolderId,
   defaultSuperportConnectionsLimit,
@@ -26,7 +27,7 @@ import {getProfileName} from '@utils/Profile';
  * @returns - version string
  */
 function getCurrentSuperportVersion() {
-  return '0.0.1';
+  return CURRENT_SUPERPORT_VERSION;
 }
 
 /**

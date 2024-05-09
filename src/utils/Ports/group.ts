@@ -1,7 +1,11 @@
 import * as API from './APICalls';
 import * as storageReadPorts from '@utils/Storage/readPorts';
 import * as storageGroupPorts from '@utils/Storage/groupPorts';
-import {IDEAL_UNUSED_PORTS_NUMBER, defaultFolderId} from '@configs/constants';
+import {
+  CURRENT_GROUPPORT_VERSION,
+  IDEAL_UNUSED_PORTS_NUMBER,
+  defaultFolderId,
+} from '@configs/constants';
 import {
   BundleTarget,
   GroupBundle,
@@ -66,7 +70,7 @@ async function getUnusedGroupPort(groupId: string): Promise<string> {
  * @returns - version string
  */
 function getCurrentGroupportVersion() {
-  return '0.0.1';
+  return CURRENT_GROUPPORT_VERSION;
 }
 /**
  * to determine legitimate ports

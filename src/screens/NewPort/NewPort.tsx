@@ -38,6 +38,7 @@ import {wait} from '@utils/Time';
 import {useSelector} from 'react-redux';
 import {cleanDeleteGeneratedPort} from '@utils/Ports/direct';
 import Share from 'react-native-share';
+import {urlToJson} from '@utils/JsonToUrl';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 
@@ -74,7 +75,11 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
       const bundle: string = JSON.stringify(
         await generateBundle(BundleTarget.direct),
       );
-      setQrData(bundle);
+      if (JSON.parse(bundle).startsWith('https://')) {
+        setQrData(JSON.parse(bundle));
+      } else {
+        setQrData(bundle);
+      }
       setIsLoading(false);
     } catch (error) {
       console.log('Failed to fetch port: ', error);
@@ -94,7 +99,9 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     try {
       setIsLoadingLink(true);
       if (qrData) {
-        const bundle: PortBundle = JSON.parse(qrData);
+        const bundle: PortBundle = qrData.startsWith('https://')
+          ? urlToJson(qrData)
+          : JSON.parse(qrData);
         const generatedPort: PortData = await getGeneratedPortData(
           bundle.portId,
         );
@@ -145,7 +152,8 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
       if (latestNewConnection) {
         const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
         if (qrData && !linkData) {
-          const bundle: PortBundle = JSON.parse(qrData);
+          const bundle: PortBundle | Record<string, string | number> =
+            urlToJson(qrData);
           if (bundle.portId === latestUsedConnectionLinkId) {
             navigation.navigate('HomeTab', {
               selectedFolder: {...defaultFolderInfo},
@@ -174,7 +182,9 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
               return;
             } else {
               if (qrData) {
-                const bundle: PortBundle = JSON.parse(qrData);
+                const bundle: PortBundle = qrData.startsWith('https://')
+                  ? urlToJson(qrData)
+                  : JSON.parse(qrData);
                 await cleanDeleteGeneratedPort(bundle.portId);
               }
             }

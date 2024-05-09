@@ -19,6 +19,7 @@ import {PortBundle} from '@utils/Ports/interfaces';
 import {updateGeneratedPortLabel} from '@utils/Ports';
 import Share from 'react-native-share';
 import {useNavigation} from '@react-navigation/native';
+import {urlToJson} from '@utils/JsonToUrl';
 
 const SharePortLink = ({
   visible,
@@ -50,7 +51,9 @@ const SharePortLink = ({
       Keyboard.dismiss();
       setContactName(newName);
       if (qrData && linkData) {
-        const bundle: PortBundle = JSON.parse(qrData);
+        const bundle: PortBundle = qrData.startsWith('https://')
+          ? urlToJson(qrData)
+          : JSON.parse(qrData);
         await updateGeneratedPortLabel(bundle.portId, newName);
         const shareContent = {
           title: `Share a one-time use link with ${newName}`,

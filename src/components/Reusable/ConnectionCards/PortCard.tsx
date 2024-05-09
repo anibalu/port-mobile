@@ -41,7 +41,9 @@ const PortCard = ({
   onShareLinkClicked,
   onPreviewImageClicked = async () => {},
   onTryAgainClicked,
+  isPreviewLoading,
 }: {
+  isPreviewLoading: boolean;
   isLoading: boolean;
   isLinkLoading: boolean;
   hasFailed: boolean;
@@ -161,7 +163,7 @@ const PortCard = ({
             buttonText={'Preview shareable image'}
             onClick={onPreviewImageClicked}
             Icon={Eye}
-            isLoading={isLinkLoading}
+            isLoading={isPreviewLoading}
           />
         </View>
       )}

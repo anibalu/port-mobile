@@ -27,6 +27,7 @@ import {checkBundleValidity, readBundle, useReadBundles} from '@utils/Ports';
 import {wait} from '@utils/Time';
 import {safeModalCloseDuration} from '@configs/constants';
 import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
+import {urlToJson} from '@utils/JsonToUrl';
 
 export default function QRScanner() {
   const device = useCameraDevice('back');
@@ -45,9 +46,11 @@ export default function QRScanner() {
     onCodeScanned: codes => {
       if (isScannerActive) {
         if (codes.length > 0 && codes[0].value) {
-          console.log('qrData', codes[0].value);
+          const updatedCode = codes[0].value.startsWith('https://')
+            ? urlToJson(codes[0].value)
+            : codes[0].value;
           setQrData(oldCode =>
-            oldCode !== codes[0].value ? codes[0].value! : oldCode,
+            oldCode !== codes[0].value ? updatedCode! : oldCode,
           );
           setIsScannerActive(false);
         }
@@ -81,7 +84,7 @@ export default function QRScanner() {
           console.log('running inner block');
           //qrData needs to be processed here.
           //check if Qr code is a legitimate Port Qr code
-          const bundle = checkBundleValidity(qrData);
+          const bundle = checkBundleValidity(JSON.stringify(qrData));
           //if code is legitimate, read it
           await readBundle(bundle);
           //try to use read bundles

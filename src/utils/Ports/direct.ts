@@ -1,4 +1,5 @@
 import {
+  CURRENT_PORT_VERSION,
   DEFAULT_NAME,
   IDEAL_UNUSED_PORTS_NUMBER,
   defaultFolderId,
@@ -63,7 +64,7 @@ async function getUnusedPort(): Promise<string> {
  * @returns - version string
  */
 function getCurrentPortVersion() {
-  return '0.0.1';
+  return CURRENT_PORT_VERSION;
 }
 
 /**

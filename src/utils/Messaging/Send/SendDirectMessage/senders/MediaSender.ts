@@ -99,7 +99,7 @@ export class SendMediaDirectMessage<
       await this.preProcessMedia();
       await storage.saveMessage(this.savedMessage);
       this.storeCalls();
-      const processedData = await this.encryedtMessage();
+      const processedData = await this.encryptedMessage();
       const sendStatus = await API.sendObject(
         this.chatId,
         processedData,

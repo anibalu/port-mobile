@@ -141,7 +141,7 @@ export class SendContactBundleDirectMessage<
     }
     try {
       await this.loadSavedMessage();
-      const processedPayload = await this.encryedtMessage();
+      const processedPayload = await this.encryptedMessage();
       // Perform API call
       const udpatedStatus = await API.sendObject(
         this.chatId,

@@ -172,7 +172,7 @@ export class SendGenericDirectMessage<
       }
       await this.loadSavedMessage();
       console.log('Attempting to send: ', this.data);
-      const processedPayload = await this.encryedtMessage();
+      const processedPayload = await this.encryptedMessage();
       // Perform API call
       const udpatedStatus = await API.sendObject(
         this.chatId,

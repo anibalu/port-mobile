@@ -120,7 +120,7 @@ export class SendReactionDirectMessage<
           reactionData.reaction,
         );
       }
-      const processedPayload = await this.encryedtMessage();
+      const processedPayload = await this.encryptedMessage();
       const newSendStatus = await API.sendObject(
         this.chatId,
         processedPayload,

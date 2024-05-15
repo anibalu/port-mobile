@@ -74,7 +74,7 @@ export class SendReceiptDirectMessage<
       const receipt = this.data as ReceiptParams;
       console.log('Sending receipt: ', receipt);
       // Make the API call to send the receipt
-      const processedPayload = await this.encryedtMessage();
+      const processedPayload = await this.encryptedMessage();
       const newSendStatus = await API.sendObject(
         this.chatId,
         processedPayload,

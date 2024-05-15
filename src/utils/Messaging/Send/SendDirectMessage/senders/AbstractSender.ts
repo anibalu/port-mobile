@@ -75,7 +75,7 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
     return (await chat.getChatData()).authenticated;
   }
 
-  async encryedtMessage() {
+  async encryptedMessage() {
     const plaintext = JSON.stringify(this.payload);
     const chat = new DirectChat(this.chatId);
     const chatData = await chat.getChatData();

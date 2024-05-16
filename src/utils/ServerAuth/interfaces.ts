@@ -2,11 +2,7 @@ export interface ServerAuthChallenge {
   challenge: string;
 }
 
-export interface ServerAuthToken {
-  ad: string;
-  nonce: string;
-  secret: string;
-}
+export type ServerAuthToken = string;
 
 export interface SavedServerAuthToken {
   timestamp: string;

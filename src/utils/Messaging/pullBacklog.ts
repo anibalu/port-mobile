@@ -1,23 +1,91 @@
 import ReceiveMessage from './Receive/ReceiveMessage';
 import * as API from './APICalls';
 import store from '@store/appStore';
+import {getToken} from '@utils/ServerAuth';
+import {WEBSOCKET_URL} from '@configs/api';
+import {Mutex} from 'async-mutex';
 
 /**
- * Pull messages from the backlog and process them
+ * Retrieve messages from the backlog and process them
  */
 export default async function pullBacklog() {
+  if (process.env.LEGACY === 'TRUE') {
+    await _backlogPullWithREST();
+  } else {
+    backlogPullWithWS();
+  }
+}
+
+/**
+ * @deprecated due to reliability. Relaced by backlogPullWithWS
+ * Use legacy pull backlog REST API to receive messages
+ */
+async function _backlogPullWithREST() {
   try {
     const messages = await API.getMessages();
     for (const message of messages) {
       const receiver = new ReceiveMessage(message);
       await receiver.receive();
     }
-    // Trigger a single redraw after ALL messages have been received
+  } catch (error) {
+    console.log('error pulling backlog: ', error);
+  }
+  // Trigger a single redraw after ALL messages have been received
+  store.dispatch({
+    type: 'PING',
+    payload: 'PONG',
+  });
+}
+
+const backlogLock = new Mutex();
+
+/**
+ * Retrieve messages from the server over the WebSocket protocol
+ */
+function backlogPullWithWS() {
+  if (backlogLock.isLocked()) {
+    return;
+  }
+
+  backlogLock.acquire();
+  const ws = new WebSocket(WEBSOCKET_URL);
+  let ctr = 0;
+  let open = true;
+
+  ws.onopen = async () => {
+    // Authenticate yourself as soon as the connection is open
+    const token = await getToken();
+    ws.send(token);
+  };
+
+  ws.onmessage = async server_message => {
+    const messages: string[] = JSON.parse(server_message.data);
+    for (const message of messages) {
+      const receiver = new ReceiveMessage(message);
+      await receiver.receive();
+    }
     store.dispatch({
       type: 'PING',
       payload: 'PONG',
     });
-  } catch (error) {
-    console.log('error pulling backlog: ', error);
-  }
+    if (open) {
+      ws.send(messages.length.toString());
+      ctr += 1;
+    }
+  };
+
+  ws.onerror = async e => {
+    // an error occurred
+    console.error(e.message);
+  };
+
+  ws.onclose = response => {
+    // connection closed
+    open = false;
+    backlogLock.release();
+    if (response.code !== 1000) {
+      console.log(response.code, response.reason);
+    }
+    console.log(`WS connection closed. Proccessed ${ctr} batches of messages.`);
+  };
 }

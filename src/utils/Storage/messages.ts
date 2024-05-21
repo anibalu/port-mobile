@@ -347,6 +347,25 @@ export async function cleanDeleteMessage(
     }
   }
 }
+/**
+ * Retrieves all messages associated with a given chat ID.
+ * @param chatId string: The ID of the chat to retrieve messages for.
+ * @returns {SavedMessageParams[]} A promise that resolves to an array of the messages.
+ */
+async function getAllMessages(chatId: string): Promise<string[]> {
+  return await lineDBCalls.getAllMessages(chatId);
+}
+
+/**
+ * Deletes all the messages in a Chat
+ * @param chatId string: The ID of the chat to retrieve messages for.
+ */
+export async function deleteAllMessagesInChat(chatId: string) {
+  const messageIds: string[] = await getAllMessages(chatId);
+  for (const messageId of messageIds) {
+    await cleanDeleteMessage(chatId, messageId, false);
+  }
+}
 
 export async function deleteExpiredMessages() {
   const currentTimestamp = generateISOTimeStamp();

@@ -20,6 +20,7 @@ import {
 import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import store from '@store/appStore';
 import {isUserBlocked} from '@utils/UserBlocking';
+import {deleteAllMessagesInChat} from '@utils/Storage/messages';
 
 class DirectChat {
   private chatId: string | null;
@@ -196,6 +197,7 @@ class DirectChat {
   }
   public async delete() {
     this.chatId = this.checkChatIdNotNull();
+    await deleteAllMessagesInChat(this.chatId);
     await storage.deleteLine(this.chatId);
     await deleteConnection(this.chatId);
   }

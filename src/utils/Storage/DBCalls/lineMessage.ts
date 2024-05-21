@@ -260,6 +260,29 @@ async function getMessageIterator(chatId: string) {
   return messageIterator;
 }
 
+/**
+ * Retrieves all messages associated with a given chat ID.
+ * @param chatId string: The ID of the chat to retrieve messages for.
+ * @returns {<string[]>} array of message ids
+ */
+export async function getAllMessages(chatId: string): Promise<string[]> {
+  let messages: string[] = [];
+  await runSimpleQuery(
+    `
+    SELECT messageId FROM lineMessages
+    WHERE chatId = ?
+    `,
+    [chatId],
+    (tx, results) => {
+      for (let i = 0; i < results.rows.length; i++) {
+        let entry = results.rows.item(i).messageId;
+        messages.push(entry);
+      }
+    },
+  );
+  return messages;
+}
+
 //Is reversed, fetches messages from end of list.
 export async function getPaginatedMessages(chatId: string, cursor?: number) {
   const iter: any = await getMessageIterator(chatId);

@@ -97,19 +97,27 @@ export class SendMediaDirectMessage<
       }
       this.setDisappearing();
       await this.preProcessMedia();
+      (this.payload.data as LargeDataParams).fileUri = null;
       await storage.saveMessage(this.savedMessage);
       this.storeCalls();
       const processedData = await this.encryptedMessage();
-      const sendStatus = await API.sendObject(
+      const isAPISuccess = await API.sendObject(
         this.chatId,
         processedData,
         false,
       );
+      let sendStatus: MessageStatus;
+      if (isAPISuccess === MessageStatus.sent) {
+        sendStatus = MessageStatus.sent;
+      } else {
+        sendStatus = MessageStatus.unsent;
+      }
       // Update message's send status
       await storage.updateMessageSendStatus(this.chatId, {
         messageIdToBeUpdated: this.messageId,
         updatedMessageStatus: sendStatus,
       });
+
       // Update connection card's message
       await this.updateConnectionInfo(sendStatus);
     } catch (e) {
@@ -166,17 +174,37 @@ export class SendMediaDirectMessage<
   }
 
   /**
-   * Retry sending a journalled message using only API calls
+   * Retry sending a unsent message using only API calls
    */
-  async retry(): Promise<boolean> {
-    /**
-     * Retries with images are not currently supported,
-     * so simply mark message as failed
-     */
-    console.error('Attempted retry of media');
-    // TODO
-    await this.onFailure();
-    return false;
+  async retry(_onSuccess?: (x: boolean) => void): Promise<boolean> {
+    console.log('Attempted retry of media');
+    try {
+      await this.preProcessMedia();
+      const processedData = await this.encryptedMessage();
+      const sendStatus = await API.sendObject(
+        this.chatId,
+        processedData,
+        false,
+        false,
+      );
+      // Update message's send status
+      await storage.updateMessageSendStatus(this.chatId, {
+        messageIdToBeUpdated: this.messageId,
+        updatedMessageStatus: sendStatus,
+      });
+
+      // Update connection card's message
+      await this.updateConnectionInfo(sendStatus);
+      console.log('Retry of media succeeded');
+    } catch (e) {
+      console.error('Could not send message', e);
+      await this.onFailure(e);
+      this.storeCalls();
+      return false;
+    }
+
+    this.storeCalls();
+    return true;
   }
 
   private async onFailure(error: any = null) {

@@ -1,6 +1,10 @@
-import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {
+  LargeDataParams,
+  MessageStatus,
+  SavedMessageParams,
+} from '@utils/Messaging/interfaces';
+import React, {ReactNode, useEffect, useState} from 'react';
+import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import {
   FILE_BUBBLE_HEIGHT,
   handleDownload,
@@ -17,17 +21,27 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {TextBubble} from './TextBubble';
+import UploadSend from '@assets/icons/UploadSend.svg';
 
 export const FileBubble = ({
   message,
   handlePress,
   handleLongPress,
+  handleRetry,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
+  handleRetry: (message: SavedMessageParams) => void;
 }): ReactNode => {
   const [startedManualDownload, setStartedManualDownload] = useState(false);
+  const [showRetry, setShowRetry] = useState(false);
+  const [loadingRetry, setLoadingRetry] = useState(false);
+  const onRetryClick = async (messageObj: SavedMessageParams) => {
+    setLoadingRetry(true);
+    await handleRetry(messageObj);
+    setLoadingRetry(false);
+  };
   const {mediaDownloadError} = useErrorModal();
   const download = async () => {
     try {
@@ -64,6 +78,11 @@ export const FileBubble = ({
     return string.substring(lastIndex + 1);
   };
 
+  useEffect(() => {
+    setShowRetry(message.messageStatus === MessageStatus.unsent);
+    setLoadingRetry(message.messageStatus === MessageStatus.sent);
+  }, [message]);
+
   return (
     <View>
       <Pressable
@@ -94,16 +113,44 @@ export const FileBubble = ({
                 </NumberlessText>
               </View>
               <View style={styles.loaderContainer}>
-                {(message.data as LargeDataParams).fileUri == null &&
-                  (startedManualDownload ? (
-                    <View style={{alignSelf: 'center'}}>
-                      <SmallLoader />
-                    </View>
-                  ) : (
-                    <View style={styles.downloadIconWrapper}>
-                      <Download height={14} width={14} />
-                    </View>
-                  ))}
+                {showRetry ? (
+                  <>
+                    {loadingRetry ? (
+                      <View>
+                        <ActivityIndicator
+                          size={'small'}
+                          color={PortColors.primary.blue.app}
+                        />
+                      </View>
+                    ) : (
+                      <Pressable
+                        style={{
+                          marginRight: 4,
+                          padding: PortSpacing.tertiary.uniform,
+                          borderRadius: 50,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: 'rgba(61, 61, 61, 0.30)',
+                        }}
+                        onPress={() => onRetryClick(message)}>
+                        <UploadSend width={16} height={16} />
+                      </Pressable>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {(message.data as LargeDataParams).fileUri == null &&
+                      (startedManualDownload ? (
+                        <View style={{alignSelf: 'center'}}>
+                          <SmallLoader />
+                        </View>
+                      ) : (
+                        <View style={styles.downloadIconWrapper}>
+                          <Download height={14} width={14} />
+                        </View>
+                      ))}
+                  </>
+                )}
               </View>
             </View>
           </View>

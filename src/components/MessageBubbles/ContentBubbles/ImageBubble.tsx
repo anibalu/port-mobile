@@ -1,10 +1,17 @@
 import {
   LargeDataParams,
+  MessageStatus,
   SavedMessageParams,
   TextParams,
 } from '@utils/Messaging/interfaces';
-import React, {ReactNode, useState} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import React, {ReactNode, useEffect, useState} from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {
   RenderTimeStamp,
   handleDownload,
@@ -18,17 +25,27 @@ import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {TextBubble} from './TextBubble';
 import LinearGradient from 'react-native-linear-gradient';
 import Download from '@assets/icons/Download.svg';
+import UploadSend from '@assets/icons/UploadSend.svg';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 
 export const ImageBubble = ({
   message,
   handlePress,
   handleLongPress,
+  handleRetry,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
+  handleRetry: (message: SavedMessageParams) => void;
 }): ReactNode => {
   const [startedManualDownload, setStartedManualDownload] = useState(false);
+  const [loadingRetry, setLoadingRetry] = useState(false);
+  const [showRetry, setShowRetry] = useState(false);
   const {mediaDownloadError} = useErrorModal();
   const download = async () => {
     try {
@@ -57,7 +74,18 @@ export const ImageBubble = ({
     handleLongPress(message.messageId);
   };
 
+  useEffect(() => {
+    setShowRetry(message.messageStatus === MessageStatus.unsent);
+    setLoadingRetry(message.messageStatus === MessageStatus.sent);
+  }, [message]);
+
   const text = (message.data as TextParams).text;
+
+  const onRetryClick = async (messageObj: SavedMessageParams) => {
+    setLoadingRetry(true);
+    await handleRetry(messageObj);
+    setLoadingRetry(false);
+  };
 
   return (
     <Pressable
@@ -92,6 +120,26 @@ export const ImageBubble = ({
               'rgba(0, 0, 0, 0.75)',
             ]}
             style={styles.gradientContainer}>
+            {showRetry && (
+              <Pressable
+                onPress={() => onRetryClick(message)}
+                style={styles.retryButton}>
+                {loadingRetry ? (
+                  <ActivityIndicator
+                    size={'small'}
+                    color={PortColors.primary.blue.app}
+                  />
+                ) : (
+                  <UploadSend width={16} height={16} />
+                )}
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.rg}
+                  textColor={'#FFF'}>
+                  Retry
+                </NumberlessText>
+              </Pressable>
+            )}
             <RenderTimeStamp message={message} stampColor="w" />
           </LinearGradient>
         )}
@@ -162,6 +210,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  retryButton: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{translateX: -35}, {translateY: -20}],
+    borderRadius: 20,
+    padding: PortSpacing.medium.uniform,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(61, 61, 61, 0.60)',
+    flexDirection: 'row',
+    gap: PortSpacing.tertiary.uniform,
   },
   gradientContainer: {
     position: 'absolute',

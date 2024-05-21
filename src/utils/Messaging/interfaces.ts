@@ -14,6 +14,7 @@ export enum MessageStatus {
   failed = -2,
   unassigned = -3,
   journaled = -32,
+  unsent = -5,
 }
 /**
  * Enum representing content types supported by the sendMessage and receiveMessage functions.

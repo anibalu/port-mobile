@@ -1,10 +1,18 @@
 import {
   LargeDataParams,
+  MessageStatus,
   SavedMessageParams,
   TextParams,
 } from '@utils/Messaging/interfaces';
-import React, {ReactNode, useState} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import React, {ReactNode, useEffect, useState} from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
+import UploadSend from '@assets/icons/UploadSend.svg';
 import {
   RenderTimeStamp,
   handleDownload,
@@ -19,17 +27,33 @@ import {TextBubble} from './TextBubble';
 import LinearGradient from 'react-native-linear-gradient';
 import Download from '@assets/icons/Download.svg';
 import Play from '@assets/icons/videoPlay.svg';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 
 export const VideoBubble = ({
   message,
   handlePress,
   handleLongPress,
+  handleRetry,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
+  handleRetry: (message: SavedMessageParams) => void;
 }): ReactNode => {
   const [startedManualDownload, setStartedManualDownload] = useState(false);
+  const [showRetry, setShowRetry] = useState(false);
+  const [loadingRetry, setLoadingRetry] = useState(false);
+
+  const onRetryClick = async (messageObj: SavedMessageParams) => {
+    setLoadingRetry(true);
+    await handleRetry(messageObj);
+    setLoadingRetry(false);
+  };
+
   const {mediaDownloadError} = useErrorModal();
   const download = async () => {
     try {
@@ -58,6 +82,11 @@ export const VideoBubble = ({
     handleLongPress(message.messageId);
   };
 
+  useEffect(() => {
+    setShowRetry(message.messageStatus === MessageStatus.unsent);
+    setLoadingRetry(message.messageStatus === MessageStatus.sent);
+  }, [message]);
+
   const text = (message.data as TextParams).text;
 
   return (
@@ -76,8 +105,12 @@ export const VideoBubble = ({
             </View>
           ) : (
             renderDisplay(
+              message,
               (message.data as LargeDataParams).previewUri,
               message.data as LargeDataParams,
+              showRetry,
+              loadingRetry,
+              onRetryClick,
             )
           )}
         </View>
@@ -86,15 +119,23 @@ export const VideoBubble = ({
             <TextBubble message={message} />
           </View>
         ) : (
-          <LinearGradient
-            colors={[
-              'rgba(0, 0, 0, 0)',
-              'rgba(0, 0, 0, 0)',
-              'rgba(0, 0, 0, 0.75)',
-            ]}
-            style={styles.gradientContainer}>
-            <RenderTimeStamp message={message} stampColor="w" />
-          </LinearGradient>
+          <>
+            {showRetry ? (
+              <View style={styles.gradientContainer}>
+                <RenderTimeStamp message={message} stampColor="w" />
+              </View>
+            ) : (
+              <LinearGradient
+                colors={[
+                  'rgba(0, 0, 0, 0)',
+                  'rgba(0, 0, 0, 0)',
+                  'rgba(0, 0, 0, 0.75)',
+                ]}
+                style={styles.gradientContainer}>
+                <RenderTimeStamp message={message} stampColor="w" />
+              </LinearGradient>
+            )}
+          </>
         )}
       </>
     </Pressable>
@@ -106,8 +147,12 @@ export const VideoBubble = ({
 // - if shouldDownload is true and no thumbnail exists
 // - if shouldDownload is false on and no thumbnail exists
 export const renderDisplay = (
+  message: any,
   messageURI: string | undefined | null,
   data: LargeDataParams,
+  showRetry: boolean,
+  loadingRetry: boolean,
+  onRetryClick: (message: SavedMessageParams) => void,
 ) => {
   if (messageURI) {
     return (
@@ -121,6 +166,34 @@ export const renderDisplay = (
             position: 'absolute',
           }}
         />
+        {showRetry && (
+          <LinearGradient
+            colors={[
+              'rgba(0, 0, 0, 0)',
+              'rgba(0, 0, 0, 0)',
+              'rgba(0, 0, 0, 0.75)',
+            ]}
+            style={styles.gradientContainer}>
+            <Pressable
+              onPress={() => onRetryClick(message)}
+              style={styles.retryButton}>
+              {loadingRetry ? (
+                <ActivityIndicator
+                  size={'small'}
+                  color={PortColors.primary.blue.app}
+                />
+              ) : (
+                <UploadSend width={16} height={16} />
+              )}
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}
+                textColor={'#FFF'}>
+                Retry
+              </NumberlessText>
+            </Pressable>
+          </LinearGradient>
+        )}
       </View>
     );
   }
@@ -161,6 +234,18 @@ const styles = StyleSheet.create({
     width: IMAGE_DIMENSIONS,
     minHeight: IMAGE_DIMENSIONS,
     alignItems: 'center',
+  },
+  retryButton: {
+    position: 'absolute',
+    bottom: 4,
+    left: PortSpacing.tertiary.uniform,
+    borderRadius: 20,
+    padding: PortSpacing.tertiary.uniform,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(61, 61, 61, 0.60)',
+    flexDirection: 'row',
+    gap: PortSpacing.tertiary.uniform,
   },
   image: {
     height: IMAGE_DIMENSIONS, // Set the maximum height you desire

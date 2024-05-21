@@ -18,6 +18,9 @@ class LargeDataUpload {
     fileName: string,
     fileType: string,
     fileSource: 'doc' | 'cache' | 'tmp' = 'doc',
+    key: string | null = null,
+    mediaId: string | null = null,
+    encryptedTempFilePath: string | null = null,
   ) {
     //we can assume this file uri is correctly prepended with "file://"
     this.fileUri = getSafeAbsoluteURI(fileUri, fileSource);
@@ -25,9 +28,9 @@ class LargeDataUpload {
     console.log('file uri 2', this.fileUri);
     this.fileName = fileName;
     this.fileType = fileType;
-    this.key = null;
-    this.mediaId = null;
-    this.encryptedTempFilePath = null;
+    this.key = key;
+    this.mediaId = mediaId;
+    this.encryptedTempFilePath = encryptedTempFilePath;
   }
   async upload() {
     try {
@@ -41,10 +44,6 @@ class LargeDataUpload {
     }
   }
   getMediaIdAndKey() {
-    if (!this.mediaId || !this.key) {
-      console.error('MediaId: ', this.mediaId, 'Key: ', this.key);
-      throw new Error('MediaIdOrKeyNull');
-    }
     return {mediaId: this.mediaId, key: this.key};
   }
   private async createEncryptedTempFile() {

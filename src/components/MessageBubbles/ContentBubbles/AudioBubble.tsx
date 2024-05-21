@@ -1,33 +1,44 @@
 import React, {useEffect, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import Play from '@assets/icons/Voicenotes/BluePlay.svg';
 import Download from '@assets/icons/DownloadIcon.svg';
 import Pause from '@assets/icons/Voicenotes/BluePause.svg';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {formatDuration} from '@utils/Time';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {PortColors} from '@components/ComponentUtils';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CircleSnail} from 'react-native-progress';
 import ProgressBar from '@components/Reusable/Loaders/ProgressBar';
 import {RenderTimeStamp, handleDownload} from '../BubbleUtils';
+import UploadSend from '@assets/icons/UploadSendGrey.svg';
 
 const AudioBubble = ({
   message,
   handlePress,
   handleLongPress,
+  handleRetry,
 }: {
   message: SavedMessageParams;
   handlePress: any;
   handleLongPress: any;
+  handleRetry: (message: SavedMessageParams) => void;
 }) => {
   const [fileUri, setfileUri] = useState<string | undefined>(undefined);
   const [downloading, setDownloading] = useState(false);
+  const [showRetry, setShowRetry] = useState(false);
+  const [loadingRetry, setLoadingRetry] = useState(false);
+  const onRetryClick = async (messageObj: SavedMessageParams) => {
+    setLoadingRetry(true);
+    await handleRetry(messageObj);
+    setLoadingRetry(false);
+  };
+
   const handleLongPressFunction = () => {
     handleLongPress(message.messageId);
   };
@@ -75,6 +86,10 @@ const AudioBubble = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentlyPlaying]);
+  useEffect(() => {
+    setShowRetry(message.messageStatus === MessageStatus.unsent);
+    setLoadingRetry(message.messageStatus === MessageStatus.sent);
+  }, [message]);
 
   return (
     <Pressable
@@ -86,40 +101,63 @@ const AudioBubble = ({
           flexDirection: 'row',
           alignItems: 'center',
         }}>
-        {message.data?.fileUri === null ? (
-          !downloading ? (
-            <Pressable onPress={handleStartPlay} style={{height: 16}}>
-              <Download
+        {showRetry ? (
+          <>
+            {loadingRetry ? (
+              <View>
+                <ActivityIndicator
+                  size={'small'}
+                  color={PortColors.primary.blue.app}
+                />
+              </View>
+            ) : (
+              <Pressable
                 style={{
-                  marginRight: 8,
-                  marginLeft: -2,
+                  marginRight: PortSpacing.tertiary.right,
                 }}
-              />
-            </Pressable>
-          ) : (
-            <CircleSnail
-              style={{marginRight: 6, marginLeft: -4}}
-              size={16}
-              thickness={2}
-              color={PortColors.primary.blue.app}
-              duration={500}
-            />
-          )
-        ) : isPlaying ? (
-          <Pressable
-            hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}
-            onPress={() => {
-              setIsPlaying(false);
-              onStopPlayer();
-            }}>
-            <Pause style={{marginRight: 8}} />
-          </Pressable>
+                onPress={() => onRetryClick(message)}>
+                <UploadSend width={20} height={20} />
+              </Pressable>
+            )}
+          </>
         ) : (
-          <Pressable
-            hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}
-            onPress={handleStartPlay}>
-            <Play style={{marginRight: 8}} />
-          </Pressable>
+          <>
+            {message.data?.fileUri === null ? (
+              !downloading ? (
+                <Pressable onPress={handleStartPlay} style={{height: 16}}>
+                  <Download
+                    style={{
+                      marginRight: 8,
+                      marginLeft: -2,
+                    }}
+                  />
+                </Pressable>
+              ) : (
+                <CircleSnail
+                  style={{marginRight: 6, marginLeft: -4}}
+                  size={16}
+                  thickness={2}
+                  color={PortColors.primary.blue.app}
+                  duration={500}
+                />
+              )
+            ) : isPlaying ? (
+              <Pressable
+                hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}
+                onPress={() => {
+                  setIsPlaying(false);
+                  onStopPlayer();
+                }}>
+                <Pause style={{marginRight: 8}} />
+              </Pressable>
+            ) : (
+              <Pressable
+                hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}
+                onPress={handleStartPlay}>
+                <Play style={{marginRight: 8}} />
+              </Pressable>
+            )}
+          </>
         )}
 
         <ProgressBar progress={progress} setIsPlaying={setIsPlaying} />

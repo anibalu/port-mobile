@@ -18,6 +18,12 @@ import {
 import {getRichReactions} from '@utils/Storage/reactions';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {useNavigation} from '@react-navigation/native';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
+import {
+  getRelativeURI,
+  getSafeAbsoluteURI,
+} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {SendMediaDirectMessage} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
 
 export interface SelectedMessageType {
   pageY: number;
@@ -79,6 +85,9 @@ type ChatContextType = {
     contentType: ContentType,
   ) => boolean | undefined;
   handleLongPress: (messageId: string) => void;
+
+  //message bubble retry press
+  handleRetry: (message: any) => void;
 
   //message actions
   onCopy: () => Promise<void>;
@@ -299,6 +308,41 @@ export const ChatContextProvider = ({
     return isSelectionMode;
   };
 
+  const handleRetry = async (message: SavedMessageParams) => {
+    try {
+      console.log('entered retry sender');
+      const uploader = new LargeDataUpload(
+        getRelativeURI(getSafeAbsoluteURI(message.data?.fileUri, 'doc'), 'doc'),
+        message.data?.fileName,
+        message.data?.fileType,
+        'doc',
+      );
+      await uploader.upload();
+      console.log('media uploaded');
+      const uploadData = uploader.getMediaIdAndKey();
+      if (!uploadData.mediaId || !uploadData.key) {
+        console.error('MediaId: ', uploadData.mediaId, 'Key: ', uploadData.key);
+        throw new Error('MediaIdOrKeyNull');
+      }
+
+      const newData = {
+        ...message.data,
+        mediaId: uploadData.mediaId,
+        key: uploadData.key,
+      };
+      const sender = new SendMediaDirectMessage(
+        message.chatId,
+        message.contentType,
+        newData,
+        null,
+        message.messageId,
+      );
+      await sender.retry();
+    } catch (error) {
+      console.error('Error sending multimedia: ', error);
+    }
+  };
+
   const onCopy = async () => {
     let copyString = '';
     try {
@@ -469,6 +513,7 @@ export const ChatContextProvider = ({
         selectionMode,
         setSelectionMode,
         handlePress,
+        handleRetry,
         handleLongPress,
         onCopy,
         onForward,

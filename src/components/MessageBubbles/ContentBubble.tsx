@@ -21,10 +21,12 @@ import {VideoBubble} from './ContentBubbles/VideoBubble';
 export const ContentBubble = ({
   message,
   handlePress,
+  handleRetry,
   handleLongPress,
 }: {
   message: SavedMessageParams;
   handlePress: any;
+  handleRetry?: any;
   handleLongPress: any;
 }): ReactNode => {
   switch (message.contentType) {
@@ -46,6 +48,7 @@ export const ContentBubble = ({
         <ImageBubble
           message={message}
           handlePress={handlePress}
+          handleRetry={handleRetry}
           handleLongPress={handleLongPress}
         />
       );
@@ -55,6 +58,7 @@ export const ContentBubble = ({
         <VideoBubble
           message={message}
           handlePress={handlePress}
+          handleRetry={handleRetry}
           handleLongPress={handleLongPress}
         />
       );
@@ -63,6 +67,7 @@ export const ContentBubble = ({
         <FileBubble
           message={message}
           handlePress={handlePress}
+          handleRetry={handleRetry}
           handleLongPress={handleLongPress}
         />
       );
@@ -71,6 +76,7 @@ export const ContentBubble = ({
         <AudioBubble
           message={message}
           handlePress={handlePress}
+          handleRetry={handleRetry}
           handleLongPress={handleLongPress}
         />
       );

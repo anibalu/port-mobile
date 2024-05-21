@@ -32,6 +32,7 @@ export const MessageBubble = ({
   const {
     setReaction,
     handlePress,
+    handleRetry,
     isGroupChat,
     setReplyToMessage,
     selectionMode,
@@ -215,6 +216,7 @@ export const MessageBubble = ({
                     <ContentBubble
                       message={message}
                       handlePress={handlePress}
+                      handleRetry={handleRetry}
                       handleLongPress={handleLongPress}
                     />
                   </View>

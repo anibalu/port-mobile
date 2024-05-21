@@ -12,7 +12,7 @@ export default async function pullBacklog() {
   if (process.env.LEGACY === 'TRUE') {
     await _backlogPullWithREST();
   } else {
-    backlogPullWithWS();
+    await backlogPullWithWS();
   }
 }
 
@@ -42,7 +42,10 @@ const backlogLock = new Mutex();
 /**
  * Retrieve messages from the server over the WebSocket protocol
  */
-function backlogPullWithWS() {
+async function backlogPullWithWS() {
+  // Attempt to acquire a token immediately to prevent connections that never authenticate
+  const token = await getToken();
+
   if (backlogLock.isLocked()) {
     return;
   }
@@ -54,7 +57,6 @@ function backlogPullWithWS() {
 
   ws.onopen = async () => {
     // Authenticate yourself as soon as the connection is open
-    const token = await getToken();
     ws.send(token);
   };
 

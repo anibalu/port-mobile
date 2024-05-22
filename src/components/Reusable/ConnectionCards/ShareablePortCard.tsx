@@ -22,6 +22,12 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {
+  DirectSuperportBundle,
+  GroupBundle,
+  GroupSuperportBundle,
+  PortBundle,
+} from '@utils/Ports/interfaces';
 
 const ShareablePortCard = ({
   profileUri = AVATAR_ARRAY[0],
@@ -30,7 +36,12 @@ const ShareablePortCard = ({
 }: {
   profileUri?: string | null;
   title: string;
-  qrData: string | null;
+  qrData:
+    | PortBundle
+    | GroupBundle
+    | DirectSuperportBundle
+    | GroupSuperportBundle
+    | null;
 }) => {
   return (
     <SimpleCard style={styles.cardWrapper}>

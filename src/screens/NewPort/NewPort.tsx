@@ -38,7 +38,6 @@ import {wait} from '@utils/Time';
 import {useSelector} from 'react-redux';
 import {cleanDeleteGeneratedPort} from '@utils/Ports/direct';
 import Share from 'react-native-share';
-import {urlToJson} from '@utils/JsonToUrl';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 
@@ -52,7 +51,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
   //whether qr code generation has failed
   const [hasFailed, setHasFailed] = useState(false);
   //qr code data to display
-  const [qrData, setQrData] = useState<string | null>(null);
+  const [qrData, setQrData] = useState<PortBundle | null>(null);
   //link to share
   const [linkData, setLinkData] = useState<string | null>(null);
   //whether is link is being generated
@@ -72,12 +71,8 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     try {
       setIsLoading(true);
       setHasFailed(false);
-      const bundle: string = JSON.stringify(
-        await generateBundle(BundleTarget.direct),
-      );
-      if (JSON.parse(bundle).startsWith('https://')) {
-        setQrData(JSON.parse(bundle));
-      } else {
+      const bundle: PortBundle = await generateBundle(BundleTarget.direct);
+      if (bundle) {
         setQrData(bundle);
       }
       setIsLoading(false);
@@ -98,17 +93,14 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     }
     try {
       setIsLoadingLink(true);
-      if (qrData) {
-        const bundle: PortBundle = qrData.startsWith('https://')
-          ? urlToJson(qrData)
-          : JSON.parse(qrData);
+      if (qrData && qrData.portId) {
         const generatedPort: PortData = await getGeneratedPortData(
-          bundle.portId,
+          qrData.portId,
         );
         const link = await getBundleClickableLink(
           BundleTarget.direct,
-          bundle.portId,
-          qrData,
+          qrData.portId,
+          JSON.stringify(qrData),
         );
         setLinkData(link);
         setIsLoadingLink(false);
@@ -152,9 +144,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
       if (latestNewConnection) {
         const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
         if (qrData && !linkData) {
-          const bundle: PortBundle | Record<string, string | number> =
-            urlToJson(qrData);
-          if (bundle.portId === latestUsedConnectionLinkId) {
+          if (qrData.portId === latestUsedConnectionLinkId) {
             navigation.navigate('HomeTab', {
               selectedFolder: {...defaultFolderInfo},
             });
@@ -182,10 +172,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
               return;
             } else {
               if (qrData) {
-                const bundle: PortBundle = qrData.startsWith('https://')
-                  ? urlToJson(qrData)
-                  : JSON.parse(qrData);
-                await cleanDeleteGeneratedPort(bundle.portId);
+                await cleanDeleteGeneratedPort(qrData.portId);
               }
             }
             navigation.goBack();

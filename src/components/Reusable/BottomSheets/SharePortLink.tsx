@@ -15,11 +15,15 @@ import {
 import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
-import {PortBundle} from '@utils/Ports/interfaces';
+import {
+  DirectSuperportBundle,
+  GroupBundle,
+  GroupSuperportBundle,
+  PortBundle,
+} from '@utils/Ports/interfaces';
 import {updateGeneratedPortLabel} from '@utils/Ports';
 import Share from 'react-native-share';
 import {useNavigation} from '@react-navigation/native';
-import {urlToJson} from '@utils/JsonToUrl';
 
 const SharePortLink = ({
   visible,
@@ -40,7 +44,12 @@ const SharePortLink = ({
   title?: string;
   description?: string;
   linkData: string | null;
-  qrData: string | null;
+  qrData:
+    | PortBundle
+    | GroupBundle
+    | DirectSuperportBundle
+    | GroupSuperportBundle
+    | null;
 }) => {
   const [newName, setNewName] = useState<string>(contactName);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -51,10 +60,7 @@ const SharePortLink = ({
       Keyboard.dismiss();
       setContactName(newName);
       if (qrData && linkData) {
-        const bundle: PortBundle = qrData.startsWith('https://')
-          ? urlToJson(qrData)
-          : JSON.parse(qrData);
-        await updateGeneratedPortLabel(bundle.portId, newName);
+        await updateGeneratedPortLabel(qrData.portId, newName);
         const shareContent = {
           title: `Share a one-time use link with ${newName}`,
           message:

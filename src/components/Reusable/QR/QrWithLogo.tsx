@@ -13,6 +13,13 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {jsonToUrl} from '@utils/JsonToUrl';
+import {
+  DirectSuperportBundle,
+  GroupBundle,
+  GroupSuperportBundle,
+  PortBundle,
+} from '@utils/Ports/interfaces';
 
 const QrWithLogo = ({
   isLoading,
@@ -21,7 +28,12 @@ const QrWithLogo = ({
 }: {
   isLoading: boolean;
   hasFailed: boolean;
-  qrData: string | null;
+  qrData:
+    | PortBundle
+    | GroupBundle
+    | DirectSuperportBundle
+    | GroupSuperportBundle
+    | null;
 }) => {
   if (hasFailed) {
     return (
@@ -43,7 +55,9 @@ const QrWithLogo = ({
   }
   return (
     <View style={styles.qrBox}>
-      {qrData && <QRCode value={qrData} size={styles.qrBox.width} />}
+      {qrData && (
+        <QRCode value={jsonToUrl(qrData as any)!} size={styles.qrBox.width} />
+      )}
       <View style={styles.logoBox}>
         <Logo width={28} height={28} />
       </View>

@@ -29,6 +29,12 @@ import RetryIcon from '@assets/icons/Retry.svg';
 import AlternateSecondaryButton from '../LongButtons/AlternateSecondaryButton';
 import Share from '@assets/icons/BlueShare.svg';
 import Eye from '@assets/icons/BlueEye.svg';
+import {
+  DirectSuperportBundle,
+  GroupBundle,
+  GroupSuperportBundle,
+  PortBundle,
+} from '@utils/Ports/interfaces';
 
 const PortCard = ({
   isLoading,
@@ -43,14 +49,19 @@ const PortCard = ({
   onTryAgainClicked,
   isPreviewLoading,
 }: {
-  isPreviewLoading: boolean;
+  isPreviewLoading?: boolean;
   isLoading: boolean;
   isLinkLoading: boolean;
   hasFailed: boolean;
   isSuperport: boolean;
   profileUri?: string;
   title: string;
-  qrData: string | null;
+  qrData:
+    | PortBundle
+    | GroupBundle
+    | DirectSuperportBundle
+    | GroupSuperportBundle
+    | null;
   onShareLinkClicked: () => Promise<void>;
   onPreviewImageClicked?: () => Promise<void>;
   onTryAgainClicked: () => Promise<void>;
@@ -163,7 +174,9 @@ const PortCard = ({
             buttonText={'Preview shareable image'}
             onClick={onPreviewImageClicked}
             Icon={Eye}
-            isLoading={isPreviewLoading}
+            isLoading={
+              isPreviewLoading === undefined ? isLinkLoading : isPreviewLoading
+            }
           />
         </View>
       )}

@@ -25,7 +25,6 @@ import store from '@store/appStore';
 import {hasExpired} from '@utils/Time';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {ChatType} from '@utils/Connections/interfaces';
-import {jsonToUrl} from '@utils/JsonToUrl';
 
 export function bundleTargetToChatType(x: BundleTarget) {
   if (x === BundleTarget.direct || x === BundleTarget.superportDirect) {
@@ -88,35 +87,34 @@ export async function generateBundle<T extends BundleTarget>(
   expiry: expiryOptionsTypes = expiryOptions[4],
   channel: string | null = null,
   folderId: string = defaultFolderId,
-): Promise<string | BundleType<T> | null> {
+): Promise<BundleType<T>> {
   if (type === BundleTarget.direct) {
     if (!label) {
       throw new Error('LabelNull');
     }
-    const newBundle = await direct.generateNewPortBundle(
+    const newBundle = (await direct.generateNewPortBundle(
       label,
       expiry,
       channel,
       folderId,
-    );
+    )) as BundleType<T>;
     triggerPendingRequestsReload();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {expiryTimestamp, ...newObj} = newBundle;
-    const updatedBundle = jsonToUrl(newObj as any);
-    return updatedBundle;
+    const {expiryTimestamp, ...newObj} = newBundle as any;
+    return newObj;
   } else if (type === BundleTarget.group) {
     if (!id) {
       throw new Error('GroupIdNull');
     }
     const newBundle = (await group.generateNewGroupPortBundle(
       id,
+      expiry,
       channel,
       folderId,
     )) as BundleType<T>;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {expiryTimestamp, ...newObj} = newBundle;
-    const updatedBundle = jsonToUrl(newObj as any);
-    return updatedBundle;
+    const {expiryTimestamp, ...newObj} = newBundle as any;
+    return newObj;
   } else {
     return {} as BundleType<T>;
   }

@@ -7,7 +7,6 @@ import {
 } from '@utils/Ports/interfaces';
 import * as API from './APICalls';
 import {urlToJson} from '@utils/JsonToUrl';
-
 interface urlObject {
   url: string;
 }
@@ -35,7 +34,7 @@ export async function handleDeepLink(
       const bundleId = params.bundleId;
       if (bundleId) {
         const bundle = await API.getBundle(bundleId);
-        return urlToJson(bundle);
+        return bundle;
       } else {
         return jsonUrlObj;
       }

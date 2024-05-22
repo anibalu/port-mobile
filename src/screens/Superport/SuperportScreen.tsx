@@ -50,7 +50,6 @@ import UsageLimitsBottomSheet from '@components/Reusable/BottomSheets/UsageLimit
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import {changePausedStateOfSuperport} from '@utils/Ports/superport';
 import {useSelector} from 'react-redux';
-import {jsonToUrl, urlToJson} from '@utils/JsonToUrl';
 type Props = NativeStackScreenProps<AppStackParamList, 'SuperportScreen'>;
 
 const SuperportScreen = ({route, navigation}: Props) => {
@@ -67,7 +66,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
   //whether qr code generation has failed
   const [hasFailed, setHasFailed] = useState(false);
   //qr code data to display
-  const [qrData, setQrData] = useState<string | null>(null);
+  const [qrData, setQrData] = useState<DirectSuperportBundle | null>(null);
   //whether is link is being generated
   const [isLoadingLink, setIsLoadingLink] = useState(false);
   //whether is sharable image is being generated
@@ -79,7 +78,6 @@ const SuperportScreen = ({route, navigation}: Props) => {
 
   //control label assigned to superport
   const [label, setLabel] = useState('');
-  const [newPortId, setNewPortId] = useState<string | undefined>(portId);
   const [openLabelModal, setOpenLabelModal] = useState(false);
   const [showEmptyLabelError, setShowEmptyLabelError] = useState(false);
 
@@ -114,9 +112,8 @@ const SuperportScreen = ({route, navigation}: Props) => {
 
   const setFolder = async (folder: FolderInfo) => {
     setSelectedFolder(folder);
-    if (qrData) {
-      const bundle: DirectSuperportBundle = JSON.parse(qrData);
-      await updateGeneratedSuperportFolder(bundle.portId, folder.folderId);
+    if (qrData?.portId) {
+      await updateGeneratedSuperportFolder(qrData.portId, folder.folderId);
     }
   };
 
@@ -151,7 +148,6 @@ const SuperportScreen = ({route, navigation}: Props) => {
           defaultSuperportConnectionsLimit,
           chosenFolder.folderId,
         );
-        setNewPortId(bundle.portId);
         setIsPaused(superport.paused);
         setLabel(superport.label);
         setInitialConnectionLimit(superport.connectionsLimit);
@@ -164,7 +160,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
             ...defaultFolderInfo,
           },
         );
-        setQrData(jsonToUrl(bundle));
+        setQrData(bundle);
         setIsLoading(false);
       } catch (error) {
         console.log('Failed to fetch superport: ', error);
@@ -185,7 +181,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
 
   useEffect(() => {
     scrollToTop();
-  }, [newPortId]);
+  }, [qrData?.portId]);
 
   useEffect(() => {
     setShowEmptyLabelError(false);
@@ -200,14 +196,11 @@ const SuperportScreen = ({route, navigation}: Props) => {
     }
     try {
       setIsLoadingLink(true);
-      if (qrData) {
-        const bundle: DirectSuperportBundle = qrData.startsWith('https://')
-          ? urlToJson(qrData)
-          : JSON.parse(qrData);
+      if (qrData?.portId) {
         const link = await getBundleClickableLink(
           BundleTarget.superportDirect,
-          bundle.portId,
-          JSON.stringify(urlToJson(qrData)),
+          qrData.portId,
+          JSON.stringify(qrData),
         );
         setIsLoadingLink(false);
         try {
@@ -237,18 +230,15 @@ const SuperportScreen = ({route, navigation}: Props) => {
     }
     try {
       setIsPreviewLoading(true);
-      if (qrData) {
-        const bundle: DirectSuperportBundle = qrData.startsWith('https://')
-          ? urlToJson(qrData)
-          : JSON.parse(qrData);
+      if (qrData?.portId) {
         const link = await getBundleClickableLink(
           BundleTarget.superportDirect,
-          bundle.portId,
-          JSON.stringify(urlToJson(qrData)),
+          qrData.portId,
+          JSON.stringify(qrData),
         );
         setIsPreviewLoading(false);
         navigation.navigate('PreviewShareablePort', {
-          qrData: JSON.stringify(urlToJson(qrData)),
+          qrData: qrData as any,
           linkData: link,
           title: displayName,
           profileUri: profilePicAttr.fileUri,
@@ -264,17 +254,15 @@ const SuperportScreen = ({route, navigation}: Props) => {
   };
 
   const saveNewLabel = async () => {
-    if (qrData) {
-      const bundle: DirectSuperportBundle = JSON.parse(qrData);
-      await updateGeneratedSuperportLabel(bundle.portId, label);
+    if (qrData?.portId) {
+      await updateGeneratedSuperportLabel(qrData.portId, label);
     }
     setOpenLabelModal(false);
   };
 
   const saveNewLimit = async () => {
-    if (qrData) {
-      const bundle: DirectSuperportBundle = JSON.parse(qrData);
-      await updateGeneratedSuperportLimit(bundle.portId, connectionLimit);
+    if (qrData?.portId) {
+      await updateGeneratedSuperportLimit(qrData.portId, connectionLimit);
     }
     setOpenUsageLimitsModal(false);
   };
@@ -317,11 +305,8 @@ const SuperportScreen = ({route, navigation}: Props) => {
     try {
       if (latestNewConnection) {
         const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
-        if (qrData) {
-          const bundle:
-            | DirectSuperportBundle
-            | Record<string, string | number> = urlToJson(qrData);
-          if (bundle.portId === latestUsedConnectionLinkId) {
+        if (qrData?.portId) {
+          if (qrData.portId === latestUsedConnectionLinkId) {
             setConnectionMade(connectionMade + 1);
             return;
           }
@@ -339,17 +324,15 @@ const SuperportScreen = ({route, navigation}: Props) => {
   }, [latestNewConnection]);
 
   const deleteSuperport = async () => {
-    if (qrData) {
-      const bundle: DirectSuperportBundle = JSON.parse(qrData);
-      await cleanDeletePort(bundle.portId, PortTable.superport);
+    if (qrData?.portId) {
+      await cleanDeletePort(qrData.portId, PortTable.superport);
     }
     navigation.goBack();
   };
 
   const pauseSuperport = async () => {
-    if (qrData) {
-      const bundle: DirectSuperportBundle = JSON.parse(qrData);
-      await changePausedStateOfSuperport(bundle.portId, !isPaused);
+    if (qrData?.portId) {
+      await changePausedStateOfSuperport(qrData.portId, !isPaused);
       setIsPaused(!isPaused);
     }
   };
@@ -364,11 +347,11 @@ const SuperportScreen = ({route, navigation}: Props) => {
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}
           IconRight={CrossButton}
-          heading={newPortId ? 'Superport' : 'New Superport'}
+          heading={qrData?.portId ? 'Superport' : 'New Superport'}
         />
 
         <ScrollView ref={scrollViewRef} style={styles.mainContainer}>
-          {newPortId ? (
+          {qrData?.portId ? (
             <View style={styles.qrArea}>
               <PortCard
                 isLoading={isLoading}
@@ -444,15 +427,12 @@ const SuperportScreen = ({route, navigation}: Props) => {
                 selectedFolder={chosenFolder}
                 foldersArray={foldersArray}
                 onAddNewFolder={() => {
-                  let portId;
-                  if (qrData) {
-                    const bundle: DirectSuperportBundle = JSON.parse(qrData);
-                    portId = bundle.portId;
+                  if (qrData?.portId) {
+                    navigation.navigate('CreateFolder', {
+                      setSelectedFolder: setFolder,
+                      portId: qrData.portId,
+                    });
                   }
-                  navigation.navigate('CreateFolder', {
-                    setSelectedFolder: setFolder,
-                    portId: portId,
-                  });
                 }}
               />
             </View>
@@ -461,7 +441,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
                 marginBottom: PortSpacing.secondary.bottom,
                 gap: PortSpacing.secondary.uniform,
               }}>
-              {newPortId ? (
+              {qrData?.portId ? (
                 <>
                   <PrimaryButton
                     primaryButtonColor="r"

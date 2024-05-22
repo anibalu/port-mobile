@@ -16,9 +16,18 @@ import {ProfileInfo, ProfileInfoUpdate, ProfileStatus} from './interfaces';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 
+/**
+ * Fetches default avatar file attributes
+ * @returns default avatar file attributes
+ */
 function getDefaultAvatarInfo(): FileAttributes {
   return {...DEFAULT_PROFILE_AVATAR_INFO};
 }
+
+/**
+ * Fetches a random avatar file attributes
+ * @returns random avatar file attributes
+ */
 export function getRandomAvatarInfo(): FileAttributes {
   const randomAvatarId = pickRandomAvatarId();
   const randomInfo: FileAttributes = {
@@ -28,6 +37,7 @@ export function getRandomAvatarInfo(): FileAttributes {
   };
   return randomInfo;
 }
+
 /**
  * Sets up a user's profile info
  * @returns {Promise<ProfileStatus>} - If Profile got setup successfully or not.
@@ -39,7 +49,6 @@ export async function setupProfile(
   try {
     const existingProfile = await getProfileInfo();
     if (existingProfile) {
-      await updateProfileInfo({name: name, profilePicInfo: profilePic});
       return ProfileStatus.created;
     }
 
@@ -55,17 +64,15 @@ export async function setupProfile(
       clientId: clientId,
       privateKey: privateKey,
       profilePicInfo:
-        profilePic.fileType === 'avatar' ? profilePic : getDefaultAvatarInfo(),
+        profilePic.fileType === 'avatar'
+          ? profilePic
+          : await storage.moveProfilePictureToProfileDir(profilePic),
     };
     store.dispatch({
       type: 'UPDATE_PROFILE',
       payload: profile,
     });
     await storage.saveProfileInfo(profile, true);
-    //saves profile picture to app storage if a real picture is chosen instead of avatar.
-    if (profilePic.fileType !== 'avatar') {
-      await setNewProfilePicture(profilePic);
-    }
     return ProfileStatus.created;
   } catch (error) {
     console.log('error creating profile:', error);
@@ -243,6 +250,7 @@ export async function getProfilePictureUri(): Promise<string> {
 
 /**
  * Sets new profile picture with new file attributes and sends it to contacts with profile picture permissions.
+ * This function skips media upload step if user has not connections (as would be the case at onboarding).
  * @param {FileAttributes} file - new profile picture file attributes
  */
 export async function setNewProfilePicture(
@@ -278,42 +286,45 @@ export async function setNewProfilePicture(
       const newFile = (await storage.moveProfilePictureToProfileDir(
         file,
       )) as LargeDataParams;
-      // Upload the profile picture to prevent re-uploads for each chat
-      const uploader = new LargeDataUpload(
-        newFile.fileUri || 'missing file path in profile upload',
-        newFile.fileName,
-        newFile.fileType,
-      );
-      await uploader.upload();
-      const {mediaId, key} = uploader.getMediaIdAndKey();
-      newFile.mediaId = mediaId;
-      newFile.key = key;
-      for (const conn of connections) {
-        const isAllowed = (
-          await getChatPermissions(
-            conn.chatId,
-            conn.connectionType === ChatType.group
-              ? ChatType.group
-              : ChatType.direct,
-          )
-        ).displayPicture;
-        if (isAllowed) {
-          const sendDisplayPicture = new SendMessage(
-            conn.chatId,
-            ContentType.displayImage,
-            {
-              ...newFile,
-              mediaId,
-              key,
-            },
-          );
-          sendDisplayPicture.send();
+      await updateProfileInfo({profilePicInfo: newFile as FileAttributes});
+      //upload step is skipped if there are no connections
+      if (connections.length > 0) {
+        // Upload the profile picture to prevent re-uploads for each chat
+        const uploader = new LargeDataUpload(
+          newFile.fileUri || 'missing file path in profile upload',
+          newFile.fileName,
+          newFile.fileType,
+        );
+        await uploader.upload();
+        const {mediaId, key} = uploader.getMediaIdAndKey();
+        newFile.mediaId = mediaId;
+        newFile.key = key;
+        for (const conn of connections) {
+          const isAllowed = (
+            await getChatPermissions(
+              conn.chatId,
+              conn.connectionType === ChatType.group
+                ? ChatType.group
+                : ChatType.direct,
+            )
+          ).displayPicture;
+          if (isAllowed) {
+            const sendDisplayPicture = new SendMessage(
+              conn.chatId,
+              ContentType.displayImage,
+              {
+                ...newFile,
+                mediaId,
+                key,
+              },
+            );
+            sendDisplayPicture.send();
+          }
         }
       }
-      await updateProfileInfo({profilePicInfo: newFile as FileAttributes});
     }
   } catch (error) {
-    console.log('error saving profile pic: ', error);
+    console.log('error updating profile pic: ', error);
   }
 }
 

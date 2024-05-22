@@ -10,7 +10,7 @@ export interface ProfileInfo extends ProfileInfoUpdate {
   //details of user's profile picture
   profilePicInfo: FileAttributes;
   //last backup time
-  lastBackupTime: string;
+  lastBackupTime?: string;
 }
 
 export interface ProfileInfoUpdate {

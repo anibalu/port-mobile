@@ -9,7 +9,7 @@ import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
 import {MediaEntry} from '@utils/Media/interfaces';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {getMedia} from '@utils/Storage/media';
+import {getMediaForChat} from '@utils/Storage/media';
 import FileViewer from 'react-native-file-viewer';
 
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
@@ -32,7 +32,10 @@ export default function ViewFiles({route}: Props) {
   const navigation = useNavigation<any>();
 
   const loadMedia = async () => {
-    const response = await getMedia(route.params.chatId, ContentType.file);
+    const response = await getMediaForChat(
+      route.params.chatId,
+      ContentType.file,
+    );
     setMedia(response);
   };
 

@@ -404,6 +404,8 @@ PODS:
     - React-Core
   - react-native-image-picker (5.7.0):
     - React-Core
+  - react-native-image-resizer (3.0.9):
+    - React-Core
   - react-native-netinfo (11.3.1):
     - React-Core
   - react-native-numberless-crypto (0.2.4):
@@ -625,6 +627,7 @@ DEPENDENCIES:
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-encrypted-storage (from `../node_modules/react-native-encrypted-storage`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - "react-native-image-resizer (from `../node_modules/@bam.tech/react-native-image-resizer`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - "react-native-numberless-crypto (from `../node_modules/@numberless/react-native-numberless-crypto`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
@@ -749,6 +752,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-encrypted-storage"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-image-resizer:
+    :path: "../node_modules/@bam.tech/react-native-image-resizer"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-numberless-crypto:
@@ -887,6 +892,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-encrypted-storage: db300a3f2f0aba1e818417c1c0a6be549038deb7
   react-native-image-picker: 3269f75c251cdcd61ab51b911dd30d6fff8c6169
+  react-native-image-resizer: 669454edae94399b11e49c840e4da14482302293
   react-native-netinfo: bdb108d340cdb41875c9ced535977cac6d2ff321
   react-native-numberless-crypto: c83c8c97f7fb35d301dc032efd6d5ca0b5d7747a
   react-native-pager-view: e26d35e382d86950c936f8917e3beb9188115ccc

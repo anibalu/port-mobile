@@ -1,13 +1,10 @@
-import {DEFAULT_AVATAR} from '@configs/constants';
-import store from '@store/appStore';
-import DirectChat from '@utils/DirectChats/DirectChat';
+import {createPreview} from '@utils/ImageUtils';
 import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
-import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
+import {LargeDataParams} from '@utils/Messaging/interfaces';
 import {getRelativeURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {updateMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
 import {getMessage} from '@utils/Storage/messages';
-import {createThumbnail} from 'react-native-create-thumbnail';
 
 /**
  * Function to handle media download for a message. Can be called asynchronosly, or awaited.
@@ -17,70 +14,46 @@ import {createThumbnail} from 'react-native-create-thumbnail';
 export const handleAsyncMediaDownload = async (
   chatId: string,
   messageId: string,
-): Promise<void> => {
+): Promise<LargeDataParams> => {
   const message = await getMessage(chatId, messageId);
-  if (message?.data) {
-    const mediaId = (message.data as LargeDataParams).mediaId;
-    const key = (message.data as LargeDataParams).key;
-    if (mediaId && key) {
-      const downloader = new LargeDataDownload(
-        chatId,
-        message.contentType,
-        mediaId,
-        key,
-        (message.data as LargeDataParams).fileName,
-      );
-      await downloader.download();
-      const fileUri = downloader.getDownloadedFilePath();
-      const previewPath =
-        message.contentType === ContentType.video
-          ? await createThumbnail({
-              url: fileUri,
-              timeStamp: 0,
-              cacheName: mediaId,
-            })
-          : undefined;
-
-      console.log('Downloaded file path: ', fileUri);
-
-      const data = {
-        ...(message.data as LargeDataParams),
-        fileUri: getRelativeURI(fileUri, 'doc'),
-        // mediaId: null,
-        // key: null,
-        previewUri: previewPath?.path
-          ? getRelativeURI(previewPath.path, 'cache')
-          : undefined,
-      };
-
-      if (message.contentType === ContentType.displayImage) {
-        const chat = new DirectChat(chatId);
-        await chat.updateDisplayPic(
-          getRelativeURI(fileUri, 'doc') || DEFAULT_AVATAR,
-        );
-      }
-
-      //Saves relative URIs for the paths
-      await updateMedia(mediaId, {
-        type: message.contentType,
-        name: data.fileName,
-        filePath: data.fileUri,
-        previewPath: data.previewUri,
-      });
-
-      await storage.updateMessage(chatId, messageId, data);
-      store.dispatch({
-        type: 'NEW_MEDIA_STATUS_UPDATE',
-        payload: {
-          chatId: chatId,
-          messageId: messageId,
-          data: data,
-        },
-      });
-      store.dispatch({
-        type: 'PING',
-        payload: 'PONG',
-      });
-    }
+  //download will only move forward if message data exists.
+  if (!(message && message.data)) {
+    throw new Error('Message Data not found');
   }
+  const mediaId = (message.data as LargeDataParams).mediaId;
+  const key = (message.data as LargeDataParams).key;
+  //don't proceed if mediaId or key don't exist
+  if (!(mediaId && key)) {
+    throw new Error('No mediaId or key');
+  }
+  const downloader = new LargeDataDownload(
+    chatId,
+    message.contentType,
+    mediaId,
+    key,
+    (message.data as LargeDataParams).fileName,
+  );
+  //download and decrypt file to a local location.
+  await downloader.download();
+  const fileUri = downloader.getDownloadedFilePath();
+  //generate preview path for images, videos and display pictures.
+  const previewConfig = {
+    chatId: chatId,
+    url: fileUri,
+  };
+  const previewPath = await createPreview(message.contentType, previewConfig);
+  const data = {
+    ...(message.data as LargeDataParams),
+    fileUri: getRelativeURI(fileUri, 'doc'),
+    previewUri: previewPath,
+  };
+  //Saves relative URIs for the paths
+  await updateMedia(mediaId, {
+    type: message.contentType,
+    name: data.fileName,
+    filePath: data.fileUri,
+    previewPath: data.previewUri,
+  });
+  await storage.updateMessage(chatId, messageId, data);
+  return data;
 };

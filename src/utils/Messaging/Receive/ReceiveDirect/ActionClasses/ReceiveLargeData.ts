@@ -10,6 +10,7 @@ import {LargeDataParams} from '@utils/Messaging/interfaces';
 import {displaySimpleNotification} from '@utils/Notifications';
 import DirectReceiveAction from '../DirectReceiveAction';
 import {handleAsyncMediaDownload} from '../HandleMediaDownload';
+import store from '@store/appStore';
 
 class ReceiveLargeData extends DirectReceiveAction {
   async performAction(): Promise<void> {
@@ -47,10 +48,23 @@ class ReceiveLargeData extends DirectReceiveAction {
 
     //If autodownload is on, we do the following async
     if (permissions.autoDownload) {
-      handleAsyncMediaDownload(
+      this.handleDownload();
+    }
+  }
+  //actual download and post process step.
+  async handleDownload(): Promise<void> {
+    try {
+      this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+      await handleAsyncMediaDownload(
         this.chatId,
         this.decryptedMessageContent.messageId,
       );
+      store.dispatch({
+        type: 'PING',
+        payload: 'PONG',
+      });
+    } catch (error) {
+      console.log('Error downloading media: ', error);
     }
   }
 

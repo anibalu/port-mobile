@@ -13,7 +13,8 @@ import {PortColors} from '@components/ComponentUtils';
 import {DirectAvatarMapping} from '@configs/avatarmapping';
 import {AVATAR_ARRAY} from '@configs/constants';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import React, {FC} from 'react';
+import {getMedia} from '@utils/Storage/media';
+import React, {FC, useEffect, useState} from 'react';
 import {Image, Pressable, StyleSheet} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
@@ -21,71 +22,14 @@ export function AvatarBox({
   profileUri = AVATAR_ARRAY[0],
   avatarSize,
   onPress,
+  fromPreview = true,
 }: {
   profileUri?: string | null;
   avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+';
   onPress?: () => void;
+  fromPreview?: boolean;
 }) {
-  // set size of avatar according to specs
-  function avatarSizeStylePicker(avatarSize?: string) {
-    if (avatarSize === 'es') {
-      return styles.extraSmall;
-    } else if (avatarSize === 's') {
-      return styles.small;
-    } else if (avatarSize === 's+') {
-      return styles.smallMedium;
-    } else if (avatarSize === 'm') {
-      return styles.medium;
-    } else if (avatarSize === 'i') {
-      return styles.intermediate;
-    } else if (avatarSize === 'l') {
-      return styles.large;
-    } else {
-      return styles.medium;
-    }
-  }
-
-  const isAvatarUri = (uri?: string | null) => {
-    if (uri) {
-      const isAvatar = uri.substring(0, 9) === 'avatar://';
-      return isAvatar;
-    }
-    return true;
-  };
-  // fetches avatar Id (1 is default)
-  const getAvatarId = (uri?: string | null) => {
-    if (uri) {
-      const avatarId =
-        uri.substring(0, 9) === 'avatar://'
-          ? uri.replace('avatar://', '')
-          : '1';
-      return avatarId;
-    }
-    return '1';
-  };
-
-  // Function to retrieve Icon based on id. fetches default otherwise
-  const getIconById = (id: string): FC<SvgProps> => {
-    const avatarMappingEntry = DirectAvatarMapping.find(
-      entry => entry.id === id,
-    );
-    return avatarMappingEntry
-      ? avatarMappingEntry.Icon
-      : DirectAvatarMapping[0].Icon;
-  };
-
-  // Function to retrieve Icon based on id
-  const getIconByUri = (uri?: string | null): FC<SvgProps> => {
-    const id = getAvatarId(uri);
-    return getIconById(id);
-  };
   const Icon = getIconByUri(profileUri);
-
-  const getDisplayableUri = (uri: string): string => {
-    const displayableUri =
-      uri.substring(0, 7) === 'file://' ? uri : getSafeAbsoluteURI(uri, 'doc');
-    return displayableUri;
-  };
 
   return (
     <Pressable
@@ -99,6 +43,14 @@ export function AvatarBox({
           height={avatarSizeStylePicker(avatarSize).height}
           width={avatarSizeStylePicker(avatarSize).width}
         />
+      ) : isMediaUri(profileUri) ? (
+        profileUri && (
+          <DisplayFromMediaId
+            mediaUri={profileUri}
+            avatarSize={avatarSize}
+            fromPreview={fromPreview}
+          />
+        )
       ) : (
         profileUri && (
           <Image
@@ -108,6 +60,112 @@ export function AvatarBox({
         )
       )}
     </Pressable>
+  );
+}
+
+const isAvatarUri = (uri?: string | null) => {
+  if (uri) {
+    const isAvatar = uri.substring(0, 9) === 'avatar://';
+    return isAvatar;
+  }
+  return true;
+};
+
+// fetches avatar Id (1 is default)
+const getAvatarId = (uri?: string | null) => {
+  if (uri) {
+    const avatarId =
+      uri.substring(0, 9) === 'avatar://'
+        ? uri.replace(/^avatar:\/\//, '')
+        : '1';
+    return avatarId;
+  }
+  return '1';
+};
+
+// set size of avatar according to specs
+function avatarSizeStylePicker(avatarSize?: string) {
+  if (avatarSize === 'es') {
+    return styles.extraSmall;
+  } else if (avatarSize === 's') {
+    return styles.small;
+  } else if (avatarSize === 's+') {
+    return styles.smallMedium;
+  } else if (avatarSize === 'm') {
+    return styles.medium;
+  } else if (avatarSize === 'i') {
+    return styles.intermediate;
+  } else if (avatarSize === 'l') {
+    return styles.large;
+  } else {
+    return styles.medium;
+  }
+}
+
+// Function to retrieve Icon based on id. fetches default otherwise
+const getIconById = (id: string): FC<SvgProps> => {
+  const avatarMappingEntry = DirectAvatarMapping.find(entry => entry.id === id);
+  return avatarMappingEntry
+    ? avatarMappingEntry.Icon
+    : DirectAvatarMapping[0].Icon;
+};
+
+// Function to retrieve Icon based on id
+const getIconByUri = (uri?: string | null): FC<SvgProps> => {
+  const id = getAvatarId(uri);
+  return getIconById(id);
+};
+
+const isMediaUri = (uri?: string | null) => {
+  if (uri) {
+    const isMedia = uri.substring(0, 8) === 'media://';
+    return isMedia;
+  }
+  return true;
+};
+
+const getDisplayableUri = (uri: string): string => {
+  const displayableUri =
+    uri.substring(0, 7) === 'file://' ? uri : getSafeAbsoluteURI(uri, 'doc');
+  return displayableUri;
+};
+
+function DisplayFromMediaId({
+  mediaUri,
+  avatarSize,
+  fromPreview,
+}: {
+  mediaUri: string;
+  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+';
+  fromPreview: boolean;
+}) {
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  // fetches media Id
+  const getMediaId = (uri: string) => {
+    return uri.replace(/^media:\/\//, '');
+  };
+  useEffect(() => {
+    (async () => {
+      const mediaInfo = await getMedia(getMediaId(mediaUri));
+      if (mediaInfo) {
+        const previewUri = mediaInfo.previewPath;
+        const mainUri = mediaInfo.filePath;
+        if (fromPreview) {
+          setImageUri(previewUri ? previewUri : mainUri);
+        } else {
+          setImageUri(mainUri);
+        }
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mediaUri]);
+  return (
+    imageUri && (
+      <Image
+        source={{uri: getDisplayableUri(imageUri)}}
+        style={avatarSizeStylePicker(avatarSize)}
+      />
+    )
   );
 }
 

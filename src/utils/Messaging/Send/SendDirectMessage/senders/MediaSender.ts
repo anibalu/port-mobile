@@ -297,26 +297,37 @@ export class SendMediaDirectMessage<
           this.contentType,
           false,
         );
+        const newPreviewLocation = largeData.previewUri
+          ? await moveToLargeFileDir(
+              this.chatId,
+              largeData.previewUri,
+              null,
+              this.contentType,
+              false,
+            )
+          : undefined;
         largeData.fileUri = newLocation;
+        largeData.previewUri = newPreviewLocation;
         (this.savedMessage.data as LargeDataParamsStrict).fileUri = newLocation;
+        (this.savedMessage.data as LargeDataParamsStrict).previewUri =
+          newPreviewLocation;
       }
       //Add entry into media table
-      await saveNewMedia(
-        mediaId,
-        this.chatId,
-        this.messageId,
-        this.savedMessage.timestamp,
-      );
-      //Saves relative URIs for the paths
-      await updateMedia(mediaId, {
-        type: this.contentType,
-        filePath: largeData.fileUri,
-        name: largeData.fileName,
-        previewPath:
-          this.contentType === ContentType.video
-            ? largeData.previewUri || undefined
-            : undefined,
-      });
+      if (mediaId) {
+        await saveNewMedia(
+          mediaId,
+          this.chatId,
+          this.messageId,
+          this.savedMessage.timestamp,
+        );
+        //Saves relative URIs for the paths
+        await updateMedia(mediaId, {
+          type: this.contentType,
+          filePath: largeData.fileUri,
+          name: largeData.fileName,
+          previewPath: largeData.previewUri ? largeData.previewUri : undefined,
+        });
+      }
     } catch (e) {
       console.log('ERROR MAKING LOCAL COPY AND ADDING TO MEDIA DB: ', e);
     }

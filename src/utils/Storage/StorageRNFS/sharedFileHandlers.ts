@@ -2,7 +2,10 @@ import RNFS from 'react-native-fs';
 import {conversationsDir, filesDir, mediaDir, tempDir} from '@configs/paths';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {SHARED_FILE_SIZE_LIMIT_IN_BYTES} from '@configs/constants';
+import {
+  SHARED_FILE_SIZE_LIMIT_IN_BYTES,
+  FILE_COMPRESSION_THRESHOLD,
+} from '@configs/constants';
 import {decryptFile} from '@utils/Crypto/aesFile';
 import {isIOS} from '@components/ComponentUtils';
 
@@ -73,25 +76,26 @@ async function initialiseLargeFileDirAsync(chatId: string): Promise<string> {
 export async function moveToLargeFileDir(
   chatId: string,
   fileUri: string,
-  fileName: string,
+  fileName: string | null,
   contentType: ContentType,
   deleteOriginal: boolean = true,
 ): Promise<string> {
   if (contentType === ContentType.displayImage) {
     return fileUri;
   }
+  const newFileName = fileName ? fileName : getFileNameFromUri(fileUri);
   if (
     contentType === ContentType.image ||
     contentType === ContentType.video ||
     contentType === ContentType.audioRecording
   ) {
     return getRelativeURI(
-      await moveToMediaDir(chatId, fileUri, fileName, deleteOriginal),
+      await moveToMediaDir(chatId, fileUri, newFileName, deleteOriginal),
       'doc',
     );
   } else {
     return getRelativeURI(
-      await moveToFilesDir(chatId, fileUri, fileName, deleteOriginal),
+      await moveToFilesDir(chatId, fileUri, newFileName, deleteOriginal),
       'doc',
     );
   }
@@ -319,81 +323,46 @@ export function removeFilePrefix(fileUri: string) {
  */
 export function getSafeAbsoluteURI(
   fileURI: string,
-  location: 'doc' | 'cache' | 'tmp',
+  _location: 'doc' | 'cache' | 'tmp' = 'doc',
 ): string {
-  switch (location) {
-    case 'doc':
-      if (fileURI?.includes(RNFS.DocumentDirectoryPath)) {
-        console.log(
-          'Entered an absolute file path when a relative one was expected. This is not an issue.',
-        );
-        return addFilePrefix(fileURI);
-      } else {
-        return addFilePrefix(RNFS.DocumentDirectoryPath + '/' + fileURI);
-      }
-    case 'cache':
-      if (fileURI?.includes(RNFS.CachesDirectoryPath)) {
-        console.log(
-          'Entered an absolute file path when a relative one was expected. This is not an issue.',
-        );
-        return addFilePrefix(fileURI);
-      } else {
-        return addFilePrefix(RNFS.CachesDirectoryPath + '/' + fileURI);
-      }
-    case 'tmp':
-      if (fileURI?.includes(RNFS.TemporaryDirectoryPath)) {
-        console.log(
-          'Entered an absolute file path when a relative one was expected. This is not an issue.',
-        );
-        return addFilePrefix(fileURI);
-      } else {
-        //edge case on ios where temp director has a / at the end.
-        const separator = isIOS ? '' : '/';
-        return addFilePrefix(RNFS.TemporaryDirectoryPath + separator + fileURI);
-      }
+  if (
+    fileURI &&
+    (fileURI.includes(RNFS.CachesDirectoryPath) ||
+      fileURI.includes(RNFS.TemporaryDirectoryPath))
+  ) {
+    return addFilePrefix(fileURI);
+  } else {
+    return addFilePrefix(RNFS.DocumentDirectoryPath + '/' + fileURI);
   }
 }
 
 /**
- * Returns a safe relative URI that can accessed anywhere irrespective of file system changes unless the underlying storage is cleared
+ * Returns a safe relative URI for items stored in document storage
+ * that can accessed anywhere irrespective of file system changes unless the underlying storage is cleared.
+ * If item is not in document storage, returns unchanged uri.
  * @param fileURI
- * @param location storage location (can be documents, files and cache)
- * @returns {string} relative file URI
+ * @param location - deprecated - storage location (can be documents, files and cache)
+ * @returns {string} relative file URI or file URI depending on whether the file is in document storage.
  */
 export function getRelativeURI(
   fileURI: string,
-  location: 'doc' | 'cache' | 'tmp',
+  _location: 'doc' | 'cache' | 'tmp' = 'doc',
 ): string {
-  switch (location) {
-    case 'doc':
-      if (isIOS) {
-        const documentsIndex = fileURI.indexOf('Documents/');
-        return fileURI.substring(documentsIndex + 'Documents/'.length);
-      } else {
-        const documentsIndex = fileURI.indexOf('files/');
-        return fileURI.substring(documentsIndex + 'files/'.length);
-      }
-    case 'cache':
-      if (isIOS) {
-        const cachesIndex = fileURI.indexOf('Caches/');
-        return fileURI.substring(cachesIndex + 'Caches/'.length);
-      } else {
-        const cachesIndex = fileURI.indexOf('cache/');
-        return fileURI.substring(cachesIndex + 'cache/'.length);
-      }
-    case 'tmp':
-      if (isIOS) {
-        const tmpIndex = fileURI.indexOf('tmp/');
-        return fileURI.substring(tmpIndex + 'tmp/'.length);
-      } else {
-        const tmpIndex = fileURI.indexOf('cache/');
-        return fileURI.substring(tmpIndex + 'cache/'.length);
-      }
+  if (fileURI.includes(RNFS.DocumentDirectoryPath)) {
+    return removeFilePrefix(fileURI.replace(RNFS.DocumentDirectoryPath, ''));
+  } else {
+    return fileURI;
   }
 }
 
 //tmp directory name repeats are not handled in ios. thus, we need to handle it.
-async function checkRepeteInTmp(fileUri: string) {
+async function checkRepeteInTmp(fileUri: string, source?: string) {
+  //if source is already in temp directorym don't do anything.
+  if (source) {
+    if (source.includes(RNFS.TemporaryDirectoryPath)) {
+      return;
+    }
+  }
   // check if repeat exists and delete if exists
   const doesExist = await RNFS.exists(fileUri);
   if (doesExist) {
@@ -401,18 +370,37 @@ async function checkRepeteInTmp(fileUri: string) {
   }
 }
 
-export async function moveToTmp(source: string, fileName: string) {
+/**
+ * Moves a source file to the tmp directory.
+ * @param source - source file absolute path
+ * @param fileName - file name
+ * @returns - absolute file path with file:// prefix added.
+ */
+export async function moveToTmp(source: string, fileName?: string) {
   try {
     //edge case on ios where temp director has a / at the end.
     const separator = isIOS ? '' : '/';
-    const newPath =
-      RNFS.TemporaryDirectoryPath + separator + fileName.replace(/\//g, '');
-    await checkRepeteInTmp(newPath);
+    const newFileName = fileName
+      ? fileName.replace(/\//g, '')
+      : getFileNameFromUri(source);
+    const newPath = RNFS.TemporaryDirectoryPath + separator + newFileName;
+    await checkRepeteInTmp(newPath, decodeURIComponent(source));
     await RNFS.moveFile(decodeURIComponent(source), newPath);
     return addFilePrefix(newPath);
   } catch (error) {
     console.log('Unable to move to tmp dir', error);
     return null;
+  }
+}
+
+function getFileNameFromUri(uri: string): string {
+  try {
+    const pathname = uri;
+    const fileName = pathname.substring(pathname.lastIndexOf('/') + 1);
+    return fileName;
+  } catch (error) {
+    console.error('Invalid URI:', error);
+    return generateRandomHexId();
   }
 }
 
@@ -435,5 +423,19 @@ export async function copyToTmp(
   } catch (error) {
     console.log('Unable to copy to tmp dir', error);
     return null;
+  }
+}
+
+/**
+ * Checks if a file is over the compression threshold to trigger compression
+ * @param filePath - absolute file path of the media being considered for compression
+ * @returns - whether compression is required.
+ */
+export async function shouldCompress(filePath: string) {
+  const fileStat = await RNFS.stat(filePath);
+  if (fileStat.size > FILE_COMPRESSION_THRESHOLD) {
+    return true;
+  } else {
+    return false;
   }
 }

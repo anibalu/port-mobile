@@ -41,7 +41,6 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {createThumbnail} from 'react-native-create-thumbnail';
 import FileViewer from 'react-native-file-viewer';
 import Pdf from 'react-native-pdf';
 import Carousel from 'react-native-snap-carousel';
@@ -53,6 +52,7 @@ import {GroupMemberStrict} from '@utils/Groups/interfaces';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
+import {createPreview} from '@utils/ImageUtils';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -86,6 +86,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Preprocess media by compressing if necessary and moving the media to the tmp folder.
+   */
   const preprocessMedia = async () => {
     setLoading(true);
     const newList = [];
@@ -93,23 +96,34 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
       if (item.contentType === ContentType.video) {
         const compressedUri = await compressVideo(
           item.data.fileUri,
-          compressionError,
+          item.data.fileName,
         );
-        item.data.fileUri = compressedUri ? compressedUri : item.data.fileUri;
-        item.thumbnailUri = (
-          await createThumbnail({
-            url: item.data.fileUri,
-            timeStamp: 0,
-          })
-        ).path;
-        console.log('URI is: ', item);
+        if (!compressedUri) {
+          compressionError();
+        }
+        item.data.fileUri = compressedUri
+          ? compressedUri
+          : await moveToTmp(item.data.fileUri, item.data.fileName || 'video');
+        item.thumbnailUri = await createPreview(ContentType.video, {
+          url: item.data.fileUri,
+        });
+        item.data.previewUri = item.thumbnailUri;
       }
       if (item.contentType === ContentType.image) {
         const compressedUri = await compressImage(
           item.data.fileUri,
-          compressionError,
+          item.data.fileName,
         );
-        item.data.fileUri = compressedUri ? compressedUri : item.data.fileUri;
+        if (!compressedUri) {
+          compressionError();
+        }
+        item.data.fileUri = compressedUri
+          ? compressedUri
+          : await moveToTmp(item.data.fileUri, item.data.fileName || 'image');
+        item.thumbnailUri = await createPreview(ContentType.image, {
+          url: item.data.fileUri,
+        });
+        item.data.previewUri = item.thumbnailUri;
       }
       if (item.contentType === ContentType.file) {
         const movedUri = await moveToTmp(
@@ -291,7 +305,6 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   const onSend = async () => {
     setSending(true);
     try {
-      console.log('entered sender');
       for (const data of dataList) {
         const uploader = new LargeDataUpload(
           getRelativeURI(data.data.fileUri, 'tmp'),
@@ -309,9 +322,6 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
             dataList.indexOf(data) === dataList.length - 1
           ) {
             data.data.text = message;
-          }
-          if (data.contentType === ContentType.video) {
-            data.data.previewUri = getRelativeURI(data.thumbnailUri, 'cache');
           }
           //creates a copy of the media in each selected member's chat
           const newData = {

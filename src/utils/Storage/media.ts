@@ -27,12 +27,21 @@ export async function updateMedia(mediaId: string, update: MediaUpdate) {
 }
 
 /**
+ * Returns an media info given a media Id.
+ * @param mediaId - media Id associated with info
+ * @returns - media info
+ */
+export async function getMedia(mediaId: string): Promise<MediaEntry | null> {
+  return await dbCalls.getMedia(mediaId);
+}
+
+/**
  * Returns all media of a specified type from a given chatID
  * @param chatId
  * @param type ContentType that determines the file type to be searched for
  * @returns {Promise<MediaEntry[]>} list
  */
-export async function getMedia(
+export async function getMediaForChat(
   chatId: string,
   type: ContentType,
 ): Promise<MediaEntry[]> {

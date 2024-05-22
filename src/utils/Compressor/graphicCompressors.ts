@@ -1,41 +1,53 @@
+import {
+  shouldCompress,
+  moveToTmp,
+} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {Image, Video} from 'react-native-compressor';
 
+/**
+ * Compress image if above threshhold. If not don't compress.
+ * @param filePath - absolute filepath of image to compress
+ * @param fileName - file name of file
+ * @returns - absolute file path of new file in tmp directory
+ */
 export const compressImage = async (
   filePath: string,
-  onFail: () => void,
-  onProgressChanged?: (progress: number) => {},
-): Promise<string | undefined> => {
+  fileName: string = 'image',
+): Promise<string | undefined | null> => {
   try {
-    const result = await Image.compress(filePath, {
-      progressDivider: 10,
-      downloadProgress: onProgressChanged,
-    });
-    console.log('Image compressed');
-    return result;
+    const shouldBeCompressed = await shouldCompress(filePath);
+    if (shouldBeCompressed) {
+      const result = await Image.compress(filePath, {});
+      return result;
+    } else {
+      return await moveToTmp(filePath, fileName);
+    }
   } catch (e) {
     console.log('Error compressing image:', e);
-    onFail();
-    return undefined;
+    return null;
   }
 };
 
+/**
+ * Compress video if above threshhold. If not don't compress.
+ * @param filePath - absolute filepath of video to compress
+ * @param fileName - file name of file
+ * @returns - absolute file path of new file in tmp directory
+ */
 export const compressVideo = async (
   filePath: string,
-  onFail: () => void,
-  onProgressChanged?: (progress: number) => {},
-): Promise<string | undefined> => {
+  fileName: string = 'video',
+): Promise<string | undefined | null> => {
   try {
-    const result = await Video.compress(filePath, {
-      progressDivider: 10,
-      downloadProgress: onProgressChanged,
-    });
-
-    console.log('Video compressed');
-
-    return result;
+    const shouldBeCompressed = await shouldCompress(filePath);
+    if (shouldBeCompressed) {
+      const result = await Video.compress(filePath, {});
+      return result;
+    } else {
+      return await moveToTmp(filePath, fileName);
+    }
   } catch (e) {
     console.log('Error compressing video:', e);
-    onFail();
-    return undefined;
+    return null;
   }
 };

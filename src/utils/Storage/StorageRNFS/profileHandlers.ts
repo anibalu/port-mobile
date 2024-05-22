@@ -2,7 +2,7 @@ import {profileDir} from '@configs/paths';
 import RNFS from 'react-native-fs';
 import {connectionFsSync} from '../../Synchronization';
 import {FileAttributes} from '../interfaces';
-import {getRelativeURI} from './sharedFileHandlers';
+import {getRelativeURI, getSafeAbsoluteURI} from './sharedFileHandlers';
 
 /**
  * Creates a profile directory if it doesn't exist and returns the path to it.
@@ -42,7 +42,7 @@ export async function removeProfilePictureRNFS(
   blocking: boolean = true,
 ) {
   const synced = async () => {
-    await RNFS.unlink(file.fileUri);
+    await RNFS.unlink(getSafeAbsoluteURI(file.fileUri, 'doc'));
   };
   if (blocking) {
     await connectionFsSync(synced);

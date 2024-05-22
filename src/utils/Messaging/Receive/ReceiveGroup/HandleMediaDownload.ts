@@ -1,7 +1,7 @@
 import store from '@store/appStore';
 import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
 import * as storage from '@utils/Storage/messages';
-import {createThumbnail} from 'react-native-create-thumbnail';
+import {createPreview} from '@utils/ImageUtils';
 import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
 import {getRelativeURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {updateMedia} from '@utils/Storage/media';
@@ -31,9 +31,9 @@ export const handleAsyncMediaDownload = async (
 
       const previewPath =
         message.contentType === ContentType.video
-          ? await createThumbnail({
+          ? await createPreview(ContentType.video, {
+              chatId: chatId,
               url: fileUri,
-              timeStamp: 0,
               cacheName: mediaId,
             })
           : undefined;
@@ -42,8 +42,8 @@ export const handleAsyncMediaDownload = async (
         fileUri: getRelativeURI(fileUri, 'doc'),
         mediaId: null,
         key: null,
-        previewUri: previewPath?.path
-          ? getRelativeURI(previewPath.path, 'cache')
+        previewUri: previewPath
+          ? getRelativeURI(previewPath, 'cache')
           : undefined,
       };
 

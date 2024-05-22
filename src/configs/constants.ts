@@ -55,7 +55,7 @@ export const DEFAULT_PROFILE_AVATAR_INFO: FileAttributes = {
   fileType: 'avatar',
 };
 export const MAX_PERMISSION_PRESETS = 5;
-export const SHARED_FILE_SIZE_LIMIT_IN_BYTES = 10000000; //10MB limit
+export const SHARED_FILE_SIZE_LIMIT_IN_BYTES = 32 * 1024 * 1024; //32MB limit
 export const FILE_ENCRYPTION_KEY_LENGTH = 160;
 
 //CryptoIDs used for identifying reactors in reactions.
@@ -83,3 +83,7 @@ export const defaultFolderInfo: FolderInfo = {
 export const defaultSuperportConnectionsLimit: number = 50;
 
 export const safeModalCloseDuration: number = 500;
+
+//images and videos get compressed if higher than threshold.(currently 6MB)
+export const FILE_COMPRESSION_THRESHOLD: number = 6 * 1024 * 1024;
+export const PREVIEW_PICTURE_DIMENSIONS = 200;

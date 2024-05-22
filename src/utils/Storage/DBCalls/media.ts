@@ -29,6 +29,28 @@ export async function newMedia(
 }
 
 /**
+ * Returns an media info given a media Id.
+ * @param mediaId - media Id associated with info
+ * @returns - media info
+ */
+export async function getMedia(mediaId: string): Promise<MediaEntry | null> {
+  let match: MediaEntry | null = null;
+  await runSimpleQuery(
+    `
+    SELECT * FROM media
+    WHERE mediaId = ?;
+    `,
+    [mediaId],
+    (tx, results) => {
+      if (results.rows.length > 0) {
+        match = results.rows.item(0);
+      }
+    },
+  );
+  return match;
+}
+
+/**
  * Update a media entry
  * @param mediaId the media to update
  * @param update changes to be applied

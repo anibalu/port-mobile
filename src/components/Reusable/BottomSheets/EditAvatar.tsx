@@ -20,7 +20,7 @@ import {
   screen,
 } from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
-import {DEFAULT_AVATAR, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {FileAttributes} from '@utils/Storage/interfaces';
 import {DirectAvatarMapping} from '@configs/avatarmapping';
@@ -29,6 +29,7 @@ import {AvatarBox} from '../AvatarBox/AvatarBox';
 import PrimaryButton from '../LongButtons/PrimaryButton';
 import OptionWithRightIcon from '../OptionButtons/OptionWithRightIcon';
 import SimpleCard from '../Cards/SimpleCard';
+import {compressImage} from '@utils/Compressor/graphicCompressors';
 
 interface EditAvatarProps {
   localImageAttr: FileAttributes;
@@ -73,7 +74,7 @@ export default function EditAvatar(props: EditAvatarProps) {
   const cleanClose = () => {
     onClose();
   };
-  //Lets user pic a new picture from gallery
+  //Lets user pic a new picture from gallery and compress it.
   async function setNewPicture() {
     try {
       const selectedAssets = await launchImageLibrary({
@@ -81,10 +82,18 @@ export default function EditAvatar(props: EditAvatarProps) {
         selectionLimit: 1,
       });
       // setting profile uri for display
-      if (selectedAssets.assets && selectedAssets.assets[0]) {
+      if (
+        selectedAssets.assets &&
+        selectedAssets.assets[0] &&
+        selectedAssets.assets[0].uri
+      ) {
+        const compressedUri = await compressImage(
+          selectedAssets.assets[0].uri,
+          selectedAssets.assets[0].fileName || 'profilePic',
+        );
         setImageAttr({
-          fileUri: selectedAssets.assets[0].uri || DEFAULT_AVATAR,
-          fileName: selectedAssets.assets[0].fileName || '1',
+          fileUri: compressedUri || selectedAssets.assets[0].uri,
+          fileName: selectedAssets.assets[0].fileName || 'profilePic',
           fileType: selectedAssets.assets[0].type || 'avatar',
         });
         setSelectedAvatar('');

@@ -24,8 +24,6 @@ class LargeDataUpload {
   ) {
     //we can assume this file uri is correctly prepended with "file://"
     this.fileUri = getSafeAbsoluteURI(fileUri, fileSource);
-    console.log('file uri', fileUri);
-    console.log('file uri 2', this.fileUri);
     this.fileName = fileName;
     this.fileType = fileType;
     this.key = key;

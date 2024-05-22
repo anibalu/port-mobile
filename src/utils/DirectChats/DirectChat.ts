@@ -12,7 +12,6 @@ import {
 import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {
   DirectPermissions,
   Permissions,
@@ -44,13 +43,6 @@ class DirectChat {
   private async loadChatData() {
     this.chatId = this.checkChatIdNotNull();
     const newChatData = await storage.readLineData(this.chatId);
-
-    //Profile pictures can be avatars or DPs. We check and return URIs conditionally on this.
-    if (newChatData?.displayPic) {
-      newChatData.displayPic = newChatData?.displayPic.includes('avatar://')
-        ? newChatData.displayPic
-        : getSafeAbsoluteURI(newChatData.displayPic, 'doc');
-    }
     if (!newChatData) {
       throw new Error('NullChatData');
     }

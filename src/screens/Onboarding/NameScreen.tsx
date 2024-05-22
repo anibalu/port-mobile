@@ -12,7 +12,7 @@ import {
 } from '@components/NumberlessText';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {processName} from '@utils/Profile';
+import {getRandomAvatarInfo, processName} from '@utils/Profile';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {
   BackHandler,
@@ -23,11 +23,7 @@ import {
   TouchableWithoutFeedback,
   Linking,
 } from 'react-native';
-import {
-  DEFAULT_PROFILE_AVATAR_INFO,
-  MIN_NAME_LENGTH,
-  NAME_LENGTH_LIMIT,
-} from '@configs/constants';
+import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
 import {checkPermissions} from '@utils/AppPermissions/checkAllPermissions';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import {FileAttributes} from '@utils/Storage/interfaces';
@@ -43,7 +39,7 @@ function NameScreen({navigation}: Props): ReactNode {
   const [name, setName] = useState('');
   //setting default profile picture attributes
   const [imageAttr, setImageAttr] = useState<FileAttributes>(
-    DEFAULT_PROFILE_AVATAR_INFO,
+    getRandomAvatarInfo(),
   );
 
   //controls opening of bottom sheet to edit profile picture

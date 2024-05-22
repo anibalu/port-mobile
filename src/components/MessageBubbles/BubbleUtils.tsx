@@ -17,6 +17,7 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
 import FileViewer from 'react-native-file-viewer';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import store from '@store/appStore';
 
 //max width of message bubble
 export const MAX_WIDTH = screen.width - 2 * PortSpacing.secondary.uniform - 64;
@@ -87,7 +88,15 @@ export const getReplyBubbleName = async (
 };
 
 export const handleDownload = async (chatId: string, messageId: string) => {
-  await directMedia(chatId, messageId);
+  try {
+    await directMedia(chatId, messageId);
+    store.dispatch({
+      type: 'PING',
+      payload: 'PONG',
+    });
+  } catch (error) {
+    console.error('Error downloading media: ', error);
+  }
 };
 
 export const handleMediaOpen = (

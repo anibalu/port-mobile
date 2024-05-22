@@ -26,7 +26,7 @@ class LargeDataDownload {
     this.mediaId = mediaId;
     this.key = key;
     this.encryptedTempFilePath = null;
-    this.fileName = fileName;
+    this.fileName = fileName || ''; //covers the case where fileName maybe null.
     this.outputFilePath = null;
   }
 

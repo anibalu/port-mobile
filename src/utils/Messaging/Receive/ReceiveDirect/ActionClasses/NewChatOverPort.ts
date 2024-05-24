@@ -11,6 +11,7 @@ class NewChatOverPort extends DirectReceiveAction {
       this.message.lineLinkId,
       BundleTarget.direct,
       this.message.pairHash,
+      this.message.introduction,
     );
   }
 }

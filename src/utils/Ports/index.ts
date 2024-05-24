@@ -25,6 +25,7 @@ import store from '@store/appStore';
 import {hasExpired} from '@utils/Time';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {ChatType} from '@utils/Connections/interfaces';
+import {IntroMessage} from '@utils/DirectChats/DirectChat';
 
 export function bundleTargetToChatType(x: BundleTarget) {
   if (x === BundleTarget.direct || x === BundleTarget.superportDirect) {
@@ -327,18 +328,25 @@ export async function useCreatedBundle(
   portId: string,
   bundleTarget: BundleTarget,
   pairHash: string | null = null,
+  introMessage: IntroMessage | null = null,
 ) {
   try {
     switch (bundleTarget) {
       case BundleTarget.direct:
         triggerNewChatStoreUpdate(chatId, portId);
-        await direct.newChatOverGeneratedPortBundle(portId, chatId, pairHash);
+        await direct.newChatOverGeneratedPortBundle(
+          portId,
+          chatId,
+          pairHash,
+          introMessage,
+        );
         break;
       case BundleTarget.superportDirect:
         await superport.newChatOverCreatedSuperportBundle(
           portId,
           chatId,
           pairHash,
+          introMessage,
         );
         triggerNewChatStoreUpdate(chatId, portId);
         break;

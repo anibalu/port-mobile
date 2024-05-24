@@ -6,7 +6,7 @@ import {
   defaultSuperportConnectionsLimit,
 } from '@configs/constants';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import DirectChat from '@utils/DirectChats/DirectChat';
+import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
 import {ContentType} from '@utils/Messaging/interfaces';
 import * as storageReadPorts from '@utils/Storage/readPorts';
 import * as storageSuperports from '@utils/Storage/superPorts';
@@ -72,13 +72,14 @@ export async function createNewSuperport(
   const createdSuperport = await getCreatedSuperportData(portId);
   //generate bundle to display
   const displayBundle: DirectSuperportBundle = {
-    portId: portId,
-    version: version,
+    portId,
+    version,
     org: getOrganisationName(),
     target: BundleTarget.superportDirect,
-    name: name,
-    rad: rad,
-    keyHash: keyHash,
+    name,
+    rad,
+    keyHash,
+    pubkey: await cryptoDriver.getPublicKey(),
   };
   return {bundle: displayBundle, superport: createdSuperport};
 }
@@ -97,13 +98,14 @@ export async function fetchCreatedSuperportBundle(
   const keyHash = await cryptoDriver.getPublicKeyHash();
   const version = getCurrentSuperportVersion();
   const displayBundle: DirectSuperportBundle = {
-    portId: portId,
-    version: version,
+    portId,
+    version,
     org: getOrganisationName(),
     target: BundleTarget.superportDirect,
     name: await getProfileName(),
-    rad: rad,
-    keyHash: keyHash,
+    rad,
+    keyHash,
+    pubkey: await cryptoDriver.getPublicKey(),
   };
   return {bundle: displayBundle, superport: createdSuperport};
 }
@@ -203,6 +205,10 @@ export async function acceptSuperportBundle(
     portBundle.rad,
   );
   const cryptoId = cryptoDriver.getCryptoId();
+  if (portBundle.pubkey) {
+    // compute shared secret immediately if peer has readily shared their pubkey
+    cryptoDriver.updateSharedSecret(portBundle.pubkey);
+  }
   //save read port
   await storageReadPorts.newReadPort({
     portId: portBundle.portId,
@@ -279,6 +285,7 @@ export async function newChatOverCreatedSuperportBundle(
   portId: string,
   chatId: string,
   pairHash: string | null = null,
+  introMessage: IntroMessage | null = null,
 ) {
   const createdSuperport: SuperportData = await getCreatedSuperportData(portId);
   if (!createdSuperport.cryptoId) {
@@ -321,6 +328,7 @@ export async function newChatOverCreatedSuperportBundle(
     chatId,
     true,
     pairHash,
+    introMessage,
   );
   //increase the count of connections made using this superport
   await storageSuperports.incrementConnectionsMade(

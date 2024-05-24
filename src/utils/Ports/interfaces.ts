@@ -116,7 +116,7 @@ export interface ReadPortData {
   folderId: string;
 }
 
-export interface BundleBase {
+interface BundleBase {
   portId: string;
   version: string;
   org: string;
@@ -125,30 +125,26 @@ export interface BundleBase {
 }
 
 /**
- * Describes data displayed in a QR or link for a port
+ * Describes data essential for forming a direct connection
  */
-export interface PortBundle extends BundleBase {
-  portId: string;
-  version: string;
-  org: string;
-  target: BundleTarget.direct;
-  name: string;
-  expiryTimestamp: string | null;
+interface DirectBundle extends BundleBase {
   rad: string;
   keyHash: string;
+  pubkey?: string;
+  expiryTimestamp?: string | null; // @deprecated
+}
+
+/**shared for a direct Port
+ */
+export interface PortBundle extends DirectBundle {
+  target: BundleTarget.direct;
 }
 
 /**
- * Describes data displayed in a QR or link for a direct superport
+ * Describes data shared for a direct Superport
  */
-export interface DirectSuperportBundle extends BundleBase {
-  portId: string;
-  version: string;
-  org: string;
+export interface DirectSuperportBundle extends DirectBundle {
   target: BundleTarget.superportDirect;
-  name: string;
-  rad: string;
-  keyHash: string;
 }
 
 /**

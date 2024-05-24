@@ -10,6 +10,7 @@ class NewChatOverSuperport extends DirectReceiveAction {
       this.message.superportId,
       BundleTarget.superportDirect,
       this.message.pairHash,
+      this.message.introduction,
     );
   }
 }

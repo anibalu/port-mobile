@@ -2,6 +2,7 @@ import {
   CURRENT_PORT_VERSION,
   DEFAULT_NAME,
   IDEAL_UNUSED_PORTS_NUMBER,
+  ORG_NAME,
   defaultFolderId,
 } from '@configs/constants';
 import * as API from './APICalls';
@@ -16,7 +17,7 @@ import {
   getExpiryTimestamp,
 } from '@utils/Time';
 import {expiryOptionsTypes} from '@utils/Time/interfaces';
-import DirectChat from '@utils/DirectChats/DirectChat';
+import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
 import {ContactBundleParams, ContentType} from '@utils/Messaging/interfaces';
 import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import {getMessage, updateMessage} from '@utils/Storage/messages';
@@ -68,14 +69,6 @@ function getCurrentPortVersion() {
 }
 
 /**
- * to determine legitimate ports
- * @returns - organisation identifier
- */
-function getOrganisationName() {
-  return 'numberless.tech';
-}
-
-/**
  * Fetches a generated port's data
  * @param portId
  * @returns - generated data
@@ -124,6 +117,7 @@ export async function generateNewPortBundle(
   const cryptoId = cryptoDriver.getCryptoId();
   const rad = await cryptoDriver.getRad();
   const keyHash = await cryptoDriver.getPublicKeyHash();
+  const pubkey = await cryptoDriver.getPublicKey();
   const version = getCurrentPortVersion();
   const name = await getProfileName();
   const currentTimestamp = generateISOTimeStamp();
@@ -140,14 +134,15 @@ export async function generateNewPortBundle(
   });
   //generate bundle to display
   const displayBundle: PortBundle = {
-    portId: portId,
-    version: version,
-    org: getOrganisationName(),
+    portId,
+    version,
+    org: ORG_NAME,
     target: BundleTarget.direct,
-    name: name,
-    expiryTimestamp: expiryTimestamp,
-    rad: rad,
-    keyHash: keyHash,
+    name,
+    expiryTimestamp,
+    rad,
+    keyHash,
+    pubkey,
   };
   return displayBundle;
 }
@@ -187,6 +182,10 @@ export async function acceptPortBundle(
     portBundle.keyHash,
     portBundle.rad,
   );
+  if (portBundle.pubkey) {
+    // compute shared secret immediately if peer has readily shared their pubkey
+    cryptoDriver.updateSharedSecret(portBundle.pubkey);
+  }
   const cryptoId = cryptoDriver.getCryptoId();
   //save read port
   await storageReadPorts.newReadPort({
@@ -288,6 +287,7 @@ export async function newChatOverGeneratedPortBundle(
   portId: string,
   chatId: string,
   pairHash: string | null = null,
+  introMessage: IntroMessage | null = null,
 ) {
   const generatedPort: PortData = await getGeneratedPortData(portId);
   if (!generatedPort.cryptoId) {
@@ -324,6 +324,7 @@ export async function newChatOverGeneratedPortBundle(
     chatId,
     false,
     pairHash,
+    introMessage,
   );
   await storageMyPorts.deletePortData(generatedPort.portId);
   const sender = new SendMessage(chatId, ContentType.handshakeA1, {

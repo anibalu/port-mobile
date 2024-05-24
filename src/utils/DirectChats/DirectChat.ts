@@ -20,13 +20,18 @@ import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import store from '@store/appStore';
 import {isUserBlocked} from '@utils/UserBlocking';
 import {deleteAllMessagesInChat} from '@utils/Storage/messages';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import {getProfileInfo} from '@utils/Profile';
+import {DEFAULT_NAME} from '@configs/constants';
 
 class DirectChat {
   private chatId: string | null;
   private chatData: LineDataStrict | null;
+  private cryptoDriver: CryptoDriver | null;
   constructor(chatId: string | null = null) {
     this.chatId = chatId;
     this.chatData = null;
+    this.cryptoDriver = null;
   }
   private checkChatIdNotNull(): string {
     if (this.chatId) {
@@ -55,8 +60,14 @@ class DirectChat {
     lineId: string | null = null,
     isSuperport: boolean = false,
     pairHash: string | null = null,
+    introMessage: IntroMessage | null = null,
   ) {
     if (lineId) {
+      // If I created the bundle
+      if (!introMessage) {
+        // requre an intro message
+        return;
+      }
       this.chatId = lineId;
       const isBlocked = await isUserBlocked(pairHash || '');
       if (isBlocked) {
@@ -68,10 +79,18 @@ class DirectChat {
       update.pairHash = pairHash;
       await storage.updateLine(this.chatId, update);
       await this.loadChatData();
+      await this.verifyIntroMessage(introMessage);
     } else if (linkId) {
+      // If I read a bundle
       const {chatId, pairHash} = isSuperport
-        ? await API.newDirectChatFromSuperport(linkId)
-        : await API.newDirectChatFromPort(linkId);
+        ? await API.newDirectChatFromSuperport(
+            linkId,
+            await this.generateIntroMessage(update.cryptoId),
+          )
+        : await API.newDirectChatFromPort(
+            linkId,
+            await this.generateIntroMessage(update.cryptoId),
+          );
       this.chatId = chatId;
       const isBlocked = await isUserBlocked(pairHash);
       if (isBlocked) {
@@ -97,6 +116,7 @@ class DirectChat {
       authenticated: false,
       folderId: folderId,
     });
+    await this.toggleAuthenticated();
   }
   public getChatId(): string {
     return this.checkChatIdNotNull();
@@ -111,6 +131,14 @@ class DirectChat {
     this.chatData = this.checkChatDataNotNull();
     return this.chatData.cryptoId;
   }
+
+  async getCryptoDriver(): Promise<CryptoDriver> {
+    if (this.cryptoDriver) {
+      return this.cryptoDriver;
+    }
+    return new CryptoDriver(await this.getCryptoId());
+  }
+
   public async getPermissions(): Promise<DirectPermissions> {
     await this.loadChatData();
     this.chatData = this.checkChatDataNotNull();
@@ -193,6 +221,52 @@ class DirectChat {
     await storage.deleteLine(this.chatId);
     await deleteConnection(this.chatId);
   }
+
+  /**
+   * Generate an introductory message for the initiatior of a chat,
+   * that is the person who created the link
+   * @returns an introductory message
+   */
+  async generateIntroMessage(cryptoId: string): Promise<IntroMessage> {
+    const name = (await getProfileInfo())?.name || DEFAULT_NAME;
+    const cryptoDriver = new CryptoDriver(cryptoId);
+    const rad = await cryptoDriver.getRad();
+    const plaintextSecret: PlaintextSecretContent = {
+      name,
+      rad,
+    };
+    const encryptedSecretContent = await cryptoDriver.encrypt(
+      JSON.stringify(plaintextSecret),
+    );
+    return {pubkey: await cryptoDriver.getPublicKey(), encryptedSecretContent};
+  }
+
+  /**
+   * As the person who initiated a connection, verify a peer's introductory
+   * message to determine their authenticity
+   * @param intro an introductory message, used to verify a peer
+   */
+  public async verifyIntroMessage(intro: IntroMessage): Promise<void> {
+    const cryptoDriver = await this.getCryptoDriver();
+    await cryptoDriver.updateSharedSecret(intro.pubkey);
+    const plaintextSecret = JSON.parse(
+      await cryptoDriver.decrypt(intro.encryptedSecretContent),
+    ) as PlaintextSecretContent;
+    if ((await cryptoDriver.getRad()) === plaintextSecret.rad) {
+      await this.toggleAuthenticated();
+      await this.updateName(plaintextSecret.name);
+    }
+  }
+}
+
+export interface IntroMessage {
+  pubkey: string;
+  encryptedSecretContent: string;
+}
+
+interface PlaintextSecretContent {
+  rad: string;
+  name: string;
 }
 
 export default DirectChat;

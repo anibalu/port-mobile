@@ -1,6 +1,7 @@
 import {LINE_MANAGEMENT_RESOURCE, LINE_RETRY_URL} from '@configs/api';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+import {IntroMessage} from './DirectChat';
 
 interface newLineData {
   chatId: string;
@@ -8,12 +9,14 @@ interface newLineData {
 }
 export async function newDirectChatFromPort(
   linkId: string,
+  introMessage: IntroMessage,
 ): Promise<newLineData> {
   const token = await getToken();
   const response = await axios.post(
     LINE_MANAGEMENT_RESOURCE,
     {
       lineLinkId: linkId,
+      introMessage,
     },
     {headers: {Authorization: `${token}`}},
   );
@@ -28,12 +31,14 @@ export async function newDirectChatFromPort(
 
 export async function newDirectChatFromSuperport(
   superportId: string,
+  introMessage: IntroMessage,
 ): Promise<newLineData> {
   const token = await getToken();
   const response = await axios.post(
     LINE_MANAGEMENT_RESOURCE,
     {
       lineSuperportId: superportId,
+      introMessage,
     },
     {headers: {Authorization: `${token}`}},
   );

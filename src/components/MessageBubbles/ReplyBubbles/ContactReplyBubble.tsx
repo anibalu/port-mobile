@@ -33,7 +33,7 @@ export default function ContactReplyBubble({
 
   memberName: string;
 }): ReactNode {
-  const contactName = (reply.data as ContactBundleParams).name;
+  const contactName = (reply.data as ContactBundleParams).bundle.name;
   return (
     <View style={styles.container}>
       <View style={styles.replyContainer}>

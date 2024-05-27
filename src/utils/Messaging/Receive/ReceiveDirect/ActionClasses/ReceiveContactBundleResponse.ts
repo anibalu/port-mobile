@@ -8,9 +8,11 @@ import {relayContactBundle} from '@utils/ContactSharing';
 class ReceiveContactBundleResponse extends DirectReceiveAction {
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    const receivedBundle = this.decryptedMessageContent
+
+    const {approvedMessageId, bundle, source} = this.decryptedMessageContent
       .data as ContactBundleResponseParams;
-    await relayContactBundle(this.chatId, receivedBundle);
+
+    await relayContactBundle(this.chatId, bundle, approvedMessageId, source);
   }
 }
 

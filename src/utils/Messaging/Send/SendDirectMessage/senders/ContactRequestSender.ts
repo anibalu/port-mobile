@@ -16,11 +16,11 @@ import * as API from '../../APICalls';
 import {ReadStatus} from '@utils/Connections/interfaces';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
 
-export const contactBundleContentTypes: ContentType[] = [
-  ContentType.contactBundle,
+export const contactBundleRequestContentTypes: ContentType[] = [
+  ContentType.contactBundleRequest,
 ];
 
-export class SendContactBundleDirectMessage<
+export class SendContactRequestDirectMessage<
   T extends ContentType,
 > extends SendDirectMessage<T> {
   chatId: string; //chatId of chat
@@ -63,7 +63,7 @@ export class SendContactBundleDirectMessage<
       replyId: this.replyId,
       expiresOn: null,
     };
-    console.log('contact bundle payload', this.payload.data);
+    console.log('contact request payload', this.payload.data);
     this.expiresOn = null;
   }
 
@@ -103,7 +103,7 @@ export class SendContactBundleDirectMessage<
    */
   private validate(): void {
     try {
-      if (!contactBundleContentTypes.includes(this.contentType)) {
+      if (!contactBundleRequestContentTypes.includes(this.contentType)) {
         throw new Error('NotContactBundleTypeError');
       }
       if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
@@ -122,7 +122,10 @@ export class SendContactBundleDirectMessage<
       this.payload = {
         messageId: savedMessage.messageId,
         contentType: this.contentType,
-        data: {...savedMessage.data, createdChatId: undefined},
+        data: {
+          destinationName: savedMessage.data?.destinationName,
+          approved: savedMessage.data?.approved,
+        },
         replyId: savedMessage.replyId,
         expiresOn: this.expiresOn,
       };
@@ -135,7 +138,7 @@ export class SendContactBundleDirectMessage<
   async retry(): Promise<boolean> {
     if (!(await this.isAuthenticated())) {
       console.warn(
-        '[SendContactBundleDirect] Attempting to send prior to authentication. Journalled.',
+        '[SendContactRequestDirect] Attempting to send prior to authentication. Journalled.',
       );
       return true;
     }

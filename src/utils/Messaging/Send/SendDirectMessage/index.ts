@@ -24,6 +24,10 @@ import {
   contactBundleContentTypes,
   SendContactBundleDirectMessage,
 } from './senders/ContactBundleSender';
+import {
+  SendContactRequestDirectMessage,
+  contactBundleRequestContentTypes,
+} from './senders/ContactRequestSender';
 
 export async function sendDirect(
   chatId: string,
@@ -39,6 +43,9 @@ export async function sendDirect(
   }
   if (contactBundleContentTypes.includes(contentType)) {
     SenderClass = SendContactBundleDirectMessage;
+  }
+  if (contactBundleRequestContentTypes.includes(contentType)) {
+    SenderClass = SendContactRequestDirectMessage;
   }
   if (deleteContentTypes.includes(contentType)) {
     SenderClass = SendDeleteDirectMessage;

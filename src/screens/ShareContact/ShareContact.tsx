@@ -19,7 +19,7 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {getDirectChats} from '@utils/DirectChats';
-import {requestToShareContact} from '@utils/ContactSharing';
+import {requestContactBundleToShare} from '@utils/ContactSharing';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ShareContact'>;
 
@@ -57,9 +57,10 @@ const ShareContact = ({route, navigation}: Props) => {
   const onShare = async () => {
     setLoading(true);
     for (const mbr of selectedMembers) {
-      requestToShareContact({
+      requestContactBundleToShare({
+        approved: false,
+        destinationChatId: chatId,
         source: mbr.chatId,
-        destination: chatId,
       });
     }
     setLoading(false);

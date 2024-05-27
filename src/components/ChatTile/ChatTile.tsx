@@ -432,7 +432,7 @@ const RenderText = ({
         text = '🔊 ' + text;
       }
     } else if (newMessage.contentType === ContentType.contactBundle) {
-      text = '👤 ' + (newMessage.data as ContactBundleParams).name;
+      text = '👤 ' + (newMessage.data as ContactBundleParams).bundle.name;
     } else if (newMessage.contentType === ContentType.disappearingMessages) {
       text = 'disappearing messages have been turned ON';
       italic = true;

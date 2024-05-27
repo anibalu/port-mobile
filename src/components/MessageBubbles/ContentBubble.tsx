@@ -15,6 +15,8 @@ import {ImageBubble} from './ContentBubbles/ImageBubble';
 import {LinkPreviewBubble} from './ContentBubbles/LinkPreviewBubble';
 import {TextBubble} from './ContentBubbles/TextBubble';
 import {VideoBubble} from './ContentBubbles/VideoBubble';
+import ContactInfoBubble from './ContentBubbles/ContactInfoBubble';
+import ContactRequestBubble from './ContentBubbles/ContactRequestBubble';
 /**
  * Extend supported content types to support more types of content bubbles.
  */
@@ -41,6 +43,10 @@ export const ContentBubble = ({
       );
     case ContentType.contactBundle:
       return <ContactBubble message={message} />;
+    case ContentType.contactBundleRequest:
+      return <ContactRequestBubble message={message} />;
+    case ContentType.contactBundleRequestInfo:
+      return <ContactInfoBubble message={message} />;
     case ContentType.deleted:
       return <DeletedBubble message={message} />;
     case ContentType.image:

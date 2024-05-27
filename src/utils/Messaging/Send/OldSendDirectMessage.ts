@@ -482,7 +482,9 @@ class SendDirectMessage<T extends ContentType> {
       case ContentType.contactBundle:
         await updateConnectionOnNewMessage({
           chatId: this.chatId,
-          text: 'shared contact of ' + (this.data as ContactBundleParams).name,
+          text:
+            'shared contact of ' +
+            (this.data as ContactBundleParams).bundle.name,
           readStatus: readStatus,
           recentMessageType: this.contentType,
           latestMessageId: this.messageId,

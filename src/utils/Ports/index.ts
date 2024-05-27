@@ -266,27 +266,35 @@ export async function readBundle(
   channel: string | null = null,
   folderId: string = defaultFolderId,
 ) {
-  switch (bundle.target) {
-    case BundleTarget.direct:
-      await direct.acceptPortBundle(bundle as PortBundle, channel, folderId);
-      break;
-    case BundleTarget.group:
-      await group.acceptGroupPortBundle(
-        bundle as GroupBundle,
-        channel,
-        folderId,
-      );
-      break;
-    case BundleTarget.superportDirect:
-      await superport.acceptSuperportBundle(
-        bundle as DirectSuperportBundle,
-        channel,
-        folderId,
-      );
-      break;
-    default:
-      break;
+  try {
+    switch (bundle.target) {
+      case BundleTarget.direct:
+        await direct.acceptPortBundle(bundle as PortBundle, channel, folderId);
+        break;
+      case BundleTarget.group:
+        await group.acceptGroupPortBundle(
+          bundle as GroupBundle,
+          channel,
+          folderId,
+        );
+        break;
+      case BundleTarget.superportDirect:
+        await superport.acceptSuperportBundle(
+          bundle as DirectSuperportBundle,
+          channel,
+          folderId,
+        );
+        break;
+      default:
+        break;
+    }
+  } catch (error) {
+    console.log('Error using read bundle: ', error);
   }
+  store.dispatch({
+    type: 'PING',
+    payload: 'PONG',
+  });
 }
 
 /**

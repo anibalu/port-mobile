@@ -11,7 +11,6 @@ import ReceiveAvatar from './ActionClasses/ReceiveAvatar';
 import ReceiveContactBundle from './ActionClasses/ReceiveContactBundle';
 import ReceiveContactBundleRequest from './ActionClasses/ReceiveContactBundleRequest';
 import ReceiveContactBundleResponse from './ActionClasses/ReceiveContactBundleResponse';
-import ReceiveContactBundleResponseDenial from './ActionClasses/ReceiveContactBundleResponseDenial';
 import ReceiveDisplayImage from './ActionClasses/ReceiveDisplayImage';
 import ReceiveFile from './ActionClasses/ReceiveFile';
 import ReceiveImage from './ActionClasses/ReceiveImage';
@@ -182,13 +181,7 @@ export async function directReceiveActionPicker(
           receiveTime,
           decryptedMessageContent,
         );
-      case ContentType.contactBundleDenialResponse:
-        return new ReceiveContactBundleResponseDenial(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
+
       case ContentType.contactBundleResponse:
         return new ReceiveContactBundleResponse(
           chatId,

@@ -4,7 +4,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {
@@ -12,58 +12,57 @@ import {
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import {getReadPort, processReadBundles, readBundle} from '@utils/Ports';
-import {PortBundle} from '@utils/Ports/interfaces';
+import {PortBundle, ReadPortData} from '@utils/Ports/interfaces';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {
-  MAX_WIDTH_CONTENT,
-  RenderTimeStamp,
-  TIME_STAMP_TEXT_PADDING_RECEIVER,
-  TIME_STAMP_TEXT_PADDING_SENDER,
-} from '../BubbleUtils';
-
-enum ButtonState {
-  undecided,
-  connect,
-  connecting,
-  expired,
-  message,
-}
+import {MAX_WIDTH_CONTENT, RenderTimeStamp} from '../BubbleUtils';
+import LineSeparator from '@components/Reusable/Separators/LineSeparator';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 
 const ContactBubble = ({message}: {message: SavedMessageParams}) => {
-  const paddingText = message.sender
-    ? TIME_STAMP_TEXT_PADDING_SENDER
-    : TIME_STAMP_TEXT_PADDING_RECEIVER;
   const navigation = useNavigation<any>();
-  const [buttonType, setButtonType] = useState<ButtonState>(
-    ButtonState.undecided,
-  );
-  const [accepted, setAccepted] = useState<boolean | undefined>(undefined);
-  const [goToChatId, setGoToChatId] = useState<string | undefined>(undefined);
+  const [disconnected, setDisconnected] = useState(false);
   const [chatName, setChatName] = useState<string>(
-    (message.data as ContactBundleParams).name || DEFAULT_NAME,
+    (message.data as ContactBundleParams).bundle.name || DEFAULT_NAME,
   );
+  const [authenticated, setAuthenticated] = useState(false);
+  const [bundle, setBundle] = useState<ReadPortData | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const getBundle = await getReadPort(
+        (message.data as ContactBundleParams).bundle.portId,
+      );
+      setBundle(getBundle);
+
+      const chat = new DirectChat(
+        (message.data as ContactBundleParams).createdChatId,
+      );
+      const chatData = await chat.getChatData();
+      setChatName(chatData.name);
+      setAuthenticated(chatData.authenticated);
+      setDisconnected(chatData.disconnected);
+    })();
+  }, [message]);
+
   const handleConnect = async () => {
     try {
-      if (goToChatId) {
-        const chat = new DirectChat(goToChatId);
-        const chatData = await chat.getChatData();
-        if (chatData.authenticated) {
-          navigation.push('DirectChat', {
-            chatId: goToChatId,
-            isGroupChat: false,
-            isConnected: !chatData.disconnected,
-            isAuthenticated: chatData.authenticated,
-          });
-        }
+      if (authenticated) {
+        navigation.push('DirectChat', {
+          chatId: (message.data as ContactBundleParams).createdChatId,
+          isGroupChat: false,
+          isConnected: !disconnected,
+          isAuthenticated: authenticated,
+        });
       } else {
-        const bundle: PortBundle = message.data as ContactBundleParams;
+        const bundle: PortBundle = (message.data as ContactBundleParams).bundle;
         const channel =
           'shared://' + message.chatId + '://' + message.messageId;
         if (bundle) {
           await readBundle(bundle, channel);
           //try to use read bundles
           await processReadBundles();
+
           //navigate to home screen
           navigation.navigate('HomeTab');
         } else {
@@ -74,182 +73,117 @@ const ContactBubble = ({message}: {message: SavedMessageParams}) => {
       console.log('Error connecting over shared contact', error);
     }
   };
-  const setButtonState = async () => {
-    try {
-      if (!accepted && !goToChatId) {
-        setButtonType(ButtonState.connect);
-        return;
-      }
-      if (goToChatId) {
-        const chat = new DirectChat(goToChatId);
-        const chatData = await chat.getChatData();
-        setChatName(chatData.name);
-        if (chatData.authenticated) {
-          setButtonType(ButtonState.message);
-        } else {
-          setButtonType(ButtonState.connecting);
-        }
-        return;
-      }
-      const getBundle = await getReadPort(
-        (message.data as ContactBundleParams).portId,
-      );
-      if (getBundle && accepted) {
-        setButtonType(ButtonState.connecting);
-        return;
-      }
-      setButtonType(ButtonState.expired);
-      return;
-    } catch (error) {
-      setButtonType(ButtonState.expired);
-      return;
-    }
-  };
-
-  //handles navigation to a chat screen and toggles chat to read.
-  const handleNavigate = async (): Promise<void> => {
-    if ((message.data as ContactBundleParams).goToChatId) {
-      const chat = new DirectChat(
-        (message.data as ContactBundleParams).goToChatId,
-      );
-      const chatData = await chat.getChatData();
-      if (chatData.authenticated) {
-        navigation.push('DirectChat', {
-          chatId: goToChatId,
-          isGroupChat: false,
-          isConnected: !chatData.disconnected,
-          isAuthenticated: chatData.authenticated,
-        });
-      }
-    }
-  };
-
-  useEffect(() => {
-    setAccepted((message.data as ContactBundleParams).accepted);
-    setGoToChatId((message.data as ContactBundleParams).goToChatId);
-  }, [message]);
-  useEffect(() => {
-    setButtonState();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accepted, goToChatId]);
 
   return (
-    <View style={{width: MAX_WIDTH_CONTENT - 16}}>
-      <View
-        style={{
-          width: MAX_WIDTH_CONTENT - 16,
-        }}>
-        <View style={styles.timeStampContainer}>
-          <NumberlessText fontSizeType={FontSizeType.m} fontType={FontType.md}>
-            {chatName}
-          </NumberlessText>
-          <NumberlessText
-            textColor={PortColors.subtitle}
-            fontSizeType={FontSizeType.s}
-            fontType={FontType.rg}>
-            {message.sender
-              ? `${'You have shared the contact of ' + chatName + paddingText}`
-              : `${
-                  'You have been shared the contact of ' +
-                  chatName +
-                  paddingText
-                }`}
-          </NumberlessText>
-        </View>
-        <View style={{position: 'absolute', right: 4, bottom: 4}}>
-          <RenderTimeStamp message={message} />
+    <View style={{width: MAX_WIDTH_CONTENT - 16, padding: 4}}>
+      <View style={styles.timeStampContainer}>
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: 5,
+          }}>
+          <AvatarBox profileUri={DEFAULT_AVATAR} avatarSize="s" />
+
+          <View style={{justifyContent: 'center'}}>
+            <NumberlessText
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.md}>
+              {chatName}
+            </NumberlessText>
+            {message.sender && (
+              <NumberlessText
+                textColor={PortColors.subtitle}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                Contact shared
+              </NumberlessText>
+            )}
+          </View>
         </View>
       </View>
-      {message.sender ? (
-        <Pressable onPress={handleNavigate} style={styles.messageStyle}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
-            textColor={PortColors.text.primaryWhite}>
-            Message
-          </NumberlessText>
-        </Pressable>
-      ) : (
-        <GetButton clickHandle={handleConnect} buttonState={buttonType} />
+
+      <RenderTimeStamp message={message} />
+
+      {!message.sender && (
+        <>
+          <LineSeparator />
+          <GetButton
+            clickHandle={handleConnect}
+            bundle={bundle}
+            createdChatId={message?.data?.createdChatId}
+            accepted={message?.data?.accepted}
+            authenticated={authenticated}
+          />
+        </>
       )}
     </View>
   );
 };
 
 function GetButton({
-  buttonState,
   clickHandle,
+  bundle,
+  accepted,
+  createdChatId,
+  authenticated,
 }: {
-  buttonState: ButtonState;
+  bundle: ReadPortData | null;
+  accepted: boolean;
+  createdChatId: string;
   clickHandle: () => void;
+  authenticated: boolean;
 }) {
-  switch (buttonState) {
-    case ButtonState.connect:
+  if (!accepted && !createdChatId) {
+    return (
+      <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+        <NumberlessText
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.md}
+          textColor={PortColors.primary.blue.app}>
+          Connect
+        </NumberlessText>
+      </Pressable>
+    );
+  } else if (createdChatId) {
+    if (authenticated) {
       return (
         <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
           <NumberlessText
             fontSizeType={FontSizeType.m}
             fontType={FontType.md}
-            textColor={PortColors.text.primaryWhite}>
-            Connect
-          </NumberlessText>
-        </Pressable>
-      );
-    case ButtonState.connecting:
-      return (
-        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
-            textColor={PortColors.text.primaryWhite}>
-            Connecting...
-          </NumberlessText>
-        </Pressable>
-      );
-    case ButtonState.expired:
-      return (
-        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
-            textColor={PortColors.text.primaryWhite}>
-            Expired
-          </NumberlessText>
-        </Pressable>
-      );
-    case ButtonState.undecided:
-      return (
-        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
-            textColor={PortColors.text.primaryWhite}>
-            Expired
-          </NumberlessText>
-        </Pressable>
-      );
-    case ButtonState.message:
-      return (
-        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
-            textColor={PortColors.text.primaryWhite}>
+            textColor={PortColors.primary.blue.app}>
             Message
           </NumberlessText>
         </Pressable>
       );
-    default:
-      return (
-        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
-            textColor={PortColors.text.primaryWhite}>
-            Expired
-          </NumberlessText>
-        </Pressable>
-      );
+    } else {
+      <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+        <NumberlessText
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.md}
+          textColor={PortColors.primary.blue.app}>
+          Connecting...
+        </NumberlessText>
+      </Pressable>;
+    }
+  } else if (bundle && accepted) {
+    <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+      <NumberlessText
+        fontSizeType={FontSizeType.m}
+        fontType={FontType.md}
+        textColor={PortColors.primary.blue.app}>
+        Connecting...
+      </NumberlessText>
+    </Pressable>;
+  } else {
+    <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+      <NumberlessText
+        fontSizeType={FontSizeType.m}
+        fontType={FontType.md}
+        textColor={PortColors.primary.blue.app}>
+        Expired
+      </NumberlessText>
+    </Pressable>;
   }
 }
 const styles = StyleSheet.create({
@@ -262,13 +196,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   receiveMessageStyle: {
-    height: 50,
+    paddingVertical: 5,
     width: MAX_WIDTH_CONTENT - 16,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
     borderRadius: 12,
-    backgroundColor: PortColors.primary.blue.app,
     marginTop: 4,
   },
   messageStyle: {

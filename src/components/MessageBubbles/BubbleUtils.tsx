@@ -120,9 +120,11 @@ export const handleMediaOpen = (
 export const RenderTimeStamp = ({
   message,
   stampColor = 'rg',
+  showReadReceipts = true,
 }: {
   message: SavedMessageParams;
   stampColor?: 'rg' | 'w'; //regular or white
+  showReadReceipts?: boolean;
 }): ReactNode => {
   if (message.messageStatus === MessageStatus.failed) {
     return (
@@ -148,7 +150,7 @@ export const RenderTimeStamp = ({
           }>
           {getTimeStamp(message.timestamp)}
         </NumberlessText>
-        {message.sender && (
+        {showReadReceipts && message.sender && (
           <View style={{marginLeft: 3}}>
             {message.readTimestamp ? (
               <Read />

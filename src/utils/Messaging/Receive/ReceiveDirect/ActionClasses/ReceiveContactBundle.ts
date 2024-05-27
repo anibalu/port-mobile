@@ -14,7 +14,7 @@ class ReceiveContactBundle extends DirectReceiveAction {
       chatId: this.chatId,
       text:
         'contact of ' +
-        (this.decryptedMessageContent.data as ContactBundleParams).name +
+        (this.decryptedMessageContent.data as ContactBundleParams).bundle.name +
         ' has been shared with you',
       readStatus: ReadStatus.new,
       recentMessageType: this.decryptedMessageContent.contentType,
@@ -33,7 +33,8 @@ class ReceiveContactBundle extends DirectReceiveAction {
         title: connection.name,
         body:
           'contact of ' +
-          (this.decryptedMessageContent.data as ContactBundleParams).name +
+          (this.decryptedMessageContent.data as ContactBundleParams).bundle
+            .name +
           ' has been shared with you',
       };
       displaySimpleNotification(

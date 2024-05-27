@@ -36,7 +36,7 @@ export enum ContentType {
   contactBundleRequest = 12,
   contactBundleResponse = 13,
   initialInfoRequest = 14,
-  contactBundleDenialResponse = 15,
+  contactBundleDenialResponse = 15, //@deprecated
   deleted = 16,
   update = 17,
   audioRecording = 21,
@@ -44,6 +44,8 @@ export enum ContentType {
   link = 19,
   receipt = 20,
   disappearingMessages = 22,
+  contactBundleRequestInfo = 23,
+  contactBundleShareRequest = 24,
 }
 
 /**
@@ -75,6 +77,9 @@ export const DisplayableContentTypes = [
   ContentType.link,
   ContentType.audioRecording,
   ContentType.disappearingMessages,
+  ContentType.contactBundleRequestInfo,
+  ContentType.contactBundleShareRequest,
+  ContentType.contactBundleRequest,
 ];
 
 export const LargeDataMessageContentTypes = [
@@ -92,9 +97,7 @@ export const DisappearMessageExemptContentTypes = [
   ContentType.info,
   ContentType.contactBundle,
   ContentType.contactBundleRequest,
-  ContentType.contactBundleResponse,
   ContentType.initialInfoRequest,
-  ContentType.contactBundleDenialResponse,
   ContentType.receipt,
   ContentType.disappearingMessages,
 ];
@@ -134,13 +137,13 @@ export type DataType =
   | ContactBundleParams
   | ContactBundleRequestParams
   | ContactBundleResponseParams
-  | ContactBundleDenialResponseParams
   | LinkParams
   | AudioRecordingParams
   | ReactionParams
   | ReceiptParams
   | InitialInfoRequestParams
-  | DisappearingMessageParams;
+  | DisappearingMessageParams
+  | ContactBundleRequestInfoParams;
 
 export interface LinkParams extends TextParams {
   title?: string | null;
@@ -201,17 +204,30 @@ export interface HandshakeB2Params {
 export interface InfoParams {
   info: string;
 }
-export interface ContactBundleParams extends PortBundle {
+export interface ContactBundleParams {
   accepted?: boolean;
-  goToChatId?: string;
+  createdChatId?: string;
+  bundle: PortBundle;
 }
 
 export interface ContactBundleRequestParams {
   destinationName?: string | null;
+  approved?: boolean;
+  destinationChatId?: string | null;
+  source?: string | null;
+  infoMessageId: string;
 }
-export interface ContactBundleResponseParams extends PortBundle {}
+export interface ContactShareApproval {
+  approvedMessageId: string;
+  bundle: PortBundle;
+  requester: string;
+  source?: string;
+}
+export interface ContactBundleResponseParams extends ContactShareApproval {}
 
-export interface ContactBundleDenialResponseParams {}
+export interface ContactBundleRequestInfoParams {
+  source: string;
+}
 
 export interface DeletionParams {
   messageIdToDelete: string;
@@ -247,9 +263,7 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     : T extends ContentType.contactBundleRequest
     ? ContactBundleRequestParams
     : T extends ContentType.contactBundleResponse
-    ? ContactBundleResponseParams
-    : T extends ContentType.contactBundleDenialResponse
-    ? ContactBundleDenialResponseParams
+    ? ContactShareApproval
     : T extends ContentType.initialInfoRequest
     ? InitialInfoRequestParams
     : T extends ContentType.audioRecording
@@ -264,6 +278,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? ReceiptParams
     : T extends ContentType.disappearingMessages
     ? DisappearingMessageParams
+    : T extends ContentType.contactBundleRequestInfo
+    ? ContactBundleRequestInfoParams
     : never;
 
 /**

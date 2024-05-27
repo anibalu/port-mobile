@@ -68,7 +68,7 @@ export const defaultPermissions: PermissionsStrict = {
   notifications: true,
   autoDownload: false,
   displayPicture: true,
-  contactSharing: true,
+  contactSharing: false,
   readReceipts: true,
   disappearingMessages: 0,
 };

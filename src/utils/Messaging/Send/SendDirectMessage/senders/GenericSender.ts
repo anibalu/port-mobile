@@ -24,13 +24,11 @@ export const genericContentTypes: ContentType[] = [
   ContentType.text,
   ContentType.link,
   ContentType.name,
-  ContentType.contactBundleRequest,
-  ContentType.contactBundleResponse,
-  ContentType.contactBundleDenialResponse,
   ContentType.info,
   ContentType.initialInfoRequest,
   ContentType.displayAvatar,
   ContentType.disappearingMessages,
+  ContentType.contactBundleResponse,
 ];
 
 const genericDisappearingTypes: ContentType[] = [
@@ -241,7 +239,8 @@ export class SendGenericDirectMessage<
         text = (this.data as LinkParams).text;
         break;
       case ContentType.contactBundle:
-        text = 'shared contact of ' + (this.data as ContactBundleParams).name;
+        text =
+          'shared contact of ' + (this.data as ContactBundleParams).bundle.name;
         break;
       default:
         break;

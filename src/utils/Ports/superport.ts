@@ -121,7 +121,7 @@ async function getCreatedSuperportData(portId: string): Promise<SuperportData> {
     const generatedPortData = {portId: portId, ...portData} as SuperportData;
     return generatedPortData;
   }
-  throw new Error('NoSuchCreatedSuperport');
+  throw new Error('NoSuperportFound');
 }
 
 /**

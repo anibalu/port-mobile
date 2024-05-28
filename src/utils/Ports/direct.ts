@@ -79,7 +79,7 @@ export async function getGeneratedPortData(portId: string): Promise<PortData> {
     const generatedPortData = {portId: portId, ...portData} as PortData;
     return generatedPortData;
   }
-  throw new Error('NoSuchGeneratedPort');
+  throw new Error('NoPortFound');
 }
 
 /**

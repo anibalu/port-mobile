@@ -26,6 +26,7 @@ import {hasExpired} from '@utils/Time';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {ChatType} from '@utils/Connections/interfaces';
 import {IntroMessage} from '@utils/DirectChats/DirectChat';
+import {disconnectChat} from '@utils/DirectChats/APICalls';
 
 export function bundleTargetToChatType(x: BundleTarget) {
   if (x === BundleTarget.direct || x === BundleTarget.superportDirect) {
@@ -361,8 +362,17 @@ export async function useCreatedBundle(
       default:
         break;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log('Error using created bundles: ', error);
+    if (
+      error &&
+      error.message &&
+      (error.message === 'NoSuperportFound' || error.message === 'NoPortFound')
+    ) {
+      //this happens when bundle has been deleted locally and somebody has used that bundle.
+      //In this case, send a disconnected message to the created chat Id.
+      await disconnectChat(chatId);
+    }
   }
   triggerPendingRequestsReload();
 }

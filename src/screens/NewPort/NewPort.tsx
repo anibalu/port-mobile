@@ -27,17 +27,23 @@ import {
   safeModalCloseDuration,
 } from '@configs/constants';
 import {
+  cleanDeletePort,
   generateBundle,
   getBundleClickableLink,
   getGeneratedPortData,
 } from '@utils/Ports';
-import {BundleTarget, PortBundle, PortData} from '@utils/Ports/interfaces';
+import {
+  BundleTarget,
+  PortBundle,
+  PortData,
+  PortTable,
+} from '@utils/Ports/interfaces';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 import SharePortLink from '@components/Reusable/BottomSheets/SharePortLink';
 import {wait} from '@utils/Time';
 import {useSelector} from 'react-redux';
-import {cleanDeleteGeneratedPort} from '@utils/Ports/direct';
 import Share from 'react-native-share';
+import SavePortBottomsheet from '@components/Reusable/BottomSheets/SavePortBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 
@@ -60,6 +66,8 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
   const [openShareModal, setOpenShareModal] = useState(false);
   //whether is error bottom sheet should open
   const [openErrorModal, setOpenErrorModal] = useState(false);
+  //whether we should ask the user if the port needs to be kept.
+  const [openShouldKeepPortModal, setOpenShouldKeepPortModal] = useState(false);
 
   const [shareContactName, setShareContactName] = useState('');
 
@@ -167,16 +175,25 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
           onIconRightPress={async () => {
-            if (linkData) {
-              navigation.goBack();
-              return;
-            } else {
-              if (qrData) {
-                await cleanDeleteGeneratedPort(qrData.portId);
+            if (linkData && qrData) {
+              const generatedPort: PortData = await getGeneratedPortData(
+                qrData.portId,
+              );
+              if (
+                generatedPort.label &&
+                generatedPort.label !== '' &&
+                generatedPort.label !== DEFAULT_NAME
+              ) {
+                navigation.goBack();
+                return;
               }
             }
+            if (qrData) {
+              //ask user if they want to save the port.
+              setOpenShouldKeepPortModal(true);
+              return;
+            }
             navigation.goBack();
-            return;
           }}
           IconRight={CrossButton}
           heading={'New Port'}
@@ -199,7 +216,13 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
                 tertiaryButtonColor={'b'}
                 buttonText={'Scan instead'}
                 Icon={ScanIcon}
-                onClick={() => navigation.navigate('Scan')}
+                onClick={async () => {
+                  //delete generated port and navigate to scan screen.
+                  if (qrData) {
+                    await cleanDeletePort(qrData.portId, PortTable.generated);
+                  }
+                  navigation.navigate('Scan');
+                }}
                 disabled={false}
               />
             </View>
@@ -251,6 +274,13 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
           setContactName={setShareContactName}
           userName={displayName}
           linkData={linkData}
+          qrData={qrData}
+        />
+        <SavePortBottomsheet
+          visible={openShouldKeepPortModal}
+          onClose={() => setOpenShouldKeepPortModal(false)}
+          contactName={shareContactName}
+          setContactName={setShareContactName}
           qrData={qrData}
         />
       </SafeAreaView>

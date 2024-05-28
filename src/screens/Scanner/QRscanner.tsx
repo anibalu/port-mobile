@@ -14,7 +14,7 @@ import {
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {checkCameraPermission} from '@utils/AppPermissions';
 import React, {useEffect, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
 import {
   Camera,
   useCameraDevice,
@@ -28,6 +28,9 @@ import {wait} from '@utils/Time';
 import {safeModalCloseDuration} from '@configs/constants';
 import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
 import {urlToJson} from '@utils/JsonToUrl';
+import ImageIcon from '@assets/icons/GalleryIconWhite.svg';
+import {launchImageLibrary} from 'react-native-image-picker';
+import RNQRGenerator from 'rn-qr-generator';
 
 export default function QRScanner() {
   const device = useCameraDevice('back');
@@ -40,17 +43,15 @@ export default function QRScanner() {
   const navigation = useNavigation();
   const [isScannerActive, setIsScannerActive] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadedImageUri, setUploadedImageUri] = useState<string | null>(null);
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: codes => {
       if (isScannerActive) {
         if (codes.length > 0 && codes[0].value) {
-          const updatedCode = codes[0].value.startsWith('https://')
-            ? urlToJson(codes[0].value)
-            : codes[0].value;
           setQrData(oldCode =>
-            oldCode !== codes[0].value ? updatedCode! : oldCode,
+            oldCode !== codes[0].value ? codes[0].value! : oldCode,
           );
           setIsScannerActive(false);
         }
@@ -61,6 +62,7 @@ export default function QRScanner() {
   const cleanScreen = () => {
     setQrData('');
     setTorchState('off');
+    setUploadedImageUri(null);
   };
 
   const onRetry = async () => {
@@ -76,15 +78,64 @@ export default function QRScanner() {
     setShowErrorModal(true);
   };
 
+  /**
+   * read the qr code inside an image.
+   */
+  async function readQRinImage(imageUri: string): Promise<string> {
+    try {
+      const response = await RNQRGenerator.detect({
+        uri: imageUri,
+      });
+      if (response.values[0]) {
+        return response.values[0];
+      } else {
+        throw new Error('NotAQRCode');
+      }
+    } catch (error) {
+      return 'ERROR: NO QR DETECTED';
+    }
+  }
+  /**
+   * Upload an image from gallery and read the qr code inside it.
+   * @returns
+   */
+  async function uploadFromGallery() {
+    setIsScannerActive(false);
+    try {
+      const selectedAssets = await launchImageLibrary({
+        mediaType: 'photo',
+        selectionLimit: 1,
+      });
+      // setting uploaded uri for qr detection
+      if (
+        selectedAssets.assets &&
+        selectedAssets.assets[0] &&
+        selectedAssets.assets[0].uri
+      ) {
+        setUploadedImageUri(selectedAssets.assets[0].uri);
+        setQrData(await readQRinImage(selectedAssets.assets[0].uri));
+      } else {
+        throw new Error('No uploaded image');
+      }
+      return;
+    } catch (error) {
+      console.error('Nothing selected', error);
+      setUploadedImageUri(null);
+    }
+    setIsScannerActive(true);
+  }
+
   useEffect(() => {
     (async () => {
       if (qrData !== '') {
         try {
           setIsLoading(true);
-          console.log('running inner block');
+          const updatedCode = qrData.startsWith('https://')
+            ? urlToJson(qrData)
+            : JSON.parse(qrData);
           //qrData needs to be processed here.
           //check if Qr code is a legitimate Port Qr code
-          const bundle = checkBundleValidity(JSON.stringify(qrData));
+          const bundle = checkBundleValidity(JSON.stringify(updatedCode));
           //if code is legitimate, read it
           await readBundle(bundle);
           //try to use read bundles
@@ -94,6 +145,7 @@ export default function QRScanner() {
           //navigate to home screen
           navigation.navigate('HomeTab');
         } catch (error) {
+          console.log('error scanning qr', error);
           setIsLoading(false);
           onError();
         }
@@ -122,15 +174,27 @@ export default function QRScanner() {
           onClose={onRetry}
           onTryAgain={onRetry}
         />
-        {isCameraPermissionGranted && device && isFocused ? (
+        {(uploadedImageUri && isFocused) ||
+        (isCameraPermissionGranted && device && isFocused) ? (
           <View style={styles.cameraOptions}>
-            <Camera
-              device={device}
-              torch={torchState}
-              codeScanner={codeScanner}
-              isActive={isScannerActive}
-              style={styles.camera}
-            />
+            {uploadedImageUri ? (
+              <Image
+                style={styles.camera}
+                resizeMode={'contain'}
+                source={{uri: uploadedImageUri}}
+              />
+            ) : (
+              isCameraPermissionGranted &&
+              device && (
+                <Camera
+                  device={device}
+                  torch={torchState}
+                  codeScanner={codeScanner}
+                  isActive={isScannerActive}
+                  style={styles.camera}
+                />
+              )
+            )}
             <View style={styles.mainBlock}>
               <Pressable
                 onPress={() => navigation.navigate('HomeTab')}
@@ -152,8 +216,19 @@ export default function QRScanner() {
                     height={screen.width * 0.8}
                     style={styles.scanArea}
                   />
-                  <View>
-                    <Torch state={torchState} setState={setTorchState} />
+                  <View style={styles.optionButtons}>
+                    <View>
+                      {isCameraPermissionGranted &&
+                        device &&
+                        !uploadedImageUri && (
+                          <Torch state={torchState} setState={setTorchState} />
+                        )}
+                    </View>
+                    <Pressable
+                      style={styles.uploadButton}
+                      onPress={uploadFromGallery}>
+                      <ImageIcon width={24} height={24} />
+                    </Pressable>
                   </View>
                 </View>
               )}
@@ -172,6 +247,9 @@ export default function QRScanner() {
               style={styles.text}>
               Please provide camera permission
             </NumberlessText>
+            <Pressable style={styles.uploadButton} onPress={uploadFromGallery}>
+              <ImageIcon width={24} height={24} />
+            </Pressable>
           </View>
         )}
       </SafeAreaView>
@@ -189,13 +267,13 @@ function Torch({
   if (state === 'on') {
     return (
       <Pressable style={styles.roundButton} onPress={() => setState('off')}>
-        <TorchOn />
+        <TorchOn width={24} height={24} />
       </Pressable>
     );
   } else {
     return (
       <Pressable style={styles.roundButton} onPress={() => setState('on')}>
-        <TorchOff />
+        <TorchOff width={24} height={24} />
       </Pressable>
     );
   }
@@ -255,7 +333,15 @@ const styles = StyleSheet.create({
     marginBottom: PortSpacing.secondary.bottom,
   },
   roundButton: {
-    padding: 15,
+    padding: PortSpacing.medium.uniform,
     opacity: 1,
+  },
+  uploadButton: {
+    padding: PortSpacing.medium.uniform,
+  },
+  optionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

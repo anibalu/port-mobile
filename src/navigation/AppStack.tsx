@@ -37,6 +37,7 @@ import MoveToFolder from '@screens/Folder/MoveToFolder';
 import CreateNewGroup from '@screens/GroupsV2/CreateNewGroup';
 import NewGroupPort from '@screens/GroupsV2/NewGroupPort';
 import GiveUsFeedbackScreen from '@screens/Feedback/GiveUsFeedbackScreen';
+import BlockedContacts from '@screens/BlockedContacts/BlockedContacts';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -91,6 +92,7 @@ function AppStack() {
             name="GiveUsFeedbackScreen"
             component={GiveUsFeedbackScreen}
           />
+          <Stack.Screen name="BlockedContacts" component={BlockedContacts} />
         </Stack.Navigator>
       </ConnectionModalProvider>
     </>

@@ -63,3 +63,19 @@ export async function unblockUser(pairHash: string) {
     (tx, result) => {},
   );
 }
+
+export async function getCountOfBlockedUsers() {
+  let count = 0;
+  await runSimpleQuery(
+    `
+    SELECT COUNT(*) as count FROM blockedUsers;
+    `,
+    [],
+
+    (tx, results) => {
+      count = results.rows.item(0).count;
+    },
+  );
+
+  return count;
+}

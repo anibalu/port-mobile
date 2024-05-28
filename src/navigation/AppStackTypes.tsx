@@ -82,4 +82,5 @@ export type AppStackParamList = {
   CreateNewGroup: undefined;
   NewGroupPort: {groupId: string};
   GiveUsFeedbackScreen: undefined;
+  BlockedContacts: undefined;
 };

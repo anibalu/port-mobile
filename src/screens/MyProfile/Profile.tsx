@@ -20,8 +20,8 @@ import {
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {setNewProfilePicture, updateProfileName} from '@utils/Profile';
-import React, {ReactNode, useMemo, useState} from 'react';
-import {StyleSheet, View, Pressable} from 'react-native';
+import React, {ReactNode, useCallback, useMemo, useState} from 'react';
+import {StyleSheet, View, Pressable, ScrollView} from 'react-native';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import {FileAttributes} from '@utils/Storage/interfaces';
 
@@ -33,6 +33,9 @@ import EditName from '@components/Reusable/BottomSheets/EditName';
 import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import BackupCard from '@components/BackupCard';
+import BlockedCard from '@components/BlockedCard';
+import {useFocusEffect} from '@react-navigation/native';
+import {getCountOfBlockedUsers} from '@utils/UserBlocking';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -47,6 +50,8 @@ function MyProfile({route, navigation}: Props): ReactNode {
   const [editingName, setEditingName] = useState(false);
   const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
 
+  const [blockedContactsLength, setBlockedContactsLength] = useState(0);
+
   async function onSavePicture(newProfilePicAttr: FileAttributes) {
     await setNewProfilePicture(newProfilePicAttr);
   }
@@ -55,6 +60,14 @@ function MyProfile({route, navigation}: Props): ReactNode {
     await updateProfileName(newName);
     setEditingName(false);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        setBlockedContactsLength(await getCountOfBlockedUsers());
+      })();
+    }, []),
+  );
 
   useMemo(() => {
     onSaveName();
@@ -69,7 +82,7 @@ function MyProfile({route, navigation}: Props): ReactNode {
       />
       <SafeAreaView style={styles.profileScreen}>
         <BackTopbar onBackPress={() => navigation.goBack()} />
-        <View style={styles.profile}>
+        <ScrollView contentContainerStyle={styles.profile}>
           <View style={{alignItems: 'center', width: '100%'}}>
             <View style={styles.profilePictureHitbox}>
               <AvatarBox
@@ -109,6 +122,7 @@ function MyProfile({route, navigation}: Props): ReactNode {
                 Open the app, tap 'Restore backup' and then locate the backup
                 file.
               </NumberlessText>
+              <BlockedCard listLength={blockedContactsLength} />
             </View>
           </View>
           <View style={styles.bottomContainer}>
@@ -128,7 +142,7 @@ function MyProfile({route, navigation}: Props): ReactNode {
               primaryButtonColor={'b'}
             />
           </View>
-        </View>
+        </ScrollView>
 
         <EditName
           title={'Edit your Name'}
@@ -166,7 +180,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   profile: {
-    flex: 1,
     width: screen.width,
     backgroundColor: PortColors.background,
     flexDirection: 'column',

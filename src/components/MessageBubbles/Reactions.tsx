@@ -5,7 +5,6 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {PortColors} from '@components/ComponentUtils';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import {reactionMapping} from '@configs/reactionmapping';
 import {getRichReactions} from '@utils/Storage/reactions';
@@ -167,7 +166,7 @@ export function RenderReactions({
               key={item[0]}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}
-              textColor={PortColors.subtitle}>
+              textColor={Colors.text.subtitle}>
               {item[0]} {item[1] > 1 && item[1]}
             </NumberlessText>
           );
@@ -209,14 +208,14 @@ const styling = (colors: any) =>
       borderRadius: 20,
     },
     reactionDisplay: {
-      backgroundColor: PortColors.primary.grey.light,
+      backgroundColor: colors.primary.surface2,
       overflow: 'hidden',
       borderRadius: 12,
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 0.5,
-      borderColor: PortColors.primary.border.dullGrey,
+      borderColor: colors.primary.surface,
       paddingVertical: 4,
       paddingLeft: 5,
       marginTop: -4,

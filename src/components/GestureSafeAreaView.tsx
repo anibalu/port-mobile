@@ -5,14 +5,16 @@
 import React from 'react';
 import {StyleSheet, ViewProps, ViewStyle} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {PortColors, PortSpacing, isIOS} from './ComponentUtils';
+import {PortSpacing, isIOS} from './ComponentUtils';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import DynamicColors from './DynamicColors';
 
 export function GestureSafeAreaView({children, style, ...rest}: ViewProps) {
   const insets = useSafeAreaInsets();
+  const Colors = DynamicColors();
   const safeAreaStyle: ViewStyle = {
     flex: 1,
-    backgroundColor: PortColors.primary.white,
+    backgroundColor: Colors.primary.background,
     paddingTop: isIOS ? 0 : insets.top,
     paddingLeft: insets.left,
     paddingRight: insets.right,

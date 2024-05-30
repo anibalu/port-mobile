@@ -7,7 +7,6 @@ import {
   FILE_COMPRESSION_THRESHOLD,
 } from '@configs/constants';
 import {decryptFile} from '@utils/Crypto/aesFile';
-import {isIOS} from '@components/ComponentUtils';
 
 /**
  * Creates a conversations directory if it doesn't exist and returns the path to it.
@@ -380,13 +379,7 @@ export function getRelativeURI(
 }
 
 //tmp directory name repeats are not handled in ios. thus, we need to handle it.
-async function checkRepeteInTmp(fileUri: string, source?: string) {
-  //if source is already in temp directorym don't do anything.
-  if (source) {
-    if (source.includes(RNFS.TemporaryDirectoryPath)) {
-      return;
-    }
-  }
+async function checkRepeatInTmp(fileUri: string) {
   // check if repeat exists and delete if exists
   const doesExist = await RNFS.exists(fileUri);
   if (doesExist) {
@@ -398,17 +391,18 @@ async function checkRepeteInTmp(fileUri: string, source?: string) {
  * Moves a source file to the tmp directory.
  * @param source - source file absolute path
  * @param fileName - file name
- * @returns - absolute file path with file:// prefix added.
+ * @returns - absolute file path with file:// prefix added or null if some error occured.
  */
-export async function moveToTmp(source: string, fileName?: string) {
+export async function moveToTmp(source: string, _fileName?: string) {
   try {
-    //edge case on ios where temp director has a / at the end.
-    const separator = isIOS ? '' : '/';
-    const newFileName = fileName
-      ? fileName.replace(/\//g, '')
-      : getFileNameFromUri(source);
-    const newPath = RNFS.TemporaryDirectoryPath + separator + newFileName;
-    await checkRepeteInTmp(newPath, decodeURIComponent(source));
+    //moving to tmp directory should create a new location.
+    const newPath =
+      RNFS.TemporaryDirectoryPath +
+      '/' +
+      generateRandomHexId() +
+      getFileExtension(source);
+    //If a file already exist at this path, delete it.
+    await checkRepeatInTmp(newPath);
     await RNFS.moveFile(decodeURIComponent(source), newPath);
     return addFilePrefix(newPath);
   } catch (error) {
@@ -428,20 +422,40 @@ export function getFileNameFromUri(uri: string): string {
   }
 }
 
+function getFileExtension(uri: string): string {
+  const lastDotIndex = uri.lastIndexOf('.');
+  const lastSlashIndex = uri.lastIndexOf('/');
+  if (lastDotIndex > lastSlashIndex) {
+    return uri.substring(lastDotIndex).toLowerCase();
+  }
+  return '';
+}
+
+/**
+ * Copies a file to tmp directory.
+ * Please be careful where you use this function. moveToTmp might be a better fit for most situations.
+ * Try to use it mostly to move files for media directory to tmp directory.
+ * @param fileUri
+ * @param fileName
+ * @returns - absolute file path with file:// prefix added or null if some error occured.
+ */
 export async function copyToTmp(
   fileUri: string | null | undefined,
-  fileName: string = 'unknown.unknown',
+  _fileName: string = 'unknown.unknown',
 ) {
   try {
     if (!fileUri) {
       throw new Error('No file Uri');
     }
-    //edge case on ios where temp director has a / at the end.
-    const separator = isIOS ? '' : '/';
     const source = getSafeAbsoluteURI(decodeURIComponent(fileUri), 'doc');
+    //moving to tmp directory should create a new location.
     const newPath =
-      RNFS.TemporaryDirectoryPath + separator + fileName.replace(/\//g, '');
-    await checkRepeteInTmp(newPath);
+      RNFS.TemporaryDirectoryPath +
+      '/' +
+      generateRandomHexId() +
+      getFileExtension(fileUri);
+    //If a file already exist at this path, delete it.
+    await checkRepeatInTmp(newPath);
     await RNFS.copyFile(source, newPath);
     return addFilePrefix(newPath);
   } catch (error) {

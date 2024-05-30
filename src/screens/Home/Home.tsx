@@ -38,6 +38,7 @@ import {
   StyleSheet,
   View,
   Animated,
+  Easing,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import HomeTopbar from './HomeTopbar';
@@ -83,6 +84,7 @@ import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/Confirmat
 import MoveToFolder from '@components/Reusable/BottomSheets/MoveToFolderBottomsheet';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useTheme} from 'src/context/ThemeContext';
 
 //Handles notification routing on tapping notification
 const performNotificationRouting = (
@@ -152,7 +154,7 @@ function Home({route, navigation}: Props) {
   });
   const [refreshing, setRefreshing] = useState<boolean>(false);
   //all connections available
-  const [connections, setConnections] = useState<ChatTileProps[]>([]);
+  const [connections, setConnections] = useState<ChatTileProps[] | null>(null);
   //connections displayed on home screen (depending on what the search string is).
   //If search string is empty, all connections are displayed
   const [viewableConnections, setViewableConnections] = useState<
@@ -375,13 +377,15 @@ function Home({route, navigation}: Props) {
 
   //sets up viewable connections
   useMemo(() => {
-    if (searchText === '') {
-      setSearchReturnedNull(false);
-      setViewableConnections(getFilteredConnectionsByFolder(connections));
-    } else {
-      setViewableConnections(getFilteredConnectionsBySearch(connections));
+    if (connections) {
+      if (searchText === '') {
+        setSearchReturnedNull(false);
+        setViewableConnections(getFilteredConnectionsByFolder(connections));
+      } else {
+        setViewableConnections(getFilteredConnectionsBySearch(connections));
+      }
+      getUnread(selectedFolderData.folderId);
     }
-    getUnread(selectedFolderData.folderId);
     // eslint-disable-next-line
   }, [connections, selectedFolderData, searchText]);
 
@@ -546,6 +550,36 @@ function Home({route, navigation}: Props) {
 
   const results = useDynamicSVG(svgArray);
   const Plus = results.Plus;
+  const {themeValue} = useTheme();
+
+  const opacityAnimation = useMemo(() => new Animated.Value(1), []);
+  useEffect(() => {
+    const breathingAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacityAnimation, {
+          toValue: 0.5,
+          duration: 650,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnimation, {
+          toValue: 1,
+          duration: 650,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    if (connections === null) {
+      breathingAnimation.start();
+    } else {
+      breathingAnimation.stop();
+      opacityAnimation.setValue(1);
+    }
+    return () => {
+      breathingAnimation.stop();
+    };
+  }, [connections, opacityAnimation]);
 
   return (
     <GestureHandlerRootView>
@@ -629,7 +663,20 @@ function Home({route, navigation}: Props) {
               keyboardVerticalOffset={isIOS ? 50 : 0}
               style={styles.scrollViewContainer}>
               <View style={{flex: 1}}>
-                {!searchReturnedNull ? (
+                {connections === null ? (
+                  <Animated.View style={{opacity: opacityAnimation}}>
+                    <View style={styles.tilePlaceholderContainer}>
+                      {Array.from({length: 10}).map((_, index) => (
+                        <View
+                          key={index}
+                          style={StyleSheet.compose(styles.tilePlaceholder, {
+                            backgroundColor:
+                              themeValue === 'light' ? '#CFCCD6' : '#27272B',
+                          })}></View>
+                      ))}
+                    </View>
+                  </Animated.View>
+                ) : !searchReturnedNull ? (
                   <FlatList
                     data={viewableConnections}
                     renderItem={element => renderChatTile(element.item)}
@@ -803,6 +850,17 @@ const styles = StyleSheet.create({
     left: PortSpacing.secondary.left,
     height: 56,
     width: 56,
+  },
+  tilePlaceholder: {
+    height: 91,
+    marginHorizontal: PortSpacing.tertiary.uniform,
+    marginBottom: PortSpacing.tertiary.uniform,
+    borderRadius: 16,
+  },
+  tilePlaceholderContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    paddingVertical: PortSpacing.medium.uniform,
   },
   addButtonWrapper: {
     alignSelf: 'flex-end',

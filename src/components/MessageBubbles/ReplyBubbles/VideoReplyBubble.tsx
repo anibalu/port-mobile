@@ -4,7 +4,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useEffect, useState} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {
@@ -15,6 +15,7 @@ import {
 } from '../BubbleUtils';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import DynamicColors from '@components/DynamicColors';
+import {getMedia} from '@utils/Storage/media';
 
 export const VideoReplyBubble = ({
   reply,
@@ -28,9 +29,21 @@ export const VideoReplyBubble = ({
     (reply.data as LargeDataParams).text !== ''
       ? (reply.data as LargeDataParams).text
       : 'Video';
-  const fileUri = (reply.data as LargeDataParams).previewUri;
   const Colors = DynamicColors();
   const styles = styling(Colors);
+  const [fileUri, setFileUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const mediaInfo = await getMedia((reply.data as LargeDataParams).mediaId);
+      if (mediaInfo) {
+        const image = mediaInfo.previewPath;
+        setFileUri(image);
+      } else {
+        setFileUri((reply.data as LargeDataParams).previewUri);
+      }
+    })();
+  }, [reply]);
 
   return (
     <View style={styles.container}>

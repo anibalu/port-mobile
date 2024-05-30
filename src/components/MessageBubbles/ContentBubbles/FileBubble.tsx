@@ -23,6 +23,7 @@ import {TextBubble} from './TextBubble';
 import UploadSend from '@assets/icons/UploadSend.svg';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import DynamicColors from '@components/DynamicColors';
+import {getMedia} from '@utils/Storage/media';
 
 export const FileBubble = ({
   message,
@@ -38,6 +39,7 @@ export const FileBubble = ({
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
   const [loadingRetry, setLoadingRetry] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
   const onRetryClick = async (messageObj: SavedMessageParams) => {
     setLoadingRetry(true);
     await handleRetry(messageObj);
@@ -60,11 +62,7 @@ export const FileBubble = ({
   const handlePressFunction = () => {
     const selectionMode = handlePress(message.messageId);
     if (!selectionMode) {
-      handleMediaOpen(
-        (message.data as LargeDataParams).fileUri,
-        triggerDownload,
-        mediaDownloadError,
-      );
+      handleMediaOpen(imageUri, triggerDownload, mediaDownloadError);
     }
   };
   const handleLongPressFunction = () => {
@@ -95,6 +93,18 @@ export const FileBubble = ({
   const results = useDynamicSVG(svgArray);
   const FileIcon = results.FileIcon;
   const Colors = DynamicColors();
+
+  useEffect(() => {
+    (async () => {
+      const mediaInfo = await getMedia(message.data?.mediaId);
+      if (mediaInfo) {
+        const image = mediaInfo.filePath;
+        setImageUri(image);
+      } else {
+        setImageUri((message.data as LargeDataParams).fileUri);
+      }
+    })();
+  }, [message]);
 
   return (
     <View>
@@ -155,7 +165,7 @@ export const FileBubble = ({
                   </>
                 ) : (
                   <>
-                    {(message.data as LargeDataParams).fileUri == null &&
+                    {imageUri == null &&
                       (startedManualDownload ? (
                         <View style={{alignSelf: 'center'}}>
                           <SmallLoader />

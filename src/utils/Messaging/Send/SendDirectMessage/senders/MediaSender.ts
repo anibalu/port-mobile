@@ -309,6 +309,7 @@ export class SendMediaDirectMessage<
         largeData.fileUri = newLocation;
         largeData.previewUri = newPreviewLocation;
         (this.savedMessage.data as LargeDataParamsStrict).fileUri = newLocation;
+        (this.savedMessage.data as LargeDataParamsStrict).mediaId = mediaId;
         (this.savedMessage.data as LargeDataParamsStrict).previewUri =
           newPreviewLocation;
       }

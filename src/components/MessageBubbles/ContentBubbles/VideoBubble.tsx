@@ -32,6 +32,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {getMedia} from '@utils/Storage/media';
 
 export const VideoBubble = ({
   message,
@@ -47,6 +48,7 @@ export const VideoBubble = ({
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
   const [loadingRetry, setLoadingRetry] = useState(false);
+  const [videoUri, setVideoUri] = useState<string | null>(null);
 
   const onRetryClick = async (messageObj: SavedMessageParams) => {
     setLoadingRetry(true);
@@ -71,11 +73,7 @@ export const VideoBubble = ({
   const handlePressFunction = () => {
     const selectionMode = handlePress(message.messageId);
     if (!selectionMode) {
-      handleMediaOpen(
-        (message.data as LargeDataParams).fileUri,
-        triggerDownload,
-        mediaDownloadError,
-      );
+      handleMediaOpen(videoUri, triggerDownload, mediaDownloadError);
     }
   };
   const handleLongPressFunction = () => {
@@ -85,6 +83,18 @@ export const VideoBubble = ({
   useEffect(() => {
     setShowRetry(message.messageStatus === MessageStatus.unsent);
     setLoadingRetry(message.messageStatus === MessageStatus.sent);
+  }, [message]);
+
+  useEffect(() => {
+    (async () => {
+      const mediaInfo = await getMedia(message.data?.mediaId);
+      if (mediaInfo) {
+        const image = mediaInfo.filePath;
+        setVideoUri(image);
+      } else {
+        setVideoUri((message.data as LargeDataParams).fileUri);
+      }
+    })();
   }, [message]);
 
   const text = (message.data as TextParams).text;
@@ -106,7 +116,7 @@ export const VideoBubble = ({
           ) : (
             renderDisplay(
               message,
-              (message.data as LargeDataParams).previewUri,
+              videoUri,
               message.data as LargeDataParams,
               showRetry,
               loadingRetry,

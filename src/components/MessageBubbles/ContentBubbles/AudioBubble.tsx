@@ -16,6 +16,7 @@ import {RenderTimeStamp, handleDownload} from '../BubbleUtils';
 
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {getMedia} from '@utils/Storage/media';
 
 const AudioBubble = ({
   message,
@@ -28,10 +29,11 @@ const AudioBubble = ({
   handleLongPress: any;
   handleRetry: (message: SavedMessageParams) => void;
 }) => {
-  const [fileUri, setfileUri] = useState<string | undefined>(undefined);
+  const [fileUri, setFileUri] = useState<string | undefined>(undefined);
   const [downloading, setDownloading] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
   const [loadingRetry, setLoadingRetry] = useState(false);
+
   const onRetryClick = async (messageObj: SavedMessageParams) => {
     setLoadingRetry(true);
     await handleRetry(messageObj);
@@ -43,8 +45,17 @@ const AudioBubble = ({
   };
 
   useEffect(() => {
-    setfileUri(getSafeAbsoluteURI(message?.data?.fileUri, 'doc'));
-  }, [message?.data?.fileUri]);
+    (async () => {
+      const mediaInfo = await getMedia(message?.data?.mediaId);
+      if (mediaInfo && mediaInfo.filePath) {
+        const image = getSafeAbsoluteURI(mediaInfo.filePath, 'doc');
+        setFileUri(image);
+      } else {
+        setFileUri(message?.data?.fileUri);
+      }
+    })();
+  }, [message]);
+
   const durationTime = message?.data?.duration;
 
   const triggerDownload = async () => {
@@ -65,7 +76,7 @@ const AudioBubble = ({
   };
 
   const handleStartPlay = () => {
-    if (message.data?.fileUri !== null) {
+    if (fileUri !== null) {
       setIsPlaying(true);
       clearRecordingListeners();
       startPlay(fileUri, setPlayTime, setProgress);
@@ -152,7 +163,7 @@ const AudioBubble = ({
           </>
         ) : (
           <>
-            {message.data?.fileUri === null ? (
+            {fileUri === null ? (
               !downloading ? (
                 <Pressable onPress={handleStartPlay} style={{height: 16}}>
                   <Download

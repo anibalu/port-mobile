@@ -4,7 +4,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useEffect, useState} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import {PortSpacing} from '@components/ComponentUtils';
 import {
@@ -15,6 +15,7 @@ import {
 } from '../BubbleUtils';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import DynamicColors from '@components/DynamicColors';
+import {getMedia} from '@utils/Storage/media';
 
 export const ImageReplyBubble = ({
   reply,
@@ -28,7 +29,21 @@ export const ImageReplyBubble = ({
     (reply.data as LargeDataParams).text !== ''
       ? (reply.data as LargeDataParams).text
       : 'Image';
-  const fileUri = (reply.data as LargeDataParams).fileUri;
+
+  const [fileUri, setFileUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const mediaInfo = await getMedia((reply.data as LargeDataParams).mediaId);
+      if (mediaInfo) {
+        const image = mediaInfo.filePath;
+        setFileUri(image);
+      } else {
+        setFileUri((reply.data as LargeDataParams).fileUri);
+      }
+    })();
+  }, [reply]);
+  // const fileUri = (reply.data as LargeDataParams).fileUri;
   const Colors = DynamicColors();
   const styles = styling(Colors);
   return (

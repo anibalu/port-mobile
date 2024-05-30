@@ -31,6 +31,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {getMedia} from '@utils/Storage/media';
 
 export const ImageBubble = ({
   message,
@@ -46,6 +47,7 @@ export const ImageBubble = ({
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   const [loadingRetry, setLoadingRetry] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
   const {mediaDownloadError} = useErrorModal();
   const download = async () => {
     try {
@@ -63,11 +65,7 @@ export const ImageBubble = ({
   const handlePressFunction = () => {
     const selectionMode = handlePress(message.messageId);
     if (!selectionMode) {
-      handleMediaOpen(
-        (message.data as LargeDataParams).fileUri,
-        triggerDownload,
-        mediaDownloadError,
-      );
+      handleMediaOpen(imageUri, triggerDownload, mediaDownloadError);
     }
   };
   const handleLongPressFunction = () => {
@@ -87,6 +85,18 @@ export const ImageBubble = ({
     setLoadingRetry(false);
   };
 
+  useEffect(() => {
+    (async () => {
+      const mediaInfo = await getMedia(message.data?.mediaId);
+      if (mediaInfo) {
+        const image = mediaInfo.filePath;
+        setImageUri(image);
+      } else {
+        setImageUri((message.data as LargeDataParams).fileUri);
+      }
+    })();
+  }, [message]);
+
   return (
     <Pressable
       style={styles.imageBubbleContainer}
@@ -102,10 +112,7 @@ export const ImageBubble = ({
               <SmallLoader />
             </View>
           ) : (
-            renderDisplay(
-              (message.data as LargeDataParams).fileUri,
-              message.data as LargeDataParams,
-            )
+            renderDisplay(imageUri, message.data as LargeDataParams)
           )}
         </View>
         {text ? (

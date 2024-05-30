@@ -326,7 +326,7 @@ function ChatTile({
                             flex: 1,
                           }}
                           fontSizeType={FontSizeType.m}
-                          textColor={Colors.progress.container}>
+                          textColor={Colors.primary.accent}>
                           {'New connection ' + superportTag + contactshareTag}
                         </NumberlessText>
                       ) : (

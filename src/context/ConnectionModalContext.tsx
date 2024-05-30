@@ -137,12 +137,10 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   useEffect(() => {
     // Check if a link was used to open the app for the first time and
     // Consume said link if it was
-    console.log('initial link 1', initialLink);
     if (initialLink) {
       checkDeeplink({url: initialLink});
       store.dispatch({type: 'NEW_LINK', payload: null});
     }
-    console.log('initial link 2', initialLink);
     Linking.addEventListener('url', url => {
       // Check that this listener isn't being called on the initial link
       // since it's being handled above already

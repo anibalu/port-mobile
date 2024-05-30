@@ -1,5 +1,5 @@
 import DownArrow from '@assets/icons/navigation/WhiteAngleDown.svg';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   ContentType,
   DisplayableContentTypes,
@@ -18,6 +18,7 @@ import {
 import {MessageBubbleParent} from '@components/MessageBubbles/MessageBubbleParent';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import {AuthenticatedStateBubble} from '@components/MessageBubbles/AuthenticatedStateBubble';
+import DynamicColors from '@components/DynamicColors';
 
 const MESSAGE_TIME_GAP_FOR_PADDING = 60 * 60 * 1000;
 
@@ -123,6 +124,8 @@ function ChatList({
     }
   };
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
 
   return (
     <>
@@ -190,20 +193,21 @@ const determineSpacing = (
   }
 };
 
-const styles = StyleSheet.create({
-  handleStyle: {
-    height: 45,
-    width: 45,
-    position: 'absolute',
-    bottom: 80,
-    zIndex: 10,
-    right: 0,
-    borderTopLeftRadius: 16,
-    borderBottomLeftRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: PortColors.primary.blue.app,
-  },
-});
+const styling = color =>
+  StyleSheet.create({
+    handleStyle: {
+      height: 45,
+      width: 45,
+      position: 'absolute',
+      bottom: 80,
+      zIndex: 10,
+      right: 0,
+      borderTopLeftRadius: 16,
+      borderBottomLeftRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: color.primary.accent,
+    },
+  });
 
 export default ChatList;

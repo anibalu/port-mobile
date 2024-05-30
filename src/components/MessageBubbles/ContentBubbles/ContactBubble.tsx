@@ -1,4 +1,3 @@
-import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -18,6 +17,7 @@ import {Pressable, StyleSheet, View} from 'react-native';
 import {MAX_WIDTH_CONTENT, RenderTimeStamp} from '../BubbleUtils';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import DynamicColors from '@components/DynamicColors';
 
 const ContactBubble = ({message}: {message: SavedMessageParams}) => {
   const navigation = useNavigation<any>();
@@ -74,6 +74,8 @@ const ContactBubble = ({message}: {message: SavedMessageParams}) => {
     }
   };
 
+  const Colors = DynamicColors();
+
   return (
     <View style={{width: MAX_WIDTH_CONTENT - 16, padding: 4}}>
       <View style={styles.timeStampContainer}>
@@ -86,13 +88,14 @@ const ContactBubble = ({message}: {message: SavedMessageParams}) => {
 
           <View style={{justifyContent: 'center'}}>
             <NumberlessText
+              textColor={Colors.text.primary}
               fontSizeType={FontSizeType.m}
               fontType={FontType.md}>
               {chatName}
             </NumberlessText>
             {message.sender && (
               <NumberlessText
-                textColor={PortColors.subtitle}
+                textColor={Colors.text.subtitle}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
                 Contact shared
@@ -133,13 +136,14 @@ function GetButton({
   clickHandle: () => void;
   authenticated: boolean;
 }) {
+  const Colors = DynamicColors();
   if (!accepted && !createdChatId) {
     return (
       <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}
-          textColor={PortColors.primary.blue.app}>
+          textColor={Colors.primary.accent}>
           Connect
         </NumberlessText>
       </Pressable>
@@ -151,7 +155,7 @@ function GetButton({
           <NumberlessText
             fontSizeType={FontSizeType.m}
             fontType={FontType.md}
-            textColor={PortColors.primary.blue.app}>
+            textColor={Colors.primary.accent}>
             Message
           </NumberlessText>
         </Pressable>
@@ -161,7 +165,7 @@ function GetButton({
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}
-          textColor={PortColors.primary.blue.app}>
+          textColor={Colors.primary.accent}>
           Connecting...
         </NumberlessText>
       </Pressable>;
@@ -171,7 +175,7 @@ function GetButton({
       <NumberlessText
         fontSizeType={FontSizeType.m}
         fontType={FontType.md}
-        textColor={PortColors.primary.blue.app}>
+        textColor={Colors.primary.accent}>
         Connecting...
       </NumberlessText>
     </Pressable>;
@@ -180,7 +184,7 @@ function GetButton({
       <NumberlessText
         fontSizeType={FontSizeType.m}
         fontType={FontType.md}
-        textColor={PortColors.primary.blue.app}>
+        textColor={Colors.primary.accent}>
         Expired
       </NumberlessText>
     </Pressable>;
@@ -203,16 +207,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 12,
     marginTop: 4,
-  },
-  messageStyle: {
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    borderRadius: 12,
-    backgroundColor: PortColors.primary.blue.app,
-    width: MAX_WIDTH_CONTENT - 24,
-    marginVertical: 4,
   },
 });
 export default ContactBubble;

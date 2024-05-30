@@ -38,6 +38,7 @@ const DynamicColors = () => {
       sender: '#FFFFFF',
       reply: '#EDF2FF',
       replyBubbleInner: '#F4F4F5',
+      replyBubbleReceive: '#F4F4F5',
     },
     labels: {
       fill: '#FFFCEB',
@@ -46,7 +47,7 @@ const DynamicColors = () => {
     },
     progress: {
       container: '#F6F6F6',
-      bar: '#4E75FF',
+      bar: '#6A35FF',
     },
     button: {
       black: '#05070B',
@@ -68,7 +69,7 @@ const DynamicColors = () => {
       black: '#1D232E',
     },
     text: {
-      subtitle: '#D0D5DD',
+      subtitle: '#CFCCD9',
       primary: '#EAECF0',
     },
     messagebubble: {
@@ -76,6 +77,7 @@ const DynamicColors = () => {
       sender: '#1D232E',
       reply: '#FFFFFF',
       replyBubbleInner: '#9E82ED',
+      replyBubbleReceive: '#05070B',
     },
     labels: {
       fill: '#2F343B',

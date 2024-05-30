@@ -2,7 +2,7 @@
  * This screen sets up a user's profile.
  * It shows an error message and re-directs to enter name screen if there's a failure.
  */
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -29,9 +29,10 @@ type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
 
 //loader that shows up when profile is being setup
 const Loader = () => {
+  const Colors = DynamicColors();
   return (
     <View style={{justifyContent: 'center', alignItems: 'center'}}>
-      <CircleSnail color={PortColors.primary.blue.app} duration={500} />
+      <CircleSnail color={Colors.primary.accent} duration={500} />
     </View>
   );
 };

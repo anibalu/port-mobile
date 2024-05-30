@@ -12,10 +12,10 @@ import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import {useNavigation} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
-import {PortColors} from '@components/ComponentUtils';
 import {generateBundleForContactSharing} from '@utils/ContactSharing';
 
-import Icon from '@assets/icons/ContactShareIcon.svg';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
   const [destination, setDestination] = useState(DEFAULT_NAME);
@@ -60,6 +60,17 @@ const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
     });
   };
 
+  const Colors = DynamicColors();
+  const svgArray = [
+    {
+      assetName: 'ContactShareIcon',
+      light: require('@assets/icons/ContactShareIcon.svg').default,
+      dark: require('@assets/dark/icons/ContactShareIcon.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const Icon = results.ContactShareIcon;
   return (
     <View style={{padding: 8, width: MAX_WIDTH_CONTENT - 16}}>
       {message.sender ? (
@@ -68,15 +79,18 @@ const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
             <Icon style={{marginTop: 4}} />
             {approved ? (
               <NumberlessText
+                textColor={Colors.text.primary}
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}>
                 <NumberlessText
+                  textColor={Colors.text.primary}
                   fontSizeType={FontSizeType.m}
                   fontType={FontType.md}>
                   {requesterName}'s{' '}
                 </NumberlessText>
                 contact was successfully shared with
                 <NumberlessText
+                  textColor={Colors.text.primary}
                   fontSizeType={FontSizeType.m}
                   fontType={FontType.md}>
                   {' '}
@@ -85,10 +99,12 @@ const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
               </NumberlessText>
             ) : (
               <NumberlessText
+                textColor={Colors.text.primary}
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}>
                 You shared
                 <NumberlessText
+                  textColor={Colors.text.primary}
                   fontSizeType={FontSizeType.m}
                   fontType={FontType.md}>
                   {' '}
@@ -96,6 +112,7 @@ const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
                 </NumberlessText>{' '}
                 contact with
                 <NumberlessText
+                  textColor={Colors.text.primary}
                   fontSizeType={FontSizeType.m}
                   fontType={FontType.md}>
                   {' '}
@@ -113,12 +130,14 @@ const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
         <>
           {approved ? (
             <NumberlessText
+              textColor={Colors.text.primary}
               fontSizeType={FontSizeType.m}
               fontType={FontType.md}>
               {requesterName} shared your contact with {destination}
             </NumberlessText>
           ) : (
             <NumberlessText
+              textColor={Colors.text.primary}
               fontSizeType={FontSizeType.m}
               fontType={FontType.md}>
               {requesterName} tried to share your contact with {destination}.
@@ -139,7 +158,7 @@ const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
                 <NumberlessText
                   fontSizeType={FontSizeType.m}
                   fontType={FontType.md}
-                  textColor={PortColors.primary.blue.app}>
+                  textColor={Colors.primary.accent}>
                   Allow Once
                 </NumberlessText>
               </Pressable>
@@ -154,7 +173,7 @@ const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
             <NumberlessText
               fontSizeType={FontSizeType.m}
               fontType={FontType.md}
-              textColor={PortColors.primary.blue.app}>
+              textColor={Colors.primary.accent}>
               Manage Settings
             </NumberlessText>
           </Pressable>

@@ -18,7 +18,6 @@ const LineSeparator = () => {
         height: 9,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: Colors.primary.surface,
       }}>
       <View style={styles.lineWrapper} />
     </View>

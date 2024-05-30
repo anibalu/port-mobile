@@ -130,6 +130,7 @@ export const MessageBubble = ({
       outputRange: [0, 1], // Scale from 0.5 to 1 as you drag
       extrapolate: 'clamp', // Ensures that scaling doesn't go below 0 or above 1
     });
+
     return (
       <View style={{flexDirection: 'column', justifyContent: 'center'}}>
         <Animated.View
@@ -201,8 +202,8 @@ export const MessageBubble = ({
                       style={{
                         ...styles.replyBubbleContainer,
                         backgroundColor: message.sender
-                          ? '#EDF2FF'
-                          : PortColors.stroke,
+                          ? Colors.messagebubble.replyBubbleInner
+                          : Colors.messagebubble.replyBubbleReceive,
                       }}>
                       {/* Reply bubble goes here */}
                       <ReplyBubble

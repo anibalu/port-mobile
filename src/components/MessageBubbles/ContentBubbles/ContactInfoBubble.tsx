@@ -1,4 +1,3 @@
-import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -15,6 +14,7 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {MAX_WIDTH_CONTENT, RenderTimeStamp} from '../BubbleUtils';
 import {permanentlyDeleteMessage} from '@utils/Storage/messages';
+import DynamicColors from '@components/DynamicColors';
 
 const ContactInfoBubble = ({message}: {message: SavedMessageParams}) => {
   const [createdChatId, setCreatedChatId] = useState<string | undefined>(
@@ -38,17 +38,21 @@ const ContactInfoBubble = ({message}: {message: SavedMessageParams}) => {
       setChatName(chatData.name);
     })();
   }, [createdChatId]);
+  const Colors = DynamicColors();
 
   return (
     <View style={{padding: 8, width: MAX_WIDTH_CONTENT - 16}}>
       <View style={styles.toprow}>
         <AvatarBox profileUri={DEFAULT_AVATAR} avatarSize="s" />
         <View>
-          <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.md}>
+          <NumberlessText
+            textColor={Colors.text.primary}
+            fontSizeType={FontSizeType.l}
+            fontType={FontType.md}>
             {chatName}
           </NumberlessText>
           <NumberlessText
-            textColor={PortColors.subtitle}
+            textColor={Colors.text.subtitle}
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>
             Awaiting permission
@@ -56,7 +60,7 @@ const ContactInfoBubble = ({message}: {message: SavedMessageParams}) => {
         </View>
       </View>
       <NumberlessText
-        textColor={PortColors.subtitle}
+        textColor={Colors.text.subtitle}
         fontSizeType={FontSizeType.m}
         fontType={FontType.rg}>
         {chatName} may have disabled contact sharing. They can approve this

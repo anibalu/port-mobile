@@ -672,7 +672,8 @@ function Home({route, navigation}: Props) {
                           style={StyleSheet.compose(styles.tilePlaceholder, {
                             backgroundColor:
                               themeValue === 'light' ? '#CFCCD6' : '#27272B',
-                          })}></View>
+                          })}
+                        />
                       ))}
                     </View>
                   </Animated.View>

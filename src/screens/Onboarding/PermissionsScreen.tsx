@@ -132,7 +132,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
           <NumberlessText
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}
-            textColor={Colors.primary.darkgrey}
+            textColor={Colors.text.subtitle}
             style={{
               textAlign: 'center',
               marginTop: PortSpacing.secondary.uniform,

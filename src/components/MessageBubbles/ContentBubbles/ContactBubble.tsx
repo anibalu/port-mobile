@@ -23,7 +23,7 @@ const ContactBubble = ({message}: {message: SavedMessageParams}) => {
   const navigation = useNavigation<any>();
   const [disconnected, setDisconnected] = useState(false);
   const [chatName, setChatName] = useState<string>(
-    (message.data as ContactBundleParams).bundle.name || DEFAULT_NAME,
+    (message.data as ContactBundleParams).bundle?.name || DEFAULT_NAME,
   );
   const [authenticated, setAuthenticated] = useState(false);
   const [bundle, setBundle] = useState<ReadPortData | null>(null);

@@ -10,12 +10,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import emoji from 'emoji-datasource';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {
-  PortColors,
-  PortSpacing,
-  isIOS,
-  screen,
-} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -27,6 +22,7 @@ import {EmojiCategories} from '@configs/emojiCategories';
 import BasicSearchBar from '../TopBars/BasicSearchBar';
 import {wait} from '@utils/Time';
 import {SvgProps} from 'react-native-svg';
+import DynamicColors from '@components/DynamicColors';
 
 interface Emoji {
   unified: string;
@@ -71,6 +67,9 @@ const TabBar: React.FC<TabBarProps> = ({
 }) => {
   const SymbolComponent = currentCategory.symbol;
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   return (
     <TouchableOpacity
       onPress={() => onPress(currentCategory)}
@@ -83,7 +82,9 @@ const TabBar: React.FC<TabBarProps> = ({
       <View
         style={StyleSheet.compose(styles.categorySymbol, {
           backgroundColor:
-            activeCategory === currentCategory ? '#D9E1F8' : 'transparent',
+            activeCategory === currentCategory
+              ? Colors.primary.lightgrey
+              : 'transparent',
         })}>
         <SymbolComponent height={FontSizeType.es} width={FontSizeType.es} />
       </View>
@@ -92,6 +93,8 @@ const TabBar: React.FC<TabBarProps> = ({
 };
 
 const EmojiCell: React.FC<EmojiCellProps> = ({emoji, onPress}) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <TouchableOpacity
       activeOpacity={0.5}
@@ -248,6 +251,9 @@ const EmojiSelector: React.FC<EmojiSelectorProps> = ({
   const title = searchQuery !== '' ? 'Search Results' : category.name;
   const isListCenterAligned = calculateColumns() > returnSectionData().length;
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   return (
     <PrimaryBottomSheet
       avoidKeyboard={true}
@@ -280,7 +286,7 @@ const EmojiSelector: React.FC<EmojiSelectorProps> = ({
               <NumberlessText
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.rg}
-                textColor={PortColors.subtitle}
+                textColor={Colors.text.primary}
                 style={styles.sectionHeader}>
                 {title}
               </NumberlessText>
@@ -338,71 +344,72 @@ const EmojiSelector: React.FC<EmojiSelectorProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  mainContainer: {
-    flexDirection: 'column',
-    width: '100%',
-    marginTop: PortSpacing.intermediate.top,
-    ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
-  },
-  cardContainer: {
-    backgroundColor: PortColors.primary.white,
-    marginBottom: 10,
-    paddingBottom: 40,
-    overflow: 'hidden',
-  },
-  emojiContainer: {
-    gap: PortSpacing.tertiary.uniform,
-    paddingHorizontal: PortSpacing.tertiary.uniform,
-    alignSelf: 'center',
-  },
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: PortColors.primary.white,
-    padding: PortSpacing.tertiary.uniform,
-    borderWidth: 0.5,
-    borderColor: PortColors.stroke,
-    borderRadius: PortSpacing.secondary.uniform,
-  },
-  categorySymbol: {
-    textAlign: 'center',
-    padding: 4,
-    marginRight: 4,
-    borderRadius: PortSpacing.tertiary.uniform,
-  },
+const styling = (colors: any) =>
+  StyleSheet.create({
+    mainContainer: {
+      flexDirection: 'column',
+      width: '100%',
+      marginTop: PortSpacing.intermediate.top,
+      ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+    },
+    cardContainer: {
+      backgroundColor: colors.primary.surface,
+      marginBottom: 10,
+      paddingBottom: 40,
+      overflow: 'hidden',
+    },
+    emojiContainer: {
+      gap: PortSpacing.tertiary.uniform,
+      paddingHorizontal: PortSpacing.tertiary.uniform,
+      alignSelf: 'center',
+    },
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.primary.surface,
+      padding: PortSpacing.tertiary.uniform,
+      borderWidth: 0.5,
+      borderColor: colors.primary.stroke,
+      borderRadius: PortSpacing.secondary.uniform,
+    },
+    categorySymbol: {
+      textAlign: 'center',
+      padding: 4,
+      marginRight: 4,
+      borderRadius: PortSpacing.tertiary.uniform,
+    },
 
-  loader: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scrollview: {
-    flex: 1,
-  },
-  search: {
-    ...(isIOS && {
-      height: 36,
-      paddingLeft: PortSpacing.tertiary.left,
-      borderRadius: 10,
-      backgroundColor: '#E5E8E9',
-    }),
-    margin: PortSpacing.tertiary.uniform,
-  },
-  container: {
-    flex: 1,
-    flexWrap: 'wrap',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  emojiCellWrapper: {
-    width: 42,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sectionHeader: {
-    margin: PortSpacing.tertiary.uniform,
-    width: '100%',
-  },
-});
+    loader: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    scrollview: {
+      flex: 1,
+    },
+    search: {
+      ...(isIOS && {
+        height: 36,
+        paddingLeft: PortSpacing.tertiary.left,
+        borderRadius: 10,
+        backgroundColor: '#E5E8E9',
+      }),
+      margin: PortSpacing.tertiary.uniform,
+    },
+    container: {
+      flex: 1,
+      flexWrap: 'wrap',
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+    },
+    emojiCellWrapper: {
+      width: 42,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    sectionHeader: {
+      margin: PortSpacing.tertiary.uniform,
+      width: '100%',
+    },
+  });
 
 export default EmojiSelector;

@@ -1,38 +1,47 @@
 import React, {ReactNode, memo} from 'react';
 import {ImageBackground, StyleSheet} from 'react-native';
-import {PortColors, screen} from './ComponentUtils';
+import {screen} from './ComponentUtils';
+import DynamicColors from './DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const ChatBackground = ({standard = true}): ReactNode => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    {
+      assetName: 'BackgroundImage',
+      light: require('@assets/light/backgrounds/ChatBG.png'),
+      dark: require('@assets/dark/backgrounds/ChatBG.png'),
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const BackgroundImage = results.BackgroundImage;
+
   return standard ? (
-    <ImageBackground
-      source={require('@assets/backgrounds/BG.png')}
-      style={styles.background}
-    />
+    <ImageBackground source={BackgroundImage} style={styles.background} />
   ) : (
-    <ImageBackground
-      source={require('@assets/backgrounds/BG.png')}
-      style={styles.background2}
-    />
+    <ImageBackground source={BackgroundImage} style={styles.background2} />
   );
 };
 
-const styles = StyleSheet.create({
-  background: {
-    width: screen.width,
-    height: screen.height + 30,
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: PortColors.background,
-    opacity: 0.5,
-  },
-  background2: {
-    width: screen.width,
-    height: screen.height + 30,
-    position: 'absolute',
-    resizeMode: 'cover',
-    backgroundColor: '#FFF',
-    opacity: 0.5,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    background: {
+      width: screen.width,
+      height: screen.height + 50,
+      position: 'absolute',
+      resizeMode: 'cover',
+      backgroundColor: colors.primary.background,
+      opacity: 0.5,
+    },
+    background2: {
+      width: screen.width,
+      height: screen.height + 50,
+      position: 'absolute',
+      resizeMode: 'cover',
+      backgroundColor: colors.primary.background,
+      opacity: 0.5,
+    },
+  });
 
 export default memo(ChatBackground);

@@ -1,10 +1,7 @@
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import BackIcon from '@assets/navigation/backButton.svg';
 import {SafeAreaView} from '@components/SafeAreaView';
-import FilterIcon from '@assets/icons/filter.svg';
 import React, {useMemo, useState} from 'react';
-import SearchIcon from '@assets/icons/searchThin.svg';
 import {
   StyleSheet,
   View,
@@ -39,6 +36,8 @@ import {getAllFolders} from '@utils/ChatFolders';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {FileAttributes} from '@utils/Storage/interfaces';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Superports'>;
 
@@ -128,14 +127,39 @@ const Superports = ({route, navigation}: Props) => {
     setSelectedFilter(item);
     setShowSortby(false);
   };
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    {
+      assetName: 'SearchIcon',
+      light: require('@assets/light/icons/search.svg').default,
+      dark: require('@assets/dark/icons/search.svg').default,
+    },
+    {
+      assetName: 'BackIcon',
+      light: require('@assets/light/icons/navigation/BlackArrowLeftThin.svg')
+        .default,
+      dark: require('@assets/dark/icons/navigation/BlackArrowLeftThin.svg')
+        .default,
+    },
+    {
+      assetName: 'FilterIcon',
+      light: require('@assets/light/icons/Filter.svg').default,
+      dark: require('@assets/dark/icons/Filter.svg').default,
+    },
+  ];
 
+  const results = useDynamicSVG(svgArray);
+  const SearchIcon = results.SearchIcon;
+  const BackIcon = results.BackIcon;
+  const FilterIcon = results.FilterIcon;
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         {isSearchActive ? (
           <View style={styles.barWrapper}>
             <SearchBar
@@ -155,16 +179,16 @@ const Superports = ({route, navigation}: Props) => {
         )}
         <View
           style={{
-            backgroundColor: PortColors.primary.white,
+            backgroundColor: Colors.primary.surface,
             paddingHorizontal: PortSpacing.secondary.uniform,
             paddingBottom: PortSpacing.secondary.bottom,
             paddingTop: PortSpacing.tertiary.top,
           }}>
           <NumberlessText
             style={{
-              color: PortColors.title,
               marginBottom: PortSpacing.secondary.bottom,
             }}
+            textColor={Colors.text.primary}
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>
             Filter by chat folder
@@ -197,7 +221,7 @@ const Superports = ({route, navigation}: Props) => {
           <View style={styles.portsHeader}>
             <NumberlessText
               style={{
-                color: PortColors.title,
+                color: Colors.text.primary,
               }}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
@@ -226,7 +250,7 @@ const Superports = ({route, navigation}: Props) => {
                 <NumberlessText
                   fontSizeType={FontSizeType.s}
                   fontType={FontType.rg}
-                  textColor={PortColors.subtitle}>
+                  textColor={Colors.text.subtitle}>
                   No Available Superports
                 </NumberlessText>
               </View>
@@ -298,48 +322,47 @@ const Superports = ({route, navigation}: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  portsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: PortSpacing.secondary.bottom,
-    flexWrap: 'wrap',
-  },
-  noSharedmediaWrapper: {
-    alignSelf: 'center',
-    marginTop: PortSpacing.secondary.top,
-  },
-  noSharedMediaText: {
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingVertical: PortSpacing.tertiary.uniform,
-    textAlign: 'center',
-  },
-  barWrapper: {
-    paddingHorizontal: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: PortColors.primary.white,
-    borderBottomColor: '#EEE',
-    borderBottomWidth: 0.5,
-    height: TOPBAR_HEIGHT,
-  },
-  sortbyText: {
-    color: PortColors.title,
-    marginRight: PortSpacing.tertiary.right,
-  },
-  scrollViewContainer: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    backgroundColor: PortColors.background,
-  },
-  buttonWrapper: {
-    padding: PortSpacing.secondary.uniform,
-    backgroundColor: PortColors.primary.white,
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    portsHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: PortSpacing.secondary.bottom,
+      flexWrap: 'wrap',
+    },
+    noSharedmediaWrapper: {
+      alignSelf: 'center',
+      marginTop: PortSpacing.secondary.top,
+    },
+    noSharedMediaText: {
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.tertiary.uniform,
+      textAlign: 'center',
+    },
+    barWrapper: {
+      paddingHorizontal: 15,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: color.primary.surface,
+      height: TOPBAR_HEIGHT,
+    },
+    sortbyText: {
+      color: color.text.primary,
+      marginRight: PortSpacing.tertiary.right,
+    },
+    scrollViewContainer: {
+      flex: 1,
+      width: '100%',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      backgroundColor: color.primary.background,
+    },
+    buttonWrapper: {
+      padding: PortSpacing.secondary.uniform,
+      backgroundColor: color.primary.surface,
+    },
+  });
 
 export default Superports;

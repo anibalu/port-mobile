@@ -14,6 +14,7 @@ import {
   TIME_STAMP_TEXT_PADDING_SENDER,
   TIME_STAMP_TEXT_PADDING_RECEIVER,
 } from '../BubbleUtils';
+import DynamicColors from '@components/DynamicColors';
 
 export const TextBubble = ({
   message,
@@ -25,6 +26,8 @@ export const TextBubble = ({
     : TIME_STAMP_TEXT_PADDING_RECEIVER;
   const initialText = (message.data as TextParams).text || '';
   const text = initialText + paddingText;
+
+  const Colors = DynamicColors();
 
   return (
     <View
@@ -48,6 +51,7 @@ export const TextBubble = ({
       ) : (
         <NumberlessLinkText
           fontSizeType={FontSizeType.l}
+          textColor={Colors.text.primary}
           fontType={FontType.rg}>
           {text}
         </NumberlessLinkText>

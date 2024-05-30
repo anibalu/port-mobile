@@ -1,12 +1,12 @@
 /**
  * Default chat tile displayed when there are no connections
  */
-import {GenericAvatar} from '@components/GenericAvatar';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import React, {useState} from 'react';
@@ -33,10 +33,7 @@ function AddMemberTile({
       pointerEvents="box-only"
       onPress={onCheckboxToggle}>
       <>
-        <GenericAvatar
-          avatarSize="small"
-          profileUri={member.pathToDisplayPic}
-        />
+        <AvatarBox profileUri={member.pathToDisplayPic} avatarSize="s+" />
         <NumberlessText
           style={styles.defaultTileTextStyle}
           fontSizeType={FontSizeType.m}

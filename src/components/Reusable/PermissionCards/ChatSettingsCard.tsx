@@ -1,8 +1,3 @@
-import CheckIcon from '@assets/icons/CheckCircle.svg';
-import ClockIcon from '@assets/icons/ClockIcon.svg';
-import DownloadIcon from '@assets/icons/DownloadArrowDown.svg';
-import NotificationIcon from '@assets/icons/NotificationOutline.svg';
-import UserCircleIcon from '@assets/icons/UserCircle.svg';
 import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
@@ -24,6 +19,8 @@ import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import React, {useEffect, useState} from 'react';
 import {Platform, View} from 'react-native';
 import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const ChatSettingsCard = ({
   chatId,
@@ -39,6 +36,48 @@ const ChatSettingsCard = ({
   //controls dissapearing messages modal
   const [showDesappearingMessageModal, setShowDissappearingMessageModal] =
     useState<boolean>(false);
+
+  const Colors = DynamicColors();
+
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'NotificationOutline',
+      light: require('@assets/light/icons/NotificationOutline.svg').default,
+      dark: require('@assets/dark/icons/NotificationOutline.svg').default,
+    },
+    // 2.UserCircle
+    {
+      assetName: 'UserCircle',
+      light: require('@assets/light/icons/UserCircle.svg').default,
+      dark: require('@assets/dark/icons/UserCircle.svg').default,
+    },
+    // 3.ClockIcon
+    {
+      assetName: 'ClockIcon',
+      light: require('@assets/light/icons/ClockIcon.svg').default,
+      dark: require('@assets/dark/icons/ClockIcon.svg').default,
+    },
+    // 4.DownloadArrow
+    {
+      assetName: 'DownloadArrow',
+      light: require('@assets/light/icons/DownloadArrow.svg').default,
+      dark: require('@assets/dark/icons/DownloadArrow.svg').default,
+    },
+    // 5. CheckCircle
+    {
+      assetName: 'CheckCircle',
+      light: require('@assets/light/icons/CheckCircle.svg').default,
+      dark: require('@assets/dark/icons/CheckCircle.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const NotificationIcon = results?.NotificationOutline;
+  const UserCircle = results?.UserCircle;
+  const ClockIcon = results?.ClockIcon;
+  const Download = results?.DownloadArrow;
+  const CheckCircle = results?.CheckCircle;
 
   useEffect(() => {
     (async () => {
@@ -93,6 +132,7 @@ const ChatSettingsCard = ({
         style={{
           padding: PortSpacing.secondary.uniform,
         }}
+        textColor={Colors.labels.text}
         fontType={FontType.md}
         fontSizeType={FontSizeType.l}>
         Chat settings
@@ -115,7 +155,7 @@ const ChatSettingsCard = ({
 
       <View>
         <OptionWithToggle
-          IconLeft={UserCircleIcon}
+          IconLeft={UserCircle}
           toggleActiveState={permissions.displayPicture}
           heading="Show my profile photo"
           onToggle={async () =>
@@ -126,7 +166,7 @@ const ChatSettingsCard = ({
       <LineSeparator />
       <View>
         <OptionWithToggle
-          IconLeft={DownloadIcon}
+          IconLeft={Download}
           toggleActiveState={permissions.autoDownload}
           heading="Media auto-download"
           onToggle={async () => await onUpdateBooleanPermission('autoDownload')}
@@ -135,7 +175,7 @@ const ChatSettingsCard = ({
       <LineSeparator />
       <View>
         <OptionWithToggle
-          IconLeft={CheckIcon}
+          IconLeft={CheckCircle}
           toggleActiveState={permissions.readReceipts}
           heading="Send read receipts"
           onToggle={async () => await onUpdateBooleanPermission('readReceipts')}

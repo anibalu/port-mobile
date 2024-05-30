@@ -1,7 +1,3 @@
-import Delete from '@assets/icons/DeleteIcon.svg';
-import Copy from '@assets/icons/copy.svg';
-import Forward from '@assets/icons/ForwardNew.svg';
-import Reply from '@assets/icons/ReplyNew.svg';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
@@ -14,6 +10,8 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 /**
  * Renders action bar based on messages that are selected
@@ -41,6 +39,39 @@ export function MessageActionsBar(): ReactNode {
     clearSelection();
   };
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
+  const svgArray = [
+    {
+      assetName: 'ReplyIcon',
+      light: require('@assets/light/icons/Reply.svg').default,
+      dark: require('@assets/dark/icons/Reply.svg').default,
+    },
+    {
+      assetName: 'ForwardIcon',
+      light: require('@assets/light/icons/Forward.svg').default,
+      dark: require('@assets/dark/icons/Forward.svg').default,
+    },
+
+    {
+      assetName: 'CopyIcon',
+      light: require('@assets/light/icons/Copy.svg').default,
+      dark: require('@assets/dark/icons/Copy.svg').default,
+    },
+
+    {
+      assetName: 'DeleteIcon',
+      light: require('@assets/light/icons/Delete.svg').default,
+      dark: require('@assets/dark/icons/Delete.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const ReplyIcon = results.ReplyIcon;
+  const ForwardIcon = results.ForwardIcon;
+  const CopyIcon = results.CopyIcon;
+  const DeleteIcon = results.DeleteIcon;
+
   return (
     <View
       style={
@@ -60,11 +91,11 @@ export function MessageActionsBar(): ReactNode {
         <View style={styles.multiSelectedContainer}>
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onForward}>
-              <Forward height={20} width={20} />
+              <ForwardIcon height={20} width={20} />
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
-                textColor={PortColors.title}>
+                textColor={Colors.text.primary}>
                 Forward
               </NumberlessText>
             </Pressable>
@@ -72,11 +103,11 @@ export function MessageActionsBar(): ReactNode {
 
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onCopy}>
-              <Copy height={20} width={20} />
+              <CopyIcon height={20} width={20} />
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
-                textColor={PortColors.title}>
+                textColor={Colors.text.primary}>
                 Copy
               </NumberlessText>
             </Pressable>
@@ -86,7 +117,7 @@ export function MessageActionsBar(): ReactNode {
             <Pressable
               style={styles.optionBox}
               onPress={determineDeleteModalDisplay}>
-              <Delete height={20} width={20} />
+              <DeleteIcon height={20} width={20} />
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
@@ -101,11 +132,11 @@ export function MessageActionsBar(): ReactNode {
           {isConnected && (
             <View style={styles.optionContainer}>
               <Pressable style={styles.optionBox} onPress={performReply}>
-                <Reply height={20} width={20} />
+                <ReplyIcon height={20} width={20} />
                 <NumberlessText
                   fontSizeType={FontSizeType.s}
                   fontType={FontType.rg}
-                  textColor={PortColors.title}>
+                  textColor={Colors.text.primary}>
                   Reply
                 </NumberlessText>
               </Pressable>
@@ -114,11 +145,11 @@ export function MessageActionsBar(): ReactNode {
 
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onForward}>
-              <Forward height={20} width={20} />
+              <ForwardIcon height={20} width={20} />
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
-                textColor={PortColors.title}>
+                textColor={Colors.text.primary}>
                 Forward
               </NumberlessText>
             </Pressable>
@@ -126,11 +157,11 @@ export function MessageActionsBar(): ReactNode {
 
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onCopy}>
-              <Copy height={20} width={20} />
+              <CopyIcon height={20} width={20} />
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
-                textColor={PortColors.title}>
+                textColor={Colors.text.primary}>
                 Copy
               </NumberlessText>
             </Pressable>
@@ -141,7 +172,7 @@ export function MessageActionsBar(): ReactNode {
               <Pressable
                 style={styles.optionBox}
                 onPress={determineDeleteModalDisplay}>
-                <Delete width={20} height={20} />
+                <DeleteIcon width={20} height={20} />
                 <NumberlessText
                   fontSizeType={FontSizeType.s}
                   fontType={FontType.rg}
@@ -157,46 +188,45 @@ export function MessageActionsBar(): ReactNode {
   );
 }
 
-const styles = StyleSheet.create({
-  parentContainer: {
-    borderTopColor: PortColors.stroke,
-    borderTopWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    padding: PortSpacing.tertiary.top,
-    paddingBottom: 10,
-    backgroundColor: PortColors.primary.white,
-  },
-  singleSelectedContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-  multiSelectedContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-  optionContainer: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  optionBox: {
-    width: 55,
-    height: 55,
-    gap: PortSpacing.tertiary.uniform,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 5,
-  },
-  optionText: {
-    fontSize: 12,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    parentContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      padding: PortSpacing.tertiary.top,
+      paddingBottom: 10,
+      backgroundColor: colors.primary.surface,
+    },
+    singleSelectedContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+    },
+    multiSelectedContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+    },
+    optionContainer: {
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    optionBox: {
+      width: 55,
+      height: 55,
+      gap: PortSpacing.tertiary.uniform,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 5,
+    },
+    optionText: {
+      fontSize: 12,
+    },
+  });

@@ -10,11 +10,12 @@
  * 5. onClick - function that runs on clicking.
  */
 
-import {PortColors, FontSizes, PortSpacing} from '@components/ComponentUtils';
+import {FontSizes, PortSpacing} from '@components/ComponentUtils';
 import React, {FC} from 'react';
 import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import SmallLoader from '../Loaders/SmallLoader';
+import DynamicColors from '@components/DynamicColors';
 
 const AlternateSecondaryButton = ({
   isLoading,
@@ -29,6 +30,8 @@ const AlternateSecondaryButton = ({
   iconSize?: 's' | 'm';
   onClick: () => void;
 }) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <TouchableOpacity
       disabled={isLoading}
@@ -48,23 +51,24 @@ const AlternateSecondaryButton = ({
   );
 };
 
-const styles = StyleSheet.create({
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 50,
-    justifyContent: 'space-between',
-    borderRadius: 12,
-    backgroundColor: 'transparent',
-    width: '100%',
-    borderColor: PortColors.stroke,
-    borderWidth: 1,
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-  buttonText: {
-    ...FontSizes[14].regular,
-    color: PortColors.text.primary,
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: 50,
+      justifyContent: 'space-between',
+      borderRadius: 12,
+      backgroundColor: 'transparent',
+      width: '100%',
+      borderColor: color.primary.stroke,
+      borderWidth: 1,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+    },
+    buttonText: {
+      ...FontSizes[14].regular,
+      color: color.text.primary,
+    },
+  });
 
 export default AlternateSecondaryButton;

@@ -1,9 +1,7 @@
 import Failure from '@assets/icons/statusIndicators/failure.svg';
-import Read from '@assets/icons/statusIndicators/read.svg';
-import Delivered from '@assets/icons/statusIndicators/received.svg';
 import {default as Journaled} from '@assets/icons/statusIndicators/sending.svg';
-import Sent from '@assets/icons/statusIndicators/sent.svg';
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -30,6 +28,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import {fetchSuperport} from '@utils/Ports';
 import {getGroupMessage, getMessage} from '@utils/Storage/messages';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {getChatTileTimestamp} from '@utils/Time';
 import React, {ReactNode, useCallback, useEffect, useState} from 'react';
 import {Animated, Easing, Pressable, StyleSheet, View} from 'react-native';
@@ -91,6 +90,9 @@ function ChatTile({
   const [newMessage, setNewMessage] = useState<SavedMessageParams | null>(null);
   const [superportTag, setSuperportTag] = useState<string>('');
   const [contactshareTag, setContactShareTag] = useState<string>('');
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
 
   const getNewMessage = async (): Promise<void> => {
     if (props.latestMessageId && !props.isReadPort) {
@@ -267,6 +269,7 @@ function ChatTile({
             <View style={styles.nameAndTimestamp}>
               <View style={styles.nameContainer}>
                 <NumberlessText
+                  textColor={Colors.primary.mainelements}
                   style={{flexShrink: 1}}
                   ellipsizeMode="tail"
                   numberOfLines={1}
@@ -279,8 +282,8 @@ function ChatTile({
                     <View style={styles.labelWrapper}>
                       <LabelChip
                         text={findFolderNameById(folders, props.folderId)}
-                        bgColor="#E0E7FF"
-                        textColor={PortColors.primary.blue.app}
+                        bgColor={Colors.primary.background}
+                        textColor={Colors.text.subtitle}
                       />
                     </View>
                   )}
@@ -289,7 +292,7 @@ function ChatTile({
                 numberOfLines={1}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
-                textColor={PortColors.text.body}
+                textColor={Colors.primary.mediumgrey}
                 style={{
                   paddingRight: PortSpacing.secondary.right,
                   paddingLeft: PortSpacing.tertiary.left,
@@ -323,7 +326,7 @@ function ChatTile({
                             flex: 1,
                           }}
                           fontSizeType={FontSizeType.m}
-                          textColor={PortColors.text.title}>
+                          textColor={Colors.primary.accent}>
                           {'New connection ' + superportTag + contactshareTag}
                         </NumberlessText>
                       ) : (
@@ -403,6 +406,8 @@ const RenderText = ({
 }: {
   newMessage: SavedMessageParams | undefined | null;
 }) => {
+  const Colors = DynamicColors();
+
   let text = '';
   let italic = false;
   if (newMessage && newMessage.data) {
@@ -444,7 +449,7 @@ const RenderText = ({
         style={{flex: 1}}
         fontType={italic ? FontType.it : FontType.rg}
         fontSizeType={FontSizeType.m}
-        textColor={PortColors.subtitle}>
+        textColor={Colors.text.subtitle}>
         {text}
       </NumberlessText>
     );
@@ -457,7 +462,7 @@ const RenderText = ({
         style={{width: screen.width - 160}}
         fontType={FontType.rg}
         fontSizeType={FontSizeType.m}
-        textColor={PortColors.subtitle}>
+        textColor={Colors.text.subtitle}>
         {text}
       </NumberlessText>
     </View>
@@ -473,6 +478,30 @@ function DisplayStatus({
   newMessageCount: number;
   newMessage: SavedMessageParams | undefined | null;
 }): ReactNode {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    {
+      assetName: 'Read',
+      light: require('@assets/light/icons/Read.svg').default,
+      dark: require('@assets/dark/icons/Read.svg').default,
+    },
+    {
+      assetName: 'Sent',
+      light: require('@assets/light/icons/Sent.svg').default,
+      dark: require('@assets/icons/statusIndicators/sent.svg').default,
+    },
+    {
+      assetName: 'Delivered',
+      light: require('@assets/light/icons/Received.svg').default,
+      dark: require('@assets/dark/icons/Received.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const Read = results.Read;
+  const Sent = results.Sent;
+  const Delivered = results.Delivered;
   const MessageStatusIndicator = () => {
     if (newMessage && newMessage.sender) {
       if (!newMessage.messageStatus) {
@@ -551,88 +580,89 @@ function displayNumber(newMsgCount: number): string {
   return newMsgCount.toString();
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    width: screen.width,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxContainer: {
-    height: 54,
-    paddingLeft: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    left: 0,
-  },
-  tile: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginHorizontal: PortSpacing.tertiary.uniform,
-    borderRadius: 16,
-    borderWidth: 0.5,
-    borderColor: PortColors.primary.border.dullGrey,
-    backgroundColor: PortColors.primary.white,
-    paddingVertical: PortSpacing.secondary.uniform,
-    overflow: 'hidden',
-  },
-  selectionOverlaySelectionMode: {
-    position: 'absolute',
-    flex: 1,
-    right: PortSpacing.tertiary.uniform,
-    height: '100%',
-    backgroundColor: 'rgba(78, 117, 255, 0.15)',
-    borderWidth: 1,
-    borderColor: '#CCD7FF',
-    borderRadius: 16,
-  },
-  avatarArea: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: AVATAR_WIDTH,
-    alignSelf: 'center',
-  },
-  nonAvatarArea: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-  },
-  nameAndTimestamp: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-  },
-  textAndStatus: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    width: '100%',
-  },
-  nameContainer: {
-    overflow: 'hidden',
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    gap: PortSpacing.tertiary.right,
-  },
-  labelWrapper: {
-    flexBasis: 45,
-    flexGrow: 1,
-    alignItems: 'flex-start',
-  },
-  new: {
-    backgroundColor: PortColors.primary.blue.app,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    minWidth: 20,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      width: screen.width,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    checkboxContainer: {
+      height: 54,
+      paddingLeft: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'absolute',
+      left: 0,
+    },
+    tile: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginHorizontal: PortSpacing.tertiary.uniform,
+      borderRadius: 16,
+      borderWidth: 0.5,
+      borderColor: colors.primary.stroke,
+      backgroundColor: colors.primary.surface,
+      paddingVertical: PortSpacing.secondary.uniform,
+      overflow: 'hidden',
+    },
+    selectionOverlaySelectionMode: {
+      position: 'absolute',
+      flex: 1,
+      right: PortSpacing.tertiary.uniform,
+      height: '100%',
+      backgroundColor: colors.primary.accentOverlay,
+      borderWidth: 0.5,
+      borderColor: colors.primary.accent,
+      borderRadius: 16,
+    },
+    avatarArea: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: AVATAR_WIDTH,
+      alignSelf: 'center',
+    },
+    nonAvatarArea: {
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      flex: 1,
+    },
+    nameAndTimestamp: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+    },
+    textAndStatus: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      width: '100%',
+    },
+    nameContainer: {
+      overflow: 'hidden',
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      gap: PortSpacing.tertiary.right,
+    },
+    labelWrapper: {
+      flexBasis: 45,
+      flexGrow: 1,
+      alignItems: 'flex-start',
+    },
+    new: {
+      backgroundColor: colors.primary.accent,
+      height: 20,
+      borderRadius: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 4,
+      minWidth: 20,
+    },
+  });
 
 export default ChatTile;

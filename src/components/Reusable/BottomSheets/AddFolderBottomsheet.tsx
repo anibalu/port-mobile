@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -15,6 +15,7 @@ import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import BluePlus from '@assets/icons/bluePlusWithCircle.svg';
 import {moveConnectionToNewFolder} from '@utils/Connections';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import DynamicColors from '@components/DynamicColors';
 
 const AddFolderBottomsheet = ({
   chatId,
@@ -53,6 +54,8 @@ const AddFolderBottomsheet = ({
     setVisible(false);
   };
   const navigation = useNavigation();
+  const Colors = DynamicColors();
+
   return (
     <PrimaryBottomSheet
       showClose={true}
@@ -61,7 +64,7 @@ const AddFolderBottomsheet = ({
       onClose={() => setVisible(false)}
       title="Move to chat folder">
       <NumberlessText
-        textColor={PortColors.subtitle}
+        textColor={Colors.text.subtitle}
         style={{
           width: '100%',
           marginVertical: PortSpacing.secondary.uniform,
@@ -77,6 +80,7 @@ const AddFolderBottomsheet = ({
             marginVertical: PortSpacing.secondary.uniform,
             paddingHorizontal: PortSpacing.secondary.uniform,
           }}
+          textColor={Colors.text.primary}
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}>
           Choose folder
@@ -112,6 +116,7 @@ const AddFolderBottomsheet = ({
                       <View style={styles.optionWrapper}>
                         <View style={styles.textContainer}>
                           <NumberlessText
+                            textColor={Colors.text.primary}
                             fontSizeType={FontSizeType.m}
                             fontType={FontType.rg}>
                             Create a folder

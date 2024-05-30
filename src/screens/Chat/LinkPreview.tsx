@@ -7,7 +7,7 @@ import {
 import React, {useEffect, useMemo} from 'react';
 import {ReactNode} from 'react';
 import {StyleSheet, View, Image, Animated, Easing} from 'react-native';
-import Cross from '@assets/icons/cross.svg';
+import Cross from '@assets/icons/BlackCross.svg';
 import LinkGrey from '@assets/icons/linkDarkGrey.svg';
 import {GenericButton} from '@components/GenericButton';
 interface LinkPreviewData {

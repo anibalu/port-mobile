@@ -1,20 +1,4 @@
-import CameraIcon from '@assets/icons/Camera.svg';
-import FileIcon from '@assets/icons/FilesIcon.svg';
-import {default as ImageIcon} from '@assets/icons/GalleryIcon.svg';
-import Microphone from '@assets/icons/MicrophoneFilled.svg';
-import ShareContactIcon from '@assets/icons/ShareContactIcon.svg';
-import VideoIcon from '@assets/icons/VideoBlack.svg';
-import Delete from '@assets/icons/Voicenotes/Delete.svg';
-import Pause from '@assets/icons/Voicenotes/Pause.svg';
-import Play from '@assets/icons/Voicenotes/Play.svg';
-import Send from '@assets/icons/WhiteArrowUp.svg';
-import Plus from '@assets/icons/plus.svg';
-import {
-  PortColors,
-  PortSpacing,
-  isIOS,
-  screen,
-} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {ReplyBubbleMessageBar} from '@components/MessageBubbles/ReplyBubble';
 import {
@@ -65,6 +49,8 @@ import AmplitudeBars from './Recording';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import {useMicrophonePermission} from 'react-native-vision-camera';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
 /**
@@ -516,6 +502,80 @@ const MessageBar = (): ReactNode => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentlyPlaying]);
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    {
+      assetName: 'PlusIcon',
+      light: require('@assets/light/icons/Plus.svg').default,
+      dark: require('@assets/dark/icons/Plus.svg').default,
+    },
+    {
+      assetName: 'CameraIcon',
+      light: require('@assets/light/icons/media/Camera.svg').default,
+      dark: require('@assets/dark/icons/media/Camera.svg').default,
+    },
+    {
+      assetName: 'VideoIcon',
+      light: require('@assets/light/icons/media/Video.svg').default,
+      dark: require('@assets/dark/icons/media/Video.svg').default,
+    },
+    {
+      assetName: 'FileIcon',
+      light: require('@assets/light/icons/media/Files.svg').default,
+      dark: require('@assets/dark/icons/media/Files.svg').default,
+    },
+    {
+      assetName: 'ImageIcon',
+      light: require('@assets/light/icons/media/Gallery.svg').default,
+      dark: require('@assets/dark/icons/media/Gallery.svg').default,
+    },
+    {
+      assetName: 'ContactIcon',
+      light: require('@assets/light/icons/media/Contact.svg').default,
+      dark: require('@assets/dark/icons/media/Contact.svg').default,
+    },
+    {
+      assetName: 'PauseIcon',
+      light: require('@assets/light/icons/voicenotes/Pause.svg').default,
+      dark: require('@assets/dark/icons/voicenotes/Pause.svg').default,
+    },
+    {
+      assetName: 'PlayIcon',
+      light: require('@assets/light/icons/voicenotes/Play.svg').default,
+      dark: require('@assets/dark/icons/voicenotes/Play.svg').default,
+    },
+    {
+      assetName: 'DeleteIcon',
+      light: require('@assets/light/icons/Delete.svg').default,
+      dark: require('@assets/dark/icons/Delete.svg').default,
+    },
+    {
+      assetName: 'MicrophoneIcon',
+      light: require('@assets/icons/MicrophoneFilled.svg').default,
+      dark: require('@assets/icons/MicrophoneFilled.svg').default,
+    },
+    {
+      assetName: 'SendIcon',
+      light: require('@assets/icons/navigation/WhiteArrowUp.svg').default,
+      dark: require('@assets/icons/navigation/WhiteArrowUp.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+
+  const PlusIcon = results.PlusIcon;
+  const CameraIcon = results.CameraIcon;
+  const VideoIcon = results.VideoIcon;
+  const FileIcon = results.FileIcon;
+  const ImageIcon = results.ImageIcon;
+  const ContactIcon = results.ContactIcon;
+  const DeleteIcon = results.DeleteIcon;
+  const PauseIcon = results.PauseIcon;
+  const PlayIcon = results.PlayIcon;
+  const MicrophoneIcon = results.MicrophoneIcon;
+  const SendIcon = results.SendIcon;
+
   return (
     <View style={{flexDirection: 'column'}}>
       <View style={styles.textInputContainer}>
@@ -562,9 +622,9 @@ const MessageBar = (): ReactNode => {
                   top: 8,
                   right: 8,
                   borderRadius: 12,
-                  backgroundColor: '#F2F2F2',
+                  backgroundColor: Colors.primary.surface,
                 }}>
-                <Plus
+                <PlusIcon
                   height={18}
                   width={18}
                   style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
@@ -598,7 +658,7 @@ const MessageBar = (): ReactNode => {
                 <AmplitudeBars />
               </View>
               <NumberlessText
-                style={{color: PortColors.primary.blue.app}}
+                style={{color: Colors.text.primary}}
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.rg}>
                 {formatDuration(duration)}
@@ -615,26 +675,26 @@ const MessageBar = (): ReactNode => {
                     onStopPlayer();
                   }}
                   hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}>
-                  <Pause style={{marginRight: 8}} />
+                  <PauseIcon style={{marginRight: 8}} />
                 </Pressable>
               ) : (
                 <Pressable
                   onPress={startPlay}
                   hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}>
-                  <Play style={{marginRight: 8}} />
+                  <PlayIcon style={{marginRight: 8}} />
                 </Pressable>
               )}
               <ProgressBar progress={progress} setIsPlaying={setIsPlaying} />
               <NumberlessText
                 style={{
-                  color: PortColors.primary.grey.dark,
+                  color: Colors.text.subtitle,
                 }}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
                 {playTime}
               </NumberlessText>
 
-              <Delete
+              <DeleteIcon
                 style={{marginTop: -3, marginLeft: 3}}
                 onPress={() => {
                   deleteRecording();
@@ -658,7 +718,7 @@ const MessageBar = (): ReactNode => {
               )}>
               <Animated.View style={[styles.plus, animatedStyle]}>
                 <Pressable onPress={togglePopUp}>
-                  <Plus height={24} width={24} />
+                  <PlusIcon height={24} width={24} />
                 </Pressable>
               </Animated.View>
 
@@ -669,7 +729,7 @@ const MessageBar = (): ReactNode => {
                   textAlign="left"
                   multiline
                   placeholder={isFocused ? '' : 'Type your message here'}
-                  placeholderTextColor={PortColors.primary.grey.medium}
+                  placeholderTextColor={Colors.primary.mediumgrey}
                   onChangeText={onChangeText}
                   value={text}
                   onFocus={() => setIsFocused(true)}
@@ -689,7 +749,7 @@ const MessageBar = (): ReactNode => {
               )}>
               <Animated.View style={[styles.plus, animatedStyle]}>
                 <Pressable onPress={togglePopUp}>
-                  <Plus height={24} width={24} />
+                  <PlusIcon height={24} width={24} />
                 </Pressable>
               </Animated.View>
 
@@ -700,7 +760,7 @@ const MessageBar = (): ReactNode => {
                   textAlign="left"
                   multiline
                   placeholder={isFocused ? '' : 'Type your message here'}
-                  placeholderTextColor={PortColors.primary.grey.medium}
+                  placeholderTextColor={Colors.primary.mediumgrey}
                   onChangeText={onChangeText}
                   value={text}
                   onFocus={() => setIsFocused(true)}
@@ -723,8 +783,8 @@ const MessageBar = (): ReactNode => {
           }
           IconRight={
             text.length > 0 || (!isRecording && hasRecorded && audio)
-              ? Send
-              : Microphone
+              ? SendIcon
+              : MicrophoneIcon
           }
           loading={isSending}
           onLongPress={onButtonLongPress}
@@ -747,6 +807,7 @@ const MessageBar = (): ReactNode => {
               <CameraIcon />
             </Pressable>
             <NumberlessText
+              textColor={Colors.text.primary}
               fontSizeType={FontSizeType.s}
               fontType={FontType.rg}>
               Camera
@@ -758,6 +819,7 @@ const MessageBar = (): ReactNode => {
             </Pressable>
             <NumberlessText
               fontSizeType={FontSizeType.s}
+              textColor={Colors.text.primary}
               fontType={FontType.rg}>
               Images
             </NumberlessText>
@@ -768,6 +830,7 @@ const MessageBar = (): ReactNode => {
             </Pressable>
             <NumberlessText
               fontSizeType={FontSizeType.s}
+              textColor={Colors.text.primary}
               fontType={FontType.rg}>
               Videos
             </NumberlessText>
@@ -778,6 +841,7 @@ const MessageBar = (): ReactNode => {
             </Pressable>
             <NumberlessText
               fontSizeType={FontSizeType.s}
+              textColor={Colors.text.primary}
               fontType={FontType.rg}>
               Files
             </NumberlessText>
@@ -790,10 +854,11 @@ const MessageBar = (): ReactNode => {
                   togglePopUp();
                   navigation.navigate('ShareContact', {chatId: chatId});
                 }}>
-                <ShareContactIcon />
+                <ContactIcon />
               </Pressable>
               <NumberlessText
                 fontSizeType={FontSizeType.s}
+                textColor={Colors.text.primary}
                 style={{textAlign: 'center'}}
                 fontType={FontType.rg}>
                 Contact
@@ -806,146 +871,148 @@ const MessageBar = (): ReactNode => {
   );
 };
 
-const styles = StyleSheet.create({
-  popUpContainer: {
-    flexDirection: 'row',
-    paddingTop: 20,
-    flexWrap: 'wrap',
-    paddingLeft: 24,
-    paddingRight: 24,
-    backgroundColor: PortColors.primary.white,
-    borderRadius: 16,
-    justifyContent: 'space-between',
-    marginHorizontal: 10,
-  },
-  textInputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginHorizontal: PortSpacing.tertiary.uniform,
-    paddingBottom: PortSpacing.tertiary.bottom,
-  },
-  replyContainerStyle: {
-    width: '100%',
-    overflow: 'hidden',
-    borderRadius: 12,
-    minHeight: PortSpacing.primary.uniform,
-    backgroundColor: PortColors.background,
-  },
-  replyContainer: {
-    width: '100%',
-    paddingHorizontal: 4,
-    paddingTop: 4,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-  },
-  textInput: {
-    flexDirection: 'row',
-    backgroundColor: PortColors.primary.white,
-    overflow: 'hidden',
-    borderRadius: 20,
-    alignItems: 'center',
-  },
-  recordingbar: {
-    flexDirection: 'row',
-    backgroundColor: PortColors.primary.white,
-    overflow: 'hidden',
-    width: screen.width - 63,
-    borderRadius: 24,
-    height: 40,
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    justifyContent: 'space-between',
-  },
-  whilerecordingbar: {
-    flexDirection: 'row',
-    backgroundColor: PortColors.primary.white,
-    overflow: 'hidden',
-    width: screen.width - 73,
-    borderRadius: 24,
-    height: 40,
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    justifyContent: 'space-between',
-  },
+const styling = (colors: any) =>
+  StyleSheet.create({
+    popUpContainer: {
+      flexDirection: 'row',
+      paddingTop: 20,
+      flexWrap: 'wrap',
+      paddingLeft: 24,
+      paddingRight: 24,
+      backgroundColor: colors.primary.surface,
+      borderRadius: 16,
+      borderWidth: 0.5,
+      borderColor: colors.primary.stroke,
+      justifyContent: 'space-between',
+      marginHorizontal: 10,
+    },
+    textInputContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-end',
+      marginHorizontal: PortSpacing.tertiary.uniform,
+      paddingBottom: PortSpacing.tertiary.bottom,
+    },
+    replyContainerStyle: {
+      width: '100%',
+      overflow: 'hidden',
+      borderRadius: 12,
+      minHeight: PortSpacing.primary.uniform,
+      backgroundColor: colors.primary.background,
+    },
+    replyContainer: {
+      width: '100%',
+      paddingHorizontal: 4,
+      paddingTop: 4,
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      alignItems: 'flex-start',
+    },
+    textInput: {
+      flexDirection: 'row',
+      backgroundColor: colors.primary.surface,
+      overflow: 'hidden',
+      borderRadius: 20,
+      alignItems: 'center',
+    },
+    recordingbar: {
+      flexDirection: 'row',
+      backgroundColor: colors.primary.surface,
+      overflow: 'hidden',
+      width: screen.width - 63,
+      borderRadius: 24,
+      height: 40,
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      justifyContent: 'space-between',
+    },
+    whilerecordingbar: {
+      flexDirection: 'row',
+      backgroundColor: colors.primary.surface,
+      overflow: 'hidden',
+      width: screen.width - 73,
+      borderRadius: 24,
+      height: 40,
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      justifyContent: 'space-between',
+    },
 
-  recordingmodal: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    backgroundColor: '#D4EBFF',
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 70,
-    left: screen.width / 2 - 70,
-  },
-  plus: {
-    width: 48,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  send: {
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#547CEF',
-  },
-  recording: {
-    width: 50,
-    height: 50,
-    borderRadius: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#547CEF',
-  },
-  textBox: {
-    width: MESSAGE_INPUT_TEXT_WIDTH,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  inputText: {
-    width: '97%',
-    maxHeight: 110,
-    height: undefined,
-    minHeight: 40,
-    color: PortColors.text.primary,
-    //Remove additional padding on Android
-    ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
-    overflow: 'hidden',
-    alignSelf: 'stretch',
-    paddingRight: 5,
-    borderRadius: 0,
-    justifyContent: 'center',
-    backgroundColor: PortColors.primary.white,
-    ...(isIOS && {paddingTop: 10, paddingBottom: 10, paddingLeft: 5}),
-
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.l,
-    fontWeight: getWeight(FontType.rg),
-  },
-  optionContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    width: 70,
-    height: 100,
-  },
-  optionBox: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-    backgroundColor: '#F6F6F6',
-  },
-});
+    recordingmodal: {
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 8,
+      backgroundColor: '#D8CCF9',
+      alignSelf: 'center',
+      justifyContent: 'center',
+      alignItems: 'center',
+      position: 'absolute',
+      bottom: 70,
+      left: screen.width / 2 - 70,
+    },
+    plus: {
+      width: 48,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+    },
+    send: {
+      width: 40,
+      height: 40,
+      borderRadius: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.button.black,
+    },
+    recording: {
+      width: 50,
+      height: 50,
+      borderRadius: 60,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.button.black,
+    },
+    textBox: {
+      width: MESSAGE_INPUT_TEXT_WIDTH,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+    },
+    inputText: {
+      width: '97%',
+      maxHeight: 110,
+      height: undefined,
+      minHeight: 40,
+      color: colors.text.primary,
+      //Remove additional padding on Android
+      ...(!isIOS && {paddingBottom: 0, paddingTop: 5}),
+      overflow: 'hidden',
+      alignSelf: 'stretch',
+      paddingRight: 5,
+      borderRadius: 0,
+      justifyContent: 'center',
+      backgroundColor: colors.primary.surface,
+      fontFamily: FontType.rg,
+      fontSize: FontSizeType.l,
+      fontWeight: getWeight(FontType.rg),
+      ...(isIOS && {paddingTop: 9}),
+    },
+    optionContainer: {
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      width: 70,
+      height: 100,
+    },
+    optionBox: {
+      width: 60,
+      height: 60,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 8,
+      backgroundColor: colors.primary.surface2,
+    },
+  });
 
 export default memo(MessageBar);

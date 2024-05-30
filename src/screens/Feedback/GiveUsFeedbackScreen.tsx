@@ -12,7 +12,7 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {Image, KeyboardAvoidingView, StyleSheet, View} from 'react-native';
-import Upload from '@assets/icons/BlueUploadImage.svg';
+import Upload from '@assets/icons/UploadImageAccent.svg';
 import AddImage from '@assets/icons/AddImage.svg';
 import BlueCross from '@assets/icons/BlueCross.svg';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';

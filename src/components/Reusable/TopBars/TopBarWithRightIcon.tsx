@@ -8,7 +8,8 @@
  * 5. onIconRightPress
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -28,11 +29,14 @@ const TopBarWithRightIcon = ({
   IconRight?: FC<SvgProps>;
   heading: string;
 }) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <View style={styles.topbarAcontainer}>
       <NumberlessText
         style={{textAlign: 'center'}}
         numberOfLines={1}
+        textColor={Colors.text.primary}
         ellipsizeMode="tail"
         fontType={FontType.md}
         fontSizeType={FontSizeType.l}>
@@ -49,16 +53,17 @@ const TopBarWithRightIcon = ({
   );
 };
 
-const styles = StyleSheet.create({
-  topbarAcontainer: {
-    flexDirection: 'row',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    alignItems: 'center',
-    backgroundColor: PortColors.primary.white,
-    height: 56,
-    justifyContent: 'center',
-    width: '100%',
-  },
-});
+const styling = colors =>
+  StyleSheet.create({
+    topbarAcontainer: {
+      flexDirection: 'row',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      alignItems: 'center',
+      backgroundColor: colors.primary.surface,
+      height: 56,
+      justifyContent: 'center',
+      width: '100%',
+    },
+  });
 
 export default TopBarWithRightIcon;

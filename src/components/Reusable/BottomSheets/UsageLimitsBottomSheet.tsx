@@ -22,6 +22,7 @@ import {
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 
 const UsageLimitsBottomSheet = ({
   visible,
@@ -68,8 +69,11 @@ const UsageLimitsBottomSheet = ({
     Keyboard.dismiss();
   };
 
+  const Colors = DynamicColors();
+
   return (
     <PrimaryBottomSheet
+      bgColor="g"
       showClose={true}
       visible={visible}
       title={title}
@@ -81,7 +85,7 @@ const UsageLimitsBottomSheet = ({
           {description && (
             <NumberlessText
               style={{
-                color: PortColors.subtitle,
+                color: Colors.text.subtitle,
                 marginBottom: PortSpacing.secondary.bottom,
               }}
               fontSizeType={FontSizeType.m}

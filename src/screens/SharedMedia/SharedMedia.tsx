@@ -1,4 +1,3 @@
-import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -14,6 +13,7 @@ import ViewFiles from './ViewFiles';
 import ViewPhotosVideos from './ViewPhotosVideos';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import DynamicColors from '@components/DynamicColors';
 type Props = NativeStackScreenProps<AppStackParamList, 'SharedMedia'>;
 
 export type TabStackParamList = {
@@ -33,6 +33,8 @@ function NumberlessTopTabBar({
   descriptors: any;
   navigation: any;
 }) {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <View style={styles.tabbarContainerStyle}>
       {state.routes.map(
@@ -75,18 +77,16 @@ function NumberlessTopTabBar({
                 styles.tabbarItemStyle,
                 isFocused
                   ? {
-                      backgroundColor: PortColors.primary.blue.app,
+                      backgroundColor: Colors.primary.accent,
                     }
                   : {
-                      backgroundColor: PortColors.primary.grey.light,
+                      backgroundColor: Colors.primary.background,
                     },
               )}>
               <NumberlessText
                 fontSizeType={FontSizeType.m}
                 textColor={
-                  isFocused
-                    ? PortColors.text.primaryWhite
-                    : PortColors.text.secondary
+                  isFocused ? Colors.primary.white : Colors.text.primary
                 }
                 fontType={FontType.rg}>
                 {label}
@@ -101,39 +101,41 @@ function NumberlessTopTabBar({
 
 const SharedMedia = ({navigation, route}: Props) => {
   const {chatId} = route.params;
+  const Colors = DynamicColors();
 
   return (
-    <SafeAreaView>
+    <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <BackTopbar
-        bgColor="w"
-        onBackPress={() => navigation.goBack()}
-        title="Shared media"
-      />
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
+        <BackTopbar
+          bgColor="w"
+          onBackPress={() => navigation.goBack()}
+          title="Shared media"
+        />
 
-      <Tab.Navigator
-        initialRouteName="ViewPhotosVideos"
-        tabBar={(props: any) => <NumberlessTopTabBar {...props} />}>
-        <Tab.Screen
-          name="ViewPhotosVideos"
-          initialParams={{chatId: chatId}}
-          component={ViewPhotosVideos}
-          options={{
-            title: 'Gallery',
-          }}
-        />
-        <Tab.Screen
-          name="ViewFiles"
-          initialParams={{chatId: chatId}}
-          component={ViewFiles}
-          options={{
-            title: 'Files',
-          }}
-        />
-        {/* <Tab.Screen
+        <Tab.Navigator
+          initialRouteName="ViewPhotosVideos"
+          tabBar={(props: any) => <NumberlessTopTabBar {...props} />}>
+          <Tab.Screen
+            name="ViewPhotosVideos"
+            initialParams={{chatId: chatId}}
+            component={ViewPhotosVideos}
+            options={{
+              title: 'Gallery',
+            }}
+          />
+          <Tab.Screen
+            name="ViewFiles"
+            initialParams={{chatId: chatId}}
+            component={ViewFiles}
+            options={{
+              title: 'Files',
+            }}
+          />
+          {/* <Tab.Screen
           name="ViewLinks"
           initialParams={{chatId: chatId}}
           component={ViewLinks}
@@ -141,26 +143,28 @@ const SharedMedia = ({navigation, route}: Props) => {
             title: 'Links',
           }}
         /> */}
-      </Tab.Navigator>
-    </SafeAreaView>
+        </Tab.Navigator>
+      </SafeAreaView>
+    </>
   );
 };
 
-const styles = StyleSheet.create({
-  tabbarItemStyle: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    height: 40,
-    marginHorizontal: 4,
-  },
-  tabbarContainerStyle: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingBottom: 13,
-    alignItems: 'center',
-    backgroundColor: PortColors.primary.white,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    tabbarItemStyle: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 8,
+      height: 40,
+      marginHorizontal: 4,
+    },
+    tabbarContainerStyle: {
+      flexDirection: 'row',
+      paddingHorizontal: 20,
+      paddingBottom: 13,
+      alignItems: 'center',
+      backgroundColor: colors.primary.surface,
+    },
+  });
 export default SharedMedia;

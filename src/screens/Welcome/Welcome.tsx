@@ -3,8 +3,9 @@
  * UI is updated to latest spec for both android and ios
  */
 import Logo from '@assets/miscellaneous/portBranding.svg';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
@@ -51,21 +52,23 @@ function Welcome({navigation}: Props) {
     }
   };
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.blue.app}
+        backgroundColor={Colors.primary.defaultdark}
       />
       <SafeAreaView style={styles.container}>
         <View style={styles.greeting}>
-          <Logo height={175} />
+          <Logo width={screen.width} />
         </View>
         <View style={styles.buttonContainer}>
           <PrimaryButton
             isLoading={false}
             primaryButtonColor="w"
-            textStyle={{color: PortColors.primary.blue.app}}
             buttonText={'Get Started'}
             disabled={false}
             onClick={onPress}
@@ -76,25 +79,26 @@ function Welcome({navigation}: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: PortColors.primary.blue.app,
-  },
-  greeting: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonContainer: {
-    width: '100%',
-    paddingBottom: PortSpacing.primary.bottom,
-    paddingLeft: PortSpacing.secondary.left,
-    paddingRight: PortSpacing.secondary.right,
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      backgroundColor: color.primary.defaultdark,
+    },
+    greeting: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    buttonContainer: {
+      width: '100%',
+      paddingBottom: PortSpacing.primary.bottom,
+      paddingLeft: PortSpacing.secondary.left,
+      paddingRight: PortSpacing.secondary.right,
+    },
+  });
 
 export default Welcome;

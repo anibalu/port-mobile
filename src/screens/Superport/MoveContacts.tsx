@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -7,22 +7,37 @@ import {
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import React, {useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Folder from '@assets/icons/Folder.svg';
 import FolderPill from '@components/Reusable/Pill/FolderPill';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const MoveContacts = ({
   foldersArray,
   setSelectedFolder,
   selectedFolder,
   onAddNewFolder,
+  hideAddFolder,
 }: {
+  hideAddFolder?: boolean;
   foldersArray: FolderInfo[];
   setSelectedFolder: (x: FolderInfo) => void;
   selectedFolder: FolderInfo;
   onAddNewFolder: () => void;
 }) => {
   const [showAll, setShowAll] = useState(false);
+
+  const Colors = DynamicColors();
+  const svgArray = [
+    {
+      assetName: 'Folder',
+      light: require('@assets/light/icons/Folder.svg').default,
+      dark: require('@assets/dark/icons/Folder.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const Folder = results.Folder;
 
   const renderFolders = () => {
     if (showAll) {
@@ -69,29 +84,31 @@ const MoveContacts = ({
           }}>
           <NumberlessText
             style={{
-              color: PortColors.title,
               marginLeft: PortSpacing.tertiary.left,
             }}
+            textColor={Colors.text.primary}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}>
             Move new contacts to a folder
           </NumberlessText>
-          <Pressable onPress={onAddNewFolder}>
-            <NumberlessText
-              style={{
-                color: PortColors.primary.blue.app,
-                marginLeft: PortSpacing.tertiary.left,
-              }}
-              fontType={FontType.rg}
-              fontSizeType={FontSizeType.m}>
-              + Add
-            </NumberlessText>
-          </Pressable>
+          {hideAddFolder && (
+            <Pressable onPress={onAddNewFolder}>
+              <NumberlessText
+                style={{
+                  color: Colors.primary.accent,
+                  marginLeft: PortSpacing.tertiary.left,
+                }}
+                fontType={FontType.rg}
+                fontSizeType={FontSizeType.m}>
+                + Add
+              </NumberlessText>
+            </Pressable>
+          )}
         </View>
       </View>
       <View style={{marginBottom: PortSpacing.secondary.bottom}}>
         <NumberlessText
-          style={{color: PortColors.subtitle}}
+          style={{color: Colors.text.subtitle}}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.s}>
           All new contacts added using this Superport will be moved to the
@@ -104,7 +121,7 @@ const MoveContacts = ({
           <NumberlessText
             onPress={() => setShowAll(true)}
             style={{
-              color: PortColors.primary.blue.app,
+              color: Colors.primary.accent,
               marginLeft: PortSpacing.tertiary.left,
               marginTop: PortSpacing.tertiary.top,
             }}
@@ -117,7 +134,7 @@ const MoveContacts = ({
           <NumberlessText
             onPress={() => setShowAll(false)}
             style={{
-              color: PortColors.primary.blue.app,
+              color: Colors.primary.accent,
               marginLeft: PortSpacing.tertiary.left,
               marginTop: PortSpacing.tertiary.top,
             }}

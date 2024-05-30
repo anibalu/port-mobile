@@ -12,10 +12,11 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
 import Icon from '@assets/icons/NoPendingRequests.svg';
+import DynamicColors from '@components/DynamicColors';
 
 //rendered chat tile of a connection
 function renderPendingRequest(pendingRequest: PendingCardInfo): ReactElement {
@@ -46,13 +47,15 @@ const PendingRequests = () => {
     })();
   }, [reloadTrigger]);
 
+  const Colors = DynamicColors();
+
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.background}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <BackTopbar
           title={`Pending Ports ${getDisplayLength()}`}
           bgColor="w"
@@ -96,7 +99,7 @@ const PendingRequests = () => {
                     style={{textAlign: 'center'}}
                     fontSizeType={FontSizeType.xl}
                     fontType={FontType.md}
-                    textColor={PortColors.primary.black}>
+                    textColor={Colors.text.primary}>
                     No pending Ports
                   </NumberlessText>
                   <NumberlessText
@@ -106,7 +109,7 @@ const PendingRequests = () => {
                     }}
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}
-                    textColor={PortColors.subtitle}>
+                    textColor={Colors.text.subtitle}>
                     When you share a new Port, they will appear here until the
                     connection forms
                   </NumberlessText>

@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -9,12 +9,13 @@ import React from 'react';
 import Play from '@assets/icons/videoPlay.svg';
 import FileViewer from 'react-native-file-viewer';
 import {StyleSheet, View, FlatList, Pressable} from 'react-native';
-import RightChevron from '@assets/icons/BlackAngleRight.svg';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {MediaEntry} from '@utils/Media/interfaces';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {useNavigation} from '@react-navigation/native';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const renderSelectedPhoto = ({item}: {item: MediaEntry}) => {
   return (
@@ -55,6 +56,18 @@ const SharedMediaCard = ({
   media: MediaEntry[];
 }) => {
   const navigation = useNavigation();
+  const Colors = DynamicColors();
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'RightChevron',
+      light: require('@assets/light/icons/navigation/AngleRight.svg').default,
+      dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const RightChevron = results.RightChevron;
 
   return (
     <SimpleCard
@@ -63,7 +76,10 @@ const SharedMediaCard = ({
         paddingHorizontal: PortSpacing.secondary.uniform,
       }}>
       <View style={styles.headerWrapper}>
-        <NumberlessText fontType={FontType.md} fontSizeType={FontSizeType.l}>
+        <NumberlessText
+          textColor={Colors.labels.text}
+          fontType={FontType.md}
+          fontSizeType={FontSizeType.l}>
           Shared media
         </NumberlessText>
         <Pressable
@@ -74,7 +90,7 @@ const SharedMediaCard = ({
           }}>
           <NumberlessText
             style={{
-              color: PortColors.subtitle,
+              color: Colors.labels.text,
               paddingRight: 4,
             }}
             fontType={FontType.rg}
@@ -98,7 +114,7 @@ const SharedMediaCard = ({
             <NumberlessText
               fontSizeType={FontSizeType.s}
               fontType={FontType.rg}
-              textColor={PortColors.subtitle}
+              textColor={Colors.labels.text}
               style={styles.noSharedMediaText}>
               No shared media
             </NumberlessText>

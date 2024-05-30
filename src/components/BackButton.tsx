@@ -7,19 +7,30 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
 } from 'react-native';
-import Back from '@assets/navigation/backButton.svg';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 export const BackButton: React.FC<TouchableOpacityProps> = ({
   onPress,
   style,
   ...rest
 }) => {
+  const svgArray = [
+    {
+      assetName: 'BackIcon',
+      light: require('@assets/light/icons/navigation/ArrowLeft.svg').default,
+      dark: require('@assets/dark/icons/navigation/ArrowLeft.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const BackIcon = results.BackIcon;
+
   return (
     <TouchableOpacity
       style={StyleSheet.compose(styles.backIcon, style)}
       onPress={onPress}
       {...rest}>
-      <Back width={24} height={24} />
+      <BackIcon width={24} height={24} />
     </TouchableOpacity>
   );
 };

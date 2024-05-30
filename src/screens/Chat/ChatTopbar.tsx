@@ -1,7 +1,5 @@
-import SettingsIcon from '@assets/icons/Settings.svg';
-import Cross from '@assets/icons/cross.svg';
 import {BackButton} from '@components/BackButton';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
@@ -16,6 +14,8 @@ import {toggleRead} from '@utils/Connections';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 /**
  * Handles top bar for chat
@@ -35,6 +35,25 @@ function ChatTopbar(): ReactNode {
     setSelectedMessages,
     isConnected,
   } = useChatContext();
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    {
+      assetName: 'CloseIcon',
+      light: require('@assets/light/icons/Close.svg').default,
+      dark: require('@assets/dark/icons/Close.svg').default,
+    },
+    {
+      assetName: 'SettingsIcon',
+      light: require('@assets/light/icons/Settings.svg').default,
+      dark: require('@assets/dark/icons/Settings.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const CloseIcon = results.CloseIcon;
+  const SettingsIcon = results.SettingsIcon;
 
   const onSettingsPressed = async () => {
     const dataHandler = new DirectChat(chatId);
@@ -105,7 +124,7 @@ function ChatTopbar(): ReactNode {
         <View>
           <GenericButton
             buttonStyle={selectionMode ? styles.crossBox : styles.settingsBox}
-            IconLeft={selectionMode ? Cross : SettingsIcon}
+            IconLeft={selectionMode ? CloseIcon : SettingsIcon}
             onPress={selectionMode ? handleCancellation : handleSettings}
           />
         </View>
@@ -114,71 +133,72 @@ function ChatTopbar(): ReactNode {
   );
 }
 
-const styles = StyleSheet.create({
-  bar: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    backgroundColor: PortColors.primary.white,
-    height: 56,
-  },
-  profileBar: {
-    flexDirection: 'row',
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  titleBar: {
-    flex: 1,
-    maxWidth: '90%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    gap: PortSpacing.tertiary.uniform,
-  },
-  title: {
-    color: PortColors.primary.black,
-    overflow: 'hidden',
-    flex: 1,
-  },
-  selected: {
-    color: PortColors.primary.black,
-    overflow: 'hidden',
-    flex: 1,
-    paddingLeft: 8,
-  },
-  backIcon: {
-    alignItems: 'center',
-    height: 51,
-    width: 40,
-    paddingTop: 13,
-  },
-  settingsBox: {
-    backgroundColor: PortColors.primary.white,
-    alignItems: 'flex-end',
-    height: 40,
-    top: 7,
-    width: 40,
-  },
-  crossBox: {
-    backgroundColor: PortColors.primary.white,
-    alignItems: 'flex-end',
-    height: 40,
-    top: 7,
-    width: 40,
-  },
-  profile: {
-    height: 50,
-    width: 50,
-    borderRadius: 20,
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    bar: {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      paddingHorizontal: 8,
+      backgroundColor: colors.primary.surface,
+      height: 56,
+    },
+    profileBar: {
+      flexDirection: 'row',
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    titleBar: {
+      flex: 1,
+      maxWidth: '90%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      gap: PortSpacing.tertiary.uniform,
+    },
+    title: {
+      color: colors.text.primary,
+      overflow: 'hidden',
+      flex: 1,
+    },
+    selected: {
+      color: colors.text.primary,
+      overflow: 'hidden',
+      flex: 1,
+      paddingLeft: 8,
+    },
+    backIcon: {
+      alignItems: 'center',
+      height: 51,
+      width: 40,
+      paddingTop: 13,
+    },
+    settingsBox: {
+      backgroundColor: colors.primary.surface,
+      alignItems: 'flex-end',
+      height: 40,
+      top: 7,
+      width: 40,
+    },
+    crossBox: {
+      backgroundColor: colors.primary.surface,
+      alignItems: 'flex-end',
+      height: 40,
+      top: 7,
+      width: 40,
+    },
+    profile: {
+      height: 50,
+      width: 50,
+      borderRadius: 20,
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });
 
 export default ChatTopbar;

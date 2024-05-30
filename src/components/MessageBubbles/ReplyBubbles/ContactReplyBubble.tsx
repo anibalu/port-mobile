@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -16,6 +16,7 @@ import {
   REPLY_MEDIA_HEIGHT,
   REPLY_MEDIA_WIDTH,
 } from '../BubbleUtils';
+import DynamicColors from '@components/DynamicColors';
 
 /**
  * @param message, message object
@@ -34,20 +35,22 @@ export default function ContactReplyBubble({
   memberName: string;
 }): ReactNode {
   const contactName = (reply.data as ContactBundleParams).bundle.name;
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <View style={styles.container}>
       <View style={styles.replyContainer}>
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}
-          textColor={PortColors.text.primary}
+          textColor={Colors.primary.accent}
           numberOfLines={1}>
           {memberName}
         </NumberlessText>
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}
-          textColor={PortColors.text.primary}
+          textColor={Colors.text.primary}
           numberOfLines={3}>
           {'👤 ' + contactName}
         </NumberlessText>
@@ -56,27 +59,28 @@ export default function ContactReplyBubble({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    minHeight: REPLY_MEDIA_HEIGHT,
-    minWidth: MIN_WIDTH_REPLY,
-    justifyContent: 'space-between',
-  },
-  replyContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    paddingVertical: PortSpacing.tertiary.uniform,
-    paddingHorizontal: PortSpacing.tertiary.left,
-    borderLeftWidth: 4,
-    borderColor: PortColors.primary.blue.app,
-    maxWidth: MAX_WIDTH_REPLY - REPLY_MEDIA_WIDTH,
-  },
-  imageContainer: {
-    width: REPLY_MEDIA_WIDTH,
-  },
-  image: {
-    height: REPLY_MEDIA_HEIGHT,
-    width: REPLY_MEDIA_WIDTH, // Set the maximum width you desire
-  },
-});
+const styling = Colors =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      minHeight: REPLY_MEDIA_HEIGHT,
+      minWidth: MIN_WIDTH_REPLY,
+      justifyContent: 'space-between',
+    },
+    replyContainer: {
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      paddingVertical: PortSpacing.tertiary.uniform,
+      paddingHorizontal: PortSpacing.tertiary.left,
+      borderLeftWidth: 4,
+      borderColor: Colors.primary.accent,
+      maxWidth: MAX_WIDTH_REPLY - REPLY_MEDIA_WIDTH,
+    },
+    imageContainer: {
+      width: REPLY_MEDIA_WIDTH,
+    },
+    image: {
+      height: REPLY_MEDIA_HEIGHT,
+      width: REPLY_MEDIA_WIDTH, // Set the maximum width you desire
+    },
+  });

@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -7,8 +7,9 @@ import {
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import StopWatch from '@assets/icons/StopWatch.svg';
 import NumberPill from '@components/Reusable/Pill/NumberPill';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const SuperportUsageLimit = ({
   connectionsMade,
@@ -23,6 +24,17 @@ const SuperportUsageLimit = ({
   setOpenUsageLimitsModal: (x: boolean) => void;
   limitsArray: number[];
 }) => {
+  const Colors = DynamicColors();
+  const svgArray = [
+    {
+      assetName: 'StopWatch',
+      light: require('@assets/light/icons/StopWatch.svg').default,
+      dark: require('@assets/dark/icons/StopWatch.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const StopWatch = results.StopWatch;
   return (
     <SimpleCard
       style={{
@@ -44,7 +56,7 @@ const SuperportUsageLimit = ({
           }}>
           <NumberlessText
             style={{
-              color: PortColors.title,
+              color: Colors.text.primary,
               marginLeft: PortSpacing.tertiary.left,
             }}
             fontType={FontType.rg}
@@ -53,7 +65,7 @@ const SuperportUsageLimit = ({
           </NumberlessText>
           <NumberlessText
             style={{
-              color: PortColors.title,
+              color: Colors.text.primary,
               marginLeft: PortSpacing.tertiary.left,
             }}
             fontType={FontType.rg}
@@ -64,7 +76,7 @@ const SuperportUsageLimit = ({
       </View>
       <View style={{marginBottom: PortSpacing.secondary.bottom}}>
         <NumberlessText
-          style={{color: PortColors.subtitle}}
+          style={{color: Colors.text.subtitle}}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.s}>
           Set up the maximum number of connections that can be made using this

@@ -7,7 +7,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
-import CrossButton from '@assets/navigation/crossButton.svg';
+import CrossButton from '@assets/icons/BlackCross.svg';
 import PortCard from '@components/Reusable/ConnectionCards/PortCard';
 import {expiryOptions} from '@utils/Time/interfaces';
 import {useSelector} from 'react-redux';

@@ -1,4 +1,5 @@
 import {isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import React from 'react';
 import Modal from 'react-native-modal';
 
@@ -15,8 +16,10 @@ const GenericModal = ({
   avoidKeyboard?: boolean;
   position?: 'flex-end' | 'center';
 }) => {
+  const Colors = DynamicColors();
   return (
     <Modal
+      backdropColor={Colors.primary.overlay}
       backdropOpacity={0.5}
       avoidKeyboard={avoidKeyboard}
       propagateSwipe={true}

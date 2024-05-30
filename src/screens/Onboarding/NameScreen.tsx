@@ -31,6 +31,7 @@ import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {SafeAreaView} from '@components/SafeAreaView';
+import DynamicColors from '@components/DynamicColors';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Onboarding'>;
 
@@ -85,13 +86,16 @@ function NameScreen({navigation}: Props): ReactNode {
     console.log(profilePicAttr);
   }
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.background}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.primary.white}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <View style={styles.container}>
             <NumberlessText
@@ -99,6 +103,7 @@ function NameScreen({navigation}: Props): ReactNode {
                 textAlign: 'center',
                 paddingHorizontal: PortSpacing.secondary.uniform,
               }}
+              textColor={Colors.text.primary}
               fontType={FontType.sb}
               fontSizeType={FontSizeType.xl}>
               Enter your name
@@ -111,7 +116,7 @@ function NameScreen({navigation}: Props): ReactNode {
                 marginTop: PortSpacing.secondary.uniform,
                 paddingHorizontal: PortSpacing.secondary.uniform,
               }}
-              textColor={PortColors.text.secondary}>
+              textColor={Colors.text.subtitle}>
               No emails or phone numbers required. Just enter a name to start
               using Port.
             </NumberlessText>
@@ -151,10 +156,13 @@ function NameScreen({navigation}: Props): ReactNode {
                     marginVertical: PortSpacing.secondary.uniform,
                   }}>
                   <NumberlessText
-                    style={{textAlign: 'center'}}
+                    style={{
+                      textAlign: 'center',
+                      flex: 1,
+                    }}
                     fontType={FontType.rg}
                     fontSizeType={FontSizeType.m}
-                    textColor={PortColors.text.secondary}>
+                    textColor={Colors.text.subtitle}>
                     By Clicking on 'Next' or by restoring your account, you
                     acknowledge that you have read and agree to our{' '}
                     <NumberlessText
@@ -166,7 +174,7 @@ function NameScreen({navigation}: Props): ReactNode {
                       }
                       fontType={FontType.rg}
                       fontSizeType={FontSizeType.m}
-                      textColor={PortColors.primary.blue.app}>
+                      textColor={Colors.primary.accent}>
                       Terms
                     </NumberlessText>{' '}
                     and our{' '}
@@ -179,7 +187,7 @@ function NameScreen({navigation}: Props): ReactNode {
                         )
                       }
                       fontSizeType={FontSizeType.m}
-                      textColor={PortColors.primary.blue.app}>
+                      textColor={Colors.primary.accent}>
                       Privacy Policy
                     </NumberlessText>
                     .
@@ -219,7 +227,7 @@ function NameScreen({navigation}: Props): ReactNode {
                       textAlign: 'center',
                       marginTop: PortSpacing.secondary.uniform,
                     }}
-                    textColor={PortColors.primary.blue.app}>
+                    textColor={Colors.primary.accent}>
                     Restore account
                   </NumberlessText>
                 </View>
@@ -241,45 +249,45 @@ function NameScreen({navigation}: Props): ReactNode {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: PortColors.primary.white,
-    paddingTop: PortSpacing.primary.top,
-  },
-  scrollViewContainer: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-  buttonContainer: {
-    width: '100%',
-    marginBottom: PortSpacing.secondary.bottom,
-  },
-  profilePictureHitbox: {
-    marginTop: PortSpacing.primary.top,
-    marginBottom: PortSpacing.primary.bottom,
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
-  },
-  updatePicture: {
-    width: 32,
-    height: 32,
-    backgroundColor: PortColors.primary.blue.app,
-    position: 'absolute',
-    bottom: -8,
-    right: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 9,
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'flex-start',
+      flexDirection: 'column',
+      alignItems: 'center',
+      paddingTop: PortSpacing.primary.top,
+    },
+    scrollViewContainer: {
+      flex: 1,
+      width: '100%',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+    },
+    buttonContainer: {
+      width: '100%',
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+    profilePictureHitbox: {
+      marginTop: PortSpacing.primary.top,
+      marginBottom: PortSpacing.primary.bottom,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      flexDirection: 'column',
+      alignItems: 'flex-end',
+      justifyContent: 'flex-end',
+    },
+    updatePicture: {
+      width: 32,
+      height: 32,
+      backgroundColor: color.primary.accent,
+      position: 'absolute',
+      bottom: -8,
+      right: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 9,
+    },
+  });
 
 export default NameScreen;

@@ -8,12 +8,11 @@
  * 5. onIconRightPress
  */
 
-import {PortColors} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
-  getWeight,
 } from '@components/NumberlessText';
 import React, {FC} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
@@ -33,6 +32,8 @@ const SimpleTopbar = ({
   IconRight: FC<SvgProps>;
   heading: string;
 }) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <View style={styles.topbarAcontainer}>
       <Pressable onPress={onIconLeftPress}>
@@ -41,6 +42,7 @@ const SimpleTopbar = ({
       <NumberlessText
         style={{textAlign: 'center'}}
         numberOfLines={1}
+        textColor={Colors.text.primary}
         ellipsizeMode="tail"
         fontType={FontType.md}
         fontSizeType={FontSizeType.l}>
@@ -53,22 +55,17 @@ const SimpleTopbar = ({
   );
 };
 
-const styles = StyleSheet.create({
-  topbarAcontainer: {
-    alignSelf: 'stretch',
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: PortColors.primary.white,
-    height: 56,
-  },
-  heading: {
-    color: PortColors.title,
-    fontFamily: FontType.md,
-    fontSize: FontSizeType.l,
-    fontWeight: getWeight(FontType.rg),
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    topbarAcontainer: {
+      alignSelf: 'stretch',
+      flexDirection: 'row',
+      paddingHorizontal: 16,
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: color.primary.surface,
+      height: 56,
+    },
+  });
 
 export default SimpleTopbar;

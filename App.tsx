@@ -29,6 +29,7 @@ import {AppState, Linking} from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import Toast from 'react-native-toast-message';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
+import {ThemeProvider} from 'src/context/ThemeContext';
 import {syncShared} from '@utils/Storage/IOSGroupShare/syncShare';
 
 function App(): JSX.Element {
@@ -116,14 +117,16 @@ function App(): JSX.Element {
   return (
     <>
       <Provider store={store}>
-        <SafeAreaProvider>
-          <NavigationContainer>
-            <ErrorModalProvider>
-              <LoginStack startOnboarding={profileExists} />
-              <ErrorModal />
-            </ErrorModalProvider>
-          </NavigationContainer>
-        </SafeAreaProvider>
+        <ThemeProvider>
+          <SafeAreaProvider>
+            <NavigationContainer>
+              <ErrorModalProvider>
+                <LoginStack startOnboarding={profileExists} />
+                <ErrorModal />
+              </ErrorModalProvider>
+            </NavigationContainer>
+          </SafeAreaProvider>
+        </ThemeProvider>
       </Provider>
       <Toast />
     </>

@@ -18,7 +18,7 @@ import SimpleCard from '../Cards/SimpleCard';
 import QrWithLogo from '../QR/QrWithLogo';
 import {AVATAR_ARRAY} from '@configs/constants';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -27,14 +27,15 @@ import {
 import SecondaryButton from '../LongButtons/SecondaryButton';
 import RetryIcon from '@assets/icons/Retry.svg';
 import AlternateSecondaryButton from '../LongButtons/AlternateSecondaryButton';
-import Share from '@assets/icons/BlueShare.svg';
-import Eye from '@assets/icons/BlueEye.svg';
+import DynamicColors from '@components/DynamicColors';
 import {
   DirectSuperportBundle,
   GroupBundle,
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useTheme} from 'src/context/ThemeContext';
 
 const PortCard = ({
   isLoading,
@@ -66,6 +67,26 @@ const PortCard = ({
   onPreviewImageClicked?: () => Promise<void>;
   onTryAgainClicked: () => Promise<void>;
 }) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
+  const svgArray = [
+    {
+      assetName: 'ShareAccent',
+      light: require('@assets/icons/ShareAccent.svg').default,
+      dark: require('@assets/dark/icons/ShareAccent.svg').default,
+    },
+    {
+      assetName: 'Eye',
+      light: require('@assets/icons/BlueEye.svg').default,
+      dark: require('@assets/dark/icons/BlueEye.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const Share = results.ShareAccent;
+  const Eye = results.Eye;
+  const {themeValue} = useTheme();
+
   return (
     <SimpleCard style={styles.cardWrapper}>
       <View style={styles.avatarArea}>
@@ -75,19 +96,32 @@ const PortCard = ({
         <NumberlessText
           style={{alignSelf: 'center'}}
           fontType={FontType.md}
+          textColor={Colors.text.primary}
           fontSizeType={FontSizeType.xl}>
           {title}
         </NumberlessText>
         {isSuperport ? (
           <NumberlessText
-            style={{alignSelf: 'center', color: PortColors.primary.blue.app}}
+            style={{
+              alignSelf: 'center',
+              color:
+                themeValue === 'dark'
+                  ? Colors.messagebubble.replyBubbleInner
+                  : Colors.primary.accent,
+            }}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}>
             Multi-use QR
           </NumberlessText>
         ) : (
           <NumberlessText
-            style={{alignSelf: 'center', color: PortColors.primary.green}}
+            style={{
+              alignSelf: 'center',
+              color:
+                themeValue === 'dark'
+                  ? Colors.messagebubble.replyBubbleInner
+                  : Colors.primary.accent,
+            }}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}>
             One-time use QR
@@ -99,16 +133,20 @@ const PortCard = ({
         <View style={styles.contentBox}>
           {isSuperport ? (
             <NumberlessText
-              style={{textAlign: 'center', color: PortColors.subtitle}}
+              style={{
+                textAlign: 'center',
+              }}
               fontType={FontType.rg}
+              textColor={Colors.text.subtitle}
               fontSizeType={FontSizeType.s}>
               Show this Superport or share it as a multi-use link to form a new
               chat.
             </NumberlessText>
           ) : (
             <NumberlessText
-              style={{textAlign: 'center', color: PortColors.subtitle}}
+              style={{textAlign: 'center'}}
               fontType={FontType.rg}
+              textColor={Colors.text.subtitle}
               fontSizeType={FontSizeType.s}>
               Show this Port or share it as a one-time use link to form a new
               chat.
@@ -121,7 +159,7 @@ const PortCard = ({
           <NumberlessText
             style={{
               textAlign: 'center',
-              color: PortColors.primary.red.error,
+              color: Colors.primary.red,
               marginBottom: PortSpacing.intermediate.bottom,
               paddingHorizontal: PortSpacing.tertiary.uniform,
             }}
@@ -144,7 +182,7 @@ const PortCard = ({
           <NumberlessText
             style={{
               textAlign: 'center',
-              color: PortColors.primary.red.error,
+              color: Colors.primary.red,
               marginBottom: PortSpacing.intermediate.bottom,
               paddingHorizontal: PortSpacing.tertiary.uniform,
             }}
@@ -194,45 +232,46 @@ const PortCard = ({
   );
 };
 
-const styles = StyleSheet.create({
-  cardWrapper: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingVertical: 0, //overrides simple card default padding
-    paddingTop: 30,
-    width: '100%',
-  },
-  avatarArea: {
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 60,
-    width: 60,
-    borderRadius: 12,
-    backgroundColor: PortColors.primary.white,
-    marginTop: -30,
-  },
-  contentBox: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    padding: PortSpacing.intermediate.uniform,
-  },
-  errorBox: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    padding: PortSpacing.secondary.uniform,
-  },
-  shareBox: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingBottom: PortSpacing.secondary.bottom,
-    gap: PortSpacing.tertiary.uniform,
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    cardWrapper: {
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      paddingVertical: 0, //overrides simple card default padding
+      paddingTop: 30,
+      width: '100%',
+    },
+    avatarArea: {
+      position: 'absolute',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: 60,
+      width: 60,
+      borderRadius: 12,
+      backgroundColor: color.primary.surface,
+      marginTop: -30,
+    },
+    contentBox: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      padding: PortSpacing.intermediate.uniform,
+    },
+    errorBox: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      padding: PortSpacing.secondary.uniform,
+    },
+    shareBox: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingBottom: PortSpacing.secondary.bottom,
+      gap: PortSpacing.tertiary.uniform,
+    },
+  });
 
 export default PortCard;

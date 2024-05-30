@@ -36,9 +36,6 @@ export type AppStackParamList = {
   };
   Placeholder: undefined;
   ShareGroup: {groupId: string};
-  ImageView: {imageURI: string; title: string};
-  GroupOnboarding: undefined;
-  NewGroup: {errorMessage: string};
   GroupProfile: {groupId: string};
   NewContact: {groupId: string};
   ViewPhotosVideos: {chatId: string};

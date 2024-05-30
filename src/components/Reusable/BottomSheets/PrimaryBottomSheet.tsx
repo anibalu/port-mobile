@@ -29,13 +29,14 @@ import {
   isIOS,
   screen,
 } from '@components/ComponentUtils';
-import BlackCross from '@assets/icons/BlackCross.svg';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import SmallLoader from '../Loaders/SmallLoader';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const PrimaryBottomSheet = ({
   visible,
@@ -71,6 +72,19 @@ const PrimaryBottomSheet = ({
     Keyboard.dismiss();
     onClose();
   };
+  const Colors = DynamicColors();
+
+  const svgArray = [
+    {
+      assetName: 'CloseIcon',
+      light: require('@assets/light/icons/Close.svg').default,
+      dark: require('@assets/dark/icons/Close.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const CloseIcon = results.CloseIcon;
+
   return (
     <GenericModal
       avoidKeyboard={avoidKeyboard}
@@ -80,8 +94,8 @@ const PrimaryBottomSheet = ({
         style={StyleSheet.compose(styles.mainContainerRegion, {
           backgroundColor:
             bgColor === 'g'
-              ? PortColors.primary.grey.light
-              : PortColors.primary.white,
+              ? Colors.primary.background
+              : Colors.primary.surface,
           paddingTop: showNotch
             ? PortSpacing.tertiary.top
             : PortSpacing.intermediate.top,
@@ -107,7 +121,7 @@ const PrimaryBottomSheet = ({
                 style={StyleSheet.compose(styles.title, titleStyle)}
                 fontType={FontType.md}
                 fontSizeType={FontSizeType.l}
-                textColor={PortColors.text.primary}>
+                textColor={Colors.text.primary}>
                 {title}
               </NumberlessText>
             )}
@@ -125,10 +139,10 @@ const PrimaryBottomSheet = ({
                 style={StyleSheet.compose(styles.title, titleStyle)}
                 fontType={FontType.md}
                 fontSizeType={FontSizeType.l}
-                textColor={PortColors.text.primary}>
+                textColor={Colors.text.primary}>
                 {' '}
               </NumberlessText>
-              <BlackCross
+              <CloseIcon
                 width={24}
                 height={24}
                 style={{position: 'absolute'}}

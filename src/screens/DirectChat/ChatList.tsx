@@ -1,4 +1,4 @@
-import DownArrow from '@assets/icons/DownArrowWhite.svg';
+import DownArrow from '@assets/icons/navigation/WhiteAngleDown.svg';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {
   ContentType,

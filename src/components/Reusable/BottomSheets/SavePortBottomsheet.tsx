@@ -14,7 +14,7 @@ import {
 } from '@components/NumberlessText';
 import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   DirectSuperportBundle,
   GroupBundle,
@@ -24,6 +24,7 @@ import {
 } from '@utils/Ports/interfaces';
 import {cleanDeletePort, updateGeneratedPortLabel} from '@utils/Ports';
 import {useNavigation} from '@react-navigation/native';
+import DynamicColors from '@components/DynamicColors';
 
 const SavePortBottomsheet = ({
   visible,
@@ -86,6 +87,8 @@ const SavePortBottomsheet = ({
     }
   };
 
+  const Colors = DynamicColors();
+
   return (
     <PrimaryBottomSheet
       showClose={true}
@@ -101,7 +104,7 @@ const SavePortBottomsheet = ({
             <View style={{marginBottom: PortSpacing.secondary.bottom}}>
               <NumberlessText
                 style={{
-                  color: PortColors.subtitle,
+                  color: Colors.text.subtitle,
                   marginBottom: PortSpacing.secondary.bottom,
                 }}
                 fontSizeType={FontSizeType.m}
@@ -129,7 +132,7 @@ const SavePortBottomsheet = ({
           <View style={styles.optionsBox}>
             <NumberlessText
               style={{
-                color: PortColors.subtitle,
+                color: Colors.text.subtitle,
                 marginBottom: PortSpacing.secondary.bottom,
               }}
               fontSizeType={FontSizeType.m}

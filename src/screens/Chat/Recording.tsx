@@ -40,7 +40,7 @@ const AmplitudeBars = () => {
         style={{
           width: 2,
           height: 20,
-          backgroundColor: '#547CEF',
+          backgroundColor: '#6A35FF',
           marginRight: 3,
           transform: [{scaleY: animation1}],
         }}
@@ -49,7 +49,7 @@ const AmplitudeBars = () => {
         style={{
           width: 2,
           height: 20,
-          backgroundColor: '#547CEF',
+          backgroundColor: '#6A35FF',
           marginRight: 3,
           transform: [{scaleY: animation2}],
         }}
@@ -58,7 +58,7 @@ const AmplitudeBars = () => {
         style={{
           width: 2,
           height: 20,
-          backgroundColor: '#547CEF',
+          backgroundColor: '#6A35FF',
           marginRight: 3,
           transform: [{scaleY: animation1}],
         }}
@@ -67,7 +67,7 @@ const AmplitudeBars = () => {
         style={{
           width: 2,
           height: 20,
-          backgroundColor: '#547CEF',
+          backgroundColor: '#6A35FF',
           marginRight: 3,
           transform: [{scaleY: animation2}],
         }}
@@ -76,7 +76,7 @@ const AmplitudeBars = () => {
         style={{
           width: 2,
           height: 20,
-          backgroundColor: '#547CEF',
+          backgroundColor: '#6A35FF',
           marginRight: 3,
           transform: [{scaleY: animation1}],
         }}
@@ -85,7 +85,7 @@ const AmplitudeBars = () => {
         style={{
           width: 2,
           height: 20,
-          backgroundColor: '#547CEF',
+          backgroundColor: '#6A35FF',
           transform: [{scaleY: animation2}],
         }}
       />

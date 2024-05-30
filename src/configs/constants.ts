@@ -1,6 +1,8 @@
+import {ThemeOptionTypes} from '@components/Reusable/BottomSheets/ThemeBottomsheet';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
+import {ThemeType} from '@utils/Themes';
 
 export const ORG_NAME = 'numberless.tech';
 export const APP_GROUP_IDENTIFIER = 'group.tech.numberless.port';
@@ -27,6 +29,7 @@ export const START_OF_TIME = '2023-11-30T09:47:11Z';
 export const MESSAGE_DATA_MAX_LENGTH = 2048;
 export const SIDE_DRAWER_WIDTH = 300;
 export const DRAWER_SWIPE_EDGE_WIDTH = 100;
+export const THEME = 'theme';
 
 //UI Definitions for elements
 export const TOPBAR_HEIGHT = 56;
@@ -84,6 +87,20 @@ export const defaultFolderInfo: FolderInfo = {
 export const defaultSuperportConnectionsLimit: number = 50;
 
 export const safeModalCloseDuration: number = 500;
+export const themeOptions: ThemeOptionTypes[] = [
+  {
+    key: 'System default',
+    value: ThemeType.default,
+  },
+  {
+    key: 'Light',
+    value: ThemeType.light,
+  },
+  {
+    key: 'Dark',
+    value: ThemeType.dark,
+  },
+];
 
 //images and videos get compressed if higher than threshold.(currently 6MB)
 export const FILE_COMPRESSION_THRESHOLD: number = 6 * 1024 * 1024;

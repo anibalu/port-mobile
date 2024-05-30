@@ -18,7 +18,6 @@ import {
   View,
 } from 'react-native';
 // import NamePopup from './UpdateNamePopup';
-import BackTopbar from '@components/BackTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import FileViewer from 'react-native-file-viewer';
 
@@ -28,7 +27,6 @@ import {GroupDataStrict, GroupMemberStrict} from '@utils/Groups/interfaces';
 import ChatBackground from '@components/ChatBackground';
 import {PortColors, screen} from '@components/ComponentUtils';
 import DeleteChatButton from '@components/DeleteChatButton';
-import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -41,6 +39,8 @@ import {ContentType} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {getImagesAndVideos} from '@utils/Storage/media';
 import {getTimeStamp} from '@utils/Time';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GroupProfile'>;
 
@@ -127,12 +127,13 @@ function GroupProfile({route, navigation}: Props) {
   return groupData ? (
     <SafeAreaView style={styles.mainContainer}>
       <ChatBackground />
-      <BackTopbar />
+      <BackTopbar onBackPress={() => navigation.goBack()} />
+
       <ScrollView
         contentContainerStyle={styles.profileScreen}
         showsVerticalScrollIndicator={false}>
         <View style={styles.profile}>
-          <GenericAvatar profileUri={profileURI} avatarSize={'medium'} />
+          <AvatarBox profileUri={profileURI} avatarSize="m+" />
           <View style={styles.groupNameArea}>
             <NumberlessText
               fontType={FontType.sb}

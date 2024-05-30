@@ -4,16 +4,17 @@
  * 1. onBackPress
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import React from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
-import BackIcon from '@assets/navigation/backButton.svg';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const BackTopbar = ({
   onBackPress,
@@ -24,11 +25,27 @@ const BackTopbar = ({
   bgColor?: 'w' | 'g';
   title?: string;
 }) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'DynamicBackIcon',
+      light: require('@assets/light/icons/navigation/BlackArrowLeftThin.svg')
+        .default,
+      dark: require('@assets/dark/icons/navigation/BlackArrowLeftThin.svg')
+        .default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const DynamicBackIcon = results.DynamicBackIcon;
   return (
     <View
       style={StyleSheet.compose(styles.topbarAcontainer, {
         backgroundColor:
-          bgColor == 'w' ? PortColors.primary.white : PortColors.background,
+          bgColor == 'w' ? Colors.primary.surface : Colors.primary.background,
         alignSelf: title ? 'auto' : 'stretch',
       })}>
       {title && (
@@ -38,31 +55,33 @@ const BackTopbar = ({
             textAlign: 'center',
             flex: 1,
           }}
+          textColor={Colors.text.primary}
           fontType={FontType.md}
           fontSizeType={FontSizeType.l}>
           {title}
         </NumberlessText>
       )}
       <Pressable style={styles.backButton} onPress={onBackPress}>
-        <BackIcon width={24} height={24} />
+        <DynamicBackIcon width={24} height={24} />
       </Pressable>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  topbarAcontainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    alignItems: 'center',
-    backgroundColor: PortColors.primary.white,
-    height: 56,
-  },
-  backButton: {
-    position: 'absolute',
-    left: 16,
-  },
-});
+const styling = (Color: any) =>
+  StyleSheet.create({
+    topbarAcontainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      alignItems: 'center',
+      backgroundColor: Color.primary.surface,
+      height: 56,
+    },
+    backButton: {
+      position: 'absolute',
+      left: 16,
+    },
+  });
 
 export default BackTopbar;

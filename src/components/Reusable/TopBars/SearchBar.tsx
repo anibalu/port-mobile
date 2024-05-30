@@ -6,7 +6,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {PortColors} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 const SearchBar = ({
   searchText,
   setSearchText,
@@ -20,13 +20,15 @@ const SearchBar = ({
     setSearchText('');
     setIsSearchActive(false);
   };
+  const Colors = DynamicColors();
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.inputWrapper}>
         <SearchInput text={searchText} setText={setSearchText} />
       </View>
       <NumberlessText
-        style={{color: PortColors.title}}
+        style={{color: Colors.text.primary}}
         onPress={onCancelClick}
         fontSizeType={FontSizeType.m}
         fontType={FontType.rg}>

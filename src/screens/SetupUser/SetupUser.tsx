@@ -4,6 +4,7 @@
  */
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -93,19 +94,21 @@ function SetupUser({route, navigation}: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const Colors = DynamicColors();
+
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <View style={styles.container}>
           <Loader />
           <NumberlessText
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}
-            textColor={PortColors.text.secondary}
+            textColor={Colors.text.primary}
             style={{
               textAlign: 'center',
               position: 'absolute',
@@ -124,7 +127,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: PortColors.primary.white,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: PortSpacing.intermediate.uniform,

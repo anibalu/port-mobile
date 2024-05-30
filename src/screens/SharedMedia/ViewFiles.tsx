@@ -18,8 +18,9 @@ import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
 import {MediaActionsBar} from '@screens/SharedMedia/MediaActionsBar';
 import FileTile from './FileTile';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {PortColors, screen} from '@components/ComponentUtils';
+import {screen} from '@components/ComponentUtils';
 import Icon from '@assets/icons/NoFilesFound.svg';
+import DynamicColors from '@components/DynamicColors';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewFiles'>;
 
@@ -55,6 +56,10 @@ export default function ViewFiles({route}: Props) {
     //   setSelectedMedia(prevSelected => [...prevSelected, path]);
     // }
   };
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   const renderItem = ({item}: {item: MediaEntry}) => (
     <View style={styles.row}>
       <Pressable
@@ -118,7 +123,7 @@ export default function ViewFiles({route}: Props) {
             style={{textAlign: 'center'}}
             fontSizeType={FontSizeType.xl}
             fontType={FontType.md}
-            textColor={PortColors.primary.black}>
+            textColor={Colors.text.primary}>
             No files found
           </NumberlessText>
         </View>
@@ -138,46 +143,45 @@ export default function ViewFiles({route}: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  nocontentText: {
-    color: PortColors.subtitle,
-  },
-  screen: {
-    height: '100%',
-  },
-  messagebar: {
-    position: 'absolute',
-    bottom: 0,
-  },
-  container: {
-    flexDirection: 'column',
-    paddingHorizontal: 21,
-    width: '100%',
-    alignItems: 'center',
-    paddingTop: 10,
-  },
-  file: {
-    height: (screen.width - 70) / 4,
-    borderRadius: 16,
-    flexDirection: 'row',
-    gap: 10,
-    width: '100%',
-    backgroundColor: PortColors.primary.white,
-    padding: 10,
-  },
-  selectedFile: {
-    paddingRight: 2,
-    paddingLeft: 12,
-    paddingVertical: 7,
-    borderWidth: 3,
-    borderColor: '#547CEF',
-  },
-  row: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    width: '100%',
-    rowGap: 13,
-    marginBottom: 13,
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    screen: {
+      backgroundColor: color.primary.background,
+      height: '100%',
+    },
+    messagebar: {
+      position: 'absolute',
+      bottom: 0,
+    },
+    container: {
+      flexDirection: 'column',
+      paddingHorizontal: 21,
+      width: '100%',
+      alignItems: 'center',
+      paddingTop: 10,
+    },
+    file: {
+      height: (screen.width - 70) / 4,
+      borderRadius: 16,
+      flexDirection: 'row',
+      gap: 10,
+      width: '100%',
+      backgroundColor: color.primary.surface,
+      padding: 10,
+    },
+    selectedFile: {
+      paddingRight: 2,
+      paddingLeft: 12,
+      paddingVertical: 7,
+      borderWidth: 3,
+      borderColor: '#547CEF',
+    },
+    row: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      width: '100%',
+      rowGap: 13,
+      marginBottom: 13,
+    },
+  });

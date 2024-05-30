@@ -50,6 +50,7 @@ const ShareablePortCard = ({
       </View>
       <View style={styles.contentBox}>
         <NumberlessText
+          textColor={'black'}
           style={{alignSelf: 'center'}}
           fontType={FontType.md}
           fontSizeType={FontSizeType.xl}>
@@ -60,10 +61,11 @@ const ShareablePortCard = ({
 
       <View style={styles.contentBox}>
         <NumberlessText
-          style={{textAlign: 'center', color: PortColors.subtitle}}
+          textColor={'#667085'}
+          style={{textAlign: 'center'}}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.s}>
-          Scan this code using your Port camera to add me as a contact
+          Scan this code to add me as a contact
         </NumberlessText>
       </View>
     </SimpleCard>
@@ -78,6 +80,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0, //overrides simple card default padding
     paddingTop: 30,
     width: '100%',
+    backgroundColor: 'white',
   },
   avatarArea: {
     position: 'absolute',

@@ -1,4 +1,4 @@
-import CrossIcon from '@assets/icons/cross.svg';
+import CrossIcon from '@assets/icons/BlackCross.svg';
 import {
   FontSizeType,
   FontType,

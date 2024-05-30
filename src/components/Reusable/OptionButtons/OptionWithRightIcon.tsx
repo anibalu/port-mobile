@@ -9,9 +9,15 @@
  */
 
 import {PortColors} from '@components/ComponentUtils';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
 import React, {FC} from 'react';
-import {StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import {View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
@@ -26,6 +32,8 @@ const OptionWithRightIcon = ({
   title: string;
   description?: string;
 }) => {
+  const Colors = DynamicColors();
+
   return (
     <TouchableOpacity
       accessibilityIgnoresInvertColors
@@ -35,18 +43,26 @@ const OptionWithRightIcon = ({
       })}
       onPress={onClick}>
       <View style={styles.textContainer}>
-        <Text numberOfLines={1} style={styles.heading}>
+        <NumberlessText
+          textColor={Colors.text.primary}
+          numberOfLines={1}
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.rg}
+          style={styles.heading}>
           {title}
-        </Text>
+        </NumberlessText>
         {description && (
-          <Text numberOfLines={2} style={styles.description}>
+          <NumberlessText
+            textColor={Colors.text.subtitle}
+            numberOfLines={2}
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.rg}
+            style={styles.description}>
             {description}
-          </Text>
+          </NumberlessText>
         )}
       </View>
-      <View style={styles.iconContainer}>
-        {IconRight && <IconRight height={20} width={20} />}
-      </View>
+      <View>{IconRight && <IconRight height={20} width={20} />}</View>
     </TouchableOpacity>
   );
 };
@@ -63,11 +79,9 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: 'column',
   },
-  iconContainer: {},
   heading: {
     lineHeight: 22,
     paddingBottom: 2,
-    color: PortColors.title,
     fontFamily: FontType.rg,
     fontSize: FontSizeType.m,
     fontWeight: getWeight(FontType.rg),

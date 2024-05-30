@@ -1,8 +1,7 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {SafeAreaView} from '@components/SafeAreaView';
-import CrossButton from '@assets/navigation/crossButton.svg';
 import React, {useEffect, useMemo, useState} from 'react';
 import {StyleSheet, View, ScrollView} from 'react-native';
 import {
@@ -30,6 +29,8 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import EditName from '@components/Reusable/BottomSheets/EditName';
 import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'EditFolder'>;
 
@@ -64,14 +65,25 @@ const EditFolder = ({route, navigation}: Props) => {
 
   const [openApplyToAllModal, setOpenApplyToAllModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    // 1.Clock
+    {
+      assetName: 'CrossButton',
+      light: require('@assets/light/icons/Cross.svg').default,
+      dark: require('@assets/dark/icons/Cross.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const CrossButton = results.CrossButton;
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.background}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <TopBarWithRightIcon
           onIconRightPress={() => {
             navigation.navigate('HomeTab', {
@@ -91,7 +103,7 @@ const EditFolder = ({route, navigation}: Props) => {
               paddingHorizontal: PortSpacing.secondary.uniform,
               paddingBottom: PortSpacing.secondary.bottom,
               paddingTop: PortSpacing.tertiary.top,
-              backgroundColor: PortColors.primary.white,
+              backgroundColor: Colors.primary.surface,
             }}>
             <EditableInputCard
               text={folderName}
@@ -120,15 +132,15 @@ const EditFolder = ({route, navigation}: Props) => {
               }}>
               <NumberlessText
                 style={{
-                  color: PortColors.primary.blue.app,
+                  color: Colors.text.primary,
                   marginBottom: PortSpacing.tertiary.bottom,
                 }}
                 fontSizeType={FontSizeType.l}
-                fontType={FontType.rg}>
+                fontType={FontType.md}>
                 Customize chats in this folder
               </NumberlessText>
               <NumberlessText
-                style={{color: PortColors.subtitle}}
+                style={{color: Colors.text.subtitle}}
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}>
                 Changes to these settings will apply to all new chats added to
@@ -205,21 +217,23 @@ const EditFolder = ({route, navigation}: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  scrollViewContainer: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-  chatSettingsContainer: {
-    marginBottom: PortSpacing.secondary.bottom,
-  },
-  buttonWrapper: {
-    gap: PortSpacing.secondary.uniform,
-    paddingVertical: PortSpacing.secondary.top,
-  },
-});
+const styling = colors =>
+  StyleSheet.create({
+    scrollViewContainer: {
+      flex: 1,
+      width: '100%',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      backgroundColor: colors.primary.background,
+    },
+    chatSettingsContainer: {
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+    buttonWrapper: {
+      gap: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.secondary.top,
+    },
+  });
 
 export default EditFolder;

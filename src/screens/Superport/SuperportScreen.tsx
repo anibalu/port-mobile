@@ -1,8 +1,7 @@
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {SafeAreaView} from '@components/SafeAreaView';
-import CrossButton from '@assets/navigation/crossButton.svg';
 import SuperportsInfo from '@assets/miscellaneous/SuperportsInfo.svg';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {StyleSheet, View, ScrollView} from 'react-native';
@@ -50,6 +49,8 @@ import UsageLimitsBottomSheet from '@components/Reusable/BottomSheets/UsageLimit
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import {changePausedStateOfSuperport} from '@utils/Ports/superport';
 import {useSelector} from 'react-redux';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 type Props = NativeStackScreenProps<AppStackParamList, 'SuperportScreen'>;
 
 const SuperportScreen = ({route, navigation}: Props) => {
@@ -337,13 +338,26 @@ const SuperportScreen = ({route, navigation}: Props) => {
     }
   };
 
+  const Colors = DynamicColors();
+  const svgArray = [
+    {
+      assetName: 'CrossButton',
+      light: require('@assets/light/icons/Cross.svg').default,
+      dark: require('@assets/dark/icons/Cross.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+
+  const CrossButton = results.CrossButton;
+
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.background}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}
           IconRight={CrossButton}
@@ -375,7 +389,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
                 gap: PortSpacing.medium.right,
 
                 width: screen.width,
-                backgroundColor: '#E5EAF8',
+                backgroundColor: Colors.primary.background,
               }}>
               <SuperportsInfo width={260} />
               <NumberlessText
@@ -385,7 +399,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
                   flex: 1,
                   marginBottom: PortSpacing.secondary.bottom,
                 }}
-                textColor={PortColors.title}
+                textColor={Colors.text.primary}
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.rg}>
                 Superports are multi-use Ports that let you connect with
@@ -394,13 +408,17 @@ const SuperportScreen = ({route, navigation}: Props) => {
             </View>
           )}
 
-          <View style={{paddingHorizontal: PortSpacing.secondary.uniform}}>
+          <View
+            style={{
+              paddingHorizontal: PortSpacing.secondary.uniform,
+              backgroundColor: Colors.primary.background,
+            }}>
             <NumberlessText
               style={{
-                color: PortColors.subtitle,
                 marginBottom: PortSpacing.medium.bottom,
                 marginTop: PortSpacing.intermediate.top,
               }}
+              textColor={Colors.text.subtitle}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               Customize your Port
@@ -423,6 +441,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
             </View>
             <View style={{marginBottom: PortSpacing.secondary.bottom}}>
               <MoveContacts
+                hideAddFolder={qrData?.portId}
                 setSelectedFolder={setFolder}
                 selectedFolder={chosenFolder}
                 foldersArray={foldersArray}

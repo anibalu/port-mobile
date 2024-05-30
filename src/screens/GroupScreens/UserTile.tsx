@@ -1,9 +1,8 @@
 /**
  * Default chat tile displayed when there are no connections
  */
-import Cross from '@assets/icons/cross.svg';
+import Cross from '@assets/icons/BlackCross.svg';
 import {PortColors, screen} from '@components/ComponentUtils';
-import {GenericAvatar} from '@components/GenericAvatar';
 import {GenericButton} from '@components/GenericButton';
 import GenericModal from '@components/Modals/GenericModal';
 import {
@@ -11,6 +10,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {AVATAR_ARRAY, DEFAULT_NAME} from '@configs/constants';
 import {GroupMember, GroupMemberStrict} from '@utils/Groups/interfaces';
 import React, {useState} from 'react';
@@ -52,13 +52,14 @@ function UserTile({
   return (
     <>
       <View style={styles.defaultTileContainer}>
-        <GenericAvatar
-          profileUri={avatar}
-          avatarSize={'small'}
+        <AvatarBox
           onPress={() => {
             setVisible(true);
           }}
+          profileUri={avatar}
+          avatarSize="s+"
         />
+
         <NumberlessText
           fontType={FontType.rg}
           fontSizeType={FontSizeType.m}
@@ -72,7 +73,8 @@ function UserTile({
         visible={visible && isAdmin}>
         <View style={styles.modal}>
           <View style={styles.row}>
-            <GenericAvatar profileUri={avatar} avatarSize={'small'} />
+            <AvatarBox profileUri={avatar} avatarSize="s+" />
+
             <View style={styles.textColumn}>
               <NumberlessText
                 fontType={FontType.sb}

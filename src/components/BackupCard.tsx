@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import SimpleCard from './Reusable/Cards/SimpleCard';
 import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
-import {PortColors, PortSpacing} from './ComponentUtils';
+import {PortSpacing} from './ComponentUtils';
 import {StyleSheet, View} from 'react-native';
-import Clock from '@assets/icons/Clock.svg';
 import BlueRight from '@assets/icons/BlueRight.svg';
 import TertiaryButton from './Reusable/LongButtons/TertiaryButton';
 import {createSecureDataBackup} from '@utils/Backup/backupUtils';
 import {getLastBackupTime} from '@utils/Profile';
 import {getChatTileTimestamp} from '@utils/Time';
+import DynamicColors from './DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const BackupCard = () => {
   const [lastBackup, setLastBackup] = useState<string | undefined>();
@@ -27,14 +28,30 @@ const BackupCard = () => {
     setLoading(false);
   };
 
+  const Colors = DynamicColors();
+
+  const svgArray = [
+    // 1.Clock
+    {
+      assetName: 'Clock',
+      light: require('@assets/light/icons/Clock.svg').default,
+      dark: require('@assets/dark/icons/Clock.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const Clock = results.Clock;
+
+  const styles = styling(Colors);
+
   return (
     <SimpleCard style={styles.card}>
       <View style={styles.title}>
         <View style={{flexDirection: 'row'}}>
           <Clock />
+
           <NumberlessText
             style={{marginLeft: PortSpacing.tertiary.left}}
-            textColor={PortColors.primary.black}
+            textColor={Colors.text.primary}
             fontType={FontType.sb}
             fontSizeType={FontSizeType.l}>
             Backup
@@ -42,7 +59,7 @@ const BackupCard = () => {
         </View>
         <View style={styles.pill}>
           <NumberlessText
-            textColor={PortColors.subtitle}
+            textColor={Colors.text.subtitle}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}>
             {lastBackup
@@ -53,7 +70,7 @@ const BackupCard = () => {
       </View>
       <NumberlessText
         style={{marginLeft: PortSpacing.tertiary.left}}
-        textColor={PortColors.subtitle}
+        textColor={Colors.text.subtitle}
         fontType={FontType.rg}
         fontSizeType={FontSizeType.m}>
         A local backup containing all your connections and folders will be
@@ -73,31 +90,32 @@ const BackupCard = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    width: '100%',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingTop: PortSpacing.secondary.uniform,
-    marginTop: PortSpacing.primary.top,
-  },
-  title: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: PortSpacing.medium.bottom,
-  },
-  pill: {
-    backgroundColor: PortColors.primary.grey.light,
-    paddingHorizontal: 6,
-    paddingVertical: 5,
-    borderRadius: 6,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    alignSelf: 'flex-end',
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    card: {
+      width: '100%',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingTop: PortSpacing.secondary.uniform,
+      marginTop: PortSpacing.primary.top,
+    },
+    title: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: PortSpacing.medium.bottom,
+    },
+    pill: {
+      backgroundColor: colors.primary.lightgrey,
+      paddingHorizontal: 6,
+      paddingVertical: 5,
+      borderRadius: 6,
+    },
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      alignSelf: 'flex-end',
+    },
+  });
 
 export default BackupCard;

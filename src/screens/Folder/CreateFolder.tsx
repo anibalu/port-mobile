@@ -1,8 +1,7 @@
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {SafeAreaView} from '@components/SafeAreaView';
-import CrossButton from '@assets/navigation/crossButton.svg';
 import React, {useState} from 'react';
 import {StyleSheet, View, ScrollView, KeyboardAvoidingView} from 'react-native';
 import {
@@ -21,6 +20,8 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {updateGeneratedSuperportFolder} from '@utils/Ports';
 import {moveConnectionToNewFolder} from '@utils/Connections';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CreateFolder'>;
 
@@ -34,13 +35,25 @@ const CreateFolder = ({navigation, route}: Props) => {
   });
   //for loader used in the screen
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const Colors = DynamicColors();
+  const svgArray = [
+    // 1.Clock
+    {
+      assetName: 'CrossButton',
+      light: require('@assets/light/icons/Cross.svg').default,
+      dark: require('@assets/dark/icons/Cross.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const CrossButton = results.CrossButton;
+
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.background}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}
           IconRight={CrossButton}
@@ -51,7 +64,7 @@ const CreateFolder = ({navigation, route}: Props) => {
             paddingHorizontal: PortSpacing.secondary.uniform,
             paddingBottom: PortSpacing.secondary.bottom,
             paddingTop: PortSpacing.tertiary.top,
-            backgroundColor: PortColors.primary.white,
+            backgroundColor: Colors.primary.surface,
           }}>
           <SimpleInput
             placeholderText="Folder name"
@@ -76,15 +89,15 @@ const CreateFolder = ({navigation, route}: Props) => {
               }}>
               <NumberlessText
                 style={{
-                  color: PortColors.primary.blue.app,
+                  color: Colors.text.primary,
                   marginBottom: PortSpacing.tertiary.bottom,
                 }}
                 fontSizeType={FontSizeType.l}
-                fontType={FontType.rg}>
+                fontType={FontType.md}>
                 Customize chats in this folder
               </NumberlessText>
               <NumberlessText
-                style={{color: PortColors.subtitle}}
+                style={{color: Colors.text.subtitle}}
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}>
                 Changes to these settings will apply to all new chats added to

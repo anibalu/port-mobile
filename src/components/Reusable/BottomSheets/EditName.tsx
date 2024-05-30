@@ -21,7 +21,8 @@ import {
 } from '@components/NumberlessText';
 import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 
 const EditName = ({
   visible,
@@ -53,9 +54,12 @@ const EditName = ({
     Keyboard.dismiss();
   };
 
+  const Colors = DynamicColors();
+
   return (
     <PrimaryBottomSheet
       showClose={true}
+      bgColor="g"
       visible={visible}
       title={title}
       titleStyle={styles.title}
@@ -65,7 +69,7 @@ const EditName = ({
           <View
             style={{width: '100%', marginBottom: PortSpacing.secondary.bottom}}>
             <NumberlessText
-              style={{color: PortColors.subtitle}}
+              style={{color: Colors.text.subtitle}}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               {description}

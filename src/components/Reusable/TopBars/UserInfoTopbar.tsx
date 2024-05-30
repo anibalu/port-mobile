@@ -9,7 +9,7 @@
  * 6. boolean to show user unfo (used in contact profile)
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -20,9 +20,10 @@ import React, {FC} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
-import BackIcon from '@assets/navigation/backButton.svg';
 import {useNavigation} from '@react-navigation/native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const UserInfoTopbar = ({
   IconRight,
@@ -40,18 +41,34 @@ const UserInfoTopbar = ({
   onIconRightPress?: () => void;
 }) => {
   const navigation = useNavigation();
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'DynamicBackIcon',
+      light: require('@assets/light/icons/navigation/BlackArrowLeftThin.svg')
+        .default,
+      dark: require('@assets/dark/icons/navigation/BlackArrowLeftThin.svg')
+        .default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const DynamicBackIcon = results.DynamicBackIcon;
   return (
     <View
       style={StyleSheet.compose(styles.topbarContainer, {
         backgroundColor:
           backgroundColor === 'g'
-            ? PortColors.background
-            : PortColors.primary.white,
+            ? Colors.primary.background
+            : Colors.primary.surface,
       })}>
       <Pressable
         onPress={() => navigation.goBack()}
         style={{marginRight: PortSpacing.tertiary.right}}>
-        <BackIcon width={24} height={24} />
+        <DynamicBackIcon width={24} height={24} />
       </Pressable>
       {showUserInfo && (
         <View
@@ -67,6 +84,7 @@ const UserInfoTopbar = ({
             numberOfLines={1}
             ellipsizeMode="tail"
             fontType={FontType.md}
+            textColor={Colors.labels.text}
             fontSizeType={FontSizeType.l}>
             {heading}
           </NumberlessText>
@@ -81,21 +99,22 @@ const UserInfoTopbar = ({
   );
 };
 
-const styles = StyleSheet.create({
-  topbarContainer: {
-    alignSelf: 'stretch',
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 56,
-  },
-  heading: {
-    color: PortColors.title,
-    fontFamily: FontType.md,
-    fontSize: FontSizeType.l,
-    fontWeight: getWeight(FontType.rg),
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    topbarContainer: {
+      alignSelf: 'stretch',
+      flexDirection: 'row',
+      paddingHorizontal: 16,
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      height: 56,
+    },
+    heading: {
+      color: colors.primary.mainelements,
+      fontFamily: FontType.md,
+      fontSize: FontSizeType.l,
+      fontWeight: getWeight(FontType.rg),
+    },
+  });
 
 export default UserInfoTopbar;

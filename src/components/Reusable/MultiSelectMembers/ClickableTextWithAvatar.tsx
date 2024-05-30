@@ -15,14 +15,15 @@
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import React from 'react';
 import {Pressable, View} from 'react-native';
-import Cross from '@assets/icons/greyCross.svg';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const ClickableTextWithAvatar = ({
   selectedMembers,
@@ -36,6 +37,18 @@ const ClickableTextWithAvatar = ({
       selectedMembers.filter(member => member.chatId !== chatId),
     );
   };
+
+  const Colors = DynamicColors();
+  const svgArray = [
+    {
+      assetName: 'CloseIcon',
+      light: require('@assets/light/icons/Close.svg').default,
+      dark: require('@assets/dark/icons/Close.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const CloseIcon = results.CloseIcon;
   return (
     <View
       style={{
@@ -51,7 +64,7 @@ const ClickableTextWithAvatar = ({
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: 'white',
+              backgroundColor: Colors.primary.surface,
               borderRadius: PortSpacing.tertiary.uniform,
               maxWidth: 180,
               height: 36,
@@ -70,7 +83,7 @@ const ClickableTextWithAvatar = ({
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
-                textColor={PortColors.primary.black}
+                textColor={Colors.text.primary}
                 numberOfLines={1}
                 ellipsizeMode="tail"
                 style={{
@@ -79,7 +92,7 @@ const ClickableTextWithAvatar = ({
                 }}>
                 {member.name}
               </NumberlessText>
-              <Cross />
+              <CloseIcon />
             </Pressable>
           </View>
         );

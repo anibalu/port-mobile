@@ -3,7 +3,6 @@
  * a few other neat features.
  * screen id: 5
  */
-import BluePlusIcon from '../../../assets/icons/plusWhite.svg';
 import ChatTile, {ChatTileProps} from '@components/ChatTile/ChatTile';
 import {SafeAreaView} from '@components/SafeAreaView';
 
@@ -43,14 +42,8 @@ import {
 import {useSelector} from 'react-redux';
 import HomeTopbar from './HomeTopbar';
 import HomescreenPlaceholder from './HomescreenPlaceholder';
-import {GenericButton} from '@components/GenericButton';
 import ConnectionOptions from './ConnectionOptions';
-import {
-  PortColors,
-  PortSpacing,
-  isIOS,
-  screen,
-} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {
   DEFAULT_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
@@ -88,6 +81,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import {ChatActionsBar} from './ChatActionsBar';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import MoveToFolder from '@components/Reusable/BottomSheets/MoveToFolderBottomsheet';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 //Handles notification routing on tapping notification
 const performNotificationRouting = (
@@ -185,6 +180,8 @@ function Home({route, navigation}: Props) {
     null,
   );
   const [searchReturnedNull, setSearchReturnedNull] = useState(false);
+
+  const colors = DynamicColors();
 
   const getUnread = (folderId: string) => {
     const found = folders.find(item => item.folderId === folderId);
@@ -539,6 +536,17 @@ function Home({route, navigation}: Props) {
     }
   }, [totalUnreadCount, folders, selectedFolderData]);
 
+  const svgArray = [
+    {
+      assetName: 'Plus',
+      light: require('@assets/light/icons/BlackPlus.svg').default,
+      dark: require('@assets/dark/icons/PlusAccent.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const Plus = results.Plus;
+
   return (
     <GestureHandlerRootView>
       <Swipeable
@@ -579,15 +587,16 @@ function Home({route, navigation}: Props) {
           }}>
           <CustomStatusBar
             barStyle="dark-content"
-            backgroundColor={PortColors.primary.white}
+            backgroundColor={colors.primary.surface}
           />
-          <SafeAreaView style={{backgroundColor: PortColors.background}}>
+          <SafeAreaView style={{backgroundColor: colors.primary.background}}>
             <View
               style={[
                 {
                   width: SIDE_DRAWER_WIDTH,
                   height: isIOS ? screen.height : screen.height + insets.top,
                   position: 'absolute',
+                  // zIndex: 2,
                 },
               ]}>
               <LinearGradient
@@ -654,7 +663,7 @@ function Home({route, navigation}: Props) {
                 ) : (
                   <View style={{alignSelf: 'center', marginTop: 50}}>
                     <NumberlessText
-                      textColor={PortColors.subtitle}
+                      textColor={colors.text.subtitle}
                       fontType={FontType.rg}
                       fontSizeType={FontSizeType.m}>
                       No results found
@@ -663,13 +672,11 @@ function Home({route, navigation}: Props) {
                 )}
               </View>
               {!selectionMode && (
-                <GenericButton
+                <Plus
                   onPress={() => {
                     setIsConnectionOptionsModalOpen(p => !p);
                   }}
-                  iconSize={24}
-                  IconLeft={BluePlusIcon}
-                  buttonStyle={styles.addButtonWrapper}
+                  style={styles.addButtonWrapper}
                 />
               )}
             </KeyboardAvoidingView>

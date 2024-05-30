@@ -9,8 +9,7 @@
  * 6. Has border bottom
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import RightChevron from '@assets/icons/BlackAngleRight.svg';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -20,6 +19,9 @@ import React, {FC} from 'react';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import {View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useTheme} from 'src/context/ThemeContext';
 
 const OptionWithChevron = ({
   onClick,
@@ -36,6 +38,22 @@ const OptionWithChevron = ({
   heading: string;
   description?: string;
 }) => {
+  const Colors = DynamicColors();
+  const {themeValue} = useTheme();
+
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'RightChevron',
+      light: require('@assets/light/icons/navigation/AngleRight.svg').default,
+      dark: require('assets/dark/icons/navigation/AngleRight.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const RightChevron = results.RightChevron;
+
+  const styles = styling(Colors);
   return (
     <TouchableOpacity
       onPress={onClick}
@@ -45,7 +63,7 @@ const OptionWithChevron = ({
       <View style={styles.topContainer}>
         <IconLeft height={20} width={20} />
         <NumberlessText
-          textColor={PortColors.title}
+          textColor={Colors.labels.text}
           numberOfLines={1}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}
@@ -60,8 +78,10 @@ const OptionWithChevron = ({
                 fontSizeType={FontSizeType.m}
                 textColor={
                   labelActiveState
-                    ? PortColors.primary.blue.app
-                    : PortColors.subtitle
+                    ? themeValue === 'light'
+                      ? Colors.primary.accent
+                      : Colors.primary.white
+                    : Colors.text.subtitle
                 }>
                 {labelText}
               </NumberlessText>
@@ -73,7 +93,7 @@ const OptionWithChevron = ({
       </View>
       {description && (
         <NumberlessText
-          textColor={PortColors.subtitle}
+          textColor={Colors.text.subtitle}
           numberOfLines={2}
           fontSizeType={FontSizeType.s}
           fontType={FontType.rg}
@@ -85,37 +105,38 @@ const OptionWithChevron = ({
   );
 };
 
-const styles = StyleSheet.create({
-  optionWrapper: {
-    flexDirection: 'column',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingVertical: 10,
-  },
-  labelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  labelWrapper: {
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 25,
-    backgroundColor: PortColors.background,
-  },
-  topContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  heading: {
-    marginHorizontal: PortSpacing.secondary.uniform,
-    flex: 1,
-  },
-  description: {
-    marginLeft: PortSpacing.secondary.uniform + 20,
-    marginRight: PortSpacing.secondary.uniform + 55,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    optionWrapper: {
+      flexDirection: 'column',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingVertical: 10,
+    },
+    labelContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    labelWrapper: {
+      borderRadius: 6,
+      paddingHorizontal: 6,
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: 25,
+      backgroundColor: colors.primary.lightgrey,
+    },
+    topContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    heading: {
+      marginHorizontal: PortSpacing.secondary.uniform,
+      flex: 1,
+    },
+    description: {
+      marginLeft: PortSpacing.secondary.uniform + 20,
+      marginRight: PortSpacing.secondary.uniform + 55,
+    },
+  });
 
 export default OptionWithChevron;

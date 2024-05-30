@@ -19,7 +19,8 @@ import {
   getWeight,
 } from '@components/NumberlessText';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 
 const ConfirmationBottomSheet = ({
   visible,
@@ -45,6 +46,7 @@ const ConfirmationBottomSheet = ({
     setIsLoading(false);
     onClose();
   };
+  const Colors = DynamicColors();
   return (
     <PrimaryBottomSheet
       showClose={true}
@@ -57,7 +59,7 @@ const ConfirmationBottomSheet = ({
           <View
             style={{marginBottom: PortSpacing.secondary.bottom, width: '100%'}}>
             <NumberlessText
-              style={{color: PortColors.subtitle}}
+              style={{color: Colors.text.subtitle}}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               {description}

@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -11,6 +11,7 @@ import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import React from 'react';
 import {disappearDuration, disappearOptions} from '@utils/Time/interfaces';
 import {FlatList, View} from 'react-native';
+import DynamicColors from '@components/DynamicColors';
 
 const DissapearingMessagesBottomsheet = ({
   setShowDissappearingMessageModal,
@@ -23,6 +24,8 @@ const DissapearingMessagesBottomsheet = ({
   permission: number;
   onUpdateDisappearingMessagedPermission: (value: number) => Promise<void>;
 }) => {
+  const Colors = DynamicColors();
+
   return (
     <PrimaryBottomSheet
       bgColor="g"
@@ -33,7 +36,7 @@ const DissapearingMessagesBottomsheet = ({
       <NumberlessText
         style={{
           width: '100%',
-          color: PortColors.subtitle,
+          color: Colors.text.subtitle,
           marginBottom: PortSpacing.intermediate.bottom,
           marginTop: PortSpacing.secondary.top,
         }}
@@ -52,6 +55,7 @@ const DissapearingMessagesBottomsheet = ({
             paddingHorizontal: PortSpacing.secondary.uniform,
             marginBottom: PortSpacing.secondary.bottom,
           }}
+          textColor={Colors.text.primary}
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}>
           Choose duration

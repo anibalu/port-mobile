@@ -3,7 +3,8 @@
  * Takes no props.
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import React from 'react';
 import {StyleProp, StyleSheet, ViewStyle} from 'react-native';
 import {View} from 'react-native';
@@ -14,6 +15,8 @@ const SimpleCard = ({
   children?: any;
   style?: ViewStyle | StyleProp<ViewStyle>;
 }) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <View style={StyleSheet.compose(styles.cardContainer, style)}>
       {children}
@@ -21,13 +24,12 @@ const SimpleCard = ({
   );
 };
 
-const styles = StyleSheet.create({
-  cardContainer: {
-    paddingVertical: PortSpacing.tertiary.uniform,
-    borderColor: PortColors.stroke,
-    borderWidth: 0.5,
-    backgroundColor: PortColors.primary.white,
-    borderRadius: 16,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    cardContainer: {
+      paddingVertical: PortSpacing.tertiary.uniform,
+      backgroundColor: colors.primary.surface,
+      borderRadius: 16,
+    },
+  });
 export default SimpleCard;

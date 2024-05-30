@@ -6,18 +6,16 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {getTimeStamp} from '@utils/Time';
-//svgs for various states
-import Read from '@assets/icons/statusIndicators/read.svg';
-import Received from '@assets/icons/statusIndicators/received.svg';
 import Sending from '@assets/icons/statusIndicators/sending.svg';
-import Sent from '@assets/icons/statusIndicators/sent.svg';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
 import FileViewer from 'react-native-file-viewer';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import store from '@store/appStore';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import DynamicColors from '@components/DynamicColors';
 
 //max width of message bubble
 export const MAX_WIDTH = screen.width - 2 * PortSpacing.secondary.uniform - 64;
@@ -126,13 +124,37 @@ export const RenderTimeStamp = ({
   stampColor?: 'rg' | 'w'; //regular or white
   showReadReceipts?: boolean;
 }): ReactNode => {
+  const svgArray = [
+    {
+      assetName: 'Read',
+      light: require('@assets/light/icons/Read.svg').default,
+      dark: require('@assets/dark/icons/Read.svg').default,
+    },
+    {
+      assetName: 'Received',
+      light: require('@assets/light/icons/Received.svg').default,
+      dark: require('@assets/dark/icons/Received.svg').default,
+    },
+    {
+      assetName: 'Sent',
+      light: require('@assets/light/icons/Sent.svg').default,
+      dark: require('@assets/icons/statusIndicators/sent.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const Read = results.Read;
+  const Received = results.Received;
+  const Sent = results.Sent;
+  const Colors = DynamicColors();
   if (message.messageStatus === MessageStatus.failed) {
     return (
       <View style={styles.timestampContainer}>
         <NumberlessText
+          style={{marginTop: 8}}
           fontSizeType={FontSizeType.xs}
           fontType={FontType.md}
-          textColor={PortColors.text.delete}>
+          textColor={Colors.primary.red}>
           Failed to send message
         </NumberlessText>
       </View>
@@ -144,9 +166,7 @@ export const RenderTimeStamp = ({
           fontSizeType={FontSizeType.s}
           fontType={FontType.rg}
           textColor={
-            stampColor === 'w'
-              ? PortColors.primary.grey.dark
-              : PortColors.subtitle
+            stampColor === 'w' ? Colors.primary.darkgrey : Colors.text.subtitle
           }>
           {getTimeStamp(message.timestamp)}
         </NumberlessText>

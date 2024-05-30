@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Animated, Pressable, StyleSheet, View} from 'react-native';
-import Plus from '@assets/icons/plus.svg';
 import {
   FontSizeType,
   FontType,
@@ -11,6 +10,8 @@ import {useChatContext} from '@screens/DirectChat/ChatContext';
 import {reactionMapping} from '@configs/reactionmapping';
 import {getRichReactions} from '@utils/Storage/reactions';
 import EmojiSelector from '@components/Reusable/BottomSheets/EmojiSelector';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 export const RenderReactionBar = () => {
   const [richReactions, setRichReactions] = useState<any>([]);
@@ -24,6 +25,9 @@ export const RenderReactionBar = () => {
     (reaction: {senderId: string}) => reaction.senderId === 'SELF',
   );
   const selfReaction = selfReactionObj ? selfReactionObj.reaction : false;
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
 
   const barWidth = useRef(new Animated.Value(0)).current;
   const emojiScales = useRef(
@@ -63,6 +67,16 @@ export const RenderReactionBar = () => {
   const onReactionPress = (item: any) => {
     message && onReaction(message, item);
   };
+
+  const svgArray = [
+    {
+      assetName: 'PlusIcon',
+      light: require('@assets/light/icons/Plus.svg').default,
+      dark: require('@assets/dark/icons/Plus.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const PlusIcon = results.PlusIcon;
 
   return (
     <Animated.View
@@ -112,7 +126,7 @@ export const RenderReactionBar = () => {
             }
           }}>
           {!selfReaction || reactionMapping.includes(selfReaction) ? (
-            <Plus />
+            <PlusIcon />
           ) : (
             <NumberlessText
               fontSizeType={FontSizeType.exs}
@@ -139,6 +153,9 @@ export function RenderReactions({
   reactions: any[];
   showReactionRibbon?: Function;
 }) {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   return (
     <Pressable
       style={styles.reactionDisplay}
@@ -160,47 +177,48 @@ export function RenderReactions({
   );
 }
 
-const styles = StyleSheet.create({
-  reactionSelection: {
-    overflow: 'hidden',
-    backgroundColor: PortColors.primary.white,
-    borderRadius: 24,
-    height: 47,
-    width: 272,
-    borderWidth: 0.5,
-    borderColor: PortColors.stroke,
-    flexDirection: 'row',
-    marginBottom: 4,
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    gap: 2,
-    justifyContent: 'center',
-  },
-  hasReactionMessage: {
-    backgroundColor: PortColors.stroke,
-    alignItems: 'center',
-    textAlign: 'center',
-    justifyContent: 'center',
-  },
-  reactionsWrapper: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 36,
-    height: 36,
-    overflow: 'hidden',
-    borderRadius: 20,
-  },
-  reactionDisplay: {
-    backgroundColor: PortColors.primary.grey.light,
-    overflow: 'hidden',
-    borderRadius: 12,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 0.5,
-    borderColor: PortColors.primary.border.dullGrey,
-    paddingVertical: 4,
-    paddingLeft: 5,
-    marginTop: -4,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    reactionSelection: {
+      overflow: 'hidden',
+      backgroundColor: colors.primary.surface,
+      borderRadius: 24,
+      height: 47,
+      width: 272,
+      borderWidth: 0.5,
+      borderColor: colors.primary.stroke,
+      flexDirection: 'row',
+      marginBottom: 4,
+      alignItems: 'center',
+      paddingHorizontal: 4,
+      gap: 2,
+      justifyContent: 'center',
+    },
+    hasReactionMessage: {
+      backgroundColor: colors.primary.stroke,
+      alignItems: 'center',
+      textAlign: 'center',
+      justifyContent: 'center',
+    },
+    reactionsWrapper: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: 36,
+      height: 36,
+      overflow: 'hidden',
+      borderRadius: 20,
+    },
+    reactionDisplay: {
+      backgroundColor: PortColors.primary.grey.light,
+      overflow: 'hidden',
+      borderRadius: 12,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 0.5,
+      borderColor: PortColors.primary.border.dullGrey,
+      paddingVertical: 4,
+      paddingLeft: 5,
+      marginTop: -4,
+    },
+  });

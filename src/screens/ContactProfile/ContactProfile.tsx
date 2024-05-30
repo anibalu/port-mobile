@@ -11,9 +11,8 @@ import {
 } from 'react-native';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import RightChevron from '@assets/icons/BlackAngleRight.svg';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
-import EditIcon from '@assets/icons/BluePencilCircle.svg';
+import {PortSpacing, screen} from '@components/ComponentUtils';
+import EditIcon from '@assets/icons/PencilCircleAccent.svg';
 import Alert from '@assets/icons/Alert.svg';
 import {
   FontSizeType,
@@ -42,6 +41,8 @@ import {getConnection} from '@utils/Connections';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import * as storage from '@utils/UserBlocking';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -69,6 +70,21 @@ const ContactProfile = ({route, navigation}: Props) => {
   const [permissions, setPermissions] = useState<PermissionsStrict>({
     ...defaultPermissions,
   });
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'RightChevron',
+      light: require('@assets/light/icons/navigation/AngleRight.svg').default,
+      dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const RightChevron = results.RightChevron;
 
   const loadMedia = async () => {
     const response = await getImagesAndVideos(chatId);
@@ -169,11 +185,11 @@ const ContactProfile = ({route, navigation}: Props) => {
         barStyle="dark-content"
         backgroundColor={
           showUserInfoInTopbar
-            ? PortColors.primary.white
-            : PortColors.background
+            ? Colors.primary.surface
+            : Colors.primary.background
         }
       />
-      <SafeAreaView style={{backgroundColor: PortColors.background}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <UserInfoTopbar
           backgroundColor={showUserInfoInTopbar ? 'w' : 'g'}
           heading={displayName}
@@ -199,6 +215,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                       screen.width - 2 * PortSpacing.secondary.uniform - 30,
                     marginRight: 4,
                   }}
+                  textColor={Colors.labels.text}
                   fontSizeType={FontSizeType.xl}
                   fontType={FontType.sb}
                   numberOfLines={1}
@@ -220,6 +237,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                       onPress={() => setShowAddFolderModal(true)}>
                       <View style={styles.cardTitle}>
                         <NumberlessText
+                          textColor={Colors.labels.text}
                           fontSizeType={FontSizeType.l}
                           fontType={FontType.md}>
                           Chat folder
@@ -230,8 +248,8 @@ const ContactProfile = ({route, navigation}: Props) => {
                           <NumberlessText
                             textColor={
                               selectedFolder.name === defaultFolderInfo.name
-                                ? PortColors.subtitle
-                                : PortColors.primary.blue.app
+                                ? Colors.labels.text
+                                : Colors.primary.accent
                             }
                             fontSizeType={FontSizeType.m}
                             fontType={FontType.rg}
@@ -263,7 +281,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                 <View>
                   <NumberlessText
                     style={{
-                      color: PortColors.primary.red.error,
+                      color: Colors.primary.red,
                       marginTop: PortSpacing.secondary.top,
                     }}
                     fontSizeType={FontSizeType.l}
@@ -300,6 +318,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                       width: '100%',
                       marginTop: PortSpacing.secondary.top,
                     }}
+                    textColor={Colors.text.subtitle}
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}>
                     Your chat has been disconnected. Deleting history will erase
@@ -396,77 +415,78 @@ const ContactProfile = ({route, navigation}: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  mainContainer: {
-    padding: PortSpacing.secondary.uniform,
-    paddingTop: 0,
-    backgroundColor: PortColors.background,
-    flex: 1,
-  },
-  labelContainer: {
-    flexDirection: 'row',
-    gap: 4,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    flex: 1,
-  },
-  cardTitle: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    marginRight: 24,
-  },
-  disconnectedwrapper: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    height: '100%',
-    flex: 1,
-  },
-  labelWrapper: {
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 4,
-    backgroundColor: PortColors.background,
-  },
-  folderCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingVertical: PortSpacing.secondary.uniform,
-  },
-  nameEditHitbox: {
-    marginTop: PortSpacing.secondary.top,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sharedMediaContainer: {
-    marginBottom: PortSpacing.secondary.bottom,
-  },
-  alertwrapper: {flex: 1, justifyContent: 'center'},
-  chatSettingsContainer: {
-    marginBottom: PortSpacing.secondary.bottom,
-  },
-  clickableCard: {
-    flexDirection: 'row',
-    gap: 5,
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  footerDesc: {
-    color: PortColors.subtitle,
-    lineHeight: 16,
-    marginTop: PortSpacing.tertiary.top,
-    marginBottom: PortSpacing.intermediate.bottom,
-  },
-  advanceSettingsContainer: {
-    marginBottom: PortSpacing.secondary.bottom,
-  },
-  avatarContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: PortSpacing.primary.bottom,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    mainContainer: {
+      padding: PortSpacing.secondary.uniform,
+      paddingTop: 0,
+      backgroundColor: colors.primary.background,
+      flex: 1,
+    },
+    labelContainer: {
+      flexDirection: 'row',
+      gap: 4,
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      flex: 1,
+    },
+    cardTitle: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      marginRight: 24,
+    },
+    disconnectedwrapper: {
+      flexDirection: 'column',
+      justifyContent: 'center',
+      height: '100%',
+      flex: 1,
+    },
+    labelWrapper: {
+      borderRadius: 6,
+      paddingHorizontal: 6,
+      paddingVertical: 4,
+      backgroundColor: colors.primary.lightgrey,
+    },
+    folderCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.secondary.uniform,
+    },
+    nameEditHitbox: {
+      marginTop: PortSpacing.secondary.top,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    sharedMediaContainer: {
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+    alertwrapper: {flex: 1, justifyContent: 'center'},
+    chatSettingsContainer: {
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+    clickableCard: {
+      flexDirection: 'row',
+      gap: 5,
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    footerDesc: {
+      color: colors.labels.text,
+      lineHeight: 16,
+      marginTop: PortSpacing.tertiary.top,
+      marginBottom: PortSpacing.intermediate.bottom,
+    },
+    advanceSettingsContainer: {
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+    avatarContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: PortSpacing.primary.bottom,
+    },
+  });
 
 export default ContactProfile;

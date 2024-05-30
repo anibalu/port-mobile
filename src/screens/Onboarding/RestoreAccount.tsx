@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
@@ -15,6 +15,7 @@ import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {readSecureDataBackup} from '@utils/Backup/backupUtils';
 import store from '@store/appStore';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import DynamicColors from '@components/DynamicColors';
 
 const RestoreAccount = () => {
   const navigation = useNavigation();
@@ -34,13 +35,14 @@ const RestoreAccount = () => {
     setIsLoading(false);
   };
   const [isLoading, setIsLoading] = useState(false);
+  const Colors = DynamicColors();
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.background}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <BackTopbar
           bgColor="w"
           title="Restore account"
@@ -56,7 +58,7 @@ const RestoreAccount = () => {
                 textAlign: 'center',
                 marginTop: PortSpacing.secondary.uniform,
               }}
-              textColor={PortColors.title}>
+              textColor={Colors.text.primary}>
               Restore from local backup
             </NumberlessText>
             <NumberlessText
@@ -66,7 +68,7 @@ const RestoreAccount = () => {
                 textAlign: 'center',
                 marginTop: PortSpacing.medium.uniform,
               }}
-              textColor={PortColors.subtitle}>
+              textColor={Colors.text.subtitle}>
               You can restore your connections from a local backup. If you
               choose not to, you won't be able to later.
             </NumberlessText>

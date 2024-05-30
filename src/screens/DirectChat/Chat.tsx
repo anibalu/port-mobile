@@ -18,7 +18,7 @@ import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {useSelector} from 'react-redux';
 import {getLatestMessages} from '@utils/Storage/messages';
-import {PortColors, isIOS, screen} from '@components/ComponentUtils';
+import {isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import RichReactionsBottomsheet from '@components/Reusable/BottomSheets/RichReactionsBottomsheet';
 import ChatTopbar from '@screens/Chat/ChatTopbar';
@@ -33,6 +33,7 @@ import {ChatContextProvider, useChatContext} from './ChatContext';
 import BlurViewModal from '@components/Reusable/BlurView/BlurView';
 import DualActionBottomSheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
 import ReportMessageBottomSheet from '@components/Reusable/BottomSheets/ReportMessageBottomSheet';
+import DynamicColors from '@components/DynamicColors';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 
@@ -174,11 +175,14 @@ function ChatScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   return (
     <AudioPlayerProvider>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
       <GestureSafeAreaView style={styles.screen}>
         <ChatBackground />
@@ -239,21 +243,22 @@ function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  main: {
-    flex: 1,
-    width: screen.width,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
-  screen: {
-    flexDirection: 'column',
-    backgroundColor: PortColors.background,
-  },
-  background: {
-    position: 'absolute',
-    flex: 1,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    main: {
+      flex: 1,
+      width: screen.width,
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+    },
+    screen: {
+      flexDirection: 'column',
+      backgroundColor: colors.primary.background,
+    },
+    background: {
+      position: 'absolute',
+      flex: 1,
+    },
+  });
 
 export default Chat;

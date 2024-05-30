@@ -6,11 +6,13 @@
  * 3. Placeholder text
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {useState} from 'react';
 import {KeyboardTypeOptions, StyleSheet, TextInput} from 'react-native';
+import {useTheme} from 'src/context/ThemeContext';
 
 const SimpleInput = ({
   text,
@@ -31,23 +33,29 @@ const SimpleInput = ({
   const onTextChange = (newText: string) => {
     setText(newText);
   };
+  const Colors = DynamicColors();
+
+  const {themeValue} = useTheme();
 
   return (
     <>
       <TextInput
         style={StyleSheet.compose(styles.textInput, {
+          color: Colors.text.primary,
           borderColor: isFocused
-            ? PortColors.primary.blue.app
-            : PortColors.stroke,
+            ? Colors.primary.accent
+            : Colors.primary.stroke,
           backgroundColor:
             bgColor && bgColor === 'g'
-              ? PortColors.primary.grey.light
-              : PortColors.primary.white,
+              ? Colors.primary.lightgrey
+              : themeValue === 'dark'
+              ? Colors.primary.surface
+              : Colors.primary.white,
         })}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholderText}
-        placeholderTextColor={PortColors.primary.grey.medium}
+        placeholderTextColor={Colors.primary.mediumgrey}
         maxLength={maxLength === 'inf' ? undefined : maxLength}
         value={text}
         onChangeText={onTextChange}
@@ -65,7 +73,6 @@ const styles = StyleSheet.create({
     fontFamily: FontType.rg,
     fontSize: FontSizeType.m,
     fontWeight: getWeight(FontType.rg),
-    color: PortColors.title,
     borderRadius: 12,
     height: 50,
   },

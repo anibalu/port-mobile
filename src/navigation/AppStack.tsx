@@ -7,15 +7,11 @@ import DirectChat from '@screens/DirectChat/Chat';
 import ContactProfile from '@screens/ContactProfile/ContactProfile';
 import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
 import AddMembers from '@screens/GroupScreens/AddMembers';
-import GroupOnboarding from '@screens/GroupScreens/GroupOnboarding';
 import GroupProfile from '@screens/GroupScreens/GroupProfile/GroupProfile';
 import ManageMembers from '@screens/GroupScreens/ManageMembers';
-import NewGroup from '@screens/GroupScreens/NewGroup/NewGroup';
 import ShareGroup from '@screens/GroupScreens/ShareGroup/ShareGroup';
-import ImageView from '@screens/MediaView/ImageView';
 import MyProfile from '@screens/MyProfile/Profile';
 import PendingRequests from '@screens/PendingRequests/PendingRequests';
-import Placeholder from '@screens/Placeholder/Placeholder';
 import ShareContact from '@screens/ShareContact/ShareContact';
 import GalleryConfirmation from '@screens/ShareImage/GalleryConfirmation';
 import SelectShareContacts from '@screens/ShareImage/SelectShareContacts';
@@ -24,7 +20,6 @@ import React from 'react';
 import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
 import {AppStackParamList} from './AppStackTypes';
 import Home from '@screens/Home/Home';
-import QRscanner from '@screens/Scanner/QRscanner';
 import CaptureMedia from '@screens/ShareImage/CaptureMedia';
 import Isolation from '@screens/Isolations/Isolation';
 import NewPortScreen from '@screens/NewPort/NewPort';
@@ -32,12 +27,13 @@ import Superports from '@screens/Superport/Superports';
 import SuperportScreen from '@screens/Superport/SuperportScreen';
 import CreateFolder from '@screens/Folder/CreateFolder';
 import EditFolder from '@screens/Folder/EditFolder';
-import PreviewShareablePort from '@screens/Superport/PreviewSharablePort';
 import MoveToFolder from '@screens/Folder/MoveToFolder';
 import CreateNewGroup from '@screens/GroupsV2/CreateNewGroup';
 import NewGroupPort from '@screens/GroupsV2/NewGroupPort';
 import GiveUsFeedbackScreen from '@screens/Feedback/GiveUsFeedbackScreen';
+import QRScanner from '@screens/Scanner/QRScanner';
 import BlockedContacts from '@screens/BlockedContacts/BlockedContacts';
+import PreviewShareablePort from '@screens/Superport/PreviewSharablePort';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -53,16 +49,11 @@ function AppStack() {
           <Stack.Screen name="EditFolder" component={EditFolder} />
           <Stack.Screen name="MoveToFolder" component={MoveToFolder} />
           <Stack.Screen name="MyProfile" component={MyProfile} />
-          <Stack.Screen name="Scan" component={QRscanner} />
           <Stack.Screen name="GroupProfile" component={GroupProfile} />
           <Stack.Screen name="ManageMembers" component={ManageMembers} />
           <Stack.Screen name="AddMembers" component={AddMembers} />
           <Stack.Screen name="DirectChat" component={DirectChat} />
           <Stack.Screen name="ContactProfile" component={ContactProfile} />
-          <Stack.Screen name="Placeholder" component={Placeholder} />
-          <Stack.Screen name="ImageView" component={ImageView} />
-          <Stack.Screen name="GroupOnboarding" component={GroupOnboarding} />
-          <Stack.Screen name="NewGroup" component={NewGroup} />
           <Stack.Screen name="ShareGroup" component={ShareGroup} />
 
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
@@ -82,17 +73,19 @@ function AppStack() {
           <Stack.Screen name="SharedMedia" component={SharedMedia} />
           <Stack.Screen name="Isolation" component={Isolation} />
           <Stack.Screen name="NewPortScreen" component={NewPortScreen} />
-          <Stack.Screen
-            name="PreviewShareablePort"
-            component={PreviewShareablePort}
-          />
+
           <Stack.Screen name="CreateNewGroup" component={CreateNewGroup} />
           <Stack.Screen name="NewGroupPort" component={NewGroupPort} />
           <Stack.Screen
             name="GiveUsFeedbackScreen"
             component={GiveUsFeedbackScreen}
           />
+          <Stack.Screen name="Scan" component={QRScanner} />
           <Stack.Screen name="BlockedContacts" component={BlockedContacts} />
+          <Stack.Screen
+            name="PreviewShareablePort"
+            component={PreviewShareablePort}
+          />
         </Stack.Navigator>
       </ConnectionModalProvider>
     </>

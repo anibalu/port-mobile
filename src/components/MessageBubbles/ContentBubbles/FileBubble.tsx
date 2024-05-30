@@ -10,7 +10,6 @@ import {
   handleDownload,
   handleMediaOpen,
 } from '../BubbleUtils';
-import FileIcon from '@assets/icons/FileThinBlack.svg';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
@@ -22,6 +21,8 @@ import {
 } from '@components/NumberlessText';
 import {TextBubble} from './TextBubble';
 import UploadSend from '@assets/icons/UploadSend.svg';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import DynamicColors from '@components/DynamicColors';
 
 export const FileBubble = ({
   message,
@@ -83,10 +84,24 @@ export const FileBubble = ({
     setLoadingRetry(message.messageStatus === MessageStatus.sent);
   }, [message]);
 
+  const svgArray = [
+    {
+      assetName: 'FileIcon',
+      light: require('@assets/light/icons/File.svg').default,
+      dark: require('@assets/dark/icons/File.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const FileIcon = results.FileIcon;
+  const Colors = DynamicColors();
+
   return (
     <View>
       <Pressable
-        style={styles.textContainerRow}
+        style={StyleSheet.compose(styles.textContainerRow, {
+          backgroundColor: Colors.primary.lightgrey,
+        })}
         onPress={handlePressFunction}
         onLongPress={handleLongPressFunction}>
         <View style={styles.fileBox}>
@@ -99,12 +114,13 @@ export const FileBubble = ({
                 <NumberlessText
                   fontSizeType={FontSizeType.m}
                   fontType={FontType.rg}
+                  textColor={Colors.text.primary}
                   ellipsizeMode="tail"
                   numberOfLines={2}>
                   {(message.data as LargeDataParams).fileName}
                 </NumberlessText>
                 <NumberlessText
-                  textColor={PortColors.subtitle}
+                  textColor={Colors.text.subtitle}
                   fontSizeType={FontSizeType.s}
                   fontType={FontType.rg}
                   ellipsizeMode="tail"
@@ -167,7 +183,6 @@ const styles = StyleSheet.create({
   textContainerRow: {
     flexDirection: 'row',
     height: FILE_BUBBLE_HEIGHT,
-    backgroundColor: PortColors.primary.blackLight,
     alignItems: 'center',
     justifyContent: 'flex-start',
     borderRadius: 12,

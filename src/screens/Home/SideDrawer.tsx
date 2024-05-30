@@ -1,15 +1,8 @@
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import BlackAngleRight from '@assets/icons/BlackAngleRight.svg';
 import AddFolder from '@assets/icons/AddFolder.svg';
-import {useNavigation} from '@react-navigation/native';
-import NewSuperportIcon from '@assets/icons/NewSuperportBlack.svg';
-import DefaultFolder from '@assets/icons/DefaultFolder.svg';
-import PrimaryFolder from '@assets/icons/PrimaryFolder.svg';
-import AllChatsFolder from '@assets/icons/AllChatsFolder.svg';
 
-import PendingRequestIcon from '@assets/icons/PendingRequestNew.svg';
 import {
   FontSizeType,
   FontType,
@@ -25,6 +18,10 @@ import {FileAttributes} from '@utils/Storage/interfaces';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {defaultFolderId} from '@configs/constants';
+import DynamicColors from '@components/DynamicColors';
+import {useTheme} from 'src/context/ThemeContext';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useNavigation} from '@react-navigation/native';
 
 function SideDrawer({
   closeSwipeable,
@@ -70,15 +67,57 @@ function SideDrawer({
     navigation.navigate('Superports', {name: name, avatar: profilePicAttr});
   };
 
+  const Colors = DynamicColors();
+  const {themeValue} = useTheme();
+  const styles = styling(Colors, themeValue);
+  const svgArray = [
+    {
+      assetName: 'AllChatsFolderIcon',
+      light: require('@assets/light/icons/AllChatsFolder.svg').default,
+      dark: require('@assets/dark/icons/AllChatsFolder.svg').default,
+    },
+    {
+      assetName: 'PrimaryFolderIcon',
+      light: require('@assets/light/icons/PrimaryFolder.svg').default,
+      dark: require('@assets/dark/icons/PrimaryFolder.svg').default,
+    },
+    {
+      assetName: 'DefaultFolderIcon',
+      light: require('@assets/light/icons/DefaultFolder.svg').default,
+      dark: require('@assets/dark/icons/DefaultFolder.svg').default,
+    },
+    {
+      assetName: 'PendingRequestIcon',
+      light: require('@assets/light/icons/PendingRequest.svg').default,
+      dark: require('@assets/dark/icons/PendingRequest.svg').default,
+    },
+    {
+      assetName: 'NewSuperportIcon',
+      light: require('@assets/light/icons/NewSuperport.svg').default,
+      dark: require('@assets/dark/icons/NewSuperport.svg').default,
+    },
+    {
+      assetName: 'AngleRightIcon',
+      light: require('@assets/light/icons/navigation/AngleRight.svg').default,
+      dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const AllChatsFolderIcon = results.AllChatsFolderIcon;
+  const PrimaryFolderIcon = results.PrimaryFolderIcon;
+  const DefaultFolderIcon = results.DefaultFolderIcon;
+  const PendingRequestIcon = results.PendingRequestIcon;
+  const NewSuperportIcon = results.NewSuperportIcon;
+  const AngleRightIcon = results.AngleRightIcon;
+
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={
-          isIOS ? PortColors.primary.grey.light : PortColors.primary.white
-        }
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView>
+      <SafeAreaView style={{backgroundColor: Colors.primary.surface}}>
         <View style={styles.drawerContainer}>
           <View style={styles.myprofileWrapper}>
             <AvatarBox profileUri={profilePicAttr.fileUri} avatarSize={'s'} />
@@ -88,20 +127,20 @@ function SideDrawer({
               <View>
                 <NumberlessText
                   style={{marginLeft: PortSpacing.tertiary.left}}
-                  textColor={PortColors.primary.black}
+                  textColor={Colors.text.primary}
                   fontType={FontType.rg}
                   fontSizeType={FontSizeType.l}>
                   {name}
                 </NumberlessText>
                 <NumberlessText
                   style={{marginLeft: PortSpacing.tertiary.left}}
-                  textColor={PortColors.subtitle}
+                  textColor={Colors.text.subtitle}
                   fontType={FontType.rg}
                   fontSizeType={FontSizeType.s}>
                   Profile, Backups
                 </NumberlessText>
               </View>
-              <BlackAngleRight width={20} height={20} />
+              <AngleRightIcon width={20} height={20} />
             </Pressable>
           </View>
           <View style={styles.newOptionsWrapper}>
@@ -113,7 +152,6 @@ function SideDrawer({
             />
             <SideDrawerOption
               title={'Pending Ports'}
-              showPending={true}
               IconLeft={PendingRequestIcon}
               onClick={navigateToPendingReq}
               badge={pendingRequestsLength}
@@ -134,11 +172,11 @@ function SideDrawer({
                   IconLeft={(() => {
                     switch (element.item.folderId) {
                       case defaultFolderId:
-                        return PrimaryFolder;
+                        return PrimaryFolderIcon;
                       case 'all':
-                        return AllChatsFolder;
+                        return AllChatsFolderIcon;
                       default:
-                        return DefaultFolder;
+                        return DefaultFolderIcon;
                     }
                   })()}
                   isBadgeFilled={true}
@@ -146,13 +184,13 @@ function SideDrawer({
                     handleFolderOptionClick(element.item as FolderInfo)
                   }
                 />
-                {element.index == 1 && folders.length > 2 && (
+                {element.index === 1 && folders.length > 2 && (
                   <NumberlessText
                     style={{
                       marginLeft: PortSpacing.secondary.left,
                       marginVertical: PortSpacing.tertiary.uniform,
                     }}
-                    textColor={PortColors.subtitle}
+                    textColor={Colors.text.primary}
                     fontType={FontType.rg}
                     fontSizeType={FontSizeType.m}>
                     Your folders
@@ -184,49 +222,54 @@ function SideDrawer({
   );
 }
 
-const styles = StyleSheet.create({
-  drawerContainer: {
-    width: '100%',
-    flex: 1,
-  },
-  buttonWrapper: {
-    borderTopWidth: 1,
-    borderTopColor: PortColors.primary.border.dullGrey,
-    padding: PortSpacing.secondary.uniform,
-  },
-  newOptionsWrapper: {
-    paddingVertical: 12,
-    borderBottomColor: PortColors.primary.border.dullGrey,
-    borderBottomWidth: 1,
-  },
-  mrpyofileButton: {
-    borderRadius: 0,
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'transparent',
-  },
-  myprofileWrapper: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: PortColors.primary.grey.light,
-  },
-  listItemWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  listItemButton: {
-    borderRadius: 0,
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'transparent',
-  },
-});
+const styling = (colors: any, themeValue: any) =>
+  StyleSheet.create({
+    drawerContainer: {
+      width: '100%',
+      flex: 1,
+      backgroundColor: colors.primary.surface,
+    },
+    buttonWrapper: {
+      borderTopWidth: 0.5,
+      borderTopColor: colors.primary.stroke,
+      padding: PortSpacing.secondary.uniform,
+    },
+    newOptionsWrapper: {
+      paddingVertical: 12,
+      borderBottomColor: colors.primary.stroke,
+      borderBottomWidth: 0.5,
+    },
+    mrpyofileButton: {
+      borderRadius: 0,
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: 'transparent',
+    },
+    myprofileWrapper: {
+      flexDirection: 'row',
+      alignItems: 'stretch',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor:
+        themeValue === 'light'
+          ? colors.primary.background
+          : colors.primary.surface2,
+    },
+    listItemWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+    },
+    listItemButton: {
+      borderRadius: 0,
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: 'transparent',
+    },
+  });
 
 export default SideDrawer;

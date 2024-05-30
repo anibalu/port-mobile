@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -7,7 +7,8 @@ import {
 import React, {FC} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
-import BlackAngleRight from '@assets/icons/BlackAngleRight.svg';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const TouchableOption = ({
   onClick,
@@ -22,10 +23,27 @@ const TouchableOption = ({
   subtitle: string;
   showBorderBottom?: boolean;
 }) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    {
+      assetName: 'GreyAngleRight',
+      light: require('@assets/light/icons/navigation/GreyAngleRight.svg')
+        .default,
+      dark: require('assets/dark/icons/navigation/GreyAngleRight.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const GreyAngleRight = results.GreyAngleRight;
+
   return (
     <TouchableOpacity
       disabled={false}
-      style={{paddingHorizontal: PortSpacing.secondary.uniform}}
+      style={{
+        paddingHorizontal: PortSpacing.secondary.uniform,
+        backgroundColor: Colors.primary.surface,
+      }}
       onPress={onClick}
       accessibilityIgnoresInvertColors
       activeOpacity={0.6}>
@@ -36,40 +54,41 @@ const TouchableOption = ({
         <IconLeft width={24} height={24} />
         <View style={styles.listContentWrapper}>
           <NumberlessText
-            style={{color: PortColors.primary.black}}
+            style={{color: Colors.primary.mainelements}}
             fontSizeType={FontSizeType.l}
             fontType={FontType.rg}>
             {title}
           </NumberlessText>
           <NumberlessText
-            style={{color: PortColors.text.secondary}}
+            style={{color: Colors.text.subtitle}}
             fontSizeType={FontSizeType.s}
             fontType={FontType.rg}>
             {subtitle}
           </NumberlessText>
         </View>
-        <BlackAngleRight width={20} height={20} />
+        <GreyAngleRight width={20} height={20} />
       </View>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
-  listItem: {
-    paddingVertical: PortSpacing.secondary.uniform,
-    borderRadius: 0,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    borderBottomColor: PortColors.stroke,
-  },
-  listContentWrapper: {
-    marginLeft: PortSpacing.secondary.uniform,
-    flexDirection: 'column',
-    flex: 1,
-    alignItems: 'stretch',
-    justifyContent: 'center',
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    listItem: {
+      paddingVertical: PortSpacing.secondary.uniform,
+      borderRadius: 0,
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      borderBottomColor: colors.primary.stroke,
+    },
+    listContentWrapper: {
+      marginLeft: PortSpacing.secondary.uniform,
+      flexDirection: 'column',
+      flex: 1,
+      alignItems: 'stretch',
+      justifyContent: 'center',
+    },
+  });
 
 export default TouchableOption;

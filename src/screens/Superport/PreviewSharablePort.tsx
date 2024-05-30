@@ -3,11 +3,11 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import React, {useEffect, useRef, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import CloseWhite from '@assets/icons/closeWhite.svg';
-import Upload from '@assets/icons/Upload.svg';
-import Download from '@assets/icons/BlackDownload.svg';
+import Upload from '@assets/icons/WhiteUpload.svg';
+import Download from '@assets/icons/WhiteDownload.svg';
 import GreenTick from '@assets/icons/GreenTick.svg';
 import {SafeAreaView} from '@components/SafeAreaView';
-import Logo from '@assets/miscellaneous/portBranding.svg';
+import Logo from '@assets/miscellaneous/appIcon.svg';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import Share from 'react-native-share';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
@@ -65,11 +65,11 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={PortColors.primary.blue.app}
-      />
-      <SafeAreaView style={styles.screen}>
+      <CustomStatusBar barStyle="dark-content" backgroundColor={'#05070B'} />
+      <SafeAreaView
+        style={{
+          backgroundColor: '#05070B',
+        }}>
         <Pressable
           onPress={() => navigation.goBack()}
           style={{
@@ -80,7 +80,7 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
           <CloseWhite width={24} height={24} />
         </Pressable>
         <ViewShot
-          style={{backgroundColor: PortColors.primary.blue.app}}
+          style={{backgroundColor: '#05070B'}}
           ref={viewShotRef}
           options={{format: 'jpg', quality: 0.9}}>
           <Logo
@@ -103,7 +103,7 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
           <View style={{width: '50%', paddingRight: 4}}>
             <PrimaryButton
               Icon={Upload}
-              primaryButtonColor="w"
+              primaryButtonColor="p"
               onClick={handleShare}
               buttonText="Share QR"
               disabled={false}
@@ -113,7 +113,7 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
           <View style={{width: '50%', paddingLeft: 4}}>
             <PrimaryButton
               Icon={Download}
-              primaryButtonColor="w"
+              primaryButtonColor="p"
               onClick={async () => await savePicture()}
               buttonText="Download QR"
               disabled={false}

@@ -20,6 +20,8 @@ import {
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
+import {useTheme} from 'src/context/ThemeContext';
+import DynamicColors from '@components/DynamicColors';
 
 const QrWithLogo = ({
   isLoading,
@@ -35,6 +37,10 @@ const QrWithLogo = ({
     | GroupSuperportBundle
     | null;
 }) => {
+  const {themeValue} = useTheme();
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   if (hasFailed) {
     return (
       <View style={styles.qrBox}>
@@ -56,7 +62,14 @@ const QrWithLogo = ({
   return (
     <View style={styles.qrBox}>
       {qrData && (
-        <QRCode value={jsonToUrl(qrData as any)!} size={styles.qrBox.width} />
+        <QRCode
+          backgroundColor={Colors.primary.surface}
+          color={
+            themeValue === 'dark' ? Colors.primary.white : Colors.primary.black
+          }
+          value={jsonToUrl(qrData as any)!}
+          size={styles.qrBox.width}
+        />
       )}
       <View style={styles.logoBox}>
         <Logo width={28} height={28} />
@@ -65,24 +78,27 @@ const QrWithLogo = ({
   );
 };
 
-const styles = StyleSheet.create({
-  qrBox: {
-    width: screen.width - 5 * PortSpacing.primary.uniform,
-    height: screen.width - 5 * PortSpacing.primary.uniform,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: PortSpacing.tertiary.uniform,
-    overflow: 'hidden',
-  },
-  logoBox: {
-    position: 'absolute',
-    width: 50,
-    height: 50,
-    backgroundColor: PortColors.primary.white,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    qrBox: {
+      width: screen.width - 5 * PortSpacing.primary.uniform,
+      height: screen.width - 5 * PortSpacing.primary.uniform,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: PortSpacing.tertiary.uniform,
+      overflow: 'hidden',
+    },
+    logoBox: {
+      position: 'absolute',
+      width: 50,
+      height: 50,
+      backgroundColor: PortColors.primary.white,
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: color.primary.stroke,
+    },
+  });
 
 export default QrWithLogo;

@@ -15,13 +15,14 @@ import {ConnectionInfo} from '@utils/Connections/interfaces';
 import React, {useMemo, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import DynamicColors from '@components/DynamicColors';
 
 const MultiSelectMemberRadio = ({
   member,
@@ -43,6 +44,7 @@ const MultiSelectMemberRadio = ({
     }
   };
   const [toggleCheckBox, setToggleCheckBox] = useState(doesExist());
+  const Colors = DynamicColors();
 
   useMemo(() => {
     setToggleCheckBox(doesExist());
@@ -71,7 +73,7 @@ const MultiSelectMemberRadio = ({
           style={styles.textBox}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}
-          textColor={PortColors.primary.black}>
+          textColor={Colors.text.primary}>
           {member.name}
         </NumberlessText>
       </View>

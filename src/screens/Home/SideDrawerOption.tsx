@@ -7,40 +7,48 @@ import {
 import React, {FC} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
-import BlackAngleRight from '@assets/icons/BlackAngleRight.svg';
-import PendingRequestIcon from '@assets/icons/PendingRequestNew.svg';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useTheme} from 'src/context/ThemeContext';
 
 const SideDrawerOption = ({
   onClick,
   IconLeft,
-  showPending = false,
   title,
   badge = 0,
 }: {
   onClick: () => void;
   IconLeft: FC<SvgProps>;
-  showPending?: boolean;
   title: string;
   badge?: number;
 }) => {
+  const Colors = DynamicColors();
+  const svgArray = [
+    {
+      assetName: 'GreyAngleRightIcon',
+      light: require('@assets/light/icons/navigation/GreyAngleRight.svg')
+        .default,
+      dark: require('@assets/dark/icons/navigation/GreyAngleRight.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const {themeValue} = useTheme();
+  const GreyAngleRightIcon = results.GreyAngleRightIcon;
+
   return (
     <TouchableOpacity
       onPress={onClick}
       accessibilityIgnoresInvertColors
       activeOpacity={0.6}>
       <View style={styles.listItem}>
-        {showPending ? (
-          <View style={{width: 24}}>
-            <PendingRequestIcon width={20} height={20} />
-          </View>
-        ) : (
-          <View style={{width: 24}}>
-            <IconLeft width={20} height={20} />
-          </View>
-        )}
+        <View style={{width: 24}}>
+          <IconLeft width={20} height={20} />
+        </View>
+
         <View style={styles.listContentWrapper}>
           <NumberlessText
-            style={{color: PortColors.primary.black}}
+            style={{color: Colors.text.primary}}
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>
             {title}
@@ -59,12 +67,15 @@ const SideDrawerOption = ({
                   ? styles.badgeWrapper
                   : styles.badgeWrapperSingleDigit,
                 {
-                  backgroundColor: PortColors.background,
+                  backgroundColor: Colors.primary.accent,
+                  borderWidth: themeValue === 'light' ? 0 : 1,
+                  borderColor:
+                    themeValue === 'light' ? 'none' : Colors.primary.accent,
                 },
               )}>
               <NumberlessText
                 style={{
-                  color: PortColors.primary.blue.app,
+                  color: Colors.primary.white,
                 }}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
@@ -72,7 +83,7 @@ const SideDrawerOption = ({
               </NumberlessText>
             </View>
           )}
-          <BlackAngleRight width={20} height={20} />
+          <GreyAngleRightIcon width={20} height={20} />
         </View>
       </View>
     </TouchableOpacity>

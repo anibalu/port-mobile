@@ -1,14 +1,15 @@
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import React from 'react';
-import IconLabel from '@assets/icons/Bookmark.svg';
 import {StyleSheet, View} from 'react-native';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const SuperportLabelCard = ({
   label,
@@ -19,6 +20,18 @@ const SuperportLabelCard = ({
   label: string;
   setOpenModal: (p: boolean) => void;
 }) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    {
+      assetName: 'FilterIcon',
+      light: require('@assets/light/icons/Label.svg').default,
+      dark: require('@assets/dark/icons/Label.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const FilterIcon = results.FilterIcon;
   return (
     <SimpleCard
       style={{
@@ -26,10 +39,10 @@ const SuperportLabelCard = ({
         paddingHorizontal: PortSpacing.secondary.uniform,
       }}>
       <View style={styles.mainWrapper}>
-        <IconLabel width={20} height={20} />
+        <FilterIcon width={20} height={20} />
         <NumberlessText
           style={{
-            color: PortColors.title,
+            color: Colors.text.primary,
             marginLeft: PortSpacing.tertiary.left,
           }}
           fontType={FontType.rg}
@@ -39,7 +52,7 @@ const SuperportLabelCard = ({
       </View>
       <View style={{marginBottom: PortSpacing.secondary.bottom}}>
         <NumberlessText
-          style={{color: PortColors.subtitle}}
+          style={{color: Colors.text.subtitle}}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.s}>
           Adding a label to this Superport makes it easy to recognize it in your
@@ -67,23 +80,24 @@ const SuperportLabelCard = ({
   );
 };
 
-const styles = StyleSheet.create({
-  errorContainer: {
-    color: PortColors.primary.red.error,
-    paddingTop: 4,
-    paddingLeft: PortSpacing.tertiary.left,
-  },
-  inputcard: {
-    borderWidth: 1,
-    borderColor: PortColors.primary.red.error,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  mainWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: PortSpacing.tertiary.bottom,
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    errorContainer: {
+      color: color.primary.red,
+      paddingTop: 4,
+      paddingLeft: PortSpacing.tertiary.left,
+    },
+    inputcard: {
+      borderWidth: 1,
+      borderColor: color.primary.red,
+      borderRadius: 16,
+      overflow: 'hidden',
+    },
+    mainWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: PortSpacing.tertiary.bottom,
+    },
+  });
 
 export default SuperportLabelCard;

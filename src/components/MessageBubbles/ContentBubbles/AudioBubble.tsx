@@ -1,8 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
-import Play from '@assets/icons/Voicenotes/BluePlay.svg';
-import Download from '@assets/icons/DownloadIcon.svg';
-import Pause from '@assets/icons/Voicenotes/BluePause.svg';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
 import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
@@ -12,11 +9,13 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {CircleSnail} from 'react-native-progress';
 import ProgressBar from '@components/Reusable/Loaders/ProgressBar';
 import {RenderTimeStamp, handleDownload} from '../BubbleUtils';
-import UploadSend from '@assets/icons/UploadSendGrey.svg';
+
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const AudioBubble = ({
   message,
@@ -91,6 +90,37 @@ const AudioBubble = ({
     setLoadingRetry(message.messageStatus === MessageStatus.sent);
   }, [message]);
 
+  const Colors = DynamicColors();
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'UploadSendGrey',
+      light: require('@assets/light/icons/UploadSendGrey.svg').default,
+      dark: require('@assets/dark/icons/UploadSendGrey.svg').default,
+    },
+    {
+      assetName: 'DownloadIcon',
+      light: require('@assets/light/icons/Download.svg').default,
+      dark: require('@assets/dark/icons/Download.svg').default,
+    },
+    {
+      assetName: 'Pause',
+      light: require('@assets/light/icons/Pause.svg').default,
+      dark: require('@assets/dark/icons/Pause.svg').default,
+    },
+    {
+      assetName: 'Play',
+      light: require('@assets/light/icons/Play.svg').default,
+      dark: require('@assets/dark/icons/Play.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const UploadSend = results.UploadSendGrey;
+  const Download = results.DownloadIcon;
+  const Pause = results.Pause;
+  const Play = results.Play;
+
   return (
     <Pressable
       onPress={() => handlePress(message.messageId)}
@@ -107,7 +137,7 @@ const AudioBubble = ({
               <View>
                 <ActivityIndicator
                   size={'small'}
-                  color={PortColors.primary.blue.app}
+                  color={Colors.primary.accent}
                 />
               </View>
             ) : (
@@ -137,7 +167,7 @@ const AudioBubble = ({
                   style={{marginRight: 6, marginLeft: -4}}
                   size={16}
                   thickness={2}
-                  color={PortColors.primary.blue.app}
+                  color={Colors.primary.accent}
                   duration={500}
                 />
               )
@@ -165,7 +195,7 @@ const AudioBubble = ({
       <View style={styles.isMessageStyle}>
         <NumberlessText
           style={{
-            color: PortColors.primary.grey.dark,
+            color: Colors.text.primary,
           }}
           fontSizeType={FontSizeType.s}
           fontType={FontType.rg}>

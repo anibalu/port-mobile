@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -7,11 +7,11 @@ import {
 import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import Files from '@assets/icons/MoveToFolder.svg';
-import Superport from '@assets/icons/NewSuperportBlack.svg';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {useNavigation} from '@react-navigation/native';
 import {FileAttributes} from '@utils/Storage/interfaces';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const FolderPlaceholderQuickActions = ({
   selectedFolder,
@@ -23,10 +23,30 @@ const FolderPlaceholderQuickActions = ({
   avatar: FileAttributes;
 }) => {
   const navigation = useNavigation();
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
+  const svgArray = [
+    // 1.Files
+    {
+      assetName: 'Files',
+      light: require('@assets/light/icons/MoveToFolder.svg').default,
+      dark: require('@assets/dark/icons/MoveToFolder.svg').default,
+    },
+    // 2. Superport
+    {
+      assetName: 'Superport',
+      light: require('@assets/light/icons/CreateSuperport.svg').default,
+      dark: require('@assets/dark/icons/CreateSuperport.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const Files = results.Files;
+  const Superport = results.Superport;
   return (
     <>
       <NumberlessText
-        style={{color: PortColors.primary.black}}
+        style={{color: Colors.text.primary}}
         fontType={FontType.rg}
         fontSizeType={FontSizeType.m}>
         Quick actions
@@ -63,26 +83,19 @@ const FolderPlaceholderQuickActions = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: PortColors.background,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  button: {
-    backgroundColor: PortColors.primary.white,
-    paddingVertical: PortSpacing.tertiary.uniform,
-    borderRadius: 16,
-  },
-  row: {
-    width: '100%',
-    rowGap: 10,
-    marginTop: PortSpacing.tertiary.top,
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-});
+const styling = colors =>
+  StyleSheet.create({
+    button: {
+      backgroundColor: colors.primary.surface,
+      paddingVertical: PortSpacing.tertiary.uniform,
+      borderRadius: 16,
+    },
+    row: {
+      width: '100%',
+      rowGap: 10,
+      marginTop: PortSpacing.tertiary.top,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+    },
+  });
 
 export default FolderPlaceholderQuickActions;

@@ -18,6 +18,7 @@ import {ChatTileProps} from '@components/ChatTile/ChatTile';
 import {defaultFolderInfo} from '@configs/constants';
 import PrimaryButton from '../LongButtons/PrimaryButton';
 import {updateChatPermissions} from '@utils/ChatPermissions';
+import DynamicColors from '@components/DynamicColors';
 
 const MoveToFolder = ({
   selectedConnections,
@@ -44,6 +45,7 @@ const MoveToFolder = ({
   const [selectedFolder, setSelectedFolder] =
     useState<FolderInfo>(defaultFolderInfo);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const Colors = DynamicColors();
 
   const onConfirm = async () => {
     try {
@@ -118,6 +120,7 @@ const MoveToFolder = ({
             marginVertical: PortSpacing.secondary.uniform,
             paddingHorizontal: PortSpacing.secondary.uniform,
           }}
+          textColor={Colors.text.primary}
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}>
           Choose folder

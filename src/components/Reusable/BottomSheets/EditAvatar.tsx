@@ -12,7 +12,6 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {StyleSheet, View, FlatList, Animated, Easing} from 'react-native';
 
 import Delete from '@assets/icons/TrashcanWhite.svg';
-import GalleryOutline from '@assets/icons/GalleryOutline.svg';
 import {
   PortColors,
   PortSpacing,
@@ -29,6 +28,8 @@ import {AvatarBox} from '../AvatarBox/AvatarBox';
 import PrimaryButton from '../LongButtons/PrimaryButton';
 import OptionWithRightIcon from '../OptionButtons/OptionWithRightIcon';
 import SimpleCard from '../Cards/SimpleCard';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {compressImage} from '@utils/Compressor/graphicCompressors';
 
 interface EditAvatarProps {
@@ -136,6 +137,19 @@ export default function EditAvatar(props: EditAvatarProps) {
       (screen.width - 4 * PortSpacing.intermediate.uniform) / 48,
     );
   }
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
+  const svgArray = [
+    {
+      assetName: 'GalleryIcon',
+      light: require('@assets/light/icons/Gallery.svg').default,
+      dark: require('@assets/dark/icons/Gallery.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const GalleryIcon = results.GalleryIcon;
 
   return (
     <PrimaryBottomSheet
@@ -159,7 +173,7 @@ export default function EditAvatar(props: EditAvatarProps) {
         <SimpleCard style={{marginBottom: PortSpacing.secondary.bottom}}>
           <OptionWithRightIcon
             title={'Choose from gallery'}
-            IconRight={GalleryOutline}
+            IconRight={GalleryIcon}
             onClick={setNewPicture}
           />
         </SimpleCard>
@@ -185,7 +199,7 @@ export default function EditAvatar(props: EditAvatarProps) {
           disabled={localImageAttr.fileUri === imageAttr.fileUri}
           isLoading={isLoading}
           onClick={onSaveProfileImage}
-          primaryButtonColor={'b'}
+          primaryButtonColor={'p'}
           buttonText={'Save'}
         />
       </View>
@@ -244,6 +258,9 @@ function RenderAvatar({
     };
   }, [isLoading, opacityAnimation]);
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   return (
     <View style={styles.avatarBoxPressable}>
       <View
@@ -274,56 +291,57 @@ function RenderAvatar({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    width: '100%',
-    ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
-  },
-  placeholder: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 12,
-    width: 40,
-    height: 40,
-  },
-  mainAvatarContainer: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginVertical: PortSpacing.intermediate.uniform,
-    alignItems: 'center',
-  },
-  avatarBoxPressable: {
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarBoxBorder: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  buttonDelete: {
-    backgroundColor: PortColors.primary.red.error,
-    padding: 6,
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    position: 'absolute',
-    bottom: -6,
-    right: -6,
-  },
-  avatarArea: {
-    height: 270,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: PortColors.primary.white,
-    borderColor: PortColors.primary.border.dullGrey,
-    marginBottom: PortSpacing.secondary.bottom,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'column',
+      justifyContent: 'center',
+      width: '100%',
+      ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+    },
+    placeholder: {
+      backgroundColor: '#f0f0f0',
+      borderRadius: 12,
+      width: 40,
+      height: 40,
+    },
+    mainAvatarContainer: {
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      marginVertical: PortSpacing.intermediate.uniform,
+      alignItems: 'center',
+    },
+    avatarBoxPressable: {
+      width: 48,
+      height: 48,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarBoxBorder: {
+      width: 40,
+      height: 40,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    },
+    buttonDelete: {
+      backgroundColor: PortColors.primary.red.error,
+      padding: 6,
+      width: 32,
+      height: 32,
+      borderRadius: 10,
+      position: 'absolute',
+      bottom: -6,
+      right: -6,
+    },
+    avatarArea: {
+      height: 270,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primary.surface,
+      borderColor: PortColors.primary.border.dullGrey,
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+  });

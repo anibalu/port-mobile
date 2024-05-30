@@ -15,8 +15,8 @@ import {
 import React from 'react';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import {View} from 'react-native';
-import RadioOn from '@assets/icons/RadioOn.svg';
-import RadioOff from '@assets/icons/RadioOff.svg';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const OptionWithRadio = ({
   onClick,
@@ -29,6 +29,24 @@ const OptionWithRadio = ({
   selectedOption: number | string;
   title: string;
 }) => {
+  const Colors = DynamicColors();
+
+  const svgArray = [
+    {
+      assetName: 'RadioOn',
+      light: require('@assets/icons/RadioOn.svg').default,
+      dark: require('@assets/dark/icons/RadioOn.svg').default,
+    },
+    {
+      assetName: 'RadioOff',
+      light: require('@assets/icons/RadioOff.svg').default,
+      dark: require('@assets/dark/icons/RadioOff.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const RadioOn = results.RadioOn;
+  const RadioOff = results.RadioOff;
+
   return (
     <TouchableOpacity
       onPress={onClick}
@@ -36,7 +54,10 @@ const OptionWithRadio = ({
       activeOpacity={0.6}>
       <View style={styles.optionWrapper}>
         <View style={styles.textContainer}>
-          <NumberlessText fontSizeType={FontSizeType.m} fontType={FontType.rg}>
+          <NumberlessText
+            textColor={Colors.text.primary}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}>
             {title}
           </NumberlessText>
         </View>

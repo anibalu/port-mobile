@@ -2,9 +2,8 @@
  * The screen to view one's own profile
  * screen Id: 8
  */
-import EditCameraIcon from '@assets/icons/EditCamera.svg';
 
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -20,7 +19,13 @@ import {
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {setNewProfilePicture, updateProfileName} from '@utils/Profile';
-import React, {ReactNode, useCallback, useMemo, useState} from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {StyleSheet, View, Pressable, ScrollView} from 'react-native';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import {FileAttributes} from '@utils/Storage/interfaces';
@@ -33,6 +38,11 @@ import EditName from '@components/Reusable/BottomSheets/EditName';
 import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import BackupCard from '@components/BackupCard';
+import ThemeCard from '@components/ThemeCard';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {ThemeType} from '@utils/Themes';
+import {useTheme} from 'src/context/ThemeContext';
 import BlockedCard from '@components/BlockedCard';
 import {useFocusEffect} from '@react-navigation/native';
 import {getCountOfBlockedUsers} from '@utils/UserBlocking';
@@ -49,6 +59,29 @@ function MyProfile({route, navigation}: Props): ReactNode {
   const [newName, setNewName] = useState<string>(processedName);
   const [editingName, setEditingName] = useState(false);
   const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<ThemeType>(
+    ThemeType.default,
+  );
+  const colors = DynamicColors();
+  const styles = styling(colors);
+
+  const {themeValue} = useTheme();
+
+  useEffect(() => {
+    setSelectedTheme(themeValue);
+  }, [themeValue]);
+
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'EditCameraIcon',
+      light: require('@assets/light/icons/EditCamera.svg').default,
+      dark: require('@assets/dark/icons/EditCamera.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const EditCameraIcon = results.EditCameraIcon;
 
   const [blockedContactsLength, setBlockedContactsLength] = useState(0);
 
@@ -78,11 +111,12 @@ function MyProfile({route, navigation}: Props): ReactNode {
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.background}
+        backgroundColor={colors.primary.background}
       />
       <SafeAreaView style={styles.profileScreen}>
-        <BackTopbar onBackPress={() => navigation.goBack()} />
         <ScrollView contentContainerStyle={styles.profile}>
+          <BackTopbar onBackPress={() => navigation.goBack()} />
+
           <View style={{alignItems: 'center', width: '100%'}}>
             <View style={styles.profilePictureHitbox}>
               <AvatarBox
@@ -101,7 +135,7 @@ function MyProfile({route, navigation}: Props): ReactNode {
               <NumberlessText
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}
-                textColor={PortColors.subtitle}
+                textColor={colors.text.subtitle}
                 style={{
                   textAlign: 'center',
                   marginTop: PortSpacing.secondary.uniform,
@@ -109,11 +143,15 @@ function MyProfile({route, navigation}: Props): ReactNode {
                 Your profile picture and name is shared with your contacts using
                 end-to-end encryption.
               </NumberlessText>
-              <BackupCard />
+              <ThemeCard
+                selected={selectedTheme}
+                setSelected={setSelectedTheme}
+              />
+              <BlockedCard listLength={blockedContactsLength} />
               <NumberlessText
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}
-                textColor={PortColors.subtitle}
+                textColor={colors.text.subtitle}
                 style={{
                   textAlign: 'center',
                   marginTop: PortSpacing.secondary.uniform,
@@ -122,12 +160,13 @@ function MyProfile({route, navigation}: Props): ReactNode {
                 Open the app, tap 'Restore backup' and then locate the backup
                 file.
               </NumberlessText>
-              <BlockedCard listLength={blockedContactsLength} />
+              <BackupCard />
             </View>
           </View>
           <View style={styles.bottomContainer}>
             <NumberlessText
               style={styles.versionText}
+              textColor={colors.text.subtitle}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               version {APP_VERSION}
@@ -168,69 +207,68 @@ function MyProfile({route, navigation}: Props): ReactNode {
   );
 }
 
-const styles = StyleSheet.create({
-  profileScreen: {
-    alignItems: 'center',
-    backgroundColor: PortColors.background,
-  },
-  mainContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-  },
-  profile: {
-    width: screen.width,
-    backgroundColor: PortColors.background,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: PortSpacing.secondary.bottom,
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-  bottomContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '100%',
-  },
-  profilePictureHitbox: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
-    marginBottom: PortSpacing.primary.bottom,
-  },
-  infoText: {
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.m,
-    marginTop: PortSpacing.tertiary.top,
-    textAlign: 'center',
-    alignSelf: 'stretch',
-    fontWeight: getWeight(FontType.rg),
-    color: PortColors.subtitle,
-    lineHeight: 15,
-  },
-  versionText: {
-    color: PortColors.subtitle,
-    padding: PortSpacing.secondary.bottom,
-  },
-  cameraIconWrapper: {
-    width: 32,
-    bottom: -8,
-    right: -8,
-    height: 32,
-    backgroundColor: PortColors.primary.blue.app,
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 9,
-  },
-  profilePic: {
-    width: 132,
-    height: 132,
-    borderRadius: 44,
-    marginBottom: PortSpacing.tertiary.bottom,
-    marginRight: PortSpacing.tertiary.right,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    profileScreen: {
+      alignItems: 'center',
+      backgroundColor: colors.primary.background,
+    },
+    mainContainer: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+    },
+    profile: {
+      backgroundColor: colors.primary.background,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: PortSpacing.secondary.bottom,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+    },
+    bottomContainer: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: '100%',
+    },
+    profilePictureHitbox: {
+      flexDirection: 'column',
+      alignItems: 'flex-end',
+      justifyContent: 'flex-end',
+      marginBottom: PortSpacing.primary.bottom,
+    },
+    infoText: {
+      fontFamily: FontType.rg,
+      fontSize: FontSizeType.m,
+      marginTop: PortSpacing.tertiary.top,
+      textAlign: 'center',
+      alignSelf: 'stretch',
+      fontWeight: getWeight(FontType.rg),
+      color: colors.text.primary,
+      lineHeight: 15,
+    },
+    versionText: {
+      padding: PortSpacing.secondary.bottom,
+    },
+    cameraIconWrapper: {
+      width: 32,
+      bottom: -8,
+      right: -8,
+      height: 32,
+      backgroundColor: colors.primary.accent,
+      position: 'absolute',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 9,
+    },
+    profilePic: {
+      width: 132,
+      height: 132,
+      borderRadius: 44,
+      marginBottom: PortSpacing.tertiary.bottom,
+      marginRight: PortSpacing.tertiary.right,
+    },
+  });
 
 export default MyProfile;

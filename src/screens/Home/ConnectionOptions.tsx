@@ -1,14 +1,11 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
-import NewPortIcon from 'assets/icons/NewPortBlack.svg';
-import NewSuperportIcon from '@assets/icons/NewSuperportBlack.svg';
-// import NewGroupIcon from '@assets/icons/NewGroupBlack.svg';
-import ScanIcon from '@assets/icons/ScanThinBlack.svg';
 import {useNavigation} from '@react-navigation/native';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import TouchableOption from './TouchableOption';
 import {FileAttributes} from '@utils/Storage/interfaces';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 interface ConnectionOptionsProps {
   setVisible: (isShown: boolean) => void;
@@ -47,6 +44,29 @@ export default function ConnectionOptions(props: ConnectionOptionsProps) {
     navigation.navigate('Scan');
   };
 
+  const svgArray = [
+    {
+      assetName: 'NewSuperportIcon',
+      light: require('@assets/light/icons/NewSuperport.svg').default,
+      dark: require('assets/dark/icons/NewSuperport.svg').default,
+    },
+    {
+      assetName: 'NewPortIcon',
+      light: require('@assets/light/icons/NewPort.svg').default,
+      dark: require('assets/dark/icons/NewPort.svg').default,
+    },
+    {
+      assetName: 'ScanQRIcon',
+      light: require('@assets/light/icons/ScanQR.svg').default,
+      dark: require('assets/dark/icons/ScanQR.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const NewSuperportIcon = results.NewSuperportIcon;
+  const NewPortIcon = results.NewPortIcon;
+  const ScanQRIcon = results.ScanQRIcon;
+
   return (
     <PrimaryBottomSheet
       showClose={false}
@@ -78,7 +98,7 @@ export default function ConnectionOptions(props: ConnectionOptionsProps) {
             showBorderBottom={false}
             title={'Scan QR'}
             subtitle={' Scan a QR to add a contact or join a group'}
-            IconLeft={ScanIcon}
+            IconLeft={ScanQRIcon}
             onClick={handleOpenScan}
           />
         </View>

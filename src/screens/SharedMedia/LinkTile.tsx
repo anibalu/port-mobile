@@ -9,7 +9,7 @@ import {
 } from '@components/NumberlessText';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import ChevronRight from '@assets/icons/greyChevron.svg';
+import ChevronRight from '@assets/icons/navigation/GreyAngleRight.svg';
 
 export default function LinkTile({
   mediaItem,

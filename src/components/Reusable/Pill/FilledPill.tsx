@@ -1,4 +1,5 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -20,18 +21,20 @@ const FilledPill = ({
   const onClickOfPill = () => {
     onClick(value);
   };
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   if (value) {
     return (
       <Pressable
         style={StyleSheet.compose(styles.pill, {
           backgroundColor:
             selectedPill && selectedPill.folderId === value.folderId
-              ? PortColors.primary.blue.app
-              : PortColors.primary.white,
+              ? Colors.primary.accent
+              : Colors.primary.surface,
           borderColor:
             selectedPill && selectedPill.folderId === value.folderId
-              ? PortColors.primary.white
-              : PortColors.stroke,
+              ? Colors.primary.stroke
+              : Colors.primary.stroke,
           borderWidth: 1,
         })}
         onPress={onClickOfPill}>
@@ -39,8 +42,8 @@ const FilledPill = ({
           style={{
             color:
               selectedPill && selectedPill.folderId === value.folderId
-                ? PortColors.primary.white
-                : PortColors.subtitle,
+                ? Colors.primary.white
+                : Colors.text.subtitle,
           }}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.m}>
@@ -53,19 +56,15 @@ const FilledPill = ({
       <Pressable
         style={StyleSheet.compose(styles.pill, {
           backgroundColor: !selectedPill
-            ? PortColors.primary.blue.app
-            : PortColors.primary.white,
-          borderColor: !selectedPill
-            ? PortColors.primary.white
-            : PortColors.stroke,
+            ? Colors.primary.accent
+            : Colors.primary.surface,
+          borderColor: !selectedPill ? 'transparent' : Colors.primary.stroke,
           borderWidth: 1,
         })}
         onPress={onClickOfPill}>
         <NumberlessText
           style={{
-            color: !selectedPill
-              ? PortColors.primary.white
-              : PortColors.subtitle,
+            color: !selectedPill ? Colors.primary.white : Colors.text.subtitle,
           }}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.m}>
@@ -76,14 +75,15 @@ const FilledPill = ({
   }
 };
 
-const styles = StyleSheet.create({
-  pill: {
-    marginRight: PortSpacing.tertiary.right,
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingVertical: PortSpacing.tertiary.uniform,
-    borderRadius: 12,
-    backgroundColor: PortColors.primary.grey.light,
-    flexDirection: 'row',
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    pill: {
+      marginRight: PortSpacing.tertiary.right,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.tertiary.uniform,
+      borderRadius: 12,
+      backgroundColor: color.primary.grey,
+      flexDirection: 'row',
+    },
+  });
 export default FilledPill;

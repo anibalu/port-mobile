@@ -11,7 +11,7 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import React, {useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, View, ScrollView} from 'react-native';
-import BackIcon from '@assets/navigation/backButton.svg';
+import BackIcon from '@assets/icons/navigation/BlackArrowLeftThin.svg';
 import SearchIcon from '@assets/icons/searchThin.svg';
 import {TOPBAR_HEIGHT} from '@configs/constants';
 import {getConnections} from '@utils/Connections';

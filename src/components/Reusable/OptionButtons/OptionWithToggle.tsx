@@ -8,7 +8,8 @@
  * 5. Has border bottom
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -33,6 +34,7 @@ const OptionWithToggle = ({
   heading: string;
   description?: string;
 }) => {
+  const Colors = DynamicColors();
   return (
     <TouchableOpacity
       style={styles.optionWrapper}
@@ -41,7 +43,7 @@ const OptionWithToggle = ({
       <View style={styles.topContainer}>
         <IconLeft height={20} width={20} />
         <NumberlessText
-          textColor={PortColors.title}
+          textColor={Colors.text.primary}
           numberOfLines={1}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}
@@ -50,14 +52,14 @@ const OptionWithToggle = ({
         </NumberlessText>
         <ToggleSwitch
           isOn={toggleActiveState}
-          onColor={PortColors.primary.blue.app}
-          offColor={PortColors.background}
+          onColor={Colors.primary.accent}
+          offColor={Colors.primary.lightgrey}
           onToggle={onToggle}
         />
       </View>
       {description && (
         <NumberlessText
-          textColor={PortColors.subtitle}
+          textColor={Colors.text.subtitle}
           numberOfLines={2}
           fontSizeType={FontSizeType.s}
           fontType={FontType.rg}

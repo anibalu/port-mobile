@@ -10,7 +10,8 @@
  * 5. onClick - function that runs on clicking.
  */
 
-import {PortColors, FontSizes} from '@components/ComponentUtils';
+import {FontSizes} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import React, {FC} from 'react';
 import {
   TouchableOpacity,
@@ -63,6 +64,9 @@ const SecondaryButton = ({
       return styles.blueButtonText;
     }
   }
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <TouchableOpacity
       disabled={isLoading}
@@ -73,7 +77,7 @@ const SecondaryButton = ({
       activeOpacity={0.6}
       onPress={() => onClick()}>
       {isLoading ? (
-        <ActivityIndicator color={PortColors.primary.blue.app} />
+        <ActivityIndicator color={Colors.primary.accent} />
       ) : (
         <>
           {Icon && (
@@ -98,35 +102,36 @@ const SecondaryButton = ({
   );
 };
 
-const styles = StyleSheet.create({
-  redButton: {
-    borderColor: PortColors.primary.red.error,
-    borderWidth: 1,
-  },
-  whiteButton: {borderColor: PortColors.primary.white, borderWidth: 1},
-  blackButton: {
-    borderColor: PortColors.stroke,
-    borderWidth: 1,
-  },
-  blueButton: {borderColor: PortColors.primary.blue.app, borderWidth: 1},
-  redButtonText: {
-    color: PortColors.primary.red.error,
-  },
-  whiteButtonText: {color: PortColors.primary.white},
-  blackButtonText: {color: PortColors.primary.black},
-  blueButtonText: {color: PortColors.primary.blue.app},
-  button: {
-    alignItems: 'center',
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderRadius: 12,
-    backgroundColor: 'transparent',
-    width: '100%',
-  },
-  buttonText: {
-    ...FontSizes[16].medium,
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    redButton: {
+      borderColor: color.primary.red,
+      borderWidth: 1,
+    },
+    whiteButton: {borderColor: color.primary.white, borderWidth: 1},
+    blackButton: {
+      borderColor: color.primary.mainelements,
+      borderWidth: 1,
+    },
+    blueButton: {borderColor: color.primary.black, borderWidth: 1},
+    redButtonText: {
+      color: color.primary.red,
+    },
+    whiteButtonText: {color: color.primary.white},
+    blackButtonText: {color: color.primary.black},
+    blueButtonText: {color: color.primary.black},
+    button: {
+      alignItems: 'center',
+      height: 50,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      borderRadius: 12,
+      backgroundColor: 'transparent',
+      width: '100%',
+    },
+    buttonText: {
+      ...FontSizes[16].medium,
+    },
+  });
 
 export default SecondaryButton;

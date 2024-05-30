@@ -1,4 +1,5 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -17,6 +18,8 @@ const FolderPill = ({
   onClick: (x: FolderInfo) => void;
   selectedFolder: FolderInfo;
 }) => {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <Pressable
       style={
@@ -28,9 +31,9 @@ const FolderPill = ({
       <NumberlessText
         style={{
           color:
-            selectedFolder === value
-              ? PortColors.primary.blue.app
-              : PortColors.subtitle,
+            selectedFolder.folderId === value.folderId
+              ? Colors.primary.accent
+              : Colors.text.subtitle,
         }}
         fontType={FontType.rg}
         fontSizeType={FontSizeType.m}>
@@ -40,22 +43,23 @@ const FolderPill = ({
   );
 };
 
-const styles = StyleSheet.create({
-  pill: {
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingVertical: PortSpacing.tertiary.uniform,
-    borderRadius: 8,
-    backgroundColor: PortColors.primary.grey.light,
-    flexDirection: 'row',
-  },
-  activePill: {
-    paddingHorizontal: 15,
-    paddingVertical: 7,
-    borderRadius: 8,
-    backgroundColor: PortColors.background,
-    flexDirection: 'row',
-    borderColor: PortColors.primary.blue.app,
-    borderWidth: 1,
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    pill: {
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.tertiary.uniform,
+      borderRadius: 8,
+      backgroundColor: color.primary.lightgrey,
+      flexDirection: 'row',
+    },
+    activePill: {
+      paddingHorizontal: 15,
+      paddingVertical: 7,
+      borderRadius: 8,
+      backgroundColor: color.primary.white,
+      flexDirection: 'row',
+      borderColor: color.primary.accent,
+      borderWidth: 1,
+    },
+  });
 export default FolderPill;

@@ -8,7 +8,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {PortColors} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 
 export default function FileTile({
   mediaItem,
@@ -17,6 +17,8 @@ export default function FileTile({
   mediaItem: MediaEntry;
   selectedMedia: MediaEntry[];
 }) {
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   const getMediaType = (input: string): string | undefined => {
     const segments = input.split('.');
     if (segments.length >= 2) {
@@ -30,11 +32,11 @@ export default function FileTile({
   return (
     <>
       <View style={styles.fileContainer}>
-        <FileIcon color={PortColors.primary.white} width="24" height="24" />
+        <FileIcon color={Colors.primary.background} width="24" height="24" />
         <NumberlessText
           fontSizeType={FontSizeType.xs}
           fontType={FontType.md}
-          textColor={PortColors.text.primaryWhite}>
+          textColor={Colors.text.primary}>
           {getMediaType(mediaItem.name)}
         </NumberlessText>
       </View>
@@ -42,7 +44,7 @@ export default function FileTile({
         <NumberlessText
           fontSizeType={FontSizeType.l}
           fontType={FontType.md}
-          textColor={PortColors.primary.black}>
+          textColor={Colors.text.primary}>
           {mediaItem.name}
         </NumberlessText>
       </View>
@@ -50,7 +52,7 @@ export default function FileTile({
         <NumberlessText
           fontSizeType={FontSizeType.s}
           fontType={FontType.md}
-          textColor={PortColors.text.labels}>
+          textColor={Colors.text.subtitle}>
           {getDateStamp(mediaItem.createdOn)}
         </NumberlessText>
       </View>
@@ -59,7 +61,7 @@ export default function FileTile({
         <NumberlessText
           fontSizeType={FontSizeType.s}
           fontType={FontType.rg}
-          textColor={PortColors.text.primaryWhite}
+          textColor={Colors.text.primary}
           style={styles.countBadge}>
           {selectedMedia.indexOf(mediaItem) + 1}
         </NumberlessText>
@@ -68,48 +70,49 @@ export default function FileTile({
   );
 }
 
-const styles = StyleSheet.create({
-  fileContainer: {
-    backgroundColor: '#FEB95A',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 60,
-    height: '100%',
-    gap: 1,
-    borderRadius: 12,
-    padding: 3,
-  },
-  fileInfoConatiner: {
-    flexDirection: 'column',
-    gap: 1,
-    flex: 1,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  container: {
-    flexDirection: 'column',
-    paddingHorizontal: 21,
-    width: '100%',
-    marginTop: 12,
-  },
-  countBadge: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    backgroundColor: PortColors.primary.blue.app,
-    borderRadius: 20,
-    height: 20,
-    width: 20,
-  },
-  countText: {
-    color: 'white',
-    fontWeight: 'bold',
-    alignSelf: 'center',
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    fileContainer: {
+      backgroundColor: '#FEB95A',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 60,
+      height: '100%',
+      gap: 1,
+      borderRadius: 12,
+      padding: 3,
+    },
+    fileInfoConatiner: {
+      flexDirection: 'column',
+      gap: 1,
+      flex: 1,
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+    },
+    container: {
+      flexDirection: 'column',
+      paddingHorizontal: 21,
+      width: '100%',
+      marginTop: 12,
+    },
+    countBadge: {
+      position: 'absolute',
+      bottom: 10,
+      right: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'hidden',
+      textAlign: 'center',
+      textAlignVertical: 'center',
+      backgroundColor: color.primary.accent,
+      borderRadius: 20,
+      height: 20,
+      width: 20,
+    },
+    countText: {
+      color: 'white',
+      fontWeight: 'bold',
+      alignSelf: 'center',
+    },
+  });

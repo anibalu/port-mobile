@@ -1,5 +1,5 @@
 import Play from '@assets/icons/videoPlay.svg';
-import {PortColors, isIOS, screen} from '@components/ComponentUtils';
+import {isIOS, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -17,6 +17,7 @@ import {Image, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import {TabStackParamList} from './SharedMedia';
 import Icon from '@assets/icons/NoFilesFound.svg';
+import DynamicColors from '@components/DynamicColors';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewPhotosVideos'>;
 
@@ -55,6 +56,8 @@ const ViewPhotosVideos = ({route}: Props) => {
     // }
   };
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   const rows = [];
   for (let i = 0; i < media.length; i += 3) {
     const rowImages = media.slice(i, i + 3);
@@ -103,7 +106,7 @@ const ViewPhotosVideos = ({route}: Props) => {
               <NumberlessText
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}
-                textColor={PortColors.text.primaryWhite}
+                textColor={Colors.text.primary}
                 style={styles.countBadge}>
                 {selectedMedia.indexOf(mediaItem) + 1}
               </NumberlessText>
@@ -154,7 +157,7 @@ const ViewPhotosVideos = ({route}: Props) => {
             style={{textAlign: 'center'}}
             fontSizeType={FontSizeType.xl}
             fontType={FontType.md}
-            textColor={PortColors.primary.black}>
+            textColor={Colors.text.primary}>
             No media found
           </NumberlessText>
         </View>
@@ -174,59 +177,56 @@ const ViewPhotosVideos = ({route}: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  nocontentText: {
-    paddingTop: 10,
-    color: PortColors.subtitle,
-  },
-  image: {
-    width: (screen.width - 70) / 3,
-    height: (screen.width - 70) / 3,
-    borderRadius: 8,
-  },
-  selectedImage: {
-    borderWidth: 3,
-    borderColor: '#547CEF',
-  },
-  container: {
-    flexDirection: 'column',
-    paddingHorizontal: 21,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    width: '100%',
-    columnGap: 13,
-    marginBottom: 13,
-  },
-  countBadge: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    backgroundColor: PortColors.primary.blue.app,
-    borderRadius: isIOS ? 9 : 20,
-    height: 20,
-    width: 20,
-    paddingTop: isIOS ? 2 : 0,
-    paddingHorizontal: isIOS ? 4 : 0,
-  },
-  countText: {
-    color: 'white',
-    fontWeight: 'bold',
-    alignSelf: 'center',
-  },
-  messagebar: {
-    position: 'absolute',
-    bottom: 0,
-  },
-  screen: {
-    height: '100%',
-  },
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    image: {
+      width: (screen.width - 70) / 3,
+      height: (screen.width - 70) / 3,
+      borderRadius: 8,
+    },
+    selectedImage: {
+      borderWidth: 3,
+      borderColor: '#547CEF',
+    },
+    container: {
+      flexDirection: 'column',
+      paddingHorizontal: 21,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      width: '100%',
+      columnGap: 13,
+      marginBottom: 13,
+    },
+    countBadge: {
+      position: 'absolute',
+      bottom: 10,
+      right: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'hidden',
+      textAlign: 'center',
+      textAlignVertical: 'center',
+      borderRadius: isIOS ? 9 : 20,
+      height: 20,
+      width: 20,
+      paddingTop: isIOS ? 2 : 0,
+      paddingHorizontal: isIOS ? 4 : 0,
+    },
+    countText: {
+      color: 'white',
+      fontWeight: 'bold',
+      alignSelf: 'center',
+    },
+    messagebar: {
+      position: 'absolute',
+      bottom: 0,
+    },
+    screen: {
+      height: '100%',
+      backgroundColor: color.primary.background,
+    },
+  });
 
 export default ViewPhotosVideos;

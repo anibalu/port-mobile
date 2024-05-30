@@ -12,6 +12,7 @@ import {defaultFolderId, defaultFolderInfo} from '@configs/constants';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {formatTimeAgo} from '@utils/Time';
 import {SvgXml} from 'react-native-svg';
+import DynamicColors from '@components/DynamicColors';
 
 const SuperportCard = ({
   superportData,
@@ -36,6 +37,8 @@ const SuperportCard = ({
       return '#' + folder.folderId.substring(0, 6).replace(/[^\da-f]/gi, '0');
     }
   };
+
+  const Colors = DynamicColors();
   return (
     <TouchableOpacity
       onPress={onClick}
@@ -61,7 +64,7 @@ const SuperportCard = ({
           </View>
           <NumberlessText
             style={{
-              color: PortColors.subtitle,
+              color: Colors.text.subtitle,
               marginLeft: PortSpacing.tertiary.left,
             }}
             fontSizeType={FontSizeType.s}
@@ -71,6 +74,7 @@ const SuperportCard = ({
         </View>
         <View style={styles.titleWrapper}>
           <NumberlessText
+            textColor={Colors.text.primary}
             fontSizeType={FontSizeType.l}
             fontType={FontType.rg}
             ellipsizeMode="tail"
@@ -83,7 +87,7 @@ const SuperportCard = ({
         <View style={styles.footerContainer}>
           <NumberlessText
             style={{
-              color: true ? PortColors.subtitle : PortColors.primary.red.error,
+              color: true ? Colors.text.subtitle : Colors.primary.red,
               paddingTop: PortSpacing.tertiary.uniform,
             }}
             fontSizeType={FontSizeType.s}
@@ -93,8 +97,8 @@ const SuperportCard = ({
           <NumberlessText
             style={{
               color: superportData.paused
-                ? PortColors.primary.red.error
-                : PortColors.subtitle,
+                ? Colors.primary.red
+                : Colors.text.subtitle,
               paddingTop: PortSpacing.tertiary.uniform,
             }}
             fontSizeType={FontSizeType.s}
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
     color: PortColors.title,
     paddingVertical: PortSpacing.tertiary.uniform,
     borderBottomColor: PortColors.stroke,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 0.4,
     paddingHorizontal: PortSpacing.secondary.uniform,
   },
   headerContainer: {

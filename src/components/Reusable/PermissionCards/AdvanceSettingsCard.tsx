@@ -4,7 +4,6 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import ContactShareIcon from '@assets/icons/ContactShareIcon.svg';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
 import React, {useEffect} from 'react';
@@ -14,6 +13,8 @@ import {
   BooleanPermissions,
   PermissionsStrict,
 } from '@utils/ChatPermissions/interfaces';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const AdvanceSettingsCard = ({
   permissionsId,
@@ -24,6 +25,20 @@ const AdvanceSettingsCard = ({
   permissions: PermissionsStrict;
   setPermissions: (permissions: PermissionsStrict) => void;
 }) => {
+  const Colors = DynamicColors();
+
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'ContactShareIcon',
+      light: require('@assets/light/icons/ContactShareIcon.svg').default,
+      dark: require('@assets/dark/icons/ContactShareIcon.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const ContactShareIcon = results.ContactShareIcon;
+
   useEffect(() => {
     (async () => {
       setPermissions(await getPermissions(permissionsId));
@@ -49,6 +64,7 @@ const AdvanceSettingsCard = ({
         style={{
           padding: PortSpacing.secondary.uniform,
         }}
+        textColor={Colors.labels.text}
         fontType={FontType.md}
         fontSizeType={FontSizeType.l}>
         Advanced settings

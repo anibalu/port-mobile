@@ -11,7 +11,6 @@
 
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import RetryIcon from '@assets/icons/Retry.svg';
 import AlertIcon from '@assets/icons/ErrorAlert.svg';
 import {
   FontSizeType,
@@ -22,6 +21,8 @@ import {
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import SecondaryButton from '../LongButtons/SecondaryButton';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const ErrorBottomSheet = ({
   visible,
@@ -36,6 +37,19 @@ const ErrorBottomSheet = ({
   description: string;
   title: string;
 }) => {
+  const Colors = DynamicColors();
+
+  const svgArray = [
+    {
+      assetName: 'Retry',
+      light: require('@assets/light/icons/Retry.svg').default,
+      dark: require('@assets/dark/icons/Retry.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const Retry = results.Retry;
+
   return (
     <PrimaryBottomSheet
       showClose={true}
@@ -48,6 +62,7 @@ const ErrorBottomSheet = ({
       <View style={styles.mainWrapper}>
         <NumberlessText
           style={styles.description}
+          textColor={Colors.text.subtitle}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}>
           {description}
@@ -55,7 +70,7 @@ const ErrorBottomSheet = ({
         <SecondaryButton
           buttonText={'Try Again'}
           secondaryButtonColor={'black'}
-          Icon={RetryIcon}
+          Icon={Retry}
           iconSize={'s'}
           onClick={onTryAgain}
         />
@@ -80,7 +95,6 @@ const styles = StyleSheet.create({
   },
   description: {
     width: '100%',
-    color: PortColors.subtitle,
     marginBottom: PortSpacing.intermediate.bottom,
   },
 });

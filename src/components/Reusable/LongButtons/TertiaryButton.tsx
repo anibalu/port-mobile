@@ -11,7 +11,8 @@
  * 5. onClick - function that runs on clicking.
  */
 
-import {PortColors, FontSizes} from '@components/ComponentUtils';
+import {FontSizes} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import React, {FC} from 'react';
 import {TouchableOpacity, Text, StyleSheet, TextStyle} from 'react-native';
 import {SvgProps} from 'react-native-svg';
@@ -42,6 +43,9 @@ const TertiaryButton = ({
       return styles.blueButtonText;
     }
   }
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <TouchableOpacity
       disabled={disabled}
@@ -73,30 +77,31 @@ const TertiaryButton = ({
   );
 };
 
-const styles = StyleSheet.create({
-  disabledButton: {
-    alignItems: 'center',
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderRadius: 12,
-    opacity: 0.6,
-  },
-  button: {
-    alignItems: 'center',
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderRadius: 12,
-  },
-  buttonText: {
-    ...FontSizes[16].medium,
-  },
-  redButtonText: {
-    color: PortColors.primary.red.error,
-  },
-  whiteButtonText: {color: PortColors.primary.white},
-  blueButtonText: {color: PortColors.primary.blue.app},
-});
+const styling = (color: any) =>
+  StyleSheet.create({
+    disabledButton: {
+      alignItems: 'center',
+      height: 50,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      borderRadius: 12,
+      opacity: 0.6,
+    },
+    button: {
+      alignItems: 'center',
+      height: 50,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      borderRadius: 12,
+    },
+    buttonText: {
+      ...FontSizes[16].medium,
+    },
+    redButtonText: {
+      color: color.primary.red,
+    },
+    whiteButtonText: {color: color.primary.white},
+    blueButtonText: {color: color.primary.accent},
+  });
 
 export default TertiaryButton;

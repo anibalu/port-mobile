@@ -1,9 +1,9 @@
 /**
  * This screens informs a user of the permissions the App requires and requests those permissions
  */
-import Notification from '@assets/icons/NotificationOutline.svg';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -16,6 +16,7 @@ import notifee, {AuthorizationStatus} from '@notifee/react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
 import {processName} from '@utils/Profile';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {BackHandler, StyleSheet, View} from 'react-native';
 
@@ -97,17 +98,31 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const Colors = DynamicColors();
+
+  const svgArray = [
+    {
+      assetName: 'Notification',
+      light: require('@assets/light/icons/NotificationOutline.svg').default,
+      dark: require('@assets/dark/icons/NotificationOutline.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const Notification = results.Notification;
+
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.primary.white}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <View style={styles.container}>
           <NumberlessText
             fontType={FontType.sb}
             fontSizeType={FontSizeType.xl}
+            textColor={Colors.text.primary}
             style={{
               textAlign: 'center',
               paddingHorizontal: PortSpacing.secondary.uniform,
@@ -117,7 +132,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
           <NumberlessText
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}
-            textColor={PortColors.primary.grey.bold}
+            textColor={Colors.primary.darkgrey}
             style={{
               textAlign: 'center',
               marginTop: PortSpacing.secondary.uniform,
@@ -130,6 +145,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
             <Notification width={24} height={24} />
             <View style={styles.textColumnWrapper}>
               <NumberlessText
+                textColor={Colors.text.primary}
                 fontType={FontType.rg}
                 fontSizeType={FontSizeType.l}>
                 Notifications
@@ -137,7 +153,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
               <NumberlessText
                 fontType={FontType.rg}
                 style={{marginTop: 2}}
-                textColor={PortColors.primary.grey.bold}
+                textColor={Colors.primary.darkgrey}
                 fontSizeType={FontSizeType.s}>
                 Get notified for events such as new messages
               </NumberlessText>
@@ -172,7 +188,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     paddingTop: PortSpacing.primary.top,
-    backgroundColor: PortColors.primary.white,
   },
   blockWrapper: {
     flexDirection: 'row',

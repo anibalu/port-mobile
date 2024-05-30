@@ -1,12 +1,13 @@
 import React, {useState} from 'react';
 import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {PortColors, PortSpacing} from './ComponentUtils';
+import {PortSpacing} from './ComponentUtils';
 import ConfirmationBottomSheet from './Reusable/BottomSheets/ConfirmationBottomSheet';
 import {blockUser, unblockUser} from '@utils/UserBlocking';
 import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
 import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {BlockedUser} from '@utils/Storage/DBCalls/blockUser';
+import DynamicColors from './DynamicColors';
 
 interface BlockedContactProps extends BlockedUser {
   isLast: boolean;
@@ -42,7 +43,8 @@ const BlockedContactTile = (user: BlockedContactProps) => {
       console.log('Error in unblocking user');
     }
   };
-  const styles = styling(isLast);
+  const Colors = DynamicColors();
+  const styles = styling(isLast, Colors);
 
   return (
     <Pressable onPress={() => onPress()} style={styles.card}>
@@ -51,13 +53,16 @@ const BlockedContactTile = (user: BlockedContactProps) => {
           avatarSize="s"
           profileUri={DEFAULT_PROFILE_AVATAR_INFO.fileUri}
         />
-        <NumberlessText fontType={FontType.rg} fontSizeType={FontSizeType.m}>
+        <NumberlessText
+          textColor={Colors.text.primary}
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}>
           {name}
         </NumberlessText>
       </View>
 
       <NumberlessText
-        textColor={PortColors.primary.red.error}
+        textColor={Colors.primary.red}
         fontType={FontType.md}
         fontSizeType={FontSizeType.s}>
         {isSelected ? 'Block' : 'Unblock'}
@@ -85,7 +90,7 @@ const BlockedContactTile = (user: BlockedContactProps) => {
   );
 };
 
-const styling = (isLast: boolean) =>
+const styling = (isLast: boolean, colors: any) =>
   StyleSheet.create({
     card: {
       flexDirection: 'row',
@@ -94,7 +99,7 @@ const styling = (isLast: boolean) =>
       paddingVertical: PortSpacing.tertiary.uniform,
       marginHorizontal: PortSpacing.tertiary.uniform,
       borderBottomWidth: isLast ? 0 : 1,
-      borderBottomColor: PortColors.primary.grey.light,
+      borderBottomColor: colors.primary.lightgrey,
     },
     row: {
       flexDirection: 'row',

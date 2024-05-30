@@ -17,7 +17,8 @@
  * 7. onClick - function that runs on clicking.
  */
 
-import {PortColors, FontSizes} from '@components/ComponentUtils';
+import {FontSizes} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import React, {FC} from 'react';
 import {
   TouchableOpacity,
@@ -40,7 +41,7 @@ const PrimaryButton = ({
   onClick = () => {},
 }: {
   buttonText: string;
-  primaryButtonColor: 'b' | 'r' | 'w';
+  primaryButtonColor: 'b' | 'r' | 'w' | 'p';
   Icon?: FC<SvgProps>;
   iconSize?: 's' | 'm';
   textStyle?: TextStyle;
@@ -53,10 +54,15 @@ const PrimaryButton = ({
       return styles.redButton;
     } else if (primaryButtonColor === 'w') {
       return styles.whiteButton;
+    } else if (primaryButtonColor === 'p') {
+      return styles.purpleButton;
     } else {
       return styles.blueButton;
     }
   }
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <TouchableOpacity
       disabled={isLoading ? true : disabled}
@@ -83,7 +89,7 @@ const PrimaryButton = ({
               primaryButtonColor === 'w'
                 ? {
                     ...styles.buttonText,
-                    color: textStyle?.color ?? PortColors.text.primary,
+                    color: textStyle?.color ?? Colors.primary.genericblack,
                   }
                 : styles.buttonText,
             )}
@@ -97,33 +103,38 @@ const PrimaryButton = ({
   );
 };
 
-const styles = StyleSheet.create({
-  disabledButton: {
-    width: '100%',
-    alignItems: 'center',
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderRadius: 12,
-    opacity: 0.6,
-  },
-  redButton: {
-    backgroundColor: PortColors.primary.red.error,
-  },
-  whiteButton: {backgroundColor: PortColors.primary.white},
-  blueButton: {backgroundColor: PortColors.primary.blue.app},
-  button: {
-    width: '100%',
-    alignItems: 'center',
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderRadius: 12,
-  },
-  buttonText: {
-    ...FontSizes[16].medium,
-    color: PortColors.text.primaryWhite,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    disabledButton: {
+      width: '100%',
+      alignItems: 'center',
+      height: 50,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      borderRadius: 12,
+      backgroundColor: colors.button.disabled,
+      opacity: 0.5,
+    },
+    redButton: {
+      backgroundColor: colors.primary.red,
+    },
+    whiteButton: {backgroundColor: colors.primary.white},
+    blueButton: {backgroundColor: colors.button.black},
+    purpleButton: {
+      backgroundColor: colors.primary.accent,
+    },
+    button: {
+      width: '100%',
+      alignItems: 'center',
+      height: 50,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      borderRadius: 12,
+    },
+    buttonText: {
+      ...FontSizes[16].medium,
+      color: colors.primary.white,
+    },
+  });
 
 export default PrimaryButton;

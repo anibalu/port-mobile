@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -13,9 +13,13 @@ import Link from '@assets/icons/LinkIcon.svg';
 import QRIcon from '@assets/icons/QRIcon.svg';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import DynamicColors from '@components/DynamicColors';
 
 const ContactCard = (props: PendingCardInfo) => {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const Colors = DynamicColors();
+
+  const styles = styling(Colors);
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -31,7 +35,7 @@ const ContactCard = (props: PendingCardInfo) => {
             <View
               style={{
                 padding: PortSpacing.secondary.uniform,
-                backgroundColor: PortColors.primary.grey.light,
+                backgroundColor: Colors.primary.background,
                 borderRadius: 12,
               }}>
               {props.isLink ? <Link /> : <QRIcon />}
@@ -42,6 +46,7 @@ const ContactCard = (props: PendingCardInfo) => {
                 fontType={FontType.rg}
                 ellipsizeMode="tail"
                 numberOfLines={1}
+                textColor={Colors.text.primary}
                 fontSizeType={FontSizeType.l}
                 style={styles.text}>
                 {props.name}
@@ -50,8 +55,8 @@ const ContactCard = (props: PendingCardInfo) => {
                 fontType={FontType.rg}
                 ellipsizeMode="tail"
                 numberOfLines={1}
-                fontSizeType={FontSizeType.s}
-                style={styles.subtitle}>
+                textColor={Colors.text.subtitle}
+                fontSizeType={FontSizeType.s}>
                 Created {formatTimeAgo(props.createdOn)}
               </NumberlessText>
             </View>
@@ -74,44 +79,43 @@ const ContactCard = (props: PendingCardInfo) => {
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    marginHorizontal: PortSpacing.secondary.uniform,
-    marginBottom: PortSpacing.tertiary.bottom,
-    justifyContent: 'center',
-    padding: PortSpacing.tertiary.uniform,
-  },
-  descriptionText: {
-    textAlign: 'left',
-    width: '100%',
-    marginTop: PortSpacing.secondary.top,
-  },
-  text: {
-    color: 'black',
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  textrow: {
-    padding: PortSpacing.tertiary.uniform,
-    gap: 4,
-    flex: 1,
-  },
-  subtitle: {
-    color: PortColors.subtitle,
-  },
-  declinebutton: {
-    backgroundColor: PortColors.primary.red.error,
-    justifyContent: 'center',
-    borderRadius: PortSpacing.tertiary.uniform,
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: PortSpacing.tertiary.uniform,
-    padding: PortSpacing.tertiary.uniform,
-  },
-});
+const styling = colors =>
+  StyleSheet.create({
+    card: {
+      marginHorizontal: PortSpacing.secondary.uniform,
+      marginBottom: PortSpacing.tertiary.bottom,
+      justifyContent: 'center',
+      padding: PortSpacing.tertiary.uniform,
+    },
+    descriptionText: {
+      textAlign: 'left',
+      width: '100%',
+      marginTop: PortSpacing.secondary.top,
+    },
+
+    text: {
+      overflow: 'hidden',
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    textrow: {
+      padding: PortSpacing.tertiary.uniform,
+      gap: 4,
+      flex: 1,
+    },
+
+    declinebutton: {
+      backgroundColor: colors.primary.red,
+      justifyContent: 'center',
+      borderRadius: PortSpacing.tertiary.uniform,
+      alignItems: 'center',
+      flexDirection: 'row',
+      gap: PortSpacing.tertiary.uniform,
+      padding: PortSpacing.tertiary.uniform,
+    },
+  });
 
 export default ContactCard;

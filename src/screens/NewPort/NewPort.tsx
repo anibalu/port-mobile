@@ -5,10 +5,9 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import ScanIcon from '@assets/icons/scanBlue.svg';
-import CrossButton from '@assets/navigation/crossButton.svg';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {
   FontSizeType,
@@ -43,6 +42,8 @@ import SharePortLink from '@components/Reusable/BottomSheets/SharePortLink';
 import {wait} from '@utils/Time';
 import {useSelector} from 'react-redux';
 import Share from 'react-native-share';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import SavePortBottomsheet from '@components/Reusable/BottomSheets/SavePortBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
@@ -166,11 +167,23 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestNewConnection]);
 
+  const Colors = DynamicColors();
+  const svgArray = [
+    // 1.Clock
+    {
+      assetName: 'CrossButton',
+      light: require('@assets/light/icons/Cross.svg').default,
+      dark: require('@assets/dark/icons/Cross.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const CrossButton = results.CrossButton;
+
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
@@ -198,7 +211,8 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
           IconRight={CrossButton}
           heading={'New Port'}
         />
-        <ScrollView style={{width: '100%'}}>
+        <ScrollView
+          style={{width: '100%', backgroundColor: Colors.primary.background}}>
           <View style={{flex: 1, justifyContent: 'space-between'}}>
             <View style={styles.qrArea}>
               <PortCard
@@ -228,12 +242,14 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
             </View>
             <View style={styles.superportArea}>
               <NumberlessText
+                textColor={Colors.text.primary}
                 style={{alignSelf: 'center'}}
                 fontType={FontType.md}
                 fontSizeType={FontSizeType.m}>
                 Need to add multiple contacts ?
               </NumberlessText>
               <NumberlessText
+                textColor={Colors.text.subtitle}
                 style={styles.subtitle}
                 fontType={FontType.rg}
                 fontSizeType={FontSizeType.s}>
@@ -291,7 +307,6 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
 const styles = StyleSheet.create({
   screen: {
     alignItems: 'center',
-    backgroundColor: PortColors.background,
     flex: 1,
   },
   qrArea: {
@@ -306,7 +321,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     alignSelf: 'center',
-    color: PortColors.subtitle,
     marginTop: PortSpacing.tertiary.top,
     marginBottom: PortSpacing.intermediate.bottom,
     textAlign: 'center',

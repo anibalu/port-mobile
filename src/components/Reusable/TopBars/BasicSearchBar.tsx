@@ -9,10 +9,11 @@ import {
 
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
-import SearchIcon from '@assets/icons/searchThin.svg';
 import BlackCross from '@assets/icons/BlackCross.svg';
-import BackIcon from '@assets/navigation/backButton.svg';
+import BackIcon from '@assets/icons/navigation/BlackArrowLeftThin.svg';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const BasicSearchBar = ({
   searchText,
@@ -50,6 +51,18 @@ const BasicSearchBar = ({
     }
   };
 
+  const Colors = DynamicColors();
+
+  const svgArray = [
+    {
+      assetName: 'SearchIcon',
+      light: require('@assets/light/icons/search.svg').default,
+      dark: require('@assets/dark/icons/search.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const SearchIcon = results.SearchIcon;
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.inputContainer}>
@@ -57,11 +70,11 @@ const BasicSearchBar = ({
           style={StyleSheet.compose(styles.inputWrapper, {
             backgroundColor:
               bgColor === 'w'
-                ? PortColors.primary.white
+                ? Colors.primary.surface
                 : PortColors.primary.grey.light,
             borderColor: isFocused
               ? PortColors.primary.blue.app
-              : PortColors.stroke,
+              : Colors.primary.stroke,
           })}>
           {isFocused ? (
             <TouchableOpacity onPress={onBackPress}>

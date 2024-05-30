@@ -19,6 +19,7 @@ import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders
 import {getMessage} from '@utils/Storage/messages';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
+import DynamicColors from '@components/DynamicColors';
 
 export const MessageBubble = ({
   handleLongPress,
@@ -39,6 +40,7 @@ export const MessageBubble = ({
     selectedMessages,
   } = useChatContext();
 
+  const Colors = DynamicColors();
   const [reactions, setReactions] = useState<any[]>([]);
   const updateSendStatus = () => {
     if (message.deliveredTimestamp) {
@@ -190,8 +192,8 @@ export const MessageBubble = ({
                 style={{
                   ...styles.main,
                   backgroundColor: message.sender
-                    ? '#D9E1F8'
-                    : PortColors.primary.white,
+                    ? Colors.messagebubble.receiver
+                    : Colors.messagebubble.sender,
                 }}>
                 {message.replyId && (
                   <View style={styles.replyContainer}>
@@ -255,8 +257,8 @@ export const MessageBubble = ({
             style={{
               ...styles.main,
               backgroundColor: message.sender
-                ? PortColors.primary.sender
-                : PortColors.primary.white,
+                ? Colors.messagebubble.receiver
+                : Colors.messagebubble.sender,
             }}
             pointerEvents="box-only">
             {message.replyId && (

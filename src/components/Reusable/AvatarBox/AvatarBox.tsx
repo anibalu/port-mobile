@@ -9,7 +9,6 @@
  * 2. boxSize - s , m (default), l
  * 3. onPress (optional)
  */
-import {PortColors} from '@components/ComponentUtils';
 import {DirectAvatarMapping} from '@configs/avatarmapping';
 import {AVATAR_ARRAY} from '@configs/constants';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -25,7 +24,7 @@ export function AvatarBox({
   fromPreview = true,
 }: {
   profileUri?: string | null;
-  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+';
+  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+' | 'm+';
   onPress?: () => void;
   fromPreview?: boolean;
 }) {
@@ -190,13 +189,16 @@ const styles = StyleSheet.create({
     height: 58,
     width: 58,
     borderRadius: 12,
-    borderWidth: 0.5,
-    borderColor: PortColors.stroke,
   },
   large: {
     height: 170,
     width: 170,
     borderRadius: 56,
+  },
+  mediumLarge: {
+    height: 132,
+    width: 132,
+    borderRadius: 44,
   },
   intermediate: {
     height: 75,

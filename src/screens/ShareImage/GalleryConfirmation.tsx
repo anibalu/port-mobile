@@ -1,5 +1,5 @@
 import Camera from '@assets/icons/CameraThinWhite.svg';
-import Send from '@assets/icons/WhiteArrowUp.svg';
+import Send from '@assets/icons/navigation/WhiteArrowUp.svg';
 import Whitecross from '@assets/icons/closeWhite.svg';
 import Delete from '@assets/icons/Whitedelete.svg';
 import Play from '@assets/icons/videoPlay.svg';
@@ -53,6 +53,7 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {createPreview} from '@utils/ImageUtils';
+import DynamicColors from '@components/DynamicColors';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -79,6 +80,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   const [groupMembers, setGroupMembers] = useState<GroupMemberStrict[]>([]);
 
   const {compressionError, FileTooLarge} = useErrorModal();
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
 
   // On receiving messages, we need to generate thumbnails if videos
   useEffect(() => {
@@ -156,7 +160,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
           textAlign: 'center',
           backgroundColor: PortColors.text.backgroundGrey,
         }}
-        textColor={PortColors.text.primaryWhite}
+        textColor={Colors.primary.white}
         fontType={FontType.sb}>
         {item.name}
       </NumberlessText>
@@ -223,7 +227,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
             fontSizeType={FontSizeType.l}
             fontType={FontType.sb}
             numberOfLines={1}
-            textColor={PortColors.primary.white}>
+            textColor={Colors.primary.white}>
             {item.data.fileName}
           </NumberlessText>
         </View>
@@ -379,9 +383,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     <>
       <CustomStatusBar
         barStyle="light-content"
-        backgroundColor={PortColors.primary.black}
+        backgroundColor={Colors.primary.genericblack}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.primary.black}}>
+      <SafeAreaView style={{backgroundColor: 'black'}}>
         <View style={styles.screen}>
           <Whitecross
             style={styles.whiteCrossIcon}
@@ -419,12 +423,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
           <KeyboardAvoidingView
             behavior={isIOS ? 'padding' : 'height'}
             keyboardVerticalOffset={isIOS ? 54 : undefined}
-            style={StyleSheet.compose(
-              styles.bottombar,
-              isChat && {
-                backgroundColor: PortColors.primary.black,
-              },
-            )}>
+            style={styles.bottombar}>
             <View
               style={{
                 flexDirection: 'row',
@@ -496,9 +495,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
                       borderRadius: 11,
                       overflow: 'hidden',
                       textAlign: 'center',
-                      backgroundColor: PortColors.text.backgroundGrey,
+                      backgroundColor: Colors.primary.lightgrey,
                     }}
-                    textColor={PortColors.text.primaryWhite}
+                    textColor={Colors.primary.white}
                     fontType={FontType.sb}>
                     {userNameInDM}
                   </NumberlessText>
@@ -536,131 +535,131 @@ const onVideoPressed = (uri: string) => {
   });
 };
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: PortColors.primary.black,
-  },
-  whiteCrossIcon: {
-    position: 'absolute',
-    zIndex: 10,
-    top: PortSpacing.intermediate.top,
-    right: PortSpacing.intermediate.right,
-  },
-  pdfname: {
-    color: PortColors.primary.white,
-  },
-  pdf: {
-    backgroundColor: PortColors.primary.black,
-    width: screen.width,
-    height: screen.height - 130,
-  },
-  bottombar: {
-    marginHorizontal: 10,
-    paddingVertical: 4,
-    flexDirection: 'column',
-    gap: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-    rowGap: 8,
-    borderRadius: 24,
-    borderWidth: 0.5,
-  },
-  bottombarUserPills: {
-    paddingVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    height: 60,
-  },
-  selectedUserContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    flex: 1,
-    columnGap: 8,
-    ...(isIOS && {paddingHorizontal: 3}),
-  },
-  bottomUserPillsBg: {
-    position: 'absolute',
-    paddingVertical: 4,
-    top: 0,
-    left: -16,
-    backgroundColor: PortColors.primary.black,
-    opacity: 0.2,
-    height: 100,
-    width: screen.width + 16,
-  },
-  imagescroll: {
-    maxHeight: 70,
-    paddingVertical: 4,
-    width: screen.width,
-    marginBottom: 8,
-  },
-  item: {
-    paddingHorizontal: 10,
-    borderRadius: 11,
-    backgroundColor: PortColors.primary.grey.light,
-    paddingVertical: 10,
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  messageInputStyle: {
-    borderRadius: 24,
-    maxHeight: 110,
-    height: undefined,
-    minHeight: 40,
-    backgroundColor: PortColors.primary.black,
-    borderWidth: 0.5,
-    borderColor: PortColors.text.backgroundGrey,
-    color: PortColors.text.primaryWhite,
-    ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
-    overflow: 'hidden',
-    flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: 'center',
-    ...(isIOS && {paddingTop: 12, paddingBottom: 10, paddingLeft: 16}),
-  },
-  itemtext: {
-    color: PortColors.primary.grey.dark,
-  },
-  button: {
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#547CEF',
-  },
-  bottomimageContainer: {
-    marginRight: 8,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  selectedImageContainer: {
-    borderColor: PortColors.primary.blue.app,
-    marginRight: 8,
-    borderWidth: 4,
-    overflow: 'hidden',
-    borderRadius: 8,
-    width: 60,
-    height: 60,
-  },
-  buttonShadowContainer: {
-    position: 'absolute',
-    left: -15,
-    top: -15,
-    height: 60,
-    width: 60,
-    backgroundColor: PortColors.primary.black,
-    opacity: 0.3,
-  },
-  bottomImage: {
-    width: 60,
-    height: 60,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      justifyContent: 'flex-end',
+    },
+    whiteCrossIcon: {
+      position: 'absolute',
+      zIndex: 10,
+      top: PortSpacing.intermediate.top,
+      right: PortSpacing.intermediate.right,
+    },
+    pdfname: {
+      color: colors.primary.white,
+    },
+    pdf: {
+      backgroundColor: colors.primary.black,
+      width: screen.width,
+      height: screen.height - 130,
+    },
+    bottombar: {
+      marginHorizontal: 10,
+      paddingVertical: 4,
+      flexDirection: 'column',
+      gap: 3,
+      alignItems: 'center',
+      justifyContent: 'center',
+      rowGap: 8,
+      borderRadius: 24,
+      borderWidth: 0.5,
+    },
+    bottombarUserPills: {
+      paddingVertical: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      width: '100%',
+      height: 60,
+    },
+    selectedUserContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      flex: 1,
+      columnGap: 8,
+      ...(isIOS && {paddingHorizontal: 3}),
+    },
+    bottomUserPillsBg: {
+      position: 'absolute',
+      paddingVertical: 4,
+      top: 0,
+      left: -16,
+      backgroundColor: 'black',
+      opacity: 0.2,
+      height: 100,
+      width: screen.width + 16,
+    },
+    imagescroll: {
+      maxHeight: 70,
+      paddingVertical: 4,
+      width: screen.width,
+      marginBottom: 8,
+    },
+    item: {
+      paddingHorizontal: 10,
+      borderRadius: 11,
+      backgroundColor: colors.primary.lightgrey,
+      paddingVertical: 10,
+      justifyContent: 'center',
+      marginRight: 10,
+    },
+    messageInputStyle: {
+      borderRadius: 24,
+      maxHeight: 110,
+      height: undefined,
+      minHeight: 40,
+      backgroundColor: '#17181C',
+      borderWidth: 0.5,
+      borderColor: PortColors.text.backgroundGrey,
+      color: PortColors.text.primaryWhite,
+      ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
+      overflow: 'hidden',
+      flex: 1,
+      paddingHorizontal: 24,
+      justifyContent: 'center',
+      ...(isIOS && {paddingTop: 12, paddingBottom: 10, paddingLeft: 16}),
+    },
+    itemtext: {
+      color: colors.primary.darkgrey,
+    },
+    button: {
+      width: 40,
+      height: 40,
+      borderRadius: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primary.accent,
+    },
+    bottomimageContainer: {
+      marginRight: 8,
+      borderRadius: 8,
+      overflow: 'hidden',
+    },
+    selectedImageContainer: {
+      borderColor: colors.primary.accent,
+      marginRight: 8,
+      borderWidth: 4,
+      overflow: 'hidden',
+      borderRadius: 8,
+      width: 60,
+      height: 60,
+    },
+    buttonShadowContainer: {
+      position: 'absolute',
+      left: -15,
+      top: -15,
+      height: 60,
+      width: 60,
+      backgroundColor: colors.primary.black,
+      opacity: 0.3,
+    },
+    bottomImage: {
+      width: 60,
+      height: 60,
+    },
+  });
 
 export default GalleryConfirmation;

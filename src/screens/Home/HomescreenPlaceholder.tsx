@@ -1,9 +1,7 @@
 /**
  * Default chat tile displayed when there are no connections
  */
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
-import ScanIcon from '@assets/icons/scanBlue.svg';
-import NewContactIcon from '@assets/icons/newContact.svg';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -15,6 +13,8 @@ import {useNavigation} from '@react-navigation/native';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
 import {FileAttributes} from '@utils/Storage/interfaces';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 function HomescreenPlaceholder({
   name,
@@ -25,14 +25,32 @@ function HomescreenPlaceholder({
 }): ReactNode {
   const navigation = useNavigation();
 
+  const Colors = DynamicColors();
+  const svgArray = [
+    {
+      assetName: 'NewContactIcon',
+      light: require('@assets/light/icons/newContact.svg').default,
+      dark: require('@assets/dark/icons/newContact.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const NewContactIcon = results.NewContactIcon;
+
+  const ScanIcon = require('@assets/icons/scanBlue.svg').default;
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headingWrapper}>
-        <NumberlessText fontSizeType={FontSizeType.xl} fontType={FontType.sb}>
+        <NumberlessText
+          textColor={Colors.primary.mainelements}
+          fontSizeType={FontSizeType.xl}
+          fontType={FontType.sb}>
           Start connecting differently
         </NumberlessText>
         <NumberlessText
-          style={{color: PortColors.text.secondary, textAlign: 'center'}}
+          textColor={Colors.text.subtitle}
+          style={{textAlign: 'center'}}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}>
           On Port, you connect by sharing 'Ports' instead of phone numbers or
@@ -56,6 +74,7 @@ function HomescreenPlaceholder({
         />
         <View style={{marginTop: PortSpacing.secondary.top}}>
           <NumberlessText
+            textColor={Colors.text.subtitle}
             style={{textAlign: 'center'}}
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>

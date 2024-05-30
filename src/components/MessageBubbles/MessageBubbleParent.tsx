@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -20,6 +20,7 @@ import {MessageBubble} from './MessageBubble';
 import {InfoBubble} from './InfoBubble';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import DynamicColors from '@components/DynamicColors';
 
 //Currently only sends read receipts for DMs
 const sendReadReceipt = async (chatId: string, message: SavedMessageParams) => {
@@ -54,6 +55,7 @@ const MessagePrecursor = ({
   hasExtraPadding: boolean;
   isDateBoundary: boolean;
 }): ReactNode => {
+  const Colors = DynamicColors();
   return (
     <View style={styles.precursorContainer}>
       {isDateBoundary && (
@@ -61,7 +63,7 @@ const MessagePrecursor = ({
           <NumberlessText
             fontSizeType={FontSizeType.s}
             fontType={FontType.md}
-            textColor={PortColors.title}>
+            textColor={Colors.text.primary}>
             {getDateStamp(message.timestamp)}
           </NumberlessText>
         </View>

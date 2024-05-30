@@ -2,13 +2,10 @@
  * Reusable avatar box component.
  * Takes the following props:
  * 1. profileUri (optional) - if none is specified, uses default silhouette
- * If specifying actual location use:
- *  - if loading from cache, use file://... structure
- *  - if loading from app storage, use any structure (relative or absolute).
- * If specifying an avatar use: avatar://avatar_id
  * 2. boxSize - s , m (default), l
  * 3. onPress (optional)
  */
+import {PortColors} from '@components/ComponentUtils';
 import {DirectAvatarMapping} from '@configs/avatarmapping';
 import {AVATAR_ARRAY} from '@configs/constants';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -24,7 +21,7 @@ export function AvatarBox({
   fromPreview = true,
 }: {
   profileUri?: string | null;
-  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+' | 'm+';
+  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+';
   onPress?: () => void;
   fromPreview?: boolean;
 }) {
@@ -159,12 +156,14 @@ function DisplayFromMediaId({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediaUri]);
   return (
-    imageUri && (
-      <Image
-        source={{uri: getDisplayableUri(imageUri)}}
-        style={avatarSizeStylePicker(avatarSize)}
-      />
-    )
+    <>
+      {imageUri && (
+        <Image
+          source={{uri: getDisplayableUri(imageUri)}}
+          style={avatarSizeStylePicker(avatarSize)}
+        />
+      )}
+    </>
   );
 }
 
@@ -189,16 +188,13 @@ const styles = StyleSheet.create({
     height: 58,
     width: 58,
     borderRadius: 12,
+    borderWidth: 0.5,
+    borderColor: PortColors.stroke,
   },
   large: {
     height: 170,
     width: 170,
     borderRadius: 56,
-  },
-  mediumLarge: {
-    height: 132,
-    width: 132,
-    borderRadius: 44,
   },
   intermediate: {
     height: 75,

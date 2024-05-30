@@ -77,7 +77,7 @@ export async function moveToLargeFileDir(
   chatId: string,
   fileUri: string,
   fileName: string | null,
-  contentType: ContentType,
+  contentType: ContentType = ContentType.image,
   deleteOriginal: boolean = true,
 ): Promise<string> {
   if (contentType === ContentType.displayImage) {
@@ -100,6 +100,26 @@ export async function moveToLargeFileDir(
     );
   }
 }
+
+/**
+ * Checks if an uri is an avatar uri.
+ * @param uri
+ * @returns
+ */
+export const isAvatarUri = (uri: string) => {
+  const isAvatar = uri.substring(0, 9) === 'avatar://';
+  return isAvatar;
+};
+
+/**
+ * Checks if an uri is a media uri.
+ * @param uri
+ * @returns
+ */
+export const isMediaUri = (uri: string) => {
+  const isMedia = uri.substring(0, 8) === 'media://';
+  return isMedia;
+};
 
 /**
  * Creates a copy of the large file in the files directory of a chat.
@@ -325,10 +345,14 @@ export function getSafeAbsoluteURI(
   fileURI: string,
   _location: 'doc' | 'cache' | 'tmp' = 'doc',
 ): string {
+  if (!fileURI || isAvatarUri(fileURI) || isMediaUri(fileURI)) {
+    return fileURI;
+  }
   if (
     fileURI &&
     (fileURI.includes(RNFS.CachesDirectoryPath) ||
-      fileURI.includes(RNFS.TemporaryDirectoryPath))
+      fileURI.includes(RNFS.TemporaryDirectoryPath) ||
+      fileURI.includes(RNFS.DocumentDirectoryPath))
   ) {
     return addFilePrefix(fileURI);
   } else {
@@ -393,7 +417,7 @@ export async function moveToTmp(source: string, fileName?: string) {
   }
 }
 
-function getFileNameFromUri(uri: string): string {
+export function getFileNameFromUri(uri: string): string {
   try {
     const pathname = uri;
     const fileName = pathname.substring(pathname.lastIndexOf('/') + 1);

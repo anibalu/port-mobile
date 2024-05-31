@@ -100,8 +100,8 @@ android {
         applicationId "com.numberless"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.2.1"
+        versionCode 4
+        versionName "1.6.0"
     }
    packagingOptions {
       pickFirst 'lib/x86/libc++_shared.so'

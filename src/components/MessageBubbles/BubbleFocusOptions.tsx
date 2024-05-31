@@ -7,7 +7,11 @@ import {
 import {Animated, StyleSheet, TouchableHighlight, View} from 'react-native';
 import React, {useEffect, useRef} from 'react';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
-import {ContentType} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  ReportMessageContentTypes,
+  UnForwardableMessageContentTypes,
+} from '@utils/Messaging/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import DynamicColors from '@components/DynamicColors';
 import {useTheme} from 'src/context/ThemeContext';
@@ -26,11 +30,15 @@ const BubbleFocusOptions = () => {
   } = useChatContext();
 
   const allowReport =
-    selectedMessage?.message.contentType === ContentType.text ||
-    ContentType.image ||
-    ContentType.video ||
-    ContentType.link ||
-    ContentType.audioRecording;
+    selectedMessage && selectedMessage.message
+      ? ReportMessageContentTypes.includes(selectedMessage.message.contentType)
+      : false;
+  const allowForward =
+    selectedMessage && selectedMessage.message
+      ? !UnForwardableMessageContentTypes.includes(
+          selectedMessage.message.contentType,
+        )
+      : true;
 
   const isDeleted =
     selectedMessage?.message.contentType === ContentType.deleted;
@@ -131,7 +139,7 @@ const BubbleFocusOptions = () => {
           </View>
         </TouchableHighlight>
       )}
-      {!isDeleted && (
+      {!isDeleted && allowForward && (
         <TouchableHighlight
           underlayColor={Colors.primary.background}
           activeOpacity={1}

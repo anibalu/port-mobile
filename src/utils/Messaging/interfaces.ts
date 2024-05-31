@@ -102,11 +102,28 @@ export const DisappearMessageExemptContentTypes = [
   ContentType.disappearingMessages,
 ];
 
-export const SelectableMessageContentTypes = [
+/**
+ * Which content types cannot be selected
+ */
+export const UnSelectableMessageContentTypes = [
+  ContentType.deleted,
+  ContentType.contactBundle,
+];
+export const UnForwardableMessageContentTypes = [
+  ContentType.deleted,
+  ContentType.contactBundle,
+];
+
+/**
+ * Which content types cannot be reported
+ */
+export const ReportMessageContentTypes = [
   ContentType.text,
+  ContentType.link,
   ContentType.image,
-  ContentType.file,
   ContentType.video,
+  ContentType.audioRecording,
+  ContentType.file,
 ];
 
 export const connectionUpdateExemptTypes = [

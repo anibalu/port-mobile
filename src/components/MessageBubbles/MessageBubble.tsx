@@ -4,6 +4,7 @@ import {
   ContentType,
   MessageStatus,
   SavedMessageParams,
+  UnSelectableMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 import {StyleSheet, View, Animated, Pressable, Easing} from 'react-native';
@@ -159,7 +160,7 @@ export const MessageBubble = ({
             {position: 'absolute', left: -40, alignSelf: 'center'},
             {transform: [{translateX: moveAnim}]},
           ]}>
-          {message.contentType !== ContentType.deleted && (
+          {!UnSelectableMessageContentTypes.includes(message.contentType) && (
             <CheckBox
               value={
                 selectionMode && selectedMessages.includes(message.messageId)

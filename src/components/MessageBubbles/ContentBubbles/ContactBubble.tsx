@@ -34,14 +34,15 @@ const ContactBubble = ({message}: {message: SavedMessageParams}) => {
         (message.data as ContactBundleParams).bundle.portId,
       );
       setBundle(getBundle);
-
-      const chat = new DirectChat(
-        (message.data as ContactBundleParams).createdChatId,
-      );
-      const chatData = await chat.getChatData();
-      setChatName(chatData.name);
-      setAuthenticated(chatData.authenticated);
-      setDisconnected(chatData.disconnected);
+      if ((message.data as ContactBundleParams).createdChatId) {
+        const chat = new DirectChat(
+          (message.data as ContactBundleParams).createdChatId,
+        );
+        const chatData = await chat.getChatData();
+        setChatName(chatData.name);
+        setAuthenticated(chatData.authenticated);
+        setDisconnected(chatData.disconnected);
+      }
     })();
   }, [message]);
 

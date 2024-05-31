@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -13,12 +13,13 @@ import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import React, {useCallback, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import {updateConnection} from '@utils/Connections';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {ChatTileProps} from '@components/ChatTile/ChatTile';
 import {defaultFolderInfo} from '@configs/constants';
 import PrimaryButton from '../LongButtons/PrimaryButton';
 import {updateChatPermissions} from '@utils/ChatPermissions';
 import DynamicColors from '@components/DynamicColors';
+import AddFolder from '@assets/icons/AddFolder.svg';
 
 const MoveToFolder = ({
   selectedConnections,
@@ -30,7 +31,9 @@ const MoveToFolder = ({
   buttonText,
   buttonColor,
   currentFolder,
+  setSelectedFolderData,
 }: {
+  setSelectedFolderData: (folder: FolderInfo) => void;
   selectedConnections: ChatTileProps[];
   setSelectedConnections: (x: ChatTileProps[]) => void;
   setSelectionMode: (x: boolean) => void;
@@ -96,6 +99,15 @@ const MoveToFolder = ({
   const onRadioClick = async (item: FolderInfo) => {
     setSelectedFolder(item);
   };
+
+  const filteredFolders = folders.filter(folder => {
+    return (
+      folder.folderId !== 'all' && folder.folderId !== currentFolder.folderId
+    );
+  });
+
+  const navigation = useNavigation();
+
   return (
     <PrimaryBottomSheet
       showClose={true}
@@ -104,7 +116,7 @@ const MoveToFolder = ({
       onClose={onClose}
       title="Move chats to a folder">
       <NumberlessText
-        textColor={PortColors.subtitle}
+        textColor={Colors.text.subtitle}
         style={{
           width: '100%',
           marginVertical: PortSpacing.secondary.uniform,
@@ -114,17 +126,32 @@ const MoveToFolder = ({
         When you move a chat to a chat folder, its initial settings will be
         inherited from the settings set for the folder.
       </NumberlessText>
+
       <SimpleCard style={styles.cardWrapper}>
-        <NumberlessText
-          style={{
-            marginVertical: PortSpacing.secondary.uniform,
-            paddingHorizontal: PortSpacing.secondary.uniform,
-          }}
-          textColor={Colors.text.primary}
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.md}>
-          Choose folder
-        </NumberlessText>
+        {filteredFolders.length > 0 ? (
+          <NumberlessText
+            style={{
+              marginVertical: PortSpacing.secondary.uniform,
+              paddingHorizontal: PortSpacing.secondary.uniform,
+            }}
+            textColor={Colors.text.primary}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}>
+            Choose folder
+          </NumberlessText>
+        ) : (
+          <NumberlessText
+            style={{
+              textAlign: 'center',
+              marginVertical: PortSpacing.secondary.uniform,
+              paddingHorizontal: PortSpacing.secondary.uniform,
+            }}
+            textColor={Colors.primary.mediumgrey}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}>
+            No folders data available
+          </NumberlessText>
+        )}
         <FlatList
           data={
             currentFolder.folderId === 'all'
@@ -154,13 +181,31 @@ const MoveToFolder = ({
           }}
         />
       </SimpleCard>
-      <PrimaryButton
-        buttonText={buttonText}
-        primaryButtonColor={buttonColor}
-        isLoading={isLoading}
-        disabled={false}
-        onClick={onClick}
-      />
+
+      {filteredFolders.length > 0 ? (
+        <PrimaryButton
+          buttonText={buttonText}
+          primaryButtonColor={buttonColor}
+          isLoading={isLoading}
+          disabled={false}
+          onClick={onClick}
+        />
+      ) : (
+        <PrimaryButton
+          buttonText="Create a chat folder"
+          Icon={AddFolder}
+          primaryButtonColor="b"
+          onClick={() => {
+            onClose();
+            navigation.navigate('CreateFolder', {
+              setSelectedFolder: setSelectedFolderData,
+            });
+          }}
+          iconSize="s"
+          disabled={false}
+          isLoading={false}
+        />
+      )}
     </PrimaryBottomSheet>
   );
 };

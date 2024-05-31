@@ -149,6 +149,7 @@ const styling = (colors: any) =>
       borderColor: colors.labels.stroke,
       marginBottom: PortSpacing.tertiary.uniform,
       gap: PortSpacing.tertiary.uniform,
+      marginTop: PortSpacing.tertiary.uniform,
     },
     retryButton: {
       flexDirection: 'row',

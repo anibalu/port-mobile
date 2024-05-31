@@ -158,7 +158,7 @@ const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
                 <NumberlessText
                   fontSizeType={FontSizeType.m}
                   fontType={FontType.md}
-                  textColor={Colors.primary.accent}>
+                  textColor={Colors.button.accent}>
                   Allow Once
                 </NumberlessText>
               </Pressable>
@@ -173,7 +173,7 @@ const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
             <NumberlessText
               fontSizeType={FontSizeType.m}
               fontType={FontType.md}
-              textColor={Colors.primary.accent}>
+              textColor={Colors.button.accent}>
               Manage Settings
             </NumberlessText>
           </Pressable>

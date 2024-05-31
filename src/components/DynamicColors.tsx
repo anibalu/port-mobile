@@ -33,6 +33,7 @@ const DynamicColors = () => {
     text: {
       subtitle: '#65626F',
       primary: '#04000F',
+      memberName: '#6A35FF',
     },
     messagebubble: {
       receiver: '#E2D8FF',
@@ -54,6 +55,7 @@ const DynamicColors = () => {
     button: {
       black: '#05070B',
       disabled: '#BCB8C7',
+      accent: '#6A35FF',
     },
   };
   const dark = {
@@ -73,6 +75,7 @@ const DynamicColors = () => {
     text: {
       subtitle: '#CFCCD9',
       primary: '#EAECF0',
+      memberName: '#FFFFFF',
     },
     messagebubble: {
       receiver: '#6A35FF',
@@ -82,7 +85,6 @@ const DynamicColors = () => {
       replyBubbleReceive: '#05070B',
       border: '#EAECF0',
     },
-
     labels: {
       fill: '#2F343B',
       stroke: '#424857',
@@ -90,11 +92,12 @@ const DynamicColors = () => {
     },
     progress: {
       container: '#9E82ED',
-      bar: 'white',
+      bar: '#FFFFFF',
     },
     button: {
       black: '#6A35FF',
       disabled: '#61616B',
+      accent: '#9E82ED',
     },
   };
   return themeValue === 'light' ? light : dark;

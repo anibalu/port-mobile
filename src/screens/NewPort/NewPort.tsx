@@ -4,7 +4,6 @@
 import {SafeAreaView} from '@components/SafeAreaView';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
-import ScanIcon from '@assets/icons/scanBlue.svg';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
 import {PortSpacing} from '@components/ComponentUtils';
@@ -203,15 +202,21 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
 
   const Colors = DynamicColors();
   const svgArray = [
-    // 1.Clock
+    // 1.CrossButton
     {
       assetName: 'CrossButton',
       light: require('@assets/light/icons/Cross.svg').default,
       dark: require('@assets/dark/icons/Cross.svg').default,
     },
+    {
+      assetName: 'ScanIcon',
+      light: require('@assets/icons/scanBlue.svg').default,
+      dark: require('@assets/dark/icons/scanBlue.svg').default,
+    },
   ];
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
+  const ScanIcon = results.ScanIcon;
 
   return (
     <>

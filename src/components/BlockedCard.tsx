@@ -76,7 +76,7 @@ const styling = (colors: any) =>
       width: '100%',
       paddingHorizontal: PortSpacing.secondary.uniform,
       paddingTop: PortSpacing.secondary.uniform,
-      marginTop: PortSpacing.primary.top,
+      marginTop: PortSpacing.secondary.top,
     },
     title: {
       flexDirection: 'row',

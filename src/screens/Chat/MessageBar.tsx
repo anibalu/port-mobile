@@ -985,7 +985,7 @@ const styling = (colors: any) =>
       minHeight: 40,
       color: colors.text.primary,
       //Remove additional padding on Android
-      ...(!isIOS && {paddingBottom: 0, paddingTop: 2}),
+      ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
       overflow: 'hidden',
       alignSelf: 'stretch',
       paddingRight: 5,

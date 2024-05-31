@@ -52,7 +52,7 @@ export const ImageReplyBubble = ({
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}
-          textColor={Colors.primary.accent}
+          textColor={Colors.text.memberName}
           numberOfLines={1}>
           {memberName}
         </NumberlessText>

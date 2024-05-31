@@ -54,6 +54,7 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {createPreview} from '@utils/ImageUtils';
 import DynamicColors from '@components/DynamicColors';
+import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -384,7 +385,20 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
       <CustomStatusBar backgroundColor={Colors.primary.genericblack} />
       <SafeAreaView style={{backgroundColor: 'black'}}>
         <View style={styles.screen}>
-          <Whitecross
+          <TopBarWithRightIcon
+            bgColor="b"
+            IconRight={Whitecross}
+            heading={''}
+            onIconRightPress={() => {
+              if (onRemove) {
+                for (const t of dataList) {
+                  onRemove(t.data.fileUri);
+                }
+              }
+              navigation.goBack();
+            }}
+          />
+          {/* <Whitecross
             style={styles.whiteCrossIcon}
             disabled={isSending}
             onPress={() => {
@@ -395,7 +409,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
               }
               navigation.goBack();
             }}
-          />
+          /> */}
 
           <Carousel
             layout="default"

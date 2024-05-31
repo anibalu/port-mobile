@@ -20,7 +20,6 @@ import {
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
-import {useTheme} from 'src/context/ThemeContext';
 import DynamicColors from '@components/DynamicColors';
 
 const QrWithLogo = ({
@@ -37,7 +36,6 @@ const QrWithLogo = ({
     | GroupSuperportBundle
     | null;
 }) => {
-  const {themeValue} = useTheme();
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
@@ -63,12 +61,10 @@ const QrWithLogo = ({
     <View style={styles.qrBox}>
       {qrData && (
         <QRCode
-          backgroundColor={Colors.primary.surface}
-          color={
-            themeValue === 'dark' ? Colors.primary.white : Colors.primary.black
-          }
+          backgroundColor="white"
+          color="black"
           value={jsonToUrl(qrData as any)!}
-          size={styles.qrBox.width}
+          size={styles.qrBox.width - 10}
         />
       )}
       <View style={styles.logoBox}>
@@ -87,6 +83,7 @@ const styling = (color: any) =>
       alignItems: 'center',
       borderRadius: PortSpacing.tertiary.uniform,
       overflow: 'hidden',
+      backgroundColor: 'white',
     },
     logoBox: {
       position: 'absolute',

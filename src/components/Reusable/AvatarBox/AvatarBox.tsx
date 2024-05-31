@@ -5,7 +5,6 @@
  * 2. boxSize - s , m (default), l
  * 3. onPress (optional)
  */
-import {PortColors} from '@components/ComponentUtils';
 import {DirectAvatarMapping} from '@configs/avatarmapping';
 import {AVATAR_ARRAY} from '@configs/constants';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -188,8 +187,6 @@ const styles = StyleSheet.create({
     height: 58,
     width: 58,
     borderRadius: 12,
-    borderWidth: 0.5,
-    borderColor: PortColors.stroke,
   },
   large: {
     height: 170,

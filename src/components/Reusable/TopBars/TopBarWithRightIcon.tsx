@@ -24,15 +24,23 @@ const TopBarWithRightIcon = ({
   IconRight,
   heading,
   onIconRightPress,
+  bgColor,
 }: {
+  bgColor?: 'b' | 'g';
   onIconRightPress: () => void;
   IconRight?: FC<SvgProps>;
   heading: string;
 }) => {
   const Colors = DynamicColors();
-  const styles = styling(Colors);
   return (
-    <View style={styles.topbarAcontainer}>
+    <View
+      style={StyleSheet.compose(styles.topbarAcontainer, {
+        backgroundColor: bgColor
+          ? bgColor === 'b'
+            ? Colors.primary.background
+            : Colors.primary.surface
+          : Colors.primary.surface,
+      })}>
       <NumberlessText
         style={{textAlign: 'center'}}
         numberOfLines={1}
@@ -53,17 +61,16 @@ const TopBarWithRightIcon = ({
   );
 };
 
-const styling = colors =>
-  StyleSheet.create({
-    topbarAcontainer: {
-      flexDirection: 'row',
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      alignItems: 'center',
-      backgroundColor: colors.primary.surface,
-      height: 56,
-      justifyContent: 'center',
-      width: '100%',
-    },
-  });
+const styles = StyleSheet.create({
+  topbarAcontainer: {
+    flexDirection: 'row',
+    paddingHorizontal: PortSpacing.secondary.uniform,
+    alignItems: 'center',
+
+    height: 56,
+    justifyContent: 'center',
+    width: '100%',
+  },
+});
 
 export default TopBarWithRightIcon;

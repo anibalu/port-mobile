@@ -101,7 +101,7 @@ const styling = (color: any) =>
       color: color.primary.red,
     },
     whiteButtonText: {color: color.primary.white},
-    blueButtonText: {color: color.primary.accent},
+    blueButtonText: {color: color.button.accent},
   });
 
 export default TertiaryButton;

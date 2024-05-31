@@ -804,6 +804,7 @@ function Home({route, navigation}: Props) {
               buttonColor="r"
             />
             <MoveToFolder
+              setSelectedFolderData={setSelectedFolderData}
               selectedConnections={selectedConnections}
               setSelectedConnections={setSelectedConnections}
               setSelectionMode={setSelectionMode}

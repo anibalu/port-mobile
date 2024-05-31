@@ -114,7 +114,7 @@ const styling = (color: any) =>
       borderWidth: 1,
     },
     blueButton: {
-      borderColor: color.primary.accentLight,
+      borderColor: color.button.accent,
       borderWidth: 1,
     },
     redButtonText: {
@@ -122,7 +122,7 @@ const styling = (color: any) =>
     },
     whiteButtonText: {color: color.primary.white},
     blackButtonText: {color: color.primary.black},
-    blueButtonText: {color: color.primary.accentLight},
+    blueButtonText: {color: color.button.accent},
     button: {
       alignItems: 'center',
       height: 50,

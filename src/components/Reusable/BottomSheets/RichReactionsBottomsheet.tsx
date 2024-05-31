@@ -16,8 +16,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import BlackCross from '@assets/icons/BlackCross.svg';
+import {PortSpacing} from '@components/ComponentUtils';
 import {getRichReactions} from '@utils/Storage/reactions';
 import SimpleCard from '../Cards/SimpleCard';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
@@ -26,6 +25,8 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
 import {getProfilePictureUri} from '@utils/Profile';
 import DirectChat from '@utils/DirectChats/DirectChat';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 interface ReactionItem {
   senderName?: string;
@@ -91,8 +92,20 @@ const RichReactionsBottomsheet = ({
     await sender.send();
     onClose();
   };
+  const Colors = DynamicColors();
 
-  const renderBarItem = (item: ReactionItem, index: number) => {
+  const svgArray = [
+    // 1.CrossButton
+    {
+      assetName: 'CrossButton',
+      light: require('@assets/light/icons/Cross.svg').default,
+      dark: require('@assets/dark/icons/Cross.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const CrossButton = results.CrossButton;
+
+  const renderBarItem = (item: ReactionItem, index: number, Colors: any) => {
     const selfReactedMessage = item.senderId === 'SELF' ? item : null;
     const receiverReactedMessage = item.senderId === 'PEER' ? item : null;
 
@@ -108,6 +121,7 @@ const RichReactionsBottomsheet = ({
           />
           <View style={styles.barItemTextContainer}>
             <NumberlessText
+              textColor={Colors.text.primary}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               {item.senderId === 'SELF'
@@ -116,7 +130,7 @@ const RichReactionsBottomsheet = ({
             </NumberlessText>
             {item.senderId === 'SELF' && (
               <NumberlessText
-                textColor={PortColors.subtitle}
+                textColor={Colors.text.subtitle}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
                 Tap to remove
@@ -134,7 +148,7 @@ const RichReactionsBottomsheet = ({
     );
   };
 
-  const renderPillItem = (item: ReactionItem, index: number) => {
+  const renderPillItem = (item: ReactionItem, index: number, Colors: any) => {
     let count = 1;
 
     if (item.reaction === 'All') {
@@ -158,18 +172,22 @@ const RichReactionsBottomsheet = ({
           {
             borderColor:
               selectedPillIndex === index
-                ? PortColors.primary.blue.app
-                : PortColors.stroke,
+                ? Colors.primary.accent
+                : Colors.primary.stroke,
           },
         ]}>
         <NumberlessText
+          textColor={Colors.text.primary}
           fontSizeType={
             item.reaction === 'All' ? FontSizeType.l : FontSizeType.exs
           }
           fontType={FontType.rg}>
           {item.reaction}
         </NumberlessText>
-        <NumberlessText fontSizeType={FontSizeType.l} fontType={FontType.rg}>
+        <NumberlessText
+          textColor={Colors.text.primary}
+          fontSizeType={FontSizeType.l}
+          fontType={FontType.rg}>
           {count}
         </NumberlessText>
       </Pressable>
@@ -183,6 +201,7 @@ const RichReactionsBottomsheet = ({
           reaction =>
             reaction.reaction === reactions[selectedPillIndex - 1]?.reaction,
         );
+  const styles = styling(Colors);
 
   return (
     <PrimaryBottomSheet
@@ -199,10 +218,10 @@ const RichReactionsBottomsheet = ({
           showsVerticalScrollIndicator={false}
           scrollEnabled={false}
           horizontal={true}
-          renderItem={({item, index}) => renderPillItem(item, index)}
+          renderItem={({item, index}) => renderPillItem(item, index, Colors)}
         />
         <Pressable onPress={onClose}>
-          <BlackCross width={24} height={24} />
+          <CrossButton width={24} height={24} />
         </Pressable>
       </View>
 
@@ -214,50 +233,51 @@ const RichReactionsBottomsheet = ({
           showsVerticalScrollIndicator={false}
           scrollEnabled={false}
           horizontal={false}
-          renderItem={({item, index}) => renderBarItem(item, index)}
+          renderItem={({item, index}) => renderBarItem(item, index, Colors)}
         />
       </SimpleCard>
     </PrimaryBottomSheet>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: PortSpacing.secondary.top,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  barItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-  barItemTextContainer: {
-    gap: 1,
-    flex: 1,
-    marginHorizontal: PortSpacing.secondary.uniform,
-  },
-  pillItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginRight: PortSpacing.tertiary.uniform,
-    borderWidth: 1,
-    paddingHorizontal: PortSpacing.tertiary.uniform,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backgroundColor: PortColors.primary.white,
-  },
-  simpleCardContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    marginTop: PortSpacing.secondary.top,
-    marginBottom: PortSpacing.secondary.bottom,
-  },
-});
+const styling = Colors =>
+  StyleSheet.create({
+    container: {
+      paddingTop: PortSpacing.secondary.top,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    barItemContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 4,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+    },
+    barItemTextContainer: {
+      gap: 1,
+      flex: 1,
+      marginHorizontal: PortSpacing.secondary.uniform,
+    },
+    pillItemContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      marginRight: PortSpacing.tertiary.uniform,
+      borderWidth: 1,
+      paddingHorizontal: PortSpacing.tertiary.uniform,
+      paddingVertical: 4,
+      borderRadius: 12,
+      backgroundColor: Colors.primary.surface,
+    },
+    simpleCardContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      marginTop: PortSpacing.secondary.top,
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+  });
 
 export default RichReactionsBottomsheet;

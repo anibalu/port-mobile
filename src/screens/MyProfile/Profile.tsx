@@ -11,11 +11,7 @@ import {
   getWeight,
 } from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {
-  APP_VERSION,
-  DEFAULT_NAME,
-  DEFAULT_PROFILE_AVATAR_INFO,
-} from '@configs/constants';
+import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {setNewProfilePicture, updateProfileName} from '@utils/Profile';
@@ -144,30 +140,22 @@ function MyProfile({route, navigation}: Props): ReactNode {
                 setSelected={setSelectedTheme}
               />
               <BlockedCard listLength={blockedContactsLength} />
+              <BackupCard />
               <NumberlessText
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}
                 textColor={colors.text.subtitle}
                 style={{
                   textAlign: 'center',
-                  marginTop: PortSpacing.secondary.uniform,
+                  marginVertical: PortSpacing.secondary.uniform,
                 }}>
                 To restore from a backup, install a new copy of the Port app.
                 Open the app, tap 'Restore backup' and then locate the backup
                 file.
               </NumberlessText>
-              <BackupCard />
             </View>
           </View>
           <View style={styles.bottomContainer}>
-            <NumberlessText
-              style={styles.versionText}
-              textColor={colors.text.subtitle}
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}>
-              version {APP_VERSION}
-            </NumberlessText>
-
             <PrimaryButton
               disabled={false}
               isLoading={false}
@@ -226,6 +214,7 @@ const styling = (colors: any) =>
     bottomContainer: {
       flexDirection: 'column',
       alignItems: 'center',
+      marginTop: 20,
       width: '100%',
     },
     profilePictureHitbox: {

@@ -25,7 +25,7 @@ export const TextReplyBubble = ({
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}
-          textColor={Colors.primary.accent}
+          textColor={Colors.text.memberName}
           numberOfLines={1}>
           {memberName}
         </NumberlessText>
@@ -41,7 +41,7 @@ export const TextReplyBubble = ({
   );
 };
 
-const styling = Colors =>
+const styling = (Colors: any) =>
   StyleSheet.create({
     container: {
       flexDirection: 'row',

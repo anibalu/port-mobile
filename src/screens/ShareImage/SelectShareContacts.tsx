@@ -1,9 +1,4 @@
-import {
-  PortColors,
-  PortSpacing,
-  isIOS,
-  screen,
-} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import MultiSelectMembers from '@components/Reusable/MultiSelectMembers/MultiSelectMembers';
 import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
@@ -11,8 +6,7 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import React, {useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, View, ScrollView} from 'react-native';
-import BackIcon from '@assets/icons/navigation/BlackArrowLeftThin.svg';
-import SearchIcon from '@assets/icons/searchThin.svg';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
 import {getConnections} from '@utils/Connections';
 import SearchBar from '@components/Reusable/TopBars/SearchBar';
@@ -21,6 +15,8 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SelectShareContacts'>;
 
@@ -52,9 +48,30 @@ const SelectShareContacts = ({route, navigation}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    {
+      assetName: 'SearchIcon',
+      light: require('@assets/light/icons/search.svg').default,
+      dark: require('@assets/dark/icons/search.svg').default,
+    },
+    {
+      assetName: 'BackIcon',
+      light: require('@assets/light/icons/navigation/BlackArrowLeftThin.svg')
+        .default,
+      dark: require('@assets/dark/icons/navigation/BlackArrowLeftThin.svg')
+        .default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const SearchIcon = results.SearchIcon;
+  const BackIcon = results.BackIcon;
+
   return (
     <>
-      <CustomStatusBar backgroundColor={PortColors.primary.white} />
+      <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={styles.screen}>
         {isSearchActive ? (
           <View style={styles.barWrapper}>
@@ -130,34 +147,35 @@ const SelectShareContacts = ({route, navigation}: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    alignSelf: 'center',
-    justifyContent: 'flex-start',
-    width: screen.width,
-    backgroundColor: PortColors.background,
-  },
-  scrollViewContainer: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-  barWrapper: {
-    paddingHorizontal: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: PortColors.primary.white,
-    borderBottomColor: '#EEE',
-    borderBottomWidth: 0.5,
-    height: TOPBAR_HEIGHT,
-  },
-  buttonWrapper: {
-    paddingVertical: PortSpacing.secondary.top,
-  },
-});
+const styling = (Color: any) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      alignSelf: 'center',
+      justifyContent: 'flex-start',
+      width: screen.width,
+      backgroundColor: Color.primary.background,
+    },
+    scrollViewContainer: {
+      flex: 1,
+      width: '100%',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+    },
+    barWrapper: {
+      paddingHorizontal: 15,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: Color.primary.surface,
+      borderBottomColor: '#EEE',
+      borderBottomWidth: 0.5,
+      height: TOPBAR_HEIGHT,
+    },
+    buttonWrapper: {
+      paddingVertical: PortSpacing.secondary.top,
+    },
+  });
 
 export default SelectShareContacts;

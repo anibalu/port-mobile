@@ -110,7 +110,6 @@ const ContactBubble = ({message}: {message: SavedMessageParams}) => {
 
       {!message.sender && (
         <>
-          <LineSeparator />
           <GetButton
             clickHandle={handleConnect}
             bundle={bundle}
@@ -140,28 +139,50 @@ function GetButton({
   const Colors = DynamicColors();
   if (!accepted && !createdChatId) {
     return (
-      <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-        <NumberlessText
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.md}
-          textColor={Colors.primary.accent}>
-          Connect
-        </NumberlessText>
-      </Pressable>
-    );
-  } else if (createdChatId) {
-    if (authenticated) {
-      return (
+      <>
+        <LineSeparator />
+
         <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
           <NumberlessText
             fontSizeType={FontSizeType.m}
             fontType={FontType.md}
             textColor={Colors.primary.accent}>
-            Message
+            Connect
           </NumberlessText>
         </Pressable>
+      </>
+    );
+  } else if (createdChatId) {
+    if (authenticated) {
+      return (
+        <>
+          <LineSeparator />
+          <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+            <NumberlessText
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.md}
+              textColor={Colors.primary.accent}>
+              Message
+            </NumberlessText>
+          </Pressable>
+        </>
       );
     } else {
+      <>
+        <LineSeparator />
+        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}
+            textColor={Colors.primary.accent}>
+            Connecting...
+          </NumberlessText>
+        </Pressable>
+      </>;
+    }
+  } else if (bundle && accepted) {
+    <>
+      <LineSeparator />
       <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
         <NumberlessText
           fontSizeType={FontSizeType.m}
@@ -169,26 +190,20 @@ function GetButton({
           textColor={Colors.primary.accent}>
           Connecting...
         </NumberlessText>
-      </Pressable>;
-    }
-  } else if (bundle && accepted) {
-    <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-      <NumberlessText
-        fontSizeType={FontSizeType.m}
-        fontType={FontType.md}
-        textColor={Colors.primary.accent}>
-        Connecting...
-      </NumberlessText>
-    </Pressable>;
+      </Pressable>
+    </>;
   } else {
-    <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-      <NumberlessText
-        fontSizeType={FontSizeType.m}
-        fontType={FontType.md}
-        textColor={Colors.primary.accent}>
-        Expired
-      </NumberlessText>
-    </Pressable>;
+    <>
+      <LineSeparator />
+      <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
+        <NumberlessText
+          fontSizeType={FontSizeType.m}
+          fontType={FontType.md}
+          textColor={Colors.primary.accent}>
+          Expired
+        </NumberlessText>
+      </Pressable>
+    </>;
   }
 }
 const styles = StyleSheet.create({

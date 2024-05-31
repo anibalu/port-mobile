@@ -54,6 +54,6 @@ const styling = Colors =>
       paddingVertical: PortSpacing.tertiary.uniform,
       paddingHorizontal: PortSpacing.tertiary.left,
       borderLeftWidth: 4,
-      borderColor: Colors.primary.accent,
+      borderColor: Colors.messagebubble.border,
     },
   });

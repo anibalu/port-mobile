@@ -62,7 +62,7 @@ const styling = Colors =>
       paddingVertical: PortSpacing.tertiary.uniform,
       paddingHorizontal: PortSpacing.tertiary.left,
       borderLeftWidth: 4,
-      borderColor: Colors.primary.accent,
+      borderColor: Colors.messagebubble.border,
       maxWidth: MAX_WIDTH_REPLY - REPLY_MEDIA_WIDTH,
     },
     imageContainer: {

@@ -480,6 +480,7 @@ function DisplayStatus({
 }): ReactNode {
   const Colors = DynamicColors();
   const styles = styling(Colors);
+
   const svgArray = [
     {
       assetName: 'Read',
@@ -487,14 +488,14 @@ function DisplayStatus({
       dark: require('@assets/dark/icons/Read.svg').default,
     },
     {
-      assetName: 'Sent',
-      light: require('@assets/light/icons/Sent.svg').default,
-      dark: require('@assets/icons/statusIndicators/sent.svg').default,
-    },
-    {
       assetName: 'Delivered',
       light: require('@assets/light/icons/Received.svg').default,
       dark: require('@assets/dark/icons/Received.svg').default,
+    },
+    {
+      assetName: 'Sent',
+      light: require('@assets/light/icons/Sent.svg').default,
+      dark: require('@assets/icons/statusIndicators/sent.svg').default,
     },
   ];
 

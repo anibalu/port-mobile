@@ -38,7 +38,8 @@ const DynamicColors = () => {
       sender: '#FFFFFF',
       reply: '#EDF2FF',
       replyBubbleInner: '#F4F4F5',
-      replyBubbleReceive: '#F4F4F5',
+      replyBubbleReceive: '#F3F2F7',
+      border: '#6A35FF',
     },
     labels: {
       fill: '#FFFCEB',
@@ -78,7 +79,9 @@ const DynamicColors = () => {
       reply: '#FFFFFF',
       replyBubbleInner: '#9E82ED',
       replyBubbleReceive: '#05070B',
+      border: '#EAECF0',
     },
+
     labels: {
       fill: '#2F343B',
       stroke: '#424857',

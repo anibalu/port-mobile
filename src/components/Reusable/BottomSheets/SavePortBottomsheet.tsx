@@ -97,7 +97,10 @@ const SavePortBottomsheet = ({
         shouldKeepPort ? "Enter contact's name" : 'QR code scan not detected'
       }
       titleStyle={styles.title}
-      onClose={onClose}>
+      onClose={() => {
+        setShouldKeepPort(false);
+        onClose();
+      }}>
       <View style={styles.mainWrapper}>
         {shouldKeepPort ? (
           <>

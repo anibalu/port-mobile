@@ -3,7 +3,7 @@
  */
 import {SafeAreaView} from '@components/SafeAreaView';
 import React, {ReactNode, useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
 import ScanIcon from '@assets/icons/scanBlue.svg';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
@@ -167,6 +167,40 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestNewConnection]);
 
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        closeAction();
+        return true;
+      },
+    );
+
+    return () => backHandler.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const closeAction = async () => {
+    if (linkData && qrData) {
+      const generatedPort: PortData = await getGeneratedPortData(qrData.portId);
+      if (
+        generatedPort.label &&
+        generatedPort.label !== '' &&
+        generatedPort.label !== DEFAULT_NAME
+      ) {
+        navigation.goBack();
+        return true;
+      }
+    }
+    if (qrData) {
+      //ask user if they want to save the port.
+      setOpenShouldKeepPortModal(true);
+      return true;
+    }
+    navigation.goBack();
+    return true;
+  };
+
   const Colors = DynamicColors();
   const svgArray = [
     // 1.Clock
@@ -184,27 +218,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
-          onIconRightPress={async () => {
-            if (linkData && qrData) {
-              const generatedPort: PortData = await getGeneratedPortData(
-                qrData.portId,
-              );
-              if (
-                generatedPort.label &&
-                generatedPort.label !== '' &&
-                generatedPort.label !== DEFAULT_NAME
-              ) {
-                navigation.goBack();
-                return;
-              }
-            }
-            if (qrData) {
-              //ask user if they want to save the port.
-              setOpenShouldKeepPortModal(true);
-              return;
-            }
-            navigation.goBack();
-          }}
+          onIconRightPress={closeAction}
           IconRight={CrossButton}
           heading={'New Port'}
         />

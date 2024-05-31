@@ -30,7 +30,7 @@ type ModalProviderProps = {
 };
 
 export const ThemeProvider: React.FC<ModalProviderProps> = ({children}) => {
-  const [themeValue, setThemeValue] = useState<ThemeType>(ThemeType.default);
+  const [themeValue, setThemeValue] = useState<ThemeType>(ThemeType.dark);
   const appearance = useColorScheme();
 
   /**

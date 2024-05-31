@@ -99,10 +99,7 @@ function SetupUser({route, navigation}: Props) {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <View style={styles.container}>
           <Loader />

@@ -113,10 +113,7 @@ function SideDrawer({
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={{backgroundColor: Colors.primary.surface}}>
         <View style={styles.drawerContainer}>
           <View style={styles.myprofileWrapper}>

@@ -619,10 +619,7 @@ function Home({route, navigation}: Props) {
             width: screen.width,
             height: isIOS ? screen.height : screen.height + insets.top,
           }}>
-          <CustomStatusBar
-            barStyle="dark-content"
-            backgroundColor={colors.primary.surface}
-          />
+          <CustomStatusBar backgroundColor={colors.primary.surface} />
           <SafeAreaView style={{backgroundColor: colors.primary.background}}>
             <View
               style={[

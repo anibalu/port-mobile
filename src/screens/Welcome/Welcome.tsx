@@ -57,10 +57,7 @@ function Welcome({navigation}: Props) {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.defaultdark}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.defaultdark} />
       <SafeAreaView style={styles.container}>
         <View style={styles.greeting}>
           <Logo width={screen.width} />

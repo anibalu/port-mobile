@@ -1,4 +1,4 @@
-import {PortColors} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -23,12 +23,13 @@ export const DisappearingMessageInfoBubble = ({
     getLabelByTimeDiff(
       (message.data as DisappearingMessageParams).timeoutValue,
     ) === 'Off';
+  const Colors = DynamicColors();
   return (
     <NumberlessText
       fontSizeType={FontSizeType.s}
       fontType={FontType.rg}
       style={{textAlign: 'center'}}
-      textColor={PortColors.text.primary}>
+      textColor={Colors.text.primary}>
       {turnedOff
         ? displayName + 'turned off disappearing messages'
         : displayName +

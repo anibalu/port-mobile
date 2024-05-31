@@ -54,10 +54,7 @@ const SelectShareContacts = ({route, navigation}: Props) => {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
-      />
+      <CustomStatusBar backgroundColor={PortColors.primary.white} />
       <SafeAreaView style={styles.screen}>
         {isSearchActive ? (
           <View style={styles.barWrapper}>

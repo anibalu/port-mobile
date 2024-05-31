@@ -182,7 +182,6 @@ const ContactProfile = ({route, navigation}: Props) => {
   return (
     <>
       <CustomStatusBar
-        barStyle="dark-content"
         backgroundColor={
           showUserInfoInTopbar
             ? Colors.primary.surface

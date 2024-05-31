@@ -91,10 +91,7 @@ function NameScreen({navigation}: Props): ReactNode {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.background}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.background} />
       <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <View style={styles.container}>

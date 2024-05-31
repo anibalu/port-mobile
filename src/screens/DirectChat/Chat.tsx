@@ -180,10 +180,7 @@ function ChatScreen() {
 
   return (
     <AudioPlayerProvider>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <GestureSafeAreaView style={styles.screen}>
         <ChatBackground />
         <ChatTopbar />

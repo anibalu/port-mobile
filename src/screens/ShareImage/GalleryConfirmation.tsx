@@ -381,10 +381,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="light-content"
-        backgroundColor={Colors.primary.genericblack}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.genericblack} />
       <SafeAreaView style={{backgroundColor: 'black'}}>
         <View style={styles.screen}>
           <Whitecross

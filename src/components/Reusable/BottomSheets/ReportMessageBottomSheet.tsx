@@ -5,7 +5,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {StyleSheet, View, Keyboard} from 'react-native';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 
@@ -19,6 +19,7 @@ import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers'
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {safeModalCloseDuration} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
+import DynamicColors from '@components/DynamicColors';
 
 function ReportMessageBottomSheet({
   openModal,
@@ -130,6 +131,8 @@ function ReportMessageBottomSheet({
     onClose();
   };
 
+  const Colors = DynamicColors();
+
   return (
     <PrimaryBottomSheet
       bgColor="g"
@@ -140,7 +143,7 @@ function ReportMessageBottomSheet({
       <View style={styles.mainContainer}>
         <NumberlessText
           style={{marginTop: PortSpacing.secondary.top}}
-          textColor={PortColors.subtitle}
+          textColor={Colors.text.subtitle}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}>
           {description}

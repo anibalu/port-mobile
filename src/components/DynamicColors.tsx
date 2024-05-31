@@ -12,6 +12,7 @@ const DynamicColors = () => {
     accent: '#6A35FF', //purple
     white: '#FFFFFF',
     genericblack: '#000000',
+    accentLight: '#9E82ED',
     accentOverlay: 'rgba(106, 53, 255, 0.24)',
     defaultdark: '#05070b',
   };

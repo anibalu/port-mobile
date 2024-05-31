@@ -57,7 +57,7 @@ type TypographyProps = TextProps & {
  * @returns
  */
 export const NumberlessLinkText: React.FC<
-  TypographyProps & {children: string}
+  TypographyProps & {children: string; linkColor?: string}
 > = ({
   children,
   style,
@@ -65,11 +65,16 @@ export const NumberlessLinkText: React.FC<
   fontSizeType,
   onLayout = () => {},
   textColor = PortColors.text.primary,
+  linkColor,
 }) => (
   <Autolink
     text={children}
     url
     email
+    linkStyle={{
+      color: linkColor,
+      textDecorationLine: 'underline',
+    }}
     onLayout={onLayout}
     style={StyleSheet.compose(
       {

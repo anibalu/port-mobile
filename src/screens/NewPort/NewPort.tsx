@@ -181,10 +181,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
           onIconRightPress={async () => {

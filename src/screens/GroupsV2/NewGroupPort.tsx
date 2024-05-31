@@ -93,10 +93,7 @@ const NewGroupPort = ({route}: Props) => {
   }, [latestNewConnection]);
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
-      />
+      <CustomStatusBar backgroundColor={PortColors.primary.white} />
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}

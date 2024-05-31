@@ -85,10 +85,7 @@ const ShareContact = ({route, navigation}: Props) => {
   const BackIcon = results.BackIcon;
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={styles.screen}>
         {isSearchActive ? (
           <View style={styles.barWrapper}>

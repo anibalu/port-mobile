@@ -78,10 +78,7 @@ const CreateNewGroup = () => {
   };
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
-      />
+      <CustomStatusBar backgroundColor={PortColors.primary.white} />
       <SafeAreaView style={{backgroundColor: PortColors.background}}>
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}

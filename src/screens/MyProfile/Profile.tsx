@@ -109,14 +109,10 @@ function MyProfile({route, navigation}: Props): ReactNode {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={colors.primary.background}
-      />
+      <CustomStatusBar backgroundColor={colors.primary.background} />
       <SafeAreaView style={styles.profileScreen}>
+        <BackTopbar onBackPress={() => navigation.goBack()} />
         <ScrollView contentContainerStyle={styles.profile}>
-          <BackTopbar onBackPress={() => navigation.goBack()} />
-
           <View style={{alignItems: 'center', width: '100%'}}>
             <View style={styles.profilePictureHitbox}>
               <AvatarBox

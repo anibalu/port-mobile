@@ -12,7 +12,8 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {Image, KeyboardAvoidingView, StyleSheet, View} from 'react-native';
-import Upload from '@assets/icons/UploadImageAccent.svg';
+import Upload from '@assets/icons/GalleryAccentLight.svg';
+import UploadBlack from '@assets/icons/GalleryOutline.svg';
 import AddImage from '@assets/icons/AddImage.svg';
 import BlueCross from '@assets/icons/BlueCross.svg';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
@@ -20,6 +21,8 @@ import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import DeviceInfo from 'react-native-device-info';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {submitBugReport} from '@utils/BugReporting/bug_reports';
+import DynamicColors from '@components/DynamicColors';
+import {useTheme} from 'src/context/ThemeContext';
 
 const GiveUsFeedbackScreen = () => {
   const navigation = useNavigation();
@@ -79,12 +82,13 @@ const GiveUsFeedbackScreen = () => {
     });
   };
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const {themeValue} = useTheme();
+
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={PortColors.background}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.background} />
       <SafeAreaView style={styles.screen}>
         <BackTopbar bgColor="g" onBackPress={() => navigation.goBack()} />
         <KeyboardAvoidingView
@@ -96,7 +100,7 @@ const GiveUsFeedbackScreen = () => {
               <NumberlessText
                 fontSizeType={FontSizeType.xl}
                 fontType={FontType.sb}
-                textColor={PortColors.title}
+                textColor={Colors.text.primary}
                 style={{
                   textAlign: 'left',
                   marginTop: PortSpacing.secondary.uniform,
@@ -106,7 +110,7 @@ const GiveUsFeedbackScreen = () => {
               <NumberlessText
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}
-                textColor={PortColors.text.secondary}
+                textColor={Colors.text.subtitle}
                 style={{
                   marginTop: PortSpacing.tertiary.top,
                   marginBottom: PortSpacing.secondary.top,
@@ -145,8 +149,8 @@ const GiveUsFeedbackScreen = () => {
               ) : (
                 <SecondaryButton
                   buttonText="Upload image"
-                  secondaryButtonColor="b"
-                  Icon={Upload}
+                  secondaryButtonColor={themeValue === 'dark' ? 'b' : 'black'}
+                  Icon={themeValue === 'dark' ? Upload : UploadBlack}
                   iconSize="s"
                   onClick={() => openImageGallery()}
                 />
@@ -179,35 +183,36 @@ const GiveUsFeedbackScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: PortColors.background,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 20,
-    flexWrap: 'wrap',
-  },
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 12,
-  },
-  scrollViewContainer: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
-  cross: {
-    position: 'absolute',
-    right: -5,
-    top: -5,
-  },
-  component: {
-    marginHorizontal: 20,
-    justifyContent: 'space-between',
-    flex: 1,
-    marginBottom: PortSpacing.secondary.uniform,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    screen: {
+      backgroundColor: colors.primary.background,
+    },
+    row: {
+      flexDirection: 'row',
+      gap: 20,
+      flexWrap: 'wrap',
+    },
+    image: {
+      width: 50,
+      height: 50,
+      borderRadius: 12,
+    },
+    scrollViewContainer: {
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+    },
+    cross: {
+      position: 'absolute',
+      right: -5,
+      top: -5,
+    },
+    component: {
+      marginHorizontal: 20,
+      justifyContent: 'space-between',
+      flex: 1,
+      marginBottom: PortSpacing.secondary.uniform,
+    },
+  });
 export default GiveUsFeedbackScreen;

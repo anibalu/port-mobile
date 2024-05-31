@@ -164,10 +164,7 @@ export default function QRScanner() {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="light-content"
-        backgroundColor={Colors.primary.black}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.background} />
       <SafeAreaView style={styles.container}>
         <ErrorBottomSheet
           visible={showErrorModal}

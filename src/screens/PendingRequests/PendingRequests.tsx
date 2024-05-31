@@ -51,10 +51,7 @@ const PendingRequests = () => {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <BackTopbar
           title={`Pending Ports ${getDisplayLength()}`}

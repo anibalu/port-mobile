@@ -8,7 +8,8 @@
  * 4. Show limit
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -41,6 +42,9 @@ const LargeTextInput = ({
   };
   const [isFocused, setIsFocused] = useState(false);
 
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   return (
     <View
       style={{
@@ -51,12 +55,12 @@ const LargeTextInput = ({
         paddingBottom: PortSpacing.intermediate.bottom,
         ...{
           borderColor: isFocused
-            ? PortColors.primary.blue.app
-            : PortColors.stroke,
+            ? Colors.primary.accent
+            : Colors.primary.stroke,
           backgroundColor:
             bgColor && bgColor === 'g'
-              ? PortColors.primary.grey.light
-              : PortColors.primary.white,
+              ? Colors.primary.mediumgrey
+              : Colors.primary.surface,
         },
       }}>
       <TextInput
@@ -69,7 +73,7 @@ const LargeTextInput = ({
         multiline
         placeholder={placeholderText}
         maxLength={maxLength === 'inf' ? undefined : maxLength}
-        placeholderTextColor={PortColors.primary.grey.medium}
+        placeholderTextColor={Colors.primary.mediumgrey}
         onChangeText={onTextChange}
         textAlignVertical="top"
         value={text}
@@ -78,7 +82,7 @@ const LargeTextInput = ({
         <NumberlessText
           fontType={FontType.rg}
           fontSizeType={FontSizeType.s}
-          textColor={PortColors.text.secondary}
+          textColor={Colors.primary.mediumgrey}
           style={styles.inputCounterStyle}>
           {text.length}/{maxLength}
         </NumberlessText>
@@ -87,23 +91,24 @@ const LargeTextInput = ({
   );
 };
 
-const styles = StyleSheet.create({
-  inputText: {
-    alignSelf: 'stretch',
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.m,
-    fontWeight: getWeight(FontType.rg),
-    color: PortColors.subtitle,
-    maxHeight: 100,
-    height: undefined,
-    minHeight: 100,
-    paddingHorizontal: 16,
-  },
-  inputCounterStyle: {
-    position: 'absolute',
-    bottom: PortSpacing.tertiary.bottom,
-    right: 16,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    inputText: {
+      alignSelf: 'stretch',
+      fontFamily: FontType.rg,
+      fontSize: FontSizeType.m,
+      fontWeight: getWeight(FontType.rg),
+      color: colors.text.subtitle,
+      maxHeight: 100,
+      height: undefined,
+      minHeight: 100,
+      paddingHorizontal: 16,
+    },
+    inputCounterStyle: {
+      position: 'absolute',
+      bottom: PortSpacing.tertiary.bottom,
+      right: 16,
+    },
+  });
 
 export default LargeTextInput;

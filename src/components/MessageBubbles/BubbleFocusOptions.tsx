@@ -10,6 +10,7 @@ import {useChatContext} from '@screens/DirectChat/ChatContext';
 import {ContentType} from '@utils/Messaging/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import DynamicColors from '@components/DynamicColors';
+import {useTheme} from 'src/context/ThemeContext';
 
 const BubbleFocusOptions = () => {
   const {
@@ -93,6 +94,17 @@ const BubbleFocusOptions = () => {
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
+  const {themeValue} = useTheme();
+
+  const dynamicOptionWrapperStyle = StyleSheet.compose(
+    styles.optionButtonWrapper,
+    {
+      borderBottomColor:
+        themeValue === 'dark'
+          ? Colors.primary.stroke
+          : Colors.primary.mediumgrey,
+    },
+  );
 
   return (
     <Animated.View
@@ -107,7 +119,7 @@ const BubbleFocusOptions = () => {
           underlayColor={Colors.primary.background}
           activeOpacity={1}
           onPress={onReply}
-          style={styles.optionButtonWrapper}>
+          style={dynamicOptionWrapperStyle}>
           <View style={styles.optionButton}>
             <NumberlessText
               textColor={Colors.text.primary}
@@ -124,7 +136,7 @@ const BubbleFocusOptions = () => {
           underlayColor={Colors.primary.background}
           activeOpacity={1}
           onPress={onForward}
-          style={styles.optionButtonWrapper}>
+          style={dynamicOptionWrapperStyle}>
           <View style={styles.optionButton}>
             <NumberlessText
               textColor={Colors.text.primary}
@@ -141,7 +153,7 @@ const BubbleFocusOptions = () => {
           underlayColor={Colors.primary.background}
           activeOpacity={1}
           onPress={onCopyClicked}
-          style={styles.optionButtonWrapper}>
+          style={dynamicOptionWrapperStyle}>
           <View style={styles.optionButton}>
             <NumberlessText
               textColor={Colors.text.primary}
@@ -159,7 +171,7 @@ const BubbleFocusOptions = () => {
           underlayColor={Colors.primary.background}
           activeOpacity={1}
           onPress={onSelect}
-          style={styles.optionButtonWrapper}>
+          style={dynamicOptionWrapperStyle}>
           <View style={styles.optionButton}>
             <NumberlessText
               textColor={Colors.text.primary}
@@ -176,7 +188,7 @@ const BubbleFocusOptions = () => {
           underlayColor={Colors.primary.background}
           activeOpacity={1}
           onPress={onReport}
-          style={styles.optionButtonWrapper}>
+          style={dynamicOptionWrapperStyle}>
           <View style={styles.optionButton}>
             <NumberlessText
               textColor={Colors.text.primary}
@@ -193,7 +205,7 @@ const BubbleFocusOptions = () => {
         underlayColor={Colors.primary.background}
         activeOpacity={1}
         onPress={onDelete}
-        style={StyleSheet.compose(styles.optionButtonWrapper, {
+        style={StyleSheet.compose(dynamicOptionWrapperStyle, {
           borderBottomWidth: 0,
         })}>
         <View style={styles.optionButton}>
@@ -222,11 +234,10 @@ const styling = (colors: any) =>
       width: '100%',
       padding: PortSpacing.secondary.uniform,
       borderBottomWidth: 0.25,
-      borderBottomColor: colors.primary.stroke,
     },
     optionsContainer: {
       marginTop: 4,
-      backgroundColor: colors.primary.surface,
+      backgroundColor: colors.primary.surface2,
       borderRadius: 12,
       overflow: 'hidden',
       width: 200,

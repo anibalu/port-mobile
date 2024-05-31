@@ -9,6 +9,7 @@
  */
 
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -48,6 +49,7 @@ const LargeInputWithImageAttachment = ({
     }
   };
   const [isFocused, setIsFocused] = useState(false);
+  const Colors = DynamicColors();
 
   return (
     <View
@@ -58,14 +60,14 @@ const LargeInputWithImageAttachment = ({
         paddingVertical: PortSpacing.secondary.bottom,
         ...{
           borderColor: isEmpty
-            ? PortColors.primary.red.error
+            ? Colors.primary.red
             : isFocused
-            ? PortColors.primary.blue.app
-            : PortColors.stroke,
+            ? Colors.primary.accent
+            : Colors.primary.stroke,
           backgroundColor:
             bgColor && bgColor === 'g'
               ? PortColors.primary.grey.light
-              : PortColors.primary.white,
+              : Colors.primary.surface,
         },
       }}>
       <TextInput
@@ -78,7 +80,7 @@ const LargeInputWithImageAttachment = ({
         multiline
         placeholder={placeholderText}
         maxLength={maxLength === 'inf' ? undefined : maxLength}
-        placeholderTextColor={PortColors.primary.grey.medium}
+        placeholderTextColor={Colors.primary.mediumgrey}
         onChangeText={onTextChange}
         textAlignVertical="top"
         value={text}
@@ -121,7 +123,7 @@ const LargeInputWithImageAttachment = ({
             style={{flex: 1, textAlign: 'right'}}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.s}
-            textColor={PortColors.text.secondary}>
+            textColor={Colors.primary.mediumgrey}>
             {text.length}/{maxLength}
           </NumberlessText>
         )}

@@ -155,10 +155,7 @@ const Superports = ({route, navigation}: Props) => {
   const FilterIcon = results.FilterIcon;
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
-      />
+      <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         {isSearchActive ? (
           <View style={styles.barWrapper}>

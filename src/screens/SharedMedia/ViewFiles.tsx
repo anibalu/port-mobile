@@ -15,11 +15,11 @@ import FileViewer from 'react-native-file-viewer';
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
-import {MediaActionsBar} from '@screens/SharedMedia/MediaActionsBar';
 import FileTile from './FileTile';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {screen} from '@components/ComponentUtils';
 import Icon from '@assets/icons/NoFilesFound.svg';
+import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
 import DynamicColors from '@components/DynamicColors';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewFiles'>;

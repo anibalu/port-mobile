@@ -15,7 +15,6 @@ import {
 import {
   RenderTimeStamp,
   handleDownload,
-  handleMediaOpen,
   IMAGE_DIMENSIONS,
 } from '../BubbleUtils';
 import {useErrorModal} from 'src/context/ErrorModalContext';
@@ -25,6 +24,7 @@ import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {TextBubble} from './TextBubble';
 import LinearGradient from 'react-native-linear-gradient';
 import Download from '@assets/icons/Download.svg';
+import {useNavigation} from '@react-navigation/native';
 import UploadSend from '@assets/icons/UploadSend.svg';
 import {
   FontSizeType,
@@ -62,10 +62,17 @@ export const ImageBubble = ({
     await download();
     setStartedManualDownload(false);
   };
-  const handlePressFunction = () => {
+  const navigation = useNavigation();
+  const handlePressFunction = async () => {
     const selectionMode = handlePress(message.messageId);
     if (!selectionMode) {
-      handleMediaOpen(imageUri, triggerDownload, mediaDownloadError);
+      if (imageUri === null) {
+        triggerDownload();
+      } else {
+        navigation.navigate('MediaViewer', {
+          message: message,
+        });
+      }
     }
   };
   const handleLongPressFunction = () => {

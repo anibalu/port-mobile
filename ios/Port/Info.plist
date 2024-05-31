@@ -82,6 +82,10 @@
       <string>Rubik-SemiBold.ttf</string>
       <string>Rubik-SemiBoldItalic.ttf</string>
     </array>
+    <key>UIAppFonts</key>
+    <array>
+      <string>MaterialIcons.ttf</string>
+    </array>
     <key>UIBackgroundModes</key>
     <array>
       <string>fetch</string>

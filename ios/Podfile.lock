@@ -422,6 +422,11 @@ PODS:
     - React-Core
   - react-native-sqlite-storage (6.0.1):
     - React-Core
+  - react-native-video (5.2.1):
+    - React-Core
+    - react-native-video/Video (= 5.2.1)
+  - react-native-video/Video (5.2.1):
+    - React-Core
   - react-native-view-shot (3.8.0):
     - React-Core
   - React-NativeModulesApple (0.72.10):
@@ -589,6 +594,9 @@ PODS:
     - React-Core
   - RNSVG (13.14.0):
     - React-Core
+  - RNVectorIcons (10.1.0):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - SocketRocket (0.6.1)
   - VisionCamera (3.9.1):
     - React
@@ -641,6 +649,7 @@ DEPENDENCIES:
   - react-native-receive-sharing-intent (from `../node_modules/react-native-receive-sharing-intent`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
+  - react-native-video (from `../node_modules/react-native-video`)
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -680,6 +689,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -776,6 +786,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-sqlite-storage:
     :path: "../node_modules/react-native-sqlite-storage"
+  react-native-video:
+    :path: "../node_modules/react-native-video"
   react-native-view-shot:
     :path: "../node_modules/react-native-view-shot"
   React-NativeModulesApple:
@@ -854,6 +866,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  RNVectorIcons:
+    :path: "../node_modules/react-native-vector-icons"
   VisionCamera:
     :path: "../node_modules/react-native-vision-camera"
   Yoga:
@@ -910,6 +924,7 @@ SPEC CHECKSUMS:
   react-native-receive-sharing-intent: 62ab28c50e6ae56d32b9e841d7452091312a0bc7
   react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
   react-native-sqlite-storage: f6d515e1c446d1e6d026aa5352908a25d4de3261
+  react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
   React-NativeModulesApple: c3e696ff867e4bc212266cbdf7e862e48a0166fd
   React-perflogger: 43287389ea08993c300897a46f95cfac04bb6c1a
@@ -949,6 +964,7 @@ SPEC CHECKSUMS:
   RNScreens: bb06f14b5c352e603f2527caac02ca0d6398c6e5
   RNShare: 32e97adc8d8c97d4a26bcdd3c45516882184f8b6
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
+  RNVectorIcons: bfb663f3f7b37340cd90120151b720641523dc84
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   VisionCamera: 52f98e7628f9deea3e311c3b6d4870bb44445e05
   Yoga: d0003f849d2b5224c072cef6568b540d8bb15cd3

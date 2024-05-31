@@ -16,7 +16,6 @@ import UploadSend from '@assets/icons/UploadSend.svg';
 import {
   RenderTimeStamp,
   handleDownload,
-  handleMediaOpen,
   IMAGE_DIMENSIONS,
 } from '../BubbleUtils';
 import {useErrorModal} from 'src/context/ErrorModalContext';
@@ -27,6 +26,7 @@ import {TextBubble} from './TextBubble';
 import LinearGradient from 'react-native-linear-gradient';
 import Download from '@assets/icons/Download.svg';
 import Play from '@assets/icons/videoPlay.svg';
+import {useNavigation} from '@react-navigation/native';
 import {
   FontSizeType,
   FontType,
@@ -74,6 +74,7 @@ export const VideoBubble = ({
   };
 
   const {mediaDownloadError} = useErrorModal();
+  const navigation = useNavigation();
   const download = async () => {
     try {
       await handleDownload(message.chatId, message.messageId);
@@ -90,7 +91,13 @@ export const VideoBubble = ({
   const handlePressFunction = () => {
     const selectionMode = handlePress(message.messageId);
     if (!selectionMode) {
-      handleMediaOpen(fileUri, triggerDownload, mediaDownloadError);
+      if (fileUri === null) {
+        triggerDownload();
+      } else {
+        navigation.navigate('MediaViewer', {
+          message: message,
+        });
+      }
     }
   };
   const handleLongPressFunction = () => {

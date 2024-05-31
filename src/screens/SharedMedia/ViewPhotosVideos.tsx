@@ -7,7 +7,6 @@ import {
 } from '@components/NumberlessText';
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {MediaActionsBar} from '@screens/SharedMedia/MediaActionsBar';
 import {MediaEntry} from '@utils/Media/interfaces';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -17,6 +16,7 @@ import {Image, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import {TabStackParamList} from './SharedMedia';
 import Icon from '@assets/icons/NoFilesFound.svg';
+import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
 import DynamicColors from '@components/DynamicColors';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewPhotosVideos'>;

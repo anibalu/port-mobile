@@ -31,6 +31,7 @@ import MoveToFolder from '@screens/Folder/MoveToFolder';
 import CreateNewGroup from '@screens/GroupsV2/CreateNewGroup';
 import NewGroupPort from '@screens/GroupsV2/NewGroupPort';
 import GiveUsFeedbackScreen from '@screens/Feedback/GiveUsFeedbackScreen';
+import MediaViewer from '@screens/MediaViewer/MediaViewer';
 import QRScanner from '@screens/Scanner/QRScanner';
 import BlockedContacts from '@screens/BlockedContacts/BlockedContacts';
 import PreviewShareablePort from '@screens/Superport/PreviewSharablePort';
@@ -80,6 +81,7 @@ function AppStack() {
             name="GiveUsFeedbackScreen"
             component={GiveUsFeedbackScreen}
           />
+          <Stack.Screen name="MediaViewer" component={MediaViewer} />
           <Stack.Screen name="Scan" component={QRScanner} />
           <Stack.Screen name="BlockedContacts" component={BlockedContacts} />
           <Stack.Screen

@@ -16,10 +16,10 @@ import Icon from '@assets/icons/NoFilesFound.svg';
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
-import {MediaActionsBar} from '@screens/SharedMedia/MediaActionsBar';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import LinkTile from './LinkTile';
+import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewLinks'>;
 

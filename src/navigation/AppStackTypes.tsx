@@ -1,5 +1,6 @@
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
 
 export type AppStackParamList = {
@@ -79,5 +80,6 @@ export type AppStackParamList = {
   CreateNewGroup: undefined;
   NewGroupPort: {groupId: string};
   GiveUsFeedbackScreen: undefined;
+  MediaViewer: {message: SavedMessageParams};
   BlockedContacts: undefined;
 };

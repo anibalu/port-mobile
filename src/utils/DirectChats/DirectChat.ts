@@ -65,7 +65,7 @@ class DirectChat {
     if (lineId) {
       // If I created the bundle
       if (!introMessage) {
-        // requre an intro message
+        // require an intro message
         return;
       }
       this.chatId = lineId;
@@ -78,7 +78,6 @@ class DirectChat {
       await storage.newLine(this.chatId);
       update.pairHash = pairHash;
       await storage.updateLine(this.chatId, update);
-      await this.loadChatData();
       await this.verifyIntroMessage(introMessage);
     } else if (linkId) {
       // If I read a bundle
@@ -247,6 +246,8 @@ class DirectChat {
    * @param intro an introductory message, used to verify a peer
    */
   public async verifyIntroMessage(intro: IntroMessage): Promise<void> {
+    await this.loadChatData();
+    this.chatData = await this.checkChatDataNotNull();
     const cryptoDriver = await this.getCryptoDriver();
     await cryptoDriver.updateSharedSecret(intro.pubkey);
     const plaintextSecret = JSON.parse(
@@ -254,7 +255,14 @@ class DirectChat {
     ) as PlaintextSecretContent;
     if ((await cryptoDriver.getRad()) === plaintextSecret.rad) {
       await this.toggleAuthenticated();
-      await this.updateName(plaintextSecret.name);
+      //update the name only if not already set.
+      if (
+        !this.chatData.name ||
+        this.chatData.name === '' ||
+        this.chatData.name === DEFAULT_NAME
+      ) {
+        await this.updateName(plaintextSecret.name);
+      }
     }
   }
 }

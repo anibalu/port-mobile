@@ -15,6 +15,7 @@ import {
   screen,
 } from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -222,14 +223,15 @@ const CaptureMedia = ({navigation, route}: Props) => {
   };
 
   let device = useCameraDevice(cameraPosition);
+  const Colors = DynamicColors();
 
   return (
     <>
       <CustomStatusBar
         barStyle="light-content"
-        backgroundColor={PortColors.primary.black}
+        backgroundColor={Colors.primary.genericblack}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.primary.black}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.genericblack}}>
         <View style={styles.container}>
           {isCameraPermissionGranted && device ? (
             <Camera
@@ -287,9 +289,9 @@ const CaptureMedia = ({navigation, route}: Props) => {
               <NumberlessText
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.rg}
-                textColor={PortColors.text.primaryWhite}
+                textColor={Colors.primary.white}
                 style={{
-                  backgroundColor: PortColors.primary.red.error,
+                  backgroundColor: Colors.primary.red,
                   paddingVertical: 4,
                   paddingHorizontal: 11,
                   borderRadius: 16,
@@ -335,7 +337,7 @@ const CaptureMedia = ({navigation, route}: Props) => {
               <NumberlessText
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}
-                textColor={PortColors.text.primaryWhite}>
+                textColor={Colors.primary.white}>
                 Tap for photo, hold for video
               </NumberlessText>
             )}

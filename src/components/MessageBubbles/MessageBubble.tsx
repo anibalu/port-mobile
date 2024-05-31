@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {
   ContentType,
@@ -268,8 +268,8 @@ export const MessageBubble = ({
                   style={{
                     ...styles.replyBubbleContainer,
                     backgroundColor: message.sender
-                      ? PortColors.primary.senderReply
-                      : PortColors.background,
+                      ? Colors.messagebubble.replyBubbleInner
+                      : Colors.messagebubble.replyBubbleReceive,
                   }}>
                   {/* Reply bubble goes here */}
                   <ReplyBubble message={message} isGroupChat={isGroupChat} />

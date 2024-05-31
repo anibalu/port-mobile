@@ -48,7 +48,24 @@ export const VideoBubble = ({
   const [startedManualDownload, setStartedManualDownload] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
   const [loadingRetry, setLoadingRetry] = useState(false);
-  const [videoUri, setVideoUri] = useState<string | null>(null);
+  // this is to show the previewuri
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
+  // this is to open the file
+  const [fileUri, setFileUri] = useState<string | null>(null);
+  useEffect(() => {
+    (async () => {
+      const mediaInfo = await getMedia(message.data?.mediaId);
+      if (mediaInfo) {
+        const previewUri = mediaInfo.previewPath;
+        const fileUri = mediaInfo.filePath;
+        setPreviewUri(previewUri);
+        setFileUri(fileUri);
+      } else {
+        setPreviewUri((message.data as LargeDataParams).previewUri);
+        setFileUri((message.data as LargeDataParams).fileUri);
+      }
+    })();
+  }, [message]);
 
   const onRetryClick = async (messageObj: SavedMessageParams) => {
     setLoadingRetry(true);
@@ -73,7 +90,7 @@ export const VideoBubble = ({
   const handlePressFunction = () => {
     const selectionMode = handlePress(message.messageId);
     if (!selectionMode) {
-      handleMediaOpen(videoUri, triggerDownload, mediaDownloadError);
+      handleMediaOpen(fileUri, triggerDownload, mediaDownloadError);
     }
   };
   const handleLongPressFunction = () => {
@@ -83,18 +100,6 @@ export const VideoBubble = ({
   useEffect(() => {
     setShowRetry(message.messageStatus === MessageStatus.unsent);
     setLoadingRetry(message.messageStatus === MessageStatus.sent);
-  }, [message]);
-
-  useEffect(() => {
-    (async () => {
-      const mediaInfo = await getMedia(message.data?.mediaId);
-      if (mediaInfo) {
-        const image = mediaInfo.filePath;
-        setVideoUri(image);
-      } else {
-        setVideoUri((message.data as LargeDataParams).fileUri);
-      }
-    })();
   }, [message]);
 
   const text = (message.data as TextParams).text;
@@ -116,7 +121,7 @@ export const VideoBubble = ({
           ) : (
             renderDisplay(
               message,
-              videoUri,
+              previewUri,
               message.data as LargeDataParams,
               showRetry,
               loadingRetry,

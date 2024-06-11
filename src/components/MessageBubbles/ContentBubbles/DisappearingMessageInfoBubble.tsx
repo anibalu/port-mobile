@@ -36,7 +36,8 @@ export const DisappearingMessageInfoBubble = ({
           'turned on disappearing messages. New messages will disappear from this chat in ' +
           getLabelByTimeDiff(
             (message.data as DisappearingMessageParams).timeoutValue,
-          )}
+          ) +
+          '.'}
     </NumberlessText>
   );
 };

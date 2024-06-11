@@ -79,7 +79,7 @@ export function getChatTileTimestamp(isoTimestamp: string): string {
   const diffMins = Math.round(diffMs / (1000 * 60));
 
   if (diffMins < 1) {
-    return 'now';
+    return 'Now';
   }
   if (diffMins < 60) {
     return diffMins === 1 ? '1m' : `${diffMins}m`;

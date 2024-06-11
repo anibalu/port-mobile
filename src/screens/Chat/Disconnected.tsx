@@ -18,8 +18,8 @@ const Disconnected = ({name}: {name: string}) => {
         textColor={Colors.text.primary}
         fontSizeType={FontSizeType.s}
         fontType={FontType.rg}>
-        You can no longer send messages, as you and {name} are disconnected. To
-        reconnect with {name}, use a new Port.
+        You can no longer send messages, as you and "{name}" are disconnected.
+        To reconnect with {name}, use a new Port.
       </NumberlessText>
     </View>
   );

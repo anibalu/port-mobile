@@ -43,6 +43,7 @@ import * as storage from '@utils/UserBlocking';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useTheme} from 'src/context/ThemeContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -179,6 +180,8 @@ const ContactProfile = ({route, navigation}: Props) => {
     }
   };
 
+  const {themeValue} = useTheme();
+
   return (
     <>
       <CustomStatusBar
@@ -248,7 +251,9 @@ const ContactProfile = ({route, navigation}: Props) => {
                             textColor={
                               selectedFolder.name === defaultFolderInfo.name
                                 ? Colors.labels.text
-                                : Colors.primary.accent
+                                : themeValue === 'light'
+                                ? Colors.primary.accent
+                                : Colors.primary.white
                             }
                             fontSizeType={FontSizeType.m}
                             fontType={FontType.rg}

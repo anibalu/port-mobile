@@ -114,8 +114,9 @@ function NameScreen({navigation}: Props): ReactNode {
                 paddingHorizontal: PortSpacing.secondary.uniform,
               }}
               textColor={Colors.text.subtitle}>
-              No emails or phone numbers required. Just enter a name to start
-              using Port.
+              Port does not use phone numbers, emails, or usernames. Your name
+              and profile picture are only shared with your connections, never
+              with Port.
             </NumberlessText>
             <View style={styles.profilePictureHitbox}>
               <AvatarBox

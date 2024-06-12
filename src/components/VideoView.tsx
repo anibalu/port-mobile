@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Pressable, ScrollView, StyleSheet} from 'react-native';
-import {PortColors, screen} from './ComponentUtils';
+import {PortColors, isIOS, screen} from './ComponentUtils';
 import LinearGradient from 'react-native-linear-gradient';
 import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import VideoPlayer from 'react-native-video-player';
@@ -48,13 +48,13 @@ const VideoView = ({
       height: 5,
     },
     wrapper: {
-      height: screen.height - 160,
+      height: screen.height - 175,
     },
     videoWrapper: {
-      height: screen.height - 160,
+      height: screen.height - 175,
     },
     video: {
-      height: screen.height - 160,
+      height: screen.height - 175,
     },
   };
 
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   gradientContainer: {
     position: 'absolute',
-    bottom: 115,
+    ...(isIOS ? {bottom: 110} : {bottom: 140}),
     marginRight: 10,
     paddingLeft: 17,
     width: screen.width,

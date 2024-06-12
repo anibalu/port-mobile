@@ -1,6 +1,6 @@
 import Camera from '@assets/icons/CameraThinWhite.svg';
 import Send from '@assets/icons/navigation/WhiteArrowUp.svg';
-import Whitecross from '@assets/icons/closeWhite.svg';
+import Whitecross from '@assets/icons/greyCrossIcon.svg';
 import Delete from '@assets/icons/Whitedelete.svg';
 import Play from '@assets/icons/videoPlay.svg';
 import BlackOverlay from '@assets/miscellaneous/blackOverlay.svg';
@@ -54,7 +54,6 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {createPreview} from '@utils/ImageUtils';
 import DynamicColors from '@components/DynamicColors';
-import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -385,20 +384,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
       <CustomStatusBar backgroundColor={Colors.primary.genericblack} />
       <SafeAreaView style={{backgroundColor: 'black'}}>
         <View style={styles.screen}>
-          <TopBarWithRightIcon
-            bgColor="b"
-            IconRight={Whitecross}
-            heading={''}
-            onIconRightPress={() => {
-              if (onRemove) {
-                for (const t of dataList) {
-                  onRemove(t.data.fileUri);
-                }
-              }
-              navigation.goBack();
-            }}
-          />
-          {/* <Whitecross
+          <Whitecross
             style={styles.whiteCrossIcon}
             disabled={isSending}
             onPress={() => {
@@ -409,7 +395,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
               }
               navigation.goBack();
             }}
-          /> */}
+          />
 
           <Carousel
             layout="default"

@@ -14,6 +14,7 @@ import {DEFAULT_AVATAR, defaultFolderId} from '@configs/constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {getAllFolders} from '@utils/ChatFolders';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import {getLabelByTimeDiff} from '@utils/ChatPermissions';
 import {
   ChatType,
   ConnectionInfo,
@@ -23,6 +24,7 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 import {
   ContactBundleParams,
   ContentType,
+  DisappearingMessageParams,
   MessageStatus,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
@@ -439,7 +441,13 @@ const RenderText = ({
     } else if (newMessage.contentType === ContentType.contactBundle) {
       text = '👤 ' + (newMessage.data as ContactBundleParams).bundle.name;
     } else if (newMessage.contentType === ContentType.disappearingMessages) {
-      text = 'disappearing messages have been turned ON';
+      const turnedOff =
+        getLabelByTimeDiff(
+          (newMessage.data as DisappearingMessageParams).timeoutValue,
+        ) === 'Off';
+      text = turnedOff
+        ? 'Disappearing messages have been turned OFF'
+        : 'Disappearing messages have been turned ON';
       italic = true;
     }
     return (

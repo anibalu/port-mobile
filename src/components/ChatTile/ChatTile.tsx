@@ -493,12 +493,12 @@ function DisplayStatus({
     {
       assetName: 'Read',
       light: require('@assets/light/icons/Read.svg').default,
-      dark: require('@assets/dark/icons/Read.svg').default,
+      dark: require('@assets/dark/icons/PurpleRead.svg').default,
     },
     {
       assetName: 'Delivered',
       light: require('@assets/light/icons/Received.svg').default,
-      dark: require('@assets/dark/icons/Received.svg').default,
+      dark: require('@assets/dark/icons/GreyReceived.svg').default,
     },
     {
       assetName: 'Sent',

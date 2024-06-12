@@ -32,12 +32,17 @@ function HomescreenPlaceholder({
       light: require('@assets/light/icons/newContact.svg').default,
       dark: require('@assets/dark/icons/newContact.svg').default,
     },
+    {
+      assetName: 'ScanIcon',
+      light: require('@assets/icons/scanBlue.svg').default,
+      dark: require('@assets/dark/icons/scanBlue.svg').default,
+    },
   ];
 
   const results = useDynamicSVG(svgArray);
   const NewContactIcon = results.NewContactIcon;
 
-  const ScanIcon = require('@assets/icons/scanBlue.svg').default;
+  const ScanIcon = results.ScanIcon;
 
   return (
     <View style={styles.mainContainer}>

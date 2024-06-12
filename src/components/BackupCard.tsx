@@ -3,7 +3,6 @@ import SimpleCard from './Reusable/Cards/SimpleCard';
 import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import {PortSpacing} from './ComponentUtils';
 import {StyleSheet, View} from 'react-native';
-import BlueRight from '@assets/icons/BlueRight.svg';
 import TertiaryButton from './Reusable/LongButtons/TertiaryButton';
 import {createSecureDataBackup} from '@utils/Backup/backupUtils';
 import {getLastBackupTime} from '@utils/Profile';
@@ -37,9 +36,15 @@ const BackupCard = () => {
       light: require('@assets/light/icons/Clock.svg').default,
       dark: require('@assets/dark/icons/Clock.svg').default,
     },
+    {
+      assetName: 'RightArrowIcon',
+      light: require('@assets/light/icons/RightArrowIcon.svg').default,
+      dark: require('@assets/dark/icons/RightArrowIcon.svg').default,
+    },
   ];
   const results = useDynamicSVG(svgArray);
   const Clock = results.Clock;
+  const RightArrowIcon = results.RightArrowIcon;
 
   const styles = styling(Colors);
 
@@ -84,7 +89,7 @@ const BackupCard = () => {
           onClick={onBackupPress}
           buttonText="Create a backup"
         />
-        <BlueRight style={{marginTop: 1}} />
+        <RightArrowIcon style={{marginTop: 1}} />
       </View>
     </SimpleCard>
   );

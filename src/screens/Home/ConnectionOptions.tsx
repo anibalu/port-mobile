@@ -97,7 +97,7 @@ export default function ConnectionOptions(props: ConnectionOptionsProps) {
           <TouchableOption
             showBorderBottom={false}
             title={'Scan QR'}
-            subtitle={' Scan a QR to add a contact or join a group'}
+            subtitle={'Scan a QR to add a contact or join a group'}
             IconLeft={ScanQRIcon}
             onClick={handleOpenScan}
           />

@@ -49,19 +49,19 @@ const TouchableOption = ({
       activeOpacity={0.6}>
       <View
         style={StyleSheet.compose(styles.listItem, {
-          borderBottomWidth: showBorderBottom ? 1 : 0,
+          borderBottomWidth: showBorderBottom ? 0.5 : 0,
         })}>
         <IconLeft width={24} height={24} />
         <View style={styles.listContentWrapper}>
           <NumberlessText
             style={{color: Colors.primary.mainelements}}
             fontSizeType={FontSizeType.l}
-            fontType={FontType.rg}>
+            fontType={FontType.md}>
             {title}
           </NumberlessText>
           <NumberlessText
             style={{color: Colors.text.subtitle}}
-            fontSizeType={FontSizeType.s}
+            fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>
             {subtitle}
           </NumberlessText>
@@ -86,6 +86,7 @@ const styling = (colors: any) =>
       marginLeft: PortSpacing.secondary.uniform,
       flexDirection: 'column',
       flex: 1,
+      gap: 4,
       alignItems: 'stretch',
       justifyContent: 'center',
     },

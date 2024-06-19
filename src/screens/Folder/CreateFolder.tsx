@@ -104,6 +104,7 @@ const CreateFolder = ({navigation, route}: Props) => {
             </View>
             <View style={styles.chatSettingsContainer}>
               <ChatSettingsCard
+                showDissapearingMessagesOption={false}
                 permissions={permissions}
                 setPermissions={setPermissions}
               />

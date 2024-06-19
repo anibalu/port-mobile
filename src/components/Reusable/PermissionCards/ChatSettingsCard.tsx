@@ -26,8 +26,10 @@ const ChatSettingsCard = ({
   chatId,
   permissionsId,
   permissions,
+  showDissapearingMessagesOption = true,
   setPermissions,
 }: {
+  showDissapearingMessagesOption?: boolean;
   chatId?: string;
   permissionsId?: string;
   permissions: PermissionsStrict;
@@ -181,26 +183,30 @@ const ChatSettingsCard = ({
           onToggle={async () => await onUpdateBooleanPermission('readReceipts')}
         />
       </View>
-      <LineSeparator />
-      <View style={{paddingBottom: PortSpacing.tertiary.bottom}}>
-        <OptionWithChevron
-          IconLeft={ClockIcon}
-          labelActiveState={
-            getLabelByTimeDiff(permissions.disappearingMessages) !== 'Off'
-          }
-          labelText={getLabelByTimeDiff(permissions.disappearingMessages)}
-          heading="Disappearing messages"
-          onClick={() => setShowDissappearingMessageModal(true)}
-        />
-      </View>
-      <DissapearingMessagesBottomsheet
-        showDesappearingMessageModal={showDesappearingMessageModal}
-        setShowDissappearingMessageModal={setShowDissappearingMessageModal}
-        permission={permissions.disappearingMessages}
-        onUpdateDisappearingMessagedPermission={
-          onUpdateDisappearingMessagedPermission
-        }
-      />
+      {showDissapearingMessagesOption && (
+        <>
+          <LineSeparator />
+          <View style={{paddingBottom: PortSpacing.tertiary.bottom}}>
+            <OptionWithChevron
+              IconLeft={ClockIcon}
+              labelActiveState={
+                getLabelByTimeDiff(permissions.disappearingMessages) !== 'Off'
+              }
+              labelText={getLabelByTimeDiff(permissions.disappearingMessages)}
+              heading="Disappearing messages"
+              onClick={() => setShowDissappearingMessageModal(true)}
+            />
+          </View>
+          <DissapearingMessagesBottomsheet
+            showDesappearingMessageModal={showDesappearingMessageModal}
+            setShowDissappearingMessageModal={setShowDissappearingMessageModal}
+            permission={permissions.disappearingMessages}
+            onUpdateDisappearingMessagedPermission={
+              onUpdateDisappearingMessagedPermission
+            }
+          />
+        </>
+      )}
     </SimpleCard>
   );
 };

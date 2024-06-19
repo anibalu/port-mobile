@@ -147,6 +147,7 @@ const EditFolder = ({route, navigation}: Props) => {
             </View>
             <View style={styles.chatSettingsContainer}>
               <ChatSettingsCard
+                showDissapearingMessagesOption={false}
                 permissionsId={selectedFolder.permissionsId}
                 permissions={permissions}
                 setPermissions={setPermissions}

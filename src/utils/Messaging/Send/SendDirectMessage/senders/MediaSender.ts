@@ -101,10 +101,11 @@ export class SendMediaDirectMessage<
       await storage.saveMessage(this.savedMessage);
       this.storeCalls();
       const processedData = await this.encryptedMessage();
+
       const isAPISuccess = await API.sendObject(
         this.chatId,
         processedData,
-        false,
+        this.isNotificationSilent(),
       );
       let sendStatus: MessageStatus;
       if (isAPISuccess === MessageStatus.sent) {
@@ -181,6 +182,7 @@ export class SendMediaDirectMessage<
     try {
       await this.preProcessMedia();
       const processedData = await this.encryptedMessage();
+
       const sendStatus = await API.sendObject(
         this.chatId,
         processedData,

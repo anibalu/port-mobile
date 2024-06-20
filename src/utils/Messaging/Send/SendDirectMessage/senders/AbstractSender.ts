@@ -12,6 +12,14 @@ import {
 } from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
 
+const silentNotificationContentTypes: ContentType[] = [
+  ContentType.displayImage,
+  ContentType.displayAvatar,
+  ContentType.name,
+  ContentType.deleted,
+  ContentType.disappearingMessages,
+];
+
 export abstract class SendDirectMessage<T extends ContentType | null> {
   chatId: string; //chatId of chat
   contentType: ContentType; //contentType of message
@@ -81,6 +89,15 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
     const chatData = await chat.getChatData();
     const cryptoDriver = new CryptoDriver(chatData.cryptoId);
     return {encryptedContent: await cryptoDriver.encrypt(plaintext)};
+  }
+  /**
+   * Checks if the notification silencing flag needs to be added when payload is sent
+   * @returns - boolean value indicating whether flag needs to be added.
+   */
+  isNotificationSilent(): boolean {
+    return silentNotificationContentTypes.includes(this.contentType)
+      ? true
+      : false;
   }
   storeCalls() {
     store.dispatch({

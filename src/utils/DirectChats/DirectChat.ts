@@ -207,13 +207,14 @@ class DirectChat {
     }
     return null;
   }
+
   public async disconnect() {
-    this.chatId = this.checkChatIdNotNull();
-    const didDisconnect = await API.disconnectChat(this.chatId);
+    const chatId = this.checkChatIdNotNull();
+    await API.disconnectChat(chatId);
     await this.updateChatData({disconnected: true});
-    await setConnectionDisconnected(this.chatId);
-    return didDisconnect;
+    await setConnectionDisconnected(chatId);
   }
+
   public async delete() {
     this.chatId = this.checkChatIdNotNull();
     await deleteAllMessagesInChat(this.chatId);

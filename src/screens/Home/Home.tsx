@@ -85,6 +85,7 @@ import MoveToFolder from '@components/Reusable/BottomSheets/MoveToFolderBottomsh
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useTheme} from 'src/context/ThemeContext';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 //Handles notification routing on tapping notification
 const performNotificationRouting = (
@@ -581,6 +582,29 @@ function Home({route, navigation}: Props) {
     };
   }, [connections, opacityAnimation]);
 
+  const {DisconnectChatError} = useErrorModal();
+
+  const disconnectSelectedConnections = async () => {
+    try {
+      await Promise.all(
+        selectedConnections.map(async connection => {
+          const chatHandler = new DirectChat(connection.chatId);
+          await chatHandler.disconnect();
+        }),
+      );
+    } catch (error) {
+      console.error(
+        'Error disconnecting chat. Please check your network connection',
+        error,
+      );
+      DisconnectChatError();
+    } finally {
+      setSelectedConnections([]);
+      setSelectionMode(false);
+      onRefresh();
+    }
+  };
+
   return (
     <GestureHandlerRootView>
       <Swipeable
@@ -764,17 +788,7 @@ function Home({route, navigation}: Props) {
             <ConfirmationBottomSheet
               visible={confirmSheet}
               onClose={() => setConfirmSheet(false)}
-              onConfirm={async () => {
-                await Promise.all(
-                  selectedConnections.map(async connection => {
-                    const chatHandler = new DirectChat(connection.chatId);
-                    await chatHandler.disconnect();
-                  }),
-                );
-                setSelectedConnections([]);
-                setSelectionMode(false);
-                await onRefresh();
-              }}
+              onConfirm={async () => await disconnectSelectedConnections()}
               title={`Are you sure you want to disconnect ${
                 selectedConnections.length > 1 ? 'these chats' : 'this chat'
               } ?`}

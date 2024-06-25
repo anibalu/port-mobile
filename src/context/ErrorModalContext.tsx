@@ -26,6 +26,7 @@ type ModalContextType = {
   somethingWentWrongError: () => void;
   networkError: () => void;
   personOfflineError: () => void;
+  DisconnectChatError: () => void;
   ReportSubmittedError: () => void;
   ReportSubmittedSuccess: () => void;
   unableToDisconnectError: () => void;
@@ -103,6 +104,13 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
   const ReportSubmittedError = () => {
     setErrorToShow({
       text: 'Error submitting report. Please check your network connection',
+      type: 'error',
+    });
+  };
+
+  const DisconnectChatError = () => {
+    setErrorToShow({
+      text: 'Error disconnecting chat. Please check your network connection',
       type: 'error',
     });
   };
@@ -297,6 +305,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         networkError,
         mediaDownloadError,
         personOfflineError,
+        DisconnectChatError,
         ReportSubmittedError,
         ReportSubmittedSuccess,
         MessageDataTooBigError,

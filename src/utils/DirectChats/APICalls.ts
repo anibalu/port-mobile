@@ -60,14 +60,13 @@ export async function disconnectChat(chatId: string) {
       },
       {headers: {Authorization: `${token}`}},
     );
-    return true;
   } catch (error: any) {
     if (typeof error === 'object' && error.response) {
       if (error.response.status === 404) {
-        return true;
+        return;
       }
     }
-    return false;
+    throw new Error('NetworkError');
   }
 }
 

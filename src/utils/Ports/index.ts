@@ -371,7 +371,11 @@ export async function useCreatedBundle(
     ) {
       //this happens when bundle has been deleted locally and somebody has used that bundle.
       //In this case, send a disconnected message to the created chat Id.
-      await disconnectChat(chatId);
+      try {
+        await disconnectChat(chatId);
+      } catch {
+        console.error('Error occurred while disconnecting:', error);
+      }
     }
   }
   triggerPendingRequestsReload();

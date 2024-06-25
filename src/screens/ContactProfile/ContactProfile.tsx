@@ -29,7 +29,11 @@ import {getImagesAndVideos} from '@utils/Storage/media';
 import {MediaEntry} from '@utils/Media/interfaces';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import EditName from '@components/Reusable/BottomSheets/EditName';
-import {defaultFolderInfo, defaultPermissions} from '@configs/constants';
+import {
+  defaultFolderInfo,
+  defaultPermissions,
+  safeModalCloseDuration,
+} from '@configs/constants';
 import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
 
 import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
@@ -43,6 +47,8 @@ import * as storage from '@utils/UserBlocking';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useErrorModal} from 'src/context/ErrorModalContext';
+import {wait} from '@utils/Time';
 import {useTheme} from 'src/context/ThemeContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
@@ -84,6 +90,7 @@ const ContactProfile = ({route, navigation}: Props) => {
     },
   ];
   const results = useDynamicSVG(svgArray);
+  const {DisconnectChatError} = useErrorModal();
 
   const RightChevron = results.RightChevron;
 
@@ -180,6 +187,25 @@ const ContactProfile = ({route, navigation}: Props) => {
     }
   };
 
+  const handleChatDisconnect = async (
+    chatIdString: string,
+    selectedFolderInfo: FolderInfo,
+  ) => {
+    try {
+      const chatHandler = new DirectChat(chatIdString);
+      await chatHandler.disconnect();
+      navigation.navigate('HomeTab', {
+        selectedFolder: {...selectedFolderInfo},
+      });
+    } catch (error) {
+      console.error(
+        'Error disconnecting chat. Please check your network connection',
+        error,
+      );
+      await wait(safeModalCloseDuration);
+      DisconnectChatError();
+    }
+  };
   const {themeValue} = useTheme();
 
   return (
@@ -366,13 +392,9 @@ const ContactProfile = ({route, navigation}: Props) => {
         <ConfirmationBottomSheet
           visible={confirmSheet}
           onClose={() => setConfirmSheet(false)}
-          onConfirm={async () => {
-            const chatHandler = new DirectChat(chatId);
-            await chatHandler.disconnect();
-            navigation.navigate('HomeTab', {
-              selectedFolder: {...selectedFolder},
-            });
-          }}
+          onConfirm={async () =>
+            await handleChatDisconnect(chatId, selectedFolder)
+          }
           title={'Are you sure you want to disconnect this chat?'}
           description={
             'Disconnecting a chat will prevent further messaging. Current chat history will be saved, but you can subsequently choose to delete it.'

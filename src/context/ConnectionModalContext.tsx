@@ -1,10 +1,11 @@
 import {isIOS} from '@components/ComponentUtils';
 import {useNavigation} from '@react-navigation/native';
 import store from '@store/appStore';
-import {handleDeepLink} from '@utils/DeepLinking';
+import {getBundleFromLink} from '@utils/DeepLinking';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {processReadBundles, readBundle} from '@utils/Ports';
 import {FileAttributes} from '@utils/Storage/interfaces';
+import {Mutex} from 'async-mutex';
 import React, {
   ReactNode,
   createContext,
@@ -14,7 +15,6 @@ import React, {
 } from 'react';
 import {Linking} from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
-import {useSelector} from 'react-redux';
 
 type ModalContextType = {
   linkUseError: number;
@@ -71,9 +71,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
           const text = file.text ? file.text : file.weblink;
           sharingMessageObjects.push(text);
           isText = true;
-          console.log('File received is: ', sharingMessageObjects);
         } else {
-          console.log('File is: ', file);
           const msg = {
             contentType: imageRegex.test(file.mimeType)
               ? ContentType.image
@@ -97,58 +95,102 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
     ReceiveSharingIntent.getReceivedFiles(
       handleFilesOps,
       (error: any) => {
-        console.log('Error sharing into RN:', error);
+        console.error('Sharing into RN:', error);
       },
       'PortShare', // share url protocol (must be unique to your app, suggest using your apple bundle id)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkDeeplink = async ({url}: {url: string}) => {
+  // Handles concurrency with links
+  const linkMutex = new Mutex();
+  // When was the last connection made over a link
+  let lastLinkConnectionTime: Date | null = null;
+  // Tracks 3 most recent connection URLs
+  const recentConnectionLinks: string[] = [];
+
+  /**
+   * Connect over any given URL
+   * @param param0
+   * @returns
+   */
+  const connectOverURL = async ({url}: {url: string}) => {
     try {
-      // Checking if PortShare (share into port) is being triggered
+      // Guard against using links managed for sharing media into the app
       if (url.startsWith('PortShare')) {
         return;
-      } else {
-        console.log('calling deep link', url);
-        navigation.navigate('HomeTab');
-        const bundle = await handleDeepLink({url: url});
-        await readBundle(bundle);
-        store.dispatch({
-          type: 'PING',
-          payload: 'PONG',
-        });
-        await processReadBundles();
       }
+      navigation.navigate('HomeTab');
+
+      // Double connection prevention logic
+      await linkMutex.acquire();
+      const compareTime = new Date();
+      // 5 second timeout before you can attempt connection over a link again
+      compareTime.setSeconds(compareTime.getSeconds() - 5);
+      if (
+        (lastLinkConnectionTime && compareTime <= lastLinkConnectionTime) ||
+        recentConnectionLinks.includes(url)
+      ) {
+        linkMutex.release();
+        return;
+      }
+      lastLinkConnectionTime = new Date(); // Update the time that the last connection over a link was attempted
+      recentConnectionLinks.push(url);
+      recentConnectionLinks.slice(-3, undefined); // Only keep 3 most recent connection URLs
+      linkMutex.release();
+
+      // Extract the bundle from a URL
+      const bundle = await getBundleFromLink({url: url});
+      // Add the bundle to the list of read bundles and use ALL bundles read so far
+      await readBundle(bundle);
+      store.dispatch({
+        type: 'PING',
+        payload: 'PONG',
+      });
+      await processReadBundles();
+      return;
     } catch (error: any) {
       if (typeof error === 'object' && error.response) {
         if (error.response.status === 404) {
           setLinkUseError(2);
-        } else {
-          setLinkUseError(1);
+          return;
         }
-      } else {
         setLinkUseError(1);
+        return;
       }
+      setLinkUseError(1);
+    }
+  };
+  /**
+   * Connect over a URL with a ddebouncer to prevent multiple connections
+   * @param param0
+   */
+  const connectOverSecondaryURL = async ({url}: {url: string}) => {
+    await connectOverURL({url});
+  };
+
+  /**
+   * Connect over the URL used to open the app from the killed state, if any
+   */
+  const connectOverinitialURL = async () => {
+    let initialURL: string | null = '';
+    try {
+      initialURL = await Linking.getInitialURL();
+    } catch (e) {
+      return;
+    }
+    if (initialURL) {
+      connectOverURL({url: initialURL});
     }
   };
   // Handle any potential deeplinks while foregrounded/backgrounded
-  const initialLink = useSelector(state => state.initialLink.initialLink);
   useEffect(() => {
-    // Check if a link was used to open the app for the first time and
-    // Consume said link if it was
-    if (initialLink) {
-      checkDeeplink({url: initialLink});
-      store.dispatch({type: 'NEW_LINK', payload: null});
-    }
-    Linking.addEventListener('url', url => {
-      // Check that this listener isn't being called on the initial link
-      // since it's being handled above already
-      checkDeeplink(url);
-    });
-    return () => {
-      Linking.removeAllListeners('url');
-    };
+    // Check if there is an initial URL, and use it form a connection
+    connectOverinitialURL();
+    // Add a listener to connect over URLs that open the app that are not
+    // the initial URL
+    Linking.addEventListener('url', connectOverSecondaryURL);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

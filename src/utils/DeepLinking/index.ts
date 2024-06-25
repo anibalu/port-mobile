@@ -16,7 +16,7 @@ interface urlObject {
  * @param urlObj , url to be processed
  * @returns bundle if successful, undefined on failure
  */
-export async function handleDeepLink(
+export async function getBundleFromLink(
   urlObj: urlObject,
 ): Promise<
   PortBundle | GroupBundle | DirectSuperportBundle | GroupSuperportBundle

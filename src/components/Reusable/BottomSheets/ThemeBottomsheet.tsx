@@ -27,6 +27,12 @@ const ThemeBottomsheet = ({
 }) => {
   const {handleThemeChange} = useTheme();
 
+  const onThemeSelect = async (themeValue: any) => {
+    setSelected(themeValue);
+    handleThemeChange(themeValue);
+    setShowThemeBottomsheet(false);
+  };
+
   return (
     <PrimaryBottomSheet
       bgColor="g"
@@ -54,10 +60,7 @@ const ThemeBottomsheet = ({
                   selectedOptionComparision={selected}
                   selectedOption={item.item.value}
                   title={item.item.key}
-                  onClick={async () => {
-                    setSelected(item.item.value);
-                    await handleThemeChange(item.item.value);
-                  }}
+                  onClick={() => onThemeSelect(item.item.value)}
                 />
                 {item.index !== themeOptions.length - 1 && <LineSeparator />}
               </View>

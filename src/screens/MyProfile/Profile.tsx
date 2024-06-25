@@ -42,6 +42,7 @@ import {useTheme} from 'src/context/ThemeContext';
 import BlockedCard from '@components/BlockedCard';
 import {useFocusEffect} from '@react-navigation/native';
 import {getCountOfBlockedUsers} from '@utils/UserBlocking';
+import HelpCard from '@components/HelpCard';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
 
@@ -153,6 +154,7 @@ function MyProfile({route, navigation}: Props): ReactNode {
                 Open the app, tap 'Restore backup' and then locate the backup
                 file.
               </NumberlessText>
+              <HelpCard />
             </View>
           </View>
           <View style={styles.bottomContainer}>

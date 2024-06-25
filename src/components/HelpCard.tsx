@@ -1,0 +1,70 @@
+import React from 'react';
+import SimpleCard from './Reusable/Cards/SimpleCard';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import {PortSpacing} from './ComponentUtils';
+import {Pressable, StyleSheet, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import DynamicColors from './DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+const HelpCard = () => {
+  const navigation = useNavigation();
+  const onPress = () => {
+    navigation.navigate('HelpScreen');
+  };
+
+  const Colors = DynamicColors();
+
+  const svgArray = [
+    {
+      assetName: 'HelpQuestionMark',
+      light: require('@assets/light/icons/HelpQuestionMark.svg').default,
+      dark: require('@assets/dark/icons/HelpQuestionMark.svg').default,
+    },
+    {
+      assetName: 'AngleRight',
+      light: require('@assets/light/icons/navigation/AngleRight.svg').default,
+      dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const HelpQuestionMark = results.HelpQuestionMark;
+  const BlackAngleRight = results.AngleRight;
+
+  return (
+    <SimpleCard style={styles.card}>
+      <Pressable style={styles.button} onPress={() => onPress()}>
+        <View style={{flexDirection: 'row'}}>
+          <HelpQuestionMark />
+          <NumberlessText
+            style={{marginLeft: PortSpacing.tertiary.left}}
+            textColor={Colors.text.primary}
+            fontType={FontType.sb}
+            fontSizeType={FontSizeType.l}>
+            Help
+          </NumberlessText>
+        </View>
+        <View style={{flexDirection: 'row', gap: 3, alignItems: 'center'}}>
+          <BlackAngleRight />
+        </View>
+      </Pressable>
+    </SimpleCard>
+  );
+};
+
+const styles = StyleSheet.create({
+  card: {
+    width: '100%',
+    paddingHorizontal: PortSpacing.secondary.uniform,
+    marginTop: PortSpacing.secondary.top,
+    paddingVertical: 0,
+  },
+  button: {
+    paddingVertical: PortSpacing.secondary.uniform,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+});
+
+export default HelpCard;

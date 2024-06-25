@@ -82,4 +82,5 @@ export type AppStackParamList = {
   GiveUsFeedbackScreen: undefined;
   MediaViewer: {message: SavedMessageParams};
   BlockedContacts: undefined;
+  HelpScreen: undefined;
 };

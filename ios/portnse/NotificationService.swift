@@ -55,7 +55,6 @@ class NotificationService: UNNotificationServiceExtension {
     var bestAttemptContent: UNMutableNotificationContent?
 
     override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-        print("doing things in nse")
       self.contentHandler = contentHandler
       bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
       var providedSource: String
@@ -76,7 +75,6 @@ class NotificationService: UNNotificationServiceExtension {
         } else {
           count = maybeCount!
         }
-        print(count)
         bestAttemptContent.badge = NSNumber(value: count)
         count = count + 1
         defaults?.set(count, forKey: "count")
@@ -87,9 +85,6 @@ class NotificationService: UNNotificationServiceExtension {
     override func serviceExtensionTimeWillExpire() {
         // Called just before the extension will be terminated by the system.
         // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
-        if let contentHandler = contentHandler, let bestAttemptContent =  bestAttemptContent {
-            contentHandler(bestAttemptContent)
-        }
+        // In the case that we are about to time out, we default to the server title and body by NOT calling contentHandler and allowing the system to take over managing the notification.
     }
-
 }

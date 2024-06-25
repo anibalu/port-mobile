@@ -61,6 +61,13 @@ export async function displaySimpleNotification(
  * Default notification for when any operation during handling notifications fails.
  */
 export async function showDefaultNotification() {
+  /*
+   * Guard to remove client-generated notifications on iOS until
+   * we receive NSE Entitlement
+   */
+  if (Platform.OS === 'ios') {
+    return;
+  }
   const channelId = await setupNotifee();
   const notification: Notification = {
     title: 'You may have new messages',

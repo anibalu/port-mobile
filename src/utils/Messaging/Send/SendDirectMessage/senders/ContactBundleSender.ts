@@ -63,7 +63,7 @@ export class SendContactBundleDirectMessage<
       replyId: this.replyId,
       expiresOn: null,
     };
-    console.log('contact bundle payload', this.payload.data);
+    console.log('contact bundle payload:', this.payload.data);
     this.expiresOn = null;
   }
 
@@ -133,11 +133,18 @@ export class SendContactBundleDirectMessage<
    * Retry sending a journalled message using only API calls
    */
   async retry(): Promise<boolean> {
-    if (!(await this.isAuthenticated())) {
-      console.warn(
-        '[SendContactBundleDirect] Attempting to send prior to authentication. Journalled.',
-      );
-      return true;
+    try {
+      if (!(await this.isAuthenticated())) {
+        console.warn(
+          '[SendContactBundleDirect] Attempting to send prior to authentication. Journalled.',
+        );
+        return true;
+      }
+    } catch (e) {
+      // Something has gone horribly wrong, cleanly delete this message
+      // It actually isn't horribly wrong, it's just associated with a chat
+      // That no longer exists
+      storage.cleanDeleteMessage(this.chatId, this.messageId);
     }
     try {
       await this.loadSavedMessage();

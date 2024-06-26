@@ -20,7 +20,7 @@ export function AvatarBox({
   fromPreview = true,
 }: {
   profileUri?: string | null;
-  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+';
+  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 'xl' | 's+';
   onPress?: () => void;
   fromPreview?: boolean;
 }) {
@@ -92,6 +92,8 @@ function avatarSizeStylePicker(avatarSize?: string) {
     return styles.intermediate;
   } else if (avatarSize === 'l') {
     return styles.large;
+  } else if (avatarSize === 'xl') {
+    return styles.extraLarge;
   } else {
     return styles.medium;
   }
@@ -192,6 +194,11 @@ const styles = StyleSheet.create({
     height: 170,
     width: 170,
     borderRadius: 56,
+  },
+  extraLarge: {
+    height: 300,
+    width: 300,
+    borderRadius: 5,
   },
   intermediate: {
     height: 75,

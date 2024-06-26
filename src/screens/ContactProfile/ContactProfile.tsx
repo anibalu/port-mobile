@@ -50,6 +50,7 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {wait} from '@utils/Time';
 import {useTheme} from 'src/context/ThemeContext';
+import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePictureBlurView';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -70,6 +71,8 @@ const ContactProfile = ({route, navigation}: Props) => {
   const [isBlocked, setIsBlocked] = useState(false);
 
   const [connected, setConnected] = useState(isConnected);
+  const [focusProfilePicture, setFocusProfilePicture] =
+    useState<boolean>(false);
   const [selectedFolder, setSelectedFolder] = useState<FolderInfo>({
     ...defaultFolderInfo,
   });
@@ -208,6 +211,10 @@ const ContactProfile = ({route, navigation}: Props) => {
   };
   const {themeValue} = useTheme();
 
+  const onProfilePictureClick = () => {
+    setFocusProfilePicture(true);
+  };
+
   return (
     <>
       <CustomStatusBar
@@ -233,7 +240,12 @@ const ContactProfile = ({route, navigation}: Props) => {
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}>
             <View style={styles.avatarContainer} ref={userAvatarViewRef}>
-              <AvatarBox profileUri={displayPic} avatarSize="m" />
+              <AvatarBox
+                onPress={() => onProfilePictureClick()}
+                profileUri={displayPic}
+                avatarSize="m"
+              />
+
               <Pressable
                 style={styles.nameEditHitbox}
                 onPress={() => setEditingName(true)}>
@@ -436,6 +448,12 @@ const ContactProfile = ({route, navigation}: Props) => {
           buttonText={isBlocked ? 'Unblock contact' : 'Block contact'}
           buttonColor="r"
         />
+        {focusProfilePicture && (
+          <ProfilePictureBlurViewModal
+            avatarUrl={displayPic}
+            onClose={() => setFocusProfilePicture(false)}
+          />
+        )}
       </SafeAreaView>
     </>
   );

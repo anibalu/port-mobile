@@ -1,6 +1,7 @@
 import {isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
+import {AppState} from 'react-native';
 import Modal from 'react-native-modal';
 
 const GenericModal = ({
@@ -17,6 +18,24 @@ const GenericModal = ({
   position?: 'flex-end' | 'center';
 }) => {
   const Colors = DynamicColors();
+
+  const appState = useRef(AppState.currentState);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      // set modalVisible to false if the app goes into background
+      if (appState.current.match(/active/) && nextAppState === 'background') {
+        onClose();
+      }
+
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <Modal
       backdropColor={Colors.primary.overlay}
@@ -29,6 +48,7 @@ const GenericModal = ({
       backdropTransitionInTiming={300}
       animationInTiming={300}
       animationOutTiming={300}
+      // eslint-disable-next-line react-native/no-inline-styles
       style={{
         margin: 0,
         flex: 1,

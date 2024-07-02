@@ -320,7 +320,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                     setPermissions={setPermissions}
                   />
                 </View>
-                <View>
+                <View style={{paddingBottom: PortSpacing.secondary.bottom}}>
                   <NumberlessText
                     style={{
                       color: Colors.primary.red,
@@ -464,7 +464,7 @@ const styling = (colors: any) =>
     mainContainer: {
       padding: PortSpacing.secondary.uniform,
       paddingTop: 0,
-      backgroundColor: colors.primary.background,
+      paddingBottom: 0,
       flex: 1,
     },
     labelContainer: {

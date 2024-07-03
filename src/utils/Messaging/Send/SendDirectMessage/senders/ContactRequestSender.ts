@@ -150,6 +150,7 @@ export class SendContactRequestDirectMessage<
         this.chatId,
         processedPayload,
         false,
+        this.isNotificationSilent(),
       );
       // Update message's send status
       await storage.updateMessageSendStatus(this.chatId, {

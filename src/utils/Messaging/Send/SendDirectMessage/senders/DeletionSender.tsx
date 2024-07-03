@@ -79,7 +79,12 @@ export class SendDeleteDirectMessage<
       this.validate();
       const deletionData = this.data as DeletionParams;
       const processedPayload = await this.encryptedMessage();
-      await API.sendObject(this.chatId, processedPayload, false, true);
+      await API.sendObject(
+        this.chatId,
+        processedPayload,
+        false,
+        this.isNotificationSilent(),
+      );
       await storage.cleanDeleteMessage(
         this.chatId,
         deletionData.messageIdToDelete,

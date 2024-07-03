@@ -79,7 +79,7 @@ export class SendReceiptDirectMessage<
         this.chatId,
         processedPayload,
         false,
-        true,
+        this.isNotificationSilent(),
       );
       if (newSendStatus === -1 && receipt.readAt) {
         MessageStorage.setShouldNotAck(this.chatId, receipt.messageId);

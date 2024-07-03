@@ -176,6 +176,7 @@ export class SendGenericDirectMessage<
       const udpatedStatus = await API.sendObject(
         this.chatId,
         processedPayload,
+        false,
         this.isNotificationSilent(),
       );
       // Update message's send status

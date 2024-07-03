@@ -18,6 +18,8 @@ const silentNotificationContentTypes: ContentType[] = [
   ContentType.name,
   ContentType.deleted,
   ContentType.disappearingMessages,
+  ContentType.receipt,
+  ContentType.deleted,
 ];
 
 export abstract class SendDirectMessage<T extends ContentType | null> {

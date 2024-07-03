@@ -125,6 +125,7 @@ export class SendReactionDirectMessage<
         this.chatId,
         processedPayload,
         false,
+        this.isNotificationSilent(),
       );
       if (newSendStatus === MessageStatus.sent) {
         await this.cleanup();

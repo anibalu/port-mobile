@@ -154,6 +154,7 @@ export class SendContactBundleDirectMessage<
         this.chatId,
         processedPayload,
         false,
+        this.isNotificationSilent(),
       );
       // Update message's send status
       await storage.updateMessageSendStatus(this.chatId, {

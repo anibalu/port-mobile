@@ -105,6 +105,7 @@ export class SendMediaDirectMessage<
       const isAPISuccess = await API.sendObject(
         this.chatId,
         processedData,
+        false,
         this.isNotificationSilent(),
       );
       let sendStatus: MessageStatus;
@@ -187,7 +188,7 @@ export class SendMediaDirectMessage<
         this.chatId,
         processedData,
         false,
-        false,
+        this.isNotificationSilent(),
       );
       // Update message's send status
       await storage.updateMessageSendStatus(this.chatId, {

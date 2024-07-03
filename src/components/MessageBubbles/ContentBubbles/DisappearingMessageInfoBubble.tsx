@@ -10,13 +10,26 @@ import {
   DisappearingMessageParams,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {ReactNode} from 'react';
+import {View} from 'react-native';
 
 export const DisappearingMessageInfoBubble = ({
   message,
 }: {
   message: SavedMessageParams;
 }): ReactNode => {
+  const svgArray = [
+    {
+      assetName: 'ClockIcon',
+      light: require('@assets/light/icons/ClockIcon.svg').default,
+      dark: require('@assets/dark/icons/ClockIcon.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const ClockIcon = results.ClockIcon;
+
   const {name} = useChatContext();
   const displayName = message.sender ? 'You have ' : name + ' has ';
   const turnedOff =
@@ -30,6 +43,13 @@ export const DisappearingMessageInfoBubble = ({
       fontType={FontType.rg}
       style={{textAlign: 'center'}}
       textColor={Colors.text.primary}>
+      <View
+        style={{
+          paddingRight: 4,
+          transform: [{translateY: 1}],
+        }}>
+        <ClockIcon width={12} height={12} />
+      </View>
       {turnedOff
         ? displayName + 'turned off disappearing messages'
         : displayName +

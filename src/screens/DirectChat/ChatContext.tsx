@@ -39,6 +39,8 @@ type ChatContextType = {
   setIsConnected: (x: boolean) => void;
   isAuthenticated: boolean;
   setIsAuthenticated: (x: boolean) => void;
+  isDisappearingMessagOn: boolean;
+  setsDisappearingMessagOn: (x: boolean) => void;
   profileUri: string | undefined | null;
   setProfileUri: (x: string | undefined | null) => void;
   name: string;
@@ -147,6 +149,8 @@ export const ChatContextProvider = ({
   const [reportedMessages, setReportedMessages] = useState<string[] | null>(
     null,
   );
+  const [isDisappearingMessagOn, setsDisappearingMessagOn] =
+    useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState(authenticated);
 
   const [profileUri, setProfileUri] = useState(avatar);
@@ -489,6 +493,8 @@ export const ChatContextProvider = ({
         setIsConnected,
         isAuthenticated,
         setIsAuthenticated,
+        isDisappearingMessagOn,
+        setsDisappearingMessagOn,
         profileUri,
         setProfileUri,
         name,

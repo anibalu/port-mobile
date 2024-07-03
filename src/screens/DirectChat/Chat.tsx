@@ -80,6 +80,7 @@ function ChatScreen() {
     performDelete,
     performGlobalDelete,
     setIsAuthenticated,
+    setsDisappearingMessagOn,
   } = useChatContext();
 
   //cursor for number of messages on screen
@@ -113,6 +114,8 @@ function ChatScreen() {
         //Notifying that initial message load is complete.
         setMessagesLoaded(true);
         await debouncedPeriodicOperations();
+        const permissionsResp = await dataHandler.getPermissions();
+        setsDisappearingMessagOn(permissionsResp.disappearingMessages > 0);
       })();
 
       return () => {

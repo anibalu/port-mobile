@@ -34,6 +34,7 @@ function ChatTopbar(): ReactNode {
     selectedMessages,
     setSelectedMessages,
     isConnected,
+    isDisappearingMessagOn,
   } = useChatContext();
 
   const Colors = DynamicColors();
@@ -49,11 +50,17 @@ function ChatTopbar(): ReactNode {
       light: require('@assets/light/icons/Settings.svg').default,
       dark: require('@assets/dark/icons/Settings.svg').default,
     },
+    {
+      assetName: 'ClockIcon',
+      light: require('@assets/light/icons/ClockIcon.svg').default,
+      dark: require('@assets/dark/icons/ClockIcon.svg').default,
+    },
   ];
 
   const results = useDynamicSVG(svgArray);
   const CloseIcon = results.CloseIcon;
   const SettingsIcon = results.SettingsIcon;
+  const ClockIcon = results.ClockIcon;
 
   const onSettingsPressed = async () => {
     const dataHandler = new DirectChat(chatId);
@@ -108,6 +115,11 @@ function ChatTopbar(): ReactNode {
                 onPress={handlePress}
                 profileUri={profileUri}
               />
+              {isDisappearingMessagOn && (
+                <View style={styles.clockIconWrapper}>
+                  <ClockIcon width={14} height={14} />
+                </View>
+              )}
             </View>
           )}
           <NumberlessText
@@ -189,6 +201,14 @@ const styling = (colors: any) =>
       height: 40,
       top: 7,
       width: 40,
+    },
+    clockIconWrapper: {
+      position: 'absolute',
+      right: 0,
+      bottom: 2,
+      backgroundColor: colors.primary.surface,
+      padding: 3,
+      borderRadius: 50,
     },
     profile: {
       height: 50,

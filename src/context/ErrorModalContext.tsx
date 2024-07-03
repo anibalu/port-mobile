@@ -10,30 +10,17 @@ import {ERROR_MODAL_VALIDITY_TIMEOUT} from '@configs/constants';
 
 type ModalContextType = {
   modalVisible: boolean;
-  establishingConnectionError: () => void;
   onboardingFailureError: () => void;
-  checkingProfileError: () => void;
   notifyUserOfConnectionError: () => void;
   unableToNotifyUserError: () => void;
-  portConnectionError: () => void;
-  imageSelectionError: () => void;
   mediaDownloadError: () => void;
   compressionError: () => void;
   MessageDataTooBigError: () => void;
   FileTooLarge: () => void;
-  mediaLoadError: () => void;
   copyingMessageError: () => void;
-  somethingWentWrongError: () => void;
-  networkError: () => void;
-  personOfflineError: () => void;
   DisconnectChatError: () => void;
   ReportSubmittedError: () => void;
   ReportSubmittedSuccess: () => void;
-  unableToDisconnectError: () => void;
-  unableToSharelinkError: () => void;
-  unableToCreateGroupError: () => void;
-  portCreationError: () => void;
-  incorrectQRError: () => void;
   BackupRestoreError: () => void;
   messageCopied: () => void;
   MessageAlreadyReportedError: () => void;
@@ -44,7 +31,7 @@ type ModalContextType = {
 };
 type ErrorObject = {
   text: string;
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'warning';
 };
 
 const ErrorModalContext = createContext<ModalContextType | undefined>(
@@ -115,12 +102,6 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
     });
   };
 
-  const personOfflineError = () => {
-    setErrorToShow({
-      text: 'Error establishing connection. Peer is offline.',
-      type: 'error',
-    });
-  };
   const mediaDownloadError = () => {
     setErrorToShow({
       text: 'Error downloading media, please try again later!',
@@ -146,46 +127,6 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
       type: 'error',
     });
   };
-  const mediaLoadError = () => {
-    setErrorToShow({
-      text: 'Error loading media, please check if you have the necessary apps for the media.',
-      type: 'error',
-    });
-  };
-
-  const unableToDisconnectError = () => {
-    setErrorToShow({
-      text: 'Unable to disconnect. Please try again when online.',
-      type: 'error',
-    });
-  };
-
-  const unableToSharelinkError = () => {
-    setErrorToShow({
-      text: 'Unable to share link. Please try again when online.',
-      type: 'error',
-    });
-  };
-
-  const unableToCreateGroupError = () => {
-    setErrorToShow({
-      text: 'Unable to create group. Please try again when online.',
-      type: 'error',
-    });
-  };
-
-  const establishingConnectionError = () => {
-    setErrorToShow({
-      text: 'Error establishing connection. Generate new link.',
-      type: 'error',
-    });
-  };
-  const checkingProfileError = () => {
-    setErrorToShow({
-      text: 'Error checking profile exists or not as app launches',
-      type: 'error',
-    });
-  };
 
   const notifyUserOfConnectionError = () => {
     setErrorToShow({
@@ -201,34 +142,6 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
     });
   };
 
-  const portConnectionError = () => {
-    setErrorToShow({
-      text: 'Error using Port. This link has expired.',
-      type: 'error',
-    });
-  };
-
-  const portCreationError = () => {
-    setErrorToShow({
-      text: 'Network Error in creating new Port.',
-      type: 'error',
-    });
-  };
-
-  const incorrectQRError = () => {
-    setErrorToShow({
-      text: 'QR code not a Port!',
-      type: 'error',
-    });
-  };
-
-  const imageSelectionError = () => {
-    setErrorToShow({
-      text: 'Could not select this image',
-      type: 'error',
-    });
-  };
-
   const copyingMessageError = () => {
     setErrorToShow({
       text: 'cannot copy this message',
@@ -236,19 +149,6 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
     });
   };
 
-  const somethingWentWrongError = () => {
-    setErrorToShow({
-      text: 'Oops something went wrong...',
-      type: 'error',
-    });
-  };
-
-  const networkError = () => {
-    setErrorToShow({
-      text: 'Network error while creating a new Port',
-      type: 'error',
-    });
-  };
   const MessageAlreadyReportedError = () => {
     setErrorToShow({
       text: 'Message already reported!',
@@ -292,30 +192,17 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
       value={{
         modalVisible,
         errorToShow,
-        unableToCreateGroupError,
-        establishingConnectionError,
-        checkingProfileError,
         notifyUserOfConnectionError,
         unableToNotifyUserError,
-        portConnectionError,
         compressionError,
-        imageSelectionError,
         copyingMessageError,
-        somethingWentWrongError,
-        networkError,
         mediaDownloadError,
-        personOfflineError,
         DisconnectChatError,
         ReportSubmittedError,
         ReportSubmittedSuccess,
         MessageDataTooBigError,
         FileTooLarge,
-        unableToDisconnectError,
         BackupRestoreError,
-        mediaLoadError,
-        unableToSharelinkError,
-        portCreationError,
-        incorrectQRError,
         onboardingFailureError,
         messageCopied,
         MessageAlreadyReportedError,

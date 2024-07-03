@@ -16,10 +16,10 @@ import {getTimeAndDateStamp} from '@utils/Time';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import ImageView from '@components/ImageView';
 import VideoView from '@components/VideoView';
 import DynamicColors from '@components/DynamicColors';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MediaViewer'>;
 
@@ -29,7 +29,7 @@ const MediaViewer = ({route}: Props) => {
   const attachedText = message.data?.text || '';
   const [owner, setOwner] = useState('New Contact');
   const time = getTimeAndDateStamp(message.timestamp);
-  const {unableToSharelinkError} = useErrorModal();
+  const {showToast} = useToast();
 
   const getPhotoOwner = async () => {
     if (message.sender) {
@@ -87,7 +87,10 @@ const MediaViewer = ({route}: Props) => {
       };
       await Share.open(shareOptions);
     } catch (error) {
-      unableToSharelinkError();
+      showToast(
+        'Unable to share link. Please try again when online.',
+        ToastType.error,
+      );
       console.error('Error sharing content: ', error);
     }
   };

@@ -27,10 +27,11 @@ import {
 } from '@utils/AppOperations';
 import {AppState, Linking} from 'react-native';
 import BootSplash from 'react-native-bootsplash';
-import Toast from 'react-native-toast-message';
-import {ErrorModalProvider} from 'src/context/ErrorModalContext';
 import {ThemeProvider} from 'src/context/ThemeContext';
 import {syncShared} from '@utils/Storage/IOSGroupShare/syncShare';
+import {ToastProvider} from 'src/context/ToastContext';
+import {ErrorModalProvider} from 'src/context/ErrorModalContext';
+import Toast from '@components/Modals/Toast';
 
 function App(): JSX.Element {
   const appState = useRef(AppState.currentState);
@@ -121,14 +122,16 @@ function App(): JSX.Element {
           <SafeAreaProvider>
             <NavigationContainer>
               <ErrorModalProvider>
-                <LoginStack startOnboarding={profileExists} />
-                <ErrorModal />
+                <ToastProvider>
+                  <LoginStack startOnboarding={profileExists} />
+                  <Toast />
+                  <ErrorModal />
+                </ToastProvider>
               </ErrorModalProvider>
             </NavigationContainer>
           </SafeAreaProvider>
         </ThemeProvider>
       </Provider>
-      <Toast />
     </>
   );
 }

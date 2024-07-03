@@ -24,7 +24,6 @@ import {getProfileName} from '@utils/Profile';
 import {expiryOptions} from '@utils/Time/interfaces';
 import Share from 'react-native-share';
 import {useSelector} from 'react-redux';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import {GenericButton} from '@components/GenericButton';
 
 function ConnectionDisplay({groupId}: {groupId: string}) {
@@ -39,7 +38,6 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
   const [loadingShare, setLoadingShare] = useState(false);
   const [name, setName] = useState(DEFAULT_NAME);
   const [groupData, setGroupData] = useState({name: DEFAULT_NAME});
-  const {unableToSharelinkError} = useErrorModal();
 
   useEffect(() => {
     (async () => {
@@ -112,7 +110,6 @@ function ConnectionDisplay({groupId}: {groupId: string}) {
         await Share.open(shareContent);
       }
     } catch (error) {
-      unableToSharelinkError();
       console.log('Error sharing content: ', error);
     } finally {
       setLoadingShare(false);

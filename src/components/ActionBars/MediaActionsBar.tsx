@@ -16,10 +16,10 @@ import {MediaEntry} from '@utils/Media/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
 import Share from 'react-native-share';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import DeleteModal from '@components/Modals/DeleteModal';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 /**
  * Renders action bar based on messages that are selected
@@ -109,7 +109,10 @@ export function MediaActionsBar({
       };
       await Share.open(shareOptions);
     } catch (error) {
-      unableToSharelinkError();
+      showToast(
+        'Unable to share link. Please try again when online.',
+        ToastType.error,
+      );
       console.log('Error sharing content: ', error);
     } finally {
       setLoadingShare(false);
@@ -119,7 +122,7 @@ export function MediaActionsBar({
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
   const [loadingShare, setLoadingShare] = useState(false);
-  const {unableToSharelinkError} = useErrorModal();
+  const {showToast} = useToast();
 
   return (
     <View style={styles.parentContainer}>

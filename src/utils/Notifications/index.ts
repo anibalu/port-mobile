@@ -1,4 +1,10 @@
-import notifee, {AndroidVisibility, Notification} from '@notifee/react-native';
+import notifee, {
+  AndroidGroupAlertBehavior,
+  AndroidMessagingStyle,
+  AndroidStyle,
+  AndroidVisibility,
+  Notification,
+} from '@notifee/react-native';
 import store from '@store/appStore';
 import {AppState, Platform} from 'react-native';
 
@@ -24,8 +30,28 @@ export async function displaySimpleNotification(
     return;
   }
   const channelId = await setupNotifee();
+  console.info('notification channelId: ', channelId);
   const entireState = store.getState();
   const currentActiveChatId = entireState.profile.activeChat;
+  const currentNotifications = await notifee.getDisplayedNotifications();
+  let messages: any[] = [];
+  for (let i = 0; i < currentNotifications.length; i++) {
+    // Iterate over existing notifications to try to find a matching one.
+    console.info(currentNotifications[i]);
+    if (
+      currentNotifications[i].notification.android?.groupId === chatId &&
+      currentNotifications[i].notification.android?.style?.type ===
+        AndroidStyle.MESSAGING
+    ) {
+      messages = (
+        currentNotifications[i].notification.android
+          ?.style as AndroidMessagingStyle
+      ).messages;
+    }
+  }
+
+  // Add the message to the list of existing messages for this chat's notification
+  messages.push({text: body, timestamp: Date.now()});
 
   const notification: Notification = {
     title: title,
@@ -37,13 +63,25 @@ export async function displaySimpleNotification(
     },
     android: {
       channelId,
-      visibility: AndroidVisibility.SECRET,
+      style: {
+        type: AndroidStyle.MESSAGING,
+        person: {
+          name: title,
+        },
+        messages: messages,
+      },
       // Open the app when the notification is pressed
       pressAction: {
         id: 'default',
       },
+      groupId: chatId,
+      groupSummary: true,
+      groupAlertBehavior: AndroidGroupAlertBehavior.ALL,
     },
   };
+
+  // Replace the existing notification for this chat with a new one that includes
+  // the latest message
 
   // If app is not in the foreground, display no matter what
   if (AppState.currentState !== 'active') {

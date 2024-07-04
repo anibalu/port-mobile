@@ -1,5 +1,3 @@
-import Failure from '@assets/icons/statusIndicators/failure.svg';
-import {default as Journaled} from '@assets/icons/statusIndicators/sending.svg';
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -14,27 +12,16 @@ import {DEFAULT_AVATAR, defaultFolderId} from '@configs/constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {getAllFolders} from '@utils/ChatFolders';
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
-import {getLabelByTimeDiff} from '@utils/ChatPermissions';
-import {
-  ChatType,
-  ConnectionInfo,
-  ReadStatus,
-} from '@utils/Connections/interfaces';
+import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {
-  ContactBundleParams,
-  ContentType,
-  DisappearingMessageParams,
-  MessageStatus,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
+import {ContentType} from '@utils/Messaging/interfaces';
 import {fetchSuperport} from '@utils/Ports';
-import {getGroupMessage, getMessage} from '@utils/Storage/messages';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {getChatTileTimestamp} from '@utils/Time';
 import React, {ReactNode, useCallback, useEffect, useState} from 'react';
 import {Animated, Easing, Pressable, StyleSheet, View} from 'react-native';
 import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import DisplayStatus from './DisplayStatus';
+import RenderText from './RenderText';
+import RenderTimestamp from './RenderTimestamp';
 
 export interface ChatTileProps extends ConnectionInfo {
   expired?: boolean;
@@ -89,22 +76,12 @@ function ChatTile({
     }
   };
 
-  const [newMessage, setNewMessage] = useState<SavedMessageParams | null>(null);
   const [superportTag, setSuperportTag] = useState<string>('');
   const [contactshareTag, setContactShareTag] = useState<string>('');
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
-  const getNewMessage = async (): Promise<void> => {
-    if (props.latestMessageId && !props.isReadPort) {
-      const msg =
-        props.connectionType === ChatType.group
-          ? await getGroupMessage(props.chatId, props.latestMessageId)
-          : await getMessage(props.chatId, props.latestMessageId);
-      setNewMessage(msg);
-    }
-  };
   function getSuperportDisplayName(
     id: string,
     label: string | null | undefined,
@@ -134,7 +111,7 @@ function ChatTile({
       const chatData = await chat.getChatData();
       return `via ${chatData.name}`;
     } catch (error) {
-      console.log('error saving contact share info message: ', error);
+      console.log('error saving contact share info message:  ', error);
       return '';
     }
   }
@@ -158,7 +135,6 @@ function ChatTile({
   }
 
   useEffect(() => {
-    getNewMessage();
     setTags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
@@ -251,6 +227,7 @@ function ChatTile({
         </Pressable>
       )}
       <Animated.View
+        // eslint-disable-next-line react-native/no-inline-styles
         style={{
           flex: 1,
           overflow: 'hidden',
@@ -290,17 +267,7 @@ function ChatTile({
                     </View>
                   )}
               </View>
-              <NumberlessText
-                numberOfLines={1}
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}
-                textColor={Colors.primary.mediumgrey}
-                style={{
-                  paddingRight: PortSpacing.secondary.right,
-                  paddingLeft: PortSpacing.tertiary.left,
-                }}>
-                {getChatTileTimestamp(props.timestamp)}
-              </NumberlessText>
+              <RenderTimestamp props={props} />
             </View>
             <View style={styles.textAndStatus}>
               {props.disconnected ? (
@@ -333,12 +300,8 @@ function ChatTile({
                         </NumberlessText>
                       ) : (
                         <>
-                          <RenderText newMessage={newMessage} />
-                          <DisplayStatus
-                            readStatus={props.readStatus}
-                            newMessageCount={props.newMessageCount}
-                            newMessage={newMessage}
-                          />
+                          <RenderText newMessage={props} />
+                          <DisplayStatus newMessage={props} />
                         </>
                       )}
                     </>
@@ -401,192 +364,6 @@ function ChatTile({
       )}
     </View>
   );
-}
-
-const RenderText = ({
-  newMessage,
-}: {
-  newMessage: SavedMessageParams | undefined | null;
-}) => {
-  const Colors = DynamicColors();
-
-  let text = '';
-  let italic = false;
-  if (newMessage && newMessage.data) {
-    text = newMessage.data.text ? newMessage.data.text : '';
-    if (newMessage.contentType === ContentType.image) {
-      if (text === '') {
-        text = '📷 image';
-      } else {
-        text = '📷 ' + text;
-      }
-    } else if (newMessage.contentType === ContentType.video) {
-      if (text === '') {
-        text = '🎥 video';
-      } else {
-        text = '🎥 ' + text;
-      }
-    } else if (newMessage.contentType === ContentType.file) {
-      if (text === '') {
-        text = '📎 file';
-      } else {
-        text = '📎 ' + text;
-      }
-    } else if (newMessage.contentType === ContentType.audioRecording) {
-      if (text === '') {
-        text = '🔊 audio';
-      } else {
-        text = '🔊 ' + text;
-      }
-    } else if (newMessage.contentType === ContentType.contactBundle) {
-      text = '👤 ' + (newMessage.data as ContactBundleParams).bundle.name;
-    } else if (newMessage.contentType === ContentType.disappearingMessages) {
-      const turnedOff =
-        getLabelByTimeDiff(
-          (newMessage.data as DisappearingMessageParams).timeoutValue,
-        ) === 'Off';
-      text = turnedOff
-        ? 'Disappearing messages have been turned OFF'
-        : 'Disappearing messages have been turned ON';
-      italic = true;
-    }
-    return (
-      <NumberlessText
-        ellipsizeMode="tail"
-        numberOfLines={2}
-        style={{flex: 1}}
-        fontType={italic ? FontType.it : FontType.rg}
-        fontSizeType={FontSizeType.m}
-        textColor={Colors.text.subtitle}>
-        {text}
-      </NumberlessText>
-    );
-  }
-  return (
-    <View style={{flexDirection: 'row', flex: 1}}>
-      <NumberlessText
-        ellipsizeMode="tail"
-        numberOfLines={2}
-        style={{width: screen.width - 160}}
-        fontType={FontType.rg}
-        fontSizeType={FontSizeType.m}
-        textColor={Colors.text.subtitle}>
-        {text}
-      </NumberlessText>
-    </View>
-  );
-};
-
-function DisplayStatus({
-  readStatus,
-  newMessageCount,
-  newMessage,
-}: {
-  readStatus: ReadStatus;
-  newMessageCount: number;
-  newMessage: SavedMessageParams | undefined | null;
-}): ReactNode {
-  const Colors = DynamicColors();
-  const styles = styling(Colors);
-
-  const svgArray = [
-    {
-      assetName: 'Read',
-      light: require('@assets/light/icons/Read.svg').default,
-      dark: require('@assets/dark/icons/PurpleRead.svg').default,
-    },
-    {
-      assetName: 'Delivered',
-      light: require('@assets/light/icons/Received.svg').default,
-      dark: require('@assets/dark/icons/GreyReceived.svg').default,
-    },
-    {
-      assetName: 'Sent',
-      light: require('@assets/light/icons/Sent.svg').default,
-      dark: require('@assets/icons/statusIndicators/sent.svg').default,
-    },
-  ];
-
-  const results = useDynamicSVG(svgArray);
-  const Read = results.Read;
-  const Sent = results.Sent;
-  const Delivered = results.Delivered;
-  const MessageStatusIndicator = () => {
-    if (newMessage && newMessage.sender) {
-      if (!newMessage.messageStatus) {
-        return <Delivered />;
-      }
-      switch (newMessage.messageStatus) {
-        case MessageStatus.journaled:
-          return <Journaled />;
-        case MessageStatus.read:
-          return <Read />;
-        case MessageStatus.sent:
-          return <Sent />;
-        case MessageStatus.failed:
-          return <Failure />;
-        default:
-          return <></>;
-      }
-    }
-    if (newMessage && !newMessage.sender) {
-      return <></>;
-    }
-    return <></>;
-  };
-  if (readStatus === ReadStatus.new) {
-    if (newMessageCount > 0) {
-      return (
-        <View
-          style={{
-            paddingRight: PortSpacing.secondary.right,
-            paddingTop: 4,
-            paddingLeft: PortSpacing.tertiary.left,
-          }}>
-          <View style={styles.new}>
-            <NumberlessText
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}
-              textColor={PortColors.text.primaryWhite}
-              numberOfLines={1}
-              allowFontScaling={false}>
-              {displayNumber(newMessageCount)}
-            </NumberlessText>
-          </View>
-        </View>
-      );
-    } else {
-      return (
-        <View
-          style={{
-            paddingRight: PortSpacing.secondary.right,
-            paddingTop: 4,
-          }}
-        />
-      );
-    }
-  } else {
-    return (
-      <View
-        style={{
-          paddingRight: PortSpacing.secondary.right,
-          paddingTop: 4,
-          paddingLeft: PortSpacing.tertiary.left,
-        }}>
-        <View>
-          <MessageStatusIndicator />
-        </View>
-      </View>
-    );
-  }
-}
-
-//returns display string based on new message count
-function displayNumber(newMsgCount: number): string {
-  if (newMsgCount > 999) {
-    return '999+';
-  }
-  return newMsgCount.toString();
 }
 
 const styling = (colors: any) =>

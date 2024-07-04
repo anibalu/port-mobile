@@ -15,6 +15,12 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
+import {
+  getConnection,
+  updateConnection,
+  updateConnectionOnNewMessage,
+} from '@utils/Connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 
 export const reactionContentTypes: ContentType[] = [ContentType.reaction];
 
@@ -63,6 +69,10 @@ export class SendReactionDirectMessage<
     };
 
     this.expiresOn = null;
+  }
+
+  generatePreviewText(): string {
+    return '';
   }
 
   /**
@@ -127,10 +137,8 @@ export class SendReactionDirectMessage<
         false,
         this.isNotificationSilent(),
       );
-      if (newSendStatus === MessageStatus.sent) {
-        await this.cleanup();
-      } else {
-        return true;
+      if (reactionData.messageId) {
+        await this.updateConnectionInfo(newSendStatus);
       }
     } catch (e) {
       console.error('Could not send message', e);
@@ -185,5 +193,74 @@ export class SendReactionDirectMessage<
     }
 
     return true;
+  }
+
+  private async updateConnectionInfo(newSendStatus: MessageStatus) {
+    let readStatus: MessageStatus = MessageStatus.failed;
+
+    // Update readStatus and perform cleanup if the message is sent successfully
+    if (newSendStatus === MessageStatus.sent) {
+      readStatus = MessageStatus.sent;
+      await this.cleanup();
+    } else {
+      return true;
+    }
+
+    const reactionData = this.data as ReactionParams;
+    let timestampToSend = this.savedMessage.timestamp;
+
+    // Fetch the current message to update its text based on the content type
+    const currMessage = await MessageStorage.getMessage(
+      reactionData.chatId,
+      reactionData.messageId,
+    );
+    const text =
+      currMessage &&
+      getConnectionTextByContentType(currMessage.contentType, currMessage.data);
+
+    // Construct the text to send based on the reaction
+    let updatedText = `${
+      reactionData.reaction !== ''
+        ? 'You reacted ' + reactionData.reaction + ' to "' + text + '"'
+        : ''
+    }`;
+
+    // If the message is marked as deleted for everyone, adjust content and timestamp
+    if (reactionData.tombstone) {
+      const connection = await getConnection(this.chatId);
+      //get the latest message associated with chat
+      const latestMessage = await MessageStorage.getMessage(
+        this.chatId,
+        connection.latestMessageId || '',
+      );
+      //if latest message id does not exist, update chat with empty text string
+      if (!latestMessage) {
+        await updateConnection({
+          chatId: this.chatId,
+          text: '',
+        });
+      } else {
+        updatedText = getConnectionTextByContentType(
+          latestMessage.contentType,
+          latestMessage.data,
+        ); // Update updatedText based on the latest message
+        await updateConnection({
+          chatId: this.chatId,
+          text: updatedText,
+          readStatus: latestMessage.messageStatus,
+          recentMessageType: latestMessage.contentType,
+          timestamp: latestMessage.timestamp,
+        });
+      }
+    } else {
+      //adds reaction text to chat tile
+      await updateConnectionOnNewMessage({
+        chatId: this.chatId,
+        text: updatedText,
+        readStatus: readStatus,
+        recentMessageType: this.contentType,
+        timestamp: timestampToSend,
+      });
+    }
   }
 }

@@ -3,6 +3,9 @@ import DirectReceiveAction from '../DirectReceiveAction';
 import {BundleTarget} from '@utils/Ports/interfaces';
 
 class NewChatOverPort extends DirectReceiveAction {
+  generatePreviewText(): string {
+    return '';
+  }
   async performAction(): Promise<void> {
     console.log('newchatoverport pairhash: ', this.message.pairHash);
     // eslint-disable-next-line react-hooks/rules-of-hooks

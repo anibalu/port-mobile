@@ -9,7 +9,8 @@ import * as groupDBCalls from './DBCalls/groupMessage';
 import * as lineDBCalls from './DBCalls/lineMessage';
 import {deleteFile} from './StorageRNFS/sharedFileHandlers';
 import {deleteMedia} from './media';
-
+import {getConnection, updateConnection} from './connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 /**
  * saves group message to storage.
  * @param {SavedMessageParams} message - message to save
@@ -317,7 +318,7 @@ export async function permanentlyDeleteMessage(
 }
 
 /**
- * Cleanly deletie a message while taking media into consideratioin
+ * Cleanly delete a message while taking media into consideratioin
  * @param chatId
  * @param messageId
  * @param tombstone Whether to set the contentType to deleted
@@ -328,6 +329,12 @@ export async function cleanDeleteMessage(
   tombstone: boolean = false,
 ) {
   const message = await getMessage(chatId, messageId);
+  const connection = await getConnection(chatId);
+  if (!connection) {
+    return;
+  }
+  //checks if passed in messageId belongs to the latest message
+  const isLatestMessage: boolean = messageId === connection.latestMessageId;
   if (message) {
     const contentType = message.contentType;
     if (LargeDataMessageContentTypes.includes(contentType)) {
@@ -340,10 +347,38 @@ export async function cleanDeleteMessage(
         }
       }
     }
+    //if message contains reaction, set the chat tile with latest message contents
+    if (message.hasReaction) {
+      const latestMessage = await getMessage(
+        chatId,
+        connection.latestMessageId || '',
+      );
+      if (latestMessage) {
+        const updatedText = getConnectionTextByContentType(
+          latestMessage.contentType,
+          latestMessage.data,
+        );
+        // Update updatedText based on the latest message
+        await updateConnection({
+          chatId: chatId,
+          text: updatedText,
+          readStatus: latestMessage.messageStatus,
+          recentMessageType: latestMessage.contentType,
+          timestamp: latestMessage.timestamp,
+        });
+      }
+    }
     if (tombstone) {
       lineDBCalls.markMessageAsDeleted(chatId, messageId);
     } else {
       await permanentlyDeleteMessage(chatId, messageId);
+      if (isLatestMessage) {
+        //shows the second latest message on chattile, if present,  of the person who deleted the msg
+        await updateConnection({
+          chatId: chatId,
+          text: '',
+        });
+      }
     }
   }
 }

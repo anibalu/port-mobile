@@ -17,7 +17,10 @@ import {MessageBubble} from '@components/MessageBubbles/MessageBubble';
 import {wait} from '@utils/Time';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import {ContentType} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  UnReactableMessageContentTypes,
+} from '@utils/Messaging/interfaces';
 
 const BlurViewModal = () => {
   const {onCleanCloseFocus, selectedMessage, isConnected} = useChatContext();
@@ -120,9 +123,11 @@ const BlurViewModal = () => {
                 minHeight: 51,
                 alignSelf: isSender ? 'flex-end' : 'flex-start',
               }}>
-              {isConnected && message.contentType !== ContentType.deleted && (
-                <RenderReactionBar />
-              )}
+              {!UnReactableMessageContentTypes.includes(message.contentType) &&
+                isConnected &&
+                message.contentType !== ContentType.deleted && (
+                  <RenderReactionBar />
+                )}
             </View>
             <View
               style={{

@@ -71,6 +71,8 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
     this.expiresOn = null;
   }
 
+  abstract generatePreviewText(): string;
+
   /**
    * Perform the initial DBCalls and attempt API calls
    */

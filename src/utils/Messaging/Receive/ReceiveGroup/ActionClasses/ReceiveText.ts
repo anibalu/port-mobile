@@ -1,7 +1,7 @@
-import {TextParams} from '@utils/Messaging/interfaces';
+import {MessageStatus, TextParams} from '@utils/Messaging/interfaces';
 import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
 import {displaySimpleNotification} from '@utils/Notifications';
-import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Connections/interfaces';
 import GroupReceiveAction from '../GroupReceiveAction';
 import {getChatPermissions} from '@utils/ChatPermissions';
 
@@ -14,7 +14,7 @@ class ReceiveText extends GroupReceiveAction {
     await updateConnectionOnNewMessage({
       chatId: this.chatId,
       text: (this.decryptedMessageContent.data as TextParams).text || '',
-      readStatus: ReadStatus.new,
+      readStatus: MessageStatus.latest,
       recentMessageType: this.decryptedMessageContent.contentType,
       latestMessageId: this.decryptedMessageContent.messageId,
       timestamp: this.receiveTime,

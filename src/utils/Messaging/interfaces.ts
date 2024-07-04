@@ -9,6 +9,8 @@ import {PortBundle} from '@utils/Ports/interfaces';
 export enum MessageStatus {
   // DO NOT MODIFY THESE NUMBERS. ADD STATUSES WITH EXTREME CAUTION!!!
   read = 1,
+  received = 2,
+  latest = -6,
   delivered = 0,
   sent = -1,
   failed = -2,
@@ -124,6 +126,17 @@ export const ReportMessageContentTypes = [
   ContentType.video,
   ContentType.audioRecording,
   ContentType.file,
+];
+
+/**
+ * Which content types cannot be reacted
+ */
+export const UnReactableMessageContentTypes = [
+  ContentType.contactBundleRequest,
+  ContentType.contactBundleResponse,
+  ContentType.contactBundleDenialResponse,
+  ContentType.contactBundleRequestInfo,
+  ContentType.contactBundleShareRequest,
 ];
 
 export const connectionUpdateExemptTypes = [

@@ -1,5 +1,4 @@
 import {
-  ContactBundleParams,
   ContentType,
   DataType,
   MessageDataTypeBasedOnContentType,
@@ -13,8 +12,8 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
-import {ReadStatus} from '@utils/Connections/interfaces';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 
 export const contactBundleRequestContentTypes: ContentType[] = [
   ContentType.contactBundleRequest,
@@ -186,30 +185,27 @@ export class SendContactRequestDirectMessage<
     return true;
   }
 
+  generatePreviewText(): string {
+    const text = getConnectionTextByContentType(this.contentType, this.data);
+    return text;
+  }
+
   private async updateConnectionInfo(newSendStatus: MessageStatus) {
     //create ReadStatus attribute based on send status.
 
-    let readStatus: ReadStatus = ReadStatus.failed;
+    let readStatus: MessageStatus = MessageStatus.failed;
     switch (newSendStatus) {
       case MessageStatus.sent:
-        readStatus = ReadStatus.sent;
+        readStatus = MessageStatus.sent;
         break;
       case MessageStatus.journaled:
-        readStatus = ReadStatus.journaled;
+        readStatus = MessageStatus.journaled;
         break;
     }
-    let text: string = '';
-    switch (this.contentType) {
-      case ContentType.contactBundle:
-        text =
-          'shared contact of ' + (this.data as ContactBundleParams).bundle.name;
-        break;
-      default:
-        return;
-    }
+
     await updateConnectionOnNewMessage({
       chatId: this.chatId,
-      text,
+      text: this.generatePreviewText(),
       readStatus: readStatus,
       recentMessageType: this.contentType,
       latestMessageId: this.messageId,

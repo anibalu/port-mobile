@@ -3,6 +3,10 @@ import DirectReceiveAction from '../DirectReceiveAction';
 import {BundleTarget} from '@utils/Ports/interfaces';
 
 class NewChatOverSuperport extends DirectReceiveAction {
+  generatePreviewText(): string {
+    return '';
+  }
+
   async performAction(): Promise<void> {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     await useCreatedBundle(

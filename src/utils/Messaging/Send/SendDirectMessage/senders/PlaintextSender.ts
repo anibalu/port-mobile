@@ -71,6 +71,10 @@ export class SendPlaintextDirectMessage<
     this.expiresOn = null;
   }
 
+  generatePreviewText(): string {
+    return '';
+  }
+
   async send(_onSuccess?: (x: boolean) => void): Promise<boolean> {
     try {
       // Set up in Filesystem

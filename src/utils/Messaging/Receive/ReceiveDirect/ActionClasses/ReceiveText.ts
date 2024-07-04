@@ -1,24 +1,37 @@
-import {TextParams} from '@utils/Messaging/interfaces';
+import {MessageStatus, TextParams} from '@utils/Messaging/interfaces';
 import DirectReceiveAction from '../DirectReceiveAction';
 import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
 import {displaySimpleNotification} from '@utils/Notifications';
-import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Connections/interfaces';
 import {getChatPermissions} from '@utils/ChatPermissions';
+import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 
 class ReceiveText extends DirectReceiveAction {
+  generatePreviewText(): string {
+    this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    const text = getConnectionTextByContentType(
+      this.decryptedMessageContent.contentType,
+      this.decryptedMessageContent.data,
+    );
+    return text;
+  }
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     //save message to storage
     await this.saveMessage();
     //update connection
-    await updateConnectionOnNewMessage({
-      chatId: this.chatId,
-      text: (this.decryptedMessageContent.data as TextParams).text || '',
-      readStatus: ReadStatus.new,
-      recentMessageType: this.decryptedMessageContent.contentType,
-      latestMessageId: this.decryptedMessageContent.messageId,
-      timestamp: this.receiveTime,
-    });
+    await updateConnectionOnNewMessage(
+      {
+        chatId: this.chatId,
+        text: this.generatePreviewText(),
+        readStatus: MessageStatus.latest,
+        recentMessageType: this.decryptedMessageContent.contentType,
+        latestMessageId: this.decryptedMessageContent.messageId,
+        timestamp: this.receiveTime,
+      },
+      NewMessageCountAction.increment,
+    );
     //notify user if notifications are ON
     const permissions = await getChatPermissions(this.chatId, ChatType.direct);
     await this.notify(permissions.notifications);

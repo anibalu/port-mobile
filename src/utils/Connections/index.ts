@@ -4,11 +4,12 @@ import {
   ConnectionInfoUpdate,
   ConnectionInfoUpdateOnNewMessage,
   ChatType,
-  ReadStatus,
 } from './interfaces';
 import {processName} from '@utils/Profile';
 import {getFolderPermissions} from '@utils/ChatFolders';
 import {updateChatPermissions} from '@utils/ChatPermissions';
+import {MessageStatus} from '@utils/Messaging/interfaces';
+import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 
 /**
  * Get connections by chat folder
@@ -89,24 +90,54 @@ export async function getNewMessageCount() {
 /**
  * Updates connection info on new message being sent or received. updated connection goes to the top of the connections array.
  * @param {ConnectionInfoUpdateOnNewMessage} update - connection info to update
+ * @param {NewMessageCountAction} [countAction] - Optional action to update the message count.
  */
 export async function updateConnectionOnNewMessage(
   update: ConnectionInfoUpdateOnNewMessage,
+  countAction?: NewMessageCountAction,
 ) {
   try {
-    await storage.updateConnectionOnNewMessage(update);
+    await storage.updateConnectionOnNewMessage(update, countAction);
   } catch (error) {
     console.log('Error updating a connection: ', error);
   }
 }
 
 /**
- * updates a connection as with new info. Updated connection doesn't move to the top of the array.
+ * Updates a connection as with new info. Updated connection doesn't move to the top of the array.
  * @param {ConnectionInfoUpdate} update - connection info to update with
+ * @param {NewMessageCountAction} [countAction] - Optional action to update the message count.
  */
-export async function updateConnection(update: ConnectionInfoUpdate) {
+export async function updateConnection(
+  update: ConnectionInfoUpdate,
+  countAction?: NewMessageCountAction,
+) {
   try {
-    await storage.updateConnection(update);
+    await storage.updateConnection(update, countAction);
+  } catch (error) {
+    console.log('Error updating a connection: ', error);
+  }
+}
+
+/**
+ * Updates the connection if latestMessageId matches the given messageIdToBeUpdated
+ * @param chatId - The ID of the chat/connection.
+ * @param messageIdToBeUpdated - The ID of the message to be updated.
+ * @param readStatus - The new read status to update.
+ */
+
+export async function updateReadReceiptOnConnection({
+  messageIdToBeUpdated,
+  update,
+}: {
+  messageIdToBeUpdated: string;
+  update: ConnectionInfoUpdate;
+}) {
+  try {
+    await storage.updateConnectionIfLatestMessageIsX({
+      messageIdToBeUpdated,
+      update,
+    });
   } catch (error) {
     console.log('Error updating a connection: ', error);
   }
@@ -117,11 +148,12 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
  * @param {string} chatId - connection to toggle read
  */
 export async function toggleRead(chatId: string) {
-  await updateConnection({
-    chatId: chatId,
-    newMessageCount: 0,
-    readStatus: ReadStatus.read,
-  });
+  await updateConnection(
+    {
+      chatId: chatId,
+    },
+    NewMessageCountAction.reset,
+  );
 }
 
 /**
@@ -129,12 +161,14 @@ export async function toggleRead(chatId: string) {
  * @param {string} chatId - connection to toggle authenticated
  */
 export async function toggleConnectionAuthenticated(chatId: string) {
-  await updateConnection({
-    chatId: chatId,
-    authenticated: true,
-    newMessageCount: 0,
-    readStatus: ReadStatus.new,
-  });
+  await updateConnection(
+    {
+      chatId: chatId,
+      authenticated: true,
+      readStatus: MessageStatus.latest,
+    },
+    NewMessageCountAction.reset,
+  );
 }
 
 export async function setConnectionDisconnected(chatId: string) {

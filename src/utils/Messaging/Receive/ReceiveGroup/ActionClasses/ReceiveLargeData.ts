@@ -1,13 +1,9 @@
 import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
-import {LargeDataParams} from '@utils/Messaging/interfaces';
+import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
 
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {GroupPermissions} from '@utils/ChatPermissions/interfaces';
-import {
-  ChatType,
-  ConnectionInfo,
-  ReadStatus,
-} from '@utils/Connections/interfaces';
+import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
 import {displaySimpleNotification} from '@utils/Notifications';
 import GroupReceiveAction from '../GroupReceiveAction';
 import {handleAsyncMediaDownload} from '../HandleMediaDownload';
@@ -64,7 +60,7 @@ class ReceiveLargeData extends GroupReceiveAction {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     await updateConnectionOnNewMessage({
       chatId: this.chatId,
-      readStatus: ReadStatus.new,
+      readStatus: MessageStatus.latest,
       recentMessageType: this.decryptedMessageContent.contentType,
       text: this.generatePreviewText(),
       latestMessageId: this.decryptedMessageContent.messageId,

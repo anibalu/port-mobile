@@ -1,9 +1,25 @@
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {DisappearingMessageParams} from '@utils/Messaging/interfaces';
+import {
+  DisappearingMessageParams,
+  MessageStatus,
+} from '@utils/Messaging/interfaces';
 import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import DirectReceiveAction from '../DirectReceiveAction';
+import {updateConnectionOnNewMessage} from '@utils/Connections';
+import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 
 class ReceiveDisappearingMessage extends DirectReceiveAction {
+  generatePreviewText() {
+    this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    const data = this.decryptedMessageContent.data as DisappearingMessageParams;
+    const text = getConnectionTextByContentType(
+      this.decryptedMessageContent.contentType,
+      data,
+    );
+    return text;
+  }
+
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     const data = this.decryptedMessageContent.data as DisappearingMessageParams;
@@ -23,6 +39,18 @@ class ReceiveDisappearingMessage extends DirectReceiveAction {
 
     //save message to storage
     await this.saveMessage();
+
+    await updateConnectionOnNewMessage(
+      {
+        chatId: this.chatId,
+        text: this.generatePreviewText(),
+        readStatus: MessageStatus.latest,
+        recentMessageType: this.decryptedMessageContent.contentType,
+        latestMessageId: this.decryptedMessageContent.messageId,
+        timestamp: this.receiveTime,
+      },
+      NewMessageCountAction.unchanged,
+    );
   }
 }
 

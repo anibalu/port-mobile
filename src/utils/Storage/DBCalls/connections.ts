@@ -1,9 +1,20 @@
-import {generateISOTimeStamp} from '@utils/Time';
 import {runSimpleQuery} from './dbCommon';
 import {
   ConnectionInfo,
   ConnectionInfoUpdate,
 } from '@utils/Connections/interfaces';
+
+// Enum to define actions that can be performed on the new message count
+export enum NewMessageCountAction {
+  // Reset the new message count to 0
+  reset = 0,
+
+  // Increment the new message count by 1
+  increment = 1,
+
+  // Leave the new message count unchanged
+  unchanged = 2,
+}
 
 function toBool(a: number | boolean | null | undefined): boolean {
   if (a) {
@@ -173,10 +184,19 @@ export async function deleteConnection(chatId: string) {
   );
 }
 
-export async function updateConnection(update: ConnectionInfoUpdate) {
+/**
+ * Updates connection timestamp and new message count appropriately
+ * It does not move the chat to the top with new generated timestamp
+ * @param {ConnectionInfoUpdate} update - The update object containing new values for the connection.
+ * @param {countAction} [countAction=NewMessageCountAction.unchanged] The action to perform on the message count.
+ */
+export async function updateConnection(
+  update: ConnectionInfoUpdate,
+  countAction: NewMessageCountAction = NewMessageCountAction.unchanged,
+) {
   await runSimpleQuery(
     `
-    UPDATE connections
+     UPDATE connections
     SET
     name = COALESCE(?, name),
     text = COALESCE(?, text),
@@ -185,7 +205,11 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
     readStatus = COALESCE(?, readStatus),
     authenticated = COALESCE(?, authenticated),
     timestamp = COALESCE(?, timestamp),
-    newMessageCount = COALESCE(?, newMessageCount),
+    newMessageCount = CASE
+      WHEN ? = 1 THEN newMessageCount + 1
+      WHEN ? = 0 THEN 0
+      ELSE newMessageCount
+    END,
     disconnected = COALESCE(?, disconnected),
     latestMessageId = COALESCE(?, latestMessageId),
     folderId = COALESCE(?, folderId)
@@ -199,7 +223,8 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
       update.readStatus,
       update.authenticated,
       update.timestamp,
-      update.newMessageCount,
+      countAction, // Pass countAction for the first newMessageCount CASE parameter
+      countAction, // Pass countAction for the second newMessageCount CASE parameter
       update.disconnected,
       update.latestMessageId,
       update.folderId,
@@ -211,15 +236,17 @@ export async function updateConnection(update: ConnectionInfoUpdate) {
 }
 
 /**
- * Updates connection timestamp and new message count appropriately
- * @param update
+ * Updates connection timestamp (generates new if not present) and new message count appropriately
+ * @param {ConnectionInfoUpdate} update - The update object containing new values for the connection.
+ * @param {countAction} [countAction=NewMessageCountAction.unchanged] The action to perform on the message count.
  */
 export async function updateConnectionOnNewMessage(
   update: ConnectionInfoUpdate,
+  countAction: NewMessageCountAction = NewMessageCountAction.unchanged,
 ) {
   await runSimpleQuery(
     `
-    UPDATE connections
+     UPDATE connections
     SET
     name = COALESCE(?, name),
     text = COALESCE(?, text),
@@ -228,7 +255,11 @@ export async function updateConnectionOnNewMessage(
     readStatus = COALESCE(?, readStatus),
     authenticated = COALESCE(?, authenticated),
     timestamp = COALESCE(?, timestamp),
-    newMessageCount = COALESCE(?, newMessageCount) + CASE WHEN ? = 0 THEN 1 ELSE 0 END,
+    newMessageCount = CASE
+      WHEN ? = 1 THEN newMessageCount + 1
+      WHEN ? = 0 THEN 0
+      ELSE newMessageCount
+    END,
     disconnected = COALESCE(?, disconnected),
     latestMessageId = COALESCE(?, latestMessageId),
     folderId = COALESCE(?, folderId)
@@ -241,9 +272,9 @@ export async function updateConnectionOnNewMessage(
       update.pathToDisplayPic,
       update.readStatus,
       update.authenticated,
-      update.timestamp || generateISOTimeStamp(),
-      update.newMessageCount,
-      update.readStatus, //added twice on purpose
+      update.timestamp,
+      countAction, // Pass countAction for the first newMessageCount CASE parameter
+      countAction, // Pass countAction for the second newMessageCount CASE parameter
       update.disconnected,
       update.latestMessageId,
       update.folderId,

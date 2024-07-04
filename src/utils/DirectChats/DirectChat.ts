@@ -9,8 +9,8 @@ import {
   updateConnectionDisplayPic,
   updateConnectionName,
 } from '@utils/Connections';
-import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
-import {ContentType} from '@utils/Messaging/interfaces';
+import {ChatType} from '@utils/Connections/interfaces';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
 import {
   DirectPermissions,
@@ -108,7 +108,7 @@ class DirectChat {
       connectionType: ChatType.direct,
       name: this.chatData.name,
       recentMessageType: ContentType.newChat,
-      readStatus: ReadStatus.new,
+      readStatus: MessageStatus.latest,
       timestamp: generateISOTimeStamp(),
       newMessageCount: 0,
       disconnected: false,

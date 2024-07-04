@@ -15,7 +15,7 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
-import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Connections/interfaces';
 import {
   checkFileSizeWithinLimits,
   moveToLargeFileDir,
@@ -24,6 +24,8 @@ import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {saveNewMedia, updateMedia} from '@utils/Storage/media';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
 import {getChatPermissions} from '@utils/ChatPermissions';
+import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 
 export const mediaContentTypes: ContentType[] = [
   ContentType.image,
@@ -32,6 +34,7 @@ export const mediaContentTypes: ContentType[] = [
   ContentType.displayImage,
   ContentType.audioRecording,
 ];
+
 const disappearingMediaTypes: ContentType[] = [
   ContentType.image,
   ContentType.video,
@@ -220,45 +223,34 @@ export class SendMediaDirectMessage<
       throw new Error(error.message);
     }
   }
-
+  generatePreviewText(): string {
+    const text = getConnectionTextByContentType(this.contentType, this.data);
+    return text;
+  }
   private async updateConnectionInfo(newSendStatus: MessageStatus) {
     //create ReadStatus attribute based on send status.
 
-    let readStatus: ReadStatus = ReadStatus.failed;
+    let readStatus: MessageStatus = MessageStatus.failed;
     switch (newSendStatus) {
       case MessageStatus.sent:
-        readStatus = ReadStatus.sent;
+        readStatus = MessageStatus.sent;
         break;
       case MessageStatus.journaled:
-        readStatus = ReadStatus.journaled;
+        readStatus = MessageStatus.journaled;
         break;
     }
-    let text: string = '';
-    switch (this.contentType) {
-      //example if content type is text
-      case ContentType.file:
-        text = 'Sent a file';
-        break;
-      case ContentType.image:
-        text = 'Sent an image';
-        break;
-      case ContentType.video:
-        text = 'Sent a video';
-        break;
-      case ContentType.audioRecording:
-        text = 'Sent an audio';
-        break;
-      default:
-        break;
-    }
+    let text: string = this.generatePreviewText();
     if (!connectionUpdateExemptTypes.includes(this.contentType)) {
-      await updateConnectionOnNewMessage({
-        chatId: this.chatId,
-        text,
-        readStatus: readStatus,
-        recentMessageType: this.contentType,
-        latestMessageId: this.messageId,
-      });
+      await updateConnectionOnNewMessage(
+        {
+          chatId: this.chatId,
+          text,
+          readStatus: readStatus,
+          recentMessageType: this.contentType,
+          latestMessageId: this.messageId,
+        },
+        NewMessageCountAction.increment,
+      );
     }
   }
   private async preProcessMedia() {

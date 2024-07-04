@@ -4,6 +4,9 @@ import {DisplayAvatarParams} from '@utils/Messaging/interfaces';
 import DirectReceiveAction from '../DirectReceiveAction';
 
 class ReceiveAvatar extends DirectReceiveAction {
+  generatePreviewText(): string {
+    return '';
+  }
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     // await this.saveMessage();

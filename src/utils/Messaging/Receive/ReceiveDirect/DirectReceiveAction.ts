@@ -15,8 +15,7 @@ import {
 import {saveNewMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';
-
-class DirectReceiveAction {
+abstract class DirectReceiveAction {
   protected message: any;
   protected chatId: string;
   protected receiveTime: string;
@@ -39,6 +38,9 @@ class DirectReceiveAction {
     }
     return this.decryptedMessageContent as PayloadMessageParams;
   }
+
+  abstract generatePreviewText(): string;
+
   async saveMessage(data?: DataType) {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     const savedMessage: SavedMessageParams = {

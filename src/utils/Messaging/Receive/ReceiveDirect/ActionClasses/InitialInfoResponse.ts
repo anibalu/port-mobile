@@ -6,6 +6,9 @@ import {ChatType} from '@utils/Connections/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 class InitialInfoResponse extends DirectReceiveAction {
+  generatePreviewText(): string {
+    return '';
+  }
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     const sender = new SendMessage(this.chatId, ContentType.name, {

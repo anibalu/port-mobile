@@ -6,6 +6,10 @@ import DirectReceiveAction from '../DirectReceiveAction';
 import {relayContactBundle} from '@utils/ContactSharing';
 
 class ReceiveContactBundleResponse extends DirectReceiveAction {
+  generatePreviewText(): string {
+    return '';
+  }
+
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
 

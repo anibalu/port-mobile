@@ -63,6 +63,10 @@ export class SendReceiptDirectMessage<
     this.expiresOn = null;
   }
 
+  generatePreviewText(): string {
+    return '';
+  }
+
   /**
    * Send an update. Cannot be journalled and is never saved to FS.
    * @returns whether errors found

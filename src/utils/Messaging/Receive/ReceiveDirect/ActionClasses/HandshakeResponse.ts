@@ -9,6 +9,10 @@ import {
 } from '@utils/DirectChats/handshake';
 
 export class HandshakeResponseA1 extends DirectReceiveAction {
+  generatePreviewText(): string {
+    return '';
+  }
+
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     await handshakeActionsB2(
@@ -19,6 +23,9 @@ export class HandshakeResponseA1 extends DirectReceiveAction {
 }
 
 export class HandshakeResponseB2 extends DirectReceiveAction {
+  generatePreviewText(): string {
+    return '';
+  }
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     await handshakeActionsA2(

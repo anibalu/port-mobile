@@ -1,13 +1,4 @@
-import {LargeDataParams} from '@utils/Messaging/interfaces';
 import ReceiveLargeData from './ReceiveLargeData';
-class ReceiveFile extends ReceiveLargeData {
-  generatePreviewText(): string {
-    this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    return (
-      '📎 ' +
-      ((this.decryptedMessageContent.data as LargeDataParams).text || 'File')
-    );
-  }
-}
+class ReceiveFile extends ReceiveLargeData {}
 
 export default ReceiveFile;

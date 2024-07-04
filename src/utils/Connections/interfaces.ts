@@ -1,17 +1,10 @@
-import {ContentType} from '../Messaging/interfaces';
+import {ContentType, MessageStatus} from '../Messaging/interfaces';
 
 export enum ChatType {
   direct,
   group,
 }
 
-export enum ReadStatus {
-  new,
-  read,
-  sent,
-  journaled,
-  failed,
-}
 export interface ConnectionInfoUpdate {
   chatId: string;
   connectionType?: ChatType;
@@ -19,7 +12,7 @@ export interface ConnectionInfoUpdate {
   text?: string | null;
   recentMessageType?: ContentType;
   pathToDisplayPic?: string | null;
-  readStatus?: ReadStatus;
+  readStatus?: MessageStatus | null;
   authenticated?: boolean;
   timestamp?: string;
   newMessageCount?: number;
@@ -35,7 +28,7 @@ export interface ConnectionInfo extends ConnectionInfoUpdate {
   text?: string | null;
   recentMessageType: ContentType;
   pathToDisplayPic?: string | null;
-  readStatus: ReadStatus;
+  readStatus: MessageStatus;
   authenticated: boolean;
   timestamp: string;
   newMessageCount: number;
@@ -45,12 +38,6 @@ export interface ConnectionInfo extends ConnectionInfoUpdate {
 }
 
 export interface ConnectionInfoUpdateOnNewMessage extends ConnectionInfoUpdate {
-  chatId: string;
-  name?: string;
-  text?: string;
   recentMessageType: ContentType;
-  pathToDisplayPic?: string;
-  readStatus: ReadStatus;
-  authenticated?: boolean;
-  latestMessageId?: string;
+  readStatus: MessageStatus;
 }

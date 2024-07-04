@@ -1,13 +1,10 @@
 import {
-  ContactBundleParams,
   ContentType,
   DataType,
-  LinkParams,
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
   SavedMessageParams,
-  TextParams,
   connectionUpdateExemptTypes,
 } from '@utils/Messaging/interfaces';
 import * as storage from '@utils/Storage/messages';
@@ -16,9 +13,10 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
-import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Connections/interfaces';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
 import {getChatPermissions} from '@utils/ChatPermissions';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 
 export const genericContentTypes: ContentType[] = [
   ContentType.text,
@@ -219,39 +217,28 @@ export class SendGenericDirectMessage<
     return true;
   }
 
+  generatePreviewText(): string {
+    const text = getConnectionTextByContentType(this.contentType, this.data);
+    return text;
+  }
+
   private async updateConnectionInfo(newSendStatus: MessageStatus) {
     //create ReadStatus attribute based on send status.
-
-    let readStatus: ReadStatus = ReadStatus.failed;
+    let readStatus: MessageStatus = MessageStatus.failed;
     switch (newSendStatus) {
       case MessageStatus.sent:
-        readStatus = ReadStatus.sent;
+        readStatus = MessageStatus.sent;
         break;
       case MessageStatus.journaled:
-        readStatus = ReadStatus.journaled;
+        readStatus = MessageStatus.journaled;
         break;
     }
-    let text: string = '';
-    switch (this.contentType) {
-      //example if content type is text
-      case ContentType.text:
-        text = (this.data as TextParams).text;
-        break;
-      case ContentType.link:
-        text = (this.data as LinkParams).text;
-        break;
-      case ContentType.contactBundle:
-        text =
-          'shared contact of ' + (this.data as ContactBundleParams).bundle.name;
-        break;
-      default:
-        break;
-    }
+
     if (!connectionUpdateExemptTypes.includes(this.contentType)) {
       console.log('updating connection', this.contentType);
       await updateConnectionOnNewMessage({
         chatId: this.chatId,
-        text,
+        text: this.generatePreviewText(),
         readStatus: readStatus,
         recentMessageType: this.contentType,
         latestMessageId: this.messageId,

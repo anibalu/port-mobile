@@ -1,16 +1,14 @@
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {DirectPermissions} from '@utils/ChatPermissions/interfaces';
 import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
-import {
-  ChatType,
-  ConnectionInfo,
-  ReadStatus,
-} from '@utils/Connections/interfaces';
-import {LargeDataParams} from '@utils/Messaging/interfaces';
+import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
+import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
 import {displaySimpleNotification} from '@utils/Notifications';
 import DirectReceiveAction from '../DirectReceiveAction';
 import {handleAsyncMediaDownload} from '../HandleMediaDownload';
 import store from '@store/appStore';
+import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 
 class ReceiveLargeData extends DirectReceiveAction {
   async performAction(): Promise<void> {
@@ -70,23 +68,28 @@ class ReceiveLargeData extends DirectReceiveAction {
 
   generatePreviewText(): string {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    return (
-      (this.decryptedMessageContent.data as LargeDataParams).text ||
-      'received large data: ' +
-        (this.decryptedMessageContent.data as LargeDataParams).fileName
+
+    const messageData = this.decryptedMessageContent.data as LargeDataParams;
+    const text = getConnectionTextByContentType(
+      this.decryptedMessageContent.contentType,
+      messageData,
     );
+    return text;
   }
 
   async updateConnection(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    await updateConnectionOnNewMessage({
-      chatId: this.chatId,
-      readStatus: ReadStatus.new,
-      recentMessageType: this.decryptedMessageContent.contentType,
-      text: this.generatePreviewText(),
-      latestMessageId: this.decryptedMessageContent.messageId,
-      timestamp: this.receiveTime,
-    });
+    await updateConnectionOnNewMessage(
+      {
+        chatId: this.chatId,
+        readStatus: MessageStatus.latest,
+        recentMessageType: this.decryptedMessageContent.contentType,
+        text: this.generatePreviewText(),
+        latestMessageId: this.decryptedMessageContent.messageId,
+        timestamp: this.receiveTime,
+      },
+      NewMessageCountAction.increment,
+    );
   }
   notify(shouldNotify: boolean, connection: ConnectionInfo): void {
     if (shouldNotify) {

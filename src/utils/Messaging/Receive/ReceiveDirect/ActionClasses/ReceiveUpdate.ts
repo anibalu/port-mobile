@@ -8,6 +8,9 @@ import DirectReceiveAction from '../DirectReceiveAction';
  * Handles any form of silent message updates, such as read receipts and payload deliveries.
  */
 class ReceiveUpdate extends DirectReceiveAction {
+  generatePreviewText(): string {
+    return '';
+  }
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
 

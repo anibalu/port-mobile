@@ -13,6 +13,7 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
+import {updateConnectionIfLatestMessageIsX} from '@utils/Storage/connections';
 
 export const deleteContentTypes: ContentType[] = [ContentType.deleted];
 
@@ -63,6 +64,10 @@ export class SendDeleteDirectMessage<
     this.expiresOn = null;
   }
 
+  generatePreviewText(): string {
+    return '';
+  }
+
   /**
    * Send an update. Cannot be journalled and is never saved to FS.
    * @deprecated Please remove me in place of a DeletingSender
@@ -90,6 +95,16 @@ export class SendDeleteDirectMessage<
         deletionData.messageIdToDelete,
         true,
       );
+      const update = {
+        chatId: this.chatId,
+        text: 'This message was deleted',
+        recentMessageType: ContentType.deleted,
+      };
+      //marks the message deleted in chattile if the deleted message was latest
+      await updateConnectionIfLatestMessageIsX({
+        messageIdToBeUpdated: deletionData.messageIdToDelete,
+        update,
+      });
       // this.storeCalls();
     } catch (e) {
       await this.onFailure();

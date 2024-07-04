@@ -1,13 +1,21 @@
-import {NameParams} from '@utils/Messaging/interfaces';
+import {
+  ContentType,
+  MessageStatus,
+  NameParams,
+} from '@utils/Messaging/interfaces';
 import DirectReceiveAction from '../DirectReceiveAction';
-import {updateConnection} from '@utils/Connections';
+import {updateConnectionOnNewMessage} from '@utils/Connections';
 import {DEFAULT_NAME} from '@configs/constants';
 import {displaySimpleNotification} from '@utils/Notifications';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {ChatType} from '@utils/Connections/interfaces';
 import DirectChat from '@utils/DirectChats/DirectChat';
+import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 
 class ReceiveName extends DirectReceiveAction {
+  generatePreviewText(): string {
+    return '';
+  }
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     const chat = new DirectChat(this.chatId);
@@ -19,10 +27,15 @@ class ReceiveName extends DirectReceiveAction {
     }
     // await this.saveMessage();
     //update connection
-    await updateConnection({
-      chatId: this.chatId,
-      name: newName,
-    });
+    await updateConnectionOnNewMessage(
+      {
+        chatId: this.chatId,
+        name: newName,
+        recentMessageType: ContentType.name,
+        readStatus: MessageStatus.latest,
+      },
+      NewMessageCountAction.unchanged,
+    );
     await chat.updateName(newName || DEFAULT_NAME);
     //notify user if notifications are ON
     await this.notify(newName);

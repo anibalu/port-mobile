@@ -34,16 +34,50 @@ export async function getNewMessageCount(folderId?: string) {
 /**
  *
  * @param update the update to make to a connection in storage
- * @param blocking deprecated, unused value
+ * @param {countAction} [countAction=NewMessageCountAction.unchanged] The action to perform on the message count.
  */
-export async function updateConnection(update: ConnectionInfoUpdate) {
-  await DBCalls.updateConnection(update);
+export async function updateConnection(
+  update: ConnectionInfoUpdate,
+  countAction?: DBCalls.NewMessageCountAction,
+) {
+  await DBCalls.updateConnection(update, countAction);
 }
 
+/**
+ * Updates the connection if latestMessageId matches the given messageIdToBeUpdated
+ * @param chatId - The ID of the chat/connection.
+ * @param messageIdToBeUpdated - The ID of the message to be updated.
+ * @param readStatus - The new read status to update.
+ */
+export async function updateConnectionIfLatestMessageIsX({
+  messageIdToBeUpdated,
+  update,
+}: {
+  messageIdToBeUpdated: string;
+  update: ConnectionInfoUpdate;
+}) {
+  try {
+    //TODO: debt-combine to single DB query
+    const connection = await getConnection(update.chatId);
+
+    if (connection && connection.latestMessageId === messageIdToBeUpdated) {
+      await updateConnection(update);
+    }
+  } catch (error) {
+    console.log('Error updating a connection: ', error);
+  }
+}
+
+/**
+ *
+ * @param update the update to make to a connection in storage
+ * @param {countAction} [countAction=NewMessageCountAction.unchanged] The action to perform on the message count.
+ */
 export async function updateConnectionOnNewMessage(
   update: ConnectionInfoUpdate,
+  countAction?: DBCalls.NewMessageCountAction,
 ) {
-  await DBCalls.updateConnectionOnNewMessage(update);
+  await DBCalls.updateConnectionOnNewMessage(update, countAction);
 }
 
 /**

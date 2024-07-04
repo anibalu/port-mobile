@@ -13,11 +13,7 @@ import notifee, {
 } from '@notifee/react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
-import {
-  ChatType,
-  ConnectionInfo,
-  ReadStatus,
-} from '@utils/Connections/interfaces';
+import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
 import {
   bundleTargetToChatType,
   getAllCreatedSuperports,
@@ -62,7 +58,7 @@ import {getConnections, getNewMessageCount} from '@utils/Connections';
 import FolderScreenPlaceholder from './FolderScreenPlaceholder';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStackTypes';
-import {ContentType} from '@utils/Messaging/interfaces';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {hasExpired, wait} from '@utils/Time';
 import ErrorAddingContactBottomSheet from '@components/Reusable/BottomSheets/ErrorAddingContactBottomSheet';
 import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactBottomSheet';
@@ -276,7 +272,7 @@ function Home({route, navigation}: Props) {
             connectionType: bundleTargetToChatType(port.target),
             name: port.name,
             recentMessageType: ContentType.newChat,
-            readStatus: ReadStatus.new,
+            readStatus: MessageStatus.latest,
             authenticated: false,
             timestamp: port.usedOnTimestamp,
             newMessageCount: 0,

@@ -6,9 +6,9 @@ import {
   deleteConnection,
   updateConnection,
 } from '@utils/Connections';
-import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Connections/interfaces';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import {ContentType} from '@utils/Messaging/interfaces';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {getRandomAvatarInfo} from '@utils/Profile';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import * as groupStorage from '@utils/Storage/group';
@@ -294,7 +294,7 @@ class Group {
       connectionType: ChatType.group,
       name: this.groupData.name,
       recentMessageType: ContentType.newChat,
-      readStatus: ReadStatus.new,
+      readStatus: MessageStatus.latest,
       authenticated: true,
       disconnected: false,
       timestamp: this.groupData.joinedAt,

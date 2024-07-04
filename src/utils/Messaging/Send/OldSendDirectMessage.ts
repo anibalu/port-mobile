@@ -7,7 +7,7 @@ import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import store from '@store/appStore';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
-import {ChatType, ReadStatus} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Connections/interfaces';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {generateRandomHexId} from '@utils/IdGenerator';
@@ -425,13 +425,13 @@ class SendDirectMessage<T extends ContentType> {
   private async updateConnectionInfo(newSendStatus: MessageStatus) {
     //create ReadStatus attribute based on send status.
 
-    let readStatus: ReadStatus = ReadStatus.failed;
+    let readStatus: MessageStatus = MessageStatus.failed;
     switch (newSendStatus) {
       case MessageStatus.sent:
-        readStatus = ReadStatus.sent;
+        readStatus = MessageStatus.sent;
         break;
       case MessageStatus.journaled:
-        readStatus = ReadStatus.journaled;
+        readStatus = MessageStatus.journaled;
         break;
     }
 

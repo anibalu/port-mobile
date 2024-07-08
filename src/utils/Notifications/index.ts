@@ -1,3 +1,4 @@
+import {isIOS} from '@components/ComponentUtils';
 import {PERMISSION_MANAGEMENT_URL} from '@configs/api';
 import notifee, {
   AndroidGroupAlertBehavior,
@@ -9,7 +10,7 @@ import notifee, {
 import store from '@store/appStore';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
-import {AppState, Platform} from 'react-native';
+import {AppState, Platform, Settings} from 'react-native';
 
 /**
  * Displays all notifications for the app.
@@ -144,6 +145,19 @@ const setupNotifee = async (): Promise<string> => {
 export async function cancelAllNotifications() {
   // Clear all notifications
   await notifee.cancelAllNotifications();
+}
+
+/**
+ * Reset the app badge on iOS devices
+ * For related functionality see the portnse notification service
+ * extension
+ */
+export async function resetAppBadge() {
+  if (!isIOS) {
+    return;
+  }
+  await notifee.setBadgeCount(0);
+  Settings.set({count: 1});
 }
 
 interface chatWithType {

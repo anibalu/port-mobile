@@ -18,7 +18,6 @@ import {
   bundleTargetToChatType,
   getAllCreatedSuperports,
   getReadPorts,
-  numberOfPendingRequests,
 } from '@utils/Ports';
 import React, {
   ReactElement,
@@ -82,6 +81,7 @@ import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useTheme} from 'src/context/ThemeContext';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import {resetAppBadge} from '@utils/Notifications';
 
 //Handles notification routing on tapping notification
 const performNotificationRouting = (
@@ -212,27 +212,11 @@ function Home({route, navigation}: Props) {
       setIsNotifPermissionGranted(false);
     }
   }
-  // whenever home screen has been brought into focus, we ask for notification
-  useFocusEffect(
-    React.useCallback(() => {
-      const setupPermissions = async () => {
-        try {
-          console.log({isNotifPermissionGranted});
-          await setupNotificationChannels();
-          await checkNotificationPermission();
-        } catch (error) {
-          console.log('Error occurred during setup:', error);
-        }
-      };
-      setupPermissions();
-      // eslint-disable-next-line
-    }, []),
-  );
 
-  //loads up initial user name, profile picture
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
+        //loads up initial user name, profile picture
         try {
           const profilePictureURI = await getProfilePicture();
           const fetchedName = await getProfileName();
@@ -241,7 +225,22 @@ function Home({route, navigation}: Props) {
         } catch (error) {
           console.log('Error fetching user details', error);
         }
+        // Attempt to get notification permissions from the user, if needed
+        try {
+          console.log({isNotifPermissionGranted});
+          await setupNotificationChannels();
+          await checkNotificationPermission();
+        } catch (error) {
+          console.log('Error occurred during setup:', error);
+        }
+        // Run basic periodic operations
+        debouncedPeriodicOperations();
+        // Set superport length to allow
+        setSuperportsLength((await getAllCreatedSuperports()).length);
+        // Reset app badge information on iOS
+        resetAppBadge();
       })();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
 
@@ -294,11 +293,6 @@ function Home({route, navigation}: Props) {
       console.log('Error connections or folders', error);
     }
   };
-  useFocusEffect(
-    React.useCallback(() => {
-      debouncedPeriodicOperations();
-    }, []),
-  );
   //loads up connections and available folders
   useFocusEffect(
     React.useCallback(() => {
@@ -408,29 +402,8 @@ function Home({route, navigation}: Props) {
   const [isConnectionOptionsModalOpen, setIsConnectionOptionsModalOpen] =
     useState(false);
 
-  const [pendingRequestsLength, setPendingRequestsLength] = useState(0);
   const [superportsLength, setSuperportsLength] = useState(0);
 
-  //re-count pending requests length if triggered
-  const reloadTrigger = useSelector(
-    state => state.triggerPendingRequestsReload.change,
-  );
-  useFocusEffect(
-    React.useCallback(() => {
-      (async () => {
-        setPendingRequestsLength(await numberOfPendingRequests());
-      })();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reloadTrigger]),
-  );
-
-  useFocusEffect(
-    React.useCallback(() => {
-      (async () => {
-        setSuperportsLength((await getAllCreatedSuperports()).length);
-      })();
-    }, []),
-  );
   const [moveToFolderSheet, setMoveToFolderSheet] = useState(false);
   const [confirmSheetDelete, setConfirmSheetDelete] = useState(false);
   const [confirmSheet, setConfirmSheet] = useState(false);
@@ -629,7 +602,7 @@ function Home({route, navigation}: Props) {
                 name={name}
                 profilePicAttr={profilePicAttr}
                 superportsLength={superportsLength}
-                pendingRequestsLength={pendingRequestsLength}
+                pendingRequestsLength={0}
               />
             </Animated.View>
           );

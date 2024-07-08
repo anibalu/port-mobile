@@ -1,3 +1,4 @@
+import {PERMISSION_MANAGEMENT_URL} from '@configs/api';
 import notifee, {
   AndroidGroupAlertBehavior,
   AndroidMessagingStyle,
@@ -6,6 +7,8 @@ import notifee, {
   Notification,
 } from '@notifee/react-native';
 import store from '@store/appStore';
+import {getToken} from '@utils/ServerAuth';
+import axios from 'axios';
 import {AppState, Platform} from 'react-native';
 
 /**
@@ -141,4 +144,30 @@ const setupNotifee = async (): Promise<string> => {
 export async function cancelAllNotifications() {
   // Clear all notifications
   await notifee.cancelAllNotifications();
+}
+
+interface chatWithType {
+  id: string;
+  type: 'line' | 'group';
+}
+
+/**
+ * Set the notification permission for multiple chats on the back end
+ * @param on Should notifications be set to on or off
+ * @param chats the chats to update
+ */
+export async function setRemoteNotificationPermissionsForChats(
+  on: boolean,
+  chats: chatWithType[],
+) {
+  const token = await getToken();
+  await axios.patch(
+    PERMISSION_MANAGEMENT_URL,
+    {
+      notifications: on,
+      // TODO Group logic needs to be shimmed when implemented
+      chats,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
 }

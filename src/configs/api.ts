@@ -8,6 +8,7 @@ const MANAGEMENT_BASE_URL = BASE_URL + '/management';
 const MESSAGING_BASE_URL = BASE_URL + '/messaging';
 export const INITIAL_POST_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + '/user';
 export const AUTH_SERVER_CHALLENGE_RESOURCE = BASE_URL + '/auth/user';
+export const PERMISSION_MANAGEMENT_URL = MANAGEMENT_BASE_URL + '/permissions';
 export const LINE_LINKS_MANAGEMENT_RESOURCE =
   MANAGEMENT_BASE_URL + '/line-links';
 export const LINE_SUPERPORT_MANAGEMENT_RESOURCE =

@@ -17,23 +17,24 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import React, {useEffect, useState} from 'react';
-import {Platform, View} from 'react-native';
+import {View} from 'react-native';
 import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 
 const ChatSettingsCard = ({
   chatId,
   permissionsId,
   permissions,
-  showDissapearingMessagesOption = true,
   setPermissions,
+  showDissapearingMessagesOption = true,
 }: {
-  showDissapearingMessagesOption?: boolean;
   chatId?: string;
   permissionsId?: string;
   permissions: PermissionsStrict;
   setPermissions: (permissions: PermissionsStrict) => void;
+  showDissapearingMessagesOption?: boolean;
 }) => {
   //controls dissapearing messages modal
   const [showDesappearingMessageModal, setShowDissappearingMessageModal] =
@@ -101,6 +102,43 @@ const ChatSettingsCard = ({
     setPermissions(updatedPermissions);
   };
 
+  const onUpdateNotificationPermission = async () => {
+    const newNotificationPermissionState = !permissions.notifications;
+    // Toggle the notification switch immediately to give the user immediate feedback
+    setPermissions({
+      ...permissions,
+      ['notifications']: newNotificationPermissionState,
+    });
+    if (chatId) {
+      // We have a specific chat to update
+      // API call to udpate a single chatId on the backend
+      try {
+        await setRemoteNotificationPermissionsForChats(
+          newNotificationPermissionState,
+          [{id: chatId, type: 'line'}],
+        );
+      } catch (e) {
+        console.error(
+          '[NOTIFICATION PERMISSION] Could not update permissions',
+          e,
+        );
+        // If the API call fails, toggle back to old setting
+        setPermissions({
+          ...permissions,
+          ['notifications']: !newNotificationPermissionState,
+        });
+        return;
+      }
+    }
+
+    // Update the notification state
+    if (permissionsId) {
+      await updatePermissions(permissionsId, {
+        notifications: newNotificationPermissionState,
+      });
+    }
+  };
+
   const onUpdateDisappearingMessagedPermission = async (newValue: number) => {
     if (permissions.disappearingMessages !== newValue) {
       const updatedPermissions = {
@@ -139,21 +177,15 @@ const ChatSettingsCard = ({
         fontSizeType={FontSizeType.l}>
         Chat settings
       </NumberlessText>
-      {Platform.OS === 'android' && (
-        <>
-          <View>
-            <OptionWithToggle
-              IconLeft={NotificationIcon}
-              toggleActiveState={permissions.notifications}
-              heading="Notifications"
-              onToggle={async () =>
-                await onUpdateBooleanPermission('notifications')
-              }
-            />
-          </View>
-          <LineSeparator />
-        </>
-      )}
+      <View>
+        <OptionWithToggle
+          IconLeft={NotificationIcon}
+          toggleActiveState={permissions.notifications}
+          heading="Notifications"
+          onToggle={onUpdateNotificationPermission}
+        />
+      </View>
+      <LineSeparator />
 
       <View>
         <OptionWithToggle

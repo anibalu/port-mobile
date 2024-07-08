@@ -12,6 +12,8 @@ import {
 } from '@utils/Connections';
 import {defaultFolderId} from '@configs/constants';
 import {updateChatPermissions} from '@utils/ChatPermissions';
+import {ChatType} from '@utils/Connections/interfaces';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 
 /**
  * Get all chat folders
@@ -112,6 +114,33 @@ export async function applyFolderPermissions(folderId: string) {
   //get folder permissions
   const folderPermissions = await getFolderPermissions(folderId);
   const connections = await getConnectionsByFolder(folderId);
+
+  // Let the backend know to silence notifications for chats in the folder
+  const newNotificationPermissionState = folderPermissions.notifications;
+  // Set up the chats section of the payload in the expected format
+  const notificationUpdateChatList = connections.map(connection => {
+    return {
+      id: connection.chatId,
+      type: (connection.connectionType === ChatType.direct
+        ? 'line'
+        : 'group') as 'line' | 'group',
+    };
+  });
+
+  try {
+    await setRemoteNotificationPermissionsForChats(
+      newNotificationPermissionState,
+      notificationUpdateChatList,
+    );
+  } catch (e) {
+    console.error(
+      '[FOLDER PERMISSIONS] Could not set permissions on backend',
+      e,
+    );
+    // TODO add feedback for the user that it failed
+    return;
+  }
+
   for (let index = 0; index < connections.length; index++) {
     //update chat permissions to folder permissions
     await updateChatPermissions(connections[index].chatId, folderPermissions);

@@ -23,6 +23,7 @@ import {deleteAllMessagesInChat} from '@utils/Storage/messages';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {getProfileInfo} from '@utils/Profile';
 import {DEFAULT_NAME} from '@configs/constants';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 
 class DirectChat {
   private chatId: string | null;
@@ -116,6 +117,19 @@ class DirectChat {
       folderId: folderId,
     });
     await this.toggleAuthenticated();
+    // Attempt to make API call to set the notifications permission
+    const notificationState = (await this.getPermissions()).notifications;
+    try {
+      await setRemoteNotificationPermissionsForChats(notificationState, [
+        {id: this.chatId, type: 'line'},
+      ]);
+    } catch (e) {
+      console.error(
+        '[PERMISSIONS ON CREATION] Could not make API call to set notification permissions',
+        e,
+      );
+      // Best effort, so don't propagate errors
+    }
   }
   public getChatId(): string {
     return this.checkChatIdNotNull();

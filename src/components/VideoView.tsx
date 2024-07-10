@@ -69,6 +69,8 @@ const VideoView = ({
         video={{
           uri: fileUri,
         }}
+        muted={false}
+        ignoreSilentSwitch="ignore"
         customStyles={customStyles}
         pauseOnPress
         videoWidth={screen.width}

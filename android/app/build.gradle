@@ -96,9 +96,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.numberless"
+    namespace "tech.numberless.port"
     defaultConfig {
-        applicationId "com.numberless"
+        applicationId "tech.numberless.port"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 4

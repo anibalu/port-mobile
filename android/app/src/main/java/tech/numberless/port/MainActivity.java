@@ -1,4 +1,4 @@
-package com.numberless;
+package tech.numberless.port;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

@@ -1,12 +1,18 @@
 import React, {useState, useEffect} from 'react';
 import {Animated, Easing} from 'react-native';
 
+// this is a ui element for a blinking dot used for audio recording
+
 const BlinkingDot = () => {
   const [animation] = useState(new Animated.Value(0));
+  // to set color from red to white and vice versa
+
   const [color, setColor] = useState('white');
 
   useEffect(() => {
+    // animation for blinking every 1 second
     const animate = () => {
+      // makes dot appear
       Animated.sequence([
         Animated.timing(animation, {
           toValue: 1,
@@ -14,6 +20,7 @@ const BlinkingDot = () => {
           easing: Easing.linear,
           useNativeDriver: true,
         }),
+        // makes dot disappear
         Animated.timing(animation, {
           toValue: 0,
           duration: 1000,
@@ -35,9 +42,9 @@ const BlinkingDot = () => {
   }, []);
 
   const dotStyle = {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: color,
     opacity: animation,
   };

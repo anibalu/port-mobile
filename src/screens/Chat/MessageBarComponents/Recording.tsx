@@ -1,12 +1,16 @@
 import React, {useState, useEffect} from 'react';
 import {View, Animated, Easing} from 'react-native';
 
+// this is ui element for amplitude bars while an audio is being recorded
+
 const AmplitudeBars = () => {
   const [animation1] = useState(new Animated.Value(1));
   const [animation2] = useState(new Animated.Value(0.5));
 
+  // toggles the height of both bars at 500 ms intervals
   useEffect(() => {
     const animate = () => {
+      // animation to shorten height
       Animated.sequence([
         Animated.timing(animation1, {
           toValue: 0.5,
@@ -14,6 +18,7 @@ const AmplitudeBars = () => {
           easing: Easing.linear,
           useNativeDriver: true,
         }),
+        // animation to elongate height
         Animated.timing(animation1, {
           toValue: 1,
           duration: 500,
@@ -34,6 +39,7 @@ const AmplitudeBars = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // returns 6 bars that are changing heights
   return (
     <View style={{flexDirection: 'row'}}>
       <Animated.View

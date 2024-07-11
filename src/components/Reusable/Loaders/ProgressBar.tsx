@@ -1,8 +1,18 @@
+import {screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
 
-const ProgressBar = ({progress, setIsPlaying}) => {
+// this is an ui element for showing progress in a bar
+
+const ProgressBar = ({
+  progress,
+  setIsPlaying,
+}: {
+  progress: number;
+  setIsPlaying: (p: boolean) => void;
+}) => {
+  // if bar has reached the end, set playing to false
   useEffect(() => {
     if (progress >= 1) {
       setIsPlaying(false);
@@ -20,10 +30,10 @@ const ProgressBar = ({progress, setIsPlaying}) => {
   );
 };
 
-const styling = colors =>
+const styling = (colors: any) =>
   StyleSheet.create({
     container: {
-      width: 185,
+      width: screen.width - 170,
       height: 5,
       backgroundColor: colors.progress.container,
       borderRadius: 6,

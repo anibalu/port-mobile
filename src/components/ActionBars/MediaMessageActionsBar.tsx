@@ -13,9 +13,11 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 export function MediaMessageActionsBar({
   determineDeleteModalDisplay,
   handleShare,
+  handleSave,
 }: {
   handleShare: () => void;
   determineDeleteModalDisplay: () => void;
+  handleSave: () => void;
 }): ReactNode {
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -26,8 +28,14 @@ export function MediaMessageActionsBar({
       light: require('@assets/icons/ShareBold.svg').default,
       dark: require('@assets/icons/Share.svg').default,
     },
+    {
+      assetName: 'DownloadIcon',
+      light: require('@assets/light/icons/DownloadArrow.svg').default,
+      dark: require('@assets/dark/icons/DownloadArrow.svg').default,
+    },
   ];
   const results = useDynamicSVG(svgArray);
+  const Download = results.DownloadIcon;
 
   const Share = results.Share;
   return (
@@ -55,6 +63,18 @@ export function MediaMessageActionsBar({
               fontSizeType={FontSizeType.s}
               fontType={FontType.rg}>
               Share
+            </NumberlessText>
+          </Pressable>
+        </View>
+        <View style={styles.optionContainer}>
+          <Pressable style={styles.optionBox} onPress={handleSave}>
+            <Download />
+            <NumberlessText
+              textColor={Colors.text.primary}
+              style={{marginTop: 5}}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              Save
             </NumberlessText>
           </Pressable>
         </View>
@@ -104,8 +124,8 @@ const styling = (Color: any) =>
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      paddingLeft: 10,
-      paddingRight: 10,
+      paddingLeft: 6,
+      paddingRight: 6,
     },
     optionBox: {
       width: 55,

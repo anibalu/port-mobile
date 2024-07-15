@@ -7,7 +7,6 @@ import {
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import React from 'react';
 import Play from '@assets/icons/videoPlay.svg';
-import FileViewer from 'react-native-file-viewer';
 import {StyleSheet, View, FlatList, Pressable} from 'react-native';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {MediaEntry} from '@utils/Media/interfaces';
@@ -16,37 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-
-const renderSelectedPhoto = ({item}: {item: MediaEntry}) => {
-  return (
-    <View key={item.mediaId} style={{marginRight: PortSpacing.tertiary.right}}>
-      <AvatarBox
-        avatarSize="i"
-        onPress={() => {
-          FileViewer.open(getSafeAbsoluteURI(item.filePath, 'doc'), {
-            showOpenWithDialog: true,
-          });
-        }}
-        profileUri={
-          item.type === ContentType.video && item.previewPath != undefined
-            ? getSafeAbsoluteURI(item.previewPath, 'cache')
-            : getSafeAbsoluteURI(item.filePath, 'doc')
-        }
-      />
-      {item.type === ContentType.video && (
-        <Play
-          style={{
-            height: 40,
-            width: 40,
-            position: 'absolute',
-            top: 12,
-            left: 12,
-          }}
-        />
-      )}
-    </View>
-  );
-};
+import {getMessage} from '@utils/Storage/messages';
 
 const SharedMediaCard = ({
   chatId,
@@ -68,6 +37,42 @@ const SharedMediaCard = ({
   const results = useDynamicSVG(svgArray);
 
   const RightChevron = results.RightChevron;
+  const renderSelectedPhoto = ({item}: {item: MediaEntry}) => {
+    const onClickMedia = async item => {
+      const media = await getMessage(item.chatId, item.messageId);
+      navigation.navigate('MediaViewer', {
+        message: media,
+      });
+    };
+    return (
+      <View
+        key={item.mediaId}
+        style={{marginRight: PortSpacing.tertiary.right}}>
+        <AvatarBox
+          avatarSize="i"
+          onPress={() => {
+            onClickMedia(item);
+          }}
+          profileUri={
+            item.type === ContentType.video && item.previewPath != undefined
+              ? getSafeAbsoluteURI(item.previewPath, 'cache')
+              : getSafeAbsoluteURI(item.filePath, 'doc')
+          }
+        />
+        {item.type === ContentType.video && (
+          <Play
+            style={{
+              height: 40,
+              width: 40,
+              position: 'absolute',
+              top: 12,
+              left: 12,
+            }}
+          />
+        )}
+      </View>
+    );
+  };
 
   return (
     <SimpleCard

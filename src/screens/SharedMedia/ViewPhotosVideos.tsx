@@ -13,11 +13,11 @@ import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers'
 import {getImagesAndVideos} from '@utils/Storage/media';
 import React, {useCallback, useState} from 'react';
 import {Image, Pressable, ScrollView, StyleSheet, View} from 'react-native';
-import FileViewer from 'react-native-file-viewer';
 import {TabStackParamList} from './SharedMedia';
 import Icon from '@assets/icons/NoFilesFound.svg';
 import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
 import DynamicColors from '@components/DynamicColors';
+import {getMessage} from '@utils/Storage/messages';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewPhotosVideos'>;
 
@@ -56,6 +56,13 @@ const ViewPhotosVideos = ({route}: Props) => {
     // }
   };
 
+  const onClickMedia = async mediaItem => {
+    const media = await getMessage(chatId, mediaItem.messageId);
+    navigation.navigate('MediaViewer', {
+      message: media,
+    });
+  };
+
   const Colors = DynamicColors();
   const styles = styling(Colors);
   const rows = [];
@@ -66,11 +73,9 @@ const ViewPhotosVideos = ({route}: Props) => {
         {rowImages.map(mediaItem => (
           <Pressable
             key={mediaItem.mediaId}
-            onPress={() => {
+            onPress={async () => {
               if (selectedMedia.length === 0) {
-                FileViewer.open(getSafeAbsoluteURI(mediaItem.filePath, 'doc'), {
-                  showOpenWithDialog: true,
-                });
+                await onClickMedia(mediaItem);
               } else {
                 toggleImageSelection(mediaItem);
               }

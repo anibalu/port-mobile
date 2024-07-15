@@ -1,6 +1,7 @@
-import {PortColors, screen} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import React, {useEffect, useState} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
+import GreenTick from '@assets/icons/GreenTick.svg';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {SafeAreaView} from '@components/SafeAreaView';
@@ -19,6 +20,12 @@ import {ContentType} from '@utils/Messaging/interfaces';
 import ImageView from '@components/ImageView';
 import VideoView from '@components/VideoView';
 import DynamicColors from '@components/DynamicColors';
+import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {ToastType, useToast} from 'src/context/ToastContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MediaViewer'>;
@@ -29,6 +36,7 @@ const MediaViewer = ({route}: Props) => {
   const attachedText = message.data?.text || '';
   const [owner, setOwner] = useState('New Contact');
   const time = getTimeAndDateStamp(message.timestamp);
+  const [showSuccessDownloaded, setShowSuccessDownloaded] = useState(false);
   const {showToast} = useToast();
 
   const getPhotoOwner = async () => {
@@ -97,6 +105,24 @@ const MediaViewer = ({route}: Props) => {
 
   const Colors = DynamicColors();
 
+  const handleSave = async () => {
+    const isPhoto = message.contentType === ContentType.image;
+    try {
+      await CameraRoll.saveAsset(fileUri, {type: isPhoto ? 'photo' : 'video'});
+      setShowSuccessDownloaded(true);
+    } catch (error) {
+      console.log('Error downloading content', error);
+      setShowSuccessDownloaded(false);
+    }
+  };
+  useEffect(() => {
+    //   to make the view disappear in 1.5 seconds
+    const timer = setTimeout(() => {
+      setShowSuccessDownloaded(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [showSuccessDownloaded]);
+
   return (
     <>
       <CustomStatusBar
@@ -116,8 +142,20 @@ const MediaViewer = ({route}: Props) => {
         ) : (
           <VideoView fileUri={fileUri} attachedText={attachedText} />
         )}
+        {showSuccessDownloaded && (
+          <View style={styles.successDownload}>
+            <GreenTick style={{marginRight: 12}} />
+            <NumberlessText
+              style={{color: PortColors.primary.black}}
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.s}>
+              Media has been downloaded to your gallery
+            </NumberlessText>
+          </View>
+        )}
 
         <MediaMessageActionsBar
+          handleSave={handleSave}
           handleShare={handleShare}
           determineDeleteModalDisplay={determineDeleteModalDisplay}
         />
@@ -152,7 +190,17 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
-
+  successDownload: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingHorizontal: PortSpacing.secondary.uniform,
+    paddingVertical: PortSpacing.tertiary.uniform,
+    position: 'absolute',
+    bottom: 100,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   gradientContainer: {
     position: 'absolute',
     bottom: 80,

@@ -1,4 +1,4 @@
-import {PortColors} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -7,9 +7,9 @@ import {
 import React, {useEffect, useMemo} from 'react';
 import {ReactNode} from 'react';
 import {StyleSheet, View, Image, Animated, Easing} from 'react-native';
-import Cross from '@assets/icons/BlackCross.svg';
-import LinkGrey from '@assets/icons/linkDarkGrey.svg';
 import {GenericButton} from '@components/GenericButton';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 interface LinkPreviewData {
   title?: string;
   description?: string;
@@ -56,6 +56,8 @@ export default function LinkPreview({
   };
 
   const opacityAnimation = useMemo(() => new Animated.Value(1), []);
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
 
   useEffect(() => {
     const breathingAnimation = Animated.loop(
@@ -87,33 +89,39 @@ export default function LinkPreview({
     };
   }, [loading, opacityAnimation]);
 
+  const svgArray = [
+    {
+      assetName: 'LinkGrey',
+      dark: require('@assets/dark/icons/LinkGrey.svg').default,
+      light: require('@assets/light/icons/LinkGrey.svg').default,
+    },
+    {
+      assetName: 'Cross',
+      dark: require('@assets/dark/icons/Cross.svg').default,
+      light: require('@assets/light/icons/Cross.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const LinkGrey = results.LinkGrey;
+  const Cross = results.Cross;
+
   if (showPreview) {
     return (
       <View style={styles.previewContainer}>
         {loading ? (
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              borderRadius: 24,
-              overflow: 'hidden',
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: LINK_MEDIA_WIDTH,
-                backgroundColor: PortColors.primary.grey.medium,
-              }}>
+          <View style={styles.previewWrapper}>
+            <View style={styles.previewLeft}>
               <Animated.View style={{opacity: opacityAnimation}}>
                 <LinkGrey height={20} width={20} />
               </Animated.View>
             </View>
-            <View style={styles.descContainer}>
+            <View
+              style={StyleSheet.compose(styles.descContainer, {
+                backgroundColor: Colors.primary.surface2,
+              })}>
               <View style={styles.detailsContainer}>
                 <GenericButton
-                  iconSizeRight={24}
+                  iconSizeRight={20}
                   buttonStyle={styles.cancel}
                   IconRight={Cross}
                   onPress={onCancelPreview}
@@ -122,13 +130,7 @@ export default function LinkPreview({
             </View>
           </View>
         ) : (
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              borderRadius: 24,
-              overflow: 'hidden',
-            }}>
+          <View style={styles.imgContainer}>
             {OgImage || image ? (
               <Image
                 source={{uri: OgImage || image}}
@@ -137,14 +139,7 @@ export default function LinkPreview({
                 }}
               />
             ) : (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: LINK_MEDIA_WIDTH,
-                  backgroundColor: PortColors.primary.grey.medium,
-                }}>
+              <View style={styles.linkCardWrapper}>
                 <LinkGrey height={20} width={20} />
               </View>
             )}
@@ -153,14 +148,15 @@ export default function LinkPreview({
                 {(OgTitle || title) && (
                   <NumberlessText
                     numberOfLines={2}
-                    textColor={PortColors.text.primary}
+                    style={{flex: 1}}
+                    textColor={Colors.text.primary}
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.md}>
                     {OgTitle || title}
                   </NumberlessText>
                 )}
                 <GenericButton
-                  iconSizeRight={24}
+                  iconSizeRight={20}
                   buttonStyle={styles.cancel}
                   IconRight={Cross}
                   onPress={onCancelPreview}
@@ -168,7 +164,7 @@ export default function LinkPreview({
               </View>
               {(OgDescription || description) && (
                 <NumberlessText
-                  textColor={PortColors.text.primary}
+                  textColor={Colors.labels.text}
                   fontSizeType={FontSizeType.s}
                   numberOfLines={1}
                   fontType={FontType.rg}>
@@ -177,7 +173,7 @@ export default function LinkPreview({
               )}
               {(OgUrl || url || link) && (
                 <NumberlessText
-                  textColor={PortColors.text.secondary}
+                  textColor={Colors.text.subtitle}
                   fontSizeType={FontSizeType.s}
                   fontType={FontType.rg}>
                   {OgUrl || url || link}
@@ -193,32 +189,55 @@ export default function LinkPreview({
   }
 }
 
-const styles = StyleSheet.create({
-  previewContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    padding: 4,
-    minHeight: LINK_MEDIA_MIN_HEIGHT,
-    width: '100%',
-  },
-  detailsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    gap: 5,
-  },
-  descContainer: {
-    padding: 8,
-    gap: 2,
-    width: TEXT_WIDTH,
-    backgroundColor: PortColors.background,
-  },
-  cancel: {
-    backgroundColor: 'transparent',
-    padding: 0,
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    zIndex: 99,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    previewContainer: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      padding: 4,
+      minHeight: LINK_MEDIA_MIN_HEIGHT,
+      width: '100%',
+    },
+    linkCardWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: LINK_MEDIA_WIDTH,
+      backgroundColor: colors.primary.lightgrey,
+    },
+    previewLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: LINK_MEDIA_WIDTH,
+      backgroundColor: colors.primary.lightgrey,
+    },
+    previewWrapper: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      borderRadius: PortSpacing.secondary.uniform,
+      overflow: 'hidden',
+    },
+    detailsContainer: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'flex-end',
+    },
+    descContainer: {
+      padding: 8,
+      gap: 2,
+      width: TEXT_WIDTH,
+      backgroundColor: colors.primary.surface2,
+    },
+    imgContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      borderRadius: PortSpacing.secondary.uniform,
+      overflow: 'hidden',
+    },
+    cancel: {
+      backgroundColor: 'transparent',
+      margin: 0,
+      padding: 0,
+    },
+  });

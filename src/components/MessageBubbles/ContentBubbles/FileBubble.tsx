@@ -1,14 +1,11 @@
-import {
-  LargeDataParams,
-  MessageStatus,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
-import React, {ReactNode, useEffect, useState} from 'react';
+import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
+import React, {ReactNode, useMemo, useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import {
   FILE_BUBBLE_HEIGHT,
   handleDownload,
   handleMediaOpen,
+  handleRetry,
 } from '../BubbleUtils';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
@@ -23,46 +20,54 @@ import {TextBubble} from './TextBubble';
 import UploadSend from '@assets/icons/UploadSend.svg';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import DynamicColors from '@components/DynamicColors';
-import {getMedia} from '@utils/Storage/media';
+import {
+  LineMessageData,
+  LoadedMessage,
+} from '@utils/Storage/DBCalls/lineMessage';
 
 export const FileBubble = ({
   message,
   handlePress,
   handleLongPress,
-  handleRetry,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
   handlePress: any;
   handleLongPress: any;
-  handleRetry: (message: SavedMessageParams) => void;
 }): ReactNode => {
+  //responsible for download loader
   const [startedManualDownload, setStartedManualDownload] = useState(false);
-  const [showRetry, setShowRetry] = useState(false);
+  //responsible for retry loader
   const [loadingRetry, setLoadingRetry] = useState(false);
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const onRetryClick = async (messageObj: SavedMessageParams) => {
+  const [imageUri, setImageUri] = useState<string | null | undefined>(
+    message.filePath || message.data.fileUri || null,
+  );
+  useMemo(() => {
+    setImageUri(message.filePath || message.data.fileUri || null);
+  }, [message]);
+
+  const onRetryClick = async (messageObj: LineMessageData) => {
     setLoadingRetry(true);
     await handleRetry(messageObj);
     setLoadingRetry(false);
   };
+
   const {mediaDownloadError} = useErrorModal();
-  const download = async () => {
-    try {
-      await handleDownload(message.chatId, message.messageId);
-    } catch (error) {
-      console.log('Error downloading media', error);
-      mediaDownloadError();
-    }
-  };
   const triggerDownload = async () => {
     setStartedManualDownload(true);
-    await download();
+    await handleDownload(message.chatId, message.messageId, () =>
+      mediaDownloadError(),
+    );
     setStartedManualDownload(false);
   };
   const handlePressFunction = () => {
     const selectionMode = handlePress(message.messageId);
     if (!selectionMode) {
-      handleMediaOpen(imageUri, triggerDownload, mediaDownloadError);
+      handleMediaOpen(
+        imageUri,
+        message.data.fileName || '',
+        triggerDownload,
+        mediaDownloadError,
+      );
     }
   };
   const handleLongPressFunction = () => {
@@ -77,11 +82,6 @@ export const FileBubble = ({
     return string.substring(lastIndex + 1);
   };
 
-  useEffect(() => {
-    setShowRetry(message.messageStatus === MessageStatus.unsent);
-    setLoadingRetry(message.messageStatus === MessageStatus.sent);
-  }, [message]);
-
   const svgArray = [
     {
       assetName: 'FileIcon',
@@ -93,18 +93,6 @@ export const FileBubble = ({
   const results = useDynamicSVG(svgArray);
   const FileIcon = results.FileIcon;
   const Colors = DynamicColors();
-
-  useEffect(() => {
-    (async () => {
-      const mediaInfo = await getMedia(message.data?.mediaId);
-      if (mediaInfo) {
-        const image = mediaInfo.filePath;
-        setImageUri(image);
-      } else {
-        setImageUri((message.data as LargeDataParams).fileUri);
-      }
-    })();
-  }, [message]);
 
   return (
     <View>
@@ -139,7 +127,7 @@ export const FileBubble = ({
                 </NumberlessText>
               </View>
               <View style={styles.loaderContainer}>
-                {showRetry ? (
+                {message.messageStatus === MessageStatus.unsent ? (
                   <>
                     {loadingRetry ? (
                       <View>
@@ -165,7 +153,7 @@ export const FileBubble = ({
                   </>
                 ) : (
                   <>
-                    {imageUri == null &&
+                    {!imageUri &&
                       (startedManualDownload ? (
                         <View style={{alignSelf: 'center'}}>
                           <SmallLoader />

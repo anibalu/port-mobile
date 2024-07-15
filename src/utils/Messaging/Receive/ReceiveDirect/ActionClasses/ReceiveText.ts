@@ -20,6 +20,7 @@ class ReceiveText extends DirectReceiveAction {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     //save message to storage
     await this.saveMessage();
+    await this.sendReceiveUpdate();
     //update connection
     await updateConnectionOnNewMessage(
       {

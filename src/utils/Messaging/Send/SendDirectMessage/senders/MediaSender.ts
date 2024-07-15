@@ -6,7 +6,6 @@ import {
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
-  SavedMessageParams,
   connectionUpdateExemptTypes,
 } from '@utils/Messaging/interfaces';
 import * as storage from '@utils/Storage/messages';
@@ -24,9 +23,12 @@ import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {saveNewMedia, updateMedia} from '@utils/Storage/media';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
+/**
+ * Content types that trigger this sender
+ */
 export const mediaContentTypes: ContentType[] = [
   ContentType.image,
   ContentType.video,
@@ -35,11 +37,19 @@ export const mediaContentTypes: ContentType[] = [
   ContentType.audioRecording,
 ];
 
+/**
+ * Subset content types that support disappearing messages
+ */
 const disappearingMediaTypes: ContentType[] = [
   ContentType.image,
   ContentType.video,
   ContentType.file,
 ];
+
+/**
+ * Subset content types that don't need an entry in the media db or a local copy of the media.
+ */
+const localMediaCopyExemptTypes: ContentType[] = [ContentType.displayImage];
 
 //IMPORTANT: Assumes that the file Uri of the media about to be sent is located in the tmp directory.
 export class SendMediaDirectMessage<
@@ -50,7 +60,7 @@ export class SendMediaDirectMessage<
   data: DataType; //message data corresponding to the content type
   replyId: string | null; //not null if message is a reply message (optional)
   messageId: string; //messageId of message (optional)
-  savedMessage: SavedMessageParams; //message to be saved to storage
+  savedMessage: LineMessageData; //message to be saved to storage
   payload: PayloadMessageParams; //message to be encrypted and sent.
   expiresOn: string | null;
   constructor(
@@ -73,8 +83,8 @@ export class SendMediaDirectMessage<
       data: this.data,
       timestamp: generateISOTimeStamp(),
       sender: true,
-      memberId: null,
-      messageStatus: MessageStatus.unassigned,
+      //initial state is unsent
+      messageStatus: MessageStatus.unsent,
       replyId: this.replyId,
       expiresOn: null,
     };
@@ -85,247 +95,300 @@ export class SendMediaDirectMessage<
       replyId: this.replyId,
       expiresOn: null,
     };
-
     this.expiresOn = null;
   }
+
+  private async validate(): Promise<void> {
+    //throw error if content type is not supported by this class
+    if (!mediaContentTypes.includes(this.contentType)) {
+      throw new Error('NotMediaContentTypeError');
+    }
+    //throw error if message exceeds acceptable character size
+    if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
+      throw new Error('MessageDataTooBigError');
+    }
+    //throw error if no media file uri is specified
+    const fileUri = (this.data as LargeDataParams).fileUri;
+    if (!fileUri) {
+      throw new Error('LargeDataFileUriNullError');
+    }
+    //throw error if file is too large to send
+    if (!(await checkFileSizeWithinLimits(fileUri))) {
+      throw new Error('FileTooLarge');
+    }
+  }
+
   async send(_onSuccess?: (x: boolean) => void): Promise<boolean> {
     try {
-      // Set up in Filesystem
-      await this.validate();
+      //we don't yet support sending media before a chat has been authenticated.
       if (!this.isAuthenticated()) {
         console.warn(
           '[SEND MEDIA DIRECT MESSAGE] Attempted to send before authentication. Failed.',
         );
         return false;
       }
+      // Set up in Filesystem
+      await this.validate();
       this.setDisappearing();
-      await this.preProcessMedia();
-      (this.payload.data as LargeDataParams).fileUri = null;
+
+      //attempt to create upload media Id and key.
+      await this.uploadMedia();
+      //create local copy of media
+      await this.addMediaEntry();
+
+      //message is saved with appropriate message status (based on whether media upload failed or not).
       await storage.saveMessage(this.savedMessage);
-      this.storeCalls();
-      const processedData = await this.encryptedMessage();
 
-      const isAPISuccess = await API.sendObject(
-        this.chatId,
-        processedData,
-        false,
-        this.isNotificationSilent(),
-      );
-      let sendStatus: MessageStatus;
-      if (isAPISuccess === MessageStatus.sent) {
-        sendStatus = MessageStatus.sent;
-      } else {
-        sendStatus = MessageStatus.unsent;
+      //if upload has succeeded, try sending the message.
+      if (this.savedMessage.messageStatus === MessageStatus.journaled) {
+        //prep payload with upload mediaId and key
+        //make fileUri and previewUri null as that information is useless to the receiver.
+        this.payload.data = {
+          ...this.data,
+          fileUri: null,
+          previewUri: null,
+        };
+        const processedData = await this.encryptedMessage();
+        this.savedMessage.messageStatus = await this.attempt(processedData);
+        // Update message's send status
+        await storage.updateMessageStatus(this.chatId, {
+          messageIdToBeUpdated: this.messageId,
+          updatedMessageStatus: this.savedMessage.messageStatus,
+        });
       }
-      // Update message's send status
-      await storage.updateMessageSendStatus(this.chatId, {
-        messageIdToBeUpdated: this.messageId,
-        updatedMessageStatus: sendStatus,
-      });
-
       // Update connection card's message
-      await this.updateConnectionInfo(sendStatus);
+      await this.updateConnectionInfo(
+        this.savedMessage.messageStatus as MessageStatus,
+      );
     } catch (e) {
       console.error('Could not send message', e);
       await this.onFailure(e);
-      this.storeCalls();
       return false;
     }
-    /**
-     * In this case, once the message haas been set up,
-     * sending and resending are exactly the same.
-     */
-    this.storeCalls();
     return true;
   }
+
   /**
-   * Perform the initial DBCalls and attempt API calls
+   * Perform api call to post the processed payload and return message status accordingly.
+   * @param processedPayload
+   * @returns appropriate message status
    */
-  private async validate(): Promise<void> {
-    if (!mediaContentTypes.includes(this.contentType)) {
-      throw new Error('NotMediaContentTypeError');
-    }
-    if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
-      throw new Error('MessageDataTooBigError');
-    }
-    const fileUri = (this.data as LargeDataParams).fileUri;
-    if (!fileUri) {
-      throw new Error('LargeDataFileUriNullError');
-    }
-    if (
-      !(await checkFileSizeWithinLimits(
-        fileUri,
-        this.contentType === ContentType.displayImage ? 'doc' : 'tmp',
-      ))
-    ) {
-      throw new Error('FileTooLarge');
+  async attempt(processedPayload: object): Promise<MessageStatus> {
+    try {
+      // Perform API call
+      await API.sendObject(
+        this.chatId,
+        processedPayload,
+        false,
+        this.isNotificationSilent(),
+      );
+      return MessageStatus.sent;
+    } catch (error) {
+      console.log(
+        'send attempt failed, message type does not support journaling',
+      );
+      return MessageStatus.journaled;
     }
   }
 
   /**
-   * Set up attributes based on whether the message should disappear
-   * @returns void
+   * Retry sending media.
+   * we can also call this if upload has failed to re-upload and send.
+   * If upload has succeeded but send has failed, the journaled message is re-sent.
+   */
+  async retry(): Promise<boolean> {
+    try {
+      //load up saved message from storage
+      await this.loadSavedMessage();
+      //make sure re-upload is only called on unsent media messages
+      if (this.savedMessage.messageStatus === MessageStatus.unsent) {
+        //attempt to create upload media Id and key.
+        await this.uploadMedia();
+      }
+      //we don't need to add media entry because it is already added on the initial send step.
+      //if upload has succeeded, try sending the message.
+      if (this.savedMessage.messageStatus === MessageStatus.journaled) {
+        //prep payload with upload mediaId and key
+        //make fileUri and previewUri null as that information is useless to the receiver.
+        this.payload.data = {
+          ...this.data,
+          fileUri: null,
+          previewUri: null,
+        };
+        const processedData = await this.encryptedMessage();
+        this.savedMessage.messageStatus = await this.attempt(processedData);
+        // Update message's send status
+        await storage.updateMessageStatus(this.chatId, {
+          messageIdToBeUpdated: this.messageId,
+          updatedMessageStatus: this.savedMessage.messageStatus,
+        });
+      }
+      // Update connection card's message
+      await this.updateConnectionInfo(
+        this.savedMessage.messageStatus as MessageStatus,
+      );
+    } catch (e) {
+      console.error('Could not send message', e);
+      await this.onFailure(e);
+      return false;
+    }
+    this.storeCalls();
+    return true;
+  }
+
+  /**
+   * Setup disappearing message supported types with expiry
    */
   private async setDisappearing() {
-    if (!disappearingMediaTypes.includes(this.contentType)) {
-      return;
+    if (disappearingMediaTypes.includes(this.contentType)) {
+      this.expiresOn = generateExpiresOnISOTimestamp(
+        (await getChatPermissions(this.chatId, ChatType.direct))
+          .disappearingMessages,
+      );
+      this.savedMessage.expiresOn = this.expiresOn;
+      this.payload.expiresOn = this.expiresOn;
     }
-    this.expiresOn = generateExpiresOnISOTimestamp(
-      (await getChatPermissions(this.chatId, ChatType.direct))
-        .disappearingMessages,
-    );
-    this.savedMessage.expiresOn = this.expiresOn;
-    this.payload.expiresOn = this.expiresOn;
   }
 
   /**
-   * Retry sending a unsent message using only API calls
+   * Reconstruct saved message and payload from db.
    */
-  async retry(_onSuccess?: (x: boolean) => void): Promise<boolean> {
-    console.log('Attempted retry of media');
-    try {
-      await this.preProcessMedia();
-      const processedData = await this.encryptedMessage();
-
-      const sendStatus = await API.sendObject(
-        this.chatId,
-        processedData,
-        false,
-        this.isNotificationSilent(),
-      );
-      // Update message's send status
-      await storage.updateMessageSendStatus(this.chatId, {
-        messageIdToBeUpdated: this.messageId,
-        updatedMessageStatus: sendStatus,
-      });
-
-      // Update connection card's message
-      await this.updateConnectionInfo(sendStatus);
-      console.log('Retry of media succeeded');
-    } catch (e) {
-      console.error('Could not send message', e);
-      await this.onFailure(e);
-      this.storeCalls();
-      return false;
+  private async loadSavedMessage() {
+    const savedMessage = await storage.getMessage(this.chatId, this.messageId);
+    if (savedMessage) {
+      this.savedMessage = savedMessage;
+      this.payload = {
+        messageId: savedMessage.messageId,
+        contentType: this.contentType,
+        data: savedMessage.data,
+        replyId: savedMessage.replyId,
+        expiresOn: this.expiresOn,
+      };
     }
-
-    this.storeCalls();
-    return true;
   }
 
   private async onFailure(error: any = null) {
-    this.updateConnectionInfo(MessageStatus.failed);
-    storage.updateMessageSendStatus(this.chatId, {
-      messageIdToBeUpdated: this.messageId,
-      updatedMessageStatus: MessageStatus.failed,
-    });
     if (typeof error === 'object' && error.message === 'FileTooLarge') {
       throw new Error(error.message);
     }
   }
+
+  /**
+   * Perform necessary cleanup after sending succeeds
+   */
+  private async cleanup() {
+    // This class messages do not need any cleanup as of now
+    return;
+  }
+
+  /**
+   * @returns preview text to update the connection with.
+   */
   generatePreviewText(): string {
     const text = getConnectionTextByContentType(this.contentType, this.data);
     return text;
   }
-  private async updateConnectionInfo(newSendStatus: MessageStatus) {
-    //create ReadStatus attribute based on send status.
 
-    let readStatus: MessageStatus = MessageStatus.failed;
-    switch (newSendStatus) {
-      case MessageStatus.sent:
-        readStatus = MessageStatus.sent;
-        break;
-      case MessageStatus.journaled:
-        readStatus = MessageStatus.journaled;
-        break;
-    }
-    let text: string = this.generatePreviewText();
+  /**
+   * Update connection with preview text and new send status.
+   * Update only if content type is not exempt from triggering connection updates
+   * @param newSendStatus
+   */
+  private async updateConnectionInfo(newSendStatus: MessageStatus) {
+    //set the connection read status to failed if message status is unsent.
+    //We do this to give additional feedback to user on home screen.
+    const readStatus =
+      newSendStatus === MessageStatus.unsent
+        ? MessageStatus.failed
+        : newSendStatus;
     if (!connectionUpdateExemptTypes.includes(this.contentType)) {
-      await updateConnectionOnNewMessage(
-        {
-          chatId: this.chatId,
-          text,
-          readStatus: readStatus,
-          recentMessageType: this.contentType,
-          latestMessageId: this.messageId,
-        },
-        NewMessageCountAction.increment,
-      );
+      await updateConnectionOnNewMessage({
+        chatId: this.chatId,
+        text: this.generatePreviewText(),
+        readStatus: readStatus,
+        recentMessageType: this.contentType,
+        latestMessageId: this.messageId,
+      });
     }
   }
-  private async preProcessMedia() {
-    //create valid media Id and key.
-    let mediaId = (this.data as LargeDataParams).mediaId;
-    let key = (this.data as LargeDataParams).key;
+
+  /**
+   * upload media before sending.
+   * If this step succeeds, an upload media Id is created and message status gets updated to journaled.
+   * Otherwise, upload media Id remains null or undefined and message status gets updated to unsent.
+   */
+  private async uploadMedia() {
     const largeData = this.data as LargeDataParamsStrict;
-    if (!mediaId || !key) {
+    //if valid upload media Id and key don't exist,
+    //then we need to re-upload to create a new valid media Id and key.
+    if (!largeData.mediaId || !largeData.key) {
       const uploader = new LargeDataUpload(
         largeData.fileUri,
         largeData.fileName,
         largeData.fileType,
-        'tmp',
       );
       await uploader.upload();
       const newMediaIdAndKey = uploader.getMediaIdAndKey();
-      mediaId = newMediaIdAndKey.mediaId;
-      key = newMediaIdAndKey.key;
+      largeData.mediaId = newMediaIdAndKey.mediaId;
+      largeData.key = newMediaIdAndKey.key;
       console.log('[MediaSender] Uploaded media due to missing mediaId or key');
     } else {
       console.log('[MediaSender] Skipping upload');
     }
+    //if re-upload succeeds and upload mediaId is created, let's mark the message status as journaled.
+    if (largeData.mediaId) {
+      this.savedMessage.messageStatus = MessageStatus.journaled;
+    } else {
+      //else let's mark the message status as unsent
+      this.savedMessage.messageStatus = MessageStatus.unsent;
+    }
+  }
 
-    //prep payload
-    this.payload.data = {
-      ...this.data,
-      fileUri: null,
-      mediaId: mediaId,
-      key: key,
-    };
+  /**
+   * Creates local copy of media in media Dir and adds media entry to DB
+   */
+  private async addMediaEntry() {
+    const largeData = this.data as LargeDataParamsStrict;
+    //make a local copy and add to media DB. Unless it's exempt.
+    if (!localMediaCopyExemptTypes.includes(this.contentType)) {
+      //create a local copy in the chat's media directory
+      const newLocation = await moveToLargeFileDir(
+        this.chatId,
+        largeData.fileUri,
+        largeData.fileName,
+        this.contentType,
+        false,
+      );
+      //create a local copy of the media's preview in the chat's media directory.
+      const newPreviewLocation = largeData.previewUri
+        ? await moveToLargeFileDir(
+            this.chatId,
+            largeData.previewUri,
+            null,
+            this.contentType,
+            false,
+          )
+        : undefined;
+      largeData.fileUri = newLocation;
+      largeData.previewUri = newPreviewLocation;
 
-    // when about to send multimedia, make a local copy and add to media DB. Unless it's a display picture.
-    try {
-      if (this.contentType !== ContentType.displayImage) {
-        const newLocation = await moveToLargeFileDir(
-          this.chatId,
-          largeData.fileUri,
-          largeData.fileName,
-          this.contentType,
-          false,
-        );
-        const newPreviewLocation = largeData.previewUri
-          ? await moveToLargeFileDir(
-              this.chatId,
-              largeData.previewUri,
-              null,
-              this.contentType,
-              false,
-            )
-          : undefined;
-        largeData.fileUri = newLocation;
-        largeData.previewUri = newPreviewLocation;
-        (this.savedMessage.data as LargeDataParamsStrict).fileUri = newLocation;
-        (this.savedMessage.data as LargeDataParamsStrict).mediaId = mediaId;
-        (this.savedMessage.data as LargeDataParamsStrict).previewUri =
-          newPreviewLocation;
-      }
       //Add entry into media table
-      if (mediaId) {
-        await saveNewMedia(
-          mediaId,
-          this.chatId,
-          this.messageId,
-          this.savedMessage.timestamp,
-        );
-        //Saves relative URIs for the paths
-        await updateMedia(mediaId, {
-          type: this.contentType,
-          filePath: largeData.fileUri,
-          name: largeData.fileName,
-          previewPath: largeData.previewUri ? largeData.previewUri : undefined,
-        });
-      }
-    } catch (e) {
-      console.log('ERROR MAKING LOCAL COPY AND ADDING TO MEDIA DB: ', e);
+      const localMediaId = generateRandomHexId();
+      await saveNewMedia(
+        localMediaId,
+        this.chatId,
+        this.messageId,
+        generateISOTimeStamp(),
+      );
+      //Saves relative URIs for the paths
+      await updateMedia(localMediaId, {
+        type: this.contentType,
+        filePath: largeData.fileUri,
+        name: largeData.fileName,
+        previewPath: largeData.previewUri ? largeData.previewUri : undefined,
+      });
+      //update the savedMessage with local media Id.
+      this.savedMessage.mediaId = localMediaId;
     }
   }
 }

@@ -34,6 +34,7 @@ import BlurViewModal from '@components/Reusable/BlurView/BlurView';
 import DualActionBottomSheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
 import ReportMessageBottomSheet from '@components/Reusable/BottomSheets/ReportMessageBottomSheet';
 import DynamicColors from '@components/DynamicColors';
+import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 
@@ -192,7 +193,9 @@ function ChatScreen() {
           keyboardVerticalOffset={isIOS ? 50 : 0}
           style={styles.main}>
           <ChatList
-            messages={messages}
+            messages={messages.filter(x =>
+              DisplayableContentTypes.includes(x.contentType),
+            )}
             onStartReached={onStartReached}
             onEndReached={onEndReached}
           />

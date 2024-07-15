@@ -4,7 +4,6 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {MAX_WIDTH_CONTENT, RenderTimeStamp} from '../BubbleUtils';
@@ -16,8 +15,9 @@ import {generateBundleForContactSharing} from '@utils/ContactSharing';
 
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
-const ContactRequestBubble = ({message}: {message: SavedMessageParams}) => {
+const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
   const [destination, setDestination] = useState(DEFAULT_NAME);
 
   const [requesterName, setRequesterName] = useState<string>(DEFAULT_NAME);

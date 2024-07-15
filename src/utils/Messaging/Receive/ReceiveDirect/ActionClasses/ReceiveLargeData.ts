@@ -2,13 +2,21 @@ import {getChatPermissions} from '@utils/ChatPermissions';
 import {DirectPermissions} from '@utils/ChatPermissions/interfaces';
 import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
 import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
-import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
+import {
+  DataType,
+  LargeDataParams,
+  MessageStatus,
+} from '@utils/Messaging/interfaces';
 import {displaySimpleNotification} from '@utils/Notifications';
 import DirectReceiveAction from '../DirectReceiveAction';
 import {handleAsyncMediaDownload} from '../HandleMediaDownload';
 import store from '@store/appStore';
 import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {saveNewMedia} from '@utils/Storage/media';
+import * as storage from '@utils/Storage/messages';
 
 class ReceiveLargeData extends DirectReceiveAction {
   async performAction(): Promise<void> {
@@ -32,6 +40,7 @@ class ReceiveLargeData extends DirectReceiveAction {
     //notify user
     this.notify(permissions.notifications, connection);
   }
+
   async downloadMessage(permissions: DirectPermissions): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
 
@@ -43,12 +52,14 @@ class ReceiveLargeData extends DirectReceiveAction {
 
     //By default, we add in a message to the DB without waiting to download media
     await this.saveMessage(data);
+    await this.sendReceiveUpdate();
 
     //If autodownload is on, we do the following async
     if (permissions.autoDownload) {
       this.handleDownload();
     }
   }
+
   //actual download and post process step.
   async handleDownload(): Promise<void> {
     try {
@@ -105,6 +116,34 @@ class ReceiveLargeData extends DirectReceiveAction {
         this.chatId,
       );
     }
+  }
+
+  async saveMessage(data?: DataType) {
+    this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    const localMediaId = generateRandomHexId();
+    const savedMessage: LineMessageData = {
+      chatId: this.chatId,
+      messageId: this.decryptedMessageContent.messageId,
+      data: data || this.decryptedMessageContent.data,
+      contentType: this.decryptedMessageContent.contentType,
+      timestamp: this.receiveTime,
+      sender: false,
+      messageStatus: MessageStatus.delivered,
+      replyId: this.decryptedMessageContent.replyId,
+      expiresOn: this.decryptedMessageContent.expiresOn,
+      shouldAck:
+        ((await getChatPermissions(this.chatId, ChatType.direct))
+          .readReceipts as boolean) || false,
+      mediaId: localMediaId,
+    };
+    //Create a media entry in DB for the same
+    await saveNewMedia(
+      localMediaId,
+      this.chatId,
+      this.decryptedMessageContent.messageId,
+      this.receiveTime,
+    );
+    await storage.saveMessage(savedMessage);
   }
 }
 

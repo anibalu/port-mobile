@@ -20,7 +20,7 @@ import {expiryOptionsTypes} from '@utils/Time/interfaces';
 import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
 import {ContactBundleParams, ContentType} from '@utils/Messaging/interfaces';
 import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
-import {getMessage, updateMessage} from '@utils/Storage/messages';
+import {getMessage, updateMessageData} from '@utils/Storage/messages';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {createChatPermissionsFromFolderId} from '@utils/ChatPermissions';
 
@@ -208,7 +208,7 @@ export async function acceptPortBundle(
       if (message) {
         const update = message.data as ContactBundleParams;
         update.accepted = true;
-        await updateMessage(fromChatId, messsageId, update);
+        await updateMessageData(fromChatId, messsageId, update);
       }
     }
   }
@@ -262,7 +262,7 @@ export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
         if (message) {
           const update = message.data as ContactBundleParams;
           (update.accepted = true), (update.createdChatId = chat.getChatId());
-          await updateMessage(fromChatId, messsageId, update);
+          await updateMessageData(fromChatId, messsageId, update);
         }
       }
     }

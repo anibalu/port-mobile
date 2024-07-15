@@ -25,24 +25,52 @@ import ReceiveReceipt from './ActionClasses/ReceiveReceipt';
 import ReceiveMessageDeletion from './ActionClasses/ReceiveMessageDeletion';
 import ReceiveDisappearingMessage from './ActionClasses/ReceiveDisappearingMessage';
 
-export enum PossibleDirectReceiveActions {
-  deletion,
-  newChatOverPort,
-  newChatOverSuperport,
-  receiveName,
-  receiveAvatar,
-  receiveDisplayImage,
-  receiveText,
-  receiveImage,
-  receiveVideo,
-  receiveFile,
-  receiveLink,
-  handshakeResponseA1,
-  handshakeResponseB2,
-  InitialInfoResponse,
-  contactBundleRequest,
-  ReceiveContactBundle,
-}
+const SupportedReceieveDecryptedContentTypes = [
+  ContentType.name,
+  ContentType.text,
+  ContentType.image,
+  ContentType.video,
+  ContentType.file,
+  ContentType.deleted,
+  ContentType.disappearingMessages,
+  ContentType.displayImage,
+  ContentType.displayAvatar,
+  ContentType.link,
+  ContentType.audioRecording,
+  ContentType.reaction,
+  ContentType.receipt,
+  ContentType.handshakeA1,
+  ContentType.handshakeB2,
+  ContentType.initialInfoRequest,
+  ContentType.contactBundle,
+  ContentType.contactBundleRequest,
+  ContentType.contactBundleResponse,
+];
+
+const AssignDecryptedContentReceiver: Record<
+  number,
+  typeof DirectReceiveAction
+> = {
+  [ContentType.name]: ReceiveName,
+  [ContentType.text]: ReceiveText,
+  [ContentType.image]: ReceiveImage,
+  [ContentType.video]: ReceiveVideo,
+  [ContentType.file]: ReceiveFile,
+  [ContentType.deleted]: ReceiveMessageDeletion,
+  [ContentType.disappearingMessages]: ReceiveDisappearingMessage,
+  [ContentType.displayImage]: ReceiveDisplayImage,
+  [ContentType.displayAvatar]: ReceiveAvatar,
+  [ContentType.link]: ReceiveLink,
+  [ContentType.audioRecording]: ReceiveAudio,
+  [ContentType.reaction]: ReceiveReaction,
+  [ContentType.receipt]: ReceiveReceipt,
+  [ContentType.handshakeA1]: HandshakeResponseA1,
+  [ContentType.handshakeB2]: HandshakeResponseB2,
+  [ContentType.initialInfoRequest]: InitialInfoResponse,
+  [ContentType.contactBundle]: ReceiveContactBundle,
+  [ContentType.contactBundleRequest]: ReceiveContactBundleRequest,
+  [ContentType.contactBundleResponse]: ReceiveContactBundleResponse,
+};
 
 export async function directReceiveActionPicker(
   chatId: string,
@@ -50,8 +78,6 @@ export async function directReceiveActionPicker(
   receiveTime: string,
   decryptedMessageContent: PayloadMessageParams | null = null,
 ): Promise<DirectReceiveAction | null> {
-  //add conditions that make us call a class.
-  //This kind of picker is not ideal interms of maintainability.
   if (message.deletion) {
     return new Deletion(chatId, message, receiveTime, decryptedMessageContent);
   }
@@ -74,144 +100,14 @@ export async function directReceiveActionPicker(
     }
   }
   if (decryptedMessageContent) {
-    switch (decryptedMessageContent.contentType) {
-      case ContentType.name:
-        return new ReceiveName(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.disappearingMessages: {
-        return new ReceiveDisappearingMessage(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      }
-      case ContentType.displayAvatar:
-        return new ReceiveAvatar(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.displayImage:
-        return new ReceiveDisplayImage(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.text:
-        return new ReceiveText(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.link:
-        return new ReceiveLink(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.image:
-        return new ReceiveImage(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.video:
-        return new ReceiveVideo(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.file:
-        return new ReceiveFile(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.audioRecording:
-        return new ReceiveAudio(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.handshakeA1:
-        return new HandshakeResponseA1(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.handshakeB2:
-        return new HandshakeResponseB2(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.initialInfoRequest:
-        return new InitialInfoResponse(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.contactBundleRequest:
-        return new ReceiveContactBundleRequest(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.deleted:
-        return new ReceiveMessageDeletion(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-
-      case ContentType.contactBundleResponse:
-        return new ReceiveContactBundleResponse(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.contactBundle:
-        return new ReceiveContactBundle(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.reaction:
-        return new ReceiveReaction(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      case ContentType.receipt:
-        return new ReceiveReceipt(
-          chatId,
-          message,
-          receiveTime,
-          decryptedMessageContent,
-        );
-      default:
-        return null;
+    if (
+      SupportedReceieveDecryptedContentTypes.includes(
+        decryptedMessageContent.contentType,
+      )
+    ) {
+      return new AssignDecryptedContentReceiver[
+        decryptedMessageContent.contentType as keyof typeof AssignDecryptedContentReceiver
+      ](chatId, message, receiveTime, decryptedMessageContent);
     }
   }
   return null;

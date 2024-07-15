@@ -4,7 +4,7 @@ import {
   NumberlessLinkText,
   NumberlessText,
 } from '@components/NumberlessText';
-import {SavedMessageParams, TextParams} from '@utils/Messaging/interfaces';
+import {TextParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {
@@ -16,12 +16,9 @@ import {
 } from '../BubbleUtils';
 import DynamicColors from '@components/DynamicColors';
 import {useTheme} from 'src/context/ThemeContext';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
-export const TextBubble = ({
-  message,
-}: {
-  message: SavedMessageParams;
-}): ReactNode => {
+export const TextBubble = ({message}: {message: LoadedMessage}): ReactNode => {
   const paddingText = message.sender
     ? TIME_STAMP_TEXT_PADDING_SENDER
     : TIME_STAMP_TEXT_PADDING_RECEIVER;

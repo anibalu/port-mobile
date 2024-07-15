@@ -43,7 +43,7 @@ async function createImagePreview(
   if (config.cacheName) {
     fileName = config.cacheName + '.JPEG';
   }
-  const newPath = await moveToTmp(response.path, fileName);
+  const newPath = await moveToTmp(response.path);
   if (!newPath) {
     throw new Error('Image preview generation failed at move to tmp');
   }

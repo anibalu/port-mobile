@@ -4,7 +4,6 @@ import {
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
-  SavedMessageParams,
   connectionUpdateExemptTypes,
 } from '@utils/Messaging/interfaces';
 import * as storage from '@utils/Storage/messages';
@@ -17,7 +16,11 @@ import {ChatType} from '@utils/Connections/interfaces';
 import {updateConnectionOnNewMessage} from '@utils/Connections';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
+/**
+ * Content types that trigger this sender
+ */
 export const genericContentTypes: ContentType[] = [
   ContentType.text,
   ContentType.link,
@@ -29,6 +32,9 @@ export const genericContentTypes: ContentType[] = [
   ContentType.contactBundleResponse,
 ];
 
+/**
+ * Subset content types that support disappearing messages
+ */
 const genericDisappearingTypes: ContentType[] = [
   ContentType.text,
   ContentType.link,
@@ -42,7 +48,7 @@ export class SendGenericDirectMessage<
   data: DataType; //message data corresponding to the content type
   replyId: string | null; //not null if message is a reply message (optional)
   messageId: string; //messageId of message (optional)
-  savedMessage: SavedMessageParams; //message to be saved to storage
+  savedMessage: LineMessageData; //message to be saved to storage
   payload: PayloadMessageParams; //message to be encrypted and sent.
   expiresOn: string | null;
   constructor(
@@ -65,8 +71,8 @@ export class SendGenericDirectMessage<
       data: this.data,
       timestamp: generateISOTimeStamp(),
       sender: true,
-      memberId: null,
-      messageStatus: MessageStatus.unassigned,
+      //initial state is journaled for this class
+      messageStatus: MessageStatus.journaled,
       replyId: this.replyId,
       expiresOn: null,
     };
@@ -77,17 +83,24 @@ export class SendGenericDirectMessage<
       replyId: this.replyId,
       expiresOn: null,
     };
-
     this.expiresOn = null;
+  }
+
+  private validate(): void {
+    //throw error if content type is not supported by this class
+    if (!genericContentTypes.includes(this.contentType)) {
+      throw new Error('NotGenericContentTypeError');
+    }
+    //throw error if message exceeds acceptable character size
+    if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
+      throw new Error('MessageDataTooBigError');
+    }
   }
 
   async send(_onSuccess?: (x: boolean) => void): Promise<boolean> {
     try {
-      // Set up in Filesystem
       this.validate();
       await this.setDisappearing();
-      // Set initial message statud
-      this.savedMessage.messageStatus = MessageStatus.journaled;
       try {
         await storage.saveMessage(this.savedMessage);
         this.storeCalls();
@@ -96,10 +109,9 @@ export class SendGenericDirectMessage<
         console.warn(
           'You may be using send to retry. Please migrate to retry instead.',
         );
-        this.retry();
+        await this.retry();
         return true;
       }
-      // this.storeCalls();
     } catch (e) {
       console.error('Could not send message', e);
       await this.onFailure(e);
@@ -113,38 +125,28 @@ export class SendGenericDirectMessage<
     this.retry();
     return true;
   }
+
   /**
-   * Perform the initial DBCalls and attempt API calls
+   * Setup disappearing message supported types with expiry
    */
-  private validate(): void {
-    /**
-     * If you're seeing this, bring it up to Abhi. This has debt
-     * since it needs custom error types to remove dependence on
-     * error message strings
-     */
-    if (!genericContentTypes.includes(this.contentType)) {
-      throw new Error('NotGenericContentTypeError');
-    }
-    if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
-      throw new Error('MessageDataTooBigError');
-    }
-  }
   private async setDisappearing() {
-    if (!genericDisappearingTypes.includes(this.contentType)) {
-      return;
+    if (genericDisappearingTypes.includes(this.contentType)) {
+      this.expiresOn = generateExpiresOnISOTimestamp(
+        (await getChatPermissions(this.chatId, ChatType.direct))
+          .disappearingMessages,
+      );
+      this.savedMessage.expiresOn = this.expiresOn;
+      this.payload.expiresOn = this.expiresOn;
     }
-    this.expiresOn = generateExpiresOnISOTimestamp(
-      (await getChatPermissions(this.chatId, ChatType.direct))
-        .disappearingMessages,
-    );
-    this.savedMessage.expiresOn = this.expiresOn;
-    this.payload.expiresOn = this.expiresOn;
   }
 
+  /**
+   * Reconstruct saved message and payload from db.
+   */
   private async loadSavedMessage() {
     const savedMessage = await storage.getMessage(this.chatId, this.messageId);
     if (savedMessage) {
-      this.savedMessage = savedMessage as SavedMessageParams;
+      this.savedMessage = savedMessage;
       this.payload = {
         messageId: savedMessage.messageId,
         contentType: this.contentType,
@@ -167,41 +169,57 @@ export class SendGenericDirectMessage<
         return false;
       }
       await this.loadSavedMessage();
-      console.log('Attempting to send: ', this.data);
       const processedPayload = await this.encryptedMessage();
-      // Perform API call
-
-      const udpatedStatus = await API.sendObject(
-        this.chatId,
-        processedPayload,
-        false,
-        this.isNotificationSilent(),
-      );
+      //attempt to send.
+      const sendStatus = await this.attempt(processedPayload);
       // Update message's send status
-      await storage.updateMessageSendStatus(this.chatId, {
+      await storage.updateMessageStatus(this.chatId, {
         messageIdToBeUpdated: this.messageId,
-        updatedMessageStatus: udpatedStatus,
+        updatedMessageStatus: sendStatus,
       });
       // Update connection card's message
-      await this.updateConnectionInfo(udpatedStatus);
+      await this.updateConnectionInfo(sendStatus);
     } catch (e) {
       console.error('Could not send message', e);
       await this.onFailure();
       this.storeCalls();
       return false;
     }
-
-    this.storeCalls();
     await this.cleanup();
+    this.storeCalls();
     return true;
   }
 
+  /**
+   * Perform api call to post the processed payload and return message status accordingly.
+   * @param processedPayload
+   * @returns appropriate message status
+   */
+  async attempt(processedPayload: object): Promise<MessageStatus> {
+    try {
+      // Perform API call
+      await API.sendObject(
+        this.chatId,
+        processedPayload,
+        false,
+        this.isNotificationSilent(),
+      );
+      return MessageStatus.sent;
+    } catch (error) {
+      console.log('send attempt failed, message to be journaled');
+      return MessageStatus.journaled;
+    }
+  }
+
+  /**
+   * Perform these actions on critical failures.
+   */
   private async onFailure(error: any = null) {
-    this.updateConnectionInfo(MessageStatus.failed);
-    storage.updateMessageSendStatus(this.chatId, {
+    await storage.updateMessageStatus(this.chatId, {
       messageIdToBeUpdated: this.messageId,
       updatedMessageStatus: MessageStatus.failed,
     });
+    await this.updateConnectionInfo(MessageStatus.failed);
     if (
       typeof error === 'object' &&
       error.message === 'MessageDataTooBigError'
@@ -213,33 +231,29 @@ export class SendGenericDirectMessage<
   /**
    * Perform necessary cleanup after sending succeeds
    */
-  private async cleanup(): Promise<boolean> {
-    return true;
+  private async cleanup() {
+    // This class messages do not need any cleanup as of now
+    return;
   }
 
+  /**
+   * @returns preview text to update the connection with.
+   */
   generatePreviewText(): string {
-    const text = getConnectionTextByContentType(this.contentType, this.data);
-    return text;
+    return getConnectionTextByContentType(this.contentType, this.data);
   }
 
+  /**
+   * Update connection with preview text and new send status.
+   * Update only if content type is not exempt from triggering connection updates
+   * @param newSendStatus
+   */
   private async updateConnectionInfo(newSendStatus: MessageStatus) {
-    //create ReadStatus attribute based on send status.
-    let readStatus: MessageStatus = MessageStatus.failed;
-    switch (newSendStatus) {
-      case MessageStatus.sent:
-        readStatus = MessageStatus.sent;
-        break;
-      case MessageStatus.journaled:
-        readStatus = MessageStatus.journaled;
-        break;
-    }
-
     if (!connectionUpdateExemptTypes.includes(this.contentType)) {
-      console.log('updating connection', this.contentType);
       await updateConnectionOnNewMessage({
         chatId: this.chatId,
         text: this.generatePreviewText(),
-        readStatus: readStatus,
+        readStatus: newSendStatus,
         recentMessageType: this.contentType,
         latestMessageId: this.messageId,
       });

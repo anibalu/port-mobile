@@ -4,7 +4,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {LargeDataParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {
@@ -14,6 +14,7 @@ import {
   REPLY_MEDIA_WIDTH,
 } from '../BubbleUtils';
 import DynamicColors from '@components/DynamicColors';
+import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
 
 /**
  * @param message, message object
@@ -27,7 +28,7 @@ export default function FileReplyBubble({
   reply,
   memberName,
 }: {
-  reply: SavedMessageParams;
+  reply: ReplyContent;
   memberName: string;
 }): ReactNode {
   const displayName =

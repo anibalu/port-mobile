@@ -4,7 +4,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {ContentType} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import AudioBubble from './ContentBubbles/AudioBubble';
@@ -17,18 +17,17 @@ import {TextBubble} from './ContentBubbles/TextBubble';
 import {VideoBubble} from './ContentBubbles/VideoBubble';
 import ContactInfoBubble from './ContentBubbles/ContactInfoBubble';
 import ContactRequestBubble from './ContentBubbles/ContactRequestBubble';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 /**
  * Extend supported content types to support more types of content bubbles.
  */
 export const ContentBubble = ({
   message,
   handlePress,
-  handleRetry,
   handleLongPress,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
   handlePress: any;
-  handleRetry?: any;
   handleLongPress: any;
 }): ReactNode => {
   switch (message.contentType) {
@@ -54,7 +53,6 @@ export const ContentBubble = ({
         <ImageBubble
           message={message}
           handlePress={handlePress}
-          handleRetry={handleRetry}
           handleLongPress={handleLongPress}
         />
       );
@@ -64,7 +62,6 @@ export const ContentBubble = ({
         <VideoBubble
           message={message}
           handlePress={handlePress}
-          handleRetry={handleRetry}
           handleLongPress={handleLongPress}
         />
       );
@@ -73,7 +70,6 @@ export const ContentBubble = ({
         <FileBubble
           message={message}
           handlePress={handlePress}
-          handleRetry={handleRetry}
           handleLongPress={handleLongPress}
         />
       );
@@ -82,7 +78,6 @@ export const ContentBubble = ({
         <AudioBubble
           message={message}
           handlePress={handlePress}
-          handleRetry={handleRetry}
           handleLongPress={handleLongPress}
         />
       );

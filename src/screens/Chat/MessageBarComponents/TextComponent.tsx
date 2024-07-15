@@ -2,7 +2,7 @@ import {isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {GenericButton} from '@components/GenericButton';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useState} from 'react';
 import {Animated, Pressable, StyleSheet, TextInput, View} from 'react-native';
@@ -19,7 +19,7 @@ const TextComponent = ({
   setMicrophoneClicked,
 }: {
   togglePopUp: () => void;
-  replyToMessage: SavedMessageParams | null; // message to be replied to
+  replyToMessage: LineMessageData | null; // message to be replied to
   text: string;
   setText: (val: string) => void;
   animatedStyle: any; //animation for opening popup component

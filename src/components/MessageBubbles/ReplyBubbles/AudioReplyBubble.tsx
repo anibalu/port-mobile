@@ -4,7 +4,6 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {
@@ -15,12 +14,13 @@ import {
 } from '../BubbleUtils';
 import {formatDuration} from '@utils/Time';
 import DynamicColors from '@components/DynamicColors';
+import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
 
 export default function AudioReplyBubble({
   reply,
   memberName,
 }: {
-  reply: SavedMessageParams;
+  reply: ReplyContent;
   memberName: string;
 }) {
   const durationTime = reply?.data?.duration || 0;

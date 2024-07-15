@@ -7,10 +7,8 @@ import {
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
   ContentType,
-  DisplayableContentTypes,
   InfoContentTypes,
   MessageStatus,
-  SavedMessageParams,
   UpdateRequiredMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp, getDateStamp} from '@utils/Time';
@@ -21,9 +19,10 @@ import {InfoBubble} from './InfoBubble';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DynamicColors from '@components/DynamicColors';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
 //Currently only sends read receipts for DMs
-const sendReadReceipt = async (chatId: string, message: SavedMessageParams) => {
+const sendReadReceipt = async (chatId: string, message: LoadedMessage) => {
   if (
     message.shouldAck &&
     !message.sender &&
@@ -51,7 +50,7 @@ const MessagePrecursor = ({
   hasExtraPadding,
   isDateBoundary,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
   hasExtraPadding: boolean;
   isDateBoundary: boolean;
 }): ReactNode => {
@@ -80,7 +79,7 @@ export const MessageBubbleParent = ({
   isDateBoundary,
   hasExtraPadding,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
   isDateBoundary: boolean;
   hasExtraPadding: boolean;
 }): ReactNode => {
@@ -129,41 +128,35 @@ export const MessageBubbleParent = ({
         isDateBoundary={isDateBoundary}
         hasExtraPadding={hasExtraPadding}
       />
-      {DisplayableContentTypes.includes(message.contentType) && (
-        <View style={styles.container}>
-          {InfoContentTypes.includes(message.contentType) ? (
-            <View style={styles.infoBubbleContainer}>
-              <InfoBubble message={message} />
-            </View>
-          ) : (
-            <Pressable
-              ref={bubbleRef}
-              style={
-                message.sender
-                  ? {
-                      ...styles.messageBubbleContainer,
-                      justifyContent: 'flex-end',
-                    }
-                  : styles.messageBubbleContainer
-              }
-              onPress={() =>
-                handlePress(message.messageId, message.contentType)
-              }
-              onLongPress={() =>
+      <View style={styles.container}>
+        {InfoContentTypes.includes(message.contentType) ? (
+          <View style={styles.infoBubbleContainer}>
+            <InfoBubble message={message} />
+          </View>
+        ) : (
+          <Pressable
+            ref={bubbleRef}
+            style={
+              message.sender
+                ? {
+                    ...styles.messageBubbleContainer,
+                    justifyContent: 'flex-end',
+                  }
+                : styles.messageBubbleContainer
+            }
+            onPress={() => handlePress(message.messageId, message.contentType)}
+            onLongPress={() => handleMessageBubbleLongPress(message.messageId)}
+            delayLongPress={300}>
+            <MessageBubble
+              message={message}
+              handleLongPress={() =>
                 handleMessageBubbleLongPress(message.messageId)
               }
-              delayLongPress={300}>
-              <MessageBubble
-                message={message}
-                handleLongPress={() =>
-                  handleMessageBubbleLongPress(message.messageId)
-                }
-                swipeable={true}
-              />
-            </Pressable>
-          )}
-        </View>
-      )}
+              swipeable={true}
+            />
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 };

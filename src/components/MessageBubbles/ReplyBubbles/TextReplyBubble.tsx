@@ -3,18 +3,19 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {SavedMessageParams, TextParams} from '@utils/Messaging/interfaces';
+import {TextParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {PortSpacing} from '@components/ComponentUtils';
 import {REPLY_MEDIA_HEIGHT} from '../BubbleUtils';
 import DynamicColors from '@components/DynamicColors';
+import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
 
 export const TextReplyBubble = ({
   reply,
   memberName,
 }: {
-  reply: SavedMessageParams;
+  reply: ReplyContent;
   memberName: string;
 }): ReactNode => {
   const Colors = DynamicColors();

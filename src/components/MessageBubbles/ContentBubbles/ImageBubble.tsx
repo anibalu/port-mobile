@@ -1,10 +1,5 @@
-import {
-  LargeDataParams,
-  MessageStatus,
-  SavedMessageParams,
-  TextParams,
-} from '@utils/Messaging/interfaces';
-import React, {ReactNode, useEffect, useState} from 'react';
+import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
+import React, {ReactNode, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -16,6 +11,7 @@ import {
   RenderTimeStamp,
   handleDownload,
   IMAGE_DIMENSIONS,
+  handleRetry,
 } from '../BubbleUtils';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
@@ -31,42 +27,44 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {getMedia} from '@utils/Storage/media';
+import {
+  LineMessageData,
+  LoadedMessage,
+} from '@utils/Storage/DBCalls/lineMessage';
 
 export const ImageBubble = ({
   message,
   handlePress,
   handleLongPress,
-  handleRetry,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
   handlePress: any;
   handleLongPress: any;
-  handleRetry: (message: SavedMessageParams) => void;
 }): ReactNode => {
+  //responsible for download loader
   const [startedManualDownload, setStartedManualDownload] = useState(false);
+  //responsible for retry loader
   const [loadingRetry, setLoadingRetry] = useState(false);
-  const [showRetry, setShowRetry] = useState(false);
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageUri, setImageUri] = useState<string | undefined | null>(
+    message.filePath || message.data.fileUri || null,
+  );
+  useMemo(() => {
+    setImageUri(message.filePath || message.data.fileUri || null);
+  }, [message]);
+
   const {mediaDownloadError} = useErrorModal();
-  const download = async () => {
-    try {
-      await handleDownload(message.chatId, message.messageId);
-    } catch (error) {
-      console.log('Error downloading media', error);
-      mediaDownloadError();
-    }
-  };
   const triggerDownload = async () => {
     setStartedManualDownload(true);
-    await download();
+    await handleDownload(message.chatId, message.messageId, () =>
+      mediaDownloadError(),
+    );
     setStartedManualDownload(false);
   };
   const navigation = useNavigation();
   const handlePressFunction = async () => {
     const selectionMode = handlePress(message.messageId);
     if (!selectionMode) {
-      if (imageUri === null) {
+      if (!imageUri) {
         triggerDownload();
       } else {
         navigation.navigate('MediaViewer', {
@@ -79,30 +77,11 @@ export const ImageBubble = ({
     handleLongPress(message.messageId);
   };
 
-  useEffect(() => {
-    setShowRetry(message.messageStatus === MessageStatus.unsent);
-    setLoadingRetry(message.messageStatus === MessageStatus.sent);
-  }, [message]);
-
-  const text = (message.data as TextParams).text;
-
-  const onRetryClick = async (messageObj: SavedMessageParams) => {
+  const onRetryClick = async (messageObj: LineMessageData) => {
     setLoadingRetry(true);
     await handleRetry(messageObj);
     setLoadingRetry(false);
   };
-
-  useEffect(() => {
-    (async () => {
-      const mediaInfo = await getMedia(message.data?.mediaId);
-      if (mediaInfo) {
-        const image = mediaInfo.filePath;
-        setImageUri(image);
-      } else {
-        setImageUri((message.data as LargeDataParams).fileUri);
-      }
-    })();
-  }, [message]);
 
   return (
     <Pressable
@@ -122,7 +101,7 @@ export const ImageBubble = ({
             renderDisplay(imageUri, message.data as LargeDataParams)
           )}
         </View>
-        {text ? (
+        {(message.data as LargeDataParams).text ? (
           <View style={{width: IMAGE_DIMENSIONS, paddingTop: 4}}>
             <TextBubble message={message} />
           </View>
@@ -134,7 +113,7 @@ export const ImageBubble = ({
               'rgba(0, 0, 0, 0.75)',
             ]}
             style={styles.gradientContainer}>
-            {showRetry && (
+            {message.messageStatus === MessageStatus.unsent && (
               <Pressable
                 onPress={() => onRetryClick(message)}
                 style={styles.retryButton}>
@@ -174,7 +153,7 @@ export const renderDisplay = (
     return (
       messageURI && (
         <Image
-          source={{uri: getSafeAbsoluteURI(messageURI, 'doc')}}
+          source={{uri: getSafeAbsoluteURI(messageURI)}}
           style={styles.image}
         />
       )

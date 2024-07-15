@@ -3,17 +3,17 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 
 import {PortColors} from '@components/ComponentUtils';
 import {RenderTimeStamp} from '../BubbleUtils';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
 export const DeletedBubble = ({
   message,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
 }): ReactNode => {
   const text = 'This message was deleted';
 

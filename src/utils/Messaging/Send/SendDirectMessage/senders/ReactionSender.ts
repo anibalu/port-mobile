@@ -6,7 +6,6 @@ import {
   MessageStatus,
   PayloadMessageParams,
   ReactionParams,
-  SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import * as MessageStorage from '@utils/Storage/messages';
 import * as ReactionStorage from '@utils/Storage/reactions';
@@ -15,13 +14,13 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
-import {
-  getConnection,
-  updateConnection,
-  updateConnectionOnNewMessage,
-} from '@utils/Connections';
+import {getConnection, updateConnection} from '@utils/Connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
+/**
+ * Content types that trigger this sender
+ */
 export const reactionContentTypes: ContentType[] = [ContentType.reaction];
 
 export class SendReactionDirectMessage<
@@ -32,7 +31,7 @@ export class SendReactionDirectMessage<
   data: DataType; //message data corresponding to the content type
   replyId: string | null; //not null if message is a reply message (optional)
   messageId: string; //messageId of message (optional)
-  savedMessage: SavedMessageParams; //message to be saved to storage
+  savedMessage: LineMessageData; //message to be saved to storage
   payload: PayloadMessageParams; //message to be encrypted and sent.
   expiresOn: string | null;
   constructor(
@@ -55,8 +54,8 @@ export class SendReactionDirectMessage<
       data: this.data,
       timestamp: generateISOTimeStamp(),
       sender: true,
-      memberId: null,
-      messageStatus: MessageStatus.unassigned,
+      //initial state is journaled for this class
+      messageStatus: MessageStatus.journaled,
       replyId: this.replyId,
       expiresOn: null,
     };
@@ -71,29 +70,44 @@ export class SendReactionDirectMessage<
     this.expiresOn = null;
   }
 
-  generatePreviewText(): string {
-    return '';
+  private validate(): void {
+    try {
+      //throw error if content type is not supported by this class
+      if (!reactionContentTypes.includes(this.contentType)) {
+        throw new Error('NotReactionContentTypeError');
+      }
+      //throw error if message exceeds acceptable character size
+      if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
+        throw new Error('MessageDataTooBigError');
+      }
+    } catch (error) {
+      console.error('Error found in initial checks: ', error);
+      throw new Error('InitialChecksError');
+    }
   }
 
-  /**
-   * Send an update. Cannot be journalled and is never saved to FS.
-   * @returns whether errors found
-   */
   async send(_onUpdateSuccess?: (success: boolean) => void): Promise<boolean> {
     try {
       // Set up in Filesystem
       this.validate();
-      // Set initial message statud
-      this.savedMessage.messageStatus = MessageStatus.journaled;
       try {
+        //save message to storage
         await MessageStorage.saveMessage(this.savedMessage);
+        //update reaction table
+        await this.updateReactionInfo();
         this.storeCalls();
-      } catch {
-        this.retry();
+      } catch (e) {
+        console.warn('Error adding message to FS', e);
+        console.warn(
+          'You may be using send to retry. Please migrate to retry instead.',
+        );
+        await this.retry();
         return true;
       }
     } catch (e) {
+      console.error('Could not send message', e);
       await this.onFailure(e);
+      this.storeCalls();
       return false;
     }
     this.retry();
@@ -105,40 +119,29 @@ export class SendReactionDirectMessage<
    */
   async retry(): Promise<boolean> {
     try {
+      console.log('retrying reaction journal');
       if (!(await this.isAuthenticated())) {
         console.warn(
           '[SEND REACTION DIRECT MESSAGE] Attempted to send before authentication. Failed.',
         );
         return false;
       }
-      // await this.loadSavedMessage();
-      console.log('Attempting to send: ', this.data);
-      const reactionData = this.data as ReactionParams;
-      await MessageStorage.setHasReactions(this.chatId, reactionData.messageId);
-      if (reactionData.tombstone) {
-        // TODO delete my reaction
-        ReactionStorage.deleteReaction(
-          this.chatId,
-          reactionData.messageId,
-          LineReactionSender.self,
-        );
-      } else {
-        await ReactionStorage.addReaction(
-          this.chatId,
-          reactionData.messageId,
-          LineReactionSender.self,
-          reactionData.reaction,
-        );
-      }
+      await this.loadSavedMessage();
+      console.log('api call');
+      // Perform API call
       const processedPayload = await this.encryptedMessage();
-      const newSendStatus = await API.sendObject(
-        this.chatId,
-        processedPayload,
-        false,
-        this.isNotificationSilent(),
-      );
-      if (reactionData.messageId) {
-        await this.updateConnectionInfo(newSendStatus);
+      const newSendStatus = await this.attempt(processedPayload);
+      console.log('finish api call', newSendStatus);
+      // Update message's send status
+      await MessageStorage.updateMessageStatus(this.chatId, {
+        messageIdToBeUpdated: this.messageId,
+        updatedMessageStatus: newSendStatus,
+      });
+      // Update connection card's message
+      await this.updateConnectionInfo(newSendStatus);
+      if (newSendStatus === MessageStatus.sent) {
+        //clean up by deleting saved reaction message if successfully sent
+        await this.cleanup();
       }
     } catch (e) {
       console.error('Could not send message', e);
@@ -146,120 +149,171 @@ export class SendReactionDirectMessage<
       this.storeCalls();
       return false;
     }
-    this.storeCalls();
     return true;
   }
+
   /**
-   * Perform the initial DBCalls and attempt API calls
+   * Perform api call to post the processed payload and return message status accordingly.
+   * @param processedPayload
+   * @returns appropriate message status
    */
-  private validate(): void {
+  async attempt(processedPayload: object): Promise<MessageStatus> {
     try {
-      if (!reactionContentTypes.includes(this.contentType)) {
-        throw new Error('NotReactionContentTypeError');
-      }
-      if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
-        throw new Error('MessageDataTooBigError');
-      }
+      // Perform API call
+      await API.sendObject(
+        this.chatId,
+        processedPayload,
+        false,
+        this.isNotificationSilent(),
+      );
+      return MessageStatus.sent;
     } catch (error) {
-      console.error('Error found in initial checks: ', error);
-      throw new Error('InitialChecksError');
+      console.log('send attempt failed, message journaled');
+      return MessageStatus.journaled;
     }
   }
 
+  /**
+   * Reconstruct saved message and payload from db.
+   */
   private async loadSavedMessage() {
-    console.error('Updates cannot be saved');
-    throw new Error('UnloadableMessageType');
-  }
-
-  private async onFailure(e: any) {
-    console.error('Could not send message', e);
-    this.storeCalls();
-    console.error('Cleaning message of info:', this.chatId, this.messageId);
-    await this.cleanup();
+    const savedMessage = await MessageStorage.getMessage(
+      this.chatId,
+      this.messageId,
+    );
+    if (savedMessage) {
+      this.savedMessage = savedMessage;
+      this.payload = {
+        messageId: savedMessage.messageId,
+        contentType: this.contentType,
+        data: savedMessage.data,
+        replyId: savedMessage.replyId,
+        expiresOn: this.expiresOn,
+      };
+      this.data = this.savedMessage.data;
+    }
   }
 
   /**
-   * Perform necessary this. after sending succeeds
+   * Perform these actions on critical failures.
    */
-  private async cleanup(): Promise<boolean> {
+  private async onFailure(e: any) {
+    console.log('Could not send message', e);
+    console.log('deleting reaction message:', this.chatId, this.messageId);
     try {
+      //clean delete the reaction message
       await MessageStorage.cleanDeleteMessage(
         this.savedMessage.chatId,
         this.savedMessage.messageId,
         false,
       );
-    } catch (e) {
-      console.log('error cleaning up message', e);
+      //delete reaction entry
+      await ReactionStorage.deleteReaction(
+        this.chatId,
+        this.savedMessage.data.messageId,
+        LineReactionSender.self,
+      );
+    } catch (error) {
+      console.error('Error deleting reaction', error);
     }
-
-    return true;
   }
 
-  private async updateConnectionInfo(newSendStatus: MessageStatus) {
-    let readStatus: MessageStatus = MessageStatus.failed;
+  /**
+   * Perform necessary cleanup after sending succeeds
+   */
+  private async cleanup() {
+    //delete reaction message from storage
+    await MessageStorage.permanentlyDeleteMessage(this.chatId, this.messageId);
+    return;
+  }
 
-    // Update readStatus and perform cleanup if the message is sent successfully
-    if (newSendStatus === MessageStatus.sent) {
-      readStatus = MessageStatus.sent;
-      await this.cleanup();
-    } else {
-      return true;
-    }
-
+  /**
+   * Updates the reaction table of a new added or removed reaction.
+   * Also sets the 'hasReaction' flag of the target message.
+   */
+  private async updateReactionInfo() {
+    //set 'hasReaction' attibute of target message.
     const reactionData = this.data as ReactionParams;
-    let timestampToSend = this.savedMessage.timestamp;
+    await MessageStorage.setHasReactions(this.chatId, reactionData.messageId);
+    if (reactionData.tombstone) {
+      ReactionStorage.deleteReaction(
+        this.chatId,
+        reactionData.messageId,
+        LineReactionSender.self,
+      );
+    } else {
+      await ReactionStorage.addReaction(
+        this.chatId,
+        reactionData.messageId,
+        LineReactionSender.self,
+        reactionData.reaction,
+      );
+    }
+  }
 
-    // Fetch the current message to update its text based on the content type
-    const currMessage = await MessageStorage.getMessage(
-      reactionData.chatId,
-      reactionData.messageId,
-    );
-    const text =
-      currMessage &&
-      getConnectionTextByContentType(currMessage.contentType, currMessage.data);
+  /**
+   * Since reaction preview text is a complex construction, we don't do it using this method.
+   * @returns empty string.
+   */
+  generatePreviewText(): string {
+    return '';
+  }
 
-    // Construct the text to send based on the reaction
-    let updatedText = `${
-      reactionData.reaction !== ''
-        ? 'You reacted ' + reactionData.reaction + ' to "' + text + '"'
-        : ''
-    }`;
-
-    // If the message is marked as deleted for everyone, adjust content and timestamp
+  /**
+   * Update connection with preview text and new send status.
+   * Update based on whether reaction is added or removed.
+   */
+  private async updateConnectionInfo(newSendStatus: MessageStatus) {
+    const reactionData = this.data as ReactionParams;
+    //If reaction is an "un-reaction", reset connection with attributes associated with latest message.
     if (reactionData.tombstone) {
       const connection = await getConnection(this.chatId);
-      //get the latest message associated with chat
       const latestMessage = await MessageStorage.getMessage(
         this.chatId,
         connection.latestMessageId || '',
       );
-      //if latest message id does not exist, update chat with empty text string
-      if (!latestMessage) {
+      if (latestMessage) {
+        //if latest message exists, use its attributes
+        await updateConnection({
+          chatId: this.chatId,
+          text: getConnectionTextByContentType(
+            latestMessage.contentType,
+            latestMessage.data,
+          ),
+          recentMessageType: latestMessage.contentType,
+          readStatus: latestMessage.messageStatus,
+          timestamp: latestMessage.timestamp,
+        });
+      } else {
+        //else, set connection text to empty
         await updateConnection({
           chatId: this.chatId,
           text: '',
         });
-      } else {
-        updatedText = getConnectionTextByContentType(
-          latestMessage.contentType,
-          latestMessage.data,
-        ); // Update updatedText based on the latest message
-        await updateConnection({
-          chatId: this.chatId,
-          text: updatedText,
-          readStatus: latestMessage.messageStatus,
-          recentMessageType: latestMessage.contentType,
-          timestamp: latestMessage.timestamp,
-        });
       }
-    } else {
-      //adds reaction text to chat tile
-      await updateConnectionOnNewMessage({
+    }
+    //Else, update connection with reaction text.
+    else {
+      // Fetch the target message of the reaction
+      const targetMessage = await MessageStorage.getMessage(
+        reactionData.chatId,
+        reactionData.messageId,
+      );
+      const text =
+        targetMessage &&
+        getConnectionTextByContentType(
+          targetMessage.contentType,
+          targetMessage.data,
+        );
+      // Construct the text to update based on the reaction
+      const updatedText =
+        'You reacted ' + reactionData.reaction + ' to "' + text + '"';
+      //update connection
+      await updateConnection({
         chatId: this.chatId,
         text: updatedText,
-        readStatus: readStatus,
-        recentMessageType: this.contentType,
-        timestamp: timestampToSend,
+        recentMessageType: ContentType.reaction,
+        readStatus: newSendStatus,
       });
     }
   }

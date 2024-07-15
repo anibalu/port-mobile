@@ -11,7 +11,7 @@ import {
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import {saveNewMedia} from '@utils/Storage/media';
-import * as storage from '@utils/Storage/messages';
+import * as storage from '@utils/Storage/groupMessages';
 
 class GroupReceiveAction {
   protected message: any;

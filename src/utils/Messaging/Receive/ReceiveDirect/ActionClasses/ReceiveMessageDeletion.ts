@@ -17,10 +17,10 @@ class ReceiveMessageDeletion extends DirectReceiveAction {
       text: 'This message was deleted',
       recentMessageType: ContentType.deleted,
     };
-    await updateConnectionIfLatestMessageIsX({
-      messageIdToBeUpdated: deletion.messageIdToDelete,
+    await updateConnectionIfLatestMessageIsX(
+      deletion.messageIdToDelete,
       update,
-    });
+    );
   }
 }
 

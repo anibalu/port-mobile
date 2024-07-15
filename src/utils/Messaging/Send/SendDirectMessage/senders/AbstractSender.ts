@@ -8,10 +8,13 @@ import {
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
-  SavedMessageParams,
 } from '@utils/Messaging/interfaces';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import {generateISOTimeStamp} from '@utils/Time';
 
+/**
+ * Content types that should not trigger push notifications.
+ */
 const silentNotificationContentTypes: ContentType[] = [
   ContentType.displayImage,
   ContentType.displayAvatar,
@@ -22,13 +25,16 @@ const silentNotificationContentTypes: ContentType[] = [
   ContentType.deleted,
 ];
 
-export abstract class SendDirectMessage<T extends ContentType | null> {
+/**
+ * Entry point for sending messages on direct chats.
+ */
+export abstract class SendDirectMessage<T extends ContentType> {
   chatId: string; //chatId of chat
   contentType: ContentType; //contentType of message
   data: DataType; //message data corresponding to the content type
   replyId: string | null; //not null if message is a reply message (optional)
   messageId: string; //messageId of message (optional)
-  savedMessage: SavedMessageParams; //message to be saved to storage
+  savedMessage: LineMessageData; //message to be saved to storage
   payload: PayloadMessageParams; //message to be encrypted and sent.
   expiresOn: string | null;
   //construct the class.
@@ -55,7 +61,6 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
       data: this.data,
       timestamp: generateISOTimeStamp(),
       sender: true,
-      memberId: null,
       messageStatus: MessageStatus.unassigned,
       replyId: this.replyId,
       expiresOn: null,
@@ -71,6 +76,10 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
     this.expiresOn = null;
   }
 
+  /**
+   * Preview text that the connection needs to be updated with.
+   * Return empty string if connection needs no preview text update.
+   */
   abstract generatePreviewText(): string;
 
   /**
@@ -82,11 +91,27 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
    * Retry sending a journalled message using only API calls
    */
   abstract retry(): Promise<boolean>;
+
+  /**
+   * Attempt to post processed payload.
+   * Based on the success of the api call, return message status.
+   * @param processedPayload
+   */
+  abstract attempt(processedPayload: object): Promise<MessageStatus>;
+
+  /**
+   * Check if direct chat is authenticated.
+   * @returns boolean indicating authentication status.
+   */
   async isAuthenticated() {
     const chat = new DirectChat(this.chatId);
     return (await chat.getChatData()).authenticated;
   }
 
+  /**
+   * Encrypts payload after converting payload to a plaintext string.
+   * @returns object containing encrypted content
+   */
   async encryptedMessage() {
     const plaintext = JSON.stringify(this.payload);
     const chat = new DirectChat(this.chatId);
@@ -94,6 +119,7 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
     const cryptoDriver = new CryptoDriver(chatData.cryptoId);
     return {encryptedContent: await cryptoDriver.encrypt(plaintext)};
   }
+
   /**
    * Checks if the notification silencing flag needs to be added when payload is sent
    * @returns - boolean value indicating whether flag needs to be added.
@@ -103,6 +129,11 @@ export abstract class SendDirectMessage<T extends ContentType | null> {
       ? true
       : false;
   }
+
+  /**
+   * Triggers redraw
+   * Please use this sparingly. Redraws are expensive and holds up the js thread.
+   */
   storeCalls() {
     store.dispatch({
       type: 'PING',

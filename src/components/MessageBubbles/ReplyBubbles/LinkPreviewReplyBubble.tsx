@@ -3,7 +3,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {LinkParams, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {LinkParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 
@@ -16,6 +16,7 @@ import {
   REPLY_MEDIA_WIDTH,
 } from '../BubbleUtils';
 import DynamicColors from '@components/DynamicColors';
+import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
 
 /**
  * Extend supported content types to support more types of content bubbles.
@@ -24,7 +25,7 @@ export const LinkPreviewReplyBubble = ({
   reply,
   memberName,
 }: {
-  reply: SavedMessageParams;
+  reply: ReplyContent;
   memberName: string;
 }): ReactNode => {
   const ogImage = (reply.data as LinkParams).fileUri;

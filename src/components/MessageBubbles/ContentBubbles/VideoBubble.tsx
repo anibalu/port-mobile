@@ -1,10 +1,5 @@
-import {
-  LargeDataParams,
-  MessageStatus,
-  SavedMessageParams,
-  TextParams,
-} from '@utils/Messaging/interfaces';
-import React, {ReactNode, useEffect, useState} from 'react';
+import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
+import React, {ReactNode, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -17,6 +12,7 @@ import {
   RenderTimeStamp,
   handleDownload,
   IMAGE_DIMENSIONS,
+  handleRetry,
 } from '../BubbleUtils';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
@@ -32,42 +28,38 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {getMedia} from '@utils/Storage/media';
+import {
+  LineMessageData,
+  LoadedMessage,
+} from '@utils/Storage/DBCalls/lineMessage';
 
 export const VideoBubble = ({
   message,
   handlePress,
   handleLongPress,
-  handleRetry,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
   handlePress: any;
   handleLongPress: any;
-  handleRetry: (message: SavedMessageParams) => void;
 }): ReactNode => {
+  //responsible for download loader
   const [startedManualDownload, setStartedManualDownload] = useState(false);
-  const [showRetry, setShowRetry] = useState(false);
+  //responsible for retry loader
   const [loadingRetry, setLoadingRetry] = useState(false);
   // this is to show the previewuri
-  const [previewUri, setPreviewUri] = useState<string | null>(null);
+  const [previewUri, setPreviewUri] = useState<string | undefined | null>(
+    message.data.previewUri || null,
+  );
   // this is to open the file
-  const [fileUri, setFileUri] = useState<string | null>(null);
-  useEffect(() => {
-    (async () => {
-      const mediaInfo = await getMedia(message.data?.mediaId);
-      if (mediaInfo) {
-        const previewUri = mediaInfo.previewPath;
-        const fileUri = mediaInfo.filePath;
-        setPreviewUri(previewUri);
-        setFileUri(fileUri);
-      } else {
-        setPreviewUri((message.data as LargeDataParams).previewUri);
-        setFileUri((message.data as LargeDataParams).fileUri);
-      }
-    })();
+  const [fileUri, setFileUri] = useState<string | undefined | null>(
+    message.filePath || message.data.fileUri || null,
+  );
+  useMemo(() => {
+    setFileUri(message.filePath || message.data.fileUri || null);
+    setPreviewUri(message.data.previewUri || null);
   }, [message]);
 
-  const onRetryClick = async (messageObj: SavedMessageParams) => {
+  const onRetryClick = async (messageObj: LineMessageData) => {
     setLoadingRetry(true);
     await handleRetry(messageObj);
     setLoadingRetry(false);
@@ -75,17 +67,11 @@ export const VideoBubble = ({
 
   const {mediaDownloadError} = useErrorModal();
   const navigation = useNavigation();
-  const download = async () => {
-    try {
-      await handleDownload(message.chatId, message.messageId);
-    } catch (error) {
-      console.log('Error downloading media', error);
-      mediaDownloadError();
-    }
-  };
   const triggerDownload = async () => {
     setStartedManualDownload(true);
-    await download();
+    await handleDownload(message.chatId, message.messageId, () =>
+      mediaDownloadError(),
+    );
     setStartedManualDownload(false);
   };
   const handlePressFunction = () => {
@@ -104,13 +90,6 @@ export const VideoBubble = ({
     handleLongPress(message.messageId);
   };
 
-  useEffect(() => {
-    setShowRetry(message.messageStatus === MessageStatus.unsent);
-    setLoadingRetry(message.messageStatus === MessageStatus.sent);
-  }, [message]);
-
-  const text = (message.data as TextParams).text;
-
   return (
     <Pressable
       style={styles.imageBubbleContainer}
@@ -126,38 +105,43 @@ export const VideoBubble = ({
               <SmallLoader />
             </View>
           ) : (
-            renderDisplay(
-              message,
-              previewUri,
-              message.data as LargeDataParams,
-              showRetry,
-              loadingRetry,
-              onRetryClick,
-            )
+            renderDisplay(previewUri, message.data as LargeDataParams)
           )}
         </View>
-        {text ? (
+        {(message.data as LargeDataParams).text ? (
           <View style={{width: IMAGE_DIMENSIONS, paddingTop: 4}}>
             <TextBubble message={message} />
           </View>
         ) : (
-          <>
-            {showRetry ? (
-              <View style={styles.gradientContainer}>
-                <RenderTimeStamp message={message} stampColor="w" />
-              </View>
-            ) : (
-              <LinearGradient
-                colors={[
-                  'rgba(0, 0, 0, 0)',
-                  'rgba(0, 0, 0, 0)',
-                  'rgba(0, 0, 0, 0.75)',
-                ]}
-                style={styles.gradientContainer}>
-                <RenderTimeStamp message={message} stampColor="w" />
-              </LinearGradient>
+          <LinearGradient
+            colors={[
+              'rgba(0, 0, 0, 0)',
+              'rgba(0, 0, 0, 0)',
+              'rgba(0, 0, 0, 0.75)',
+            ]}
+            style={styles.gradientContainer}>
+            {message.messageStatus === MessageStatus.unsent && (
+              <Pressable
+                onPress={() => onRetryClick(message)}
+                style={styles.retryButton}>
+                {loadingRetry ? (
+                  <ActivityIndicator
+                    size={'small'}
+                    color={PortColors.primary.blue.app}
+                  />
+                ) : (
+                  <UploadSend width={16} height={16} />
+                )}
+                <NumberlessText
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.rg}
+                  textColor={'#FFF'}>
+                  Retry
+                </NumberlessText>
+              </Pressable>
             )}
-          </>
+            <RenderTimeStamp message={message} stampColor="w" />
+          </LinearGradient>
         )}
       </>
     </Pressable>
@@ -169,18 +153,14 @@ export const VideoBubble = ({
 // - if shouldDownload is true and no thumbnail exists
 // - if shouldDownload is false on and no thumbnail exists
 export const renderDisplay = (
-  message: any,
   messageURI: string | undefined | null,
   data: LargeDataParams,
-  showRetry: boolean,
-  loadingRetry: boolean,
-  onRetryClick: (message: SavedMessageParams) => void,
 ) => {
   if (messageURI) {
     return (
       <View style={styles.image2}>
         <Image
-          source={{uri: getSafeAbsoluteURI(messageURI, 'cache')}}
+          source={{uri: getSafeAbsoluteURI(messageURI)}}
           style={styles.image}
         />
         <Play
@@ -188,34 +168,6 @@ export const renderDisplay = (
             position: 'absolute',
           }}
         />
-        {showRetry && (
-          <LinearGradient
-            colors={[
-              'rgba(0, 0, 0, 0)',
-              'rgba(0, 0, 0, 0)',
-              'rgba(0, 0, 0, 0.75)',
-            ]}
-            style={styles.gradientContainer}>
-            <Pressable
-              onPress={() => onRetryClick(message)}
-              style={styles.retryButton}>
-              {loadingRetry ? (
-                <ActivityIndicator
-                  size={'small'}
-                  color={PortColors.primary.blue.app}
-                />
-              ) : (
-                <UploadSend width={16} height={16} />
-              )}
-              <NumberlessText
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}
-                textColor={'#FFF'}>
-                Retry
-              </NumberlessText>
-            </Pressable>
-          </LinearGradient>
-        )}
       </View>
     );
   }

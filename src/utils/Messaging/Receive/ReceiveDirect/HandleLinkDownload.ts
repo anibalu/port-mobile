@@ -51,7 +51,7 @@ export const handleAsyncLinkDownload = async (
         filePath: dataObj.fileUri as string,
       });
     }
-    await storage.updateMessage(chatId, messageId, dataObj);
+    await storage.updateMessageData(chatId, messageId, dataObj);
     store.dispatch({
       type: 'NEW_MEDIA_STATUS_UPDATE',
       payload: {

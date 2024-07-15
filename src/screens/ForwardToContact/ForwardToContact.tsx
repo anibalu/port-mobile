@@ -13,7 +13,8 @@ import SearchBar from '@components/Reusable/TopBars/SearchBar';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import {getGroupMessage, getMessage} from '@utils/Storage/messages';
+import {getMessage} from '@utils/Storage/messages';
+import {getGroupMessage} from '@utils/Storage/groupMessages';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
@@ -68,7 +69,6 @@ const ForwardToContact = ({route, navigation}: Props) => {
             //create copy of file in tmp dir.
             const tmpUri = await copyToTmp(
               (msg.data as LargeDataParams).fileUri,
-              (msg.data as LargeDataParams).fileName,
             );
             //then upload and send.
             const mediaData = msg.data as LargeDataParams;
@@ -77,7 +77,6 @@ const ForwardToContact = ({route, navigation}: Props) => {
               mediaData.fileUri || 'Bad file uri',
               mediaData.fileName,
               mediaData.fileType || 'unused filetype',
-              'tmp',
             );
             await uploader.upload();
             const {mediaId, key} = uploader.getMediaIdAndKey();

@@ -9,26 +9,18 @@ import {
 import React, {createContext, useState, useContext} from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {
-  cleanDeleteGroupMessage,
-  cleanDeleteMessage,
-  getGroupMessage,
-  getMessage,
-} from '@utils/Storage/messages';
+import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
+import {cleanDeleteGroupMessage} from '@utils/Storage/groupMessages';
+import {getGroupMessage} from '@utils/Storage/groupMessages';
 import {getRichReactions} from '@utils/Storage/reactions';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {useNavigation} from '@react-navigation/native';
-import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
-import {
-  getRelativeURI,
-  getSafeAbsoluteURI,
-} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {SendMediaDirectMessage} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
 export interface SelectedMessageType {
   pageY: number;
   height: number;
-  message: SavedMessageParams;
+  message: LoadedMessage;
 }
 
 type ChatContextType = {
@@ -66,8 +58,8 @@ type ChatContextType = {
   onReaction: (message: SavedMessageParams, reaction: string) => void;
 
   //message to be replied to
-  replyToMessage: SavedMessageParams | null;
-  setReplyToMessage: (x: SavedMessageParams | null) => void;
+  replyToMessage: LoadedMessage | null;
+  setReplyToMessage: (x: LoadedMessage | null) => void;
 
   //selected messages
   selectedMessages: string[];
@@ -88,9 +80,6 @@ type ChatContextType = {
   ) => boolean | undefined;
   handleLongPress: (messageId: string) => void;
 
-  //message bubble retry press
-  handleRetry: (message: any) => void;
-
   //message actions
   onCopy: () => Promise<void>;
   onForward: () => void;
@@ -106,8 +95,8 @@ type ChatContextType = {
   showReportModal: boolean;
   setShowReportModal: (isShown: boolean) => void;
   onReply: () => Promise<void>;
-  messages: SavedMessageParams[];
-  setMessages: (message: SavedMessageParams[]) => void;
+  messages: LoadedMessage[];
+  setMessages: (message: LoadedMessage[]) => void;
   updateAfterDeletion: (messageId: string[]) => void;
   updateAfterGlobalDeletion: (messageId: string[]) => void;
 };
@@ -156,7 +145,7 @@ export const ChatContextProvider = ({
   const [profileUri, setProfileUri] = useState(avatar);
   const [name, setName] = useState<string>(displayName || '');
   const [messagesLoaded, setMessagesLoaded] = useState(false);
-  const [messages, setMessages] = useState<SavedMessageParams[]>([]);
+  const [messages, setMessages] = useState<LoadedMessage[]>([]);
   //responsible for opening deletion modal
   const [openDeleteMessageModal, setOpenDeleteMessageModal] = useState(false);
   //if delete for everyone should be available
@@ -270,8 +259,9 @@ export const ChatContextProvider = ({
   };
 
   //message to be replied to
-  const [replyToMessage, setReplyToMessage] =
-    useState<SavedMessageParams | null>(null);
+  const [replyToMessage, setReplyToMessage] = useState<LoadedMessage | null>(
+    null,
+  );
 
   //handles toggling the select messages flow.
   const handleLongPress = (messageId: string): void => {
@@ -310,41 +300,6 @@ export const ChatContextProvider = ({
       }
     }
     return isSelectionMode;
-  };
-
-  const handleRetry = async (message: SavedMessageParams) => {
-    try {
-      console.log('entered retry sender');
-      const uploader = new LargeDataUpload(
-        getRelativeURI(getSafeAbsoluteURI(message.data?.fileUri, 'doc'), 'doc'),
-        message.data?.fileName,
-        message.data?.fileType,
-        'doc',
-      );
-      await uploader.upload();
-      console.log('media uploaded');
-      const uploadData = uploader.getMediaIdAndKey();
-      if (!uploadData.mediaId || !uploadData.key) {
-        console.error('MediaId: ', uploadData.mediaId, 'Key: ', uploadData.key);
-        throw new Error('MediaIdOrKeyNull');
-      }
-
-      const newData = {
-        ...message.data,
-        mediaId: uploadData.mediaId,
-        key: uploadData.key,
-      };
-      const sender = new SendMediaDirectMessage(
-        message.chatId,
-        message.contentType,
-        newData,
-        null,
-        message.messageId,
-      );
-      await sender.retry();
-    } catch (error) {
-      console.error('Error sending multimedia: ', error);
-    }
   };
 
   const onCopy = async () => {
@@ -519,7 +474,6 @@ export const ChatContextProvider = ({
         selectionMode,
         setSelectionMode,
         handlePress,
-        handleRetry,
         handleLongPress,
         onCopy,
         onForward,

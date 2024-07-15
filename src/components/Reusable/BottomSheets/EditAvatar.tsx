@@ -88,10 +88,8 @@ export default function EditAvatar(props: EditAvatarProps) {
         selectedAssets.assets[0] &&
         selectedAssets.assets[0].uri
       ) {
-        const compressedUri = await compressImage(
-          selectedAssets.assets[0].uri,
-          selectedAssets.assets[0].fileName || 'profilePic',
-        );
+        const compressedUri = await compressImage(selectedAssets.assets[0].uri);
+        console.log('compression uri: ', compressedUri);
         setImageAttr({
           fileUri: compressedUri || selectedAssets.assets[0].uri,
           fileName: selectedAssets.assets[0].fileName || 'profilePic',
@@ -157,7 +155,8 @@ export default function EditAvatar(props: EditAvatarProps) {
       visible={visible}
       showClose={true}
       onClose={cleanClose}
-      title={'Change your profile picture'}>
+      title={'Change your profile picture'}
+      shouldAutoClose={false}>
       <View style={styles.container}>
         <View style={styles.mainAvatarContainer}>
           <AvatarBox profileUri={imageAttr.fileUri} avatarSize="m" />

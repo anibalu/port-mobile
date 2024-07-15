@@ -6,8 +6,11 @@ import {
   getSafeAbsoluteURI,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
+/**
+ * Class responsible for uploading large files to a pre-signed url.
+ */
 class LargeDataUpload {
-  private fileUri: string;
+  private fileUri: string; //can be relative or absolute Uri
   private fileName: string;
   private fileType: string;
   private key: string | null;
@@ -17,19 +20,20 @@ class LargeDataUpload {
     fileUri: string,
     fileName: string,
     fileType: string,
-    fileSource: 'doc' | 'cache' | 'tmp' = 'doc',
     key: string | null = null,
     mediaId: string | null = null,
     encryptedTempFilePath: string | null = null,
   ) {
-    //we can assume this file uri is correctly prepended with "file://"
-    this.fileUri = getSafeAbsoluteURI(fileUri, fileSource);
+    //we need to convert relative URIs to absolute URIs with the 'file://' prefix added.
+    this.fileUri = getSafeAbsoluteURI(fileUri);
     this.fileName = fileName;
     this.fileType = fileType;
     this.key = key;
     this.mediaId = mediaId;
     this.encryptedTempFilePath = encryptedTempFilePath;
   }
+
+  //fetch pre-signed url and upload large data file to it.
   async upload() {
     try {
       //create encrypted temp file with associated decryption key
@@ -41,9 +45,12 @@ class LargeDataUpload {
       console.log('Error uploading large data: ', error);
     }
   }
+
+  //get upload media Id and key
   getMediaIdAndKey() {
     return {mediaId: this.mediaId, key: this.key};
   }
+
   private async createEncryptedTempFile() {
     const encryptedFileParams = await encryptFile(this.fileUri);
     this.encryptedTempFilePath = addFilePrefix(
@@ -51,18 +58,21 @@ class LargeDataUpload {
     );
     this.key = encryptedFileParams.key;
   }
+
   private checkEncryptedTempFileNotNull() {
     if (!this.encryptedTempFilePath) {
       throw new Error('EncryptedTempFilePathNull');
     }
     return this.encryptedTempFilePath;
   }
+
   private async cleanUpEncryptedTempFile() {
     if (this.encryptedTempFilePath) {
       await deleteFile(this.encryptedTempFilePath);
       this.encryptedTempFilePath = null;
     }
   }
+
   private async s3Upload() {
     this.encryptedTempFilePath = this.checkEncryptedTempFileNotNull();
     const uploadParams = await API.getUploadPresignedUrl();

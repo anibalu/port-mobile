@@ -6,10 +6,7 @@ import {
 import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {
-  ContactBundleParams,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
+import {ContactBundleParams} from '@utils/Messaging/interfaces';
 import {getReadPort, processReadBundles, readBundle} from '@utils/Ports';
 import {PortBundle, ReadPortData} from '@utils/Ports/interfaces';
 import React, {useEffect, useState} from 'react';
@@ -18,8 +15,9 @@ import {MAX_WIDTH_CONTENT, RenderTimeStamp} from '../BubbleUtils';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import DynamicColors from '@components/DynamicColors';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
-const ContactBubble = ({message}: {message: SavedMessageParams}) => {
+const ContactBubble = ({message}: {message: LoadedMessage}) => {
   const navigation = useNavigation<any>();
   const [disconnected, setDisconnected] = useState(false);
   const [chatName, setChatName] = useState<string>(

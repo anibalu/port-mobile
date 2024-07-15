@@ -1,3 +1,4 @@
+import {generateISOTimeStamp} from '@utils/Time';
 import {ConnectionInfo, ConnectionInfoUpdate} from '../Connections/interfaces';
 import * as DBCalls from './DBCalls/connections';
 
@@ -49,13 +50,10 @@ export async function updateConnection(
  * @param messageIdToBeUpdated - The ID of the message to be updated.
  * @param readStatus - The new read status to update.
  */
-export async function updateConnectionIfLatestMessageIsX({
-  messageIdToBeUpdated,
-  update,
-}: {
-  messageIdToBeUpdated: string;
-  update: ConnectionInfoUpdate;
-}) {
+export async function updateConnectionIfLatestMessageIsX(
+  messageIdToBeUpdated: string,
+  update: ConnectionInfoUpdate,
+) {
   try {
     //TODO: debt-combine to single DB query
     const connection = await getConnection(update.chatId);
@@ -77,7 +75,8 @@ export async function updateConnectionOnNewMessage(
   update: ConnectionInfoUpdate,
   countAction?: DBCalls.NewMessageCountAction,
 ) {
-  await DBCalls.updateConnectionOnNewMessage(update, countAction);
+  update.timestamp = update.timestamp || generateISOTimeStamp();
+  await DBCalls.updateConnection(update, countAction);
 }
 
 /**

@@ -3,7 +3,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {LinkParams, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {LinkParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {Image, Linking, Pressable, StyleSheet, View} from 'react-native';
 import {IMAGE_DIMENSIONS} from '../BubbleUtils';
@@ -11,6 +11,7 @@ import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers'
 import {PortSpacing} from '@components/ComponentUtils';
 import {TextBubble} from './TextBubble';
 import DynamicColors from '@components/DynamicColors';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
 /**
  * Extend supported content types to support more types of content bubbles.
@@ -19,7 +20,7 @@ export const LinkPreviewBubble = ({
   message,
   handleLongPress,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
   handleLongPress: any;
 }): ReactNode => {
   const data = message.data as LinkParams;
@@ -57,7 +58,7 @@ export const LinkPreviewBubble = ({
           <Image
             resizeMode="contain"
             source={{
-              uri: getSafeAbsoluteURI(fileUri!, 'doc'),
+              uri: getSafeAbsoluteURI(fileUri),
             }}
             style={styles.previewImage}
           />

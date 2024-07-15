@@ -10,12 +10,14 @@ const GenericModal = ({
   children,
   avoidKeyboard = true,
   position = 'flex-end',
+  shouldAutoClose = true, //responsible for closing the modal when app is backgrounded.
 }: {
   onClose: any;
   visible: boolean;
   children: any;
   avoidKeyboard?: boolean;
   position?: 'flex-end' | 'center';
+  shouldAutoClose?: boolean;
 }) => {
   const Colors = DynamicColors();
 
@@ -25,7 +27,9 @@ const GenericModal = ({
     const subscription = AppState.addEventListener('change', nextAppState => {
       // set modalVisible to false if the app goes into background
       if (appState.current.match(/active/) && nextAppState === 'background') {
-        onClose();
+        if (shouldAutoClose) {
+          onClose();
+        }
       }
 
       appState.current = nextAppState;

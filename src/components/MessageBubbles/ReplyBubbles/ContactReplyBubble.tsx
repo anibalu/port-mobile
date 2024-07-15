@@ -4,10 +4,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {
-  ContactBundleParams,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
+import {ContactBundleParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {
@@ -17,6 +14,7 @@ import {
   REPLY_MEDIA_WIDTH,
 } from '../BubbleUtils';
 import DynamicColors from '@components/DynamicColors';
+import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
 
 /**
  * @param message, message object
@@ -30,7 +28,7 @@ export default function ContactReplyBubble({
   reply,
   memberName,
 }: {
-  reply: SavedMessageParams;
+  reply: ReplyContent;
 
   memberName: string;
 }): ReactNode {

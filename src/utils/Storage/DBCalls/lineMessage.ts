@@ -1,21 +1,69 @@
-import {PAGINATION_LIMIT} from '@configs/constants';
 import {runSimpleQuery} from './dbCommon';
-import {
-  ContentType,
-  DataType,
-  MessageStatus,
-  SavedMessageParams,
-  UpdateParams,
-} from '@utils/Messaging/interfaces';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
 
+//converts non-zero values to true. returns false otherwise.
 function toBool(a: number) {
   if (a) {
     return true;
   }
   return false;
 }
-export async function addMessage(message: SavedMessageParams) {
+
+export interface updateMessageParams {
+  contentType?: ContentType | null; // What type of message the content is
+  data?: any; // The content itself
+  replyId?: string | null; // The id of the message this was sent as a reply to
+  timestamp?: string | null; // When the message was sent/received
+  messageStatus?: MessageStatus | null; // What state is the message in eg: read/unsent
+  deliveredTimestamp?: string | null; // When was this message delivered to the peer
+  readTimestamp?: string | null; // When was this message read by the peer
+  shouldAck?: boolean | null; // Should a read receipt be sent when this message is rendered
+  hasReaction?: boolean | null; // Does this message have reactions
+  expiresOn?: string | null; // When does this message need to disappear after
+  mediaId?: string | null; // ID of potentially associated media
+}
+
+export interface LineMessageData extends updateMessageParams {
+  messageId: string;
+  chatId: string; // What chat does this message belong to
+  sender: boolean; // Whether the message was sent by this device
+  mtime?: string | null; // When was this message last modified
+  contentType: ContentType;
+  data: any;
+}
+
+export interface ReplyContent {
+  contentType: ContentType | null;
+  data: any | null;
+  sender: boolean | null;
+  chatId: string | null;
+}
+
+export interface LoadedMessage {
+  chatId: string;
+  messageId: string;
+  contentType: ContentType;
+  data: any;
+  timestamp: string;
+  sender: boolean;
+  messageStatus: MessageStatus;
+  expiresOn: string | null;
+  shouldAck: boolean | null;
+  hasReaction: boolean | null;
+  readTimestamp: string | null;
+  deliveredTimestamp: string | null;
+  mtime: string | null;
+  reply: ReplyContent;
+  mediaId: string | null;
+  filePath: string | null;
+}
+
+/**
+ * Save a new message
+ * @param message The message to save
+ */
+export async function addMessage(message: LineMessageData) {
   await runSimpleQuery(
     `
     INSERT INTO lineMessages (
@@ -25,12 +73,12 @@ export async function addMessage(message: SavedMessageParams) {
       data,
       replyId,
       sender,
-      memberId,
       timestamp,
       messageStatus,
       expiresOn,
       mtime,
-      shouldAck
+      shouldAck,
+      mediaId
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
     `,
     [
@@ -40,30 +88,13 @@ export async function addMessage(message: SavedMessageParams) {
       JSON.stringify(message.data),
       message.replyId,
       message.sender,
-      message.memberId,
       message.timestamp,
       message.messageStatus,
       message.expiresOn,
       generateISOTimeStamp(),
       message.shouldAck,
+      message.mediaId,
     ],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
-  );
-}
-
-export async function updateMessage(
-  chatId: string,
-  messageId: string,
-  data: DataType,
-) {
-  await runSimpleQuery(
-    `
-    UPDATE lineMessages
-    SET data = ?, mtime = ?
-    WHERE chatId = ? AND messageId = ? ;
-    `,
-    [JSON.stringify(data), generateISOTimeStamp(), chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
@@ -73,12 +104,12 @@ export async function updateMessage(
  * Get a message
  * @param chatId The chat id of the message you seek
  * @param messageId the message id of the message you seek
- * @returns the message you seek, if it exists
+ * @returns the message you seek, if it exists, null otherwise
  */
 export async function getMessage(
   chatId: string,
   messageId: string,
-): Promise<null | SavedMessageParams> {
+): Promise<LineMessageData | null> {
   let entry = null;
   await runSimpleQuery(
     `
@@ -91,6 +122,8 @@ export async function getMessage(
         entry = results.rows.item(0);
         entry.data = JSON.parse(entry.data);
         entry.sender = toBool(entry.sender);
+        entry.hasReaction = toBool(entry.hasReaction);
+        entry.shouldAck = toBool(entry.shouldAck);
       }
     },
   );
@@ -98,72 +131,131 @@ export async function getMessage(
 }
 
 /**
- * Update the status of a message. Do not use for success, only intermediary states
- * or failute.
- * @param chatId the chatId of the message to udpate
- * @param messageId the messageId of the message to update
- * @param readStatus The new read status. Note, if success, use set Sent.
- * @returns null
+ * Get the latest messages in a chat
+ * @param chatId
+ * @param limit The maximum number of latest messages to return
+ * @returns Up to the <limit> latest messages in <chatId>
  */
-export async function updateStatus(
+export async function getLatestMessages(
   chatId: string,
-  messageId: string,
-  messageStatus: MessageStatus,
-) {
-  if (!messageStatus) {
-    return;
-  }
+  limit: number = 50,
+): Promise<LoadedMessage[]> {
+  let messageList: LoadedMessage[] = [];
+  /**
+   * We begin by getting the first <limit> most recent messages and alias
+   * that to the table messages.
+   * Next we left join that with the lineMessages table aliased to reply.
+   * With this, messages that have a reply have been joined to their reply.
+   * With this, messages that have media have media params joined.
+   * We finally project this onto the fields that we want, renaming columns as needed.
+   */
+  /**
+   * In the future, we should explore performing the limit and the sorting AFTER
+   * the join to see if the query optimizer picks up on that.
+   */
   await runSimpleQuery(
     `
-    UPDATE lineMessages
-    SET messageStatus = ?, mtime = ?
-    WHERE chatId = ? AND messageId = ? ;
+    SELECT
+      message.chatId as chatId,
+      message.messageId as messageId,
+      message.contentType as contentType,
+      message.data as data,
+      message.timestamp as timestamp,
+      message.sender as sender,
+      message.messageStatus as messageStatus,
+      message.expiresOn as expiresOn,
+      message.shouldAck as shouldAck,
+      message.hasReaction as hasReaction,
+      message.readTimestamp as readTimestamp,
+      message.deliveredTimestamp as deliveredTimestamp,
+      message.mtime as mtime,
+      message.mediaId as mediaId,
+      media.filePath as filePath,
+      reply.contentType as reply_contentType,
+      reply.data as reply_data,
+      reply.sender as reply_sender,
+      reply.chatId as reply_chatId
+    FROM
+      (SELECT * FROM lineMessages
+      WHERE chatId = ?
+      ORDER BY timestamp DESC
+      LIMIT ?) message
+      LEFT JOIN 
+      lineMessages reply
+      ON message.replyId = reply.messageId
+      LEFT JOIN
+      media
+      ON message.mediaId = media.mediaId
+    ;
     `,
-    [messageStatus, generateISOTimeStamp(), chatId, messageId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
+    [chatId, limit],
+    (tx, results) => {
+      const len = results.rows.length;
+      let entry;
+      for (let i = 0; i < len; i++) {
+        entry = results.rows.item(i);
+        // We convert some columns into correct destination types
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+        entry.shouldAck = toBool(entry.shouldAck);
+        entry.hasReaction = toBool(entry.hasReaction);
+        // We convert the reply columns into a more typescript friendly format
+        entry.reply = {};
+        entry.reply.contentType = entry.reply_contentType;
+        entry.reply.data = JSON.parse(entry.reply_data);
+        entry.reply.sender = toBool(entry.reply_sender);
+        entry.reply.chatId = entry.reply_chatId;
+        messageList.push(entry);
+      }
+    },
   );
+  return messageList;
 }
 
 /**
- * Update the status of a message along with its timestamp. Only used for delivered and read status updates
- * or failute.
- * @param chatId the chatId of the message to udpate
- * @param messageId the messageId of the message to update
- * @param messageStatus The new read status. Note, if success, use set Sent.
- * @param deliveredTimestamp time when the message was delivered.
- * @param readTimestamp time when the message was read
- * @returns null
+ * Update an existing message
+ * @param chatId A chat
+ * @param messageId  A message in the given chat
+ * @param updateParams The parameters to change
  */
-export async function updateStatusAndTimestamp(
+export async function updateSavedMessage(
   chatId: string,
   messageId: string,
-  updatedParams: UpdateParams,
+  updateParams: updateMessageParams,
 ) {
   await runSimpleQuery(
+    /**
+     * You may notice that some coalesces are backwards from the rest.
+     * This is because some columns cannot be updated from non-null values.
+     */
     `
-    UPDATE lineMessages
-    SET
-    messageStatus = ?,
-    deliveredTimestamp = COALESCE(?, deliveredTimestamp),
-    readTimestamp = COALESCE(?, readTimestamp),
-    shouldAck = COALESCE(?,shouldAck),
-    contentType = COALESCE(?,contentType),
-    mtime = ?
+    UPDATE lineMessages SET
+      contentType = COALESCE(?, contentType),
+      data = COALESCE(?, data),
+      replyId = COALESCE(?, replyId),
+      timestamp = COALESCE(?, timestamp),
+      messageStatus = COALESCE(?, messageStatus),
+      deliveredTimestamp = COALESCE(deliveredTimestamp, ?),
+      readTimestamp = COALESCE(readTimestamp, ?),
+      shouldAck = COALESCE(?, shouldAck),
+      hasReaction = COALESCE(?, hasReaction),
+      expiresOn = COALESCE(?, expiresOn),
+      mediaId = COALESCE(?, mediaId),
+      mtime = COALESCE(?, mtime)
     WHERE chatId = ? AND messageId = ? ;
     `,
     [
-      updatedParams.updatedMessageStatus
-        ? updatedParams.updatedMessageStatus
-        : null,
-      updatedParams.deliveredAtTimestamp
-        ? updatedParams.deliveredAtTimestamp
-        : null,
-      updatedParams.readAtTimestamp ? updatedParams.readAtTimestamp : null,
-      updatedParams.shouldAck ? updatedParams.shouldAck : null,
-      updatedParams.updatedContentType
-        ? updatedParams.updatedContentType
-        : null,
+      updateParams.contentType,
+      JSON.stringify(updateParams.data),
+      updateParams.replyId,
+      updateParams.timestamp,
+      updateParams.messageStatus,
+      updateParams.deliveredTimestamp,
+      updateParams.readTimestamp,
+      updateParams.shouldAck,
+      updateParams.hasReaction,
+      updateParams.expiresOn,
+      updateParams.mediaId,
       generateISOTimeStamp(),
       chatId,
       messageId,
@@ -173,99 +265,14 @@ export async function updateStatusAndTimestamp(
   );
 }
 
-export async function setHasReactions(chatId: string, messageId: string) {
-  await runSimpleQuery(
-    `
-    UPDATE lineMessages
-    SET
-    hasReaction = TRUE, mtime = ?
-    WHERE chatId = ? AND messageId = ? ;
-    `,
-    [generateISOTimeStamp(), chatId, messageId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
-  );
-}
-
-export async function toggleReactionState(
-  hasReaction: boolean,
-  chatId: string,
-  messageId: string,
-) {
-  await runSimpleQuery(
-    `
-    UPDATE lineMessages
-    SET
-    hasReaction = COALESCE(?, hasReaction),
-    mtime = ?
-    WHERE chatId = ? AND messageId = ? ;
-    `,
-    [hasReaction, generateISOTimeStamp(), chatId, messageId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
-  );
-}
-
 /**
- * @param chatId , chat to be loaded
- * @param limit the maximum number of messages to fetch (default 50)
- * @returns {SavedMessageParams[]} list of messages
- * has been directly imported without abstraction
- */
-export async function getLatestMessages(
-  chatId: string,
-  limit: number = 50,
-): Promise<SavedMessageParams[]> {
-  let messageList: SavedMessageParams[] = [];
-  await runSimpleQuery(
-    `
-    SELECT * FROM lineMessages
-    WHERE chatId = ?
-    ORDER BY timestamp DESC
-    LIMIT ? ;
-    `,
-    [chatId, limit],
-    (tx, results) => {
-      const len = results.rows.length;
-      let entry;
-      for (let i = 0; i < len; i++) {
-        entry = results.rows.item(i);
-        entry.data = JSON.parse(entry.data);
-        entry.sender = toBool(entry.sender);
-        messageList.push(entry);
-      }
-    },
-  );
-  return messageList;
-}
-
-/**
- * Get the list of messages for a chatId
- * @param chatId the chat id to get messages for
- * @returns the list of chat ids to get messages for
- */
-async function getMessageIterator(chatId: string) {
-  let messageIterator = {};
-  await runSimpleQuery(
-    `
-    SELECT * FROM lineMessages
-    WHERE chatId = ? 
-    ORDER BY timestamp ASC ;
-    `,
-    [chatId],
-    (tx, results) => {
-      messageIterator = results;
-    },
-  );
-  return messageIterator;
-}
-
-/**
- * Retrieves all messages associated with a given chat ID.
+ * Retrieves all the messageIds associated with a given chatId.
  * @param chatId string: The ID of the chat to retrieve messages for.
  * @returns {<string[]>} array of message ids
  */
-export async function getAllMessages(chatId: string): Promise<string[]> {
+export async function getAllMessagesIdsInChat(
+  chatId: string,
+): Promise<string[]> {
   let messages: string[] = [];
   await runSimpleQuery(
     `
@@ -283,128 +290,12 @@ export async function getAllMessages(chatId: string): Promise<string[]> {
   return messages;
 }
 
-//Is reversed, fetches messages from end of list.
-export async function getPaginatedMessages(chatId: string, cursor?: number) {
-  const iter: any = await getMessageIterator(chatId);
-  const len = iter.rows.length;
-  let messages = [];
-
-  // Reverse pagination logic
-  let startFetchIndex;
-  let endFetchIndex;
-
-  if (cursor === undefined) {
-    // Fetching the latest messages, up to PAGINATION_LIMIT. This only runs if there is no cursor for the query.
-    startFetchIndex = Math.max(0, len - PAGINATION_LIMIT);
-    endFetchIndex = len;
-  } else if (cursor < PAGINATION_LIMIT) {
-    // Not enough messages for a full page, which means we fetch from 0 to cursor.
-    startFetchIndex = 0;
-    endFetchIndex = cursor;
-  } else {
-    // Standard reverse pagination, fetching from cursor-X to curson
-    startFetchIndex = cursor - PAGINATION_LIMIT;
-    endFetchIndex = cursor;
-  }
-
-  // Fetch messages, if the cursor isn't 0. Cursor = 0 implies no messages left to fetch
-  if (cursor !== 0) {
-    for (let i = startFetchIndex; i < endFetchIndex; i++) {
-      let entry = iter.rows.item(i);
-      entry.data = JSON.parse(entry.data);
-      entry.sender = toBool(entry.sender);
-      messages.push(entry);
-    }
-  }
-
-  // Reverse the order to send latest messages first
-  messages.reverse();
-
-  // Calculate new cursor position
-  const newCursor = Math.max(0, startFetchIndex);
-
-  return {messages: messages, cursor: newCursor, maxLength: len};
-}
-
-/**
- * Mark a message as sent. Separate from heloer because it provides a hint
- * to the database to manage indices. Research if definitely needed.
- * @param chatId the chat id of the message to set as sent
- * @param messageId the message id of the message to set as sent
- */
-export async function setSent(chatId: string, messageId: string) {
-  await runSimpleQuery(
-    `
-    UPDATE lineMessages
-    SET messageStatus = ?
-    WHERE chatId = ? AND messageId = ? ;
-    `,
-    [MessageStatus.sent, chatId, messageId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
-  );
-}
-/**
- * Get ALL unsent messages
- * @returns all messages that haven't been sent
- */
-export async function getUnsent(): Promise<SavedMessageParams[]> {
-  let unsent: SavedMessageParams[] = [];
-  await runSimpleQuery(
-    `
-    SELECT * FROM lineMessages 
-    WHERE messageStatus = ? ;
-    `,
-    [MessageStatus.journaled],
-    (tx, results) => {
-      const len = results.rows.length;
-      let entry;
-      for (let i = 0; i < len; i++) {
-        entry = results.rows.item(i);
-        entry.data = JSON.parse(entry.data);
-        entry.sender = toBool(entry.sender);
-        unsent.push(entry);
-      }
-    },
-  );
-  return unsent;
-}
-
-/**
- * Get a list of all saved messages that have expired
- * @param currentTimestamp The current time in ISOString format
- * @returns a list of all expired messages
- */
-export async function getExpiredMessages(
-  currentTimestamp: string,
-): Promise<SavedMessageParams[]> {
-  let expired: SavedMessageParams[] = [];
-  await runSimpleQuery(
-    `
-    SELECT * FROM lineMessages 
-    WHERE expiresOn < ? ;
-    `,
-    [currentTimestamp],
-    (tx, results) => {
-      const len = results.rows.length;
-      let entry;
-      for (let i = 0; i < len; i++) {
-        entry = results.rows.item(i);
-        entry.data = JSON.parse(entry.data);
-        entry.sender = toBool(entry.sender);
-        expired.push(entry);
-      }
-    },
-  );
-  return expired;
-}
-
 /**
  * Delete a message permanently.
  * Not intended for use with deleting a regular message.
  * Intended for use with disappearing messages.
- * @param chatId 32 char id
- * @param messageId 32 char id
+ * @param chatId chat Id of the chat.
+ * @param messageId message Id of the message to be deleted.
  */
 export async function permanentlyDeleteMessage(
   chatId: string,
@@ -420,63 +311,77 @@ export async function permanentlyDeleteMessage(
     (tx, results) => {},
   );
 }
-export async function markMessageAsDeleted(chatId: string, messageId: string) {
+
+/**
+ * Get ALL unsent messages
+ * @returns all messages that haven't been sent
+ */
+export async function getUnsent(): Promise<LineMessageData[]> {
+  let unsent: LineMessageData[] = [];
   await runSimpleQuery(
     `
-    UPDATE lineMessages 
-    SET contentType = ?, data = '{}', mtime = ?
-    WHERE chatId = ? AND messageId = ? ;
+    SELECT * FROM lineMessages 
+    WHERE messageStatus = ? ;
     `,
-    [ContentType.deleted, generateISOTimeStamp(), chatId, messageId],
+    [MessageStatus.journaled],
+    (tx, results) => {
+      const len = results.rows.length;
+      let entry;
+      for (let i = 0; i < len; i++) {
+        entry = results.rows.item(i);
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+        entry.shouldAck = toBool(entry.shouldAck);
+        entry.hasReaction = toBool(entry.hasReaction);
+        unsent.push(entry);
+      }
+    },
+  );
+  return unsent;
+}
+
+/**
+ * delete ALL unsent messages
+ */
+export async function deleteUnsent() {
+  await runSimpleQuery(
+    `
+    DELETE FROM lineMessages 
+    WHERE messageStatus = ? ;
+    `,
+    [MessageStatus.journaled],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
 }
 
 /**
- * Set a new receipt timestamp if one hasn't already been set
- * @param chatId
- * @param messageId
- * @param readAt
- * @param deliveredAt
+ * Get a list of all saved messages that have expired
+ * @param currentTimestamp The current time in ISOString format
+ * @returns a list of all expired messages
  */
-export async function setReceipts(
-  chatId: string,
-  messageId: string,
-  readAt: string | null,
-  deliveredAt: string | null,
-  messageStatus: MessageStatus,
-) {
+export async function getExpiredMessages(
+  currentTimestamp: string,
+): Promise<LineMessageData[]> {
+  let expired: LineMessageData[] = [];
   await runSimpleQuery(
     `
-    UPDATE lineMessages 
-    SET
-    readTimestamp = COALESCE(readTimestamp, ?),
-    deliveredTimestamp = COALESCE(deliveredTimestamp, ?)
-    messageStatus = ?
-    WHERE chatId = ? AND messageId = ? ;
+    SELECT * FROM lineMessages 
+    WHERE expiresOn < ? ;
     `,
-    [readAt, deliveredAt, messageStatus, chatId, messageId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, results) => {},
+    [currentTimestamp],
+    (tx, results) => {
+      const len = results.rows.length;
+      let entry;
+      for (let i = 0; i < len; i++) {
+        entry = results.rows.item(i);
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+        entry.shouldAck = toBool(entry.shouldAck);
+        entry.hasReaction = toBool(entry.hasReaction);
+        expired.push(entry);
+      }
+    },
   );
-}
-
-/**
- * Set a message to not send acknowledge anymore
- * @param chatId
- * @param messageId
- */
-export async function setShouldNotAck(chatId: string, messageId: string) {
-  await runSimpleQuery(
-    `
-    UPDATE lineMessages 
-    SET
-    shouldAck = FALSE
-    WHERE chatId = ? AND messageId = ? ;
-    `,
-    [chatId, messageId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, results) => {},
-  );
+  return expired;
 }

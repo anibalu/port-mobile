@@ -98,42 +98,33 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     const newList = [];
     for (let item of dataList) {
       if (item.contentType === ContentType.video) {
-        const compressedUri = await compressVideo(
-          item.data.fileUri,
-          item.data.fileName,
-        );
+        const compressedUri = await compressVideo(item.data.fileUri);
         if (!compressedUri) {
           compressionError();
         }
         item.data.fileUri = compressedUri
           ? compressedUri
-          : await moveToTmp(item.data.fileUri, item.data.fileName || 'video');
+          : await moveToTmp(item.data.fileUri);
         item.thumbnailUri = await createPreview(ContentType.video, {
           url: item.data.fileUri,
         });
         item.data.previewUri = item.thumbnailUri;
       }
       if (item.contentType === ContentType.image) {
-        const compressedUri = await compressImage(
-          item.data.fileUri,
-          item.data.fileName,
-        );
+        const compressedUri = await compressImage(item.data.fileUri);
         if (!compressedUri) {
           compressionError();
         }
         item.data.fileUri = compressedUri
           ? compressedUri
-          : await moveToTmp(item.data.fileUri, item.data.fileName || 'image');
+          : await moveToTmp(item.data.fileUri);
         item.thumbnailUri = await createPreview(ContentType.image, {
           url: item.data.fileUri,
         });
         item.data.previewUri = item.thumbnailUri;
       }
       if (item.contentType === ContentType.file) {
-        const movedUri = await moveToTmp(
-          item.data.fileUri,
-          item.data.fileName || 'file',
-        );
+        const movedUri = await moveToTmp(item.data.fileUri);
         item.data.fileUri = movedUri ? movedUri : item.data.fileUri;
       }
       //at the end of this process, media fileUri points to a file in the tmp directory.
@@ -311,10 +302,9 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     try {
       for (const data of dataList) {
         const uploader = new LargeDataUpload(
-          getRelativeURI(data.data.fileUri, 'tmp'),
+          getRelativeURI(data.data.fileUri),
           data.fileName,
           'unused filetype',
-          'tmp',
         );
         await uploader.upload();
         const uploadData = uploader.getMediaIdAndKey();

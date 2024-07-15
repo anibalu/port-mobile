@@ -3,7 +3,6 @@ import {PortSpacing} from '@components/ComponentUtils';
 import {
   ContentType,
   DisplayableContentTypes,
-  SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import {checkDateBoundary, checkMessageTimeGap} from '@utils/Time';
 import React, {ReactNode, useRef, useState} from 'react';
@@ -19,6 +18,7 @@ import {MessageBubbleParent} from '@components/MessageBubbles/MessageBubbleParen
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import {AuthenticatedStateBubble} from '@components/MessageBubbles/AuthenticatedStateBubble';
 import DynamicColors from '@components/DynamicColors';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
 const MESSAGE_TIME_GAP_FOR_PADDING = 60 * 60 * 1000;
 
@@ -33,6 +33,15 @@ function isDataMessage(contentType: ContentType) {
   return false;
 }
 
+const MemoizedMessageBubbleParent = React.memo(
+  MessageBubbleParent,
+  (prevProps, nextProps) => {
+    return (
+      prevProps.message.mtime === nextProps.message.mtime &&
+      prevProps.message.contentType === nextProps.message.contentType
+    );
+  },
+);
 /**
  * Renders an inverted flatlist that displays all chat messages.
  * @param messages - messages to be displayed
@@ -51,7 +60,7 @@ function ChatList({
   onStartReached,
   onEndReached,
 }: {
-  messages: SavedMessageParams[];
+  messages: LoadedMessage[];
   onStartReached: any;
   onEndReached: any;
 }): ReactNode {
@@ -60,45 +69,28 @@ function ChatList({
     item,
     index,
   }: {
-    item: SavedMessageParams;
+    item: LoadedMessage;
     index: number;
   }) => {
-    const hasThereBeenNonHandshakeMessage = () => {
-      const limit = messages.length > 8 ? 8 : messages.length;
-      for (
-        let index = messages.length - 1;
-        index > messages.length - 1 - limit;
-        index--
-      ) {
-        if (DisplayableContentTypes.includes(messages[index].contentType)) {
-          return true;
-        }
-      }
-      return false;
-    };
-    //Checks if a date bubbled needs to be displayed.
-    const isDateBoundary =
-      index === messages.length - 1
-        ? hasThereBeenNonHandshakeMessage()
-        : checkDateBoundary(item.timestamp, messages[index + 1].timestamp);
-
-    //Should have spacing when: data bubble was previous, previous message was not own, timestamp is different
-    // 1. senders change
-    // 2. a certain time has elapsed
-    const shouldHaveExtraPadding =
-      isDateBoundary || determineSpacing(item, messages[index + 1]);
-
     return (
-      <MessageBubbleParent
+      <MemoizedMessageBubbleParent
         message={item}
-        isDateBoundary={isDateBoundary}
-        hasExtraPadding={shouldHaveExtraPadding}
+        isDateBoundary={
+          index === messages.length - 1
+            ? true
+            : checkDateBoundary(item.timestamp, messages[index + 1].timestamp)
+        }
+        hasExtraPadding={
+          (index === messages.length - 1
+            ? true
+            : checkDateBoundary(
+                item.timestamp,
+                messages[index + 1].timestamp,
+              )) || determineSpacing(item, messages[index + 1])
+        }
       />
     );
   };
-
-  //Swiping should be enabled for
-  const minimumThreshold = (messages.length * 77) / 2;
 
   const [showScrollToEnd, setShowScrollToEnd] = useState(false);
 
@@ -135,19 +127,15 @@ function ChatList({
         renderItem={renderMessage}
         inverted
         keyExtractor={message => message.messageId}
-        maintainVisibleContentPosition={{
-          minIndexForVisible: 0,
-          autoscrollToTopThreshold: minimumThreshold,
-        }}
         onScroll={handleScroll}
         scrollEventThrottle={100}
-        onMomentumScrollEnd={handleMomentumEnd}
-        onEndReached={onStartReached}
-        refreshing={refreshing}
         ListFooterComponent={<AuthenticatedStateBubble />}
         ListHeaderComponent={
           <View style={{height: PortSpacing.intermediate.bottom}} />
         }
+        onMomentumScrollEnd={handleMomentumEnd}
+        onEndReached={onStartReached}
+        refreshing={refreshing}
         onRefresh={async () => {
           setRefreshing(true);
           await debouncedPeriodicOperations();
@@ -170,8 +158,8 @@ function ChatList({
  * @returns {boolean} whether spacing should be added
  */
 const determineSpacing = (
-  message: SavedMessageParams,
-  nextMessage: SavedMessageParams,
+  message: LoadedMessage,
+  nextMessage: LoadedMessage,
 ): boolean => {
   if (!DisplayableContentTypes.includes(message.contentType)) {
     return false;

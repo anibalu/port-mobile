@@ -52,6 +52,7 @@ const PrimaryBottomSheet = ({
   children,
   showLoaderIconLeft,
   bgColor,
+  shouldAutoClose = true,
 }: {
   visible: boolean;
   showNotch?: boolean;
@@ -66,6 +67,7 @@ const PrimaryBottomSheet = ({
   titleStyle?: TextStyle | StyleProp<TextStyle>;
   LeftIconOnClick?: () => void;
   IconLeft?: FC<SvgProps>;
+  shouldAutoClose?: boolean;
   children: any;
 }) => {
   const neatClose = () => {
@@ -89,7 +91,8 @@ const PrimaryBottomSheet = ({
     <GenericModal
       avoidKeyboard={avoidKeyboard}
       visible={visible}
-      onClose={neatClose}>
+      onClose={neatClose}
+      shouldAutoClose={shouldAutoClose}>
       <View
         style={StyleSheet.compose(styles.mainContainerRegion, {
           backgroundColor:

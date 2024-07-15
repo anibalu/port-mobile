@@ -5,17 +5,23 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {MessageStatus} from '@utils/Messaging/interfaces';
 import {PortSpacing, screen} from '@components/ComponentUtils';
 import {getTimeStamp} from '@utils/Time';
 import Sending from '@assets/icons/statusIndicators/sending.svg';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {handleAsyncMediaDownload as directMedia} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
 import FileViewer from 'react-native-file-viewer';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import store from '@store/appStore';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import DynamicColors from '@components/DynamicColors';
+import {
+  LineMessageData,
+  LoadedMessage,
+  ReplyContent,
+} from '@utils/Storage/DBCalls/lineMessage';
+import {SendMediaDirectMessage} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
+import {handleAsyncMediaDownload} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
 
 //max width of message bubble
 export const MAX_WIDTH = screen.width - 2 * PortSpacing.secondary.uniform - 64;
@@ -64,7 +70,7 @@ export const getEmojiSize = (text: string): FontSizeType => {
 };
 
 export const getReplyBubbleName = async (
-  reply: SavedMessageParams,
+  reply: ReplyContent,
   isGroupChat: boolean,
 ) => {
   try {
@@ -85,26 +91,51 @@ export const getReplyBubbleName = async (
   }
 };
 
-export const handleDownload = async (chatId: string, messageId: string) => {
+export const handleDownload = async (
+  chatId: string,
+  messageId: string,
+  onFailure: () => void = () => {},
+) => {
   try {
-    await directMedia(chatId, messageId);
+    await handleAsyncMediaDownload(chatId, messageId);
     store.dispatch({
       type: 'PING',
       payload: 'PONG',
     });
   } catch (error) {
     console.error('Error downloading media: ', error);
+    onFailure();
+  }
+};
+
+/**
+ * Retries sending a media message in a direct chat
+ * @param message
+ */
+export const handleRetry = async (message: LineMessageData) => {
+  try {
+    const sender = new SendMediaDirectMessage(
+      message.chatId,
+      message.contentType,
+      message.data,
+      message.replyId,
+      message.messageId,
+    );
+    await sender.retry();
+  } catch (error) {
+    console.error('Error sending multimedia: ', error);
   }
 };
 
 export const handleMediaOpen = (
   fileURI: string | undefined | null,
+  fileName: string,
   onUndefined: () => void,
   onError: () => void,
 ) => {
-  console.log('invoking file opener', getSafeAbsoluteURI(fileURI, 'doc'));
   if (fileURI != undefined && fileURI != null) {
     FileViewer.open(getSafeAbsoluteURI(fileURI, 'doc'), {
+      displayName: fileName,
       showOpenWithDialog: true,
     }).catch(e => {
       console.log('Error opening file: ', e);
@@ -120,7 +151,7 @@ export const RenderTimeStamp = ({
   stampColor = 'rg',
   showReadReceipts = true,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
   stampColor?: 'rg' | 'w'; //regular or white
   showReadReceipts?: boolean;
 }): ReactNode => {

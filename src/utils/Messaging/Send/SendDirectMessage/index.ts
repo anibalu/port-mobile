@@ -29,14 +29,7 @@ import {
   contactBundleRequestContentTypes,
 } from './senders/ContactRequestSender';
 
-export async function sendDirect(
-  chatId: string,
-  contentType: ContentType,
-  data: DataType,
-  replyId: string | null,
-  messageId: string,
-  _onSuccess?: (success: boolean) => void,
-) {
+function assignSenderClass(contentType: ContentType) {
   let SenderClass = null;
   if (genericContentTypes.includes(contentType)) {
     SenderClass = SendGenericDirectMessage;
@@ -62,9 +55,40 @@ export async function sendDirect(
   if (plaintextContentTypes.includes(contentType)) {
     SenderClass = SendPlaintextDirectMessage;
   }
+  return SenderClass;
+}
+
+export async function sendDirect(
+  chatId: string,
+  contentType: ContentType,
+  data: DataType,
+  replyId: string | null,
+  messageId: string,
+  _onSuccess?: (success: boolean) => void,
+) {
+  let SenderClass = assignSenderClass(contentType);
   if (SenderClass) {
     let sender = new SenderClass(chatId, contentType, data, replyId, messageId);
     await sender.send();
+    return;
+  }
+  console.error(
+    `Could not find a suitible SenderClass for contentType: ${contentType}`,
+  );
+}
+
+export async function retryDirect(
+  chatId: string,
+  contentType: ContentType,
+  data: DataType,
+  replyId: string | null,
+  messageId: string,
+  _onSuccess?: (success: boolean) => void,
+) {
+  let SenderClass = assignSenderClass(contentType);
+  if (SenderClass) {
+    let sender = new SenderClass(chatId, contentType, data, replyId, messageId);
+    await sender.retry();
     return;
   }
   console.error(

@@ -2,7 +2,8 @@
  * Tries to empty journal by sending messages.
  * unsent messages get re-journaled.
  */
-import {getGroupJournaled, getJournaled} from '@utils/Storage/messages';
+import {getJournaled} from '@utils/Storage/messages';
+import {getGroupJournaled} from '@utils/Storage/groupMessages';
 import SendMessage from './SendMessage';
 
 async function sendJournaled() {
@@ -21,7 +22,7 @@ async function sendJournaled() {
         replyId,
         messageId,
       );
-      await sender.send(false);
+      await sender.retry();
     }
 
     const journaledMessages = await getJournaled();
@@ -36,7 +37,7 @@ async function sendJournaled() {
         replyId,
         messageId,
       );
-      await sender.send(false);
+      await sender.retry();
     }
   } catch (error) {
     console.log('Error in emptying journal: ', error);

@@ -3,7 +3,8 @@ import {Pressable, StyleSheet, View} from 'react-native';
 
 import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 
-import {getGroupMessage, getMessage} from '@utils/Storage/messages';
+import {getMessage} from '@utils/Storage/messages';
+import {getGroupMessage} from '@utils/Storage/groupMessages';
 import {
   FontSizeType,
   FontType,

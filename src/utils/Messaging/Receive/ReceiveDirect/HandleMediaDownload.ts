@@ -1,7 +1,7 @@
 import {createPreview} from '@utils/ImageUtils';
 import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
 import {LargeDataParams} from '@utils/Messaging/interfaces';
-import {getRelativeURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {updateMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
 import {getMessage} from '@utils/Storage/messages';
@@ -14,7 +14,7 @@ import {getMessage} from '@utils/Storage/messages';
 export const handleAsyncMediaDownload = async (
   chatId: string,
   messageId: string,
-): Promise<LargeDataParams> => {
+): Promise<string | null> => {
   const message = await getMessage(chatId, messageId);
   //download will only move forward if message data exists.
   if (!(message && message.data)) {
@@ -39,21 +39,21 @@ export const handleAsyncMediaDownload = async (
   //generate preview path for images, videos and display pictures.
   const previewConfig = {
     chatId: chatId,
-    url: fileUri,
+    url: getSafeAbsoluteURI(fileUri),
   };
   const previewPath = await createPreview(message.contentType, previewConfig);
   const data = {
     ...(message.data as LargeDataParams),
-    fileUri: getRelativeURI(fileUri, 'doc'),
+    fileUri: fileUri,
     previewUri: previewPath,
   };
-  //Saves relative URIs for the paths
-  await updateMedia(mediaId, {
+  //update media entry with relative URIs for the paths
+  await updateMedia(message.mediaId || '', {
     type: message.contentType,
     name: data.fileName,
     filePath: data.fileUri,
     previewPath: data.previewUri,
   });
-  await storage.updateMessage(chatId, messageId, data);
-  return data;
+  await storage.updateMessageData(chatId, messageId, data);
+  return message.mediaId || null;
 };

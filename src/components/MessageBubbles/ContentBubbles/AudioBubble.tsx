@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
-import {MessageStatus, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {MessageStatus} from '@utils/Messaging/interfaces';
 import {formatDuration} from '@utils/Time';
 import {
   FontSizeType,
@@ -12,29 +11,36 @@ import {
 import {PortSpacing} from '@components/ComponentUtils';
 import {CircleSnail} from 'react-native-progress';
 import ProgressBar from '@components/Reusable/Loaders/ProgressBar';
-import {RenderTimeStamp, handleDownload} from '../BubbleUtils';
+import {RenderTimeStamp, handleDownload, handleRetry} from '../BubbleUtils';
 
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {getMedia} from '@utils/Storage/media';
+import {
+  LineMessageData,
+  LoadedMessage,
+} from '@utils/Storage/DBCalls/lineMessage';
+import {useErrorModal} from 'src/context/ErrorModalContext';
 
 const AudioBubble = ({
   message,
   handlePress,
   handleLongPress,
-  handleRetry,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
   handlePress: any;
   handleLongPress: any;
-  handleRetry: (message: SavedMessageParams) => void;
 }) => {
-  const [fileUri, setFileUri] = useState<string | undefined>(undefined);
+  const [fileUri, setFileUri] = useState<string | undefined | null>(
+    message.filePath || message.data.fileUri || null,
+  );
+  useMemo(() => {
+    setFileUri(message.filePath || message.data.fileUri || null);
+  }, [message]);
   const [downloading, setDownloading] = useState(false);
-  const [showRetry, setShowRetry] = useState(false);
+  //responsible for retry loader
   const [loadingRetry, setLoadingRetry] = useState(false);
 
-  const onRetryClick = async (messageObj: SavedMessageParams) => {
+  const onRetryClick = async (messageObj: LineMessageData) => {
     setLoadingRetry(true);
     await handleRetry(messageObj);
     setLoadingRetry(false);
@@ -44,23 +50,14 @@ const AudioBubble = ({
     handleLongPress(message.messageId);
   };
 
-  useEffect(() => {
-    (async () => {
-      const mediaInfo = await getMedia(message?.data?.mediaId);
-      if (mediaInfo && mediaInfo.filePath) {
-        const image = getSafeAbsoluteURI(mediaInfo.filePath, 'doc');
-        setFileUri(image);
-      } else {
-        setFileUri(message?.data?.fileUri);
-      }
-    })();
-  }, [message]);
-
   const durationTime = message?.data?.duration;
 
+  const {mediaDownloadError} = useErrorModal();
   const triggerDownload = async () => {
     setDownloading(true);
-    await handleDownload(message.chatId, message.messageId);
+    await handleDownload(message.chatId, message.messageId, () =>
+      mediaDownloadError(),
+    );
     setDownloading(false);
   };
 
@@ -96,10 +93,6 @@ const AudioBubble = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentlyPlaying]);
-  useEffect(() => {
-    setShowRetry(message.messageStatus === MessageStatus.unsent);
-    setLoadingRetry(message.messageStatus === MessageStatus.sent);
-  }, [message]);
 
   const Colors = DynamicColors();
   const svgArray = [
@@ -142,7 +135,7 @@ const AudioBubble = ({
           flexDirection: 'row',
           alignItems: 'center',
         }}>
-        {showRetry ? (
+        {message.messageStatus === MessageStatus.unsent ? (
           <>
             {loadingRetry ? (
               <View>
@@ -163,7 +156,7 @@ const AudioBubble = ({
           </>
         ) : (
           <>
-            {fileUri === null ? (
+            {!fileUri ? (
               !downloading ? (
                 <Pressable onPress={handleStartPlay} style={{height: 16}}>
                   <Download

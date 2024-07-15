@@ -134,10 +134,10 @@ export async function updateReadReceiptOnConnection({
   update: ConnectionInfoUpdate;
 }) {
   try {
-    await storage.updateConnectionIfLatestMessageIsX({
+    await storage.updateConnectionIfLatestMessageIsX(
       messageIdToBeUpdated,
       update,
-    });
+    );
   } catch (error) {
     console.log('Error updating a connection: ', error);
   }

@@ -4,21 +4,14 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {
-  ContentType,
-  InfoParams,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
+import {ContentType, InfoParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {DisappearingMessageInfoBubble} from './ContentBubbles/DisappearingMessageInfoBubble';
 import DynamicColors from '@components/DynamicColors';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
-export const InfoBubble = ({
-  message,
-}: {
-  message: SavedMessageParams;
-}): ReactNode => {
+export const InfoBubble = ({message}: {message: LoadedMessage}): ReactNode => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
   return (
@@ -28,7 +21,7 @@ export const InfoBubble = ({
   );
 };
 
-const renderInfoBubble = (message: SavedMessageParams) => {
+const renderInfoBubble = (message: LoadedMessage) => {
   const Colors = DynamicColors();
   switch (message.contentType) {
     case ContentType.disappearingMessages:

@@ -243,10 +243,7 @@ const MessageBar = (): ReactNode => {
           {replyToMessage && (
             <View style={styles.replyContainer}>
               <View style={styles.replyContainerStyle}>
-                <ReplyBubbleMessageBar
-                  replyTo={replyToMessage}
-                  isGroupChat={isGroupChat}
-                />
+                <ReplyBubbleMessageBar replyTo={replyToMessage} />
               </View>
               <Pressable
                 onPress={clearEverything}

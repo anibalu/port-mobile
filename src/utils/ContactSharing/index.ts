@@ -125,10 +125,14 @@ export async function generateBundleForContactSharing(
   );
   await sender.send();
 
-  await messageStorage.updateMessage(data.requester, data.approvedMessageId, {
-    destinationName: data.destinationName,
-    approved: true,
-  });
+  await messageStorage.updateMessageData(
+    data.requester,
+    data.approvedMessageId,
+    {
+      destinationName: data.destinationName,
+      approved: true,
+    },
+  );
 }
 
 /**
@@ -155,13 +159,13 @@ export async function relayContactBundle(
   });
   await sender.send();
 
-  await messageStorage.updateMessage(msg?.chatId, msg?.messageId, {
+  await messageStorage.updateMessageData(msg?.chatId, msg?.messageId, {
     destinationName: msg?.data?.destinationName,
     approved: true,
   });
 
   // get the info message sent to destination chat id and update it to shared = true
-  await messageStorage.updateMessage(chatId, infoMessageId, {
+  await messageStorage.updateMessageData(chatId, infoMessageId, {
     shared: true,
   });
 }

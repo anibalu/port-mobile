@@ -19,7 +19,7 @@ export default class ReceiveReceipt extends DirectReceiveAction {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     const receipt = this.decryptedMessageContent.data as ReceiptParams;
     // Updadte the message with the correct status
-    storage.updateMessageSendStatus(this.chatId, {
+    storage.updateMessageStatus(this.chatId, {
       messageIdToBeUpdated: receipt.messageId,
       readAtTimestamp: receipt.readAt,
       deliveredAtTimestamp: receipt.deliveredAt,

@@ -1,9 +1,9 @@
-import {isIOS} from '@components/ComponentUtils';
 import {useNavigation} from '@react-navigation/native';
 import store from '@store/appStore';
 import {getBundleFromLink} from '@utils/DeepLinking';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {processReadBundles, readBundle} from '@utils/Ports';
+import {addFilePrefix} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {FileAttributes} from '@utils/Storage/interfaces';
 import {Mutex} from 'async-mutex';
 import React, {
@@ -58,16 +58,13 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
     if (files) {
       for (const file of files) {
         const payloadFile: FileAttributes = {
-          fileUri: isIOS ? file.filePath : 'file://' + file.filePath || '',
+          fileUri: addFilePrefix(file.filePath || ''),
           fileType: file.mimeType || '',
           fileName: file.fileName || '',
         };
 
         //Text has been shared
-        if (
-          payloadFile.fileUri === 'file://null' ||
-          payloadFile.fileUri === null
-        ) {
+        if (payloadFile.fileUri === 'file://' || payloadFile.fileUri === null) {
           const text = file.text ? file.text : file.weblink;
           sharingMessageObjects.push(text);
           isText = true;

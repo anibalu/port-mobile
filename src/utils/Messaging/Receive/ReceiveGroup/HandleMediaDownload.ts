@@ -1,6 +1,6 @@
 import store from '@store/appStore';
 import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
-import * as storage from '@utils/Storage/messages';
+import * as groupMessages from '@utils/Storage/groupMessages';
 import {createPreview} from '@utils/ImageUtils';
 import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
 import {getRelativeURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -14,7 +14,7 @@ export const handleAsyncMediaDownload = async (
   chatId: string,
   messageId: string,
 ): Promise<void> => {
-  const message = await storage.getGroupMessage(chatId, messageId);
+  const message = await groupMessages.getGroupMessage(chatId, messageId);
   if (message?.data) {
     const mediaId = (message.data as LargeDataParams).mediaId;
     const key = (message.data as LargeDataParams).key;
@@ -55,7 +55,7 @@ export const handleAsyncMediaDownload = async (
         previewPath: data.previewUri,
       });
 
-      await storage.updateGroupMessage(chatId, messageId, data);
+      await groupMessages.updateGroupMessage(chatId, messageId, data);
       store.dispatch({
         type: 'NEW_MEDIA_STATUS_UPDATE',
         payload: {

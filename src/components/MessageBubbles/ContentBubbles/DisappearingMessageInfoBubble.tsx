@@ -6,10 +6,8 @@ import {
 } from '@components/NumberlessText';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import {getLabelByTimeDiff} from '@utils/ChatPermissions';
-import {
-  DisappearingMessageParams,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
+import {DisappearingMessageParams} from '@utils/Messaging/interfaces';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {ReactNode} from 'react';
 import {View} from 'react-native';
@@ -17,7 +15,7 @@ import {View} from 'react-native';
 export const DisappearingMessageInfoBubble = ({
   message,
 }: {
-  message: SavedMessageParams;
+  message: LoadedMessage;
 }): ReactNode => {
   const svgArray = [
     {

@@ -5,8 +5,7 @@ import {
   DataType,
   MessageDataTypeBasedOnContentType,
 } from '../interfaces';
-import SendGroupMessage from './SendGroupMessage';
-import {sendDirect} from './SendDirectMessage';
+import {retryDirect, sendDirect} from './SendDirectMessage';
 
 class SendMessage<T extends ContentType> {
   private chatId: string; //chatId of chat
@@ -32,22 +31,45 @@ class SendMessage<T extends ContentType> {
 
   //only public function. Handles lifecycle of send operation.
   public async send(
-    journal: boolean = true,
-    shouldEncrypt: boolean = true,
+    _journal: boolean = true,
+    _shouldEncrypt: boolean = true,
     onUpdateSuccess?: (x: boolean) => void,
   ) {
     const isGroup = await isGroupChat(this.chatId);
     if (isGroup) {
-      const sender = new SendGroupMessage(
+      // const sender = new SendGroupMessage(
+      //   this.chatId,
+      //   this.contentType,
+      //   this.data,
+      //   this.replyId,
+      //   this.messageId,
+      // );
+      // await sender.send(journal, shouldEncrypt, onUpdateSuccess);
+    } else {
+      await sendDirect(
         this.chatId,
         this.contentType,
         this.data,
         this.replyId,
         this.messageId,
+        onUpdateSuccess,
       );
-      await sender.send(journal, shouldEncrypt, onUpdateSuccess);
+    }
+  }
+
+  public async retry(onUpdateSuccess?: (x: boolean) => void) {
+    const isGroup = await isGroupChat(this.chatId);
+    if (isGroup) {
+      // const sender = new SendGroupMessage(
+      //   this.chatId,
+      //   this.contentType,
+      //   this.data,
+      //   this.replyId,
+      //   this.messageId,
+      // );
+      // await sender.send(journal, shouldEncrypt, onUpdateSuccess);
     } else {
-      await sendDirect(
+      await retryDirect(
         this.chatId,
         this.contentType,
         this.data,

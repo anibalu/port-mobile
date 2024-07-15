@@ -14,7 +14,7 @@ export interface ConnectionInfoUpdate {
   pathToDisplayPic?: string | null;
   readStatus?: MessageStatus | null;
   authenticated?: boolean;
-  timestamp?: string;
+  timestamp?: string | null;
   newMessageCount?: number;
   disconnected?: boolean;
   latestMessageId?: string;

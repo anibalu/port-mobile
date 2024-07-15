@@ -308,7 +308,7 @@ export async function setNewProfilePicture(
                 : ChatType.direct,
             )
           ).displayPicture;
-          if (isAllowed) {
+          if (isAllowed && newFile.mediaId) {
             const sendDisplayPicture = new SendMessage(
               conn.chatId,
               ContentType.displayImage,

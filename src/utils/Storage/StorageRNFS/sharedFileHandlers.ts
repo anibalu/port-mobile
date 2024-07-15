@@ -1,11 +1,8 @@
 import RNFS from 'react-native-fs';
-import {conversationsDir, filesDir, mediaDir, tempDir} from '@configs/paths';
+import {conversationsDir, filesDir, mediaDir} from '@configs/paths';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {
-  SHARED_FILE_SIZE_LIMIT_IN_BYTES,
-  FILE_COMPRESSION_THRESHOLD,
-} from '@configs/constants';
+import {SHARED_FILE_SIZE_LIMIT_IN_BYTES} from '@configs/constants';
 import {decryptFile} from '@utils/Crypto/aesFile';
 
 /**
@@ -64,13 +61,49 @@ async function initialiseLargeFileDirAsync(chatId: string): Promise<string> {
 }
 
 /**
- *
+ * Get the decoded file name given the full uri.
+ * @param uri - file Uri
+ * @returns - file name with extention or 32 character hex Id if an error is encountered.
+ */
+export function getFileNameFromUri(uri: string): string {
+  try {
+    const pathname = uri;
+    const fileName = decodeURIComponent(
+      pathname.substring(pathname.lastIndexOf('/') + 1),
+    );
+    return fileName;
+  } catch (error) {
+    console.error('Invalid URI:', error);
+    return generateRandomHexId();
+  }
+}
+
+/**
+ * these content types cannot be moved
+ */
+const moveExemptContentTypes = [ContentType.displayImage];
+
+/**
+ * these content types will use the media dir
+ */
+const moveToMediaDirContentTypes = [ContentType.image, ContentType.video];
+
+/**
+ * these content types will use the files dir
+ */
+const moveToFilesDirContentTypes = [
+  ContentType.file,
+  ContentType.audioRecording,
+];
+
+/**
+ * copies or moves file to media directory of a chat
  * @param chatId
  * @param fileUri
- * @param fileName
- * @param contentType
- * @param deleteOriginal should fileUri be removed
- * @returns
+ * @param fileName - use null value if you want fileName to be extracted from file Uri.
+ * @param contentType - certain content types go to files dir and certain go to regular media dir
+ * @param deleteOriginal - whether we need to move or copy. default is move.
+ * @returns - relative file Uri of new location in media dir
  */
 export async function moveToLargeFileDir(
   chatId: string,
@@ -79,46 +112,25 @@ export async function moveToLargeFileDir(
   contentType: ContentType = ContentType.image,
   deleteOriginal: boolean = true,
 ): Promise<string> {
-  if (contentType === ContentType.displayImage) {
+  if (moveExemptContentTypes.includes(contentType)) {
     return fileUri;
   }
   const newFileName = fileName ? fileName : getFileNameFromUri(fileUri);
-  if (
-    contentType === ContentType.image ||
-    contentType === ContentType.video ||
-    contentType === ContentType.audioRecording
-  ) {
+  if (moveToMediaDirContentTypes.includes(contentType)) {
     return getRelativeURI(
       await moveToMediaDir(chatId, fileUri, newFileName, deleteOriginal),
-      'doc',
-    );
-  } else {
-    return getRelativeURI(
-      await moveToFilesDir(chatId, fileUri, newFileName, deleteOriginal),
-      'doc',
     );
   }
+  if (moveToFilesDirContentTypes.includes(contentType)) {
+    return getRelativeURI(
+      await moveToFilesDir(chatId, fileUri, newFileName, deleteOriginal),
+    );
+  }
+  //by default, new content types that are not exempt will use files Dir.
+  return getRelativeURI(
+    await moveToFilesDir(chatId, fileUri, newFileName, deleteOriginal),
+  );
 }
-
-/**
- * Checks if an uri is an avatar uri.
- * @param uri
- * @returns
- */
-export const isAvatarUri = (uri: string) => {
-  const isAvatar = uri.substring(0, 9) === 'avatar://';
-  return isAvatar;
-};
-
-/**
- * Checks if an uri is a media uri.
- * @param uri
- * @returns
- */
-export const isMediaUri = (uri: string) => {
-  const isMedia = uri.substring(0, 8) === 'media://';
-  return isMedia;
-};
 
 /**
  * Creates a copy of the large file in the files directory of a chat.
@@ -135,7 +147,7 @@ async function moveToFilesDir(
     chatIdDir + filesDir + '/' + generateRandomHexId() + '_' + fileName;
   const moveOrCopy = deleteOriginal ? RNFS.moveFile : RNFS.copyFile;
   try {
-    await moveOrCopy(decodeURIComponent(fileUri), destinationPath);
+    await moveOrCopy(fileUri, destinationPath);
     console.log('Destination: ', destinationPath);
   } catch (error) {
     console.log('Error moving file: ', error);
@@ -158,7 +170,7 @@ async function moveToMediaDir(
     chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
   const moveOrCopy = deleteOriginal ? RNFS.moveFile : RNFS.copyFile;
   try {
-    await moveOrCopy(decodeURIComponent(fileUri), destinationPath);
+    await moveOrCopy(fileUri, destinationPath);
     console.log('Destination: ', destinationPath);
   } catch (error) {
     console.log('Error moving file: ', error);
@@ -166,23 +178,25 @@ async function moveToMediaDir(
   return destinationPath;
 }
 
-async function initialiseTempDirAsync() {
-  const tempDirPath = RNFS.DocumentDirectoryPath + `${tempDir}`;
-  const folderExists = await RNFS.exists(tempDirPath);
-  if (folderExists) {
-    return tempDirPath;
-  } else {
-    await RNFS.mkdir(tempDirPath);
-    return tempDirPath;
-  }
-}
+// async function initialiseTempDirAsync() {
+//   const tempDirPath = RNFS.DocumentDirectoryPath + `${tempDir}`;
+//   const folderExists = await RNFS.exists(tempDirPath);
+//   if (folderExists) {
+//     return tempDirPath;
+//   } else {
+//     await RNFS.mkdir(tempDirPath);
+//     return tempDirPath;
+//   }
+// }
 
-export async function checkFileSizeWithinLimits(
-  fileUri: string,
-  location: 'doc' | 'tmp' | 'cache' = 'doc',
-) {
+/**
+ * Checks if file size is lower than shared file size limit.
+ * @param fileUri
+ * @returns - True if file size is within limits.
+ */
+export async function checkFileSizeWithinLimits(fileUri: string) {
   try {
-    const absoluteURI = getSafeAbsoluteURI(fileUri, location);
+    const absoluteURI = getSafeAbsoluteURI(fileUri);
     const fileSize = (await RNFS.stat(absoluteURI)).size;
     console.log('File size: ', fileSize);
     if (fileSize && fileSize < SHARED_FILE_SIZE_LIMIT_IN_BYTES) {
@@ -195,18 +209,25 @@ export async function checkFileSizeWithinLimits(
   }
 }
 
-export async function initialiseEncryptedTempFile(
-  fileName: string = '',
-): Promise<string> {
-  const tempDirPath = await initialiseTempDirAsync();
-  const tempName = fileName + '_' + generateRandomHexId() + '.enc';
+/**
+ * Initialises an empty file in the tmp directory.
+ * @param fileName - optional file name prefix
+ * @returns
+ */
+export async function initialiseEncryptedTempFile(): Promise<string> {
+  const tempDirPath = RNFS.TemporaryDirectoryPath;
+  const tempName = generateRandomHexId() + '.enc';
   const tempFilePath = tempDirPath + '/' + tempName;
   await RNFS.writeFile(tempFilePath, '');
   return tempFilePath;
 }
 
-export async function deleteFile(tempFilePath: string) {
-  const filePath = getSafeAbsoluteURI(tempFilePath, 'doc');
+/**
+ * Deletes a file given its uri
+ * @param fileUri - can be relative or absolute uri
+ */
+export async function deleteFile(fileUri: string) {
+  const filePath = getSafeAbsoluteURI(fileUri);
   try {
     await RNFS.unlink(filePath);
   } catch (error) {
@@ -214,6 +235,24 @@ export async function deleteFile(tempFilePath: string) {
   }
 }
 
+/**
+ * these content types will be decrypted to the media dir
+ */
+const decryptToMediaDirContentTypes = [
+  ContentType.image,
+  ContentType.video,
+  ContentType.displayImage,
+];
+
+/**
+ * Decrypts an encrypted file to the right large file directory
+ * @param chatId
+ * @param contentType
+ * @param encryptedFilePath - absolute uri of the encrypted file
+ * @param key - key to decrypt the encrypted file
+ * @param fileName - fileName of the decrypted file
+ * @returns relative location of decrypted file
+ */
 export async function decryptToLargeFileDir(
   chatId: string,
   contentType: ContentType,
@@ -221,14 +260,14 @@ export async function decryptToLargeFileDir(
   key: string,
   fileName: string,
 ): Promise<string> {
-  if (
-    contentType === ContentType.image ||
-    contentType === ContentType.video ||
-    contentType === ContentType.displayImage
-  ) {
-    return await decryptToMediaDir(chatId, encryptedFilePath, key, fileName);
+  if (decryptToMediaDirContentTypes.includes(contentType)) {
+    return getRelativeURI(
+      await decryptToMediaDir(chatId, encryptedFilePath, key, fileName),
+    );
   } else {
-    return await decryptToFilesDir(chatId, encryptedFilePath, key, fileName);
+    return getRelativeURI(
+      await decryptToFilesDir(chatId, encryptedFilePath, key, fileName),
+    );
   }
 }
 
@@ -258,26 +297,59 @@ async function decryptToFilesDir(
   return addFilePrefix(destinationPath);
 }
 
+/**
+ * Downloads an image located at fromUrl to the chat's media dir.
+ * @param chatId
+ * @param fileName - fileName for downloaded file
+ * @param fromUrl - uri from which to download image
+ * @returns - null if download fails. relative fileUri if it succeeds.
+ */
 export async function downloadImageToMediaDir(
   chatId: string,
   fileName: string,
   fromUrl: string | null,
 ): Promise<string | null> {
-  if (fromUrl) {
-    const chatIdDir = await initialiseLargeFileDirAsync(chatId);
-    const destinationPath =
-      chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
-    //download image to destination
-    return await downloadImage(fromUrl, destinationPath);
+  if (!fromUrl) {
+    return null;
   }
-  return null;
+  const chatIdDir = await initialiseLargeFileDirAsync(chatId);
+  const destinationPath =
+    chatIdDir + mediaDir + '/' + generateRandomHexId() + '_' + fileName;
+  //create an empty destination file.
+  await RNFS.writeFile(destinationPath, '');
+  //download image to destination
+  try {
+    await downloadFile(fromUrl, destinationPath);
+    return getRelativeURI(destinationPath);
+  } catch (error) {
+    //if download fails, return null.
+    return null;
+  }
 }
 
-async function downloadImage(
+/**
+ * Downloads a resource to the tmp directory
+ * @param fromUrl - uri from which to download resource
+ * @returns - fileUri of the downloaded file in the tmp dir
+ */
+export async function downloadResourceToTmpDir(
+  fromUrl: string,
+): Promise<string> {
+  const encryptedFilePath = await initialiseEncryptedTempFile();
+  await downloadFile(fromUrl, encryptedFilePath);
+  return encryptedFilePath;
+}
+
+/**
+ * Downloads a resource to the provided location.
+ * @param fromUrl
+ * @param toLocation
+ * @throws error if there is an issue downloading.
+ */
+async function downloadFile(
   fromUrl: string,
   toLocation: string,
-): Promise<string | null> {
-  await RNFS.writeFile(toLocation, '');
+): Promise<void> {
   try {
     const downloadOptions = {
       fromUrl: fromUrl,
@@ -286,38 +358,22 @@ async function downloadImage(
     const response = await RNFS.downloadFile(downloadOptions).promise;
     if (response.statusCode === 200) {
       console.log('resource downloaded successfully');
-      return getRelativeURI(toLocation, 'doc');
+      return;
     }
     console.log('response code: ', response.statusCode);
     throw new Error('ResponseError');
   } catch (error) {
     console.log('error downloading resource: ', error);
     await deleteFile(toLocation);
-    return null;
-  }
-}
-
-export async function downloadResource(fromUrl: string) {
-  const encryptedFilePath = await initialiseEncryptedTempFile();
-  try {
-    const downloadOptions = {
-      fromUrl: fromUrl,
-      toFile: encryptedFilePath,
-    };
-    const response = await RNFS.downloadFile(downloadOptions).promise;
-    if (response.statusCode === 200) {
-      console.log('file downloaded successfully');
-      return encryptedFilePath;
-    }
-    console.log('response code: ', response.statusCode);
-    throw new Error('ResponseError');
-  } catch (error) {
-    console.log('error downloading resource: ', error);
-    await deleteFile(encryptedFilePath);
     throw new Error('DownloadError');
   }
 }
 
+/**
+ * Adds a 'file://' prefix to a file path if it already doesn't exist.
+ * @param fileUri - file path
+ * @returns - file path with 'file://' prefix added
+ */
 export function addFilePrefix(fileUri: string) {
   if (fileUri.substring(0, 7) === 'file://') {
     return fileUri;
@@ -326,6 +382,11 @@ export function addFilePrefix(fileUri: string) {
   }
 }
 
+/**
+ * removes the 'file://' prefix if it exists.
+ * @param fileUri - file path
+ * @returns - file path with 'file://' prefix removed
+ */
 export function removeFilePrefix(fileUri: string) {
   if (fileUri.substring(0, 7) === 'file://') {
     return fileUri.substring(7);
@@ -335,26 +396,48 @@ export function removeFilePrefix(fileUri: string) {
 }
 
 /**
+ * Checks if an uri is an avatar uri.
+ * @param uri
+ * @returns
+ */
+export const isAvatarUri = (uri: string) => {
+  const isAvatar = uri.substring(0, 9) === 'avatar://';
+  return isAvatar;
+};
+
+/**
+ * Checks if an uri is a media uri.
+ * @param uri
+ * @returns
+ */
+export const isMediaUri = (uri: string) => {
+  const isMedia = uri.substring(0, 8) === 'media://';
+  return isMedia;
+};
+
+/**
  * Returns a safely accessible URI that can be used for any media operation in the app.
- * @param fileURI
- * @param location storage location (can be documents or cache)
- * @returns {string} absolute file path that can be accessed.
+ * @param fileURI - relative or absolute uri
+ * @returns {string} absolute file path with the appropriate type prefix added. (file:// or media:// or avatar:// etc.)
  */
 export function getSafeAbsoluteURI(
   fileURI: string,
-  _location: 'doc' | 'cache' | 'tmp' = 'doc',
+  _location?: string, //deprecated
 ): string {
+  //if file Uri does not exist or if it is a media or avatar uri, return back the same param.
   if (!fileURI || isAvatarUri(fileURI) || isMediaUri(fileURI)) {
     return fileURI;
   }
+  //if file Uri is already an absolute file URI, return the same with the 'file://' prefix.
   if (
-    fileURI &&
-    (fileURI.includes(RNFS.CachesDirectoryPath) ||
-      fileURI.includes(RNFS.TemporaryDirectoryPath) ||
-      fileURI.includes(RNFS.DocumentDirectoryPath))
+    fileURI.includes(RNFS.CachesDirectoryPath) ||
+    fileURI.includes(RNFS.TemporaryDirectoryPath) ||
+    fileURI.includes(RNFS.DocumentDirectoryPath)
   ) {
     return addFilePrefix(fileURI);
-  } else {
+  }
+  //
+  else {
     return addFilePrefix(RNFS.DocumentDirectoryPath + '/' + fileURI);
   }
 }
@@ -364,12 +447,11 @@ export function getSafeAbsoluteURI(
  * that can accessed anywhere irrespective of file system changes unless the underlying storage is cleared.
  * If item is not in document storage, returns unchanged uri.
  * @param fileURI
- * @param location - deprecated - storage location (can be documents, files and cache)
  * @returns {string} relative file URI or file URI depending on whether the file is in document storage.
  */
 export function getRelativeURI(
   fileURI: string,
-  _location: 'doc' | 'cache' | 'tmp' = 'doc',
+  _location?: string, //deprecated
 ): string {
   if (fileURI.includes(RNFS.DocumentDirectoryPath)) {
     return removeFilePrefix(fileURI.replace(RNFS.DocumentDirectoryPath, ''));
@@ -378,7 +460,9 @@ export function getRelativeURI(
   }
 }
 
-//tmp directory name repeats are not handled in ios. thus, we need to handle it.
+/**
+ * tmp directory name repeats are not handled in ios. thus, we need to handle it.
+ */
 async function checkRepeatInTmp(fileUri: string) {
   // check if repeat exists and delete if exists
   const doesExist = await RNFS.exists(fileUri);
@@ -390,10 +474,9 @@ async function checkRepeatInTmp(fileUri: string) {
 /**
  * Moves a source file to the tmp directory.
  * @param source - source file absolute path
- * @param fileName - file name
  * @returns - absolute file path with file:// prefix added or null if some error occured.
  */
-export async function moveToTmp(source: string, _fileName?: string) {
+export async function moveToTmp(source: string) {
   try {
     //moving to tmp directory should create a new location.
     const newPath =
@@ -403,7 +486,7 @@ export async function moveToTmp(source: string, _fileName?: string) {
       getFileExtension(source);
     //If a file already exist at this path, delete it.
     await checkRepeatInTmp(newPath);
-    await RNFS.moveFile(decodeURIComponent(source), newPath);
+    await RNFS.moveFile(source, newPath);
     return addFilePrefix(newPath);
   } catch (error) {
     console.log('Unable to move to tmp dir', error);
@@ -411,17 +494,9 @@ export async function moveToTmp(source: string, _fileName?: string) {
   }
 }
 
-export function getFileNameFromUri(uri: string): string {
-  try {
-    const pathname = uri;
-    const fileName = pathname.substring(pathname.lastIndexOf('/') + 1);
-    return fileName;
-  } catch (error) {
-    console.error('Invalid URI:', error);
-    return generateRandomHexId();
-  }
-}
-
+/**
+ * Returns file extention or empty string if no extention exists.
+ */
 function getFileExtension(uri: string): string {
   const lastDotIndex = uri.lastIndexOf('.');
   const lastSlashIndex = uri.lastIndexOf('/');
@@ -441,13 +516,12 @@ function getFileExtension(uri: string): string {
  */
 export async function copyToTmp(
   fileUri: string | null | undefined,
-  _fileName: string = 'unknown.unknown',
-) {
+): Promise<string | null> {
   try {
     if (!fileUri) {
       throw new Error('No file Uri');
     }
-    const source = getSafeAbsoluteURI(decodeURIComponent(fileUri), 'doc');
+    const source = getSafeAbsoluteURI(fileUri);
     //moving to tmp directory should create a new location.
     const newPath =
       RNFS.TemporaryDirectoryPath +
@@ -461,19 +535,5 @@ export async function copyToTmp(
   } catch (error) {
     console.log('Unable to copy to tmp dir', error);
     return null;
-  }
-}
-
-/**
- * Checks if a file is over the compression threshold to trigger compression
- * @param filePath - absolute file path of the media being considered for compression
- * @returns - whether compression is required.
- */
-export async function shouldCompress(filePath: string) {
-  const fileStat = await RNFS.stat(filePath);
-  if (fileStat.size > FILE_COMPRESSION_THRESHOLD) {
-    return true;
-  } else {
-    return false;
   }
 }

@@ -3,7 +3,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {LargeDataParams, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {LargeDataParams} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import {PortSpacing} from '@components/ComponentUtils';
@@ -16,12 +16,13 @@ import {
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import DynamicColors from '@components/DynamicColors';
 import {getMedia} from '@utils/Storage/media';
+import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
 
 export const ImageReplyBubble = ({
   reply,
   memberName,
 }: {
-  reply: SavedMessageParams;
+  reply: ReplyContent;
   memberName: string;
 }): ReactNode => {
   const text =

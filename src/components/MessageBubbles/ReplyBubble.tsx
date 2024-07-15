@@ -5,47 +5,28 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {LinkPreviewReplyBubble} from './ReplyBubbles/LinkPreviewReplyBubble';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
-import {getMessage} from '@utils/Storage/messages';
-import React, {ReactNode, useEffect, useState} from 'react';
+import {ContentType} from '@utils/Messaging/interfaces';
+import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {TextReplyBubble} from './ReplyBubbles/TextReplyBubble';
-import {
-  MIN_WIDTH_REPLY,
-  REPLY_MEDIA_HEIGHT,
-  getReplyBubbleName,
-} from './BubbleUtils';
+import {MIN_WIDTH_REPLY, REPLY_MEDIA_HEIGHT} from './BubbleUtils';
 import {ImageReplyBubble} from './ReplyBubbles/ImageReplyBubble';
 import {VideoReplyBubble} from './ReplyBubbles/VideoReplyBubble';
 import FileReplyBubble from './ReplyBubbles/FileReplyBubble';
 import ContactReplyBubble from './ReplyBubbles/ContactReplyBubble';
 import AudioReplyBubble from './ReplyBubbles/AudioReplyBubble';
+import {LoadedMessage, ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
 
-export const ReplyBubble = ({
-  message,
-  isGroupChat,
-}: {
-  message: SavedMessageParams;
-  isGroupChat: boolean;
-}): ReactNode => {
-  const [reply, setReply] = useState<SavedMessageParams | null>(null);
-  const [memberName, setMemberName] = useState<string>('');
-  useEffect(() => {
-    (async () => {
-      if (message.replyId) {
-        const replied = await getMessage(message.chatId, message.replyId);
-        if (replied) {
-          setReply(replied);
-          setMemberName(await getReplyBubbleName(replied, isGroupChat));
-        }
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+export const ReplyBubble = ({reply}: {reply: ReplyContent}): ReactNode => {
+  const {name} = useChatContext();
   return (
     <View style={styles.container}>
       {reply ? (
-        <ReplyExistsBubble reply={reply} memberName={memberName} />
+        <ReplyExistsBubble
+          reply={reply}
+          memberName={reply.sender ? 'You' : name}
+        />
       ) : (
         <View />
       )}
@@ -55,28 +36,17 @@ export const ReplyBubble = ({
 
 export const ReplyBubbleMessageBar = ({
   replyTo,
-  isGroupChat,
 }: {
-  replyTo: SavedMessageParams | null | undefined;
-  isGroupChat: boolean;
+  replyTo: LoadedMessage;
 }): ReactNode => {
-  const [reply, setReply] = useState<SavedMessageParams | null | undefined>(
-    null,
-  );
-  const [memberName, setMemberName] = useState<string>('');
-  useEffect(() => {
-    (async () => {
-      if (replyTo) {
-        setReply(replyTo);
-        setMemberName(await getReplyBubbleName(replyTo, isGroupChat));
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [replyTo]);
+  const {name} = useChatContext();
   return (
     <View style={styles.container}>
-      {reply ? (
-        <ReplyExistsBubble reply={reply} memberName={memberName} />
+      {replyTo ? (
+        <ReplyExistsBubble
+          reply={replyTo as ReplyContent}
+          memberName={replyTo.sender ? 'You' : name}
+        />
       ) : (
         <View />
       )}
@@ -91,7 +61,7 @@ const ReplyExistsBubble = ({
   reply,
   memberName,
 }: {
-  reply: SavedMessageParams;
+  reply: ReplyContent;
   memberName: string;
 }): ReactNode => {
   switch (reply.contentType) {

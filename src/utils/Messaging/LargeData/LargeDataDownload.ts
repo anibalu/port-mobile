@@ -1,7 +1,7 @@
 import {
   decryptToLargeFileDir,
   deleteFile,
-  downloadResource,
+  downloadResourceToTmpDir,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import * as API from './APICalls';
 import {ContentType} from '../interfaces';
@@ -77,7 +77,7 @@ class LargeDataDownload {
       return;
     }
     const downloadUrl: string = await API.getDownloadPresignedUrl(this.mediaId);
-    this.encryptedTempFilePath = await downloadResource(downloadUrl);
+    this.encryptedTempFilePath = await downloadResourceToTmpDir(downloadUrl);
   }
 }
 

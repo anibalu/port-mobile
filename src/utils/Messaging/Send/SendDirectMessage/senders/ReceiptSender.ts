@@ -5,7 +5,6 @@ import {
   MessageStatus,
   PayloadMessageParams,
   ReceiptParams,
-  SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 import * as MessageStorage from '@utils/Storage/messages';
 import {SendDirectMessage} from './AbstractSender';
@@ -13,6 +12,7 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
 export const receiptContentTypes: ContentType[] = [ContentType.receipt];
 
@@ -24,7 +24,7 @@ export class SendReceiptDirectMessage<
   data: DataType; //message data corresponding to the content type
   replyId: string | null; //not null if message is a reply message (optional)
   messageId: string; //messageId of message (optional)
-  savedMessage: SavedMessageParams; //message to be saved to storage
+  savedMessage: LineMessageData; //message to be saved to storage
   payload: PayloadMessageParams; //message to be encrypted and sent.
   expiresOn: string | null;
   constructor(
@@ -47,7 +47,6 @@ export class SendReceiptDirectMessage<
       data: this.data,
       timestamp: generateISOTimeStamp(),
       sender: true,
-      memberId: null,
       messageStatus: MessageStatus.unassigned,
       replyId: this.replyId,
       expiresOn: null,
@@ -63,8 +62,28 @@ export class SendReceiptDirectMessage<
     this.expiresOn = null;
   }
 
+  /**
+   * This class does not cause the connection preview text to update.
+   * @returns empty string
+   */
   generatePreviewText(): string {
     return '';
+  }
+
+  private validate(): void {
+    try {
+      //throw error if content type is not supported by this class
+      if (!receiptContentTypes.includes(this.contentType)) {
+        throw new Error('NotReactionContentTypeError');
+      }
+      //throw error if message exceeds acceptable character size
+      if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
+        throw new Error('MessageDataTooBigError');
+      }
+    } catch (error) {
+      console.error('Error found in initial checks: ', error);
+      throw new Error('InitialChecksError');
+    }
   }
 
   /**
@@ -76,17 +95,12 @@ export class SendReceiptDirectMessage<
       // Set up in Filesystem
       this.validate();
       const receipt = this.data as ReceiptParams;
-      console.log('Sending receipt: ', receipt);
       // Make the API call to send the receipt
       const processedPayload = await this.encryptedMessage();
-      const newSendStatus = await API.sendObject(
-        this.chatId,
-        processedPayload,
-        false,
-        this.isNotificationSilent(),
-      );
-      if (newSendStatus === -1 && receipt.readAt) {
-        MessageStorage.setShouldNotAck(this.chatId, receipt.messageId);
+      const newSendStatus = await this.attempt(processedPayload);
+      if (newSendStatus === MessageStatus.sent && receipt.readAt) {
+        //this guard ensures receipts are not sent again for a read message.
+        await MessageStorage.setShouldNotAck(this.chatId, receipt.messageId);
       }
       return true;
     } catch (e) {
@@ -95,20 +109,27 @@ export class SendReceiptDirectMessage<
       return false;
     }
   }
+
   /**
-   * Perform the initial DBCalls and attempt API calls
+   * Perform api call to post the processed payload and return message status accordingly.
+   * @param processedPayload
+   * @returns appropriate message status
    */
-  private validate(): void {
+  async attempt(processedPayload: object): Promise<MessageStatus> {
     try {
-      if (!receiptContentTypes.includes(this.contentType)) {
-        throw new Error('NotReactionContentTypeError');
-      }
-      if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
-        throw new Error('MessageDataTooBigError');
-      }
+      // Perform API call
+      await API.sendObject(
+        this.chatId,
+        processedPayload,
+        false,
+        this.isNotificationSilent(),
+      );
+      return MessageStatus.sent;
     } catch (error) {
-      console.error('Error found in initial checks: ', error);
-      throw new Error('InitialChecksError');
+      console.log(
+        'send attempt failed, message type does not support journaling',
+      );
+      return MessageStatus.failed;
     }
   }
 
@@ -124,19 +145,17 @@ export class SendReceiptDirectMessage<
     throw new Error('NotJournallable');
   }
 
-  private async onFailure() {}
+  /**
+   * Perform these actions on critical failures.
+   */
+  private async onFailure() {
+    return;
+  }
 
   /**
    * Perform necessary cleanup after sending succeeds
    */
-  private async cleanup(): Promise<boolean> {
-    return true;
-  }
-
-  /**
-   * Receipt sending doesn't warrant a redraw
-   */
-  storeCalls(): void {
+  private async cleanup() {
     return;
   }
 }

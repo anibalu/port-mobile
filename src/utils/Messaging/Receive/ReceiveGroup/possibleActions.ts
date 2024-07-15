@@ -9,7 +9,6 @@ import RemoveSelf from './ActionClasses/RemoveSelf';
 import GroupReceiveAction from './GroupReceiveAction';
 import ReceiveImage from './ActionClasses/ReceiveImage';
 import ReceiveReaction from './ActionClasses/ReceiveReaction';
-import ReceiveUpdate from './ActionClasses/ReceiveUpdate';
 
 export enum PossibleGroupReceiveActions {
   addMember,

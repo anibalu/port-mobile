@@ -4,10 +4,8 @@ import pullBacklog from '@utils/Messaging/pullBacklog';
 import {cancelAllNotifications} from '@utils/Notifications';
 import {cleanUpPorts, useReadBundles} from '@utils/Ports';
 import {syncShared} from '@utils/Storage/IOSGroupShare/syncShare';
-import {
-  deleteExpiredGroupMessages,
-  deleteExpiredMessages,
-} from '@utils/Storage/messages';
+import {deleteExpiredMessages} from '@utils/Storage/messages';
+import {deleteExpiredGroupMessages} from '@utils/Storage/groupMessages';
 import {debounce} from 'lodash';
 
 /**

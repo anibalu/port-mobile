@@ -1,21 +1,17 @@
-import store from '@store/appStore';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {ChatType} from '@utils/Connections/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
   ContentType,
   DataType,
-  LargeDataMessageContentTypes,
-  LargeDataParams,
   MessageStatus,
   PayloadMessageParams,
-  SavedMessageParams,
   UpdateRequiredMessageContentTypes,
 } from '@utils/Messaging/interfaces';
-import {saveNewMedia} from '@utils/Storage/media';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import * as storage from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';
-abstract class DirectReceiveAction {
+class DirectReceiveAction {
   protected message: any;
   protected chatId: string;
   protected receiveTime: string;
@@ -39,11 +35,13 @@ abstract class DirectReceiveAction {
     return this.decryptedMessageContent as PayloadMessageParams;
   }
 
-  abstract generatePreviewText(): string;
+  generatePreviewText(): string {
+    return '';
+  }
 
   async saveMessage(data?: DataType) {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
-    const savedMessage: SavedMessageParams = {
+    const savedMessage: LineMessageData = {
       chatId: this.chatId,
       messageId: this.decryptedMessageContent.messageId,
       data: data || this.decryptedMessageContent.data,
@@ -57,24 +55,11 @@ abstract class DirectReceiveAction {
         ((await getChatPermissions(this.chatId, ChatType.direct))
           .readReceipts as boolean) || false,
     };
-    if (
-      LargeDataMessageContentTypes.includes(
-        this.decryptedMessageContent.contentType,
-      )
-    ) {
-      //Create a media entry in DB for the same
-      await saveNewMedia(
-        (this.decryptedMessageContent.data as LargeDataParams).mediaId!,
-        this.chatId,
-        this.decryptedMessageContent.messageId,
-        this.receiveTime,
-      );
-    }
     await storage.saveMessage(savedMessage);
-    store.dispatch({
-      type: 'NEW_RECEIVED_MESSAGE',
-      payload: savedMessage,
-    });
+  }
+
+  async sendReceiveUpdate() {
+    this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     //All messages do not need to have their status updated.
     if (
       UpdateRequiredMessageContentTypes.includes(

@@ -19,10 +19,14 @@ import {ContentType} from '@utils/Messaging/interfaces';
 type ContentTypeEmojiAndText = {
   emoji?: string;
   defaultText: string;
-  getText?: (latestMessage: any) => string | undefined;
+  getText?: (latestMessageData: any) => string | undefined;
 };
 
 const contentTypeMap: {[key: number]: ContentTypeEmojiAndText} = {
+  [ContentType.deleted]: {
+    defaultText: 'This message was deleted',
+    getText: (_latestMessageData: any) => 'This message was deleted',
+  },
   [ContentType.file]: {
     emoji: '📎',
     defaultText: 'file',
@@ -48,7 +52,7 @@ const contentTypeMap: {[key: number]: ContentTypeEmojiAndText} = {
   [ContentType.contactBundle]: {
     emoji: '👤',
     defaultText: '',
-    getText: latestMessage => latestMessage?.bundle?.name,
+    getText: latestMessageData => latestMessageData?.bundle?.name,
   },
   [ContentType.contactBundleRequest]: {
     emoji: '👤',
@@ -57,15 +61,15 @@ const contentTypeMap: {[key: number]: ContentTypeEmojiAndText} = {
   [ContentType.contactBundleResponse]: {
     emoji: '👤',
     defaultText: '',
-    getText: latestMessage =>
-      `shared you contact with ${latestMessage?.bundle?.name}`,
+    getText: latestMessageData =>
+      `shared you contact with ${latestMessageData?.bundle?.name}`,
   },
   [ContentType.disappearingMessages]: {
     defaultText: '',
-    getText: latestMessage => {
-      if (latestMessage?.timeoutValue) {
+    getText: latestMessageData => {
+      if (latestMessageData?.timeoutValue) {
         const turnedOff =
-          getLabelByTimeDiff(latestMessage.timeoutValue) === 'Off';
+          getLabelByTimeDiff(latestMessageData.timeoutValue) === 'Off';
         return turnedOff
           ? 'Disappearing messages have been turned OFF'
           : 'Disappearing messages have been turned ON';
@@ -77,18 +81,21 @@ const contentTypeMap: {[key: number]: ContentTypeEmojiAndText} = {
 
 const getConnectionTextByContentType = (
   contentType: ContentType,
-  latestMessage?: any,
+  latestMessageData?: any,
 ): string => {
+  if (!contentType) {
+    return '';
+  }
   const info = contentTypeMap[contentType];
-  if (!info || !latestMessage) {
+  if (!info || !latestMessageData) {
     return '';
   }
 
   let text: string;
   if (info.getText) {
-    text = info.getText(latestMessage) || info.defaultText;
+    text = info.getText(latestMessageData) || info.defaultText;
   } else {
-    text = latestMessage.text || info.defaultText;
+    text = latestMessageData.text || info.defaultText;
   }
 
   return info.emoji ? `${info.emoji} ${text}` : text;

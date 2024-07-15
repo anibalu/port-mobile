@@ -263,6 +263,13 @@ export interface DeletionParams {
   messageIdToDelete: string;
 }
 
+export interface ReactionParams {
+  chatId: string;
+  messageId: string;
+  reaction: string;
+  tombstone?: boolean;
+}
+
 export interface InitialInfoRequestParams {}
 
 export type MessageDataTypeBasedOnContentType<T extends ContentType> =
@@ -338,13 +345,6 @@ export interface SavedMessageParams {
 export enum LineReactionSender {
   self = 'SELF',
   peer = 'PEER',
-}
-
-export interface ReactionParams {
-  chatId: string;
-  messageId: string;
-  reaction: string;
-  tombstone?: boolean;
 }
 
 /**

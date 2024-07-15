@@ -3,11 +3,10 @@ import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {
   ContentType,
   MessageStatus,
-  SavedMessageParams,
   UnSelectableMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
-import {StyleSheet, View, Animated, Pressable, Easing} from 'react-native';
+import {StyleSheet, View, Animated, Easing} from 'react-native';
 import {ContentBubble} from './ContentBubble';
 import {ReplyBubble} from './ReplyBubble';
 import {MAX_WIDTH} from './BubbleUtils';
@@ -21,28 +20,23 @@ import {getMessage} from '@utils/Storage/messages';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
 import DynamicColors from '@components/DynamicColors';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
-export const MessageBubble = ({
+const MessageBubbleContent = ({
   handleLongPress,
   message,
   swipeable = true,
 }: {
   handleLongPress: any;
-  message: SavedMessageParams;
+  message: LoadedMessage;
   swipeable?: boolean;
 }): ReactNode => {
-  const {
-    setReaction,
-    handlePress,
-    handleRetry,
-    isGroupChat,
-    setReplyToMessage,
-    selectionMode,
-    selectedMessages,
-  } = useChatContext();
+  const {handlePress, isGroupChat, setReaction} = useChatContext();
 
   const Colors = DynamicColors();
+
   const [reactions, setReactions] = useState<any[]>([]);
+
   const updateSendStatus = () => {
     if (message.deliveredTimestamp) {
       message.messageStatus = MessageStatus.delivered;
@@ -75,12 +69,88 @@ export const MessageBubble = ({
     }
   };
 
+  //opens reactions bottom sheet
+  const showReactionRibbon = () => {
+    setReaction(message.messageId);
+  };
+
   useEffect(() => {
     updateSendStatus();
     updateMedia();
     fetchReactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message.mtime, message.contentType]);
+
+  return (
+    <>
+      {isGroupChat && !message.sender && <AvatarBox avatarSize="es" />}
+      <View
+        style={{
+          flexDirection: 'column',
+          alignItems: message.sender ? 'flex-end' : 'flex-start',
+        }}>
+        <View
+          style={{
+            ...styles.main,
+            backgroundColor: message.sender
+              ? Colors.messagebubble.receiver
+              : Colors.messagebubble.sender,
+          }}
+          pointerEvents={swipeable ? 'auto' : 'box-only'}>
+          {message.reply.data && (
+            <View style={styles.replyContainer}>
+              <View
+                style={{
+                  ...styles.replyBubbleContainer,
+                  backgroundColor: message.sender
+                    ? Colors.messagebubble.replyBubbleInner
+                    : Colors.messagebubble.replyBubbleReceive,
+                }}>
+                {/* Reply bubble goes here */}
+                <ReplyBubble reply={message.reply} />
+              </View>
+            </View>
+          )}
+          <View style={styles.contentContainer}>
+            <View style={styles.contentBubbleContainer}>
+              {/* Content bubble goes here */}
+              <ContentBubble
+                message={message}
+                handlePress={handlePress}
+                handleLongPress={handleLongPress}
+              />
+            </View>
+          </View>
+        </View>
+        {message.contentType !== ContentType.deleted && (
+          <View pointerEvents={swipeable ? 'auto' : 'box-only'}>
+            {reactions.length > 0 && (
+              <RenderReactions
+                reactions={reactions}
+                showReactionRibbon={showReactionRibbon}
+              />
+            )}
+          </View>
+        )}
+      </View>
+    </>
+  );
+};
+
+/**
+ * This component is primarily responsible for swipe to reply and initiating message selection
+ */
+export const MessageBubble = ({
+  handleLongPress,
+  message,
+  swipeable = true,
+}: {
+  handleLongPress: any;
+  message: LoadedMessage;
+  swipeable?: boolean;
+}): ReactNode => {
+  const {setReplyToMessage, selectionMode, selectedMessages} = useChatContext();
+
   const moveAnim = useRef(new Animated.Value(0)).current; // Starts from position 0
   // Function to trigger the movement
   const moveRight = () => {
@@ -109,10 +179,6 @@ export const MessageBubble = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectionMode]);
-  //opens reactions bottom sheet
-  const showReactionRibbon = () => {
-    setReaction(message.messageId);
-  };
 
   const options = {
     enableVibrateFallback: true /* iOS Only */,
@@ -152,6 +218,7 @@ export const MessageBubble = ({
       </View>
     );
   };
+
   if (swipeable) {
     return (
       <>
@@ -184,59 +251,11 @@ export const MessageBubble = ({
                     {transform: [{translateX: moveAnim}]},
                   ]
             }>
-            {isGroupChat && !message.sender && <AvatarBox avatarSize="es" />}
-            <View
-              style={{
-                flexDirection: 'column',
-                alignItems: message.sender ? 'flex-end' : 'flex-start',
-              }}>
-              <View
-                style={{
-                  ...styles.main,
-                  backgroundColor: message.sender
-                    ? Colors.messagebubble.receiver
-                    : Colors.messagebubble.sender,
-                }}>
-                {message.replyId && (
-                  <View style={styles.replyContainer}>
-                    <View
-                      style={{
-                        ...styles.replyBubbleContainer,
-                        backgroundColor: message.sender
-                          ? Colors.messagebubble.replyBubbleInner
-                          : Colors.messagebubble.replyBubbleReceive,
-                      }}>
-                      {/* Reply bubble goes here */}
-                      <ReplyBubble
-                        message={message}
-                        isGroupChat={isGroupChat}
-                      />
-                    </View>
-                  </View>
-                )}
-                <View style={styles.contentContainer}>
-                  <View style={styles.contentBubbleContainer}>
-                    {/* Content bubble goes here */}
-                    <ContentBubble
-                      message={message}
-                      handlePress={handlePress}
-                      handleRetry={handleRetry}
-                      handleLongPress={handleLongPress}
-                    />
-                  </View>
-                </View>
-              </View>
-              {message.contentType !== ContentType.deleted && (
-                <View>
-                  {reactions.length > 0 && (
-                    <RenderReactions
-                      reactions={reactions}
-                      showReactionRibbon={showReactionRibbon}
-                    />
-                  )}
-                </View>
-              )}
-            </View>
+            <MessageBubbleContent
+              handleLongPress={handleLongPress}
+              message={message}
+              swipeable={swipeable}
+            />
           </Animated.View>
         </Swipeable>
       </>
@@ -249,55 +268,11 @@ export const MessageBubble = ({
             ? {...styles.container, justifyContent: 'flex-end'}
             : {...styles.container, justifyContent: 'flex-start'}
         }>
-        {isGroupChat && !message.sender && <AvatarBox avatarSize="es" />}
-        <View
-          style={{
-            flexDirection: 'column',
-            alignItems: message.sender ? 'flex-end' : 'flex-start',
-          }}>
-          <Pressable
-            style={{
-              ...styles.main,
-              backgroundColor: message.sender
-                ? Colors.messagebubble.receiver
-                : Colors.messagebubble.sender,
-            }}
-            pointerEvents="box-only">
-            {message.replyId && (
-              <View style={styles.replyContainer}>
-                <View
-                  style={{
-                    ...styles.replyBubbleContainer,
-                    backgroundColor: message.sender
-                      ? Colors.messagebubble.replyBubbleInner
-                      : Colors.messagebubble.replyBubbleReceive,
-                  }}>
-                  {/* Reply bubble goes here */}
-                  <ReplyBubble message={message} isGroupChat={isGroupChat} />
-                </View>
-              </View>
-            )}
-            <View style={styles.contentContainer}>
-              <View style={styles.contentBubbleContainer}>
-                {/* Content bubble goes here */}
-                <ContentBubble
-                  message={message}
-                  handlePress={handlePress}
-                  handleLongPress={handleLongPress}
-                />
-              </View>
-            </View>
-          </Pressable>
-          {message.contentType !== ContentType.deleted &&
-            reactions.length > 0 && (
-              <Pressable pointerEvents="box-only">
-                <RenderReactions
-                  reactions={reactions}
-                  showReactionRibbon={showReactionRibbon}
-                />
-              </Pressable>
-            )}
-        </View>
+        <MessageBubbleContent
+          handleLongPress={handleLongPress}
+          message={message}
+          swipeable={swipeable}
+        />
       </View>
     );
   }

@@ -44,14 +44,29 @@ const backlogLock = new Mutex();
  */
 async function backlogPullWithWS() {
   // Attempt to acquire a token immediately to prevent connections that never authenticate
-  const token = await getToken();
+  var token: string;
+  try {
+    token = await getToken();
+  } catch (e) {
+    console.error('Could not get token to fetch messages', e);
+    return;
+  }
 
+  // If we're already fetching messsages, return since the message that triggered this
+  // pullBacklog will get fetched. There is a minor race condition that we can safely ignore.
   if (backlogLock.isLocked()) {
     return;
   }
 
+  var ws: WebSocket;
   backlogLock.acquire();
-  const ws = new WebSocket(WEBSOCKET_URL);
+  try {
+    ws = new WebSocket(WEBSOCKET_URL);
+  } catch (e) {
+    console.error('Could not open websocket', e);
+    backlogLock.release();
+    return;
+  }
   let ctr = 0;
   let open = true;
 

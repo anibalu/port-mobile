@@ -21,7 +21,7 @@ import {deleteProfile, setupProfile} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Profile/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
 import React, {useEffect} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {BackHandler, StyleSheet, View} from 'react-native';
 import {CircleSnail} from 'react-native-progress';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 
@@ -77,6 +77,18 @@ function SetupUser({route, navigation}: Props) {
     return true;
   };
   useEffect(() => {
+    //Stops you from going back
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        return null;
+      },
+    );
+    navigation.addListener('beforeRemove', e => {
+      // Prevent default behavior of leaving the screen
+      e.preventDefault();
+    });
+
     runActions().then(ret => {
       if (!ret) {
         onboardingFailureError();
@@ -92,6 +104,8 @@ function SetupUser({route, navigation}: Props) {
         });
       }
     });
+
+    return () => backHandler.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

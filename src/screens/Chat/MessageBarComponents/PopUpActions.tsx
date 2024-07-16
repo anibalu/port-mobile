@@ -47,6 +47,11 @@ const PopUpActions = ({
       light: require('@assets/light/icons/media/Contact.svg').default,
       dark: require('@assets/dark/icons/media/Contact.svg').default,
     },
+    {
+      assetName: 'Copy',
+      light: require('@assets/light/icons/Copy.svg').default,
+      dark: require('@assets/dark/icons/Copy.svg').default,
+    },
   ];
 
   const results = useDynamicSVG(svgArray);
@@ -55,6 +60,7 @@ const PopUpActions = ({
   const FileIcon = results.FileIcon;
   const ImageIcon = results.ImageIcon;
   const ContactIcon = results.ContactIcon;
+  const Copy = results.Copy;
 
   // to go to gallery confirmation screen
   const goToConfirmation = (lst: any[]) => {
@@ -176,6 +182,10 @@ const PopUpActions = ({
       console.log('Nothing selected', error);
     }
   };
+
+  const onTemplatePressed = async (): Promise<void> => {
+    navigation.navigate('Templates', {chatId: chatId});
+  };
   const Colors = DynamicColors();
   const styles = styling(Colors);
   return (
@@ -211,6 +221,17 @@ const PopUpActions = ({
           textColor={Colors.text.primary}
           fontType={FontType.rg}>
           Files
+        </NumberlessText>
+      </View>
+      <View style={styles.optionContainer}>
+        <Pressable style={styles.optionBox} onPress={onTemplatePressed}>
+          <Copy height={30} width={30} />
+        </Pressable>
+        <NumberlessText
+          fontSizeType={FontSizeType.s}
+          textColor={Colors.text.primary}
+          fontType={FontType.rg}>
+          Templates
         </NumberlessText>
       </View>
       {!isGroupChat && (

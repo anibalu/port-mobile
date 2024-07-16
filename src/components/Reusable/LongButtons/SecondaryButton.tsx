@@ -30,13 +30,15 @@ const SecondaryButton = ({
   Icon,
   iconSize,
   onClick,
+  buttonHeight = 50,
 }: {
   isLoading?: boolean;
   buttonText: string;
-  secondaryButtonColor: 'b' | 'r' | 'w' | 'black';
+  secondaryButtonColor: 'b' | 'r' | 'w' | 'black' | 'grey';
   Icon?: FC<SvgProps>;
   iconSize?: 's' | 'm';
   onClick: () => void;
+  buttonHeight?: number;
 }) => {
   function secondaryButtonBorderColorPicker(
     secondaryButtonColor?: string,
@@ -47,6 +49,8 @@ const SecondaryButton = ({
       return styles.whiteButton;
     } else if (secondaryButtonColor === 'black') {
       return styles.blackButton;
+    } else if (secondaryButtonColor === 'grey') {
+      return styles.greyButton;
     } else {
       return styles.blueButton;
     }
@@ -60,13 +64,15 @@ const SecondaryButton = ({
       return styles.whiteButtonText;
     } else if (secondaryButtonColor === 'black') {
       return styles.blackButtonText;
+    } else if (secondaryButtonColor === 'grey') {
+      return styles.greyButtonText;
     } else {
       return styles.blueButtonText;
     }
   }
 
   const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const styles = styling(Colors, buttonHeight);
   return (
     <TouchableOpacity
       disabled={isLoading}
@@ -102,7 +108,7 @@ const SecondaryButton = ({
   );
 };
 
-const styling = (color: any) =>
+const styling = (color: any, buttonHeight: number) =>
   StyleSheet.create({
     redButton: {
       borderColor: color.primary.red,
@@ -117,15 +123,18 @@ const styling = (color: any) =>
       borderColor: color.button.accent,
       borderWidth: 1,
     },
+    greyButton: {borderColor: color.primary.darkgrey, borderWidth: 1},
+
     redButtonText: {
       color: color.primary.red,
     },
     whiteButtonText: {color: color.primary.white},
     blackButtonText: {color: color.primary.black},
     blueButtonText: {color: color.button.accent},
+    greyButtonText: {color: color.primary.darkgrey},
     button: {
       alignItems: 'center',
-      height: 50,
+      height: buttonHeight ? buttonHeight : 50,
       flexDirection: 'row',
       justifyContent: 'center',
       borderRadius: 12,

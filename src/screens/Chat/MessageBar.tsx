@@ -10,6 +10,7 @@ import React, {
   memo,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -32,13 +33,27 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import PopUpActions from './MessageBarComponents/PopUpActions';
 import VoiceRecorder from './MessageBarComponents/VoiceRecorder';
 import TextComponent from './MessageBarComponents/TextComponent';
+import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 
-const MessageBar = (): ReactNode => {
+const MessageBar = ({
+  ifTemplateExists,
+}: {
+  ifTemplateExists?: TemplateParams; //if template is selected from templates screen
+}): ReactNode => {
   const {chatId, isGroupChat, replyToMessage, clearEverything} =
     useChatContext();
   const {MessageDataTooBigError} = useErrorModal();
 
   const [text, setText] = useState('');
+
+  // this runs if a template exists.
+  // If a template has been selected, we want to populate message bar
+  // with it and allow the user to edit it if need be.
+  useMemo(() => {
+    if (ifTemplateExists) {
+      setText(ifTemplateExists.template);
+    }
+  }, [ifTemplateExists]);
 
   const [openGraphData, setOpenGraphData] = useState(null);
   const [url, setUrl] = useState('');

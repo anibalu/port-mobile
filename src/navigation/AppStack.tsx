@@ -36,6 +36,7 @@ import QRScanner from '@screens/Scanner/QRScanner';
 import BlockedContacts from '@screens/BlockedContacts/BlockedContacts';
 import PreviewShareablePort from '@screens/Superport/PreviewSharablePort';
 import HelpScreen from '@screens/Help/HelpScreen';
+import Templates from '@screens/Templates/Templates';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -86,6 +87,7 @@ function AppStack() {
           <Stack.Screen name="Scan" component={QRScanner} />
           <Stack.Screen name="BlockedContacts" component={BlockedContacts} />
           <Stack.Screen name="HelpScreen" component={HelpScreen} />
+          <Stack.Screen name="Templates" component={Templates} />
           <Stack.Screen
             name="PreviewShareablePort"
             component={PreviewShareablePort}

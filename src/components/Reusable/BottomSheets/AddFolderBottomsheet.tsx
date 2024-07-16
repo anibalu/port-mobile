@@ -38,7 +38,6 @@ const AddFolderBottomsheet = ({
         const fetchedFolders = await getAllFolders();
         setFolders(fetchedFolders);
       };
-
       fetchData();
     }, []),
   );

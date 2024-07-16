@@ -34,6 +34,7 @@ import BlurViewModal from '@components/Reusable/BlurView/BlurView';
 import DualActionBottomSheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
 import ReportMessageBottomSheet from '@components/Reusable/BottomSheets/ReportMessageBottomSheet';
 import DynamicColors from '@components/DynamicColors';
+import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
@@ -43,7 +44,14 @@ type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
  * @returns Component for rendered chat window
  */
 function Chat({route}: Props) {
-  const {chatId, isConnected, profileUri, name, isAuthenticated} = route.params;
+  const {
+    chatId,
+    isConnected,
+    profileUri,
+    name,
+    isAuthenticated,
+    ifTemplateExists = undefined, // if template is selected from templates screen
+  } = route.params;
   return (
     <ChatContextProvider
       chatId={chatId}
@@ -52,12 +60,12 @@ function Chat({route}: Props) {
       displayName={name}
       isGroupChat={false}
       authenticated={isAuthenticated}>
-      <ChatScreen />
+      <ChatScreen ifTemplateExists={ifTemplateExists} />
     </ChatContextProvider>
   );
 }
 
-function ChatScreen() {
+function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   //chat screen context
   const {
     chatId,
@@ -225,7 +233,13 @@ function ChatScreen() {
             }}
           />
           {isConnected ? (
-            <>{selectionMode ? <MessageActionsBar /> : <MessageBar />}</>
+            <>
+              {selectionMode ? (
+                <MessageActionsBar />
+              ) : (
+                <MessageBar ifTemplateExists={ifTemplateExists} />
+              )}
+            </>
           ) : selectionMode ? (
             <MessageActionsBar />
           ) : (

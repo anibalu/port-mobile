@@ -1,6 +1,7 @@
 import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {FileAttributes} from '@utils/Storage/interfaces';
 
 export type AppStackParamList = {
@@ -27,6 +28,7 @@ export type AppStackParamList = {
     profileUri: string | undefined | null;
     name?: string;
     isAuthenticated: boolean;
+    ifTemplateExists?: TemplateParams;
   };
   ContactProfile: {
     chatId: string;
@@ -83,4 +85,5 @@ export type AppStackParamList = {
   MediaViewer: {message: SavedMessageParams};
   BlockedContacts: undefined;
   HelpScreen: undefined;
+  Templates: undefined;
 };

@@ -244,7 +244,6 @@ export interface ContactBundleRequestParams {
   destinationName?: string | null;
   approved?: boolean;
   destinationChatId?: string | null;
-  source?: string | null;
   infoMessageId: string;
 }
 export interface ContactShareApproval {

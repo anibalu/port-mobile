@@ -39,7 +39,7 @@ const ForwardToContact = ({route, navigation}: Props) => {
 
   useEffect(() => {
     (async () => {
-      const connections = await getConnections();
+      const connections = await getConnections(true);
       setAllMembers(connections);
       setViewableMembers(connections);
     })();

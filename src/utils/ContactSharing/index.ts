@@ -43,9 +43,8 @@ export async function requestContactBundleToShare(
     ContentType.contactBundleRequest,
     {
       destinationName: destinationName,
-      approved: request.approved,
+      approved: false,
       destinationChatId: request.destinationChatId,
-      source: request.source,
       infoMessageId: infoMessageId,
     },
   );

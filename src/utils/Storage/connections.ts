@@ -3,11 +3,20 @@ import {ConnectionInfo, ConnectionInfoUpdate} from '../Connections/interfaces';
 import * as DBCalls from './DBCalls/connections';
 
 /**
- * Returns the connections stored.
- * @returns - An array containing all the connections
+ * Get connections. By default, you get all connections.
+ * If you filter by active, you only get connections that are not disconnected.
+ * @param filterByActive - whether you want connections that are not disconnected.
+ * @returns - connections
  */
-export async function getConnections(): Promise<ConnectionInfo[]> {
-  return await DBCalls.getConnections();
+export async function getConnections(
+  filterByActive: boolean = false,
+): Promise<ConnectionInfo[]> {
+  const connections = await DBCalls.getConnections();
+  if (filterByActive) {
+    return connections.filter(connection => !connection.disconnected);
+  } else {
+    return connections;
+  }
 }
 /**
  * Finds the connections info associated with a chatId.

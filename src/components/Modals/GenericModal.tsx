@@ -52,7 +52,6 @@ const GenericModal = ({
       backdropTransitionInTiming={300}
       animationInTiming={300}
       animationOutTiming={300}
-      // eslint-disable-next-line react-native/no-inline-styles
       style={{
         margin: 0,
         flex: 1,

@@ -73,7 +73,6 @@ const TabBar: React.FC<TabBarProps> = ({
   return (
     <TouchableOpacity
       onPress={() => onPress(currentCategory)}
-      // eslint-disable-next-line react-native/no-inline-styles
       style={{
         flexDirection: 'row',
         justifyContent: 'center',

@@ -227,7 +227,6 @@ function ChatTile({
         </Pressable>
       )}
       <Animated.View
-        // eslint-disable-next-line react-native/no-inline-styles
         style={{
           flex: 1,
           overflow: 'hidden',

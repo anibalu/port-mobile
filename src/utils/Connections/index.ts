@@ -214,11 +214,16 @@ export async function deleteConnection(chatId: string) {
  */
 
 /**
- * Gets a list of connections ordered by timestamp
+ * Get connections ordered by timestamp. By default, you get all connections.
+ * If you filter by active, you only get connections that are not disconnected.
+ * @param filterByActive - whether you want connections that are not disconnected.
+ * @returns - connections
  */
-export async function getConnections(): Promise<ConnectionInfo[]> {
+export async function getConnections(
+  filterByActive?: boolean,
+): Promise<ConnectionInfo[]> {
   try {
-    return await storage.getConnections();
+    return await storage.getConnections(filterByActive);
   } catch (error) {
     console.log('Error loading connections: ', error);
     return [];

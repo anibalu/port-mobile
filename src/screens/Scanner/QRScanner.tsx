@@ -23,7 +23,11 @@ import {
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
-import {checkBundleValidity, readBundle, useReadBundles} from '@utils/Ports';
+import {
+  checkBundleValidity,
+  processReadBundles,
+  readBundle,
+} from '@utils/Ports';
 import {wait} from '@utils/Time';
 import {safeModalCloseDuration} from '@configs/constants';
 import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
@@ -143,8 +147,8 @@ export default function QRScanner() {
           //if code is legitimate, read it
           await readBundle(bundle);
           //try to use read bundles
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          await useReadBundles();
+
+          await processReadBundles();
           setIsLoading(false);
           //navigate to home screen
           navigation.navigate('HomeTab');

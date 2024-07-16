@@ -2,7 +2,7 @@ import store from '@store/appStore';
 import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import pullBacklog from '@utils/Messaging/pullBacklog';
 import {cancelAllNotifications} from '@utils/Notifications';
-import {cleanUpPorts, useReadBundles} from '@utils/Ports';
+import {cleanUpPorts, processReadBundles} from '@utils/Ports';
 import {syncShared} from '@utils/Storage/IOSGroupShare/syncShare';
 import {deleteExpiredMessages} from '@utils/Storage/messages';
 import {deleteExpiredGroupMessages} from '@utils/Storage/groupMessages';
@@ -20,8 +20,8 @@ export async function performBackgroundToForegroundOperations() {
   });
 
   await cleanUpPorts();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  await useReadBundles();
+
+  await processReadBundles();
   await cancelAllNotifications();
   await syncShared();
   console.log('[BTF OPERATIONS COMPLETE]');
@@ -34,8 +34,8 @@ export const performPeriodicOperations = async () => {
   console.log('[PERIODIC OPERATIONS RUNNING]');
   await pullBacklog();
   await sendJournaled();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  await useReadBundles();
+
+  await processReadBundles();
   // delete expired ports
   await cleanUpPorts();
   // delete expired direct and group messages

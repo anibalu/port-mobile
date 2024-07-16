@@ -27,6 +27,7 @@ import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {ChatType} from '@utils/Connections/interfaces';
 import {IntroMessage} from '@utils/DirectChats/DirectChat';
 import {disconnectChat} from '@utils/DirectChats/APICalls';
+import {Mutex} from 'async-mutex';
 
 export function bundleTargetToChatType(x: BundleTarget) {
   if (x === BundleTarget.direct || x === BundleTarget.superportDirect) {
@@ -381,25 +382,14 @@ export async function useCreatedBundle(
   triggerPendingRequestsReload();
 }
 
-/**
- * Use all read bundles
- */
-export async function useReadBundles() {
-  try {
-    const readBundles = await storageReadPorts.getReadPorts();
-    for (let index = 0; index < readBundles.length; index++) {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      await useReadBundle(readBundles[index]);
-    }
-  } catch (error) {
-    console.log('Error using read bundles: ', error);
-  }
-}
+const bundleProcessLock = new Mutex();
 /**
  * Same as above function with nomenclature change because 'use' is a hook precursor
  */
 export async function processReadBundles() {
   try {
+    // We lock bundle processing to prevent multiple uses of the same bundles
+    await bundleProcessLock.acquire();
     const readBundles = await storageReadPorts.getReadPorts();
     for (let index = 0; index < readBundles.length; index++) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -408,6 +398,7 @@ export async function processReadBundles() {
   } catch (error) {
     console.log('Error using read bundles: ', error);
   }
+  await bundleProcessLock.release();
 }
 
 /**

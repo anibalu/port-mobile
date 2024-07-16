@@ -25,7 +25,7 @@ import {
   debouncedPeriodicOperations,
   performBackgroundToForegroundOperations,
 } from '@utils/AppOperations';
-import {AppState, Linking} from 'react-native';
+import {AppState} from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import {ThemeProvider} from 'src/context/ThemeContext';
 import {syncShared} from '@utils/Storage/IOSGroupShare/syncShare';
@@ -68,18 +68,6 @@ function App(): JSX.Element {
     profileCheck();
     // default way to handle new messages in the foreground
     foregroundMessageHandler();
-    // saves fetched initial url
-    (async () => {
-      console.log('calling initial url');
-      const initialURL = await Linking.getInitialURL();
-      console.log('calling initial url 2', initialURL);
-      if (initialURL) {
-        store.dispatch({
-          type: 'NEW_LINK',
-          payload: initialURL,
-        });
-      }
-    })();
     syncShared();
   }, []);
 

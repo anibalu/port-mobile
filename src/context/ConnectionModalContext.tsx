@@ -174,6 +174,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
     try {
       initialURL = await Linking.getInitialURL();
     } catch (e) {
+      console.error('Could not get initial link', e);
       return;
     }
     if (initialURL) {

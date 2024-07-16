@@ -241,21 +241,20 @@ export interface ContactBundleParams {
 }
 
 export interface ContactBundleRequestParams {
-  destinationName?: string | null;
+  destinationName: string;
   approved?: boolean;
-  destinationChatId?: string | null;
-  infoMessageId: string;
+  destinationChatId?: string;
+  infoMessageId?: string;
 }
 export interface ContactShareApproval {
   approvedMessageId: string;
   bundle: PortBundle;
-  requester: string;
-  source?: string;
 }
 export interface ContactBundleResponseParams extends ContactShareApproval {}
 
 export interface ContactBundleRequestInfoParams {
   source: string;
+  shared?: boolean;
 }
 
 export interface DeletionParams {

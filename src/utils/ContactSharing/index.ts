@@ -1,7 +1,11 @@
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {ChatType} from '@utils/Connections/interfaces';
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {
+  ContactBundleRequestParams,
+  ContentType,
+  MessageStatus,
+} from '@utils/Messaging/interfaces';
 import {saveMessage} from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';
 import {generateBundle} from '@utils/Ports';
@@ -10,31 +14,30 @@ import {expiryOptions} from '@utils/Time/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import * as messageStorage from '@utils/Storage/messages';
 import DirectChat from '@utils/DirectChats/DirectChat';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
 export interface ContactShareRequest {
-  source: string;
-  approved: boolean;
-  destinationChatId: string;
+  source: string; //chat id of contact from whom a port is being requested
+  approved: boolean; //whether source has approved request
+  destinationChatId: string; //chat id of contact to whom a port needs to be forwarded.
 }
 
 export interface GenerateContactBundle {
   approvedMessageId: string;
   requester: string;
   destinationName: string;
-  source?: string | null;
 }
 
 /**
  * util used to send a bundle request to the source
  * and save a message in destination chat
-  @param source: source chatid
-  @param approved: whether or not contact bundle request is approved
-  @param destinationChatId: destination chatid;
+ * @param request an object describing the attributes requried to make a contact bundle request.
  */
 export async function requestContactBundleToShare(
   request: ContactShareRequest,
 ) {
   const destination = new DirectChat(request.destinationChatId);
+  //get name of the destination contact
   const destinationName = (await destination.getChatData()).name;
   const infoMessageId = generateRandomHexId();
   // send bundle request to source
@@ -51,7 +54,7 @@ export async function requestContactBundleToShare(
   await sendBundleRequest.send();
   // save a message on destination chat
   // saying source might have contact sharing disabled.
-  const savedMessage: SavedMessageParams = {
+  const savedMessage: LineMessageData = {
     chatId: request.destinationChatId,
     messageId: infoMessageId,
     contentType: ContentType.contactBundleRequestInfo,
@@ -60,33 +63,32 @@ export async function requestContactBundleToShare(
     },
     sender: true,
     timestamp: generateISOTimeStamp(),
+    messageStatus: MessageStatus.sent,
   };
   await saveMessage(savedMessage);
 }
 
 /**
- * util used to respond to a contact sharinf request. Check's if permissions are on.
+ * util used to respond to a contact sharing request. Check's if permissions are on.
  * @param requester requester chatid
  * @param destinationName
  * @param source source chat id
  * @param approvedMessageId contact bundle request message id that will get approved
  */
-export async function respondToShareContactRequest(
+export async function approveContactShareIfPermitted(
   requester: string,
   destinationName: string,
-  source?: string | null,
-  approvedMessageId?: string | null,
+  messageIdToSeekApproval: string,
 ) {
   //check if permissions exist
   const chatPermisson = await getChatPermissions(requester, ChatType.direct);
 
   //if permissions exist, generate a bundle
   if (chatPermisson.contactSharing) {
-    await generateBundleForContactSharing({
-      approvedMessageId: approvedMessageId,
+    await approveContactShareOnce({
+      approvedMessageId: messageIdToSeekApproval,
       destinationName: destinationName,
       requester: requester,
-      source,
     });
   }
 }
@@ -99,9 +101,7 @@ export async function respondToShareContactRequest(
    @param approved to mark contact bundle request as approved
    @param source source chatid
  */
-export async function generateBundleForContactSharing(
-  data: GenerateContactBundle,
-) {
+export async function approveContactShareOnce(data: GenerateContactBundle) {
   // update the message to approved.
   // generate a port bundle
 
@@ -119,7 +119,6 @@ export async function generateBundleForContactSharing(
     {
       bundle: bundle,
       approvedMessageId: data.approvedMessageId,
-      source: data.source,
     },
   );
   await sender.send();
@@ -142,29 +141,46 @@ export async function generateBundleForContactSharing(
  * @param source source chatid
  */
 export async function relayContactBundle(
-  requester: string,
+  sourceOfBundle: string,
   bundle: PortBundle,
   approvedMessageId: string,
-  source: string,
+  approver: string,
 ) {
-  const msg = await messageStorage.getMessage(requester, approvedMessageId);
+  const msg = await messageStorage.getMessage(
+    sourceOfBundle,
+    approvedMessageId,
+  );
+  if (!msg) {
+    throw new Error('ApprovedMessageNotFound');
+  }
+  const data = msg.data as ContactBundleRequestParams;
+  const destinationChatId = data.destinationChatId as string;
 
-  const chatId = msg?.data?.destinationChatId;
-
-  const infoMessageId = msg?.data?.infoMessageId;
-  const sender = new SendMessage(chatId, ContentType.contactBundle, {
+  const infoMessageId = data.infoMessageId;
+  if (!infoMessageId) {
+    throw new Error('infoMessageNotFound');
+  }
+  const sender = new SendMessage(destinationChatId, ContentType.contactBundle, {
     bundle,
-    createdChatId: source,
+    createdChatId: approver,
   });
   await sender.send();
 
-  await messageStorage.updateMessageData(msg?.chatId, msg?.messageId, {
-    destinationName: msg?.data?.destinationName,
+  await messageStorage.updateMessageData(sourceOfBundle, msg.messageId, {
+    ...data,
     approved: true,
   });
 
+  const infoMsg = await messageStorage.getMessage(
+    destinationChatId,
+    infoMessageId,
+  );
+  if (!infoMsg) {
+    throw new Error('infoMessageCouldNotBeFetched');
+  }
   // get the info message sent to destination chat id and update it to shared = true
-  await messageStorage.updateMessageData(chatId, infoMessageId, {
+  await messageStorage.updateMessageData(destinationChatId, infoMessageId, {
+    ...infoMsg.data,
     shared: true,
   });
 }

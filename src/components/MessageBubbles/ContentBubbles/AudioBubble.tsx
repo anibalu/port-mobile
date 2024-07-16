@@ -20,6 +20,7 @@ import {
   LoadedMessage,
 } from '@utils/Storage/DBCalls/lineMessage';
 import {useErrorModal} from 'src/context/ErrorModalContext';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 const AudioBubble = ({
   message,
@@ -31,10 +32,12 @@ const AudioBubble = ({
   handleLongPress: any;
 }) => {
   const [fileUri, setFileUri] = useState<string | undefined | null>(
-    message.filePath || message.data.fileUri || null,
+    getSafeAbsoluteURI(message.filePath || message.data.fileUri || null),
   );
   useMemo(() => {
-    setFileUri(message.filePath || message.data.fileUri || null);
+    setFileUri(
+      getSafeAbsoluteURI(message.filePath || message.data.fileUri || null),
+    );
   }, [message]);
   const [downloading, setDownloading] = useState(false);
   //responsible for retry loader

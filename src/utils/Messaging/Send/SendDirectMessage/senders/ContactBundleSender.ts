@@ -120,16 +120,17 @@ export class SendContactBundleDirectMessage<
    */
   private async loadSavedMessage() {
     const savedMessage = await storage.getMessage(this.chatId, this.messageId);
-    if (savedMessage) {
-      this.savedMessage = savedMessage;
-      this.payload = {
-        messageId: savedMessage.messageId,
-        contentType: this.contentType,
-        data: {...savedMessage.data, createdChatId: undefined},
-        replyId: savedMessage.replyId,
-        expiresOn: this.expiresOn,
-      };
+    if (!savedMessage) {
+      throw Error('MessageNotFound');
     }
+    this.savedMessage = savedMessage;
+    this.payload = {
+      messageId: savedMessage.messageId,
+      contentType: this.contentType,
+      data: {...savedMessage.data, createdChatId: undefined},
+      replyId: savedMessage.replyId,
+      expiresOn: this.expiresOn,
+    };
   }
 
   /**

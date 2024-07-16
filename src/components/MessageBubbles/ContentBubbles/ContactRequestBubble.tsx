@@ -11,7 +11,7 @@ import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import {useNavigation} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
-import {generateBundleForContactSharing} from '@utils/ContactSharing';
+import {approveContactShareOnce} from '@utils/ContactSharing';
 
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
@@ -27,17 +27,19 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
   const {chatId, profileUri, isConnected} = useChatContext();
 
   useEffect(() => {
-    setDestination(message.data?.destinationName);
-  }, [message]);
-
-  useEffect(() => {
     (async () => {
-      const dataHandler = new DirectChat(chatId);
-      const chatData = await dataHandler.getChatData();
-      setPermissionId(chatData.permissionsId);
-      setRequesterName(chatData.name);
+      try {
+        setDestination(message.data.destinationName || DEFAULT_NAME);
+        const dataHandler = new DirectChat(chatId);
+        const chatData = await dataHandler.getChatData();
+        setPermissionId(chatData.permissionsId);
+        setRequesterName(chatData.name);
+      } catch (error) {
+        console.error('Could not find chat data associated to chat Id:', error);
+      }
     })();
-  }, [chatId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [message]);
 
   const onSettingsPressed = async () => {
     navigation.navigate('ContactProfile', {
@@ -52,11 +54,10 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
   const navigation = useNavigation();
 
   const onAllowOnceClicked = async () => {
-    await generateBundleForContactSharing({
+    await approveContactShareOnce({
       approvedMessageId: message.messageId,
       requester: chatId,
       destinationName: message.data?.destinationName,
-      source: message.data?.source,
     });
   };
 

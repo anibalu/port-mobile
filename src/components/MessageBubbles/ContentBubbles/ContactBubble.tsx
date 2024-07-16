@@ -36,10 +36,14 @@ const ContactBubble = ({message}: {message: LoadedMessage}) => {
         const chat = new DirectChat(
           (message.data as ContactBundleParams).createdChatId,
         );
-        const chatData = await chat.getChatData();
-        setChatName(chatData.name);
-        setAuthenticated(chatData.authenticated);
-        setDisconnected(chatData.disconnected);
+        try {
+          const chatData = await chat.getChatData();
+          setChatName(chatData.name);
+          setAuthenticated(chatData.authenticated);
+          setDisconnected(chatData.disconnected);
+        } catch (error) {
+          console.error('Created chat id not available: ', error);
+        }
       }
     })();
   }, [message]);

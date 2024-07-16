@@ -23,7 +23,7 @@ const ContactInfoBubble = ({message}: {message: LoadedMessage}) => {
   useEffect(() => {
     setCreatedChatId((message.data as ContactBundleRequestInfoParams).source);
     (async () => {
-      if (message?.data?.shared) {
+      if (message.data.shared) {
         await permanentlyDeleteMessage(message.chatId, message.messageId);
       }
     })();
@@ -31,9 +31,18 @@ const ContactInfoBubble = ({message}: {message: LoadedMessage}) => {
 
   useEffect(() => {
     (async () => {
-      const chat = new DirectChat(createdChatId);
-      const chatData = await chat.getChatData();
-      setChatName(chatData.name);
+      try {
+        if (createdChatId) {
+          const chat = new DirectChat(createdChatId);
+          const chatData = await chat.getChatData();
+          setChatName(chatData.name);
+        }
+      } catch (error) {
+        console.error(
+          'No chat associated with created chat Id: ',
+          createdChatId,
+        );
+      }
     })();
   }, [createdChatId]);
   const Colors = DynamicColors();

@@ -181,17 +181,18 @@ export class SendReactionDirectMessage<
       this.chatId,
       this.messageId,
     );
-    if (savedMessage) {
-      this.savedMessage = savedMessage;
-      this.payload = {
-        messageId: savedMessage.messageId,
-        contentType: this.contentType,
-        data: savedMessage.data,
-        replyId: savedMessage.replyId,
-        expiresOn: this.expiresOn,
-      };
-      this.data = this.savedMessage.data;
+    if (!savedMessage) {
+      throw Error('MessageNotFound');
     }
+    this.savedMessage = savedMessage;
+    this.payload = {
+      messageId: savedMessage.messageId,
+      contentType: this.contentType,
+      data: savedMessage.data,
+      replyId: savedMessage.replyId,
+      expiresOn: this.expiresOn,
+    };
+    this.data = this.savedMessage.data;
   }
 
   /**

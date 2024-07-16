@@ -23,6 +23,9 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {moveToTmp} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
+import {ToastType, useToast} from 'src/context/ToastContext';
+import store from '@store/appStore';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 115;
 
@@ -97,10 +100,10 @@ const VoiceRecorder = ({
 
   const debouncedRecordVoice = debounce(onStartRecord, 300);
 
-  const onHandleClick = () => {
+  const onHandleClick = async () => {
     if (voiceRecordingComplete && !isVoiceRecording && audio) {
       // if an audio note is successfully recorded
-      onSendRecording();
+      await onSendRecording();
     } else {
       // if an audio note was deleted in between while recording(cross button clicked)
       onStopRecord();
@@ -152,27 +155,49 @@ const VoiceRecorder = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentlyPlaying]);
 
+  const {showToast} = useToast();
+
   const onSendRecording = async () => {
     setIsSending(true);
+    if (!audio) {
+      throw new Error('No audio location');
+    }
     //Android to iOS requires .mp4, as Android AAC will not play on iOS
     //iOS to Android requires .aac, as iOS .m4a/.mp4 won't play on Android.
     const ext = isIOS ? '.aac' : '.mp4';
     const fileName = generateRandomHexId() + ext;
-    console.log('audio dir', audio);
-    if (!audio) {
-      throw new Error('No audio location');
-    }
-    const newData = {
-      chatId,
-      fileName: fileName,
-      fileUri: await moveToTmp(audio, fileName),
-      fileType: isIOS ? 'audio/aac' : 'audio/mp4',
-      duration: duration,
-    };
+    const fileUri = await moveToTmp(audio);
     onStopRecord();
-    const sender = new SendMessage(chatId, ContentType.audioRecording, newData);
-    await sender.send();
-
+    try {
+      const uploader = new LargeDataUpload(
+        fileUri,
+        fileName,
+        isIOS ? 'audio/aac' : 'audio/mp4',
+      );
+      await uploader.upload();
+      const uploadData = uploader.getMediaIdAndKey();
+      const newData = {
+        chatId,
+        fileName: fileName,
+        fileUri: fileUri,
+        fileType: isIOS ? 'audio/aac' : 'audio/mp4',
+        duration: duration,
+        mediaId: uploadData.mediaId,
+        key: uploadData.key,
+      };
+      const sender = new SendMessage(
+        chatId,
+        ContentType.audioRecording,
+        newData,
+      );
+      await sender.send();
+      store.dispatch({
+        type: 'PING',
+        payload: 'PONG',
+      });
+    } catch (error) {
+      showToast('Network error in sending voice note', ToastType.error);
+    }
     setIsSending(false);
   };
 

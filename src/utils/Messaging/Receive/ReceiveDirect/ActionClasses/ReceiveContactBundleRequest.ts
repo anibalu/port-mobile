@@ -4,7 +4,7 @@ import {
   ContactBundleRequestParams,
   MessageStatus,
 } from '@utils/Messaging/interfaces';
-import {respondToShareContactRequest} from '@utils/ContactSharing';
+import {approveContactShareIfPermitted} from '@utils/ContactSharing';
 import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
 import {ChatType} from '@utils/Connections/interfaces';
 import {getChatPermissions} from '@utils/ChatPermissions';
@@ -25,7 +25,7 @@ class ReceiveContactBundleRequest extends DirectReceiveAction {
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
 
-    const {destinationName, source} = this.decryptedMessageContent
+    const {destinationName} = this.decryptedMessageContent
       .data as ContactBundleRequestParams;
 
     //save message to storage
@@ -39,18 +39,18 @@ class ReceiveContactBundleRequest extends DirectReceiveAction {
         latestMessageId: this.decryptedMessageContent.messageId,
         timestamp: this.receiveTime,
       },
-      NewMessageCountAction.unchanged,
+      NewMessageCountAction.increment,
     );
+
+    await approveContactShareIfPermitted(
+      this.chatId,
+      destinationName,
+      this.decryptedMessageContent.messageId,
+    );
+
     //notify user if notifications are ON
     const permissions = await getChatPermissions(this.chatId, ChatType.direct);
     await this.notify(permissions.notifications);
-
-    await respondToShareContactRequest(
-      this.chatId,
-      destinationName,
-      source,
-      this.decryptedMessageContent.messageId,
-    );
   }
   async notify(shouldNotify: boolean) {
     if (shouldNotify) {

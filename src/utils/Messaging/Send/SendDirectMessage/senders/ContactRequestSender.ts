@@ -1,4 +1,5 @@
 import {
+  ContactBundleRequestParams,
   ContentType,
   DataType,
   MessageDataTypeBasedOnContentType,
@@ -59,28 +60,12 @@ export class SendContactRequestDirectMessage<
     this.payload = {
       messageId: this.messageId,
       contentType: this.contentType,
-      data: {...this.data, createdChatId: undefined},
+      data: {...this.data, destinationChatId: undefined},
       replyId: this.replyId,
       expiresOn: null,
     };
     console.log('contact request payload', this.payload.data);
     this.expiresOn = null;
-  }
-
-  private validate(): void {
-    try {
-      //throw error if content type is not supported by this class
-      if (!contactBundleRequestContentTypes.includes(this.contentType)) {
-        throw new Error('NotContactBundleTypeError');
-      }
-      //throw error if message exceeds acceptable character size
-      if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
-        throw new Error('MessageDataTooBigError');
-      }
-    } catch (error) {
-      console.error('Error found in initial checks: ', error);
-      throw new Error('InitialChecksError');
-    }
   }
 
   async send(_onSuccess?: (x: boolean) => void): Promise<boolean> {
@@ -111,25 +96,47 @@ export class SendContactRequestDirectMessage<
     this.retry();
     return true;
   }
+  /**
+   * Perform the initial DBCalls and attempt API calls
+   */
+  private validate(): void {
+    try {
+      if (!contactBundleRequestContentTypes.includes(this.contentType)) {
+        throw new Error('NotContactBundleTypeError');
+      }
+      const data = this.data as ContactBundleRequestParams;
+      if (!(data.destinationChatId && data.destinationName)) {
+        throw new Error('MissingDestinationData');
+      }
+      if (JSON.stringify(this.data).length >= MESSAGE_DATA_MAX_LENGTH) {
+        throw new Error('MessageDataTooBigError');
+      }
+    } catch (error) {
+      console.error('Error found in initial checks: ', error);
+      throw new Error('InitialChecksError');
+    }
+  }
 
   /**
    * Reconstruct saved message and payload from db.
    */
   private async loadSavedMessage() {
     const savedMessage = await storage.getMessage(this.chatId, this.messageId);
-    if (savedMessage) {
-      this.savedMessage = savedMessage;
-      this.payload = {
-        messageId: savedMessage.messageId,
-        contentType: this.contentType,
-        data: {
-          destinationName: savedMessage.data?.destinationName,
-          approved: savedMessage.data?.approved,
-        },
-        replyId: savedMessage.replyId,
-        expiresOn: this.expiresOn,
-      };
+    if (!savedMessage) {
+      throw Error('MessageNotFound');
     }
+    this.savedMessage = savedMessage;
+    this.payload = {
+      messageId: savedMessage.messageId,
+      contentType: this.contentType,
+      //destinationName is all that needs to be sent
+      data: {
+        destinationName: (this.savedMessage.data as ContactBundleRequestParams)
+          .destinationName,
+      },
+      replyId: savedMessage.replyId,
+      expiresOn: this.expiresOn,
+    };
   }
 
   /**
@@ -199,7 +206,6 @@ export class SendContactRequestDirectMessage<
    * Perform these actions on critical failures.
    */
   private async onFailure() {
-    this.updateConnectionInfo(MessageStatus.failed);
     storage.updateMessageStatus(this.chatId, {
       messageIdToBeUpdated: this.messageId,
       updatedMessageStatus: MessageStatus.failed,

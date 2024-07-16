@@ -13,10 +13,15 @@ class ReceiveContactBundleResponse extends DirectReceiveAction {
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
 
-    const {approvedMessageId, bundle, source} = this.decryptedMessageContent
+    const {approvedMessageId, bundle} = this.decryptedMessageContent
       .data as ContactBundleResponseParams;
 
-    await relayContactBundle(this.chatId, bundle, approvedMessageId, source);
+    await relayContactBundle(
+      this.chatId,
+      bundle,
+      approvedMessageId,
+      this.chatId,
+    );
   }
 }
 

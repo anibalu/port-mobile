@@ -709,7 +709,13 @@ function Home({route, navigation}: Props) {
                   </View>
                 )}
               </View>
-              {!selectionMode && (
+              {selectionMode ? (
+                <ChatActionsBar
+                  selectedConnections={selectedConnections}
+                  openModal={openRightModal}
+                  openMoveToFolder={() => setMoveToFolderSheet(true)}
+                />
+              ) : (
                 <Plus
                   onPress={() => {
                     setIsConnectionOptionsModalOpen(p => !p);
@@ -724,6 +730,7 @@ function Home({route, navigation}: Props) {
               buttonStyle={styles.isolationButton}>
               🔑
             </GenericButton> */}
+
             <ConnectionOptions
               visible={isConnectionOptionsModalOpen}
               setVisible={setIsConnectionOptionsModalOpen}
@@ -807,13 +814,6 @@ function Home({route, navigation}: Props) {
               title={'Error using Port link'}
               description={getLinkUseErrorDescription()}
             />
-            {selectionMode && (
-              <ChatActionsBar
-                selectedConnections={selectedConnections}
-                openModal={openRightModal}
-                openMoveToFolder={() => setMoveToFolderSheet(true)}
-              />
-            )}
           </SafeAreaView>
         </View>
       </Swipeable>

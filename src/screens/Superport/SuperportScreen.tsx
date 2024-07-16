@@ -101,7 +101,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   //control folder assigned to superport
-  const [chosenFolder, setSelectedFolder] = useState<FolderInfo>(
+  const [chosenFolder, setChosenFolder] = useState<FolderInfo>(
     selectedFolder
       ? {...selectedFolder}
       : {
@@ -112,7 +112,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
   const latestNewConnection = useSelector(state => state.latestNewConnection);
 
   const setFolder = async (folder: FolderInfo) => {
-    setSelectedFolder(folder);
+    setChosenFolder(folder);
     if (qrData?.portId) {
       await updateGeneratedSuperportFolder(qrData.portId, folder.folderId);
     }
@@ -146,7 +146,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
         const {bundle, superport} = await fetchSuperport(
           portId,
           label,
-          defaultSuperportConnectionsLimit,
+          connectionLimit,
           chosenFolder.folderId,
         );
         setIsPaused(superport.paused);
@@ -154,13 +154,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
         setInitialConnectionLimit(superport.connectionsLimit);
         setConnectionLimit(superport.connectionsLimit);
         setConnectionMade(superport.connectionsMade);
-        setSelectedFolder(
-          foldersArray.find(
-            folder => folder.folderId === superport.folderId,
-          ) || {
-            ...defaultFolderInfo,
-          },
-        );
+        setChosenFolder(chosenFolder);
         setQrData(bundle);
         setIsLoading(false);
       } catch (error) {
@@ -438,17 +432,15 @@ const SuperportScreen = ({route, navigation}: Props) => {
             </View>
             <View style={{marginBottom: PortSpacing.secondary.bottom}}>
               <MoveContacts
-                hideAddFolder={qrData?.portId}
                 setSelectedFolder={setFolder}
                 selectedFolder={chosenFolder}
                 foldersArray={foldersArray}
                 onAddNewFolder={() => {
-                  if (qrData?.portId) {
-                    navigation.navigate('CreateFolder', {
-                      setSelectedFolder: setFolder,
-                      portId: qrData.portId,
-                    });
-                  }
+                  navigation.navigate('CreateFolder', {
+                    setSelectedFolder: setFolder,
+                    portId: qrData?.portId ? qrData.portId : '',
+                    superportLabel: label,
+                  });
                 }}
               />
             </View>

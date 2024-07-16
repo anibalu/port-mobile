@@ -269,6 +269,9 @@ const Superports = ({route, navigation}: Props) => {
                       portId: item.portId,
                       name: displayName,
                       avatar: profilePicAttr,
+                      selectedFolder: foldersArray.find(
+                        folder => folder.folderId === item.folderId,
+                      ),
                     })
                   }
                 />

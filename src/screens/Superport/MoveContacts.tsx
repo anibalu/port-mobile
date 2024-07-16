@@ -17,9 +17,7 @@ const MoveContacts = ({
   setSelectedFolder,
   selectedFolder,
   onAddNewFolder,
-  hideAddFolder,
 }: {
-  hideAddFolder?: boolean;
   foldersArray: FolderInfo[];
   setSelectedFolder: (x: FolderInfo) => void;
   selectedFolder: FolderInfo;
@@ -91,19 +89,17 @@ const MoveContacts = ({
             fontSizeType={FontSizeType.m}>
             Move new contacts to a folder
           </NumberlessText>
-          {hideAddFolder && (
-            <Pressable onPress={onAddNewFolder}>
-              <NumberlessText
-                style={{
-                  color: Colors.primary.accent,
-                  marginLeft: PortSpacing.tertiary.left,
-                }}
-                fontType={FontType.rg}
-                fontSizeType={FontSizeType.m}>
-                + Add
-              </NumberlessText>
-            </Pressable>
-          )}
+          <Pressable onPress={onAddNewFolder}>
+            <NumberlessText
+              style={{
+                color: Colors.primary.accent,
+                marginLeft: PortSpacing.tertiary.left,
+              }}
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.m}>
+              + Add
+            </NumberlessText>
+          </Pressable>
         </View>
       </View>
       <View style={{marginBottom: PortSpacing.secondary.bottom}}>

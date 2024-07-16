@@ -13,7 +13,12 @@ export type AppStackParamList = {
     avatar: FileAttributes;
     selectedFolder?: FolderInfo;
   };
-  CreateFolder: {setSelectedFolder: any; portId?: string; chatId?: string};
+  CreateFolder: {
+    setSelectedFolder: any;
+    portId?: string;
+    chatId?: string;
+    superportLabel?: string;
+  };
   EditFolder: {selectedFolder: FolderInfo};
   MoveToFolder: {selectedFolder: FolderInfo};
   Scan: undefined;

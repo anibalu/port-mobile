@@ -26,9 +26,9 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 type Props = NativeStackScreenProps<AppStackParamList, 'CreateFolder'>;
 
 const CreateFolder = ({navigation, route}: Props) => {
-  const {setSelectedFolder, portId, chatId} = route.params;
+  const {setSelectedFolder, portId, chatId, superportLabel} = route.params;
   //sets folder name
-  const [folderName, setFolderName] = useState<string>('');
+  const [folderName, setFolderName] = useState<string>(superportLabel || '');
   //set permissions
   const [permissions, setPermissions] = useState<PermissionsStrict>({
     ...defaultPermissions,

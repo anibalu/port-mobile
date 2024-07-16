@@ -47,7 +47,7 @@ const SuperportLabelCard = ({
           }}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.m}>
-          Label this Superport
+          Name this Superport
         </NumberlessText>
       </View>
       <View style={{marginBottom: PortSpacing.secondary.bottom}}>
@@ -55,7 +55,7 @@ const SuperportLabelCard = ({
           style={{color: Colors.text.subtitle}}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.s}>
-          Adding a label to this Superport makes it easy to recognize it in your
+          Adding a name to this Superport makes it easy to recognize it in your
           Superports tab.
         </NumberlessText>
       </View>

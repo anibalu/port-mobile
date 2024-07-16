@@ -122,7 +122,7 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
               </NumberlessText>
             )}
           </View>
-          <View style={{marginTop: 4}}>
+          <View style={{marginTop: 4, marginRight: 4, marginBottom: 4}}>
             <RenderTimeStamp message={message} />
           </View>
         </>
@@ -145,12 +145,12 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
             </NumberlessText>
           )}
 
-          <View style={{marginTop: 4}}>
+          <View style={{marginTop: 4, marginRight: 4, marginBottom: 4}}>
             <RenderTimeStamp message={message} />
           </View>
           {!approved && (
             <>
-              <LineSeparator />
+              <LineSeparator fromContactBubble={true} />
 
               <Pressable
                 onPress={async () => await onAllowOnceClicked()}
@@ -165,7 +165,7 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
             </>
           )}
 
-          <LineSeparator />
+          <LineSeparator fromContactBubble={true} />
 
           <Pressable
             onPress={() => onSettingsPressed()}

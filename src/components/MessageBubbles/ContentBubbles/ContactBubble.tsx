@@ -85,7 +85,7 @@ const ContactBubble = ({message}: {message: LoadedMessage}) => {
           }}>
           <AvatarBox profileUri={DEFAULT_AVATAR} avatarSize="s" />
 
-          <View style={{justifyContent: 'center'}}>
+          <View style={{justifyContent: 'center', marginLeft: 5}}>
             <NumberlessText
               textColor={Colors.text.primary}
               fontSizeType={FontSizeType.m}
@@ -103,8 +103,9 @@ const ContactBubble = ({message}: {message: LoadedMessage}) => {
           </View>
         </View>
       </View>
-
-      <RenderTimeStamp message={message} />
+      <View style={{marginTop: 4, marginRight: 4, marginBottom: 4}}>
+        <RenderTimeStamp message={message} />
+      </View>
 
       {!message.sender && (
         <>
@@ -138,7 +139,7 @@ function GetButton({
   if (!accepted && !createdChatId) {
     return (
       <>
-        <LineSeparator />
+        <LineSeparator fromContactBubble={true} />
 
         <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
           <NumberlessText
@@ -154,7 +155,7 @@ function GetButton({
     if (authenticated) {
       return (
         <>
-          <LineSeparator />
+          <LineSeparator fromContactBubble={true} />
           <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
             <NumberlessText
               fontSizeType={FontSizeType.m}
@@ -167,7 +168,7 @@ function GetButton({
       );
     } else {
       <>
-        <LineSeparator />
+        <LineSeparator fromContactBubble={true} />
         <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
           <NumberlessText
             fontSizeType={FontSizeType.m}
@@ -180,7 +181,7 @@ function GetButton({
     }
   } else if (bundle && accepted) {
     <>
-      <LineSeparator />
+      <LineSeparator fromContactBubble={true} />
       <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
         <NumberlessText
           fontSizeType={FontSizeType.m}
@@ -192,7 +193,7 @@ function GetButton({
     </>;
   } else {
     <>
-      <LineSeparator />
+      <LineSeparator fromContactBubble={true} />
       <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
         <NumberlessText
           fontSizeType={FontSizeType.m}

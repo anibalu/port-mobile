@@ -242,7 +242,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
           qrData: qrData as any,
           linkData: link,
           title: displayName,
-          profileUri: profilePicAttr.fileUri,
+          profilePicAttr: profilePicAttr,
         });
         return;
       }

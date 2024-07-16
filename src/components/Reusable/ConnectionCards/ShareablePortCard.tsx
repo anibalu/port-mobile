@@ -10,31 +10,34 @@
  * 9. onTryAgainClicked - what to do when try again is clicked
  */
 
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, {useState} from 'react';
+import {Pressable, StyleSheet, TextInput, View} from 'react-native';
 import SimpleCard from '../Cards/SimpleCard';
 import QrWithLogo from '../QR/QrWithLogo';
-import {AVATAR_ARRAY} from '@configs/constants';
+import {
+  DEFAULT_PROFILE_AVATAR_INFO,
+  NAME_LENGTH_LIMIT,
+} from '@configs/constants';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
+import EditIcon from '@assets/icons/PencilCircleAccent.svg';
 import {
   DirectSuperportBundle,
   GroupBundle,
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
+import EditAvatar from '../BottomSheets/EditAvatar';
+import {FileAttributes} from '@utils/Storage/interfaces';
+import {FontSizeType, FontType} from '@components/NumberlessText';
 
 const ShareablePortCard = ({
-  profileUri = AVATAR_ARRAY[0],
+  profilePicAttr = DEFAULT_PROFILE_AVATAR_INFO,
   title,
   qrData,
+  toBeEdited,
 }: {
-  profileUri?: string | null;
+  profilePicAttr?: FileAttributes;
   title: string;
   qrData:
     | PortBundle
@@ -42,32 +45,82 @@ const ShareablePortCard = ({
     | DirectSuperportBundle
     | GroupSuperportBundle
     | null;
+  toBeEdited: boolean;
 }) => {
+  const [profilePictureAttributes, setProfilePcitureAttributes] =
+    useState<FileAttributes>(profilePicAttr);
+  const [name, setName] = useState(title);
+  const [description, setDescription] = useState(
+    'Scan this code to add me as a contact',
+  );
+
+  const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
+  const onChangeText = (text: string) => {
+    setName(text);
+  };
+  const onChangeDescription = (description: string) => {
+    setDescription(description);
+  };
   return (
     <SimpleCard style={styles.cardWrapper}>
-      <View style={styles.avatarArea}>
-        <AvatarBox profileUri={profileUri} avatarSize="s+" />
-      </View>
+      <Pressable
+        onPress={toBeEdited ? () => setOpenEditAvatarModal(true) : () => {}}
+        style={styles.avatarArea}>
+        <AvatarBox
+          onPress={toBeEdited ? () => setOpenEditAvatarModal(true) : () => {}}
+          profileUri={profilePictureAttributes.fileUri}
+          avatarSize="s+"
+        />
+        {toBeEdited && <EditIcon style={styles.edit} height={20} width={20} />}
+      </Pressable>
       <View style={styles.contentBox}>
-        <NumberlessText
-          textColor={'black'}
-          style={{alignSelf: 'center'}}
-          fontType={FontType.md}
-          fontSizeType={FontSizeType.xl}>
-          {title}
-        </NumberlessText>
+        <TextInput
+          style={StyleSheet.compose(
+            [
+              toBeEdited
+                ? {textDecorationLine: 'underline'}
+                : {
+                    textDecorationLine: 'none',
+                  },
+            ],
+            styles.name,
+          )}
+          maxLength={NAME_LENGTH_LIMIT}
+          onChangeText={onChangeText}
+          value={name}
+          editable={toBeEdited}
+        />
       </View>
       <QrWithLogo qrData={qrData} isLoading={false} hasFailed={false} />
 
       <View style={styles.contentBox}>
-        <NumberlessText
-          textColor={'#667085'}
-          style={{textAlign: 'center'}}
-          fontType={FontType.rg}
-          fontSizeType={FontSizeType.s}>
-          Scan this code to add me as a contact
-        </NumberlessText>
+        <TextInput
+          multiline
+          style={StyleSheet.compose(
+            [
+              toBeEdited
+                ? {textDecorationLine: 'underline'}
+                : {
+                    textDecorationLine: 'none',
+                  },
+            ],
+            styles.description,
+          )}
+          maxLength={200}
+          onChangeText={onChangeDescription}
+          value={description}
+          editable={toBeEdited}
+        />
       </View>
+      <EditAvatar
+        localImageAttr={profilePictureAttributes}
+        setLocalImageAttr={setProfilePcitureAttributes}
+        visible={openEditAvatarModal}
+        onSave={() => {}}
+        onClose={() => {
+          setOpenEditAvatarModal(false);
+        }}
+      />
     </SimpleCard>
   );
 };
@@ -111,6 +164,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: PortSpacing.secondary.uniform,
     paddingBottom: PortSpacing.secondary.bottom,
     gap: PortSpacing.tertiary.uniform,
+  },
+  name: {
+    color: 'black',
+    fontFamily: FontType.md,
+    fontSize: FontSizeType.xl,
+  },
+  description: {
+    color: '#667085',
+    fontFamily: FontType.rg,
+    fontSize: FontSizeType.m,
+    textAlign: 'center',
+  },
+  edit: {
+    position: 'absolute',
+    right: -3,
+    bottom: -3,
   },
 });
 

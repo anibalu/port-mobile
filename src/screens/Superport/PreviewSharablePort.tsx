@@ -1,11 +1,18 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import React, {useEffect, useRef, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import CloseWhite from '@assets/icons/closeWhite.svg';
+import Edit from '@assets/icons/Edit.svg';
+import GreenTick from '@assets/icons/GreenTick.svg';
 import Upload from '@assets/icons/WhiteUpload.svg';
 import Download from '@assets/icons/WhiteDownload.svg';
-import GreenTick from '@assets/icons/GreenTick.svg';
 import {SafeAreaView} from '@components/SafeAreaView';
 import Logo from '@assets/miscellaneous/appIcon.svg';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
@@ -24,9 +31,11 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 type Props = NativeStackScreenProps<AppStackParamList, 'PreviewShareablePort'>;
 
 const PreviewShareablePort = ({route, navigation}: Props) => {
-  const {title, qrData, linkData, profileUri} = route.params;
+  const {title, qrData, linkData, profilePicAttr} = route.params;
   const viewShotRef = useRef();
   const [showSuccessDownloaded, setShowSuccessDownloaded] = useState(false);
+  // boolean to set whether the card is editable or not
+  const [toBeEdited, setToBeEdited] = useState(false);
 
   const handleShare = async () => {
     try {
@@ -79,59 +88,87 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
           }}>
           <CloseWhite width={24} height={24} />
         </Pressable>
-        <ViewShot
-          style={{backgroundColor: '#05070B'}}
-          ref={viewShotRef}
-          options={{format: 'jpg', quality: 0.9}}>
-          <Logo
-            height={50}
-            width={150}
-            style={{
-              alignSelf: 'center',
-              marginTop: PortSpacing.intermediate.top,
-            }}
-          />
-          <View style={styles.content}>
-            <ShareablePortCard
-              title={title}
-              qrData={qrData}
-              profileUri={profileUri}
-            />
-          </View>
-        </ViewShot>
-        <View style={styles.buttons}>
-          <View style={{width: '50%', paddingRight: 4}}>
-            <PrimaryButton
-              Icon={Upload}
-              primaryButtonColor="p"
-              onClick={handleShare}
-              buttonText="Share QR"
-              disabled={false}
-              isLoading={false}
-            />
-          </View>
-          <View style={{width: '50%', paddingLeft: 4}}>
-            <PrimaryButton
-              Icon={Download}
-              primaryButtonColor="p"
-              onClick={async () => await savePicture()}
-              buttonText="Download QR"
-              disabled={false}
-              isLoading={false}
-            />
-          </View>
-        </View>
-        {showSuccessDownloaded && (
-          <View style={styles.successDownload}>
-            <GreenTick style={{marginRight: 12}} />
-            <NumberlessText
-              style={{color: PortColors.primary.black}}
-              fontType={FontType.rg}
-              fontSizeType={FontSizeType.s}>
-              QR code has downloaded to your gallery
-            </NumberlessText>
-          </View>
-        )}
+
+        <KeyboardAvoidingView
+          behavior={isIOS ? 'padding' : 'height'}
+          keyboardVerticalOffset={isIOS ? 50 : 0}
+          style={styles.scrollViewContainer}>
+          <ScrollView
+            horizontal={false}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}>
+            <ViewShot
+              style={{backgroundColor: '#05070B'}}
+              ref={viewShotRef}
+              options={{format: 'jpg', quality: 0.9}}>
+              <Logo
+                height={50}
+                width={150}
+                style={{
+                  alignSelf: 'center',
+                  marginTop: PortSpacing.intermediate.top,
+                }}
+              />
+              <View style={styles.content}>
+                <ShareablePortCard
+                  toBeEdited={toBeEdited}
+                  title={title}
+                  qrData={qrData}
+                  profilePicAttr={profilePicAttr}
+                />
+              </View>
+            </ViewShot>
+            {toBeEdited ? (
+              <GreenTick
+                onPress={() => setToBeEdited(p => !p)}
+                width={48}
+                height={48}
+                style={{alignSelf: 'center'}}
+              />
+            ) : (
+              <Edit
+                onPress={() => setToBeEdited(p => !p)}
+                style={{alignSelf: 'center'}}
+              />
+            )}
+
+            <View style={styles.buttons}>
+              <View style={{width: '50%', paddingRight: 4}}>
+                <PrimaryButton
+                  Icon={Upload}
+                  primaryButtonColor="p"
+                  onClick={handleShare}
+                  buttonText="Share QR"
+                  disabled={false}
+                  isLoading={false}
+                />
+              </View>
+              <View style={{width: '50%', paddingLeft: 4}}>
+                <PrimaryButton
+                  Icon={Download}
+                  primaryButtonColor="p"
+                  onClick={
+                    toBeEdited ? () => {} : async () => await savePicture()
+                  }
+                  buttonText="Download QR"
+                  disabled={false}
+                  isLoading={false}
+                />
+              </View>
+            </View>
+            {showSuccessDownloaded && (
+              <View style={styles.successDownload}>
+                <GreenTick style={{marginRight: 12}} />
+                <NumberlessText
+                  style={{color: PortColors.primary.black}}
+                  fontType={FontType.rg}
+                  fontSizeType={FontSizeType.s}>
+                  QR code has downloaded to your gallery
+                </NumberlessText>
+              </View>
+            )}
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </>
   );
@@ -140,6 +177,10 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: PortColors.primary.blue.app,
+  },
+  scrollViewContainer: {
+    flex: 1,
+    width: '100%',
   },
   successDownload: {
     backgroundColor: 'white',

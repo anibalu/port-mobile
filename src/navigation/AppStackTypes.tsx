@@ -77,7 +77,7 @@ export type AppStackParamList = {
     qrData: string | null;
     linkData: string | null;
     title: string;
-    profileUri: string;
+    profilePicAttr: FileAttributes;
   };
   CreateNewGroup: undefined;
   NewGroupPort: {groupId: string};

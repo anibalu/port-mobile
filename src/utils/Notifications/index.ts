@@ -39,6 +39,7 @@ export async function displaySimpleNotification(
   const currentActiveChatId = entireState.profile.activeChat;
   const currentNotifications = await notifee.getDisplayedNotifications();
   let messages: any[] = [];
+  let notificationIdToReplace: string | undefined;
   for (let i = 0; i < currentNotifications.length; i++) {
     // Iterate over existing notifications to try to find a matching one.
     console.info(currentNotifications[i]);
@@ -51,6 +52,7 @@ export async function displaySimpleNotification(
         currentNotifications[i].notification.android
           ?.style as AndroidMessagingStyle
       ).messages;
+      notificationIdToReplace = currentNotifications[i].id;
     }
   }
 
@@ -86,6 +88,9 @@ export async function displaySimpleNotification(
 
   // Replace the existing notification for this chat with a new one that includes
   // the latest message
+  if (notificationIdToReplace) {
+    await notifee.cancelDisplayedNotification(notificationIdToReplace);
+  }
 
   // If app is not in the foreground, display no matter what
   if (AppState.currentState !== 'active') {

@@ -18,9 +18,8 @@ export async function performBackgroundToForegroundOperations() {
     type: 'PING',
     payload: 'PONG',
   });
-
+  await sendJournaled();
   await cleanUpPorts();
-
   await processReadBundles();
   await cancelAllNotifications();
   await syncShared();
@@ -33,7 +32,6 @@ export async function performBackgroundToForegroundOperations() {
 export const performPeriodicOperations = async () => {
   console.log('[PERIODIC OPERATIONS RUNNING]');
   await pullBacklog();
-  await sendJournaled();
 
   await processReadBundles();
   // delete expired ports

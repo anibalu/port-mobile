@@ -67,18 +67,20 @@ const SideDrawerOption = ({
                   ? styles.badgeWrapper
                   : styles.badgeWrapperSingleDigit,
                 {
-                  backgroundColor: Colors.primary.accent,
-                  borderWidth: themeValue === 'light' ? 0 : 1,
+                  backgroundColor: Colors.primary.background,
+                  borderWidth: 1,
                   borderColor:
-                    themeValue === 'light' ? 'none' : Colors.primary.accent,
+                    themeValue === 'light'
+                      ? Colors.primary.background
+                      : Colors.primary.accent,
                 },
               )}>
               <NumberlessText
                 style={{
-                  color: Colors.primary.white,
+                  color: Colors.primary.accent,
                 }}
                 fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
+                fontType={FontType.sb}>
                 {badge > 99 ? '99+' : badge}
               </NumberlessText>
             </View>

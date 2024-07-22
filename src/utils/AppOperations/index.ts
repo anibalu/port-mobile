@@ -3,7 +3,6 @@ import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import pullBacklog from '@utils/Messaging/pullBacklog';
 import {cancelAllNotifications} from '@utils/Notifications';
 import {cleanUpPorts, processReadBundles} from '@utils/Ports';
-import {syncShared} from '@utils/Storage/IOSGroupShare/syncShare';
 import {deleteExpiredMessages} from '@utils/Storage/messages';
 import {deleteExpiredGroupMessages} from '@utils/Storage/groupMessages';
 import {debounce} from 'lodash';
@@ -22,7 +21,6 @@ export async function performBackgroundToForegroundOperations() {
   await cleanUpPorts();
   await processReadBundles();
   await cancelAllNotifications();
-  await syncShared();
   console.log('[BTF OPERATIONS COMPLETE]');
 }
 

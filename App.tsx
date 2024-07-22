@@ -28,7 +28,6 @@ import {
 import {AppState} from 'react-native';
 import BootSplash from 'react-native-bootsplash';
 import {ThemeProvider} from 'src/context/ThemeContext';
-import {syncShared} from '@utils/Storage/IOSGroupShare/syncShare';
 import {ToastProvider} from 'src/context/ToastContext';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
 import Toast from '@components/Modals/Toast';
@@ -68,7 +67,6 @@ function App(): JSX.Element {
     profileCheck();
     // default way to handle new messages in the foreground
     foregroundMessageHandler();
-    syncShared();
   }, []);
 
   /**

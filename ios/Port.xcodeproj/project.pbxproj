@@ -105,6 +105,7 @@
 		AD0DC8A42BD3415A00A57768 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AD0DC8AB2BD3A96A00A57768 /* portnse.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = portnse.entitlements; sourceTree = "<group>"; };
 		AD1CF344CFCB406EB5AE1240 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
+		AD4DD5992C4136C800671503 /* ExampleNotification.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = ExampleNotification.apns; sourceTree = "<group>"; };
 		AFA2CE3A865144AF96BAEAD0 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
 		BA2B26E72BA84A858CDCAD23 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
 		BFEF9816563FC4EF0B9FE9C4 /* Pods-Port.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Port.debug.xcconfig"; path = "Target Support Files/Pods-Port/Pods-Port.debug.xcconfig"; sourceTree = "<group>"; };
@@ -259,6 +260,7 @@
 				AD0DC8AB2BD3A96A00A57768 /* portnse.entitlements */,
 				AD0DC8A22BD3415A00A57768 /* NotificationService.swift */,
 				AD0DC8A42BD3415A00A57768 /* Info.plist */,
+				AD4DD5992C4136C800671503 /* ExampleNotification.apns */,
 			);
 			path = portnse;
 			sourceTree = "<group>";
@@ -757,6 +759,7 @@
 				DEVELOPMENT_TEAM = 7J3M566K66;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Port/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -789,6 +792,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7J3M566K66;
 				INFOPLIST_FILE = Port/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -857,7 +861,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -932,7 +936,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -987,7 +991,7 @@
 				INFOPLIST_FILE = portnse/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = portnse;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1031,7 +1035,7 @@
 				INFOPLIST_FILE = portnse/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = portnse;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

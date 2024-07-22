@@ -1,0 +1,13 @@
+{
+    "Simulator Target Bundle": "tech.numberless.port",
+    "aps" : {
+       "alert" : {
+            "title" : "Hello",
+            "body" : "world"
+        },
+        "sound" : "default",
+        "badge" : 0,
+        "mutable_content" : 1,
+        "content_available" : 1,
+   },
+}

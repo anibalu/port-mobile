@@ -90,7 +90,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: PortColors.primary.white,
     height: 56,
-    zIndex: 2,
     width: '100%',
   },
   backButton: {

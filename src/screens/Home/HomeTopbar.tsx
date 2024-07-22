@@ -230,6 +230,7 @@ const styling = (colors: any) =>
       borderRadius: 100,
       justifyContent: 'center',
       alignItems: 'center',
+      paddingVertical: 2,
     },
     blueDotOval: {
       backgroundColor: PortColors.primary.blue.app,

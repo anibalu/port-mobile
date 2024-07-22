@@ -58,6 +58,21 @@ class DirectReceiveAction {
     await storage.saveMessage(savedMessage);
   }
 
+  /**
+   * checks if a message is already saved. If it is, throws an error.
+   * This is used to guard against multi-processing of messages.
+   */
+  async doubleProcessingGuard() {
+    this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    const msg = await storage.getMessage(
+      this.chatId,
+      this.decryptedMessageContent.messageId,
+    );
+    if (msg) {
+      throw new Error('Guarded against duplicate message processing');
+    }
+  }
+
   async sendReceiveUpdate() {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
     //All messages do not need to have their status updated.

@@ -22,7 +22,10 @@ class ReceiveDisappearingMessage extends DirectReceiveAction {
 
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    await this.doubleProcessingGuard();
     const data = this.decryptedMessageContent.data as DisappearingMessageParams;
+    //save message to storage
+    await this.saveMessage();
 
     const dataHandler = new DirectChat(this.chatId);
 
@@ -36,9 +39,6 @@ class ReceiveDisappearingMessage extends DirectReceiveAction {
     if (chatData.permissionsId) {
       await updatePermissions(chatData.permissionsId, updatedPermissions);
     }
-
-    //save message to storage
-    await this.saveMessage();
 
     await updateConnectionOnNewMessage(
       {

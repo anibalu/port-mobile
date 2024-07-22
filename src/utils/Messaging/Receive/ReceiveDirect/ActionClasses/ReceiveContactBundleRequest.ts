@@ -24,6 +24,7 @@ class ReceiveContactBundleRequest extends DirectReceiveAction {
 
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    await this.doubleProcessingGuard();
 
     const {destinationName} = this.decryptedMessageContent
       .data as ContactBundleRequestParams;

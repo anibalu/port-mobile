@@ -16,6 +16,7 @@ class ReceiveDisplayImage extends DirectReceiveAction {
   }
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    await this.doubleProcessingGuard();
     await this.saveMessage();
     this.handleDownload();
   }

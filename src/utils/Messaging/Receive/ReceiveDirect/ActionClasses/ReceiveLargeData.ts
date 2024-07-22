@@ -21,6 +21,8 @@ import * as storage from '@utils/Storage/messages';
 class ReceiveLargeData extends DirectReceiveAction {
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    await this.doubleProcessingGuard();
+
     //if media Id doesn't exist, throw error.
     if (
       !(this.decryptedMessageContent.data as LargeDataParams).mediaId ||
@@ -136,6 +138,7 @@ class ReceiveLargeData extends DirectReceiveAction {
           .readReceipts as boolean) || false,
       mediaId: localMediaId,
     };
+    await storage.saveMessage(savedMessage);
     //Create a media entry in DB for the same
     await saveNewMedia(
       localMediaId,
@@ -143,7 +146,6 @@ class ReceiveLargeData extends DirectReceiveAction {
       this.decryptedMessageContent.messageId,
       this.receiveTime,
     );
-    await storage.saveMessage(savedMessage);
   }
 }
 

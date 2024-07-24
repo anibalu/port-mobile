@@ -102,7 +102,10 @@ export const RenderReactionBar = () => {
               )}
               onPress={() => onReactionPress(item)}>
               <NumberlessText
-                fontSizeType={FontSizeType.exs}
+                style={{
+                  textAlign: 'center',
+                }}
+                fontSizeType={FontSizeType.esPlus}
                 fontType={FontType.rg}
                 allowFontScaling={false}>
                 {item}
@@ -114,7 +117,9 @@ export const RenderReactionBar = () => {
       <View style={styles.reactionsWrapper}>
         <Pressable
           style={StyleSheet.compose(
-            styles.reactionsWrapper,
+            !selfReaction || reactionMapping.includes(selfReaction)
+              ? styles.plusReactionsWrapper
+              : styles.reactionsWrapper,
             styles.hasReactionMessage,
           )}
           onPress={() => {
@@ -125,10 +130,11 @@ export const RenderReactionBar = () => {
             }
           }}>
           {!selfReaction || reactionMapping.includes(selfReaction) ? (
-            <PlusIcon />
+            <PlusIcon height={24} width={24} />
           ) : (
             <NumberlessText
-              fontSizeType={FontSizeType.exs}
+              style={{textAlign: 'center'}}
+              fontSizeType={FontSizeType.esPlus}
               fontType={FontType.rg}
               allowFontScaling={false}>
               {selfReaction}
@@ -182,15 +188,13 @@ const styling = (colors: any) =>
       overflow: 'hidden',
       backgroundColor: colors.primary.surface,
       borderRadius: 24,
-      height: 47,
-      width: 272,
+      height: 53,
       borderWidth: 0.5,
       borderColor: colors.primary.stroke,
       flexDirection: 'row',
       marginBottom: 4,
       alignItems: 'center',
       paddingHorizontal: 4,
-      gap: 2,
       justifyContent: 'center',
     },
     hasReactionMessage: {
@@ -202,10 +206,18 @@ const styling = (colors: any) =>
     reactionsWrapper: {
       justifyContent: 'center',
       alignItems: 'center',
-      width: 36,
-      height: 36,
+      width: 48,
+      height: 48,
       overflow: 'hidden',
-      borderRadius: 20,
+      borderRadius: 100,
+    },
+    plusReactionsWrapper: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: 32,
+      height: 32,
+      overflow: 'hidden',
+      borderRadius: 100,
     },
     reactionDisplay: {
       backgroundColor: colors.primary.surface2,

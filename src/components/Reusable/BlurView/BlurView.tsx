@@ -28,7 +28,7 @@ const BlurViewModal = () => {
   const isDeleted = messageObj.message.contentType === ContentType.deleted;
   const STATUSBAR_HEIGHT = StatusBar.currentHeight || 0;
   const TOPBAR_HEIGHT = 56;
-  const REACTIONBAR_HEIGHT = isDeleted ? 0 : 51;
+  const REACTIONBAR_HEIGHT = isDeleted ? 0 : 56;
   const TOP_OFFSET_INITIAL =
     STATUSBAR_HEIGHT + TOPBAR_HEIGHT + REACTIONBAR_HEIGHT;
   const TOP_OFFSET = isIOS ? TOP_OFFSET_INITIAL + 50 : TOP_OFFSET_INITIAL;
@@ -119,8 +119,8 @@ const BlurViewModal = () => {
             <View
               style={{
                 marginHorizontal: PortSpacing.secondary.uniform,
-                marginTop: -51,
-                minHeight: 51,
+                marginTop: -56,
+                minHeight: 56,
                 alignSelf: isSender ? 'flex-end' : 'flex-start',
               }}>
               {!UnReactableMessageContentTypes.includes(message.contentType) &&

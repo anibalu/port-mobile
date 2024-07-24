@@ -27,6 +27,7 @@ export enum FontSizeType {
   'xs' = 10,
   'exs' = 20, //e => emoji size
   'es' = 24,
+  'esPlus' = 28,
   'em' = 36,
   'el' = 54,
 }

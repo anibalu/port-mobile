@@ -4,7 +4,6 @@ import {FolderInfo, FolderInfoWithUnread} from '@utils/ChatFolders/interfaces';
 import {getPermissions} from './permissions';
 import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
 import {getNewMessageCount} from './connections';
-import {ConnectionInfo} from '@utils/Connections/interfaces';
 
 /**
  * Save a new folder.
@@ -154,90 +153,4 @@ export async function deleteFolder(folderId: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
-}
-
-/**
- * This util gets all connections in any folder
- * @param folderId folder id required
- * @returns an array of all connections
- */
-export async function getChatsInAFolder(folderId: string) {
-  let connections: ConnectionInfo[] = [];
-  await runSimpleQuery(
-    `
-       SELECT
-    connections.chatId,
-    connections.connectionType,
-    connections.name,
-    connections.text,
-    connections.recentMessageType,
-    connections.pathToDisplayPic,
-    connections.readStatus,
-    connections.authenticated,
-    connections.timestamp,
-    connections.newMessageCount,
-    connections.disconnected,
-    connections.latestMessageId,
-    connections.folderId,
-    folders.name AS folderName,
-    folders.permissionsId
-FROM
-    connections
-LEFT JOIN
-    folders ON connections.folderId = folders.folderId
-    WHERE connections.folderId = ?
-    ;
-        `,
-    [folderId],
-    (tx, results) => {
-      const len = results.rows.length;
-      let entry;
-      for (let i = 0; i < len; i++) {
-        entry = results.rows.item(i);
-        connections.push(entry);
-      }
-    },
-  );
-  return connections;
-}
-
-/**
- * This util returns all chats which has focus permission as true
- * @returns chats with focus permission turned on
- */
-export async function getAllChatsInFocus() {
-  let connections: ConnectionInfo[] = [];
-  await runSimpleQuery(
-    `
-      SELECT
-  connections.chatId,
-  connections.connectionType,
-  connections.name,
-  connections.text,
-  connections.recentMessageType,
-  connections.pathToDisplayPic,
-  connections.readStatus,
-  connections.authenticated,
-  connections.timestamp,
-  connections.newMessageCount,
-  connections.disconnected,
-  connections.latestMessageId,
-  connections.folderId
-    FROM connections
-    JOIN lines ON connections.chatId = lines.lineId
-    JOIN permissions ON lines.permissionsId = permissions.permissionsId
-    WHERE permissions.focus = true;
-`,
-    [],
-    (tx, results) => {
-      const len = results.rows.length;
-      let entry;
-      for (let i = 0; i < len; i++) {
-        entry = results.rows.item(i);
-
-        connections.push(entry);
-      }
-    },
-  );
-  return connections;
 }

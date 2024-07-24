@@ -194,7 +194,7 @@ const Superports = ({route, navigation}: Props) => {
             showsHorizontalScrollIndicator={false}
             horizontal={true}
             data={[
-              {name: 'All', folderId: 'all', permissionsId: 'all'},
+              {name: 'All Chats', folderId: 'all', permissionsId: 'all'},
               ...foldersArray,
             ]}
             keyExtractor={item => item.folderId}

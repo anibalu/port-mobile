@@ -79,7 +79,6 @@ const tableSerializationData = {
       'notifications',
       'permissionsId',
       'readReceipts',
-      'focus',
     ],
     booleanColumns: [
       'autoDownload',
@@ -89,7 +88,6 @@ const tableSerializationData = {
       'notifications',
       'permissionsId',
       'readReceipts',
-      'focus',
     ],
     inserter: addPermissionEntry,
     ennumerator: getAllPermissions,

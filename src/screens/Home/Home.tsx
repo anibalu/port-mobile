@@ -45,7 +45,7 @@ import {
   DEFAULT_PROFILE_AVATAR_INFO,
   SIDE_DRAWER_WIDTH,
   defaultFolderId,
-  focusFolderInfo,
+  defaultFolderInfo,
   safeModalCloseDuration,
 } from '@configs/constants';
 import {CustomStatusBar} from '@components/CustomStatusBar';
@@ -82,7 +82,6 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useTheme} from 'src/context/ThemeContext';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {resetAppBadge} from '@utils/Notifications';
-import {getAllChatsInFocus} from '@utils/Storage/folders';
 
 //Handles notification routing on tapping notification
 const performNotificationRouting = (
@@ -148,7 +147,7 @@ function Home({route, navigation}: Props) {
   const [folders, setFolders] = useState<FolderInfoWithUnread[]>([]);
   //sets selected folder info
   const [selectedFolderData, setSelectedFolderData] = useState<FolderInfo>({
-    ...focusFolderInfo,
+    ...defaultFolderInfo,
   });
   const [refreshing, setRefreshing] = useState<boolean>(false);
   //all connections available
@@ -254,7 +253,9 @@ function Home({route, navigation}: Props) {
       setTotalUnreadCount(allUnreadCount);
       const fetchedFoldersWithAll = [
         {
-          ...focusFolderInfo,
+          name: 'All Chats',
+          folderId: 'all',
+          permissionsId: 'all',
           unread: allUnreadCount,
         },
         ...fetchedFolders,
@@ -334,10 +335,14 @@ function Home({route, navigation}: Props) {
   };
 
   //filter by folder
-  const getFilteredConnectionsByFolder = async (chats: ConnectionInfo[]) => {
-    return chats.filter(
-      connection => connection.folderId === selectedFolderData.folderId,
-    );
+  const getFilteredConnectionsByFolder = (chats: ConnectionInfo[]) => {
+    if (selectedFolderData.folderId === 'all') {
+      return chats;
+    } else {
+      return chats.filter(
+        connection => connection.folderId === selectedFolderData.folderId,
+      );
+    }
   };
 
   //filter by search string
@@ -363,26 +368,15 @@ function Home({route, navigation}: Props) {
 
   //sets up viewable connections
   useMemo(() => {
-    (async () => {
-      if (connections) {
-        if (searchText === '') {
-          setSearchReturnedNull(false);
-          if (selectedFolderData.folderId === 'all') {
-            // gets all connections which have focus permission as true
-            const chats = await getAllChatsInFocus();
-            setViewableConnections(chats);
-          } else {
-            setViewableConnections(
-              await getFilteredConnectionsByFolder(connections),
-            );
-          }
-        } else {
-          setViewableConnections(getFilteredConnectionsBySearch(connections));
-        }
-        getUnread(selectedFolderData.folderId);
+    if (connections) {
+      if (searchText === '') {
+        setSearchReturnedNull(false);
+        setViewableConnections(getFilteredConnectionsByFolder(connections));
+      } else {
+        setViewableConnections(getFilteredConnectionsBySearch(connections));
       }
-    })();
-
+      getUnread(selectedFolderData.folderId);
+    }
     // eslint-disable-next-line
   }, [connections, selectedFolderData, searchText]);
 

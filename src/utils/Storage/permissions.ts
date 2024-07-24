@@ -4,8 +4,6 @@ import {
   PermissionsStrict,
 } from '@utils/ChatPermissions/interfaces';
 import * as dbCalls from './DBCalls/permissions';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {getChatsInAFolder} from './DBCalls/folders';
 
 /**
  * Track a new chat's permissions
@@ -48,17 +46,4 @@ export async function updatePermissions(
  */
 export async function clearPermissions(permissionsId: string) {
   await dbCalls.clearPermissions(permissionsId);
-}
-
-export async function updateChatPermissionsInAFolder(
-  folderId: string,
-  permissions: Permissions,
-) {
-  // TODO: write db call for this and remove this layer
-  const connections = await getChatsInAFolder(folderId);
-  for (let index = 0; index < connections.length; index++) {
-    //update chat permissions to folder permissions
-    const chat = new DirectChat(connections[index].chatId);
-    await chat.updatePermissions(permissions);
-  }
 }

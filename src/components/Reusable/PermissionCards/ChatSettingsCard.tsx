@@ -239,14 +239,6 @@ const ChatSettingsCard = ({
           />
         </>
       )}
-      <View>
-        <OptionWithToggle
-          IconLeft={CheckCircle}
-          toggleActiveState={permissions.focus}
-          heading="focus"
-          onToggle={async () => await onUpdateBooleanPermission('focus')}
-        />
-      </View>
     </SimpleCard>
   );
 };

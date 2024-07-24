@@ -57,11 +57,3 @@ export async function updateFolderName(folderId: string, newName: string) {
 export async function deleteFolder(folderId: string) {
   await dbCalls.deleteFolder(folderId);
 }
-
-/**
- * This util returns all chats which has focus permission as true
- * @returns chats with focus permission turned on
- */
-export async function getAllChatsInFocus() {
-  return await dbCalls.getAllChatsInFocus();
-}

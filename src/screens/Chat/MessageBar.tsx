@@ -1,4 +1,4 @@
-import {PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {ReplyBubbleMessageBar} from '@components/MessageBubbles/ReplyBubble';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
@@ -34,7 +34,7 @@ import PopUpActions from './MessageBarComponents/PopUpActions';
 import VoiceRecorder from './MessageBarComponents/VoiceRecorder';
 import TextComponent from './MessageBarComponents/TextComponent';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
-
+const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 63;
 const MessageBar = ({
   ifTemplateExists,
 }: {
@@ -187,19 +187,21 @@ const MessageBar = ({
   }, [url]);
 
   useEffect(() => {
-    const debouncedFetchData = debounce(fetchData, 1000);
-    if (url && !openGraphData) {
-      debouncedFetchData();
-    } else if (
-      openGraphData &&
-      openGraphData.url.toLowerCase() !== url.toLowerCase()
-    ) {
-      debouncedFetchData();
+    if (!replyToMessage) {
+      const debouncedFetchData = debounce(fetchData, 1000);
+      if (url && !openGraphData) {
+        debouncedFetchData();
+      } else if (
+        openGraphData &&
+        openGraphData.url.toLowerCase() !== url.toLowerCase()
+      ) {
+        debouncedFetchData();
+      }
+      return () => {
+        debouncedFetchData.cancel();
+      };
     }
-    return () => {
-      debouncedFetchData.cancel();
-    };
-  }, [hasLink, url, openGraphData, fetchData]);
+  }, [hasLink, url, openGraphData, fetchData, replyToMessage]);
 
   const onPressSend = () => {
     // if link is present in text
@@ -236,7 +238,7 @@ const MessageBar = ({
   const PlusIcon = results.PlusIcon;
 
   return (
-    <View style={{flexDirection: 'column'}}>
+    <View>
       <View style={styles.textInputContainer}>
         <View
           style={StyleSheet.compose(
@@ -279,14 +281,18 @@ const MessageBar = ({
             </View>
           )}
 
-          {url && (
-            <LinkPreview
-              showPreview={showPreview}
-              setShowPreview={setShowPreview}
-              link={url}
-              loading={loading}
-              data={openGraphData}
-            />
+          {!replyToMessage && showPreview && (
+            <View style={styles.linkContainer}>
+              <View style={styles.linkContainerStyle}>
+                <LinkPreview
+                  showPreview={showPreview}
+                  setShowPreview={setShowPreview}
+                  link={url}
+                  loading={loading}
+                  data={openGraphData}
+                />
+              </View>
+            </View>
           )}
 
           {microphoneClicked ? (
@@ -297,6 +303,7 @@ const MessageBar = ({
           ) : (
             <TextComponent
               togglePopUp={togglePopUp}
+              showPreview={showPreview}
               replyToMessage={replyToMessage}
               animatedStyle={animatedStyle}
               setText={setText}
@@ -329,19 +336,39 @@ const styling = (colors: any) =>
       paddingBottom: PortSpacing.tertiary.bottom,
     },
     replyContainerStyle: {
-      width: '100%',
+      flex: 1,
+      marginHorizontal: 5,
       overflow: 'hidden',
       borderRadius: 12,
       minHeight: PortSpacing.primary.uniform,
       backgroundColor: colors.primary.background,
     },
-    replyContainer: {
-      width: '100%',
-      paddingHorizontal: 4,
-      paddingTop: 4,
+    linkContainer: {
+      width: MESSAGE_INPUT_TEXT_WIDTH,
+      paddingTop: 1,
+      borderTopRightRadius: 12,
+      borderTopLeftRadius: 12,
       flexDirection: 'row',
-      justifyContent: 'flex-end',
+      justifyContent: 'flex-start',
       alignItems: 'flex-start',
+      backgroundColor: colors.primary.surface,
+    },
+    linkContainerStyle: {
+      flex: 1,
+      marginHorizontal: 1,
+      overflow: 'hidden',
+      borderRadius: 12,
+      minHeight: PortSpacing.primary.uniform,
+    },
+    replyContainer: {
+      width: MESSAGE_INPUT_TEXT_WIDTH,
+      paddingTop: 5,
+      borderTopRightRadius: 12,
+      borderTopLeftRadius: 12,
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      backgroundColor: colors.primary.surface,
     },
     textInput: {},
   });

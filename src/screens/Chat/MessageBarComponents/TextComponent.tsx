@@ -12,12 +12,14 @@ const TextComponent = ({
   togglePopUp,
   replyToMessage,
   text,
+  showPreview,
   setText,
   animatedStyle,
   inputRef,
   onPressSend,
   setMicrophoneClicked,
 }: {
+  showPreview?: boolean;
   togglePopUp: () => void;
   replyToMessage: LineMessageData | null; // message to be replied to
   text: string;
@@ -73,7 +75,7 @@ const TextComponent = ({
       <View
         style={StyleSheet.compose(
           styles.textInput,
-          replyToMessage
+          replyToMessage || showPreview
             ? {
                 borderTopLeftRadius: 0,
                 borderTopRightRadius: 0,

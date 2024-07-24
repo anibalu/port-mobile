@@ -2,9 +2,10 @@ import {runSimpleQuery} from '../DBCalls/dbCommon';
 import migration002 from './migration002';
 import migration004 from './migration004';
 import {migration005} from './migration005';
+import {migration006} from './migration006';
 // Increment this counter everytime you add a migration.
 // If this file has been modified, hopefully this counter has ticked.
-// MOST_RECENT_MIGRATION_NUMBER = 004
+// MOST_RECENT_MIGRATION_NUMBER = 006
 
 // To run a migration, write a suitible callback and add it to the list.
 // Make sure to increment the counter above to make sure we don't do weird things.
@@ -12,6 +13,7 @@ const migrations: [number, () => Promise<void>][] = [
   [2, migration002],
   [4, migration004],
   [5, migration005],
+  [6, migration006],
 ];
 
 export default async function runMigrations() {

@@ -20,17 +20,25 @@ import {getAllPermissions} from '../Storage/permissions';
 import {saveProfileInfo} from '../Storage/profile';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {addFolderEntry, getAllFolders} from '@utils/ChatFolders';
+import {blockUser, getAllBlockedUsers} from '@utils/UserBlocking';
 
 const BACKUP_VERSION = '20240412'; // Write as date to guesstimate when the backup code was written
 const sectionSplitMagic = '\n<---SECTION SPLIT--->\n'; // TODO Debt: need to account for and escape this sequence across sections
 const tableSplitMagic = '\n<---TABLE SPLIT--->\n'; // TODO Debt: need to account for and escape this sequence across tables
-type tableOpt = 'connections' | 'permissions' | 'crypto' | 'lines' | 'folders';
+type tableOpt =
+  | 'connections'
+  | 'permissions'
+  | 'crypto'
+  | 'lines'
+  | 'folders'
+  | 'blockedUsers';
 const tablesToSertialize: tableOpt[] = [
   'connections',
   'permissions',
   'crypto',
   'lines',
   'folders',
+  'blockedUsers',
 ];
 
 /**
@@ -114,6 +122,12 @@ const tableSerializationData = {
     booleanColumns: [],
     inserter: addFolderEntry,
     ennumerator: getAllFolders,
+  },
+  blockedUsers: {
+    columns: ['pairHash', 'name', 'blockTimestamp'],
+    booleanColumns: [],
+    inserter: blockUser,
+    ennumerator: getAllBlockedUsers,
   },
 };
 

@@ -13,7 +13,12 @@ steps:
     workingFile: .npmrc
 
 - script: |
+    ! grep -i "uat.numberless.tech" src/configs/api.ts
+  displayName: 'Ensure not UAT'
+
+- script: |
     NPM_TOKEN=$(System.AccessToken) yarn install
+  displayName: 'Install dependencies'
 
 - script: NPM_TOKEN=$(System.AccessToken) yarn lint
   displayName: 'Lint'

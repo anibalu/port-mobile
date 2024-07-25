@@ -22,6 +22,7 @@ import {
 } from '@utils/Storage/DBCalls/lineMessage';
 import {SendMediaDirectMessage} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
 import {handleAsyncMediaDownload} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
+import Animated, {useAnimatedStyle, withTiming} from 'react-native-reanimated';
 
 //max width of message bubble
 export const MAX_WIDTH = screen.width - 2 * PortSpacing.secondary.uniform - 64;
@@ -152,7 +153,7 @@ export const RenderTimeStamp = ({
   showReadReceipts = true,
 }: {
   message: LoadedMessage;
-  stampColor?: 'rg' | 'w'; //regular or white
+  stampColor?: 'rg' | 'w'; // regular or white
   showReadReceipts?: boolean;
 }): ReactNode => {
   const svgArray = [
@@ -161,23 +162,24 @@ export const RenderTimeStamp = ({
       light: require('@assets/light/icons/Read.svg').default,
       dark: require('@assets/dark/icons/Read.svg').default,
     },
-    {
-      assetName: 'Received',
-      light: require('@assets/light/icons/Received.svg').default,
-      dark: require('@assets/dark/icons/Received.svg').default,
-    },
-    {
-      assetName: 'Sent',
-      light: require('@assets/light/icons/Sent.svg').default,
-      dark: require('@assets/icons/statusIndicators/sent.svg').default,
-    },
   ];
 
   const results = useDynamicSVG(svgArray);
   const Read = results.Read;
-  const Received = results.Received;
-  const Sent = results.Sent;
   const Colors = DynamicColors();
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateX: withTiming(message.deliveredTimestamp ? 1 : 0, {
+            duration: 400,
+          }),
+        },
+      ],
+    };
+  });
+
   if (message.messageStatus === MessageStatus.failed) {
     return (
       <View style={styles.timestampContainer}>
@@ -193,23 +195,24 @@ export const RenderTimeStamp = ({
   } else {
     return (
       <View style={styles.timestampContainer}>
-        <NumberlessText
-          fontSizeType={FontSizeType.s}
-          fontType={FontType.rg}
-          textColor={
-            stampColor === 'w' ? Colors.primary.darkgrey : Colors.text.subtitle
-          }>
-          {getTimeStamp(message.timestamp)}
-        </NumberlessText>
+        <Animated.View style={animatedStyle}>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.rg}
+            textColor={
+              stampColor === 'w'
+                ? Colors.primary.darkgrey
+                : Colors.text.subtitle
+            }>
+            {getTimeStamp(message.timestamp)}
+          </NumberlessText>
+        </Animated.View>
         {showReadReceipts && message.sender && (
           <View style={{marginLeft: 3}}>
             {message.readTimestamp ? (
               <Read />
-            ) : message.deliveredTimestamp ? (
-              <Received />
-            ) : message.messageStatus === MessageStatus.sent ? (
-              <Sent />
-            ) : (
+            ) : message.deliveredTimestamp ? null : message.messageStatus ===
+              MessageStatus.sent ? null : (
               <Sending />
             )}
           </View>

@@ -22,7 +22,7 @@ class ReceiveText extends DirectReceiveAction {
 
     //save message to storage
     await this.saveMessage();
-    await this.sendReceiveUpdate();
+    // await this.sendReceiveUpdate();
     //update connection
     await updateConnectionOnNewMessage(
       {

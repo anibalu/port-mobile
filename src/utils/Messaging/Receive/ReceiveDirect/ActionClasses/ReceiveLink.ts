@@ -24,7 +24,7 @@ class ReceiveLink extends DirectReceiveAction {
 
     //save message to storage
     await this.saveMessage();
-    await this.sendReceiveUpdate();
+    // await this.sendReceiveUpdate();
     handleAsyncLinkDownload(
       this.chatId,
       this.decryptedMessageContent.messageId,

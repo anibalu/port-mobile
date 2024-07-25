@@ -54,7 +54,7 @@ class ReceiveLargeData extends DirectReceiveAction {
 
     //By default, we add in a message to the DB without waiting to download media
     await this.saveMessage(data);
-    await this.sendReceiveUpdate();
+    // await this.sendReceiveUpdate();
 
     //If autodownload is on, we do the following async
     if (permissions.autoDownload) {

@@ -69,6 +69,7 @@ export const REACTION_RECEIVER_ID = '02';
 //default permissions used to initialise default folder
 export const defaultPermissions: PermissionsStrict = {
   notifications: true,
+  focus: true,
   autoDownload: false,
   displayPicture: true,
   contactSharing: false,
@@ -80,8 +81,14 @@ export const defaultPermissionsId: string = '00000000000000000000000000000000';
 export const defaultFolderId: string = '00000000000000000000000000000000';
 export const defaultFolderInfo: FolderInfo = {
   folderId: defaultFolderId,
-  name: 'Primary',
+  name: 'Default',
   permissionsId: defaultPermissionsId,
+};
+
+export const focusFolderInfo: FolderInfo = {
+  name: 'Focus',
+  folderId: 'all',
+  permissionsId: 'all',
 };
 
 export const defaultSuperportConnectionsLimit: number = 50;

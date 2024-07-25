@@ -11,9 +11,9 @@ import {
   moveConnectionsToNewFolder,
 } from '@utils/Connections';
 import {defaultFolderId} from '@configs/constants';
-import {updateChatPermissions} from '@utils/ChatPermissions';
 import {ChatType} from '@utils/Connections/interfaces';
 import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
+import {getChatsInAFolder} from '@utils/Storage/DBCalls/folders';
 
 /**
  * Get all chat folders
@@ -113,7 +113,7 @@ export async function editFolderName(folderId: string, newName: string) {
 export async function applyFolderPermissions(folderId: string) {
   //get folder permissions
   const folderPermissions = await getFolderPermissions(folderId);
-  const connections = await getConnectionsByFolder(folderId);
+  const connections = await getChatsInAFolder(folderId);
 
   // Let the backend know to silence notifications for chats in the folder
   const newNotificationPermissionState = folderPermissions.notifications;
@@ -141,10 +141,11 @@ export async function applyFolderPermissions(folderId: string) {
     return;
   }
 
-  for (let index = 0; index < connections.length; index++) {
-    //update chat permissions to folder permissions
-    await updateChatPermissions(connections[index].chatId, folderPermissions);
-  }
+  // updates permissions of all chats in a folder
+  await permissionsStorage.updateChatPermissionsInAFolder(
+    folderId,
+    folderPermissions,
+  );
 }
 
 /**

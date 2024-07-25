@@ -73,6 +73,11 @@ const ChatSettingsCard = ({
       light: require('@assets/light/icons/CheckCircle.svg').default,
       dark: require('@assets/dark/icons/CheckCircle.svg').default,
     },
+    {
+      assetName: 'Focus',
+      light: require('@assets/light/icons/Focus.svg').default,
+      dark: require('@assets/dark/icons/Focus.svg').default,
+    },
   ];
   const results = useDynamicSVG(svgArray);
 
@@ -81,6 +86,7 @@ const ChatSettingsCard = ({
   const ClockIcon = results?.ClockIcon;
   const Download = results?.DownloadArrow;
   const CheckCircle = results?.CheckCircle;
+  const Focus = results?.Focus;
 
   useEffect(() => {
     (async () => {
@@ -215,6 +221,15 @@ const ChatSettingsCard = ({
           onToggle={async () => await onUpdateBooleanPermission('readReceipts')}
         />
       </View>
+      <LineSeparator />
+      <View>
+        <OptionWithToggle
+          IconLeft={Focus}
+          toggleActiveState={permissions.focus}
+          heading="focus"
+          onToggle={async () => await onUpdateBooleanPermission('focus')}
+        />
+      </View>
       {showDissapearingMessagesOption && (
         <>
           <LineSeparator />
@@ -239,14 +254,6 @@ const ChatSettingsCard = ({
           />
         </>
       )}
-      <View>
-        <OptionWithToggle
-          IconLeft={CheckCircle}
-          toggleActiveState={permissions.focus}
-          heading="focus"
-          onToggle={async () => await onUpdateBooleanPermission('focus')}
-        />
-      </View>
     </SimpleCard>
   );
 };

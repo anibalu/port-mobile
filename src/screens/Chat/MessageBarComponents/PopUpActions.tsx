@@ -163,9 +163,11 @@ const PopUpActions = ({
       const fileList = [];
       for (let index = 0; index < selected.length; index++) {
         const file: FileAttributes = {
-          fileUri: selected[index].fileCopyUri
-            ? selected[index].fileCopyUri
-            : selected[index].uri,
+          //file path has encoded characters. However, the resource is only accessible after decoding file path.
+          //android uses fileCopyUri, ios uses uri.
+          fileUri: decodeURIComponent(
+            selected[index].fileCopyUri || selected[index].uri,
+          ),
           fileType: selected[index].type || '',
           fileName: selected[index].name || '',
         };

@@ -4,6 +4,8 @@ import store from '@store/appStore';
 import {getToken} from '@utils/ServerAuth';
 import {WEBSOCKET_URL} from '@configs/api';
 import {Mutex} from 'async-mutex';
+import {isIOS} from '@components/ComponentUtils';
+import {getUnprocessedMessages} from '@utils/Storage/unprocessedMessages';
 
 /**
  * Retrieve messages from the backlog and process them
@@ -37,12 +39,42 @@ async function _backlogPullWithREST() {
   });
 }
 
+/**
+ * Process any locally cached messages if it is run on iOS
+ */
+async function processLocallyCachedMessages() {
+  if (!isIOS) {
+    // There is no NSE on android to add messages to the
+    // local cache
+    return;
+  }
+  const messages = await getUnprocessedMessages();
+  for (const message of messages) {
+    const receiver = new ReceiveMessage(message);
+    await receiver.receive();
+  }
+  store.dispatch({
+    type: 'PING',
+    payload: 'PONG',
+  });
+}
+
 const backlogLock = new Mutex();
 
 /**
  * Retrieve messages from the server over the WebSocket protocol
  */
 async function backlogPullWithWS() {
+  // Process messages cached locally
+  await processLocallyCachedMessages();
+  /**
+   * If a message gets processed from the local cache,
+   * it will almost certainly be processed again once we fetch from the backlog on our servers.
+   * As such, it is important to guard against duplicate processing for
+   * some message types to prevent unwanted behaviour. This is handled
+   * within receivers.
+   */
+
   // Attempt to acquire a token immediately to prevent connections that never authenticate
   var token: string;
   try {

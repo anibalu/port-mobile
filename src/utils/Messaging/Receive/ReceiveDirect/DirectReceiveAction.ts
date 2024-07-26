@@ -69,7 +69,7 @@ class DirectReceiveAction {
       this.decryptedMessageContent.messageId,
     );
     if (msg) {
-      throw new Error('Guarded against duplicate message processing');
+      throw new Error('AttemptedReprocessingError');
     }
   }
 

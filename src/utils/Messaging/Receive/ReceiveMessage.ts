@@ -73,7 +73,9 @@ class ReceiveMessage {
         await receiver.receive();
       }
     } catch (error) {
-      console.log('Error receiving message: ', error);
+      if ('AttemptedReprocessingError' !== error.message) {
+        console.log('Error receiving message: ', error);
+      }
     }
   }
 }

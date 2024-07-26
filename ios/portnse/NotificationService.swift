@@ -156,6 +156,37 @@ func hexToData(_ hexString: String) -> Data? {
   return data
 }
 
+func cacheTriggerMessage(_ triggerMessage: String) {
+  openDB()
+  var statement: OpaquePointer?
+  // Prepare a statement to save a message
+  if sqlite3_prepare_v2(db, "INSERT INTO unprocessedMessages (unprocessedMessage) VALUES (?) ;", -1, &statement, nil) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("error preparing insert: \(errmsg)")
+  }
+  if sqlite3_bind_text(
+    statement,
+    1,
+    triggerMessage,
+    -1,
+    // Tells the function to make a copy of the message while preparing the statement
+    unsafeBitCast(-1, to: sqlite3_destructor_type.self) // SQLITE_TRANSIENT
+  ) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("failure binding foo: \(errmsg)")
+  }
+  // Execute the statement
+  sqlite3_step(statement)
+  
+  // Finalize the statement to commit and free any memory
+  if sqlite3_finalize(statement) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("error finalizing prepared statement: \(errmsg)")
+  }
+  
+  closeDB()
+}
+
 /**
  Extract the shared secret for a line chat based on the chatId
  */
@@ -369,6 +400,9 @@ class NotificationService: UNNotificationServiceExtension {
       count = count + 1
       defaults?.set(count, forKey: "count")
       contentHandler(bestAttemptContent)
+      // Save the trigger message so that the app can process messages
+      // while waiting for the API to return when opened
+      cacheTriggerMessage(triggerMessage)
     }
   }
   

@@ -226,7 +226,8 @@ export async function getAllChatsInFocus() {
     FROM ((connections
     JOIN lines ON connections.chatId = lines.lineId)
     JOIN permissions ON lines.permissionsId = permissions.permissionsId)
-    WHERE permissions.focus = true;
+    WHERE permissions.focus = true
+    ORDER BY timestamp DESC;
 `,
     [],
     (tx, results) => {

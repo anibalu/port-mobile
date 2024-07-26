@@ -170,7 +170,7 @@ function SideDrawer({
                     switch (element.item.folderId) {
                       case defaultFolderId:
                         return PrimaryFolderIcon;
-                      case 'all':
+                      case 'focus':
                         return AllChatsFolderIcon;
                       default:
                         return DefaultFolderIcon;

@@ -223,9 +223,9 @@ export async function getAllChatsInFocus() {
   connections.disconnected,
   connections.latestMessageId,
   connections.folderId
-    FROM connections
-    JOIN lines ON connections.chatId = lines.lineId
-    JOIN permissions ON lines.permissionsId = permissions.permissionsId
+    FROM ((connections
+    JOIN lines ON connections.chatId = lines.lineId)
+    JOIN permissions ON lines.permissionsId = permissions.permissionsId)
     WHERE permissions.focus = true;
 `,
     [],
@@ -234,10 +234,10 @@ export async function getAllChatsInFocus() {
       let entry;
       for (let i = 0; i < len; i++) {
         entry = results.rows.item(i);
-
         connections.push(entry);
       }
     },
   );
+
   return connections;
 }

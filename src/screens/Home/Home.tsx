@@ -120,7 +120,7 @@ function renderDefaultTile(
 ): ReactNode {
   if (
     selectedFolderData.folderId === defaultFolderId ||
-    selectedFolderData.folderId === 'all'
+    selectedFolderData.folderId === 'focus'
   ) {
     return (
       <HomescreenPlaceholder name={name} profilePicAttr={profilePicAttr} />
@@ -147,9 +147,8 @@ function Home({route, navigation}: Props) {
   );
   const [folders, setFolders] = useState<FolderInfoWithUnread[]>([]);
   //sets selected folder info
-  const [selectedFolderData, setSelectedFolderData] = useState<FolderInfo>({
-    ...focusFolderInfo,
-  });
+  const [selectedFolderData, setSelectedFolderData] =
+    useState<FolderInfo>(focusFolderInfo);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   //all connections available
   const [connections, setConnections] = useState<ChatTileProps[] | null>(null);
@@ -367,7 +366,10 @@ function Home({route, navigation}: Props) {
       if (connections) {
         if (searchText === '') {
           setSearchReturnedNull(false);
-          if (selectedFolderData.folderId === 'all') {
+          if (
+            selectedFolderData.folderId === 'focus' ||
+            selectedFolderData === undefined
+          ) {
             // gets all connections which have focus permission as true
             const chats = await getAllChatsInFocus();
             setViewableConnections(chats);
@@ -504,7 +506,7 @@ function Home({route, navigation}: Props) {
   }
 
   const showPrompt = useMemo(() => {
-    if (selectedFolderData.folderId === 'all') {
+    if (selectedFolderData.folderId === 'focus') {
       return false;
     } else if (totalUnreadCount > 0) {
       return !folders.some(

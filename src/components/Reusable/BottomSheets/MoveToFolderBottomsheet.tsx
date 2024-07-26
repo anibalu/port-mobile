@@ -102,7 +102,7 @@ const MoveToFolder = ({
 
   const filteredFolders = folders.filter(folder => {
     return (
-      folder.folderId !== 'all' && folder.folderId !== currentFolder.folderId
+      folder.folderId !== 'focus' && folder.folderId !== currentFolder.folderId
     );
   });
 
@@ -154,7 +154,7 @@ const MoveToFolder = ({
         )}
         <FlatList
           data={
-            currentFolder.folderId === 'all'
+            currentFolder.folderId === 'focus'
               ? folders
               : folders.filter(x => x.folderId !== currentFolder.folderId)
           }
@@ -164,7 +164,7 @@ const MoveToFolder = ({
           keyExtractor={(item: any) => item.folderId}
           renderItem={item => {
             const newFolders =
-              currentFolder.folderId === 'all'
+              currentFolder.folderId === 'focus'
                 ? folders
                 : folders.filter(x => x.folderId !== currentFolder.folderId);
             return (

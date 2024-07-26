@@ -47,7 +47,6 @@ function HomeTopbar({
 }: TopbarProps): ReactNode {
   const title = unread ? `${folder.name} (${unread})` : `${folder.name}`;
   const navigation = useNavigation<any>();
-
   const [isSearchActive, setIsSearchActive] = useState(false);
 
   const handleCancel = () => {
@@ -164,13 +163,13 @@ function HomeTopbar({
                     ellipsizeMode="tail"
                     fontType={FontType.md}
                     fontSizeType={FontSizeType.l}>
-                    {title}
+                    {title || 'Focus'}
                   </NumberlessText>
                 </Pressable>
               </View>
               <View style={styles.optionsRight}>
                 {(folder.folderId === defaultFolderId ||
-                  folder.folderId === 'all') && (
+                  folder.folderId === 'focus') && (
                   <Pressable
                     style={styles.iconWrapper3}
                     onPress={() => navigation.navigate('PendingRequests')}>
@@ -182,7 +181,7 @@ function HomeTopbar({
                   onPress={() => setIsSearchActive(p => !p)}>
                   <SearchIcon width={24} height={24} />
                 </Pressable>
-                {folder.folderId !== 'all' && (
+                {folder.folderId !== 'focus' && (
                   <Pressable
                     style={styles.iconWrapper2}
                     onPress={() =>

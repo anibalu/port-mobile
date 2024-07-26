@@ -87,8 +87,8 @@ export const defaultFolderInfo: FolderInfo = {
 
 export const focusFolderInfo: FolderInfo = {
   name: 'Focus',
-  folderId: 'all',
-  permissionsId: 'all',
+  folderId: 'focus',
+  permissionsId: 'focus',
 };
 
 export const defaultSuperportConnectionsLimit: number = 50;

@@ -27,13 +27,13 @@ export default async function addDefaultEntries() {
     `
     UPDATE permissions
     SET
-    notifications = COALESCE(?, notifications),
-    autoDownload = COALESCE(?, autoDownload),
-    displayPicture = COALESCE(?, displayPicture),
-    contactSharing = COALESCE(?, contactSharing),
-    disappearingMessages = COALESCE(?, disappearingMessages),
-    readReceipts = COALESCE(?, readReceipts)
-    WHERE permissionsId = ? ;
+      notifications = COALESCE(?, notifications),
+      autoDownload = COALESCE(?, autoDownload),
+      displayPicture = COALESCE(?, displayPicture),
+      contactSharing = COALESCE(?, contactSharing),
+      disappearingMessages = COALESCE(?, disappearingMessages),
+      readReceipts = COALESCE(?, readReceipts)
+      WHERE permissionsId = ? ;
     `,
     [
       defaultPermissions.notifications,

@@ -1,8 +1,4 @@
-import {
-  defaultFolderId,
-  defaultPermissions,
-  defaultPermissionsId,
-} from '@configs/constants';
+import {defaultFolderId, defaultPermissionsId} from '@configs/constants';
 
 import {ConnectionInfo} from '@utils/Connections/interfaces';
 import {runSimpleQuery} from '@utils/Storage/DBCalls/dbCommon';
@@ -12,8 +8,7 @@ import {runSimpleQuery} from '@utils/Storage/DBCalls/dbCommon';
  * folder focus permission to true
  */
 export async function setFocusPermissionForDefaultFolder() {
-  // update folder name
-  const DEFAULT_NAME = 'Default';
+  // update primary folder name to default
   await runSimpleQuery(
     `
     UPDATE folders
@@ -21,34 +16,20 @@ export async function setFocusPermissionForDefaultFolder() {
     name = COALESCE(?, name)
     WHERE folderId = ? ;
     `,
-    [DEFAULT_NAME, defaultFolderId],
+    ['Default', defaultFolderId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
-  // update folder permission
+
+  // update folder permission of
   await runSimpleQuery(
     `
     UPDATE permissions
     SET
-    notifications = COALESCE(?, notifications),
-    autoDownload = COALESCE(?, autoDownload),
-    displayPicture = COALESCE(?, displayPicture),
-    contactSharing = COALESCE(?, contactSharing),
-    disappearingMessages = COALESCE(?, disappearingMessages),
-    readReceipts = COALESCE(?, readReceipts),
     focus = COALESCE(?, focus)
     WHERE permissionsId = ? ;
     `,
-    [
-      defaultPermissions.notifications,
-      defaultPermissions.autoDownload,
-      defaultPermissions.displayPicture,
-      defaultPermissions.contactSharing,
-      defaultPermissions.disappearingMessages,
-      defaultPermissions.readReceipts,
-      true,
-      defaultPermissionsId,
-    ],
+    [true, defaultPermissionsId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
@@ -56,12 +37,24 @@ export async function setFocusPermissionForDefaultFolder() {
   let connections: ConnectionInfo[] = [];
   await runSimpleQuery(
     `
-       SELECT
-    connections.chatId,
-FROM
-    connections
-LEFT JOIN
-    folders ON connections.folderId = folders.folderId
+    SELECT
+      connections.chatId,
+      connections.connectionType,
+      connections.name,
+      connections.text,
+      connections.recentMessageType,
+      connections.pathToDisplayPic,
+      connections.readStatus,
+      connections.authenticated,
+      connections.timestamp,
+      connections.newMessageCount,
+      connections.disconnected,
+      connections.latestMessageId,
+      connections.folderId
+    FROM
+      connections
+    LEFT JOIN
+      folders ON connections.folderId = folders.folderId
     WHERE connections.folderId = ?
     ;
         `,
@@ -75,24 +68,26 @@ LEFT JOIN
       }
     },
   );
-
   for (let index = 0; index < connections.length; index++) {
-    let permissionId = '';
+    let permissionId = {};
     //update chat permissions to folder permissions
     await runSimpleQuery(
       `
     SELECT permissions.permissionsId
-FROM ((connections 
-JOIN lines ON connections.chatId = lines.lineId)
-JOIN permissions ON lines.permissionsId = permissions.permissionsId)
-WHERE connections.chatId = ?`,
+    FROM ((
+      connections
+    JOIN lines ON
+      connections.chatId = lines.lineId)
+    JOIN permissions ON
+      lines.permissionsId = permissions.permissionsId)
+    WHERE connections.chatId = ?;`,
       [connections[index].chatId],
       (tx, results) => {
         const len = results.rows.length;
         let entry;
         for (let i = 0; i < len; i++) {
           entry = results.rows.item(i);
-          permissionId = entry;
+          permissionId = entry.permissionsId;
         }
       },
     );

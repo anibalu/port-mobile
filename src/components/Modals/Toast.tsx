@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     maxWidth: screen.width - 70,
+    zIndex: 99,
     width: 'auto',
     bottom: 100,
     borderRadius: 10,

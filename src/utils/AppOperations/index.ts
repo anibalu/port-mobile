@@ -6,6 +6,7 @@ import {cleanUpPorts, processReadBundles} from '@utils/Ports';
 import {deleteExpiredMessages} from '@utils/Storage/messages';
 import {deleteExpiredGroupMessages} from '@utils/Storage/groupMessages';
 import {debounce} from 'lodash';
+import {checkForUpdates} from '@utils/TermsAndConditions';
 
 /**
  * All actions that need to be performed when the app goes from foreground to background
@@ -21,6 +22,7 @@ export async function performBackgroundToForegroundOperations() {
   await cleanUpPorts();
   await processReadBundles();
   await cancelAllNotifications();
+  await checkForUpdates();
   console.log('[BTF OPERATIONS COMPLETE]');
 }
 
@@ -37,14 +39,11 @@ export const performPeriodicOperations = async () => {
   // delete expired direct and group messages
   await deleteExpiredGroupMessages();
   await deleteExpiredMessages();
+
   console.log('[PERIODIC OPERATIONS COMPLETE]');
 };
 
 export const debouncedPeriodicOperations = debounce(
   performPeriodicOperations,
-  1000,
-);
-export const debouncedBtFOperations = debounce(
-  performBackgroundToForegroundOperations,
   1000,
 );

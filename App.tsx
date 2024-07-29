@@ -31,6 +31,9 @@ import {ThemeProvider} from 'src/context/ThemeContext';
 import {ToastProvider} from 'src/context/ToastContext';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
 import Toast from '@components/Modals/Toast';
+import SoftUpdateInfoBlurView from '@components/Reusable/BlurView/SoftUpdateInfoBlurView';
+import HardUpdateInfoBlurView from '@components/Reusable/BlurView/HardUpdateInfoBlurView';
+import {UpdateStatusProvider} from 'src/context/UpdateStatusContext';
 
 function App(): JSX.Element {
   const appState = useRef(AppState.currentState);
@@ -105,17 +108,21 @@ function App(): JSX.Element {
     <>
       <Provider store={store}>
         <ThemeProvider>
-          <SafeAreaProvider>
-            <NavigationContainer>
-              <ErrorModalProvider>
-                <ToastProvider>
-                  <LoginStack startOnboarding={profileExists} />
-                  <Toast />
-                  <ErrorModal />
-                </ToastProvider>
-              </ErrorModalProvider>
-            </NavigationContainer>
-          </SafeAreaProvider>
+          <UpdateStatusProvider>
+            <SafeAreaProvider>
+              <NavigationContainer>
+                <ErrorModalProvider>
+                  <ToastProvider>
+                    <LoginStack startOnboarding={profileExists} />
+                    <Toast />
+                    <ErrorModal />
+                    <SoftUpdateInfoBlurView />
+                    <HardUpdateInfoBlurView />
+                  </ToastProvider>
+                </ErrorModalProvider>
+              </NavigationContainer>
+            </SafeAreaProvider>
+          </UpdateStatusProvider>
         </ThemeProvider>
       </Provider>
     </>

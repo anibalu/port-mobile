@@ -41,7 +41,7 @@ const PrimaryButton = ({
   onClick = () => {},
 }: {
   buttonText: string;
-  primaryButtonColor: 'b' | 'r' | 'w' | 'p';
+  primaryButtonColor: 'b' | 'r' | 'w' | 'p' | 'black';
   Icon?: FC<SvgProps>;
   iconSize?: 's' | 'm';
   textStyle?: TextStyle;
@@ -56,6 +56,8 @@ const PrimaryButton = ({
       return styles.whiteButton;
     } else if (primaryButtonColor === 'p') {
       return styles.purpleButton;
+    } else if (primaryButtonColor === 'black') {
+      return styles.blackButton;
     } else {
       return styles.blueButton;
     }
@@ -119,6 +121,7 @@ const styling = (colors: any) =>
       backgroundColor: colors.primary.red,
     },
     whiteButton: {backgroundColor: colors.primary.white},
+    blackButton: {backgroundColor: colors.primary.genericblack},
     blueButton: {backgroundColor: colors.button.black},
     purpleButton: {
       backgroundColor: colors.primary.accent,

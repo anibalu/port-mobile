@@ -226,7 +226,7 @@ const ChatSettingsCard = ({
         <OptionWithToggle
           IconLeft={Focus}
           toggleActiveState={permissions.focus}
-          heading="focus"
+          heading="Focus"
           onToggle={async () => await onUpdateBooleanPermission('focus')}
         />
       </View>

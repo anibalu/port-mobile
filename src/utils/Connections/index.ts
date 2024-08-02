@@ -83,8 +83,8 @@ export async function addConnection(connection: ConnectionInfo) {
   }
 }
 
-export async function getNewMessageCount() {
-  return await storage.getNewMessageCount();
+export async function getNewMessageCount(folderId?: string) {
+  return await storage.getNewMessageCount(folderId);
 }
 
 /**

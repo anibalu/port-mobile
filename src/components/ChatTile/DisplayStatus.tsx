@@ -42,16 +42,10 @@ const MessageStatusIndicator = ({readStatus}: {readStatus: MessageStatus}) => {
       light: require('@assets/light/icons/Received.svg').default,
       dark: require('@assets/dark/icons/Received.svg').default,
     },
-    {
-      assetName: 'Sent',
-      light: require('@assets/light/icons/Sent.svg').default,
-      dark: require('@assets/icons/statusIndicators/sent.svg').default,
-    },
   ];
 
   const results = useDynamicSVG(svgArray);
   const Read = results.Read;
-  const Sent = results.Sent;
   const Delivered = results.Delivered;
   if (!readStatus) {
     return <Delivered />;
@@ -62,7 +56,7 @@ const MessageStatusIndicator = ({readStatus}: {readStatus: MessageStatus}) => {
     case MessageStatus.read:
       return <Read />;
     case MessageStatus.sent:
-      return <Sent />;
+      return <></>;
     case MessageStatus.failed:
       return <Failure />;
     default:

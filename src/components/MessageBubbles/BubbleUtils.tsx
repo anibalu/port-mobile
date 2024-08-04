@@ -1,4 +1,4 @@
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useMemo} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {
   FontSizeType,
@@ -8,7 +8,7 @@ import {
 import {MessageStatus} from '@utils/Messaging/interfaces';
 import {PortSpacing, screen} from '@components/ComponentUtils';
 import {getTimeStamp} from '@utils/Time';
-import Sending from '@assets/icons/statusIndicators/sending.svg';
+import Sending from '@assets/icons/statusIndicators/sendingBubble.svg';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import FileViewer from 'react-native-file-viewer';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -22,7 +22,13 @@ import {
 } from '@utils/Storage/DBCalls/lineMessage';
 import {SendMediaDirectMessage} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
 import {handleAsyncMediaDownload} from '@utils/Messaging/Receive/ReceiveDirect/HandleMediaDownload';
-import Animated, {useAnimatedStyle, withTiming} from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 //max width of message bubble
 export const MAX_WIDTH = screen.width - 2 * PortSpacing.secondary.uniform - 64;
@@ -170,13 +176,37 @@ export const RenderTimeStamp = ({
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
+      flexDirection: 'row',
       transform: [
         {
-          translateX: withTiming(message.deliveredTimestamp ? 1 : 0, {
-            duration: 400,
-          }),
+          translateX: withTiming(
+            message.messageStatus === MessageStatus.sent ||
+              message.deliveredTimestamp
+              ? 16
+              : 1,
+            {
+              duration: 400,
+            },
+          ),
         },
       ],
+    };
+  });
+
+  const rotation = useSharedValue(0);
+
+  useMemo(() => {
+    rotation.value = withRepeat(
+      withTiming(360, {duration: 500, easing: Easing.linear}),
+      -1,
+      false,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const animatedRotationStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{rotate: `${rotation.value}deg`}],
     };
   });
 
@@ -206,17 +236,23 @@ export const RenderTimeStamp = ({
             }>
             {getTimeStamp(message.timestamp)}
           </NumberlessText>
+
+          {showReadReceipts && message.sender && (
+            <View style={{marginLeft: 3}}>
+              {message.readTimestamp ? (
+                <Read />
+              ) : message.deliveredTimestamp ? (
+                <View style={styles.transparentblock} />
+              ) : message.messageStatus === MessageStatus.sent ? (
+                <View style={styles.transparentblock} />
+              ) : (
+                <Animated.View style={animatedRotationStyle}>
+                  <Sending />
+                </Animated.View>
+              )}
+            </View>
+          )}
         </Animated.View>
-        {showReadReceipts && message.sender && (
-          <View style={{marginLeft: 3}}>
-            {message.readTimestamp ? (
-              <Read />
-            ) : message.deliveredTimestamp ? null : message.messageStatus ===
-              MessageStatus.sent ? null : (
-              <Sending />
-            )}
-          </View>
-        )}
       </View>
     );
   }
@@ -240,5 +276,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     paddingLeft: PortSpacing.tertiary.left,
+  },
+  transparentblock: {
+    height: 12,
+    width: 12,
+    backgroundColor: 'transparent',
   },
 });

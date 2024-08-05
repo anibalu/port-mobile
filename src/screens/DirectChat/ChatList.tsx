@@ -19,6 +19,7 @@ import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import {AuthenticatedStateBubble} from '@components/MessageBubbles/AuthenticatedStateBubble';
 import DynamicColors from '@components/DynamicColors';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
+import {useChatContext} from './ChatContext';
 
 const MESSAGE_TIME_GAP_FOR_PADDING = 60 * 60 * 1000;
 
@@ -93,6 +94,12 @@ function ChatList({
   };
 
   const [showScrollToEnd, setShowScrollToEnd] = useState(false);
+  const {
+    isPopUpVisible,
+    togglePopUp,
+    isEmojiSelectorVisible,
+    setIsEmojiSelectorVisible,
+  } = useChatContext();
 
   const handleMomentumEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (e.nativeEvent.contentOffset.y === 0) {
@@ -104,6 +111,16 @@ function ChatList({
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (e.nativeEvent.contentOffset.y > 100) {
+      // if pop up actions is visible
+      // close component
+      if (isPopUpVisible) {
+        togglePopUp();
+      }
+      // if emoji keyboard is visible
+      // close component
+      if (isEmojiSelectorVisible) {
+        setIsEmojiSelectorVisible(p => !p);
+      }
       setShowScrollToEnd(true);
     } else {
       setShowScrollToEnd(false);

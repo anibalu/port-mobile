@@ -55,6 +55,9 @@ const styling = Colors =>
       minHeight: REPLY_MEDIA_HEIGHT,
       minWidth: MIN_WIDTH_REPLY,
       justifyContent: 'space-between',
+      backgroundColor: Colors.primary.surface,
+      borderRadius: 12,
+      overflow: 'hidden',
     },
     replyContainer: {
       flexDirection: 'column',

@@ -8,7 +8,9 @@ import {StyleSheet, View} from 'react-native';
 const ProgressBar = ({
   progress,
   setIsPlaying,
+  isSender,
 }: {
+  isSender: boolean;
   progress: number;
   setIsPlaying: (p: boolean) => void;
 }) => {
@@ -21,7 +23,7 @@ const ProgressBar = ({
   }, [progress]);
 
   const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const styles = styling(Colors, isSender);
 
   return (
     <View style={styles.container}>
@@ -30,19 +32,23 @@ const ProgressBar = ({
   );
 };
 
-const styling = (colors: any) =>
+const styling = (colors: any, isSender: boolean) =>
   StyleSheet.create({
     container: {
-      width: screen.width - 170,
+      width: screen.width - 180,
       height: 5,
-      backgroundColor: colors.progress.container,
+      backgroundColor: isSender
+        ? colors.progress.senderContainer
+        : colors.progress.container,
       borderRadius: 6,
       overflow: 'hidden',
       marginRight: 8,
     },
     progressBar: {
       height: '100%',
-      backgroundColor: colors.progress.bar,
+      backgroundColor: isSender
+        ? colors.progress.senderBar
+        : colors.progress.bar,
     },
   });
 

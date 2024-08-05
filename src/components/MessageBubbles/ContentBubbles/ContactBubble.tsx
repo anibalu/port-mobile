@@ -78,6 +78,7 @@ const ContactBubble = ({message}: {message: LoadedMessage}) => {
   };
 
   const Colors = DynamicColors();
+  const styles = styling(Colors);
 
   return (
     <View style={{width: MAX_WIDTH_CONTENT - 16, padding: 4}}>
@@ -140,6 +141,7 @@ function GetButton({
   authenticated: boolean;
 }) {
   const Colors = DynamicColors();
+  const styles = styling(Colors);
   if (!accepted && !createdChatId) {
     return (
       <>
@@ -149,7 +151,7 @@ function GetButton({
           <NumberlessText
             fontSizeType={FontSizeType.m}
             fontType={FontType.md}
-            textColor={Colors.primary.accent}>
+            textColor={Colors.primary.white}>
             Connect
           </NumberlessText>
         </Pressable>
@@ -164,7 +166,7 @@ function GetButton({
             <NumberlessText
               fontSizeType={FontSizeType.m}
               fontType={FontType.md}
-              textColor={Colors.primary.accent}>
+              textColor={Colors.primary.white}>
               Message
             </NumberlessText>
           </Pressable>
@@ -177,7 +179,7 @@ function GetButton({
           <NumberlessText
             fontSizeType={FontSizeType.m}
             fontType={FontType.md}
-            textColor={Colors.primary.accent}>
+            textColor={Colors.primary.white}>
             Connecting...
           </NumberlessText>
         </Pressable>
@@ -190,7 +192,7 @@ function GetButton({
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}
-          textColor={Colors.primary.accent}>
+          textColor={Colors.primary.white}>
           Connecting...
         </NumberlessText>
       </Pressable>
@@ -202,30 +204,32 @@ function GetButton({
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}
-          textColor={Colors.primary.accent}>
+          textColor={Colors.primary.white}>
           Expired
         </NumberlessText>
       </Pressable>
     </>;
   }
 }
-const styles = StyleSheet.create({
-  timeStampContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    width: MAX_WIDTH_CONTENT - 16,
-    padding: 4,
-    gap: 4,
-  },
-  receiveMessageStyle: {
-    paddingVertical: 5,
-    width: MAX_WIDTH_CONTENT - 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    borderRadius: 12,
-    marginTop: 4,
-  },
-});
+const styling = (Colors: any) =>
+  StyleSheet.create({
+    timeStampContainer: {
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      width: MAX_WIDTH_CONTENT - 16,
+      padding: 4,
+      gap: 4,
+    },
+    receiveMessageStyle: {
+      paddingVertical: 5,
+      width: MAX_WIDTH_CONTENT - 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignSelf: 'center',
+      borderRadius: 12,
+      marginTop: 4,
+      backgroundColor: Colors.primary.accent,
+    },
+  });
 export default ContactBubble;

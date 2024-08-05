@@ -26,7 +26,7 @@ export const TextReplyBubble = ({
         <NumberlessText
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}
-          textColor={Colors.text.memberName}
+          textColor={Colors.messagebubble.memberName}
           numberOfLines={1}>
           {memberName}
         </NumberlessText>
@@ -48,6 +48,9 @@ const styling = (Colors: any) =>
       flexDirection: 'row',
       justifyContent: 'flex-start',
       minHeight: REPLY_MEDIA_HEIGHT,
+      backgroundColor: Colors.primary.surface,
+      borderRadius: 12,
+      overflow: 'hidden',
     },
     replyContainer: {
       flexDirection: 'column',

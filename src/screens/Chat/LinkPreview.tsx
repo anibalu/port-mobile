@@ -194,7 +194,6 @@ const styling = (colors: any) =>
     previewContainer: {
       flexDirection: 'row',
       justifyContent: 'flex-start',
-      padding: 4,
       minHeight: LINK_MEDIA_MIN_HEIGHT,
       width: '100%',
     },
@@ -203,14 +202,12 @@ const styling = (colors: any) =>
       alignItems: 'center',
       justifyContent: 'center',
       width: LINK_MEDIA_WIDTH,
-      backgroundColor: colors.primary.lightgrey,
     },
     previewLeft: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       width: LINK_MEDIA_WIDTH,
-      backgroundColor: colors.primary.lightgrey,
     },
     previewWrapper: {
       flexDirection: 'row',
@@ -227,7 +224,7 @@ const styling = (colors: any) =>
       padding: 8,
       gap: 2,
       width: TEXT_WIDTH,
-      backgroundColor: colors.primary.surface2,
+      backgroundColor: colors.primary.surface,
     },
     imgContainer: {
       flexDirection: 'row',

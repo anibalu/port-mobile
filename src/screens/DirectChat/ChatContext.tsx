@@ -99,6 +99,10 @@ type ChatContextType = {
   setMessages: (message: LoadedMessage[]) => void;
   updateAfterDeletion: (messageId: string[]) => void;
   updateAfterGlobalDeletion: (messageId: string[]) => void;
+  isPopUpVisible: boolean;
+  togglePopUp: () => void;
+  setIsEmojiSelectorVisible: (p: boolean) => void;
+  isEmojiSelectorVisible: boolean;
 };
 
 export const ChatContext = createContext<ChatContextType | undefined>(
@@ -151,6 +155,18 @@ export const ChatContextProvider = ({
   //if delete for everyone should be available
   const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+
+  // for toggling emoji keyboard
+  const [isEmojiSelectorVisible, setIsEmojiSelectorVisible] =
+    useState<boolean>(false);
+
+  // for toggling pop up actions
+  const [isPopUpVisible, setPopUpVisible] = useState(false);
+
+  // to toggle between whether popupbar is shown or not
+  const togglePopUp = (): void => {
+    setPopUpVisible(!isPopUpVisible);
+  };
   const determineDeleteModalDisplay = async () => {
     let senderExists = true;
     const isDeleted =
@@ -278,6 +294,16 @@ export const ChatContextProvider = ({
   ): boolean | undefined => {
     if (contentType === ContentType.deleted) {
       return;
+    }
+    // if popup actions are visible,
+    // close component
+    if (isPopUpVisible) {
+      togglePopUp();
+    }
+    // if emoji keyboard is visible
+    // close component
+    if (isEmojiSelectorVisible) {
+      setIsEmojiSelectorVisible(p => !p);
     }
     // removes messageId from selected messages on short press
     let isSelectionMode = selectionMode ? true : false;
@@ -498,6 +524,10 @@ export const ChatContextProvider = ({
         messages,
         updateAfterDeletion,
         updateAfterGlobalDeletion,
+        togglePopUp,
+        isPopUpVisible,
+        isEmojiSelectorVisible,
+        setIsEmojiSelectorVisible,
       }}>
       {children}
     </ChatContext.Provider>

@@ -1,38 +1,61 @@
-import {isIOS, screen} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import {GenericButton} from '@components/GenericButton';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React, {useState} from 'react';
-import {Animated, Pressable, StyleSheet, TextInput, View} from 'react-native';
-const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 111;
+import React, {useMemo, useState} from 'react';
+import {Keyboard, Pressable, StyleSheet, TextInput, View} from 'react-native';
+import PurplePlus from '@assets/icons/PurplePlus.svg';
+import PurpleKeyboard from '@assets/icons/Keyboard.svg';
+import PopUpActions from './PopUpActions';
+import EmojiKeyboard from './EmojiKeyboard';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
+import {wait} from '@utils/Time';
+import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 const TextComponent = ({
-  togglePopUp,
   replyToMessage,
   text,
-  showPreview,
   setText,
-  animatedStyle,
   inputRef,
   onPressSend,
   setMicrophoneClicked,
+  chatId,
+  isGroupChat,
+  showPreview,
+  setEmojiSelected,
+  setCounter,
 }: {
-  showPreview?: boolean;
-  togglePopUp: () => void;
   replyToMessage: LineMessageData | null; // message to be replied to
   text: string;
   setText: (val: string) => void;
-  animatedStyle: any; //animation for opening popup component
   inputRef: any;
   onPressSend: () => void;
   setMicrophoneClicked: (p: boolean) => void;
+  chatId: string;
+  isGroupChat: boolean;
+  showPreview: boolean;
+  setEmojiSelected: (e: string) => void;
+  setCounter: (e: any) => void;
 }) => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
+
   // to focus on the text input
   const [isFocused, setIsFocused] = useState(false);
+  const {
+    togglePopUp,
+    isPopUpVisible,
+    isEmojiSelectorVisible,
+    setIsEmojiSelectorVisible,
+  } = useChatContext();
+
   const onChangeText = (newText: string): void => {
     setText(newText);
   };
@@ -45,50 +68,156 @@ const TextComponent = ({
     },
     {
       assetName: 'SendIcon',
-      light: require('@assets/icons/navigation/WhiteArrowUp.svg').default,
-      dark: require('@assets/icons/navigation/WhiteArrowUp.svg').default,
+      light: require('@assets/light/icons/BlackArrowUp.svg').default,
+      dark: require('@assets/dark/icons/PurpleArrowUp.svg').default,
     },
     {
       assetName: 'MicrophoneIcon',
-      light: require('@assets/icons/MicrophoneFilled.svg').default,
-      dark: require('@assets/icons/MicrophoneFilled.svg').default,
+      light: require('@assets/light/icons/MicrophoneFilled.svg').default,
+      dark: require('@assets/dark/icons/MicrophoneFilled.svg').default,
+    },
+    {
+      assetName: 'Emoji',
+      light: require('@assets/light/icons/Emoji.svg').default,
+      dark: require('@assets/dark/icons/Emoji.svg').default,
+    },
+
+    {
+      assetName: 'Plus',
+      light: require('@assets/light/icons/GreyPlus.svg').default,
+      dark: require('@assets/dark/icons/WhitePlus.svg').default,
     },
   ];
 
   const results = useDynamicSVG(svgArray);
 
-  const PlusIcon = results.PlusIcon;
-  const SendIcon = results.SendIcon;
   const MicrophoneIcon = results.MicrophoneIcon;
+  const Emoji = results.Emoji;
+  const SendIcon = results.SendIcon;
+  const Plus = results.Plus;
+
+  const options = {
+    enableVibrateFallback: true /* iOS Only */,
+    ignoreAndroidSystemSettings: true /* Android Only */,
+  };
 
   // handles sending of text
   const onHandleClick = () => {
     if (text.length > 0) {
       onPressSend();
     } else {
+      RNReactNativeHapticFeedback.trigger('impactHeavy', options);
       // toggles between showing audio recorder and text component
       setMicrophoneClicked(p => !p);
     }
   };
-  return (
-    <View style={{flexDirection: 'row'}}>
-      <View
-        style={StyleSheet.compose(
-          styles.textInput,
-          replyToMessage || showPreview
-            ? {
-                borderTopLeftRadius: 0,
-                borderTopRightRadius: 0,
-              }
-            : {},
-        )}>
-        <Animated.View style={[styles.plus, animatedStyle]}>
-          <Pressable onPress={togglePopUp}>
-            <PlusIcon height={24} width={24} />
-          </Pressable>
-        </Animated.View>
 
-        <View style={styles.textBox}>
+  const onPressPurpleActionButton = async () => {
+    RNReactNativeHapticFeedback.trigger('impactMedium', options);
+    // close emoji keyboard if its on
+    if (isEmojiSelectorVisible) {
+      setIsEmojiSelectorVisible(p => !p);
+    }
+    // close keyboard and open popup actions
+    if (!isPopUpVisible) {
+      Keyboard.dismiss();
+      await wait(300);
+      togglePopUp();
+    } else {
+      // open native keyboard and focus on textinput
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }
+  };
+
+  // util for text input focus
+  const onInputFocus = async () => {
+    setIsFocused(true);
+    // if popup actions visible, close it
+    if (isPopUpVisible) {
+      togglePopUp();
+    }
+    // if emoji keyboard visible, close it
+    if (isEmojiSelectorVisible) {
+      setIsEmojiSelectorVisible(p => !p);
+    }
+  };
+
+  const onPlusPressed = async () => {
+    RNReactNativeHapticFeedback.trigger('impactMedium', options);
+    // dismiss keyboard and open popup
+    Keyboard.dismiss();
+    await wait(100);
+    togglePopUp();
+  };
+
+  const onEmojiKeyboardPressed = async () => {
+    RNReactNativeHapticFeedback.trigger('impactMedium', options);
+    Keyboard.dismiss();
+    await wait(300);
+    // if popup actions visible, close it
+    if (isPopUpVisible) {
+      togglePopUp();
+    }
+    await wait(300);
+    // open emoji keyboard
+    setIsEmojiSelectorVisible(p => !p);
+  };
+
+  const onEmojiSelected = async (emoji: string) => {
+    setCounter(p => p + 1);
+    setEmojiSelected(emoji);
+  };
+
+  // to animate transition between keyboard icon and plus icon
+  const scaleKeyboard = useSharedValue(isPopUpVisible ? 1 : 0);
+  const scalePlus = useSharedValue(isPopUpVisible ? 0 : 1);
+
+  const animatedStyleKeyboard = useAnimatedStyle(() => {
+    return {
+      transform: [{scale: scaleKeyboard.value}],
+      opacity: interpolate(scaleKeyboard.value, [0, 1], [0, 1]),
+    };
+  });
+
+  const animatedStylePlus = useAnimatedStyle(() => {
+    return {
+      transform: [{scale: scalePlus.value}],
+      opacity: interpolate(scalePlus.value, [0, 1], [0, 1]),
+    };
+  });
+  useMemo(() => {
+    scaleKeyboard.value = withTiming(isPopUpVisible ? 1 : 0, {duration: 300});
+    scalePlus.value = withTiming(isPopUpVisible ? 0 : 1, {duration: 300});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPopUpVisible]);
+
+  return (
+    <>
+      <View style={styles.mainContainer}>
+        {!replyToMessage && !showPreview && (
+          <View style={styles.plus}>
+            <Pressable hitSlop={24} onPress={onPressPurpleActionButton}>
+              {isPopUpVisible ? (
+                <Animated.View style={[animatedStyleKeyboard]}>
+                  <PurpleKeyboard height={24} width={24} />
+                </Animated.View>
+              ) : (
+                <Animated.View style={[animatedStylePlus]}>
+                  <PurplePlus height={24} width={24} />
+                </Animated.View>
+              )}
+            </Pressable>
+          </View>
+        )}
+
+        <View
+          style={
+            replyToMessage || showPreview
+              ? styles.replyInputBox
+              : styles.inputBox
+          }>
           <TextInput
             style={styles.inputText}
             ref={inputRef}
@@ -98,70 +227,105 @@ const TextComponent = ({
             placeholderTextColor={Colors.primary.mediumgrey}
             onChangeText={onChangeText}
             value={text}
-            onFocus={() => setIsFocused(true)}
+            onFocus={onInputFocus}
             onBlur={() => setIsFocused(false)}
           />
+          {replyToMessage || showPreview ? (
+            <Pressable onPress={onPlusPressed} hitSlop={24}>
+              <Plus />
+            </Pressable>
+          ) : (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: PortSpacing.tertiary.uniform,
+              }}>
+              <Pressable onPress={onEmojiKeyboardPressed} hitSlop={24}>
+                <Emoji />
+              </Pressable>
+            </View>
+          )}
         </View>
+
+        <Pressable onPress={onHandleClick}>
+          {text.length > 0 || replyToMessage ? (
+            <SendIcon />
+          ) : (
+            <MicrophoneIcon style={styles.microphone} />
+          )}
+        </Pressable>
       </View>
-      <GenericButton
-        iconSizeRight={text.length > 0 ? 14 : 20}
-        buttonStyle={styles.send}
-        IconRight={text.length > 0 ? SendIcon : MicrophoneIcon}
-        onPress={onHandleClick}
-      />
-    </View>
+
+      {/* opens emoji keyboard */}
+      {isEmojiSelectorVisible && (
+        <EmojiKeyboard onEmojiSelected={onEmojiSelected} />
+      )}
+
+      {/* opens popup actions */}
+      {isPopUpVisible && (
+        <PopUpActions
+          chatId={chatId}
+          togglePopUp={togglePopUp}
+          isGroupChat={isGroupChat}
+        />
+      )}
+    </>
   );
 };
 const styling = (colors: any) =>
   StyleSheet.create({
-    textInput: {
+    mainContainer: {
       flexDirection: 'row',
       backgroundColor: colors.primary.surface,
-      overflow: 'hidden',
-      borderRadius: 20,
       alignItems: 'center',
-      marginRight: 4,
     },
-
     plus: {
-      width: 48,
-      borderRadius: 8,
-      alignItems: 'center',
-      justifyContent: 'flex-end',
+      paddingLeft: PortSpacing.secondary.left,
+      paddingRight: PortSpacing.tertiary.right,
     },
-    send: {
-      width: 40,
-      height: 40,
-      borderRadius: 40,
+    inputBox: {
+      backgroundColor: colors.primary.surface2,
+      flexDirection: 'row',
+      borderRadius: 24,
+      justifyContent: 'space-between',
       alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.button.black,
+      paddingRight: PortSpacing.secondary.right,
     },
 
-    textBox: {
-      width: MESSAGE_INPUT_TEXT_WIDTH,
-      flexDirection: 'column',
+    replyInputBox: {
+      width: screen.width - 70,
+      backgroundColor: colors.primary.surface2,
+      flexDirection: 'row',
+      borderBottomLeftRadius: 24,
+      borderBottomRightRadius: 24,
+      justifyContent: 'space-between',
       alignItems: 'center',
-      justifyContent: 'flex-start',
+      paddingRight: PortSpacing.secondary.right,
+      marginLeft: PortSpacing.secondary.right,
     },
     inputText: {
-      width: '97%',
       maxHeight: 110,
       height: undefined,
-      minHeight: 40,
+      minHeight: 45,
+      paddingLeft: PortSpacing.secondary.left,
       color: colors.text.primary,
       //Remove additional padding on Android
       ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
       overflow: 'hidden',
       alignSelf: 'stretch',
       paddingRight: 5,
-      borderRadius: 0,
+      width: screen.width - 142,
+
       justifyContent: 'center',
-      backgroundColor: colors.primary.surface,
       fontFamily: FontType.rg,
       fontSize: FontSizeType.l,
       fontWeight: getWeight(FontType.rg),
-      ...(isIOS && {paddingTop: 9}),
+      ...(isIOS && {paddingTop: 12}),
+    },
+    microphone: {
+      paddingLeft: PortSpacing.primary.right,
+      paddingRight: PortSpacing.secondary.right,
     },
   });
 

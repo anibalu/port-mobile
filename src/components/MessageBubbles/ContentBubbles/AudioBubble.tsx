@@ -172,7 +172,7 @@ const AudioBubble = ({
               ) : (
                 <CircleSnail
                   style={{marginRight: 6, marginLeft: -4}}
-                  size={16}
+                  size={17}
                   thickness={2}
                   color={Colors.primary.accent}
                   duration={500}
@@ -185,19 +185,23 @@ const AudioBubble = ({
                   setIsPlaying(false);
                   onStopPlayer();
                 }}>
-                <Pause style={{marginRight: 8}} />
+                <Pause style={{marginRight: 7}} />
               </Pressable>
             ) : (
               <Pressable
                 hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}
                 onPress={handleStartPlay}>
-                <Play style={{marginRight: 8}} />
+                <Play style={{marginRight: 7}} />
               </Pressable>
             )}
           </>
         )}
 
-        <ProgressBar progress={progress} setIsPlaying={setIsPlaying} />
+        <ProgressBar
+          isSender={message.sender}
+          progress={progress}
+          setIsPlaying={setIsPlaying}
+        />
       </View>
       <View style={styles.isMessageStyle}>
         <NumberlessText

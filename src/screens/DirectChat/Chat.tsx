@@ -5,6 +5,7 @@ import {
   AppState,
   BackHandler,
   KeyboardAvoidingView,
+  Pressable,
   StyleSheet,
   View,
 } from 'react-native';
@@ -26,7 +27,6 @@ import ChatList from './ChatList';
 import {MessageActionsBar} from '@screens/Chat/MessageActionsBar';
 import MessageBar from '@screens/Chat/MessageBar';
 import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
-import ChatBackground from '@components/ChatBackground';
 import Disconnected from '@screens/Chat/Disconnected';
 import {AudioPlayerProvider} from 'src/context/AudioPlayerContext';
 import {ChatContextProvider, useChatContext} from './ChatContext';
@@ -90,6 +90,10 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     performGlobalDelete,
     setIsAuthenticated,
     setsDisappearingMessagOn,
+    isPopUpVisible,
+    togglePopUp,
+    isEmojiSelectorVisible,
+    setIsEmojiSelectorVisible,
   } = useChatContext();
 
   //cursor for number of messages on screen
@@ -190,23 +194,37 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
+  const onChatScreenPressed = () => {
+    // if pop up actions is visible
+    // close component
+    if (isPopUpVisible) {
+      togglePopUp();
+    }
+    // if emoji keyboard is visible
+    // close component
+    if (isEmojiSelectorVisible) {
+      setIsEmojiSelectorVisible(p => !p);
+    }
+  };
+
   return (
     <AudioPlayerProvider>
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <GestureSafeAreaView style={styles.screen}>
-        <ChatBackground />
         <ChatTopbar />
         <KeyboardAvoidingView
+          style={styles.main}
           behavior={isIOS ? 'padding' : 'height'}
-          keyboardVerticalOffset={isIOS ? 50 : 0}
-          style={styles.main}>
-          <ChatList
-            messages={messages.filter(x =>
-              DisplayableContentTypes.includes(x.contentType),
-            )}
-            onStartReached={onStartReached}
-            onEndReached={onEndReached}
-          />
+          keyboardVerticalOffset={isIOS ? 50 : 0}>
+          <Pressable style={styles.main} onPress={onChatScreenPressed}>
+            <ChatList
+              messages={messages.filter(x =>
+                DisplayableContentTypes.includes(x.contentType),
+              )}
+              onStartReached={onStartReached}
+              onEndReached={onEndReached}
+            />
+          </Pressable>
           <ReportMessageBottomSheet
             description="If you report this message, an unencrypted copy of this message is sent to our servers."
             openModal={showReportModal}
@@ -270,7 +288,7 @@ const styling = (colors: any) =>
     },
     screen: {
       flexDirection: 'column',
-      backgroundColor: colors.primary.background,
+      backgroundColor: colors.primary.surface,
     },
     background: {
       position: 'absolute',

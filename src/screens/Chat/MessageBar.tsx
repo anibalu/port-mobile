@@ -14,14 +14,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  Animated,
-  Easing,
-  Pressable,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 
 import {OpenGraphParser} from 'react-native-opengraph-kit';
 import {extractLink} from '@components/MessageBubbles/BubbleUtils';
@@ -30,11 +23,15 @@ import {useErrorModal} from 'src/context/ErrorModalContext';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import PopUpActions from './MessageBarComponents/PopUpActions';
 import VoiceRecorder from './MessageBarComponents/VoiceRecorder';
 import TextComponent from './MessageBarComponents/TextComponent';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
-const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 63;
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+
 const MessageBar = ({
   ifTemplateExists,
 }: {
@@ -62,8 +59,6 @@ const MessageBar = ({
     replyToMessage ? false : true,
   );
 
-  const [isPopUpVisible, setPopUpVisible] = useState(false);
-
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -74,29 +69,6 @@ const MessageBar = ({
       inputRef.current.focus();
     }
   }, [replyToMessage]);
-  const rotationValue = useRef(new Animated.Value(0)).current;
-
-  // Interpolate the rotation value to determine the degree of rotation
-  const rotateInterpolation = rotationValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '45deg'],
-  });
-
-  // to toggle between whether popupbar is shown or not
-  const togglePopUp = (): void => {
-    setPopUpVisible(!isPopUpVisible);
-
-    // Rotate animation
-    Animated.timing(rotationValue, {
-      toValue: isPopUpVisible ? 0 : 1,
-      duration: 100,
-      easing: Easing.ease,
-      useNativeDriver: false, // false because 'rotate' is not supported by native driver
-    }).start();
-  };
-  const animatedStyle: Animated.AnimatedProps<ViewStyle> = {
-    transform: [{rotate: rotateInterpolation}],
-  };
 
   const sendText = async (): Promise<void> => {
     setShowPreview(false);
@@ -237,53 +209,56 @@ const MessageBar = ({
 
   const PlusIcon = results.PlusIcon;
 
+  // animation for sliding in
+  // of voice recorder component
+  const slideAnim = useSharedValue(screen.width);
+
+  const slideInStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{translateX: slideAnim.value}],
+    };
+  });
+
+  //
+  useEffect(() => {
+    if (microphoneClicked) {
+      slideAnim.value = withTiming(0);
+    } else {
+      slideAnim.value = withTiming(screen.width);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [microphoneClicked]);
+  const [emojiSelected, setEmojiSelected] = useState('');
+  // to render emojis in text input correctly
+  const [counter, setCounter] = useState(0);
+  useMemo(() => {
+    // if emoji is selected,
+    // add it to text
+    if (emojiSelected) {
+      setText(text + emojiSelected);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [counter]);
+
   return (
     <View>
       <View style={styles.textInputContainer}>
-        <View
-          style={StyleSheet.compose(
-            styles.textInput,
-            replyToMessage
-              ? {
-                  flexDirection: 'column',
-                  flex: 1,
-                  marginRight: 4,
-                  borderTopLeftRadius: 16,
-                  borderTopRightRadius: 16,
-                }
-              : {
-                  flexDirection: 'column',
-                  flex: 1,
-                  marginRight: 4,
-                },
-          )}>
+        <View>
           {replyToMessage && (
-            <View style={styles.replyContainer}>
-              <View style={styles.replyContainerStyle}>
-                <ReplyBubbleMessageBar replyTo={replyToMessage} />
-              </View>
+            <View style={styles.topElementWrapper}>
+              <ReplyBubbleMessageBar replyTo={replyToMessage} />
               <Pressable
                 onPress={clearEverything}
                 hitSlop={24}
-                style={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
-                  borderRadius: 12,
-                  backgroundColor: Colors.primary.surface,
-                }}>
-                <PlusIcon
-                  height={18}
-                  width={18}
-                  style={{transform: [{rotate: '45deg'}], height: 6, width: 6}}
-                />
+                style={styles.buttonWrapper}>
+                <PlusIcon height={18} width={18} style={styles.plus} />
               </Pressable>
             </View>
           )}
 
           {!replyToMessage && showPreview && (
-            <View style={styles.linkContainer}>
-              <View style={styles.linkContainerStyle}>
+            <View style={styles.topElementWrapper}>
+              <View style={styles.linkPreviewWrapper}>
                 <LinkPreview
                   showPreview={showPreview}
                   setShowPreview={setShowPreview}
@@ -296,32 +271,30 @@ const MessageBar = ({
           )}
 
           {microphoneClicked ? (
-            <VoiceRecorder
-              chatId={chatId}
-              setMicrophoneClicked={setMicrophoneClicked}
-            />
+            <Animated.View
+              style={[styles.voiceRecorderContainer, slideInStyle]}>
+              <VoiceRecorder
+                chatId={chatId}
+                setMicrophoneClicked={setMicrophoneClicked}
+              />
+            </Animated.View>
           ) : (
             <TextComponent
-              togglePopUp={togglePopUp}
-              showPreview={showPreview}
+              chatId={chatId}
+              isGroupChat={isGroupChat}
               replyToMessage={replyToMessage}
-              animatedStyle={animatedStyle}
               setText={setText}
               text={text}
               inputRef={inputRef}
               onPressSend={onPressSend}
               setMicrophoneClicked={setMicrophoneClicked}
+              showPreview={showPreview}
+              setCounter={setCounter}
+              setEmojiSelected={setEmojiSelected}
             />
           )}
         </View>
       </View>
-      {isPopUpVisible && (
-        <PopUpActions
-          chatId={chatId}
-          togglePopUp={togglePopUp}
-          isGroupChat={isGroupChat}
-        />
-      )}
     </View>
   );
 };
@@ -330,47 +303,42 @@ const styling = (colors: any) =>
   StyleSheet.create({
     textInputContainer: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-end',
-      marginLeft: PortSpacing.tertiary.uniform,
-      paddingBottom: PortSpacing.tertiary.bottom,
+      backgroundColor: colors.primary.surface,
+      width: '100%',
+      paddingTop: PortSpacing.tertiary.top,
+      paddingBottom: PortSpacing.secondary.bottom,
+      alignItems: 'center',
+      borderTopColor: colors.primary.stroke,
+      borderTopWidth: 1,
     },
-    replyContainerStyle: {
-      flex: 1,
-      marginHorizontal: 5,
-      overflow: 'hidden',
-      borderRadius: 12,
-      minHeight: PortSpacing.primary.uniform,
+    topElementWrapper: {
+      marginLeft: PortSpacing.secondary.left,
+      backgroundColor: colors.primary.surface2,
+      padding: 8,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      width: screen.width - 70,
+    },
+    linkPreviewWrapper: {
       backgroundColor: colors.primary.background,
+      borderRadius: 16,
     },
-    linkContainer: {
-      width: MESSAGE_INPUT_TEXT_WIDTH,
-      paddingTop: 1,
-      borderTopRightRadius: 12,
-      borderTopLeftRadius: 12,
-      flexDirection: 'row',
-      justifyContent: 'flex-start',
-      alignItems: 'flex-start',
-      backgroundColor: colors.primary.surface,
-    },
-    linkContainerStyle: {
-      flex: 1,
-      marginHorizontal: 1,
-      overflow: 'hidden',
+    buttonWrapper: {
+      position: 'absolute',
+      top: 10,
+      right: 12,
       borderRadius: 12,
-      minHeight: PortSpacing.primary.uniform,
-    },
-    replyContainer: {
-      width: MESSAGE_INPUT_TEXT_WIDTH,
-      paddingTop: 5,
-      borderTopRightRadius: 12,
-      borderTopLeftRadius: 12,
-      flexDirection: 'row',
-      justifyContent: 'flex-start',
-      alignItems: 'flex-start',
       backgroundColor: colors.primary.surface,
     },
-    textInput: {},
+    plus: {
+      transform: [{rotate: '45deg'}],
+      height: 6,
+      width: 6,
+    },
+    voiceRecorderContainer: {
+      backgroundColor: colors.primary.surface,
+      borderRadius: 16,
+    },
   });
 
 export default memo(MessageBar);

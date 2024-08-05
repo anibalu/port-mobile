@@ -154,7 +154,8 @@ const styling = (colors: any) =>
       justifyContent: 'flex-start',
       alignItems: 'center',
       paddingHorizontal: 8,
-      backgroundColor: colors.primary.surface,
+      backgroundColor: colors.primary.surface2,
+
       height: 56,
     },
     profileBar: {

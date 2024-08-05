@@ -37,11 +37,12 @@ const DynamicColors = () => {
     },
     messagebubble: {
       receiver: '#E2D8FF',
-      sender: '#FFFFFF',
+      sender: '#F3F2F7',
       reply: '#EDF2FF',
       replyBubbleInner: '#F4F4F5',
       replyBubbleReceive: '#F3F2F7',
       border: '#6A35FF',
+      memberName: '#05070B',
     },
     labels: {
       fill: '#FFFCEB',
@@ -49,8 +50,10 @@ const DynamicColors = () => {
       text: '#000000',
     },
     progress: {
-      container: '#F6F6F6',
+      container: '#FFFFFF',
       bar: '#6A35FF',
+      senderContainer: '#FFFFFF',
+      senderBar: '#6A35FF',
     },
     button: {
       black: '#05070B',
@@ -79,11 +82,12 @@ const DynamicColors = () => {
     },
     messagebubble: {
       receiver: '#6A35FF',
-      sender: '#1D232E',
+      sender: '#27272B',
       reply: '#FFFFFF',
       replyBubbleInner: '#9E82ED',
       replyBubbleReceive: '#05070B',
       border: '#EAECF0',
+      memberName: '#FFF',
     },
     labels: {
       fill: '#2F343B',
@@ -91,8 +95,10 @@ const DynamicColors = () => {
       text: '#EAECF0',
     },
     progress: {
-      container: '#9E82ED',
-      bar: '#FFFFFF',
+      container: '#6A35FF3D',
+      bar: '#6A35FF',
+      senderContainer: '#9E82ED',
+      senderBar: '#FFFFFF',
     },
     button: {
       black: '#6A35FF',

@@ -98,7 +98,7 @@ export const FileBubble = ({
     <View>
       <Pressable
         style={StyleSheet.compose(styles.textContainerRow, {
-          backgroundColor: Colors.primary.lightgrey,
+          backgroundColor: Colors.primary.surface,
         })}
         onPress={handlePressFunction}
         onLongPress={handleLongPressFunction}>

@@ -1,4 +1,4 @@
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import {isIOS} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
@@ -9,12 +9,18 @@ import {useNavigation} from '@react-navigation/native';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {FileAttributes} from '@utils/Storage/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import DocumentPicker, {
   DocumentPickerResponse,
 } from 'react-native-document-picker';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 const PopUpActions = ({
   togglePopUp,
@@ -26,6 +32,23 @@ const PopUpActions = ({
   chatId: string;
 }) => {
   const navigation = useNavigation();
+  // to animate popup actions sliding up
+  const translateY = useSharedValue(300);
+
+  useEffect(() => {
+    translateY.value = withTiming(0, {
+      duration: 500,
+      easing: Easing.out(Easing.exp),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{translateY: translateY.value}],
+    };
+  });
+
   const svgArray = [
     {
       assetName: 'VideoIcon',
@@ -190,8 +213,9 @@ const PopUpActions = ({
   };
   const Colors = DynamicColors();
   const styles = styling(Colors);
+
   return (
-    <View style={styles.popUpContainer}>
+    <Animated.View style={[styles.popUpContainer, animatedStyle]}>
       <View style={styles.optionContainer}>
         <Pressable style={styles.optionBox} onPress={onImagePressed}>
           <ImageIcon />
@@ -255,7 +279,7 @@ const PopUpActions = ({
           </NumberlessText>
         </View>
       )}
-    </View>
+    </Animated.View>
   );
 };
 
@@ -267,98 +291,10 @@ const styling = (colors: any) =>
       flexWrap: 'wrap',
       paddingLeft: 24,
       paddingRight: 24,
-      backgroundColor: colors.primary.surface,
       borderRadius: 16,
-      borderWidth: 0.5,
-      borderColor: colors.primary.stroke,
+      backgroundColor: colors.primary.surface,
       justifyContent: 'space-between',
       marginHorizontal: 10,
-    },
-    textInputContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-end',
-      marginHorizontal: PortSpacing.tertiary.uniform,
-      paddingBottom: PortSpacing.tertiary.bottom,
-    },
-    replyContainerStyle: {
-      width: '100%',
-      overflow: 'hidden',
-      borderRadius: 12,
-      minHeight: PortSpacing.primary.uniform,
-      backgroundColor: colors.primary.background,
-    },
-    replyContainer: {
-      width: '100%',
-      paddingHorizontal: 4,
-      paddingTop: 4,
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      alignItems: 'flex-start',
-    },
-    textInput: {
-      flexDirection: 'row',
-      backgroundColor: colors.primary.surface,
-      overflow: 'hidden',
-      borderRadius: 20,
-      alignItems: 'center',
-    },
-    recordingbar: {
-      flexDirection: 'row',
-      backgroundColor: colors.primary.surface,
-      overflow: 'hidden',
-      width: screen.width - 63,
-      borderRadius: 24,
-      height: 40,
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      justifyContent: 'space-between',
-    },
-    whilerecordingbar: {
-      flexDirection: 'row',
-      backgroundColor: colors.primary.surface,
-      overflow: 'hidden',
-      width: screen.width - 73,
-      borderRadius: 24,
-      height: 40,
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      justifyContent: 'space-between',
-    },
-
-    recordingmodal: {
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 8,
-      backgroundColor: '#D8CCF9',
-      alignSelf: 'center',
-      justifyContent: 'center',
-      alignItems: 'center',
-      position: 'absolute',
-      bottom: 70,
-      left: screen.width / 2 - 70,
-    },
-    plus: {
-      width: 48,
-      borderRadius: 8,
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-    },
-    send: {
-      width: 40,
-      height: 40,
-      borderRadius: 40,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.button.black,
-    },
-    recording: {
-      width: 50,
-      height: 50,
-      borderRadius: 60,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.button.black,
     },
 
     optionContainer: {
@@ -375,7 +311,7 @@ const styling = (colors: any) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 8,
-      backgroundColor: colors.primary.surface2,
+      backgroundColor: colors.primary.background,
     },
   });
 export default PopUpActions;

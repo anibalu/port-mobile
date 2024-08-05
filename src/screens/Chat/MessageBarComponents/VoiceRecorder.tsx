@@ -1,4 +1,4 @@
-import {isIOS, screen} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {GenericButton} from '@components/GenericButton';
 import {
@@ -202,7 +202,11 @@ const VoiceRecorder = ({
   };
 
   return (
-    <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+      }}>
       <View style={styles.container}>
         {/* when  voice has been recorded */}
         {!isVoiceRecording && voiceRecordingComplete && (
@@ -280,11 +284,8 @@ const VoiceRecorder = ({
         )}
         {/* when voice hasn't been recorded */}
         {!isVoiceRecording && !voiceRecordingComplete && (
-          <>
-            <MicrophoneGrey
-              style={{marginLeft: 4}}
-              onPress={onPressMicroPhone}
-            />
+          <Pressable style={{flexDirection: 'row'}} onPress={onPressMicroPhone}>
+            <MicrophoneGrey style={{marginLeft: 4}} />
             <View style={styles.box}>
               <NumberlessText
                 style={{marginLeft: 4}}
@@ -296,7 +297,7 @@ const VoiceRecorder = ({
                   : 'To send audio messages allow access to your microphone'}
               </NumberlessText>
             </View>
-          </>
+          </Pressable>
         )}
       </View>
       <GenericButton
@@ -313,12 +314,13 @@ const styling = (colors: any) =>
   StyleSheet.create({
     container: {
       flexDirection: 'row',
-      backgroundColor: colors.primary.surface,
+      backgroundColor: colors.primary.lightgrey,
       overflow: 'hidden',
       borderRadius: 20,
       alignItems: 'center',
       marginRight: 4,
       height: 70,
+      marginLeft: PortSpacing.secondary.uniform,
     },
     send: {
       width: 40,
@@ -329,13 +331,14 @@ const styling = (colors: any) =>
       backgroundColor: colors.button.black,
     },
     recordingbox: {
-      width: MESSAGE_INPUT_TEXT_WIDTH + 22,
+      width: MESSAGE_INPUT_TEXT_WIDTH + 12,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',
     },
+
     box: {
-      width: MESSAGE_INPUT_TEXT_WIDTH,
+      width: MESSAGE_INPUT_TEXT_WIDTH - 10,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',

@@ -58,7 +58,8 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
     if (files) {
       for (const file of files) {
         const payloadFile: FileAttributes = {
-          fileUri: addFilePrefix(file.filePath || ''),
+          // We decode the fileURI since iOS sharing is percent encoded in newer versions
+          fileUri: addFilePrefix(decodeURI(file.filePath)),
           fileType: file.mimeType || '',
           fileName: file.fileName || '',
         };

@@ -73,8 +73,8 @@ const SuperportsInfo = ({
             fontSizeType={FontSizeType.l}
             fontType={FontType.rg}
             textColor={Colors.text.subtitle}>
-            Tag your contacts to folder to better organize and prioritize your
-            chats
+            Share a multi-use Superport and let as many people as you'd like to
+            connect with you on your terms
           </NumberlessText>
         </View>
         <View
@@ -106,7 +106,8 @@ const SuperportsInfo = ({
               fontSizeType={FontSizeType.s}
               fontType={FontType.rg}
               textColor={Colors.text.subtitle}>
-              Create and customize your multi-use Superport
+              Create your Superport, customize access controls and connect it to
+              a folder
             </NumberlessText>
           </View>
           <View
@@ -134,8 +135,7 @@ const SuperportsInfo = ({
               fontSizeType={FontSizeType.s}
               fontType={FontType.rg}
               textColor={Colors.text.subtitle}>
-              Share with your contacts via text, email, or any messaging
-              platform.
+              Publish your Superport on a website, social media or anywhere else
             </NumberlessText>
           </View>
           <View
@@ -163,8 +163,8 @@ const SuperportsInfo = ({
               fontSizeType={FontSizeType.s}
               fontType={FontType.rg}
               textColor={Colors.text.subtitle}>
-              Your contacts simply scan the QR code or click the link and form a
-              connection with you
+              Chats with people who scan or click your Superport will be
+              funneled into the folder of your choice
             </NumberlessText>
           </View>
           <View

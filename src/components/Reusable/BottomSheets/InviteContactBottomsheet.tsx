@@ -7,7 +7,7 @@ import {
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import React, {useEffect, useState} from 'react';
-import {Linking, Share, StyleSheet, View} from 'react-native';
+import {Linking, StyleSheet, View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import LargeTextInput from '../Inputs/LargeTextInput';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
@@ -16,10 +16,12 @@ import {useTheme} from 'src/context/ThemeContext';
 import SecondaryButton from '../LongButtons/SecondaryButton';
 import {getBundleClickableLink} from '@utils/Ports';
 import {generateNewPortBundle} from '@utils/Ports/direct';
-import {defaultFolderId} from '@configs/constants';
+import {defaultFolderId, safeModalCloseDuration} from '@configs/constants';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import WhatsAppLogo from '@assets/icons/WhatsAppLogo.svg';
 import SMSIcon from '@assets/icons/SMSRed.svg';
+import {wait} from '@utils/Time';
+import Share from 'react-native-share';
 
 const defaultLinkText = 'Loading...';
 
@@ -156,9 +158,14 @@ const InviteContactBottomsheet = ({
             disabled={false}
             isLoading={false}
             onClick={() => {
-              Share.share({message: text + '\n' + link});
-              setVisible(false);
-              setShowShareOptions(false);
+              try {
+                Share.open({
+                  title: 'Inviting existing contact',
+                  message: text + '\n' + link,
+                });
+              } catch (error) {
+                console.log('Error sharing port', error);
+              }
             }}
           />
         </View>
@@ -216,9 +223,10 @@ const InviteContactBottomsheet = ({
             buttonText="Share"
             disabled={defaultLinkText === link}
             isLoading={false}
-            onClick={() => {
-              setShowShareOptions(true);
+            onClick={async () => {
               setVisible(false);
+              await wait(safeModalCloseDuration);
+              setShowShareOptions(true);
             }}
             primaryButtonColor={themeValue === 'dark' ? 'p' : 'black'}
           />

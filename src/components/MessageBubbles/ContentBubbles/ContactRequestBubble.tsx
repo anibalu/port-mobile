@@ -3,7 +3,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_NAME} from '@configs/constants';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {MAX_WIDTH_CONTENT, RenderTimeStamp} from '../BubbleUtils';
@@ -21,10 +21,9 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
   const [destination, setDestination] = useState(DEFAULT_NAME);
 
   const [requesterName, setRequesterName] = useState<string>(DEFAULT_NAME);
-  const [permissionId, setPermissionId] = useState<string>('');
   const approved = message.data?.approved;
 
-  const {chatId, profileUri, isConnected} = useChatContext();
+  const {chatId} = useChatContext();
 
   useEffect(() => {
     (async () => {
@@ -32,7 +31,6 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
         setDestination(message.data.destinationName || DEFAULT_NAME);
         const dataHandler = new DirectChat(chatId);
         const chatData = await dataHandler.getChatData();
-        setPermissionId(chatData.permissionsId);
         setRequesterName(chatData.name);
       } catch (error) {
         console.error('Could not find chat data associated to chat Id:', error);
@@ -42,13 +40,16 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
   }, [message]);
 
   const onSettingsPressed = async () => {
-    navigation.navigate('ChatProfile', {
-      chatId: chatId,
-      name: requesterName,
-      profileUri: profileUri || DEFAULT_AVATAR,
-      permissionsId: permissionId,
-      isConnected: isConnected,
-    });
+    try {
+      const dataHandler = new DirectChat(chatId);
+      const chatData = await dataHandler.getChatData();
+      navigation.navigate('ChatProfile', {
+        chatId: chatId,
+        chatData: chatData,
+      });
+    } catch (error) {
+      console.error('Error navigating to contact profile page: ', error);
+    }
   };
 
   const navigation = useNavigation();

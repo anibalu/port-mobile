@@ -8,17 +8,24 @@ import {
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import InviteContact from '@assets/icons/InviteContactOrange.svg';
 import ContactBook from '@assets/icons/ContactBook.svg';
-import React from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {checkContactPermission} from '@utils/AppPermissions';
 
 const ContactListPlaceholder = () => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
   const navigation = useNavigation();
 
+  const [isContactPermissionGranted, setIsContactPermissionGranted] =
+    useState<boolean>(false);
   const onInviteContacts = () => {
-    navigation.navigate('PhoneContactList');
+    if (isContactPermissionGranted) {
+      navigation.navigate('PhoneContactList');
+    } else {
+      checkContactPermission(setIsContactPermissionGranted);
+    }
   };
   return (
     <View style={styles.cardWrapper}>

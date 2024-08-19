@@ -54,10 +54,8 @@ const Superports = ({navigation}: Props) => {
     };
   }, [profile]);
 
-  const processedName: string = name || DEFAULT_NAME;
-  const processedAvatar = avatar || DEFAULT_PROFILE_AVATAR_INFO;
-  const [profilePicAttr] = useState(processedAvatar);
-  const [displayName] = useState<string>(processedName);
+  const [profilePicAttr] = useState(avatar);
+  const [displayName] = useState<string>(name);
   const [showSortby, setShowSortby] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('Last used');
@@ -79,11 +77,11 @@ const Superports = ({navigation}: Props) => {
           const fetchedSuperportsData = await getAllCreatedSuperports();
 
           const sortedData = fetchedSuperportsData.sort((a, b) => {
-            if (a.usedOnTimestamp === null && b.usedOnTimestamp === null) {
+            if (!a.usedOnTimestamp && !b.usedOnTimestamp) {
               return 0;
-            } else if (a.usedOnTimestamp === null) {
+            } else if (!a.usedOnTimestamp) {
               return 1;
-            } else if (b.usedOnTimestamp === null) {
+            } else if (!b.usedOnTimestamp) {
               return -1;
             } else {
               return (
@@ -175,7 +173,7 @@ const Superports = ({navigation}: Props) => {
 
   const folderColor =
     selectedFolder &&
-    folderIdToHex(selectedFolder?.folderId, Colors.boldAccentColors);
+    folderIdToHex(selectedFolder.folderId, Colors.boldAccentColors);
 
   return (
     <>
@@ -200,8 +198,6 @@ const Superports = ({navigation}: Props) => {
                 <BackTopbarWithButton
                   onButtonPress={() =>
                     navigation.navigate('SuperportScreen', {
-                      name: displayName,
-                      avatar: profilePicAttr,
                       selectedFolder: selectedFolder
                         ? {...selectedFolder}
                         : undefined,
@@ -269,24 +265,31 @@ const Superports = ({navigation}: Props) => {
                           flexDirection: 'row',
                           alignItems: 'center',
                           gap: 8,
-                          borderColor:
-                            selectedFolder === null
-                              ? Colors.primary.stroke
-                              : folderColor,
+                          borderColor: !selectedFolder
+                            ? Colors.primary.stroke
+                            : folderColor
+                            ? folderColor
+                            : Colors.text.primary,
                           borderWidth: 1,
                         }}>
                         {selectedFolder === null ? (
                           <FilterFunnelIcon width={20} height={20} />
                         ) : (
-                          <SvgXml xml={getSvgXml(folderColor)} />
+                          <SvgXml
+                            xml={getSvgXml(
+                              folderColor ? folderColor : Colors.text.primary,
+                            )}
+                          />
                         )}
 
                         <NumberlessText
                           numberOfLines={1}
                           textColor={
-                            selectedFolder === null
+                            !selectedFolder
                               ? Colors.text.primary
                               : folderColor
+                              ? folderColor
+                              : Colors.text.primary
                           }
                           fontSizeType={FontSizeType.m}
                           fontType={FontType.rg}>
@@ -323,8 +326,6 @@ const Superports = ({navigation}: Props) => {
                           onClick={() =>
                             navigation.navigate('SuperportScreen', {
                               portId: item.portId,
-                              name: displayName,
-                              avatar: profilePicAttr,
                               selectedFolder: foldersArray.find(
                                 folder => folder.folderId === item.folderId,
                               ),

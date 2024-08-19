@@ -145,7 +145,7 @@ const Templates = ({route}) => {
       </SafeAreaView>
       <AddTemplateBottomsheet
         loadTemplates={loadTemplates}
-        onSendMessage={() => {}}
+        onSendMessage={onSendMessage}
         visible={openBottomsheet}
         scope="add"
         onClose={() => setOpenBottomsheet(p => !p)}

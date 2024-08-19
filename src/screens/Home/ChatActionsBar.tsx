@@ -170,7 +170,12 @@ export function ChatActionsBar(): ReactNode {
           </View>
           <MoveToFolder
             visible={moveToFolderSheet}
-            onClose={() => setMoveToFolderSheet(false)}
+            onClose={() => {
+              setSelectedConnections([]);
+              setSelectionMode(false);
+              setIsChatActionBarVisible(false);
+              setMoveToFolderSheet(false);
+            }}
             buttonText={'Move chats'}
             buttonColor="b"
           />

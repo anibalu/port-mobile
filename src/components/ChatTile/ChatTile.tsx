@@ -7,7 +7,6 @@ import {
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import AddFolderViolet from '@assets/icons/AddFolderViolet.svg';
-import CheckCircleViolet from '@assets/icons/CheckCircleViolet.svg';
 import ShareContactGreen from '@assets/icons/ShareContactGreen.svg';
 // import LabelChip from '@components/Reusable/Chip/LabelChip';
 import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
@@ -19,6 +18,7 @@ import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {ContentType} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Easing,
   Pressable,
@@ -26,12 +26,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Share from 'react-native-share';
 import DisplayStatus from './DisplayStatus';
 import RenderText from './RenderText';
 import RenderTimestamp from './RenderTimestamp';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {Swipeable} from 'react-native-gesture-handler';
-import {toggleRead} from '@utils/Storage/connections';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
+import {getBundleClickableLink} from '@utils/Ports';
 
 export interface ChatTileProps extends ConnectionInfo {
   expired?: boolean;
@@ -52,6 +55,8 @@ function ChatTile({
     setSelectedConnections,
     selectionMode,
     setSelectionMode,
+    setMoveToFolderSheet,
+    setIsChatActionBarVisible,
   } = useBottomNavContext();
   const isSelected = selectedConnections.some(x => x.chatId === props.chatId);
   const navigation = useNavigation<any>();
@@ -78,7 +83,6 @@ function ChatTile({
       }
     }
   };
-  const {setIsChatActionBarVisible} = useBottomNavContext();
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -131,24 +135,29 @@ function ChatTile({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectionMode]);
+  const [sharingContact, setSharingContact] = useState<boolean>(false);
 
   const moveAnim = useRef(new Animated.Value(0)).current; // Starts from position 0
   const swipableRef = useRef(null);
 
   const renderLeftActions = () => {
     return (
-      <View style={{width: 160}}>
+      <View style={{width: 80}}>
         <View
           style={{
             alignItems: 'stretch',
             overflow: 'hidden',
             flexDirection: 'row',
-            width: 160,
+            width: 80,
             flex: 1,
           }}>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => console.log('moving')}
+            onPress={() => {
+              setSelectedConnections([props]);
+              setIsChatActionBarVisible(true);
+              setMoveToFolderSheet(true);
+            }}
             style={{
               flexDirection: 'column',
               width: 80,
@@ -174,9 +183,51 @@ function ChatTile({
               </NumberlessText>
             </Animated.View>
           </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+  const renderRightActions = () => {
+    return (
+      <View
+        style={{
+          width: 80,
+          backgroundColor: Colors.lowAccentColors.violet,
+        }}>
+        <View
+          style={{
+            alignItems: 'stretch',
+            overflow: 'hidden',
+            justifyContent: 'flex-end',
+            flexDirection: 'row',
+            flex: 1,
+          }}>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => console.log('sharing')}
+            onPress={async () => {
+              setSharingContact(true);
+              try {
+                // Issue tickets, etc for their ContactPort
+                const bundle =
+                  await convertAuthorizedContactPortToShareablePort(
+                    props.pairHash,
+                  );
+                // Convert the ContactPort into a link
+                const bundleLink = await getBundleClickableLink(
+                  BundleTarget.contactPort,
+                  bundle.portId,
+                  JSON.stringify(bundle),
+                );
+                const shareContent = {
+                  title: `Sharing ${props.name}'s a contact`,
+                  message: `Click on this link to connect with ${props.name} on Port \n ${bundleLink}`,
+                };
+                await Share.open(shareContent);
+              } catch (e) {
+                console.error("Didn't share contact from ChatTile", e);
+              }
+              setSharingContact(false);
+            }}
             style={{
               flexDirection: 'column',
               width: 80,
@@ -192,54 +243,22 @@ function ChatTile({
                 gap: PortSpacing.tertiary.uniform,
               }}>
               <ShareContactGreen height={24} width={24} />
-              <NumberlessText
-                style={{textAlign: 'center'}}
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.sb}
-                textColor={Colors.primary.darkGreen}>
-                {'Share\ncontact'}
-              </NumberlessText>
+              {sharingContact ? (
+                <ActivityIndicator
+                  size="small"
+                  style={{marginTop: 5}}
+                  color={Colors.primary.darkGreen}
+                />
+              ) : (
+                <NumberlessText
+                  style={{textAlign: 'center'}}
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.sb}
+                  textColor={Colors.primary.darkGreen}>
+                  {'Share\ncontact'}
+                </NumberlessText>
+              )}
             </Animated.View>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-  const renderRightActions = () => {
-    return (
-      <View
-        style={{
-          width: 130,
-          backgroundColor: Colors.lowAccentColors.violet,
-        }}>
-        <View
-          style={{
-            alignItems: 'stretch',
-            overflow: 'hidden',
-            justifyContent: 'flex-end',
-            flexDirection: 'row',
-            flex: 1,
-          }}>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={async () => {
-              await toggleRead(props.chatId);
-            }}
-            style={{
-              flexDirection: 'column',
-              width: 130,
-              gap: PortSpacing.tertiary.uniform,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <CheckCircleViolet height={24} width={24} />
-            <NumberlessText
-              style={{textAlign: 'center', width: 80}}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.sb}
-              textColor={Colors.primary.violet}>
-              {'Mark as\nread'}
-            </NumberlessText>
           </TouchableOpacity>
         </View>
       </View>
@@ -306,16 +325,6 @@ function ChatTile({
                       fontSizeType={FontSizeType.l}>
                       {props.name || 'New contact'}
                     </NumberlessText>
-                    {/* {selectedFolderData.folderId === 'focus' &&
-                        props.folderId !== defaultFolderId && (
-                          <View style={styles.labelWrapper}>
-                            <LabelChip
-                              text={findFolderNameById(folders, props.folderId)}
-                              bgColor={getRandomColor()}
-                              textColor={Colors.text.subtitle}
-                            />
-                          </View>
-                        )} */}
                   </View>
                   <RenderTimestamp props={props} />
                 </View>
@@ -465,20 +474,10 @@ function ChatTile({
                         style={{flexShrink: 1}}
                         ellipsizeMode="tail"
                         numberOfLines={1}
-                        fontType={FontType.md}
+                        fontType={FontType.rg}
                         fontSizeType={FontSizeType.l}>
                         {props.name || 'New contact'}
                       </NumberlessText>
-                      {/* {selectedFolderData.folderId === 'focus' &&
-                        props.folderId !== defaultFolderId && (
-                          <View style={styles.labelWrapper}>
-                            <LabelChip
-                              text={findFolderNameById(folders, props.folderId)}
-                              bgColor={getRandomColor()}
-                              textColor={Colors.text.subtitle}
-                            />
-                          </View>
-                        )} */}
                     </View>
                     <RenderTimestamp props={props} />
                   </View>

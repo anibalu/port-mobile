@@ -16,8 +16,8 @@ import {
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
-import React, {FC} from 'react';
-import {Pressable, StyleSheet} from 'react-native';
+import React, {FC, useState} from 'react';
+import {ActivityIndicator, Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import {useNavigation} from '@react-navigation/native';
@@ -43,6 +43,7 @@ const UserInfoTopbar = ({
   onIconRightPress?: () => Promise<void>;
   showShareContact: boolean;
 }) => {
+  const [sharingContact, setSharingContact] = useState<boolean>(false);
   const navigation = useNavigation();
   const Colors = DynamicColors();
   const styles = styling(Colors, showUserInfo);
@@ -97,15 +98,25 @@ const UserInfoTopbar = ({
           style={styles.button}
           onPress={async () => {
             console.log('attempting contact share');
-            await onIconRightPress();
+            setSharingContact(true);
+            try {
+              await onIconRightPress();
+            } catch (e) {
+              console.error('Could not share contact', e);
+            }
+            setSharingContact(false);
           }}>
           <IconRight width={20} height={20} />
-          <NumberlessText
-            fontType={FontType.rg}
-            textColor={Colors.primary.white}
-            fontSizeType={FontSizeType.s}>
-            Share Contact
-          </NumberlessText>
+          {sharingContact ? (
+            <ActivityIndicator size="small" color={Colors.primary.white} />
+          ) : (
+            <NumberlessText
+              fontType={FontType.rg}
+              textColor={Colors.primary.white}
+              fontSizeType={FontSizeType.s}>
+              Share Contact
+            </NumberlessText>
+          )}
         </Pressable>
       )}
     </View>

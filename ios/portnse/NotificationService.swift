@@ -195,8 +195,8 @@ func getSharedSecretForLineChat(_ chatId: String) -> String{
   // Pointer to the statement to execute
   var statement: OpaquePointer?
   // Prepare a statement to get the chat's name
-  if sqlite3_prepare_v2(db, "SELECT sharedSecret FROM ((connections JOIN lines ON connections.chatId = lines.lineId) JOIN cryptoData ON cryptoData.cryptoId = lines.cryptoId) WHERE chatId = ? ;", -1, &statement, nil) != SQLITE_OK {
-    let errmsg = String(cString: sqlite3_errmsg(db)!)
+  if sqlite3_prepare_v2(db, "SELECT sharedSecret FROM (lines JOIN cryptoData on lines.cryptoId = cryptoData.cryptoId) WHERE lines.lineId = ? ;", -1, &statement, nil) != SQLITE_OK {
+let errmsg = String(cString: sqlite3_errmsg(db)!)
     print("error preparing insert: \(errmsg)")
     return ""
   }

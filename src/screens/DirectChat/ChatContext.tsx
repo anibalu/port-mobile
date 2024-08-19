@@ -3,7 +3,6 @@ import {
   ContentType,
   LargeDataParams,
   LinkParams,
-  SavedMessageParams,
   TextParams,
 } from '@utils/Messaging/interfaces';
 import React, {createContext, useState, useContext} from 'react';
@@ -55,7 +54,7 @@ type ChatContextType = {
   setShowRichReaction: (x: boolean) => void;
   setReaction: (messageId: string) => void;
   unsetRichReaction: () => void;
-  onReaction: (message: SavedMessageParams, reaction: string) => void;
+  onReaction: (message: LoadedMessage, reaction: string) => void;
 
   //message to be replied to
   replyToMessage: LoadedMessage | null;
@@ -198,10 +197,7 @@ export const ChatContextProvider = ({
     setShowRichReaction(false);
   };
 
-  const handleReaction = async (
-    message: SavedMessageParams,
-    reaction: string,
-  ) => {
+  const handleReaction = async (message: LoadedMessage, reaction: string) => {
     const richReactionsData = await getRichReactions(
       message.chatId,
       message.messageId,
@@ -233,7 +229,7 @@ export const ChatContextProvider = ({
     }
   };
 
-  const onReaction = (message: SavedMessageParams, reaction: string) => {
+  const onReaction = (message: LoadedMessage, reaction: string) => {
     handleReaction(message, reaction);
     clearSelection();
   };

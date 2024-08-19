@@ -67,13 +67,13 @@ class ReceiveReaction extends DirectReceiveAction {
       ReactionStorage.deleteReaction(
         this.chatId,
         reactionData.messageId,
-        LineReactionSender.self,
+        LineReactionSender.peer,
       );
     } else {
       await ReactionStorage.addReaction(
         this.chatId,
         reactionData.messageId,
-        LineReactionSender.self,
+        LineReactionSender.peer,
         reactionData.reaction,
       );
     }
@@ -118,7 +118,7 @@ class ReceiveReaction extends DirectReceiveAction {
     else {
       // Fetch the target message of the reaction
       const targetMessage = await storage.getMessage(
-        reactionData.chatId,
+        this.chatId,
         reactionData.messageId,
       );
       const text =

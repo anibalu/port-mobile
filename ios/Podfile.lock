@@ -410,7 +410,7 @@ PODS:
     - React-Core
   - react-native-netinfo (11.3.1):
     - React-Core
-  - react-native-numberless-crypto (0.2.4):
+  - react-native-numberless-crypto (0.2.2):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-pager-view (6.2.3):
@@ -924,7 +924,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 3269f75c251cdcd61ab51b911dd30d6fff8c6169
   react-native-image-resizer: 669454edae94399b11e49c840e4da14482302293
   react-native-netinfo: bdb108d340cdb41875c9ced535977cac6d2ff321
-  react-native-numberless-crypto: c83c8c97f7fb35d301dc032efd6d5ca0b5d7747a
+  react-native-numberless-crypto: 054f2cc7e06d3a506a4aa0859dc4ca81e8bd395e
   react-native-pager-view: e26d35e382d86950c936f8917e3beb9188115ccc
   react-native-pdf: 79aa75e39a80c1d45ffe58aa500f3cf08f267a2e
   react-native-receive-sharing-intent: 62ab28c50e6ae56d32b9e841d7452091312a0bc7

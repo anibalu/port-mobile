@@ -15,7 +15,7 @@
     "@bam.tech/react-native-image-resizer": "^3.0.9",
     "@likashefqet/react-native-image-zoom": "^3.0.0",
     "@notifee/react-native": "^7.8.0",
-    "@numberless/react-native-numberless-crypto": "0.2.4",
+    "@numberless/react-native-numberless-crypto": "0.2.2",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-camera-roll/camera-roll": "^7.4.2",
     "@react-native-clipboard/clipboard": "^1.12.1",

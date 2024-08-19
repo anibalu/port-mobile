@@ -249,14 +249,18 @@ const PortContactList = ({navigation}: Props) => {
                 <FlatList
                   data={Object.entries(filteredContacts).flatMap(
                     ([firstLetter, contacts]) =>
-                      contacts.map((contact: any, index: number) => ({
-                        ...contact,
-                        firstLetter,
-                        index,
-                      })),
+                      contacts
+                        .filter(
+                          (contact: any, _index: number) => contact.pairHash,
+                        )
+                        .map((contact: any, index: number) => ({
+                          ...contact,
+                          firstLetter,
+                          index,
+                        })),
                   )}
                   renderItem={renderContactTile}
-                  keyExtractor={item => item.name}
+                  keyExtractor={item => item.pairHash}
                   style={styles.contactListContainer}
                   ListHeaderComponent={<View style={{height: 4}} />}
                   ListFooterComponent={

@@ -1644,10 +1644,10 @@
   resolved "https://registry.yarnpkg.com/@notifee/react-native/-/react-native-7.8.2.tgz#72d3199ae830b4128ddaef3c1c2f11604759c9c4"
   integrity sha512-VG4IkWJIlOKqXwa3aExC3WFCVCGCC9BA55Ivg0SMRfEs+ruvYy/zlLANcrVGiPtgkUEryXDhA8SXx9+JcO8oLA==
 
-"@numberless/react-native-numberless-crypto@0.2.4":
-  version "0.2.4"
-  resolved "https://pkgs.dev.azure.com/numberless-india/Port/_packaging/port-packages/npm/registry/@numberless/react-native-numberless-crypto/-/react-native-numberless-crypto-0.2.4.tgz#f6738cbe43e06b41806f6f0697cf307aadcb4642"
-  integrity sha1-9nOMvkPga0GAb28Gl88weq3LRkI=
+"@numberless/react-native-numberless-crypto@0.2.2":
+  version "0.2.2"
+  resolved "https://pkgs.dev.azure.com/numberless-india/Port/_packaging/port-packages/npm/registry/@numberless/react-native-numberless-crypto/-/react-native-numberless-crypto-0.2.2.tgz#bbe3878f7556d06f4d847ba96ecb4b92c3da2a75"
+  integrity sha1-u+OHj3VW0G9NhHupbstLksPaKnU=
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"

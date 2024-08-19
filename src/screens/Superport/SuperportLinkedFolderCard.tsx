@@ -35,8 +35,8 @@ const SuperportLinkedFolderCard = ({
   const svgArray = [
     {
       assetName: 'FilterIcon',
-      light: require('@assets/light/icons/Label.svg').default,
-      dark: require('@assets/dark/icons/Label.svg').default,
+      light: require('@assets/light/icons/Folder.svg').default,
+      dark: require('@assets/dark/icons/Folder.svg').default,
     },
     {
       assetName: 'AngleRight',

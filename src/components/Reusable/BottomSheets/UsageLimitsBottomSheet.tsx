@@ -29,37 +29,36 @@ const UsageLimitsBottomSheet = ({
   onClose,
   onSave = () => {},
   newLimit,
-  setNewLimit,
   title,
   description,
   connectionsMade,
+  newLimitLoading,
 }: {
   visible: boolean;
   onClose?: () => void;
-  onSave?: () => void;
+  onSave?: (newLocalLimit: number) => void;
   newLimit: number;
-  setNewLimit: (name: number) => void;
   title: string;
   description?: string;
   connectionsMade: number;
+  newLimitLoading: boolean;
 }) => {
   const [newLocalLimit, setNewLocalLimit] = useState<string>(
     newLimit.toString(),
   );
-
   useMemo(() => {
     setNewLocalLimit(newLimit.toString());
-  }, [newLimit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newLimit, newLimitLoading]);
 
   const handleTextChange = (text: string) => {
     // Remove non-numeric characters using regular expression
     const numericValue = text.replace(/[^0-9]/g, '');
     setNewLocalLimit(numericValue);
   };
-  const onSavePress = () => {
-    setNewLimit(parseInt(newLocalLimit));
-    onSave();
+  const onSavePress = async () => {
     Keyboard.dismiss();
+    onSave(parseInt(newLocalLimit));
   };
 
   const Colors = DynamicColors();
@@ -107,7 +106,7 @@ const UsageLimitsBottomSheet = ({
         <PrimaryButton
           buttonText={'Save'}
           primaryButtonColor={'b'}
-          isLoading={false}
+          isLoading={newLimitLoading}
           disabled={
             connectionsMade >= parseInt(newLocalLimit) ||
             newLocalLimit === '' ||

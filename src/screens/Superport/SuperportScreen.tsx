@@ -24,7 +24,6 @@ import {
 import PortCard from '@components/Reusable/ConnectionCards/PortCard';
 import {wait} from '@utils/Time';
 import {
-  cleanDeletePort,
   fetchSuperport,
   getBundleClickableLink,
   updateGeneratedSuperportFolder,
@@ -33,7 +32,6 @@ import {
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 import {DirectSuperportBundle} from '@utils/Ports/interfaces';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
 import Share from 'react-native-share';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {addNewFolder} from '@utils/ChatFolders';
@@ -43,6 +41,7 @@ import UsageLimitsBottomSheet from '@components/Reusable/BottomSheets/UsageLimit
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import {
   changePausedStateOfSuperport,
+  cleanDeleteSuperport,
   updateGeneratedSuperportLimit,
 } from '@utils/Ports/superport';
 import {useSelector} from 'react-redux';
@@ -52,6 +51,7 @@ import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import LinkToFolderBottomSheet from '@screens/Home/LinkToFolderBottomSheet';
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {useFocusEffect} from '@react-navigation/native';
+import {ToastType, useToast} from 'src/context/ToastContext';
 type Props = NativeStackScreenProps<AppStackParamList, 'SuperportScreen'>;
 
 const SuperportScreen = ({route, navigation}: Props) => {
@@ -92,6 +92,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
     defaultSuperportConnectionsLimit,
   );
   const [openUsageLimitsModal, setOpenUsageLimitsModal] = useState(false);
+  const {showToast} = useToast();
 
   //see if superport is paused
   const [isPaused, setIsPaused] = useState(false);
@@ -102,6 +103,12 @@ const SuperportScreen = ({route, navigation}: Props) => {
 
   const [savedFolderPermissions, setSavedFolderPermissions] =
     useState<PermissionsStrict>({...defaultPermissions});
+
+  const [pauseSuperportError, setPauseSuperportError] = useState(false);
+  const [pauseSuperportLoading, setPauseSuperportLoading] = useState(false);
+  const [deleteSuperportError, setDeleteSuperportError] = useState(false);
+  const [deleteSuperportLoading, setDeleteSuperportLoading] = useState(false);
+  const [newLimitLoading, setNewLimitLoading] = useState(false);
 
   //control folder assigned to superport
   const [chosenFolder, setChosenFolder] = useState<FolderInfo>(
@@ -262,19 +269,30 @@ const SuperportScreen = ({route, navigation}: Props) => {
     setOpenLabelModal(false);
   };
 
-  const saveNewLimit = async () => {
+  const saveNewLimit = async (newLocalLimit: number) => {
     if (qrData?.portId) {
       try {
+        setNewLimitLoading(true);
         await updateGeneratedSuperportLimit(
           qrData.portId,
-          connectionLimit,
+          newLocalLimit,
           connectionMade,
         );
+        newLocalLimit && setConnectionLimit(newLocalLimit);
       } catch (error) {
         console.error('Error setting new limit for superport', error);
+        showToast(
+          'New limit could not be set. please check your internet connection and try again',
+          ToastType.error,
+        );
+        setNewLimitLoading(false);
+      } finally {
+        setOpenUsageLimitsModal(false);
       }
+    } else {
+      newLocalLimit && setConnectionLimit(newLocalLimit);
+      setOpenUsageLimitsModal(false);
     }
-    setOpenUsageLimitsModal(false);
   };
 
   //saves new label when it changes
@@ -282,12 +300,6 @@ const SuperportScreen = ({route, navigation}: Props) => {
     saveNewLabel();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [label]);
-
-  //saves new connection limit when it changes
-  useMemo(() => {
-    saveNewLimit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectionLimit]);
 
   const fetchFoldersData = async () => {
     const folders = await getAllFolders();
@@ -329,23 +341,37 @@ const SuperportScreen = ({route, navigation}: Props) => {
   }, [latestNewConnection]);
 
   const deleteSuperport = async () => {
+    setDeleteSuperportLoading(true);
+    if (deleteSuperportError) {
+      setDeleteSuperportError(false);
+      await wait(safeModalCloseDuration);
+    }
     if (qrData?.portId) {
       try {
-        await cleanDeletePort(qrData.portId, PortTable.superport);
+        await cleanDeleteSuperport(qrData.portId);
         navigation.goBack();
       } catch (error) {
+        setDeleteSuperportError(true);
+        setDeleteSuperportLoading(false);
         console.error('Error deleting superport', error);
       }
     }
   };
 
   const pauseSuperport = async () => {
+    setPauseSuperportLoading(true);
+    if (pauseSuperportError) {
+      setPauseSuperportError(false);
+      await wait(safeModalCloseDuration);
+    }
     if (qrData?.portId) {
       try {
         await changePausedStateOfSuperport(qrData.portId, !isPaused);
         setIsPaused(!isPaused);
       } catch (error) {
+        setPauseSuperportLoading(false);
         console.error('Error pausing or resuming superport', error);
+        setPauseSuperportError(true);
       }
     }
   };
@@ -427,20 +453,20 @@ const SuperportScreen = ({route, navigation}: Props) => {
             margin: PortSpacing.secondary.bottom,
             gap: PortSpacing.secondary.uniform,
           }}>
-          {portId ? (
+          {portId || qrData ? (
             <>
-              <PrimaryButton
-                primaryButtonColor="r"
-                buttonText="Delete Superport"
-                onClick={() => setIsDeleteConfirmOpen(true)}
-                isLoading={false}
-                disabled={false}
-              />
               <SecondaryButton
                 secondaryButtonColor="black"
                 buttonText={isPaused ? 'Unpause Superport' : 'Pause Superport'}
                 onClick={() => setIsPauseConfirmOpen(true)}
-                isLoading={false}
+                isLoading={pauseSuperportLoading}
+              />
+              <PrimaryButton
+                primaryButtonColor="r"
+                buttonText="Delete Superport"
+                onClick={() => setIsDeleteConfirmOpen(true)}
+                isLoading={deleteSuperportLoading}
+                disabled={false}
               />
             </>
           ) : (
@@ -453,6 +479,24 @@ const SuperportScreen = ({route, navigation}: Props) => {
             />
           )}
         </View>
+        <ErrorBottomSheet
+          visible={pauseSuperportError}
+          title={'Superport could not be paused'}
+          description={
+            'Make sure you have an active internet connection to pause the superport'
+          }
+          onClose={() => setPauseSuperportError(false)}
+          onTryAgain={pauseSuperport}
+        />
+        <ErrorBottomSheet
+          visible={deleteSuperportError}
+          title={'Superport could not be deleted'}
+          description={
+            'Make sure you have an active internet connection to delete the superport'
+          }
+          onClose={() => setDeleteSuperportError(false)}
+          onTryAgain={deleteSuperport}
+        />
         <ErrorBottomSheet
           visible={openErrorModal}
           title={'Link could not be created'}
@@ -483,7 +527,8 @@ const SuperportScreen = ({route, navigation}: Props) => {
           title="Custom usage limit"
           connectionsMade={connectionMade}
           visible={openUsageLimitsModal}
-          setNewLimit={setConnectionLimit}
+          onSave={saveNewLimit}
+          newLimitLoading={newLimitLoading}
           onClose={() => setOpenUsageLimitsModal(false)}
           newLimit={connectionLimit}
           description="Set up the maximum number of connections that can be made using this Superport"
@@ -512,7 +557,10 @@ const SuperportScreen = ({route, navigation}: Props) => {
         <ConfirmationBottomSheet
           visible={isPauseConfirmOpen}
           onClose={() => setIsPauseConfirmOpen(false)}
-          onConfirm={async () => await pauseSuperport()}
+          onConfirm={async () => {
+            await pauseSuperport();
+            setPauseSuperportLoading(false);
+          }}
           title={
             isPaused
               ? 'Are you sure you want to unpause this Superport?'

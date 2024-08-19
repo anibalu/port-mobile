@@ -406,5 +406,6 @@ export async function cleanDeleteSuperport(portId: string) {
     }
   } catch (error) {
     console.log('Error deleting generated port: ', error);
+    throw new Error('APIError');
   }
 }

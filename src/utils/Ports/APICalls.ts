@@ -137,7 +137,7 @@ export async function modifyDirectSuperportLimits(
 ) {
   const token = await getToken();
   try {
-    await axios.post(
+    await axios.patch(
       LINE_SUPERPORT_LIMIT_MODIFICATION,
       {
         limit: limit,
@@ -196,7 +196,7 @@ export async function getDirectSuperportLimits(
 export async function pauseDirectSuperport(lineSuperportId: string) {
   const token = await getToken();
   try {
-    await axios.post(
+    await axios.patch(
       LINE_SUPERPORT_PAUSE,
       {
         lineSuperportId: lineSuperportId,
@@ -223,7 +223,7 @@ export async function pauseDirectSuperport(lineSuperportId: string) {
 export async function resumeDirectSuperport(lineSuperportId: string) {
   const token = await getToken();
   try {
-    await axios.post(
+    await axios.patch(
       LINE_SUPERPORT_RESUME,
       {
         lineSuperportId: lineSuperportId,

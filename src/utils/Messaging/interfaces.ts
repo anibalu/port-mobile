@@ -113,10 +113,21 @@ export const DisappearMessageExemptContentTypes = [
 export const UnSelectableMessageContentTypes = [
   ContentType.deleted,
   ContentType.contactBundle,
+  ContentType.contactBundleRequest,
+  ContentType.contactBundleRequestInfo,
 ];
+
 export const UnForwardableMessageContentTypes = [
   ContentType.deleted,
   ContentType.contactBundle,
+  ContentType.contactBundleRequest,
+  ContentType.contactBundleRequestInfo,
+];
+
+export const UnReplyableMessageContentTypes = [
+  ContentType.deleted,
+  ContentType.contactBundleRequest,
+  ContentType.contactBundleRequestInfo,
 ];
 
 /**

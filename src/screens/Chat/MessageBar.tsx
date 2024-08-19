@@ -240,6 +240,13 @@ const MessageBar = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [counter]);
 
+  useMemo(() => {
+    // close microphone tab is reply bubble is visible
+    if (replyToMessage) {
+      setMicrophoneClicked(false);
+    }
+  }, [replyToMessage]);
+
   return (
     <View>
       <View style={styles.textInputContainer}>

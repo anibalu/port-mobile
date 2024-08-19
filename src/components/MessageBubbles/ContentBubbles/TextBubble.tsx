@@ -58,7 +58,12 @@ export const TextBubble = ({message}: {message: LoadedMessage}): ReactNode => {
           {text}
         </NumberlessLinkText>
       )}
-      <View style={{position: 'absolute', right: 4, bottom: 4}}>
+      <View
+        style={{
+          position: 'absolute',
+          right: 4,
+          bottom: 4,
+        }}>
         <RenderTimeStamp message={message} />
       </View>
     </View>

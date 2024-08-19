@@ -110,7 +110,7 @@ const TextComponent = ({
 
   // handles sending of text
   const onHandleClick = () => {
-    if (text.length > 0) {
+    if (text.length > 0 || replyToMessage) {
       onPressSend();
     } else {
       RNReactNativeHapticFeedback.trigger('impactHeavy', options);

@@ -3,6 +3,7 @@ import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {
   ContentType,
   MessageStatus,
+  UnReplyableMessageContentTypes,
   UnSelectableMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
@@ -188,7 +189,9 @@ export const MessageBubble = ({
   function handleSwipe() {
     // Trigger haptic feedback
     ReactNativeHapticFeedback.trigger('impactMedium', options);
-    setReplyToMessage(message);
+    if (!UnReplyableMessageContentTypes.includes(message.contentType)) {
+      setReplyToMessage(message);
+    }
   }
 
   const renderLeftActions = (progress, dragX) => {
@@ -298,7 +301,7 @@ const styles = StyleSheet.create({
   },
   replyBubbleContainer: {
     overflow: 'hidden',
-    borderRadius: 12,
+    borderRadius: 16,
     minHeight: PortSpacing.primary.uniform,
   },
   contentContainer: {

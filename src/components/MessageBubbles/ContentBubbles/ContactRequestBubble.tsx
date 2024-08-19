@@ -73,11 +73,11 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
   const results = useDynamicSVG(svgArray);
   const Icon = results.ContactShareIcon;
   return (
-    <View style={{padding: 8, width: MAX_WIDTH_CONTENT - 16}}>
+    <View style={{padding: 8, paddingLeft: 4, width: MAX_WIDTH_CONTENT}}>
       {message.sender ? (
         <>
           <View style={{flexDirection: 'row', gap: 4}}>
-            <Icon style={{marginTop: 4}} />
+            <Icon style={{marginTop: 6}} />
             {approved ? (
               <NumberlessText
                 textColor={Colors.text.primary}
@@ -122,9 +122,9 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
                 and it is awaiting their approval.
               </NumberlessText>
             )}
-          </View>
-          <View style={{marginTop: 4, marginRight: 4, marginBottom: 4}}>
-            <RenderTimeStamp message={message} />
+            <View style={{position: 'absolute', right: 4, bottom: 0}}>
+              <RenderTimeStamp message={message} />
+            </View>
           </View>
         </>
       ) : (

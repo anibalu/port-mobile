@@ -82,7 +82,11 @@ const ContactBubble = ({message}: {message: LoadedMessage}) => {
   const styles = styling(Colors);
 
   return (
-    <View style={{width: MAX_WIDTH_CONTENT - 16, padding: 4}}>
+    <View
+      style={{
+        width: MAX_WIDTH_CONTENT - 16,
+        padding: 4,
+      }}>
       <View style={styles.timeStampContainer}>
         <View
           style={{
@@ -108,9 +112,14 @@ const ContactBubble = ({message}: {message: LoadedMessage}) => {
             )}
           </View>
         </View>
-      </View>
-      <View style={{marginTop: 4, marginRight: 4, marginBottom: 4}}>
-        <RenderTimeStamp message={message} />
+        <View
+          style={{
+            position: 'absolute',
+            right: message.sender ? 8 : 16,
+            bottom: 0,
+          }}>
+          <RenderTimeStamp message={message} />
+        </View>
       </View>
 
       {!message.sender && (
@@ -223,8 +232,8 @@ const styling = (Colors: any) =>
       gap: 4,
     },
     receiveMessageStyle: {
-      paddingVertical: 5,
-      width: MAX_WIDTH_CONTENT - 16,
+      paddingVertical: 14,
+      width: MAX_WIDTH_CONTENT - 32,
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center',

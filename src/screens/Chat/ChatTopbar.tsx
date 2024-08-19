@@ -1,5 +1,5 @@
 import {BackButton} from '@components/BackButton';
-import {PortSpacing} from '@components/ComponentUtils';
+import {isIOS, PortSpacing} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
@@ -15,6 +15,8 @@ import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {ChatTopBarWithAccessControls} from './DragDownTopBar';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 /**
  * Handles top bar for chat
@@ -32,9 +34,9 @@ function ChatTopbar(): ReactNode {
     setSelectionMode,
     selectedMessages,
     setSelectedMessages,
-    isDisappearingMessagOn,
   } = useChatContext();
 
+  const insets = useSafeAreaInsets();
   const Colors = DynamicColors();
   const styles = styling(Colors);
   const svgArray = [
@@ -58,12 +60,16 @@ function ChatTopbar(): ReactNode {
       dark: require('@assets/light/icons/ContactShareIcon.svg').default,
       light: require('@assets/dark/icons/ContactShareIcon.svg').default,
     },
+    {
+      assetName: 'AngleRight',
+      light: require('@assets/light/icons/navigation/AngleRight.svg').default,
+      dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
+    },
   ];
 
   const results = useDynamicSVG(svgArray);
   const CloseIcon = results.CloseIcon;
-  const ContactShareIcon = results.ContactShareIcon;
-  const ClockIcon = results.ClockIcon;
+  const AngleRight = results.AngleRight;
 
   const onSettingsPressed = async () => {
     try {
@@ -101,12 +107,12 @@ function ChatTopbar(): ReactNode {
   };
 
   return (
-    <View style={styles.bar}>
-      {!selectionMode && (
-        <BackButton style={styles.backIcon} onPress={onBackPress} />
-      )}
-
+    <View style={{...styles.bar, marginTop: isIOS ? 0 : insets.top}}>
+      {!selectionMode && <ChatTopBarWithAccessControls />}
       <Pressable style={styles.profileBar} onPress={handlePress}>
+        {!selectionMode && (
+          <BackButton style={styles.backIcon} onPress={onBackPress} />
+        )}
         <View style={styles.titleBar}>
           {!selectionMode && (
             <View style={styles.profile}>
@@ -115,43 +121,29 @@ function ChatTopbar(): ReactNode {
                 onPress={handlePress}
                 profileUri={profileUri}
               />
-              {isDisappearingMessagOn && (
-                <View style={styles.clockIconWrapper}>
-                  <ClockIcon width={14} height={14} />
-                </View>
-              )}
             </View>
           )}
-          <NumberlessText
-            fontSizeType={FontSizeType.l}
-            fontType={FontType.md}
-            ellipsizeMode="tail"
-            style={selectionMode ? styles.selected : styles.title}
-            numberOfLines={1}>
-            {selectionMode
-              ? 'Selected (' + selectedMessages.length.toString() + ')'
-              : name}
-          </NumberlessText>
+          <View style={styles.nameBar}>
+            <NumberlessText
+              fontSizeType={FontSizeType.l}
+              fontType={FontType.md}
+              ellipsizeMode="tail"
+              style={selectionMode ? styles.selected : styles.title}
+              numberOfLines={1}>
+              {selectionMode
+                ? 'Selected (' + selectedMessages.length.toString() + ')'
+                : name}
+            </NumberlessText>
+            <AngleRight height={20} width={20} />
+          </View>
         </View>
         <View style={{flexDirection: 'row'}}>
-          {selectionMode ? (
+          {selectionMode && (
             <GenericButton
               buttonStyle={styles.crossBox}
               IconLeft={CloseIcon}
               onPress={handleCancellation}
             />
-          ) : (
-            <Pressable
-              style={styles.button}
-              onPress={() => console.log('djdjdjjdjdjdj')}>
-              <ContactShareIcon width={16} height={16} />
-              <NumberlessText
-                fontType={FontType.rg}
-                textColor={Colors.primary.white}
-                fontSizeType={FontSizeType.s}>
-                Share Contact
-              </NumberlessText>
-            </Pressable>
           )}
         </View>
       </Pressable>
@@ -163,20 +155,21 @@ const styling = (colors: any) =>
   StyleSheet.create({
     bar: {
       width: '100%',
-      display: 'flex',
-      flexDirection: 'row',
+      flexDirection: 'column',
       justifyContent: 'flex-start',
       alignItems: 'center',
-      paddingHorizontal: 8,
-      backgroundColor: colors.primary.surface2,
-
-      height: 56,
+      position: 'absolute',
     },
     profileBar: {
+      width: '100%',
       flexDirection: 'row',
       flex: 1,
       alignItems: 'center',
       justifyContent: 'space-between',
+      paddingHorizontal: 8,
+      height: 56,
+      position: 'absolute',
+      backgroundColor: colors.primary.surface2,
     },
     titleBar: {
       flex: 1,
@@ -186,10 +179,13 @@ const styling = (colors: any) =>
       justifyContent: 'flex-start',
       gap: PortSpacing.tertiary.uniform,
     },
+    nameBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     title: {
       color: colors.text.primary,
       overflow: 'hidden',
-      flex: 1,
     },
     selected: {
       color: colors.text.primary,

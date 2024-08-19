@@ -27,14 +27,14 @@ const OptionWithToggle = ({
   IconLeftView,
   toggleActiveState = false,
   heading,
-  description,
+  _description,
 }: {
   IconLeftView?: JSX.Element | null;
   onToggle: () => void;
   IconLeft?: FC<SvgProps>;
   toggleActiveState: boolean;
   heading: string;
-  description?: string;
+  _description?: string;
 }) => {
   const Colors = DynamicColors();
   return (
@@ -60,7 +60,7 @@ const OptionWithToggle = ({
           onToggle={onToggle}
         />
       </View>
-      {description && (
+      {/* {description && (
         <NumberlessText
           textColor={Colors.text.subtitle}
           numberOfLines={2}
@@ -69,7 +69,7 @@ const OptionWithToggle = ({
           style={styles.description}>
           {description}
         </NumberlessText>
-      )}
+      )} */}
     </TouchableOpacity>
   );
 };
@@ -77,17 +77,19 @@ const OptionWithToggle = ({
 const styles = StyleSheet.create({
   optionWrapper: {
     flexDirection: 'column',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingVertical: 10,
-    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    paddingHorizontal: PortSpacing.intermediate.uniform,
+    width: '100%',
+    height: 56,
   },
   topContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '100%',
   },
   heading: {
     marginHorizontal: PortSpacing.secondary.uniform,
-
     flex: 1,
   },
   description: {

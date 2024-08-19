@@ -133,9 +133,10 @@ const CreateFolder = ({navigation, route}: Props) => {
               <AdvanceSettingsCard
                 permissions={permissions}
                 setPermissions={setPermissions}
+                heading={'Allow contacts in this folder to'}
               />
               <ChatSettingsCard
-                showDissapearingMessagesOption={true}
+                showDissapearingMessagesOption={false}
                 permissions={permissions}
                 setPermissions={setPermissions}
               />
@@ -200,12 +201,10 @@ const styling = (colors: any) =>
       flexDirection: 'column',
       justifyContent: 'flex-start',
       paddingHorizontal: PortSpacing.secondary.uniform,
+      backgroundColor: colors.primary.background,
     },
     chatSettingsContainer: {
       marginBottom: PortSpacing.secondary.bottom,
-      borderWidth: 0.5,
-      borderColor: colors.primary.stroke,
-      borderRadius: PortSpacing.secondary.uniform,
     },
     buttonWrapper: {
       paddingVertical: PortSpacing.secondary.uniform,

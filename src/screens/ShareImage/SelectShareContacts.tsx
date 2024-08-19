@@ -165,7 +165,7 @@ const styling = (Color: any) =>
       paddingVertical: PortSpacing.secondary.top,
     },
     search: {
-      backgroundColor: color.primary.surface2,
+      backgroundColor: Color.primary.surface2,
       width: '100%',
       flexDirection: 'row',
       height: 44,

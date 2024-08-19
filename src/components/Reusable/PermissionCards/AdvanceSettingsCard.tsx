@@ -6,9 +6,9 @@ import {
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
-import React, {useEffect} from 'react';
+import React from 'react';
 import {View} from 'react-native';
-import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
+import {updatePermissions} from '@utils/Storage/permissions';
 import {
   BooleanPermissions,
   PermissionsStrict,
@@ -26,22 +26,15 @@ const AdvanceSettingsCard = ({
   permissions,
   setPermissions,
   chatId,
+  heading = 'Access permissions',
 }: {
-  permissionsId: string;
+  permissionsId?: string;
   permissions: PermissionsStrict;
   setPermissions: (permissions: PermissionsStrict) => void;
   chatId?: string;
+  heading?: string;
 }) => {
   const Colors = DynamicColors();
-
-  useEffect(() => {
-    (async () => {
-      if (permissionsId) {
-        setPermissions(await getPermissions(permissionsId));
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permissionsId]);
 
   const onUpdateBooleanPermission = async (
     permissionKey: keyof BooleanPermissions,
@@ -81,22 +74,29 @@ const AdvanceSettingsCard = ({
         return;
       }
     }
-    await updatePermissions(permissionsId, updatedPermissions);
+    if (permissionsId) {
+      await updatePermissions(permissionsId, updatedPermissions);
+    }
   }
 
   const {themeValue} = useTheme();
   return (
-    <SimpleCard style={{backgroundColor: 'transparent'}}>
-      <NumberlessText
+    <SimpleCard style={{backgroundColor: 'transparent', paddingVertical: 0}}>
+      <View
         style={{
-          padding: PortSpacing.secondary.uniform,
-        }}
-        textColor={Colors.labels.text}
-        fontType={FontType.md}
-        fontSizeType={FontSizeType.l}>
-        Access Permissions
-      </NumberlessText>
-      <View style={{paddingBottom: PortSpacing.tertiary.bottom}}>
+          width: '100%',
+          height: 56,
+          paddingHorizontal: PortSpacing.intermediate.uniform,
+          justifyContent: 'center',
+        }}>
+        <NumberlessText
+          textColor={Colors.labels.text}
+          fontType={FontType.md}
+          fontSizeType={FontSizeType.l}>
+          {heading}
+        </NumberlessText>
+      </View>
+      <View style={{width: '100%'}}>
         <OptionWithToggle
           IconLeftView={getPermissionIcon([
             'contactSharing',
@@ -104,7 +104,7 @@ const AdvanceSettingsCard = ({
             themeValue,
           ])}
           toggleActiveState={permissions.contactSharing}
-          heading="Contact sharing"
+          heading="Share your contact"
           onToggle={toggleContactSharing}
         />
         <OptionWithToggle
@@ -114,7 +114,7 @@ const AdvanceSettingsCard = ({
             themeValue,
           ])}
           toggleActiveState={permissions.displayPicture}
-          heading="Show my profile photo"
+          heading="See your display picture"
           onToggle={async () =>
             await onUpdateBooleanPermission('displayPicture')
           }
@@ -126,7 +126,7 @@ const AdvanceSettingsCard = ({
             themeValue,
           ])}
           toggleActiveState={permissions.readReceipts}
-          heading="Send read receipts"
+          heading="See your read receipts"
           onToggle={async () => await onUpdateBooleanPermission('readReceipts')}
         />
       </View>

@@ -138,16 +138,17 @@ const EditFolder = ({route, navigation}: Props) => {
                 those changes will take precedence for that chat.
               </NumberlessText>
             </View>
-            <View style={styles.chatSettingsContainer}>
-              <ChatSettingsCard
-                showDissapearingMessagesOption={false}
+            <View>
+              <AdvanceSettingsCard
                 permissionsId={selectedFolder.permissionsId}
                 permissions={permissions}
                 setPermissions={setPermissions}
+                heading={'Allow contacts in this folder to'}
               />
             </View>
-            <View>
-              <AdvanceSettingsCard
+            <View style={styles.chatSettingsContainer}>
+              <ChatSettingsCard
+                showDissapearingMessagesOption={false}
                 permissionsId={selectedFolder.permissionsId}
                 permissions={permissions}
                 setPermissions={setPermissions}

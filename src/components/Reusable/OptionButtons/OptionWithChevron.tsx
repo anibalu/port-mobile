@@ -111,8 +111,11 @@ const styling = (colors: any) =>
   StyleSheet.create({
     optionWrapper: {
       flexDirection: 'column',
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingVertical: 10,
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+      paddingHorizontal: PortSpacing.intermediate.uniform,
+      width: '100%',
+      height: 56,
     },
     labelContainer: {
       flexDirection: 'row',
@@ -132,6 +135,7 @@ const styling = (colors: any) =>
     topContainer: {
       flexDirection: 'row',
       alignItems: 'center',
+      width: '100%',
     },
     heading: {
       marginHorizontal: PortSpacing.secondary.uniform,

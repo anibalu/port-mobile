@@ -7,7 +7,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {defaultFolderId, TOPBAR_HEIGHT} from '@configs/constants';
+import {TOPBAR_HEIGHT} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import React, {ReactNode, useMemo} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
@@ -115,29 +115,24 @@ export function FolderChatsTopBar(): ReactNode {
             </NumberlessText>
           </View>
           <View style={{paddingLeft: 4}}>
-            {selectedFolderData &&
-              selectedFolderData.folderId !== defaultFolderId && (
-                <Pressable
-                  style={styles.iconWrapper}
-                  onPress={() => {
-                    navigation.navigate('EditFolder', {
-                      selectedFolder: selectedFolderData,
-                    });
-                  }}>
-                  <SettingsIcon
-                    style={{marginRight: 4}}
-                    width={20}
-                    height={20}
-                  />
-                  <NumberlessText
-                    numberOfLines={1}
-                    textColor={Colors.text.primary}
-                    fontType={FontType.md}
-                    fontSizeType={FontSizeType.m}>
-                    Edit Settings
-                  </NumberlessText>
-                </Pressable>
-              )}
+            {selectedFolderData && (
+              <Pressable
+                style={styles.iconWrapper}
+                onPress={() => {
+                  navigation.navigate('EditFolder', {
+                    selectedFolder: selectedFolderData,
+                  });
+                }}>
+                <SettingsIcon style={{marginRight: 4}} width={20} height={20} />
+                <NumberlessText
+                  numberOfLines={1}
+                  textColor={Colors.text.primary}
+                  fontType={FontType.md}
+                  fontSizeType={FontSizeType.m}>
+                  Edit Settings
+                </NumberlessText>
+              </Pressable>
+            )}
           </View>
         </View>
       )}

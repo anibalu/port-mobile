@@ -98,7 +98,6 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
 
   //cursor for number of messages on screen
   const [cursor, setCursor] = useState(50);
-
   const navigation = useNavigation();
 
   //re-render trigger
@@ -211,7 +210,6 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     <AudioPlayerProvider>
       <CustomStatusBar backgroundColor={Colors.primary.surface2} />
       <GestureSafeAreaView style={styles.screen}>
-        <ChatTopbar />
         <KeyboardAvoidingView
           style={styles.main}
           behavior={isIOS ? 'padding' : 'height'}
@@ -266,6 +264,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
             </View>
           )}
         </KeyboardAvoidingView>
+        <ChatTopbar />
         <RichReactionsBottomsheet
           chatId={chatId}
           currentReactionMessage={currentReactionMessage}

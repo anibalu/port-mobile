@@ -368,6 +368,13 @@ const ChatProfile = ({route, navigation}: Props) => {
                     </Pressable>
                   </SimpleCard>
                 </View>
+                <AdvanceSettingsCard
+                  chatId={chatId}
+                  permissions={permissions}
+                  permissionsId={chatData.permissionsId}
+                  setPermissions={setPermissions}
+                  heading={'Allow this contact to'}
+                />
                 <ChatSettingsCard
                   chatId={chatId}
                   permissions={permissions}
@@ -375,12 +382,7 @@ const ChatProfile = ({route, navigation}: Props) => {
                   setPermissions={setPermissions}
                   showDissapearingMessagesOption={true}
                 />
-                <AdvanceSettingsCard
-                  chatId={chatId}
-                  permissions={permissions}
-                  permissionsId={chatData.permissionsId}
-                  setPermissions={setPermissions}
-                />
+                <View style={{height: 16}} />
                 <Notes pairHash={pairHash} note={note} />
                 <View style={styles.sharedMediaContainer}>
                   <SharedMediaCard media={media} chatId={chatId} />

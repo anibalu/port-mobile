@@ -4,7 +4,6 @@
 import {SafeAreaView} from '@components/SafeAreaView';
 import React, {ReactNode, useEffect, useMemo, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
-import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
 import {PortSpacing, screen} from '@components/ComponentUtils';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {CustomStatusBar} from '@components/CustomStatusBar';
@@ -18,7 +17,6 @@ import {
   safeModalCloseDuration,
 } from '@configs/constants';
 import {
-  cleanDeletePort,
   generateBundle,
   getBundleClickableLink,
   getGeneratedPortData,
@@ -26,7 +24,6 @@ import {
 import {PortBundle} from '@utils/Ports/interfaces';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
-import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 import SharePortLink from '@components/Reusable/BottomSheets/SharePortLink';
 import {wait} from '@utils/Time';
@@ -246,7 +243,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
   ];
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
-  const ScanIcon = results.ScanIcon;
+  // const ScanIcon = results.ScanIcon;
 
   return (
     <>
@@ -284,19 +281,6 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
               foldersArray={folders}
             />
           </View>
-          <TertiaryButton
-            tertiaryButtonColor={'b'}
-            buttonText={'Scan instead'}
-            Icon={ScanIcon}
-            onClick={async () => {
-              //delete generated port and navigate to scan screen.
-              if (qrData) {
-                await cleanDeletePort(qrData.portId, PortTable.generated);
-              }
-              navigation.navigate('Scan');
-            }}
-            disabled={false}
-          />
         </ScrollView>
         <ErrorBottomSheet
           visible={openErrorModal}
@@ -341,7 +325,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: PortSpacing.secondary.uniform,
     gap: PortSpacing.secondary.uniform,
     paddingTop: PortSpacing.secondary.uniform,
-    height: screen.height - 30,
+    height: screen.height,
   },
   subtitle: {
     alignSelf: 'center',

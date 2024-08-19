@@ -30,9 +30,11 @@ const OptionWithChevron = ({
   labelActiveState = false,
   heading,
   description,
+  IconLeftView,
 }: {
+  IconLeftView: JSX.Element | null;
   onClick: () => void;
-  IconLeft: FC<SvgProps>;
+  IconLeft?: FC<SvgProps>;
   labelText?: string;
   labelActiveState: boolean;
   heading: string;
@@ -61,7 +63,8 @@ const OptionWithChevron = ({
       accessibilityIgnoresInvertColors
       activeOpacity={0.6}>
       <View style={styles.topContainer}>
-        <IconLeft height={20} width={20} />
+        {IconLeft && <IconLeft height={20} width={20} />}
+        {IconLeftView && IconLeftView}
         <NumberlessText
           textColor={Colors.labels.text}
           numberOfLines={1}
@@ -85,10 +88,9 @@ const OptionWithChevron = ({
                 }>
                 {labelText}
               </NumberlessText>
+              <RightChevron width={20} height={20} />
             </View>
           )}
-
-          <RightChevron width={20} height={20} />
         </View>
       </View>
       {description && (
@@ -121,6 +123,8 @@ const styling = (colors: any) =>
       borderRadius: 6,
       paddingHorizontal: 6,
       justifyContent: 'center',
+      flexDirection: 'row',
+      gap: 16,
       alignItems: 'center',
       height: 25,
       backgroundColor: colors.primary.lightgrey,

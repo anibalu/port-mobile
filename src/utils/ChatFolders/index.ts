@@ -3,44 +3,24 @@ import * as permissionsStorage from '@utils/Storage/permissions';
 import {
   Permissions,
   PermissionsStrict,
-} from '@utils/ChatPermissions/interfaces';
+} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {FolderInfo} from './interfaces';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {
   getConnectionsByFolder,
-  moveConnectionsToNewFolder,
-} from '@utils/Connections';
+  getLineIdFromChatId,
+  updateConnection,
+} from '@utils/Storage/connections';
 import {defaultFolderId} from '@configs/constants';
-import {ChatType} from '@utils/Connections/interfaces';
+import {ChatType, ConnectionEntry} from '@utils/Storage/DBCalls/connections';
 import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
-import {getChatsInAFolder} from '@utils/Storage/DBCalls/folders';
-
-/**
- * Get all chat folders
- */
-export async function getAllFolders() {
-  return await folderStorage.getAllFolders();
-}
-
-/**
- * Get all chat folders with unread count
- */
-export async function getAllFoldersWithUnreadCount() {
-  return await folderStorage.getAllFoldersWithUnreadCount();
-}
-
-/**
- * Get a folder's info
- * @param folderId
- * @returns - folder info of folder
- */
-export async function getFolder(folderId: string): Promise<FolderInfo> {
-  const folder = await folderStorage.getFolder(folderId);
-  if (!folder) {
-    throw new Error('No such folder');
-  }
-  return folder as FolderInfo;
-}
+import {getFolder} from '@utils/Storage/folders';
+import {updateChatPermissions} from '@utils/ChatPermissions';
+import {
+  fetchContactPortBundle,
+  remotePauseContactPorts,
+  remoteResumeContactPorts,
+} from '@utils/Ports/contactport';
 
 /**
  * Add a new chat folder and returns folderId
@@ -51,8 +31,10 @@ export async function addNewFolder(
 ): Promise<FolderInfo> {
   //create permissions for the folder
   const permissionsId = generateRandomHexId();
-  await permissionsStorage.newPermissionEntry(permissionsId);
-  await permissionsStorage.updatePermissions(permissionsId, permissions);
+  await permissionsStorage.addPermissionEntry({
+    permissionsId: permissionsId,
+    ...permissions,
+  });
   //create folder
   const folderId = generateRandomHexId();
   const folder = {
@@ -60,25 +42,8 @@ export async function addNewFolder(
     name: folderName,
     permissionsId: permissionsId,
   };
-  await folderStorage.addNewFolder(folder);
+  await folderStorage.addFolderEntry(folder);
   return folder;
-}
-
-/**
- * USE FOR RECOVERY ONLY
- * Add a folder entry to the database
- * @param folderData The folder entry to add
- */
-export async function addFolderEntry(folderData: FolderInfo) {
-  await folderStorage.addNewFolder(folderData);
-}
-
-/**
- * Get a folder's permissions
- */
-export async function getFolderPermissions(folderId: string) {
-  const permissions = folderStorage.getFolderPermissions(folderId);
-  return permissions;
 }
 
 /**
@@ -90,20 +55,12 @@ export async function updateFolderPermissions(
 ) {
   try {
     const folder = await getFolder(folderId);
+    if (!folder) {
+      throw new Error('No such folder');
+    }
     await permissionsStorage.updatePermissions(folder.permissionsId, update);
   } catch (error) {
     console.log('Error updating folder permissions', error);
-  }
-}
-
-/**
- * Edit a folder's name
- */
-export async function editFolderName(folderId: string, newName: string) {
-  try {
-    await folderStorage.updateFolderName(folderId, newName);
-  } catch (error) {
-    console.log('Error updating folder name', error);
   }
 }
 
@@ -112,20 +69,27 @@ export async function editFolderName(folderId: string, newName: string) {
  */
 export async function applyFolderPermissions(folderId: string) {
   //get folder permissions
-  const folderPermissions = await getFolderPermissions(folderId);
-  const connections = await getChatsInAFolder(folderId);
+  const folderPermissions = await permissionsStorage.getFolderPermissions(
+    folderId,
+  );
+  const connections = await getConnectionsByFolder(folderId);
 
   // Let the backend know to silence notifications for chats in the folder
   const newNotificationPermissionState = folderPermissions.notifications;
-  // Set up the chats section of the payload in the expected format
-  const notificationUpdateChatList = connections.map(connection => {
-    return {
-      id: connection.chatId,
-      type: (connection.connectionType === ChatType.direct
+
+  const notificationUpdateChatList: {id: string; type: 'line' | 'group'}[] = [];
+  const contactPortList: string[] = [];
+  for (let i = 0; i < connections.length; i++) {
+    contactPortList.push(
+      (await fetchContactPortBundle(connections[i].pairHash)).portId,
+    );
+    notificationUpdateChatList.push({
+      id: await getLineIdFromChatId(connections[i].chatId),
+      type: (connections[i].connectionType === ChatType.direct
         ? 'line'
         : 'group') as 'line' | 'group',
-    };
-  });
+    });
+  }
 
   try {
     await setRemoteNotificationPermissionsForChats(
@@ -140,6 +104,15 @@ export async function applyFolderPermissions(folderId: string) {
     // TODO add feedback for the user that it failed
     return;
   }
+  try {
+    if (folderPermissions.contactSharing) {
+      remoteResumeContactPorts(contactPortList);
+    } else {
+      remotePauseContactPorts(contactPortList);
+    }
+  } catch (e) {
+    console.error('Could not set contact sharing permissions', e);
+  }
 
   // updates permissions of all chats in a folder
   await permissionsStorage.updateChatPermissionsInAFolder(
@@ -149,7 +122,7 @@ export async function applyFolderPermissions(folderId: string) {
 }
 
 /**
- * Delete a chat folder
+ * Delete a chat folder safely by moving existing connections to default folder.
  */
 export async function deleteFolder(
   folderId: string,
@@ -166,4 +139,72 @@ export async function deleteFolder(
   } catch (error) {
     console.log('Error deleting folder', error);
   }
+}
+
+/**
+ * Assign connections to a different folder
+ */
+export async function moveConnectionsToNewFolder(
+  connections: ConnectionEntry[],
+  folderId: string,
+) {
+  //get folder permissions
+  const folderPermissions = await permissionsStorage.getFolderPermissions(
+    folderId,
+  );
+  for (let index = 0; index < connections.length; index++) {
+    //update chat permissions to folder permissions
+    await updateChatPermissions(connections[index].chatId, folderPermissions);
+    //update chat folder Id
+    await updateConnection({
+      chatId: connections[index].chatId,
+      folderId: folderId,
+    });
+  }
+}
+
+/**
+ * Assign connections to a different folder
+ */
+export async function moveConnectionsToNewFolderWithoutPermissionChange(
+  connections: ConnectionEntry[],
+  folderId: string,
+) {
+  for (let index = 0; index < connections.length; index++) {
+    //update chat folder Id
+    await updateConnection({
+      chatId: connections[index].chatId,
+      folderId: folderId,
+    });
+  }
+}
+
+/**
+ * Assign connections to a different folder
+ */
+export async function moveConnectionToNewFolder(
+  chatId: string,
+  folderId: string,
+) {
+  //get folder permissions
+  const folderPermissions = await permissionsStorage.getFolderPermissions(
+    folderId,
+  );
+  //update chat permissions to folder permissions
+  await updateChatPermissions(chatId, folderPermissions);
+  //update chat folder Id
+  await updateConnection({
+    chatId: chatId,
+    folderId: folderId,
+  });
+}
+export async function moveConnectionToNewFolderWithoutPermissionChange(
+  chatId: string,
+  folderId: string,
+) {
+  //update chat folder Id
+  await updateConnection({
+    chatId: chatId,
+    folderId: folderId,
+  });
 }

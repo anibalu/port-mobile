@@ -6,7 +6,7 @@ import {DataType, MessageStatus} from '@utils/Messaging/interfaces';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {saveNewMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
 

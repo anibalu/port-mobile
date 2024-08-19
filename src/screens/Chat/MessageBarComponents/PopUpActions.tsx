@@ -7,7 +7,7 @@ import {
 } from '@components/NumberlessText';
 import {useNavigation} from '@react-navigation/native';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useEffect} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';

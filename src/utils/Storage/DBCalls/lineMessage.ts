@@ -1,14 +1,6 @@
-import {runSimpleQuery} from './dbCommon';
+import {runSimpleQuery, toBool} from './dbCommon';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
-
-//converts non-zero values to true. returns false otherwise.
-function toBool(a: number) {
-  if (a) {
-    return true;
-  }
-  return false;
-}
 
 export interface updateMessageParams {
   contentType?: ContentType | null; // What type of message the content is

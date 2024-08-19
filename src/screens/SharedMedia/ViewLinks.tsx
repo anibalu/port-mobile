@@ -7,7 +7,7 @@ import {
 } from '@components/NumberlessText';
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
-import {MediaEntry} from '@utils/Media/interfaces';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getMediaForChat} from '@utils/Storage/media';
 import FileViewer from 'react-native-file-viewer';

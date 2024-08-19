@@ -12,8 +12,8 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
-import {ChatType} from '@utils/Connections/interfaces';
-import {updateConnectionOnNewMessage} from '@utils/Connections';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
@@ -30,6 +30,7 @@ export const genericContentTypes: ContentType[] = [
   ContentType.displayAvatar,
   ContentType.disappearingMessages,
   ContentType.contactBundleResponse,
+  ContentType.contactPortRequest,
 ];
 
 /**

@@ -7,7 +7,7 @@ import {
 } from '@components/NumberlessText';
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {MediaEntry} from '@utils/Media/interfaces';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {getImagesAndVideos} from '@utils/Storage/media';

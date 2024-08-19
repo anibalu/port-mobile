@@ -3,7 +3,7 @@ import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {PortSpacing} from './ComponentUtils';
 import ConfirmationBottomSheet from './Reusable/BottomSheets/ConfirmationBottomSheet';
-import {blockUser, unblockUser} from '@utils/UserBlocking';
+import {blockUser, unblockUser} from '@utils/Storage/blockUsers';
 import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
 import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {BlockedUser} from '@utils/Storage/DBCalls/blockUser';
@@ -25,7 +25,7 @@ const BlockedContactTile = (user: BlockedContactProps) => {
       await blockUser({
         name: name,
         pairHash: pairHash,
-        time: new Date().toISOString(),
+        blockTimestamp: new Date().toISOString(),
       });
       setIsBlocked(true);
       setIsSelected(false);

@@ -1,14 +1,20 @@
-import {UnusedPortData, GroupPortDataUpdate} from '@utils/Ports/interfaces';
-import * as dbCalls from './DBCalls/groupPorts';
+import {UnusedPortData} from './DBCalls/ports/interfaces';
+import * as dbCalls from './DBCalls/ports/groupPorts';
+
 /**
  * Create a new group port entry
  * Add a new group port to the list
  * @param portId a 32 character string identifying a group port
  */
-export async function newGroupPort(groupId: string, portId: string) {
+async function newGroupPort(groupId: string, portId: string) {
   await dbCalls.newGroupPort(groupId, portId);
 }
 
+/**
+ * add new unused group ports to storage.
+ * @param groupId
+ * @param portIds
+ */
 export async function newGroupPorts(groupId: string, portIds: string[]) {
   for (let index = 0; index < portIds.length; index++) {
     await newGroupPort(groupId, portIds[index]);
@@ -22,7 +28,7 @@ export async function newGroupPorts(groupId: string, portIds: string[]) {
  */
 export async function updateGroupPortData(
   portId: string,
-  update: GroupPortDataUpdate,
+  update: dbCalls.GroupPortDataUpdate,
 ) {
   await dbCalls.updateGroupPortData(portId, update);
 }
@@ -35,7 +41,7 @@ export async function updateGroupPortData(
  */
 export async function getGroupPortData(
   portId: string,
-): Promise<GroupPortDataUpdate | null> {
+): Promise<dbCalls.GroupPortData | null> {
   return await dbCalls.getGroupPortData(portId);
 }
 

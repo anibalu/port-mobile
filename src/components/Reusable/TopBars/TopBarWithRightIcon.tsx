@@ -15,6 +15,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {TOPBAR_HEIGHT} from '@configs/constants';
 import React, {FC} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
@@ -35,6 +36,7 @@ const TopBarWithRightIcon = ({
   return (
     <View
       style={StyleSheet.compose(styles.topbarAcontainer, {
+        borderBottomColor: Colors.primary.stroke,
         backgroundColor: bgColor
           ? bgColor === 'b'
             ? Colors.primary.background
@@ -47,13 +49,14 @@ const TopBarWithRightIcon = ({
         textColor={Colors.text.primary}
         ellipsizeMode="tail"
         fontType={FontType.md}
-        fontSizeType={FontSizeType.l}>
+        fontSizeType={FontSizeType.xl}>
         {heading}
       </NumberlessText>
       {IconRight && (
         <Pressable
           style={{position: 'absolute', right: 16}}
-          onPress={onIconRightPress}>
+          onPress={onIconRightPress}
+          hitSlop={60}>
           <IconRight width={24} height={24} />
         </Pressable>
       )}
@@ -66,8 +69,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: PortSpacing.secondary.uniform,
     alignItems: 'center',
-
-    height: 56,
+    borderBottomWidth: 0.5,
+    height: TOPBAR_HEIGHT,
     justifyContent: 'center',
     width: '100%',
   },

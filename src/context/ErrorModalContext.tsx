@@ -10,7 +10,6 @@ import {ERROR_MODAL_VALIDITY_TIMEOUT} from '@configs/constants';
 
 type ModalContextType = {
   modalVisible: boolean;
-  onboardingFailureError: () => void;
   notifyUserOfConnectionError: () => void;
   unableToNotifyUserError: () => void;
   mediaDownloadError: () => void;
@@ -21,7 +20,6 @@ type ModalContextType = {
   DisconnectChatError: () => void;
   ReportSubmittedError: () => void;
   ReportSubmittedSuccess: () => void;
-  BackupRestoreError: () => void;
   messageCopied: () => void;
   MessageAlreadyReportedError: () => void;
   componentNotSupportedyetError: () => void;
@@ -74,13 +72,6 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
     });
   };
 
-  const BackupRestoreError = () => {
-    setErrorToShow({
-      text: 'Did not restore from backup',
-      type: 'error',
-    });
-  };
-
   const ReportSubmittedSuccess = () => {
     setErrorToShow({
       text: 'Report submitted',
@@ -117,13 +108,6 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
   const componentNotSupportedyetError = () => {
     setErrorToShow({
       text: 'This is not supported yet!',
-      type: 'error',
-    });
-  };
-
-  const onboardingFailureError = () => {
-    setErrorToShow({
-      text: 'Error in setting you up, please check your network.',
       type: 'error',
     });
   };
@@ -202,8 +186,6 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
         ReportSubmittedSuccess,
         MessageDataTooBigError,
         FileTooLarge,
-        BackupRestoreError,
-        onboardingFailureError,
         messageCopied,
         MessageAlreadyReportedError,
         componentNotSupportedyetError,

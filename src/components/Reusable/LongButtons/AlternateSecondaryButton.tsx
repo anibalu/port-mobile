@@ -10,12 +10,17 @@
  * 5. onClick - function that runs on clicking.
  */
 
-import {FontSizes, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import React, {FC} from 'react';
-import {TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {TouchableOpacity, StyleSheet} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import SmallLoader from '../Loaders/SmallLoader';
 import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 
 const AlternateSecondaryButton = ({
   isLoading,
@@ -38,10 +43,17 @@ const AlternateSecondaryButton = ({
       style={styles.button}
       activeOpacity={0.6}
       onPress={() => onClick()}>
-      <Text style={styles.buttonText}>{buttonText}</Text>
+      <NumberlessText
+        fontSizeType={FontSizeType.m}
+        fontType={FontType.rg}
+        textColor={Colors.primary.accent}
+        style={{
+          textAlign: 'center',
+        }}>
+        {buttonText}
+      </NumberlessText>
       {!isLoading && Icon && (
         <Icon
-          style={{marginRight: 5}}
           height={iconSize === 's' ? 20 : 24}
           width={iconSize === 's' ? 20 : 24}
         />
@@ -51,23 +63,16 @@ const AlternateSecondaryButton = ({
   );
 };
 
-const styling = (color: any) =>
+const styling = (_color: any) =>
   StyleSheet.create({
     button: {
       flexDirection: 'row',
       alignItems: 'center',
-      height: 50,
-      justifyContent: 'space-between',
+      justifyContent: 'center',
       borderRadius: 12,
       backgroundColor: 'transparent',
-      width: '100%',
-      borderColor: color.primary.stroke,
-      borderWidth: 1,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-    },
-    buttonText: {
-      ...FontSizes[14].regular,
-      color: color.text.primary,
+      gap: PortSpacing.medium.right,
+      paddingBottom: PortSpacing.secondary.uniform,
     },
   });
 

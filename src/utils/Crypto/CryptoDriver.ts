@@ -1,7 +1,12 @@
 import {generateRandomHexId} from '@utils/IdGenerator';
 import * as storage from '@utils/Storage/crypto';
 import {hash} from './hash';
-import {CryptoData, CryptoDataMember, CryptoDataStrict} from './interfaces';
+import {
+  CryptoDataMember,
+  CryptoDataStrict,
+  CryptoData,
+  CryptoDataContactPort,
+} from '@utils/Storage/DBCalls/crypto';
 import {generateRad16} from './rad';
 import * as x25519 from './x25519';
 
@@ -10,7 +15,11 @@ import * as x25519 from './x25519';
  */
 class CryptoDriver {
   private cryptoId: string | null;
-  private cryptoData: CryptoDataStrict | CryptoDataMember | null;
+  private cryptoData:
+    | CryptoDataStrict
+    | CryptoDataMember
+    | CryptoDataContactPort
+    | null;
   constructor(cryptoId: string | null = null) {
     this.cryptoId = cryptoId;
     this.cryptoData = null;
@@ -51,6 +60,14 @@ class CryptoDriver {
     this.cryptoData = cryptoData;
   }
 
+  public async createForContactPort(cryptoData: CryptoDataContactPort) {
+    const newCryptoId = generateRandomHexId();
+    await storage.newCryptoEntry(newCryptoId);
+    await storage.updateCryptoData(newCryptoId, cryptoData);
+    this.cryptoId = newCryptoId;
+    this.cryptoData = cryptoData;
+  }
+
   public async getData(): Promise<CryptoDataStrict> {
     this.cryptoId = this.checkCryptoIdNotNull();
     this.cryptoData = await this.loadKeys();
@@ -60,6 +77,12 @@ class CryptoDriver {
   public async getMemberData(): Promise<CryptoDataMember> {
     this.cryptoId = this.checkCryptoIdNotNull();
     this.cryptoData = await this.loadKeysForMember();
+    return this.cryptoData;
+  }
+
+  public async getContactPortData(): Promise<CryptoDataContactPort> {
+    this.cryptoId = this.checkCryptoIdNotNull();
+    this.cryptoData = await this.loadKeysForContactPort();
     return this.cryptoData;
   }
 
@@ -172,6 +195,13 @@ class CryptoDriver {
   private async loadKeysForMember(): Promise<CryptoDataMember> {
     this.cryptoId = this.checkCryptoIdNotNull();
     return (await storage.getCryptoData(this.cryptoId)) as CryptoDataMember;
+  }
+
+  private async loadKeysForContactPort(): Promise<CryptoDataContactPort> {
+    this.cryptoId = this.checkCryptoIdNotNull();
+    return (await storage.getCryptoData(
+      this.cryptoId,
+    )) as CryptoDataContactPort;
   }
 
   /**

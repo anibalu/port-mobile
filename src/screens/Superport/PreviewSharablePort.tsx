@@ -14,7 +14,6 @@ import GreenTick from '@assets/icons/GreenTick.svg';
 import Upload from '@assets/icons/WhiteUpload.svg';
 import Download from '@assets/icons/WhiteDownload.svg';
 import {SafeAreaView} from '@components/SafeAreaView';
-import Logo from '@assets/miscellaneous/appIcon.svg';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import Share from 'react-native-share';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
@@ -97,27 +96,19 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
             horizontal={false}
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}>
-            <ViewShot
-              style={{backgroundColor: '#05070B'}}
-              ref={viewShotRef}
-              options={{format: 'jpg', quality: 0.9}}>
-              <Logo
-                height={50}
-                width={150}
-                style={{
-                  alignSelf: 'center',
-                  marginTop: PortSpacing.intermediate.top,
-                }}
-              />
-              <View style={styles.content}>
+            <View style={styles.content}>
+              <ViewShot
+                style={{backgroundColor: '#05070B'}}
+                ref={viewShotRef}
+                options={{format: 'jpg', quality: 0.9}}>
                 <ShareablePortCard
                   toBeEdited={toBeEdited}
                   title={title}
                   qrData={qrData}
                   profilePicAttr={profilePicAttr}
                 />
-              </View>
-            </ViewShot>
+              </ViewShot>
+            </View>
             {toBeEdited ? (
               <GreenTick
                 onPress={() => setToBeEdited(p => !p)}

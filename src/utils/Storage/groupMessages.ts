@@ -5,7 +5,6 @@ import {
 } from '@utils/Messaging/interfaces';
 import * as groupDBCalls from './DBCalls/groupMessage';
 import {UpdateParams} from './messages';
-import {getMessage} from './messages';
 import {deleteFile} from './StorageRNFS/sharedFileHandlers';
 import {deleteMedia} from './media';
 import {generateISOTimeStamp} from '@utils/Time';
@@ -148,7 +147,7 @@ export async function cleanDeleteGroupMessage(
   chatId: string,
   messageId: string,
 ) {
-  const message = await getMessage(chatId, messageId);
+  const message = await groupDBCalls.getMessage(chatId, messageId);
   if (message) {
     const contentType = message.contentType;
     if (LargeDataMessageContentTypes.includes(contentType)) {

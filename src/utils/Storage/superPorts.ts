@@ -1,5 +1,6 @@
-import * as dbCalls from './DBCalls/superPorts';
-import {SuperportData, SuperportDataUpdate} from '@utils/Ports/interfaces';
+import * as dbCalls from './DBCalls/ports/superPorts';
+import {SuperportData} from './DBCalls/ports/superPorts';
+import {SuperportDataUpdate} from './DBCalls/ports/superPorts';
 /**
  * Create a new super port entry
  * Add a new super port to the list
@@ -7,6 +8,14 @@ import {SuperportData, SuperportDataUpdate} from '@utils/Ports/interfaces';
  */
 export async function newSuperport(portId: string) {
   await dbCalls.newSuperport(portId);
+}
+
+/**
+ * Create a new superport entry
+ * @param data - data associated with the superport.
+ */
+export async function addSuperport(data: SuperportData) {
+  await dbCalls.addSuperport(data);
 }
 
 /**
@@ -29,7 +38,7 @@ export async function updateSuperportData(
  */
 export async function getSuperportData(
   portId: string,
-): Promise<SuperportDataUpdate | null> {
+): Promise<SuperportData | null> {
   return await dbCalls.getSuperportData(portId);
 }
 

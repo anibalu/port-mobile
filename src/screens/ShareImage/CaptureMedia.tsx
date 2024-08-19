@@ -27,7 +27,7 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {checkCameraPermission} from '@utils/AppPermissions';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {getEpochTime} from '@utils/Time';
 import React, {useEffect, useRef, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';

@@ -3,7 +3,7 @@ import {uploadRawMedia} from '@utils/Messaging/LargeData';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
 
-async function sendMessageReport({
+export async function sendMessageReport({
   lineId,
   message,
   description,
@@ -39,5 +39,3 @@ async function sendMessageReport({
     console.log('Error while sending report:', error);
   }
 }
-
-export {sendMessageReport};

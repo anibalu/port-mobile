@@ -43,7 +43,8 @@ const styles = StyleSheet.create({
     width: 'auto',
     bottom: 100,
     borderRadius: 10,
-    padding: PortSpacing.tertiary.uniform,
+    paddingVertical: PortSpacing.tertiary.uniform,
+    paddingHorizontal: PortSpacing.secondary.uniform,
     position: 'absolute',
     alignSelf: 'center',
     borderWidth: 1,
@@ -59,10 +60,9 @@ const styles = StyleSheet.create({
   },
   modaltext: {
     color: PortColors.title,
-    marginLeft: 6,
+    marginLeft: 8,
     textAlign: 'left',
     lineHeight: 15,
-    paddingTop: 3,
   },
 });
 export default Toast;

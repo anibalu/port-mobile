@@ -28,6 +28,10 @@ import {
   SendContactRequestDirectMessage,
   contactBundleRequestContentTypes,
 } from './senders/ContactRequestSender';
+import {
+  contactPortBundleContentTypes,
+  SendContactPortBundleDirectMessage,
+} from './senders/ContactPortBundleSender';
 
 function assignSenderClass(contentType: ContentType) {
   let SenderClass = null;
@@ -54,6 +58,9 @@ function assignSenderClass(contentType: ContentType) {
   }
   if (plaintextContentTypes.includes(contentType)) {
     SenderClass = SendPlaintextDirectMessage;
+  }
+  if (contactPortBundleContentTypes.includes(contentType)) {
+    SenderClass = SendContactPortBundleDirectMessage;
   }
   return SenderClass;
 }

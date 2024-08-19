@@ -255,7 +255,7 @@ const VoiceRecorder = ({
         {isVoiceRecording && !voiceRecordingComplete && (
           <>
             <Stop
-              style={{marginLeft: 4}}
+              style={{marginLeft: 8}}
               onPress={() => {
                 onStopRecord();
                 setVoiceRecording(false);
@@ -285,10 +285,10 @@ const VoiceRecorder = ({
         {/* when voice hasn't been recorded */}
         {!isVoiceRecording && !voiceRecordingComplete && (
           <Pressable style={{flexDirection: 'row'}} onPress={onPressMicroPhone}>
-            <MicrophoneGrey style={{marginLeft: 4}} />
+            <MicrophoneGrey style={{marginLeft: 8}} />
             <View style={styles.box}>
               <NumberlessText
-                style={{marginLeft: 4}}
+                style={{marginLeft: 4, marginRight: 8}}
                 textColor={Colors.primary.mediumgrey}
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.rg}>
@@ -331,7 +331,7 @@ const styling = (colors: any) =>
       backgroundColor: colors.button.black,
     },
     recordingbox: {
-      width: MESSAGE_INPUT_TEXT_WIDTH + 12,
+      width: MESSAGE_INPUT_TEXT_WIDTH + 16,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',

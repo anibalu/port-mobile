@@ -19,7 +19,7 @@ setup_permissions([
   # 'BluetoothPeripheral',
   # 'Calendars',
    'Camera',
-  # 'Contacts',
+   'Contacts',
   # 'FaceID',
   # 'LocationAccuracy',
   # 'LocationAlways',

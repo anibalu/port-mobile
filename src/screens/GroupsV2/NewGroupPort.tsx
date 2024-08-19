@@ -14,7 +14,8 @@ import {useSelector} from 'react-redux';
 import {DEFAULT_NAME} from '@configs/constants';
 import Group from '@utils/Groups/Group';
 import {generateBundle, getBundleClickableLink} from '@utils/Ports';
-import {BundleTarget, GroupBundle} from '@utils/Ports/interfaces';
+import {GroupBundle} from '@utils/Ports/interfaces';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewGroupPort'>;
 const NewGroupPort = ({route}: Props) => {
@@ -85,7 +86,7 @@ const NewGroupPort = ({route}: Props) => {
   };
   useEffect(() => {
     if (latestNewConnection) {
-      if (latestNewConnection.chatId === groupId) {
+      if (latestNewConnection.groupId === groupId) {
         setGenerate(generate + 1);
       }
     }

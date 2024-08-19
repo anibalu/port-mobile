@@ -1,5 +1,6 @@
 import {checkBundleValidity} from '@utils/Ports';
 import {
+  DirectContactPortBundle,
   DirectSuperportBundle,
   GroupBundle,
   GroupSuperportBundle,
@@ -19,7 +20,11 @@ interface urlObject {
 export async function getBundleFromLink(
   urlObj: urlObject,
 ): Promise<
-  PortBundle | GroupBundle | DirectSuperportBundle | GroupSuperportBundle
+  | PortBundle
+  | GroupBundle
+  | DirectSuperportBundle
+  | GroupSuperportBundle
+  | DirectContactPortBundle
 > {
   const synced = async () => {
     const url = urlObj.url;

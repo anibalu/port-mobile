@@ -4,9 +4,10 @@ import axios from 'axios';
 import {IntroMessage} from './DirectChat';
 
 interface newLineData {
-  chatId: string;
+  lineId: string;
   pairHash: string;
 }
+
 export async function newDirectChatFromPort(
   linkId: string,
   introMessage: IntroMessage,
@@ -22,9 +23,9 @@ export async function newDirectChatFromPort(
   );
 
   if (response.data.newLine) {
-    const chatId: string = response.data.newLine;
+    const lineId: string = response.data.newLine;
     const pairHash: string = response.data.pairHash;
-    return {chatId, pairHash};
+    return {lineId, pairHash};
   }
   throw new Error('APIError');
 }
@@ -43,26 +44,49 @@ export async function newDirectChatFromSuperport(
     {headers: {Authorization: `${token}`}},
   );
   if (response.data.newLine) {
-    const chatId: string = response.data.newLine;
+    const lineId: string = response.data.newLine;
     const pairHash: string = response.data.pairHash;
-    return {chatId, pairHash};
+    return {lineId, pairHash};
   }
   throw new Error('APIError');
 }
 
-export async function disconnectChat(chatId: string) {
+export async function newDirectChatFromContactPort(
+  contactPortId: string,
+  introMessage: IntroMessage,
+  ticket: string,
+): Promise<newLineData> {
+  const token = await getToken();
+  const response = await axios.post(
+    LINE_MANAGEMENT_RESOURCE,
+    {
+      ticket: ticket,
+      contactPortId: contactPortId,
+      introMessage: introMessage,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
+  if (response.data.newLine) {
+    const lineId: string = response.data.newLine;
+    const pairHash: string = response.data.pairHash;
+    return {lineId, pairHash};
+  }
+  throw new Error('APIError');
+}
+
+export async function disconnectChat(lineId: string) {
   try {
     const token = await getToken();
     await axios.patch(
       LINE_MANAGEMENT_RESOURCE,
       {
-        lineId: chatId,
+        lineId: lineId,
       },
       {headers: {Authorization: `${token}`}},
     );
   } catch (error: any) {
-    if (typeof error === 'object' && error.response) {
-      if (error.response.status === 404) {
+    if (typeof error === 'object' && error?.response) {
+      if (error.response?.status === 404) {
         return;
       }
     }

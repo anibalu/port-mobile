@@ -1,16 +1,10 @@
-import {runSimpleQuery} from './dbCommon';
+import {runSimpleQuery, toBool} from './dbCommon';
 import {
   GroupData,
   GroupDataEntry,
   GroupDataStrict,
 } from '@utils/Groups/interfaces';
 
-function toBool(a: number) {
-  if (a) {
-    return true;
-  }
-  return false;
-}
 /**
  * Create a new group entry
  * @param id a 32 character string identifying a group
@@ -126,22 +120,3 @@ export async function deleteGroupData(id: string) {
     (tx, results) => {},
   );
 }
-
-// export async function testGroupData(): Promise<boolean> {
-//   const id: string = '12345678901234567890123456789012';
-//   const description: string = 'AN EXAMPLE GROUP';
-//   await newGroup(id);
-//   if ((await getGroupData(id)).description) {
-//     return false;
-//   }
-//   await updateGroupData(id, {description});
-//   if ((await getGroupData(id)).description !== description) {
-//     return false;
-//   }
-//   await deleteGroupData(id);
-//   if ((await getGroupData(id)).description) {
-//     return false;
-//   }
-//   console.log('[DBCALLS GROUPS] Passed all tests');
-//   return true;
-// }

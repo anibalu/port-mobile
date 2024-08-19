@@ -1,9 +1,22 @@
-import {MediaEntry, MediaUpdate} from '@utils/Media/interfaces';
 import {runSimpleQuery} from './dbCommon';
 import {
   ContentType,
   LargeDataMessageContentTypes,
 } from '@utils/Messaging/interfaces';
+
+export interface MediaUpdate {
+  type: ContentType;
+  filePath: string;
+  name: string;
+  previewPath?: string;
+}
+
+export interface MediaEntry extends MediaUpdate {
+  mediaId: string;
+  createdOn: string;
+  chatId?: string;
+  messageId?: string;
+}
 
 /**
  * Create a new media entry

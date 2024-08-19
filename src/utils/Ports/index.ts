@@ -1,17 +1,16 @@
 import {expiryOptions, expiryOptionsTypes} from '@utils/Time/interfaces';
 import {
-  BundleTarget,
   BundleType,
+  DirectContactPortBundle,
   DirectSuperportBundle,
   GroupBundle,
   GroupSuperportBundle,
-  PendingCardInfo,
   PortBundle,
-  PortData,
-  PortTable,
-  ReadPortData,
-  SuperportData,
 } from './interfaces';
+import {BundleTarget, PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
+import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
+import {SuperportData} from '@utils/Storage/DBCalls/ports/superPorts';
+import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
 import {
   DEFAULT_NAME,
   defaultFolderId,
@@ -20,17 +19,27 @@ import {
 import * as direct from './direct';
 import * as group from './group';
 import * as superport from './superport';
+import * as contactPort from './contactport';
 import * as storageReadPorts from '@utils/Storage/readPorts';
 import store from '@store/appStore';
 import {hasExpired} from '@utils/Time';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import {ChatType} from '@utils/Connections/interfaces';
-import {IntroMessage} from '@utils/DirectChats/DirectChat';
-import {disconnectChat} from '@utils/DirectChats/APICalls';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
+import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
 import {Mutex} from 'async-mutex';
+import {deleteDirectSuperport} from './APICalls';
 
+/**
+ * Mapping between different kinds of bundles and the kind of connections they lead to.
+ * @param x - bundle type
+ * @returns - chat type
+ */
 export function bundleTargetToChatType(x: BundleTarget) {
-  if (x === BundleTarget.direct || x === BundleTarget.superportDirect) {
+  if (
+    x === BundleTarget.direct ||
+    x === BundleTarget.superportDirect ||
+    x === BundleTarget.contactPort
+  ) {
     return ChatType.direct;
   } else {
     return ChatType.group;
@@ -50,30 +59,6 @@ export async function fetchNewPorts(groupId: string | null = null) {
 }
 
 /**
- * Triggers a reload of the Pending Requests page.
- */
-export function triggerPendingRequestsReload() {
-  store.dispatch({
-    type: 'TRIGGER_RELOAD',
-  });
-}
-
-/**
- * Triggers a new chat store update
- * @param chatId
- * @param portId
- */
-export function triggerNewChatStoreUpdate(chatId: string, portId: string) {
-  store.dispatch({
-    type: 'NEW_CONNECTION',
-    payload: {
-      chatId: chatId,
-      connectionLinkId: portId,
-    },
-  });
-}
-
-/**
  * Generate a displayable bundle for a new port or group port
  * @param type - only supports groups and direct (not superport)
  * @param id - group id
@@ -87,13 +72,13 @@ export async function generateBundle<T extends BundleTarget>(
   type: T,
   id: string | null = null,
   label: string | null = DEFAULT_NAME,
-  expiry: expiryOptionsTypes = expiryOptions[4],
-  channel: string | null = null,
-  folderId: string = defaultFolderId,
+  expiry: expiryOptionsTypes = expiryOptions[4], //all ports expire in a week by default.
+  channel: string | null = null, //assumes channel is qr if nothing specified.
+  folderId: string = defaultFolderId, //uses default folder if nothing is specified.
 ): Promise<BundleType<T>> {
   if (type === BundleTarget.direct) {
     if (!label) {
-      throw new Error('LabelNull');
+      throw new Error('Label cannot be null in a direct port');
     }
     const newBundle = (await direct.generateNewPortBundle(
       label,
@@ -101,10 +86,7 @@ export async function generateBundle<T extends BundleTarget>(
       channel,
       folderId,
     )) as BundleType<T>;
-    triggerPendingRequestsReload();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {expiryTimestamp, ...newObj} = newBundle as any;
-    return newObj;
+    return newBundle;
   } else if (type === BundleTarget.group) {
     if (!id) {
       throw new Error('GroupIdNull');
@@ -115,9 +97,7 @@ export async function generateBundle<T extends BundleTarget>(
       channel,
       folderId,
     )) as BundleType<T>;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {expiryTimestamp, ...newObj} = newBundle as any;
-    return newObj;
+    return newBundle;
   } else {
     return {} as BundleType<T>;
   }
@@ -142,18 +122,6 @@ export async function updateGeneratedSuperportLabel(
   label: string,
 ) {
   await superport.updateGeneratedSuperportLabel(portId, label);
-}
-
-/**
- * Update generated direct superport connections limit
- * @param portId
- * @param newLimit
- */
-export async function updateGeneratedSuperportLimit(
-  portId: string,
-  newLimit: number,
-) {
-  await superport.updateGeneratedSuperportLimit(portId, newLimit);
 }
 
 /**
@@ -222,6 +190,11 @@ export async function getBundleClickableLink(
       portId,
       bundleString,
     );
+  } else if (type === BundleTarget.contactPort) {
+    return await contactPort.getContactPortBundleClickableLink(
+      portId,
+      bundleString,
+    );
   } else {
     return '';
   }
@@ -234,7 +207,12 @@ export async function getBundleClickableLink(
  */
 export function checkBundleValidity(
   rawString: string | Record<string, string | number>,
-): PortBundle | GroupBundle | DirectSuperportBundle | GroupSuperportBundle {
+):
+  | PortBundle
+  | GroupBundle
+  | DirectSuperportBundle
+  | GroupSuperportBundle
+  | DirectContactPortBundle {
   const bundle =
     typeof rawString === 'string' ? JSON.parse(rawString) : rawString;
   if (bundle.org !== 'numberless.tech') {
@@ -245,7 +223,8 @@ export function checkBundleValidity(
       bundle.target === BundleTarget.direct ||
       bundle.target === BundleTarget.group ||
       bundle.target === BundleTarget.superportDirect ||
-      bundle.target === BundleTarget.superportGroup
+      bundle.target === BundleTarget.superportGroup ||
+      bundle.target === BundleTarget.contactPort
     )
   ) {
     throw new Error('Bundle target not supported');
@@ -254,7 +233,7 @@ export function checkBundleValidity(
 }
 
 /**
- * Reads a port bundle
+ * Reads a port bundle and store it.
  * @param bundle
  * @param channel
  * @param folderId
@@ -264,7 +243,8 @@ export async function readBundle(
     | PortBundle
     | GroupBundle
     | DirectSuperportBundle
-    | GroupSuperportBundle,
+    | GroupSuperportBundle
+    | DirectContactPortBundle,
   channel: string | null = null,
   folderId: string = defaultFolderId,
 ) {
@@ -283,6 +263,13 @@ export async function readBundle(
       case BundleTarget.superportDirect:
         await superport.acceptSuperportBundle(
           bundle as DirectSuperportBundle,
+          channel,
+          folderId,
+        );
+        break;
+      case BundleTarget.contactPort:
+        await contactPort.acceptContactBundle(
+          bundle as DirectContactPortBundle,
           channel,
           folderId,
         );
@@ -315,6 +302,9 @@ async function useReadBundle(readBundle: ReadPortData) {
       case BundleTarget.superportDirect:
         await superport.newChatOverReadSuperportBundle(readBundle);
         break;
+      case BundleTarget.contactPort:
+        await contactPort.newChatOverReadContactPortBundle(readBundle);
+        break;
       default:
         break;
     }
@@ -328,25 +318,40 @@ async function useReadBundle(readBundle: ReadPortData) {
 }
 
 /**
+ * Triggers a new chat store update
+ * @param lineId
+ * @param portId
+ */
+function triggerNewChatStoreUpdate(lineId: string, portId: string) {
+  store.dispatch({
+    type: 'NEW_CONNECTION',
+    payload: {
+      lineId: lineId,
+      connectionLinkId: portId,
+    },
+  });
+}
+
+/**
  * Use a created bundle to form a new connection
- * @param chatId - chat Id created by server
+ * @param lineId - chat Id created by server
  * @param portId - port Id of port used to form connection
  * @param bundleTarget - only accepts direct port and direct superport
  */
 export async function useCreatedBundle(
-  chatId: string,
+  lineId: string,
   portId: string,
   bundleTarget: BundleTarget,
-  pairHash: string | null = null,
-  introMessage: IntroMessage | null = null,
+  pairHash: string,
+  introMessage: IntroMessage,
 ) {
   try {
     switch (bundleTarget) {
       case BundleTarget.direct:
-        triggerNewChatStoreUpdate(chatId, portId);
+        triggerNewChatStoreUpdate(lineId, portId);
         await direct.newChatOverGeneratedPortBundle(
           portId,
-          chatId,
+          lineId,
           pairHash,
           introMessage,
         );
@@ -354,11 +359,20 @@ export async function useCreatedBundle(
       case BundleTarget.superportDirect:
         await superport.newChatOverCreatedSuperportBundle(
           portId,
-          chatId,
+          lineId,
           pairHash,
           introMessage,
         );
-        triggerNewChatStoreUpdate(chatId, portId);
+        triggerNewChatStoreUpdate(lineId, portId);
+        break;
+      case BundleTarget.contactPort:
+        await contactPort.newChatOverCreatedContactPortBundle(
+          portId,
+          lineId,
+          pairHash,
+          introMessage,
+        );
+        triggerNewChatStoreUpdate(lineId, portId);
         break;
       default:
         break;
@@ -368,18 +382,23 @@ export async function useCreatedBundle(
     if (
       error &&
       error.message &&
-      (error.message === 'NoSuperportFound' || error.message === 'NoPortFound')
+      (error.message === 'NoSuperportFound' ||
+        error.message === 'NoPortFound' ||
+        error.message === 'NoContactPortFound')
     ) {
       //this happens when bundle has been deleted locally and somebody has used that bundle.
       //In this case, send a disconnected message to the created chat Id.
       try {
-        await disconnectChat(chatId);
+        const chat = new DirectChat();
+        chat.disconnect(lineId);
+        if (bundleTarget === BundleTarget.superportDirect) {
+          deleteDirectSuperport(portId);
+        }
       } catch {
         console.error('Error occurred while disconnecting:', error);
       }
     }
   }
-  triggerPendingRequestsReload();
 }
 
 const bundleProcessLock = new Mutex();
@@ -398,34 +417,7 @@ export async function processReadBundles() {
   } catch (error) {
     console.log('Error using read bundles: ', error);
   }
-  await bundleProcessLock.release();
-}
-
-/**
- * Get a list of items to display on pending requests screen.
- * @returns - list of items to display
- */
-export async function getPendingRequests(): Promise<PendingCardInfo[]> {
-  await cleanUpPorts();
-  const pendingRequests: PendingCardInfo[] = [];
-  //generated ports
-  const generatedPorts = await direct.getAllGeneratedPorts();
-  const morphedGeneratedPorts = generatedPorts.map(port => {
-    const pendingRequest: PendingCardInfo = {
-      portId: port.portId,
-      name:
-        port.label && port.label !== DEFAULT_NAME
-          ? port.label
-          : 'Port #' + port.portId,
-      isLink: port.channel ? true : false,
-      createdOn: port.usedOnTimestamp,
-    };
-    return pendingRequest;
-  });
-  pendingRequests.push(...morphedGeneratedPorts);
-  return pendingRequests.sort(
-    (a, b) => new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime(),
-  );
+  bundleProcessLock.release();
 }
 
 /**
@@ -472,7 +464,6 @@ export async function cleanDeletePort(portId: string, table: PortTable) {
     default:
       break;
   }
-  triggerPendingRequestsReload();
 }
 
 /**
@@ -512,4 +503,42 @@ export async function getReadPort(
   portId: string,
 ): Promise<ReadPortData | null> {
   return await storageReadPorts.getReadPortData(portId);
+}
+
+/**
+ * Describes the data that is required by a pending port card
+ */
+export interface PendingCardInfo {
+  portId: string;
+  name: string;
+  isLink: boolean;
+  createdOn: string;
+}
+
+/**
+ * Get a list of items to display on pending requests screen.
+ * @todo - get rid of this helper as pending requests screen is no longer necessary.
+ * @returns - list of items to display
+ */
+export async function getPendingRequests(): Promise<PendingCardInfo[]> {
+  await cleanUpPorts();
+  const pendingRequests: PendingCardInfo[] = [];
+  //generated ports
+  const generatedPorts = await direct.getAllGeneratedPorts();
+  const morphedGeneratedPorts = generatedPorts.map(port => {
+    const pendingRequest: PendingCardInfo = {
+      portId: port.portId,
+      name:
+        port.label && port.label !== DEFAULT_NAME
+          ? port.label
+          : 'Port #' + port.portId,
+      isLink: port.channel ? true : false,
+      createdOn: port.usedOnTimestamp,
+    };
+    return pendingRequest;
+  });
+  pendingRequests.push(...morphedGeneratedPorts);
+  return pendingRequests.sort(
+    (a, b) => new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime(),
+  );
 }

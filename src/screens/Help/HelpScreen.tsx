@@ -37,7 +37,7 @@ const HelpScreen = () => {
       <SafeAreaView style={styles.screen}>
         <BackTopbar
           onBackPress={() => navigation.goBack()}
-          title="Help"
+          title="Legal"
           bgColor="w"
         />
         <View style={styles.mainComponent}>

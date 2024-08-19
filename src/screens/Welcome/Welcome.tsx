@@ -3,23 +3,19 @@
  * UI is updated to latest spec for both android and ios
  */
 import Logo from '@assets/miscellaneous/portBranding.svg';
-import {PortSpacing, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
+import LogoAndroid from '@assets/miscellaneous/portLogo.svg';
+import {isIOS, PortSpacing, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import store from '@store/appStore';
 import {checkProfileCreated} from '@utils/Profile';
-import {ProfileStatus} from '@utils/Profile/interfaces';
+import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
 import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
 
-type Props = NativeStackScreenProps<
-  OnboardingStackParamList,
-  'RequestPermissions'
->;
+type Props = NativeStackScreenProps<OnboardingStackParamList, 'Welcome'>;
 
 function Welcome({navigation}: Props) {
   //On login, as an edge case we do a profile check to ensure that a user who has logged in before doesnt end up at onboaring
@@ -51,16 +47,18 @@ function Welcome({navigation}: Props) {
       navigation.navigate('NameScreen');
     }
   };
-
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
   return (
     <>
-      <CustomStatusBar backgroundColor={Colors.primary.defaultdark} />
-      <SafeAreaView style={styles.container}>
+      <View style={{...styles.container}}>
         <View style={styles.greeting}>
-          <Logo width={screen.width} />
+          {isIOS ? (
+            <Logo width={screen.width - 50} />
+          ) : (
+            <LogoAndroid height={62} />
+          )}
         </View>
         <View style={styles.buttonContainer}>
           <PrimaryButton
@@ -71,7 +69,7 @@ function Welcome({navigation}: Props) {
             onClick={onPress}
           />
         </View>
-      </SafeAreaView>
+      </View>
     </>
   );
 }
@@ -91,8 +89,9 @@ const styling = (color: any) =>
       justifyContent: 'center',
     },
     buttonContainer: {
+      position: 'absolute',
       width: '100%',
-      paddingBottom: PortSpacing.primary.bottom,
+      bottom: PortSpacing.primary.bottom,
       paddingLeft: PortSpacing.secondary.left,
       paddingRight: PortSpacing.secondary.right,
     },

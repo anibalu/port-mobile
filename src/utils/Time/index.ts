@@ -1,5 +1,11 @@
 import {ARTIFICIAL_LOADER_INTERVAL} from '../../configs/constants';
-import {expiryDuration, expiryOptionsTypes} from './interfaces';
+import {
+  disappearDuration,
+  disappearOptions,
+  disappearOptionsTypes,
+  expiryDuration,
+  expiryOptionsTypes,
+} from './interfaces';
 
 /**
  * converts an ISO timestamp into a user-readable timestamp string.
@@ -70,40 +76,45 @@ export function formatTimeAgo(isoTimeString: string | undefined | null) {
  * @returns {string} - user-readable timestamp string
  */
 export function getChatTileTimestamp(isoTimestamp: string): string {
-  if (!isoTimestamp) {
+  try {
+    if (!isoTimestamp) {
+      return '';
+    }
+    const date = new Date(isoTimestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.round(diffMs / (1000 * 60));
+
+    if (diffMins < 1) {
+      return 'Now';
+    }
+    if (diffMins < 60) {
+      return diffMins === 1 ? '1m' : `${diffMins}m`;
+    }
+    if (
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    ) {
+      return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    }
+    if (
+      now.getDate() - date.getDate() === 1 &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    ) {
+      return 'Yesterday';
+    }
+    const options: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'numeric',
+      year: '2-digit',
+    };
+    return date.toLocaleDateString(undefined, options);
+  } catch (error) {
+    console.error('Incorrect timestamp: ', error);
     return '';
   }
-  const date = new Date(isoTimestamp);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.round(diffMs / (1000 * 60));
-
-  if (diffMins < 1) {
-    return 'Now';
-  }
-  if (diffMins < 60) {
-    return diffMins === 1 ? '1m' : `${diffMins}m`;
-  }
-  if (
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear()
-  ) {
-    return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-  }
-  if (
-    now.getDate() - date.getDate() === 1 &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear()
-  ) {
-    return 'Yesterday';
-  }
-  const options: Intl.DateTimeFormatOptions = {
-    day: 'numeric',
-    month: 'numeric',
-    year: '2-digit',
-  };
-  return date.toLocaleDateString(undefined, options);
 }
 
 /**
@@ -296,7 +307,7 @@ export function getExpiryTimestamp(
   return null;
 }
 
-export function hasExpired(expiryTimestamp: string | null): boolean {
+export function hasExpired(expiryTimestamp?: string | null): boolean {
   try {
     if (!expiryTimestamp) {
       return false;
@@ -396,4 +407,21 @@ export function formatDuration(milliseconds: number): string {
   return `${minutes < 10 ? '0' : ''}${minutes}:${
     seconds < 10 ? '0' : ''
   }${seconds}`;
+}
+
+export function getLabelByTimeDiff(
+  duration?: number | null,
+): disappearOptionsTypes {
+  if (!duration) {
+    return 'Off';
+  }
+  for (let index = 0; index < disappearOptions.length; index++) {
+    const label = disappearOptions[index];
+    const diff: number = disappearDuration[label];
+    if (diff === duration) {
+      return label as disappearOptionsTypes;
+    }
+  }
+
+  return 'Off'; // If no matching label is found
 }

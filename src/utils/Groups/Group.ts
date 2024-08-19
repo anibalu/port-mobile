@@ -1,12 +1,13 @@
 import {NAME_LENGTH_LIMIT, defaultFolderId} from '@configs/constants';
-import {createChatPermissionsFromFolderId} from '@utils/ChatPermissions';
-import {GroupPermissions, Permissions} from '@utils/ChatPermissions/interfaces';
+import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
 import {
-  addConnection,
-  deleteConnection,
-  updateConnection,
-} from '@utils/Connections';
-import {ChatType} from '@utils/Connections/interfaces';
+  GroupPermissions,
+  Permissions,
+} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {deleteConnection} from '@utils/Storage/connections';
+import {updateConnection} from '@utils/Storage/connections';
+import {addConnection} from '@utils/Storage/connections';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {getRandomAvatarInfo} from '@utils/Profile';
@@ -21,13 +22,9 @@ import {
   GroupMemberUpdate,
 } from './interfaces';
 import {deriveSharedSecret} from '@utils/Crypto/x25519';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
-import {
-  clearPermissions,
-  getPermissions,
-  updatePermissions,
-} from '@utils/Storage/permissions';
+import * as permissionStorage from '@utils/Storage/permissions';
 
 class Group {
   private groupId: string | null;
@@ -121,7 +118,7 @@ class Group {
       //cleanup cryptoId
       await cryptoDriver.deleteCryptoData();
       //cleanup permissions
-      await clearPermissions(permissionsId);
+      await permissionStorage.clearPermissions(permissionsId);
       this.groupId = null;
     }
   }
@@ -225,7 +222,9 @@ class Group {
     this.groupId = this.checkGroupIdNotNull();
     await this.loadGroupAttributes();
     if (this.groupData) {
-      const permissions = await getPermissions(this.groupData.permissionsId);
+      const permissions = await permissionStorage.getPermissions(
+        this.groupData.permissionsId,
+      );
       return permissions as GroupPermissions;
     }
     throw new Error('No permissions set up for group');
@@ -234,7 +233,10 @@ class Group {
     this.groupId = this.checkGroupIdNotNull();
     await this.loadGroupAttributes();
     if (this.groupData) {
-      await updatePermissions(this.groupData.permissionsId, update);
+      await permissionStorage.updatePermissions(
+        this.groupData.permissionsId,
+        update,
+      );
     }
   }
   public async getMember(memberId: string): Promise<GroupMemberStrict | null> {

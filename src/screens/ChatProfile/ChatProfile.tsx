@@ -1,0 +1,660 @@
+import {AppStackParamList} from '@navigation/AppStackTypes';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Pressable,
+  NativeSyntheticEvent,
+  ScrollViewProps,
+} from 'react-native';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {PortSpacing, screen} from '@components/ComponentUtils';
+import EditIcon from '@assets/icons/PencilCircleAccent.svg';
+import Alert from '@assets/icons/Alert.svg';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import SharedMediaCard from './SharedMediaCard';
+import {useFocusEffect} from '@react-navigation/native';
+import {getImagesAndVideos} from '@utils/Storage/media';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import EditName from '@components/Reusable/BottomSheets/EditName';
+import {
+  DEFAULT_AVATAR,
+  DEFAULT_NAME,
+  defaultFolderInfo,
+  defaultPermissions,
+  safeModalCloseDuration,
+} from '@configs/constants';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+
+import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+import AddFolderBottomsheet from '@components/Reusable/BottomSheets/AddFolderBottomsheet';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import {getAllFolders} from '@utils/Storage/folders';
+import {getConnection} from '@utils/Storage/connections';
+import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import * as storage from '@utils/Storage/blockUsers';
+import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {getChatTileTimestamp, wait} from '@utils/Time';
+import {useTheme} from 'src/context/ThemeContext';
+import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePictureBlurView';
+import Notes from '../../components/Notes';
+import {getPermissions} from '@utils/Storage/permissions';
+import {getContact} from '@utils/Storage/contacts';
+import {ToastType, useToast} from 'src/context/ToastContext';
+import Share from 'react-native-share';
+import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
+import {getBundleClickableLink} from '@utils/Ports';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {deleteAllMessagesInChat} from '@utils/Storage/messages';
+import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
+import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import ChatSettingsCard from '@components/Reusable/PermissionCards/ChatSettingsCard';
+import AdvanceSettingsCard from '@components/Reusable/PermissionCards/AdvanceSettingsCard';
+
+type Props = NativeStackScreenProps<AppStackParamList, 'ChatProfile'>;
+
+const ChatProfile = ({route, navigation}: Props) => {
+  const {chatId, chatData} = route.params;
+  const [media, setMedia] = useState<MediaEntry[]>([]);
+  const [showUserInfoInTopbar, setShowUserInfoInTopbar] = useState(false);
+  const userAvatarViewRef = useRef<View>(null);
+  const [displayName, setDisplayName] = useState<string>(
+    chatData.name || DEFAULT_NAME,
+  );
+  const displayPic = chatData.displayPic || DEFAULT_AVATAR;
+  const [showAddFolderModal, setShowAddFolderModal] = useState<boolean>(false);
+
+  const {showToast} = useToast();
+  const [editingName, setEditingName] = useState(false);
+  const [confirmSheet, setConfirmSheet] = useState(false);
+  const [confirmSheetDelete, setConfirmSheetDelete] = useState(false);
+  const [confirmSheetHistoryDelete, setConfirmSheetHistoryDelete] =
+    useState(false);
+  const [confirmBlockUserSheet, setConfirmBlockUserSheet] = useState(false);
+  const pairHash = chatData.pairHash;
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [note, setNote] = useState<string>(chatData.notes || '');
+
+  const [connected, setConnected] = useState(!chatData.disconnected);
+  const [focusProfilePicture, setFocusProfilePicture] =
+    useState<boolean>(false);
+  const [selectedFolder, setSelectedFolder] = useState<FolderInfo>({
+    ...defaultFolderInfo,
+  });
+  //set permissions
+  const [permissions, setPermissions] = useState<PermissionsStrict>({
+    ...defaultPermissions,
+  });
+
+  const [contactPortMissing, setContactPortMissing] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
+  const svgArray = [
+    // 1.NotificationOutline
+    {
+      assetName: 'RightChevron',
+      light: require('@assets/light/icons/navigation/AngleRight.svg').default,
+      dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
+    },
+    {
+      assetName: 'ContactShareIcon',
+      dark: require('@assets/light/icons/ContactShareIcon.svg').default,
+      light: require('@assets/dark/icons/ContactShareIcon.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+
+  const RightChevron = results.RightChevron;
+  const ContactShareIcon = results.ContactShareIcon;
+
+  const loadMedia = async () => {
+    const response = await getImagesAndVideos(chatId);
+    setMedia(response);
+  };
+  const getNote = async () => {
+    const response = await getContact(pairHash);
+    setNote(response?.notes || '');
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        try {
+          const connection = await getConnection(chatId);
+          setPermissions(await getPermissions(chatData.permissionsId));
+          const folders = await getAllFolders();
+          const folder = folders.find(f => f.folderId === connection.folderId);
+          if (folder) {
+            setSelectedFolder(folder);
+          }
+          await loadMedia();
+          await getNote();
+          const userBlocked = await storage.isUserBlocked(pairHash);
+          setIsBlocked(userBlocked);
+        } catch (error) {
+          console.log('Error running initial effect', error);
+          showToast(
+            'Error fetching information regarding this contact',
+            ToastType.error,
+          );
+        }
+      })();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [connected]),
+  );
+
+  const onShareContactPressed = async () => {
+    try {
+      const bundle = await convertAuthorizedContactPortToShareablePort(
+        pairHash,
+      );
+      const bundleLink = await getBundleClickableLink(
+        BundleTarget.contactPort,
+        bundle.portId,
+        JSON.stringify(bundle),
+      );
+      setContactPortMissing(false);
+      setNetworkError(false);
+      try {
+        const shareContent = {
+          title: `Sharing ${displayName}'s a contact`,
+          message: `Click on this link to connect with ${displayName} on Port \n ${bundleLink}`,
+        };
+        await Share.open(shareContent);
+      } catch (error) {
+        console.log('link not shared', error);
+      }
+    } catch (error: any) {
+      console.error('Unable to share contact: ', error);
+      if (
+        error &&
+        error.message &&
+        (error.message === 'NoAuthorizedContactPort' ||
+          error.message === 'PermissionError')
+      ) {
+        if (networkError) {
+          setNetworkError(false);
+          wait(safeModalCloseDuration);
+        }
+        setContactPortMissing(true);
+      } else {
+        if (contactPortMissing) {
+          setContactPortMissing(false);
+          wait(safeModalCloseDuration);
+        }
+        setNetworkError(true);
+      }
+    }
+  };
+
+  const onSaveName = async () => {
+    const chatHandler = new DirectChat(chatId);
+    await chatHandler.updateName(displayName);
+    setEditingName(false);
+  };
+  useMemo(() => {
+    onSaveName();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayName]);
+
+  const handleScroll = (event: NativeSyntheticEvent<ScrollViewProps>) => {
+    const {contentOffset} = event.nativeEvent;
+    if (contentOffset) {
+      const {y} = contentOffset;
+      if (y >= 120) {
+        setShowUserInfoInTopbar(true);
+      } else {
+        setShowUserInfoInTopbar(false);
+      }
+    }
+  };
+
+  const blockUser = async () => {
+    try {
+      await storage.blockUser({
+        name: displayName,
+        pairHash: pairHash,
+        blockTimestamp: new Date().toISOString(),
+      });
+      setIsBlocked(true);
+    } catch {
+      console.log('Error in blocking user');
+    }
+  };
+
+  const unblockUser = async () => {
+    try {
+      await storage.unblockUser(pairHash);
+      setIsBlocked(false);
+    } catch {
+      console.log('Error in unblocking user');
+    }
+  };
+
+  const handleChatDisconnect = async (chatIdString: string) => {
+    try {
+      const chatHandler = new DirectChat(chatIdString);
+      await chatHandler.disconnect();
+      setConnected(false);
+    } catch (error) {
+      await wait(safeModalCloseDuration);
+      showToast(
+        'Error in disconnecting this chat. Please check you network connection',
+        ToastType.error,
+      );
+    }
+  };
+  const {themeValue} = useTheme();
+
+  const onProfilePictureClick = () => {
+    setFocusProfilePicture(true);
+  };
+  return (
+    <>
+      <CustomStatusBar
+        backgroundColor={
+          showUserInfoInTopbar
+            ? Colors.primary.surface
+            : Colors.primary.background
+        }
+      />
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
+        <UserInfoTopbar
+          backgroundColor={showUserInfoInTopbar ? 'w' : 'g'}
+          heading={displayName}
+          avatarUri={displayPic}
+          showUserInfo={showUserInfoInTopbar}
+          IconRight={ContactShareIcon}
+          showShareContact={connected}
+          onIconRightPress={onShareContactPressed}
+        />
+        <View style={styles.mainContainer}>
+          <ScrollView
+            contentContainerStyle={{height: connected ? 'auto' : '100%'}}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            horizontal={false}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}>
+            <View style={styles.avatarContainer} ref={userAvatarViewRef}>
+              <AvatarBox
+                isHomeContact={permissions.focus}
+                onPress={() => onProfilePictureClick()}
+                profileUri={displayPic}
+                avatarSize="m"
+              />
+
+              <Pressable
+                style={styles.nameEditHitbox}
+                onPress={() => setEditingName(true)}>
+                <NumberlessText
+                  style={{
+                    maxWidth:
+                      screen.width - 2 * PortSpacing.secondary.uniform - 30,
+                    marginRight: 4,
+                  }}
+                  textColor={Colors.labels.text}
+                  fontSizeType={FontSizeType.xl}
+                  fontType={FontType.sb}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {displayName}
+                </NumberlessText>
+                <EditIcon height={20} width={20} />
+              </Pressable>
+
+              <NumberlessText
+                textColor={Colors.text.subtitle}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                {chatData.connectedOn
+                  ? 'Connection since : ' +
+                    getChatTileTimestamp(chatData.connectedOn)
+                  : ''}
+              </NumberlessText>
+            </View>
+
+            {connected ? (
+              <>
+                <View style={styles.chatSettingsContainer}>
+                  <SimpleCard style={styles.folderCard}>
+                    <Pressable
+                      style={styles.clickableCard}
+                      onPress={() => setShowAddFolderModal(true)}>
+                      <View style={styles.cardTitle}>
+                        <NumberlessText
+                          textColor={Colors.labels.text}
+                          fontSizeType={FontSizeType.l}
+                          fontType={FontType.md}>
+                          Chat folder
+                        </NumberlessText>
+                      </View>
+                      <View style={styles.labelContainer}>
+                        <View style={styles.labelWrapper}>
+                          <NumberlessText
+                            textColor={
+                              selectedFolder.name === defaultFolderInfo.name
+                                ? Colors.labels.text
+                                : themeValue === 'light'
+                                ? Colors.primary.accent
+                                : Colors.primary.white
+                            }
+                            fontSizeType={FontSizeType.m}
+                            fontType={FontType.rg}
+                            numberOfLines={1}
+                            ellipsizeMode="tail">
+                            {selectedFolder.name}
+                          </NumberlessText>
+                        </View>
+                        <RightChevron width={20} height={20} />
+                      </View>
+                    </Pressable>
+                  </SimpleCard>
+                </View>
+                <ChatSettingsCard
+                  chatId={chatId}
+                  permissions={permissions}
+                  permissionsId={chatData.permissionsId}
+                  setPermissions={setPermissions}
+                  showDissapearingMessagesOption={true}
+                />
+                <AdvanceSettingsCard
+                  chatId={chatId}
+                  permissions={permissions}
+                  permissionsId={chatData.permissionsId}
+                  setPermissions={setPermissions}
+                />
+                <Notes pairHash={pairHash} note={note} />
+                <View style={styles.sharedMediaContainer}>
+                  <SharedMediaCard media={media} chatId={chatId} />
+                </View>
+                <View style={{paddingBottom: PortSpacing.secondary.bottom}}>
+                  <NumberlessText
+                    style={{
+                      color: Colors.primary.red,
+                      marginTop: PortSpacing.secondary.top,
+                    }}
+                    fontSizeType={FontSizeType.l}
+                    fontType={FontType.md}>
+                    Disconnect chat?
+                  </NumberlessText>
+                  <NumberlessText
+                    style={styles.footerDesc}
+                    fontSizeType={FontSizeType.m}
+                    fontType={FontType.rg}>
+                    When a chat is disconnected, you can't contact the user
+                    until you connect again using a new Port.
+                  </NumberlessText>
+                  <View style={{gap: PortSpacing.tertiary.uniform}}>
+                    <PrimaryButton
+                      isLoading={false}
+                      disabled={false}
+                      primaryButtonColor="r"
+                      buttonText="Disconnect"
+                      onClick={() => {
+                        setConfirmSheet(true);
+                      }}
+                    />
+                    <SecondaryButton
+                      secondaryButtonColor="r"
+                      buttonText={'Delete chat history'}
+                      onClick={() => setConfirmSheetHistoryDelete(true)}
+                    />
+                  </View>
+                </View>
+              </>
+            ) : (
+              <View style={styles.disconnectedwrapper}>
+                <View style={styles.alertwrapper}>
+                  <Alert style={{alignSelf: 'center'}} />
+                  <NumberlessText
+                    style={{
+                      alignSelf: 'center',
+                      textAlign: 'center',
+                      width: '100%',
+                      marginTop: PortSpacing.secondary.top,
+                    }}
+                    textColor={Colors.text.subtitle}
+                    fontSizeType={FontSizeType.m}
+                    fontType={FontType.rg}>
+                    Your chat has been disconnected. Deleting the chat will
+                    erase all data associated with it.
+                  </NumberlessText>
+                </View>
+                <View
+                  style={{
+                    gap: 10,
+                    marginBottom: PortSpacing.intermediate.bottom,
+                  }}>
+                  <PrimaryButton
+                    isLoading={false}
+                    disabled={false}
+                    primaryButtonColor="r"
+                    buttonText="Delete chat"
+                    onClick={() => {
+                      setConfirmSheetDelete(true);
+                    }}
+                  />
+                  <SecondaryButton
+                    secondaryButtonColor="r"
+                    buttonText={isBlocked ? 'Unblock contact' : 'Block contact'}
+                    onClick={() => setConfirmBlockUserSheet(true)}
+                  />
+                </View>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+        <AddFolderBottomsheet
+          chatId={chatId}
+          selectedFolder={selectedFolder}
+          setSelectedFolder={setSelectedFolder}
+          setVisible={setShowAddFolderModal}
+          visible={showAddFolderModal}
+        />
+        <EditName
+          visible={editingName}
+          onClose={() => setEditingName(false)}
+          name={displayName}
+          setName={setDisplayName}
+          title="Update this contact's name"
+        />
+        <ConfirmationBottomSheet
+          visible={confirmSheet}
+          onClose={() => setConfirmSheet(false)}
+          onConfirm={async () => await handleChatDisconnect(chatId)}
+          title={'Are you sure you want to disconnect this chat?'}
+          description={
+            'Disconnecting a chat will prevent further messaging. Current chat history will be saved, but you can subsequently choose to delete it.'
+          }
+          buttonText={'Disconnect'}
+          buttonColor="r"
+        />
+        <ConfirmationBottomSheet
+          visible={confirmSheetDelete}
+          onClose={() => setConfirmSheetDelete(false)}
+          onConfirm={async () => {
+            try {
+              const chatHandler = new DirectChat(chatId);
+              await chatHandler.delete();
+              navigation.navigate('HomeTab');
+            } catch (error) {
+              await wait(safeModalCloseDuration);
+              showToast('Error in deleting this chat.', ToastType.error);
+            }
+          }}
+          title={'Are you sure you want to delete this chat?'}
+          description={
+            'Deleting this chat will erase all data associated with it.'
+          }
+          buttonText={'Delete Chat'}
+          buttonColor="r"
+        />
+        <ConfirmationBottomSheet
+          visible={confirmSheetHistoryDelete}
+          onClose={() => setConfirmSheetHistoryDelete(false)}
+          onConfirm={async () => {
+            try {
+              await deleteAllMessagesInChat(chatId);
+            } catch (error) {
+              await wait(safeModalCloseDuration);
+              showToast('Error in deleting in history.', ToastType.error);
+            }
+          }}
+          title={'Are you sure you want to delete chat history?'}
+          description={'Deleting chat history will erase all messages.'}
+          buttonText={'Delete history'}
+          buttonColor="r"
+        />
+        <ConfirmationBottomSheet
+          visible={confirmBlockUserSheet}
+          onClose={() => setConfirmBlockUserSheet(false)}
+          onConfirm={async () => {
+            isBlocked ? await unblockUser() : await blockUser();
+          }}
+          title={
+            isBlocked
+              ? `Are you sure you want to unblock ${displayName}?`
+              : `Are you sure you want to block ${displayName}?`
+          }
+          description={
+            isBlocked
+              ? `After you unblock ${displayName}, you may connect with them over Ports or Superports.`
+              : `Blocking ${displayName} will prevent them from connecting with you over Ports, Superports or contact sharing until you unblock them.`
+          }
+          buttonText={isBlocked ? 'Unblock contact' : 'Block contact'}
+          buttonColor="r"
+        />
+        <ErrorBottomSheet
+          visible={networkError}
+          title={'Network error in trying to share contact'}
+          description={
+            'Please ensure you have an active network connection to share this contact.'
+          }
+          onClose={() => setNetworkError(false)}
+          onTryAgain={onShareContactPressed}
+        />
+        <ConfirmationBottomSheet
+          visible={contactPortMissing}
+          onClose={() => setContactPortMissing(false)}
+          onConfirm={async () => {
+            try {
+              const sender = new SendMessage(
+                chatId,
+                ContentType.contactPortRequest,
+                {},
+              );
+              await sender.send();
+            } catch (error) {
+              console.error('Error requesting contact port: ', error);
+            }
+          }}
+          title={"You don't have permission to share this contact."}
+          description={`${displayName} is either on an older version of Port or has not given you permissions to share their contact`}
+          buttonText={'Request permission'}
+          buttonColor={'b'}
+        />
+        {focusProfilePicture && (
+          <ProfilePictureBlurViewModal
+            avatarUrl={displayPic}
+            onClose={() => setFocusProfilePicture(false)}
+          />
+        )}
+      </SafeAreaView>
+    </>
+  );
+};
+
+const styling = (colors: any) =>
+  StyleSheet.create({
+    mainContainer: {
+      padding: PortSpacing.secondary.uniform,
+      paddingTop: 0,
+      paddingBottom: 0,
+      flex: 1,
+    },
+    labelContainer: {
+      flexDirection: 'row',
+      gap: 4,
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      flex: 1,
+    },
+    cardTitle: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      marginRight: 24,
+    },
+    disconnectedwrapper: {
+      flexDirection: 'column',
+      justifyContent: 'center',
+      height: '100%',
+      flex: 1,
+    },
+    labelWrapper: {
+      borderRadius: 6,
+      paddingHorizontal: 6,
+      paddingVertical: 4,
+      backgroundColor: colors.primary.lightgrey,
+    },
+    folderCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.secondary.uniform,
+    },
+    nameEditHitbox: {
+      marginTop: PortSpacing.secondary.top,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    sharedMediaContainer: {
+      marginBottom: PortSpacing.secondary.bottom,
+      marginTop: PortSpacing.secondary.top,
+    },
+    alertwrapper: {flex: 1, justifyContent: 'center'},
+    chatSettingsContainer: {
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+    clickableCard: {
+      flexDirection: 'row',
+      gap: 5,
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    footerDesc: {
+      color: colors.labels.text,
+      lineHeight: 16,
+      marginTop: PortSpacing.tertiary.top,
+      marginBottom: PortSpacing.intermediate.bottom,
+    },
+    advanceSettingsContainer: {
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+    avatarContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: PortSpacing.primary.bottom,
+    },
+  });
+
+export default ChatProfile;

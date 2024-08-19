@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import FileIcon from '@assets/icons/FileClip.svg';
-import {MediaEntry} from '@utils/Media/interfaces';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {getDateStamp} from '@utils/Time';
 import {
   FontSizeType,

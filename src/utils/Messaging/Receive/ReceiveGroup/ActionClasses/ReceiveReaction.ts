@@ -1,4 +1,3 @@
-import store from '@store/appStore';
 import {ReactionParams} from '@utils/Messaging/interfaces';
 
 import * as storage from '@utils/Storage/messages';
@@ -22,16 +21,6 @@ class ReceiveReaction extends GroupReceiveAction {
 
     addReaction(this.chatId, data.messageId, this.senderId, data.reaction);
     storage.setHasReactions(this.chatId, data.messageId);
-
-    store.dispatch({
-      type: 'REACTION_UPDATE',
-      payload: {
-        chatId: data.chatId,
-        messageId: data.messageId,
-        hasReaction: true,
-        latestReaction: data.reaction,
-      },
-    });
   }
 }
 

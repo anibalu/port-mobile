@@ -1,6 +1,6 @@
 import {AUTH_SERVER_CHALLENGE_RESOURCE} from '@configs/api';
 import axios from 'axios';
-import {ServerAuthToken, SolvedAuthChallenge} from './interfaces';
+import {ServerAuthToken} from '@utils/Storage/RNSecure/secureTokenHandler';
 
 /**
  * Gets an authentication challenge from the server
@@ -16,6 +16,10 @@ export async function getNewAuthChallenge(clientId: string): Promise<string> {
     return response.data.challenge;
   }
   throw new Error('ChallengeAPIError');
+}
+
+export interface SolvedAuthChallenge {
+  signedChallenge: string;
 }
 
 /**

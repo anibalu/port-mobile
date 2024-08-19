@@ -1,6 +1,6 @@
 import React from 'react';
 import {Image, StyleSheet, View} from 'react-native';
-import {MediaEntry} from '@utils/Media/interfaces';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {getDateStamp} from '@utils/Time';
 import {
   FontSizeType,

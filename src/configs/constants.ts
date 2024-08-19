@@ -1,8 +1,7 @@
-import {ThemeOptionTypes} from '@components/Reusable/BottomSheets/ThemeBottomsheet';
-import {FolderInfo} from '@utils/ChatFolders/interfaces';
-import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
-import {FileAttributes} from '@utils/Storage/interfaces';
-import {ThemeType} from '@utils/Themes';
+//these imports have the potential to create dependency cycles. Please try not to import anything into this file.
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 
 export const ORG_NAME = 'numberless.tech';
 export const APP_GROUP_IDENTIFIER = 'group.tech.numberless.port';
@@ -19,6 +18,7 @@ export const APP_VERSION = '1.0';
 export const CURRENT_PORT_VERSION = '1.0.0';
 export const CURRENT_SUPERPORT_VERSION = '1.0.0';
 export const CURRENT_GROUPPORT_VERSION = '1.0.0';
+export const CURRENT_CONTACTPORT_VERSION = '1.0.0';
 
 export const RETRY_INTERVAL = 2 * 60 * 60 * 1000; //2 hours
 
@@ -29,11 +29,9 @@ export const START_OF_TIME = '2023-11-30T09:47:11Z';
 export const MESSAGE_DATA_MAX_LENGTH = 2048;
 export const SIDE_DRAWER_WIDTH = 300;
 export const DRAWER_SWIPE_EDGE_WIDTH = 100;
-export const THEME = 'theme';
-
 //UI Definitions for elements
-export const TOPBAR_HEIGHT = 56;
-export const BOTTOMBAR_HEIGHT = 75;
+export const TOPBAR_HEIGHT = 68;
+export const BOTTOMBAR_HEIGHT = 64;
 export const BOTTOMBAR_ICON_SIZE = 24;
 export const AVATAR_ARRAY = [
   'avatar://1',
@@ -72,7 +70,7 @@ export const defaultPermissions: PermissionsStrict = {
   focus: true,
   autoDownload: false,
   displayPicture: true,
-  contactSharing: false,
+  contactSharing: true,
   readReceipts: true,
   disappearingMessages: 0,
 };
@@ -85,30 +83,9 @@ export const defaultFolderInfo: FolderInfo = {
   permissionsId: defaultPermissionsId,
 };
 
-export const focusFolderInfo: FolderInfo = {
-  name: 'Focus',
-  folderId: 'focus',
-  permissionsId: 'focus',
-};
-
 export const defaultSuperportConnectionsLimit: number = 50;
 
 export const safeModalCloseDuration: number = 500;
-export const themeOptions: ThemeOptionTypes[] = [
-  {
-    key: 'System default',
-    value: ThemeType.default,
-  },
-  {
-    key: 'Light',
-    value: ThemeType.light,
-  },
-  {
-    key: 'Dark',
-    value: ThemeType.dark,
-  },
-];
-
 //images and videos get compressed if higher than threshold.(currently 6MB)
 export const FILE_COMPRESSION_THRESHOLD: number = 6 * 1024 * 1024;
 export const PREVIEW_PICTURE_DIMENSIONS = 200;

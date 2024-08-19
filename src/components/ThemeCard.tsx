@@ -4,7 +4,7 @@ import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import {PortSpacing} from './ComponentUtils';
 import {Pressable, StyleSheet, View} from 'react-native';
 import ThemeBottomsheet from './Reusable/BottomSheets/ThemeBottomsheet';
-import {themeOptions} from '@configs/constants';
+import {themeOptions} from '@utils/Themes';
 import DynamicColors from './DynamicColors';
 import {ThemeType} from '@utils/Themes';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
@@ -47,8 +47,8 @@ const ThemeCard = ({
   return (
     <SimpleCard style={styles.card}>
       <Pressable onPress={() => onForwardPress()} style={styles.title}>
-        <View style={{flexDirection: 'row'}}>
-          <AppearanceIcon />
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <AppearanceIcon height={20} width={20} />
           <NumberlessText
             style={{marginLeft: PortSpacing.tertiary.left}}
             textColor={Colors.labels.text}
@@ -84,14 +84,13 @@ const styling = (colors: any) =>
     card: {
       width: '100%',
       paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingTop: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.secondary.uniform,
       marginTop: PortSpacing.primary.top,
     },
     title: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: PortSpacing.medium.bottom,
     },
     pill: {
       backgroundColor: colors.primary.lightgrey,

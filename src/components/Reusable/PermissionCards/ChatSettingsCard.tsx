@@ -7,12 +7,11 @@ import {
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
 import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
-import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import {getLabelByTimeDiff} from '@utils/ChatPermissions';
+import {getLabelByTimeDiff} from '@utils/Time';
 import {
   BooleanPermissions,
   PermissionsStrict,
-} from '@utils/ChatPermissions/interfaces';
+} from '@utils/Storage/DBCalls/permissions/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
@@ -20,8 +19,10 @@ import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
 import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
+import getPermissionIcon from '@components/getPermissionIcon';
+import {useTheme} from 'src/context/ThemeContext';
+import DirectChat from '@utils/DirectChats/DirectChat';
 
 const ChatSettingsCard = ({
   chatId,
@@ -42,56 +43,12 @@ const ChatSettingsCard = ({
 
   const Colors = DynamicColors();
 
-  const svgArray = [
-    // 1.NotificationOutline
-    {
-      assetName: 'NotificationOutline',
-      light: require('@assets/light/icons/NotificationOutline.svg').default,
-      dark: require('@assets/dark/icons/NotificationOutline.svg').default,
-    },
-    // 2.UserCircle
-    {
-      assetName: 'UserCircle',
-      light: require('@assets/light/icons/UserCircle.svg').default,
-      dark: require('@assets/dark/icons/UserCircle.svg').default,
-    },
-    // 3.ClockIcon
-    {
-      assetName: 'ClockIcon',
-      light: require('@assets/light/icons/ClockIcon.svg').default,
-      dark: require('@assets/dark/icons/ClockIcon.svg').default,
-    },
-    // 4.DownloadArrow
-    {
-      assetName: 'DownloadArrow',
-      light: require('@assets/light/icons/DownloadArrow.svg').default,
-      dark: require('@assets/dark/icons/DownloadArrow.svg').default,
-    },
-    // 5. CheckCircle
-    {
-      assetName: 'CheckCircle',
-      light: require('@assets/light/icons/CheckCircle.svg').default,
-      dark: require('@assets/dark/icons/CheckCircle.svg').default,
-    },
-    {
-      assetName: 'Focus',
-      light: require('@assets/light/icons/Focus.svg').default,
-      dark: require('@assets/dark/icons/Focus.svg').default,
-    },
-  ];
-  const results = useDynamicSVG(svgArray);
-
-  const NotificationIcon = results?.NotificationOutline;
-  const UserCircle = results?.UserCircle;
-  const ClockIcon = results?.ClockIcon;
-  const Download = results?.DownloadArrow;
-  const CheckCircle = results?.CheckCircle;
-  const Focus = results?.Focus;
-
   useEffect(() => {
-    (async () => {
-      setPermissions(await getPermissions(permissionsId));
-    })();
+    if (permissionsId) {
+      (async () => {
+        setPermissions(await getPermissions(permissionsId));
+      })();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permissionsId]);
 
@@ -116,12 +73,14 @@ const ChatSettingsCard = ({
       ['notifications']: newNotificationPermissionState,
     });
     if (chatId) {
+      const directChat = new DirectChat(chatId);
+      const lineId = (await directChat.getChatData()).lineId;
       // We have a specific chat to update
       // API call to udpate a single chatId on the backend
       try {
         await setRemoteNotificationPermissionsForChats(
           newNotificationPermissionState,
-          [{id: chatId, type: 'line'}],
+          [{id: lineId, type: 'line'}],
         );
       } catch (e) {
         console.error(
@@ -172,8 +131,10 @@ const ChatSettingsCard = ({
     }
   };
 
+  const {themeValue} = useTheme();
+
   return (
-    <SimpleCard>
+    <SimpleCard style={{backgroundColor: 'transparent'}}>
       <NumberlessText
         style={{
           padding: PortSpacing.secondary.uniform,
@@ -181,50 +142,39 @@ const ChatSettingsCard = ({
         textColor={Colors.labels.text}
         fontType={FontType.md}
         fontSizeType={FontSizeType.l}>
-        Chat settings
+        Chat Settings
       </NumberlessText>
       <View>
         <OptionWithToggle
-          IconLeft={NotificationIcon}
+          IconLeftView={getPermissionIcon([
+            'notifications',
+            permissions.notifications,
+            themeValue,
+          ])}
           toggleActiveState={permissions.notifications}
           heading="Notifications"
           onToggle={onUpdateNotificationPermission}
         />
       </View>
-      <LineSeparator />
-
       <View>
         <OptionWithToggle
-          IconLeft={UserCircle}
-          toggleActiveState={permissions.displayPicture}
-          heading="Show my profile photo"
-          onToggle={async () =>
-            await onUpdateBooleanPermission('displayPicture')
-          }
-        />
-      </View>
-      <LineSeparator />
-      <View>
-        <OptionWithToggle
-          IconLeft={Download}
+          IconLeftView={getPermissionIcon([
+            'autoDownload',
+            permissions.autoDownload,
+            themeValue,
+          ])}
           toggleActiveState={permissions.autoDownload}
           heading="Media auto-download"
           onToggle={async () => await onUpdateBooleanPermission('autoDownload')}
         />
       </View>
-      <LineSeparator />
       <View>
         <OptionWithToggle
-          IconLeft={CheckCircle}
-          toggleActiveState={permissions.readReceipts}
-          heading="Send read receipts"
-          onToggle={async () => await onUpdateBooleanPermission('readReceipts')}
-        />
-      </View>
-      <LineSeparator />
-      <View>
-        <OptionWithToggle
-          IconLeft={Focus}
+          IconLeftView={getPermissionIcon([
+            'focus',
+            permissions.focus,
+            themeValue,
+          ])}
           toggleActiveState={permissions.focus}
           heading="Focus"
           onToggle={async () => await onUpdateBooleanPermission('focus')}
@@ -232,10 +182,13 @@ const ChatSettingsCard = ({
       </View>
       {showDissapearingMessagesOption && (
         <>
-          <LineSeparator />
           <View style={{paddingBottom: PortSpacing.tertiary.bottom}}>
             <OptionWithChevron
-              IconLeft={ClockIcon}
+              IconLeftView={getPermissionIcon([
+                'disappearingMessages',
+                !!permissions.disappearingMessages,
+                themeValue,
+              ])}
               labelActiveState={
                 getLabelByTimeDiff(permissions.disappearingMessages) !== 'Off'
               }

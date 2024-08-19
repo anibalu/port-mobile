@@ -2,7 +2,7 @@ import {ContentType} from '@utils/Messaging/interfaces';
 import DirectReceiveAction from '../DirectReceiveAction';
 import {getProfileName, getProfilePicture} from '@utils/Profile';
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 
 class InitialInfoResponse extends DirectReceiveAction {
@@ -11,11 +11,11 @@ class InitialInfoResponse extends DirectReceiveAction {
   }
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    //send name
     const sender = new SendMessage(this.chatId, ContentType.name, {
       name: await getProfileName(),
     });
     sender.send();
-
     const chatPermissions = await getChatPermissions(
       this.chatId,
       ChatType.direct,
@@ -33,10 +33,11 @@ class InitialInfoResponse extends DirectReceiveAction {
         profilePictureAttributes.fileType === 'avatar'
           ? ContentType.displayAvatar
           : ContentType.displayImage;
+      //send display picture
       const sendDisplayPicture = new SendMessage(this.chatId, contentType, {
         ...profilePictureAttributes,
       });
-      await sendDisplayPicture.send();
+      sendDisplayPicture.send();
     }
   }
 }

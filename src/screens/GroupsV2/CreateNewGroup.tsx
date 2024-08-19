@@ -14,7 +14,7 @@ import {useNavigation} from '@react-navigation/native';
 import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {GenericButton} from '@components/GenericButton';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {
   DEFAULT_PROFILE_AVATAR_INFO,
   safeModalCloseDuration,

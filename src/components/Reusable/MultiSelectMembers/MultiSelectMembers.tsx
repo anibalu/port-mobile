@@ -11,7 +11,7 @@
 import React from 'react';
 import {View} from 'react-native';
 import ClickableTextWithAvatar from './ClickableTextWithAvatar';
-import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import MultiSelectMembersCard from '../Cards/MultiSelectMembersCard';
 
 const MultiSelectMembers = ({

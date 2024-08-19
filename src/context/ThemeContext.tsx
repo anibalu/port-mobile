@@ -12,7 +12,7 @@ import {useColorScheme} from 'react-native';
 
 type ModalContextType = {
   handleThemeChange: (theme: ThemeType) => void;
-  themeValue: ThemeType | null;
+  themeValue: ThemeType;
 };
 
 const ThemeContext = createContext<ModalContextType | undefined>(undefined);

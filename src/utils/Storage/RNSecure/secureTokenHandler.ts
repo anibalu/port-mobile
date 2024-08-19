@@ -1,7 +1,13 @@
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {tokenKey} from '../../../configs/paths';
-import {SavedServerAuthToken} from '../../ServerAuth/interfaces';
 import {connectionFsSync} from '../../Synchronization';
+
+export type ServerAuthToken = string;
+
+export interface SavedServerAuthToken {
+  timestamp: string;
+  token: ServerAuthToken;
+}
 
 /**
  * reads token info from encrypted storage

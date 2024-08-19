@@ -56,7 +56,7 @@ export function MediaMessageActionsBar({
       <View style={styles.multiSelectedContainer}>
         <View style={styles.optionContainer}>
           <Pressable style={styles.optionBox} onPress={handleShare}>
-            <Share />
+            <Share height={24} />
             <NumberlessText
               textColor={Colors.text.primary}
               style={{marginTop: 5}}
@@ -68,7 +68,7 @@ export function MediaMessageActionsBar({
         </View>
         <View style={styles.optionContainer}>
           <Pressable style={styles.optionBox} onPress={handleSave}>
-            <Download />
+            <Download height={24} />
             <NumberlessText
               textColor={Colors.text.primary}
               style={{marginTop: 5}}
@@ -82,7 +82,7 @@ export function MediaMessageActionsBar({
           <Pressable
             style={styles.optionBox}
             onPress={determineDeleteModalDisplay}>
-            <Delete />
+            <Delete height={24} />
             <NumberlessText
               style={{marginTop: 5}}
               textColor={PortColors.primary.red.error}

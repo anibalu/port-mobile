@@ -13,7 +13,7 @@ import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
 import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
 import * as API from '../../APICalls';
-import {updateConnectionOnNewMessage} from '@utils/Connections';
+import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 

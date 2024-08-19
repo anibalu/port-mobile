@@ -1,6 +1,12 @@
 import axios from 'axios';
-import {ProfileServerGenerated} from './interfaces';
 import {INITIAL_POST_MANAGEMENT_RESOURCE} from '@configs/api';
+
+/**
+ * part of the profile info that the server is responsible for generating.
+ */
+export interface ProfileServerGenerated {
+  clientId: string;
+}
 
 /**
  * Posts user pubKey and receives serverKey and clientId in response.

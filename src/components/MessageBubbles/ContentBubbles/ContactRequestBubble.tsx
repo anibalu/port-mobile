@@ -42,7 +42,7 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
   }, [message]);
 
   const onSettingsPressed = async () => {
-    navigation.navigate('ContactProfile', {
+    navigation.navigate('ChatProfile', {
       chatId: chatId,
       name: requesterName,
       profileUri: profileUri || DEFAULT_AVATAR,

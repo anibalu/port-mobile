@@ -6,6 +6,7 @@
  * 3. bgColor - string
  */
 
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -35,7 +36,7 @@ const LabelChip = ({
         ellipsizeMode="tail"
         numberOfLines={1}
         fontSizeType={FontSizeType.s}
-        fontType={FontType.rg}
+        fontType={FontType.md}
         textColor={textColor}>
         {text}
       </NumberlessText>
@@ -46,9 +47,9 @@ const LabelChip = ({
 const styles = StyleSheet.create({
   chipContainer: {
     textAlign: 'center',
-    borderRadius: 4,
+    borderRadius: PortSpacing.tertiary.uniform,
     paddingVertical: 1,
-    paddingHorizontal: 4,
+    paddingHorizontal: 6,
   },
 });
 

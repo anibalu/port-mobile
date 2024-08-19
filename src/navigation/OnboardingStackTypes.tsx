@@ -1,4 +1,4 @@
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 
 export type OnboardingStackParamList = {
   Onboarding: undefined;

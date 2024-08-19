@@ -18,7 +18,7 @@ import {foregroundMessageHandler} from '@utils/Messaging/FCM/fcm';
 import ErrorModal from '@components/Modals/ErrorModal';
 import LoginStack from '@navigation/LoginStack';
 import {checkProfileCreated} from '@utils/Profile';
-import {ProfileStatus} from '@utils/Profile/interfaces';
+import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
 
 import {addEventListener} from '@react-native-community/netinfo';
 import {
@@ -34,6 +34,8 @@ import Toast from '@components/Modals/Toast';
 import SoftUpdateInfoBlurView from '@components/Reusable/BlurView/SoftUpdateInfoBlurView';
 import HardUpdateInfoBlurView from '@components/Reusable/BlurView/HardUpdateInfoBlurView';
 import {UpdateStatusProvider} from 'src/context/UpdateStatusContext';
+import {wait} from '@utils/Time';
+import runMigrations from '@utils/Storage/Migrations';
 
 function App(): JSX.Element {
   const appState = useRef(AppState.currentState);
@@ -60,10 +62,11 @@ function App(): JSX.Element {
         'Assuming profile does not exist and taking user to onboarding',
       );
     } finally {
+      setInitialLoad(false);
+      await runMigrations();
+      await wait(300);
       //hides splash screen
-      await BootSplash.hide({fade: true}).then(() => {
-        setInitialLoad(false);
-      });
+      await BootSplash.hide({fade: false});
     }
   };
   useEffect(() => {

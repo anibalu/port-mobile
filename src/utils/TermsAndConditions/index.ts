@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {TermsAndConditionParams, getTermsAndConditions} from './APICalls';
 import store from '@store/appStore';
 import {getProfileInfo} from '@utils/Profile';
-import {ProfileInfo} from '@utils/Profile/interfaces';
+import {ProfileInfo} from '@utils/Storage/RNSecure/secureProfileHandler';
 
 /**
  * Triggers a reload of refetching UpdateStatus from localstorage

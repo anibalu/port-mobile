@@ -1,37 +1,75 @@
-import Search from '@assets/icons/GreySearch.svg';
+import SearchGrey from '@assets/icons/GreySearch.svg';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {memo, useState} from 'react';
-import {StyleSheet, TextInput, View} from 'react-native';
+import {Pressable, StyleSheet, TextInput, View} from 'react-native';
 import {PortColors} from './ComponentUtils';
+import DynamicColors from './DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const SearchBar = ({
   searchText,
   setSearchText,
   style,
+  placeholder = 'Search',
 }: {
   searchText: string;
   setSearchText: any;
   style?: any;
+  placeholder?: string;
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const onChangeText = (newName: string) => {
+    setIsFocused(true);
     setSearchText(newName);
+    if (newName === '') {
+      setIsFocused(false);
+    }
   };
+  const Colors = DynamicColors();
+  const svgArray = [
+    {
+      assetName: 'CloseIcon',
+      light: require('@assets/light/icons/Close.svg').default,
+      dark: require('@assets/dark/icons/Close.svg').default,
+    },
+    {
+      assetName: 'SearchIcon',
+      light: require('@assets/light/icons/search.svg').default,
+      dark: require('@assets/dark/icons/search.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const CloseIcon = results.CloseIcon;
+  const SearchIcon = results.SearchIcon;
 
   return (
-    <View style={style ? style : styles.searchBarStyle}>
-      <Search color={'grey'} />
+    <View style={[styles.searchBarStyle, style]}>
+      {isFocused ? (
+        <SearchIcon height={20} width={20} />
+      ) : (
+        <SearchGrey height={20} width={20} />
+      )}
       <TextInput
-        style={{marginLeft: 12, flex: 1, fontSize: 15}}
+        style={{
+          marginLeft: 12,
+          flex: 1,
+          fontSize: 15,
+          color: Colors.text.primary,
+        }}
         textAlign="left"
         maxLength={NAME_LENGTH_LIMIT}
-        placeholder={isFocused ? '' : 'Search'}
+        placeholder={isFocused ? '' : placeholder}
         placeholderTextColor={PortColors.primary.grey.medium}
         onChangeText={onChangeText}
         value={searchText}
-        onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
       />
+      {searchText.length > 0 && (
+        <Pressable onPress={() => onChangeText('')}>
+          <CloseIcon height={18} width={18} />
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -41,7 +79,6 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 8,
     flexDirection: 'row',
-    marginTop: 4,
     paddingHorizontal: 16,
     height: 46,
     alignItems: 'center',

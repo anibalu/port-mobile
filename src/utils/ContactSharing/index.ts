@@ -1,5 +1,5 @@
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContactBundleRequestParams,
@@ -9,7 +9,8 @@ import {
 import {saveMessage} from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';
 import {generateBundle} from '@utils/Ports';
-import {BundleTarget, PortBundle} from '@utils/Ports/interfaces';
+import {PortBundle} from '@utils/Ports/interfaces';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import {expiryOptions} from '@utils/Time/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import * as messageStorage from '@utils/Storage/messages';

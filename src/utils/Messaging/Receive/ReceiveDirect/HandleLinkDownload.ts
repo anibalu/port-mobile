@@ -1,4 +1,3 @@
-import store from '@store/appStore';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {LinkParams} from '@utils/Messaging/interfaces';
 import {downloadImageToMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -52,14 +51,6 @@ export const handleAsyncLinkDownload = async (
       });
     }
     await storage.updateMessageData(chatId, messageId, dataObj);
-    store.dispatch({
-      type: 'NEW_MEDIA_STATUS_UPDATE',
-      payload: {
-        chatId: chatId,
-        messageId: messageId,
-        data: dataObj,
-      },
-    });
   }
 };
 

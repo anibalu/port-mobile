@@ -1,10 +1,11 @@
 import {isIOS} from '@components/ComponentUtils';
-import {addConnection, getConnections} from '@utils/Connections';
+import {addConnection} from '@utils/Storage/connections';
+import {getConnections} from '@utils/Storage/connections';
 import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
 import {fetchNewPorts} from '@utils/Ports';
 import {updateBackupTime} from '@utils/Profile';
-import {ProfileInfo} from '@utils/Profile/interfaces';
-import {addLine, getLines} from '@utils/Storage/DBCalls/lines';
+import {ProfileInfo} from '@utils/Storage/RNSecure/secureProfileHandler';
+import {addLine, getLines} from '@utils/Storage/lines';
 import {generateISOTimeStamp} from '@utils/Time';
 import Papa from 'papaparse';
 import DocumentPicker, {
@@ -12,15 +13,19 @@ import DocumentPicker, {
 } from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
-import {addCryptoEntry} from '../Storage/DBCalls/crypto';
-import {addPermissionEntry} from '../Storage/DBCalls/permissions';
+import {addCryptoEntry} from '../Storage/crypto';
+import {addPermissionEntry} from '../Storage/permissions';
 import {getProfileInfoRNSS} from '../Storage/RNSecure/secureProfileHandler';
 import {getAllCryptoData} from '../Storage/crypto';
 import {getAllPermissions} from '../Storage/permissions';
 import {saveProfileInfo} from '../Storage/profile';
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {addFolderEntry, getAllFolders} from '@utils/ChatFolders';
-import {blockUser, getAllBlockedUsers} from '@utils/UserBlocking';
+import {addFolderEntry} from '@utils/Storage/folders';
+import {getAllFolders} from '@utils/Storage/folders';
+import {blockUser, getAllBlockedUsers} from '@utils/Storage/blockUsers';
+import {addSuperport, getAllSuperports} from '@utils/Storage/superPorts';
+import {addContact, getContacts} from '@utils/Storage/contacts';
+import {addContactPort, getAllContactPorts} from '@utils/Storage/contactPorts';
 
 const BACKUP_VERSION = '20240412'; // Write as date to guesstimate when the backup code was written
 const sectionSplitMagic = '\n<---SECTION SPLIT--->\n'; // TODO Debt: need to account for and escape this sequence across sections
@@ -31,7 +36,10 @@ type tableOpt =
   | 'crypto'
   | 'lines'
   | 'folders'
-  | 'blockedUsers';
+  | 'blockedUsers'
+  | 'superPorts'
+  | 'contacts'
+  | 'contactPorts';
 const tablesToSertialize: tableOpt[] = [
   'connections',
   'permissions',
@@ -39,6 +47,9 @@ const tablesToSertialize: tableOpt[] = [
   'lines',
   'folders',
   'blockedUsers',
+  'superPorts',
+  'contacts',
+  'contactPorts',
 ];
 
 /**
@@ -54,14 +65,17 @@ interface serializationData {
 const tableSerializationData = {
   connections: {
     columns: [
-      'authenticated',
       'chatId',
       'connectionType',
-      'disconnected',
+      'recentMessageType',
+      'readStatus',
+      'timestamp',
+      'pairHash',
+      'routingId',
       'folderId',
       'name',
     ],
-    booleanColumns: ['disconnected', 'authenticated'],
+    booleanColumns: [],
     inserter: addConnection,
     ennumerator: getConnections,
   },
@@ -92,10 +106,8 @@ const tableSerializationData = {
     booleanColumns: [
       'autoDownload',
       'contactSharing',
-      'disappearingMessages',
       'displayPicture',
       'notifications',
-      'permissionsId',
       'readReceipts',
       'focus',
     ],
@@ -105,12 +117,9 @@ const tableSerializationData = {
   lines: {
     columns: [
       'authenticated',
-      'connectedOn',
-      'connectedUsing',
       'cryptoId',
       'disconnected',
       'lineId',
-      'name',
       'permissionsId',
     ],
     booleanColumns: ['authenticated', 'disconnected'],
@@ -129,6 +138,47 @@ const tableSerializationData = {
     inserter: blockUser,
     ennumerator: getAllBlockedUsers,
   },
+  superPorts: {
+    columns: [
+      'portId',
+      'version',
+      'label',
+      'usedOnTimestamp',
+      'createdOnTimestamp',
+      'channel',
+      'cryptoId',
+      'connectionsLimit',
+      'connectionsMade',
+      'folderId',
+      'paused',
+    ],
+    booleanColumns: ['paused'],
+    inserter: addSuperport,
+    ennumerator: getAllSuperports,
+  },
+  contacts: {
+    columns: ['pairHash', 'name', 'notes', 'connectedOn', 'connectionSource'],
+    booleanColumns: [],
+    inserter: addContact,
+    ennumerator: getContacts,
+  },
+  contactPorts: {
+    columns: [
+      'portId',
+      'pairHash',
+      'owner',
+      'version',
+      'usedOnTimestamp',
+      'createdOnTimestamp',
+      'cryptoId',
+      'connectionsMade',
+      'folderId',
+      'paused',
+    ],
+    booleanColumns: ['owner', 'paused'],
+    inserter: addContactPort,
+    ennumerator: getAllContactPorts,
+  },
 };
 
 /**
@@ -139,8 +189,8 @@ const tableSerializationData = {
  */
 function applyColumnMask(tableName: tableOpt, data: any[]): any[] {
   const outBuf: any[] = [];
-  data.forEach((entry: object) => {
-    const maskedEntry = {};
+  data.forEach((entry: any) => {
+    const maskedEntry: any = {};
     tableSerializationData[tableName].columns.forEach((column: string) => {
       maskedEntry[column] = entry[column];
     });
@@ -201,7 +251,7 @@ async function populateTable(tableName: tableOpt, tableCSV: string) {
   }).data;
   console.log(parsedData);
   // Rewrite boolean columns as proper booleans
-  parsedData.forEach(entry => {
+  parsedData.forEach((entry: any) => {
     tableSerializationData[tableName].booleanColumns.forEach(column => {
       if (entry[column] === 'true') {
         entry[column] = true;
@@ -212,7 +262,7 @@ async function populateTable(tableName: tableOpt, tableCSV: string) {
   });
 
   const insertIntoTable = tableSerializationData[tableName].inserter;
-  parsedData.forEach(async entry => {
+  parsedData.forEach(async (entry: any) => {
     await insertIntoTable(entry);
   });
 }

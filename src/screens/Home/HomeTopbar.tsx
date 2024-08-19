@@ -1,59 +1,44 @@
 /**
  * Top Bar of the home screen containing sidebar menu, pending request count and search.
  */
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {TOPBAR_HEIGHT, defaultFolderId} from '@configs/constants';
+import {TOPBAR_HEIGHT} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
-import React, {ReactNode, useState} from 'react';
+import React, {ReactNode, useMemo} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import SearchBar from '../../components/Reusable/TopBars/SearchBar';
-import {FolderInfo} from '@utils/ChatFolders/interfaces';
 import {GenericButton} from '@components/GenericButton';
-import {ChatTileProps} from '@components/ChatTile/ChatTile';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import ContactBook from '@assets/icons/ContactBook.svg';
+import {useBottomNavContext} from 'src/context/BottomNavContext';
 
-type TopbarProps = {
-  openSwipeable: any;
-  unread: number;
-  searchText: string;
-  setSearchText: (text: string) => void;
-  folder: FolderInfo;
-  showPrompt?: boolean;
-  selectionMode: boolean;
-  setSelectionMode: (x: boolean) => void;
-  selectedConnections: ChatTileProps[];
-  setSelectedConnections: (x: ChatTileProps[]) => void;
-  totalUnreadCount: number;
-};
-
-function HomeTopbar({
-  openSwipeable,
-  unread = 0,
-  searchText,
-  setSearchText,
-  folder,
-  showPrompt = false,
-  selectionMode,
-  setSelectionMode,
-  selectedConnections,
-  setSelectedConnections,
-  totalUnreadCount,
-}: TopbarProps): ReactNode {
-  const title = unread ? `${folder.name} (${unread})` : `${folder.name}`;
+function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
+  const title = useMemo(() => {
+    if (unread) {
+      return `Home (${unread})`;
+    } else {
+      return 'Home';
+    }
+  }, [unread]);
   const navigation = useNavigation<any>();
-  const [isSearchActive, setIsSearchActive] = useState(false);
+  const {
+    setIsChatActionBarVisible,
+    selectionMode,
+    setSelectionMode,
+    selectedConnections,
+    setSelectedConnections,
+  } = useBottomNavContext();
 
   const handleCancel = () => {
     setSelectedConnections([]);
     setSelectionMode(false);
+    setIsChatActionBarVisible(false);
   };
-  const unreadCount = totalUnreadCount > 99 ? '99+' : totalUnreadCount;
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
@@ -64,19 +49,9 @@ function HomeTopbar({
       dark: require('@assets/dark/icons/SidebarMenu.svg').default,
     },
     {
-      assetName: 'SearchIcon',
-      light: require('@assets/light/icons/search.svg').default,
-      dark: require('@assets/dark/icons/search.svg').default,
-    },
-    {
       assetName: 'CloseIcon',
       light: require('@assets/light/icons/Close.svg').default,
       dark: require('@assets/dark/icons/Close.svg').default,
-    },
-    {
-      assetName: 'PendingRequestIcon',
-      light: require('@assets/light/icons/PendingRequest.svg').default,
-      dark: require('@assets/dark/icons/PendingRequest.svg').default,
     },
     {
       assetName: 'FolderSettingsIcon',
@@ -87,11 +62,7 @@ function HomeTopbar({
 
   const results = useDynamicSVG(svgArray);
 
-  const SidebarMenu = results.SidebarMenu;
-  const SearchIcon = results.SearchIcon;
   const CloseIcon = results.CloseIcon;
-  const PendingRequestIcon = results.PendingRequestIcon;
-  const FolderSettingsIcon = results.FolderSettingsIcon;
 
   return (
     <>
@@ -100,8 +71,8 @@ function HomeTopbar({
           <View style={styles.profileBar}>
             <View style={styles.titleBar}>
               <NumberlessText
-                fontSizeType={FontSizeType.l}
-                fontType={FontType.md}
+                fontSizeType={FontSizeType.xl}
+                fontType={FontType.sb}
                 ellipsizeMode="tail"
                 style={styles.selectedCount}
                 numberOfLines={1}>
@@ -119,82 +90,31 @@ function HomeTopbar({
         </View>
       ) : (
         <View style={styles.bar}>
-          {isSearchActive ? (
-            <View style={{flex: 1}}>
-              <SearchBar
-                setIsSearchActive={setIsSearchActive}
-                searchText={searchText}
-                setSearchText={setSearchText}
-              />
-            </View>
-          ) : (
-            <>
-              <View style={styles.menuLeft}>
-                <Pressable
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: PortSpacing.secondary.uniform,
-                  }}
-                  onPress={openSwipeable}>
-                  <View style={styles.iconWrapper2}>
-                    <SidebarMenu width={24} height={24} />
-
-                    {showPrompt && (
-                      <View
-                        style={
-                          totalUnreadCount > 99
-                            ? styles.blueDotOval
-                            : styles.blueDot
-                        }>
-                        <NumberlessText
-                          style={styles.text}
-                          textColor={PortColors.primary.white}
-                          fontType={FontType.rg}
-                          fontSizeType={FontSizeType.s}>
-                          {unreadCount}
-                        </NumberlessText>
-                      </View>
-                    )}
-                  </View>
-                  <NumberlessText
-                    numberOfLines={1}
-                    textColor={Colors.primary.mainelements}
-                    ellipsizeMode="tail"
-                    fontType={FontType.md}
-                    fontSizeType={FontSizeType.l}>
-                    {title || 'Focus'}
-                  </NumberlessText>
-                </Pressable>
-              </View>
-              <View style={styles.optionsRight}>
-                {(folder.folderId === defaultFolderId ||
-                  folder.folderId === 'focus') && (
-                  <Pressable
-                    style={styles.iconWrapper3}
-                    onPress={() => navigation.navigate('PendingRequests')}>
-                    <PendingRequestIcon width={24} height={24} />
-                  </Pressable>
-                )}
-                <Pressable
-                  style={styles.iconWrapper}
-                  onPress={() => setIsSearchActive(p => !p)}>
-                  <SearchIcon width={24} height={24} />
-                </Pressable>
-                {folder.folderId !== 'focus' && (
-                  <Pressable
-                    style={styles.iconWrapper2}
-                    onPress={() =>
-                      navigation.navigate('EditFolder', {
-                        selectedFolder: folder,
-                      })
-                    }>
-                    <FolderSettingsIcon width={24} height={24} />
-                  </Pressable>
-                )}
-              </View>
-            </>
-          )}
+          <View style={styles.menuLeft}>
+            <NumberlessText
+              numberOfLines={1}
+              textColor={Colors.primary.mainelements}
+              ellipsizeMode="tail"
+              fontType={FontType.sb}
+              fontSizeType={FontSizeType.xl}>
+              {title}
+            </NumberlessText>
+          </View>
+          <View>
+            <Pressable
+              style={styles.iconWrapper}
+              onPress={() => navigation.navigate('PortContactList')}>
+              <ContactBook width={24} height={24} />
+              <NumberlessText
+                numberOfLines={1}
+                textColor={Colors.primary.white}
+                ellipsizeMode="tail"
+                fontType={FontType.sb}
+                fontSizeType={FontSizeType.s}>
+                Contacts
+              </NumberlessText>
+            </Pressable>
+          </View>
         </View>
       )}
     </>
@@ -204,43 +124,38 @@ function HomeTopbar({
 const styling = (colors: any) =>
   StyleSheet.create({
     bar: {
-      paddingHorizontal: 15,
+      height: TOPBAR_HEIGHT,
+      paddingHorizontal: PortSpacing.secondary.uniform,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor: colors.primary.surface,
-      height: TOPBAR_HEIGHT,
+      borderBottomColor: colors.primary.stroke,
+      borderBottomWidth: 0.5,
     },
     selectedBar: {
-      paddingHorizontal: 8,
+      height: TOPBAR_HEIGHT,
+      paddingHorizontal: PortSpacing.secondary.uniform,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor: colors.primary.surface,
-      height: TOPBAR_HEIGHT,
+      borderBottomColor: colors.primary.stroke,
+      borderBottomWidth: 0.5,
     },
-    blueDot: {
-      backgroundColor: colors.primary.accent,
-      height: 20,
-      width: 20,
-      position: 'absolute',
-      top: 0,
-      right: -3,
-      borderRadius: 100,
-      justifyContent: 'center',
+    profileBar: {
+      flexDirection: 'row',
+      flex: 1,
       alignItems: 'center',
-      paddingVertical: 2,
+      justifyContent: 'space-between',
     },
-    blueDotOval: {
-      backgroundColor: PortColors.primary.blue.app,
-      height: 20,
-      width: 30,
-      position: 'absolute',
-      top: 0,
-      left: 20,
-      borderRadius: 100,
-      justifyContent: 'center',
+    titleBar: {
+      flex: 1,
+      maxWidth: '60%',
+      flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'flex-start',
+      gap: PortSpacing.tertiary.uniform,
     },
     text: {
       height: '100%',
@@ -260,13 +175,6 @@ const styling = (colors: any) =>
       alignItems: 'center',
       justifyContent: 'flex-start',
     },
-    optionsRight: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-      overflow: 'hidden',
-      gap: 6,
-    },
     backgroundImage: {
       width: 50,
       height: 50,
@@ -274,43 +182,14 @@ const styling = (colors: any) =>
       resizeMode: 'cover',
     },
     iconWrapper: {
-      backgroundColor: 'transparent',
-      height: 40,
-      width: 24,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: 12,
-    },
-    iconWrapper2: {
-      backgroundColor: 'transparent',
-      height: 50,
-      width: 35,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    iconWrapper3: {
-      paddingTop: 2,
-      backgroundColor: 'transparent',
-      height: 40,
-      width: 24,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: 10,
-    },
-    profileBar: {
+      height: 36,
+      paddingHorizontal: 11,
+      borderRadius: PortSpacing.tertiary.uniform,
       flexDirection: 'row',
-      flex: 1,
+      gap: 6,
+      backgroundColor: colors.primary.blue,
       alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    titleBar: {
-      flex: 1,
-      marginLeft: 10,
-      maxWidth: '60%',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      gap: PortSpacing.tertiary.uniform,
+      justifyContent: 'center',
     },
     selectedCount: {
       color: colors.labels.text,

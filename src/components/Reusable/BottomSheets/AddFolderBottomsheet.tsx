@@ -8,13 +8,12 @@ import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomS
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import {getAllFolders} from '@utils/ChatFolders';
-import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import {getAllFolders} from '@utils/Storage/folders';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import React, {useCallback, useState} from 'react';
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import BluePlus from '@assets/icons/bluePlusWithCircle.svg';
-import {moveConnectionToNewFolder} from '@utils/Connections';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {FlatList, StyleSheet} from 'react-native';
+import {moveConnectionToNewFolderWithoutPermissionChange} from '@utils/ChatFolders';
+import {useFocusEffect} from '@react-navigation/native';
 import DynamicColors from '@components/DynamicColors';
 
 const AddFolderBottomsheet = ({
@@ -46,13 +45,15 @@ const AddFolderBottomsheet = ({
     setSelectedFolder(item);
     try {
       //move chat to the folder
-      await moveConnectionToNewFolder(chatId, item.folderId);
+      await moveConnectionToNewFolderWithoutPermissionChange(
+        chatId,
+        item.folderId,
+      );
     } catch (error) {
       console.log('Error moving chat to a folder', error);
     }
     setVisible(false);
   };
-  const navigation = useNavigation();
   const Colors = DynamicColors();
 
   return (
@@ -70,8 +71,7 @@ const AddFolderBottomsheet = ({
         }}
         fontSizeType={FontSizeType.m}
         fontType={FontType.rg}>
-        When you move a chat to a chat folder, its initial settings will be
-        inherited from the settings set for the folder.
+        Moving this chat to a different folder will not change its settings.
       </NumberlessText>
       <SimpleCard style={styles.cardWrapper}>
         <NumberlessText
@@ -99,35 +99,7 @@ const AddFolderBottomsheet = ({
                   selectedOptionComparision={item.item.folderId}
                   title={item.item.name}
                 />
-                <LineSeparator />
-                {item.index === folders.length - 1 && (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setVisible(false);
-                      navigation.navigate('CreateFolder', {
-                        setSelectedFolder: setSelectedFolder,
-                        chatId: chatId,
-                      });
-                    }}
-                    accessibilityIgnoresInvertColors
-                    activeOpacity={0.6}>
-                    <View style={styles.optionContainer}>
-                      <View style={styles.optionWrapper}>
-                        <View style={styles.textContainer}>
-                          <NumberlessText
-                            textColor={Colors.text.primary}
-                            fontSizeType={FontSizeType.m}
-                            fontType={FontType.rg}>
-                            Create a folder
-                          </NumberlessText>
-                        </View>
-                        <View>
-                          <BluePlus width={20} height={20} />
-                        </View>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                )}
+                {!(item.index === folders.length - 1) && <LineSeparator />}
               </>
             );
           }}

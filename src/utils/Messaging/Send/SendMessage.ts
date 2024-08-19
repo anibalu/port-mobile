@@ -1,4 +1,4 @@
-import {isGroupChat} from '@utils/Connections';
+import {isGroupChat} from '@utils/Storage/connections';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContentType,

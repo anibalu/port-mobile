@@ -15,7 +15,15 @@ const DynamicColors = () => {
     accentLight: '#9E82ED',
     accentOverlay: 'rgba(106, 53, 255, 0.24)',
     defaultdark: '#05070b',
+    violet: '#730BDC',
+    darkGreen: '#469A5F',
+    orange: '#EE6337',
+    deepSafron: '#F99520',
+    tealBlue: '#4A94B0',
+    brightRed: '#E20036',
+    blue: '#4E75FF',
   };
+
   const light = {
     primary: {
       surface: '#FFFFFF',
@@ -26,6 +34,24 @@ const DynamicColors = () => {
       overlay: '#000000',
       black: '#000000',
       ...common,
+    },
+    boldAccentColors: {
+      violet: '#730BDC',
+      darkGreen: '#469A5F',
+      orange: '#EE6337',
+      deepSafron: '#F99520',
+      tealBlue: '#4A94B0',
+      brightRed: '#E20036',
+      blue: '#4E75FF',
+    },
+    lowAccentColors: {
+      violet: '#730BDC1A',
+      darkGreen: '#469A5F1A',
+      orange: '#EE63371A',
+      deepSafron: '#F995201A',
+      tealBlue: '#4A94B01A',
+      brightRed: '#E200361A',
+      blue: '#4E75FF1A',
     },
     search: {
       black: '#FFF',
@@ -71,6 +97,24 @@ const DynamicColors = () => {
       overlay: '#52525b',
       black: '#FFFFFF',
       ...common,
+    },
+    boldAccentColors: {
+      violet: '#730BDC',
+      darkGreen: '#469A5F',
+      orange: '#EE6337',
+      deepSafron: '#F99520',
+      tealBlue: '#4A94B0',
+      brightRed: '#E20036',
+      blue: '#4E75FF',
+    },
+    lowAccentColors: {
+      violet: '#730BDC33',
+      darkGreen: '#469A5F33',
+      orange: '#EE633733',
+      deepSafron: '#F9952033',
+      tealBlue: '#4A94B033',
+      brightRed: '#E2003633',
+      blue: '#4E75FF33',
     },
     search: {
       black: '#1D232E',

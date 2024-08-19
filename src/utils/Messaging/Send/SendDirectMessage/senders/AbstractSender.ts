@@ -13,16 +13,25 @@ import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import {generateISOTimeStamp} from '@utils/Time';
 
 /**
- * Content types that should not trigger push notifications.
+ * Content types that should trigger push notifications.
  */
-const silentNotificationContentTypes: ContentType[] = [
-  ContentType.displayImage,
-  ContentType.displayAvatar,
-  ContentType.name,
-  ContentType.deleted,
-  ContentType.disappearingMessages,
-  ContentType.receipt,
-  ContentType.deleted,
+const notificationContentTypes: ContentType[] = [
+  ContentType.text,
+  ContentType.audioRecording,
+  ContentType.file,
+  ContentType.video,
+  ContentType.image,
+  ContentType.link,
+  ContentType.contactBundleRequest,
+  ContentType.contactBundle,
+  ContentType.contactBundleDenialResponse,
+  ContentType.contactBundleResponse,
+  ContentType.reaction,
+];
+
+const storeCallsExemptContentTypes: ContentType[] = [
+  ContentType.initialInfoRequest,
+  ContentType.contactPortRequest,
 ];
 
 /**
@@ -125,9 +134,7 @@ export abstract class SendDirectMessage<T extends ContentType> {
    * @returns - boolean value indicating whether flag needs to be added.
    */
   isNotificationSilent(): boolean {
-    return silentNotificationContentTypes.includes(this.contentType)
-      ? true
-      : false;
+    return notificationContentTypes.includes(this.contentType) ? false : true;
   }
 
   /**
@@ -135,9 +142,11 @@ export abstract class SendDirectMessage<T extends ContentType> {
    * Please use this sparingly. Redraws are expensive and holds up the js thread.
    */
   storeCalls() {
-    store.dispatch({
-      type: 'PING',
-      payload: 'PONG',
-    });
+    if (!storeCallsExemptContentTypes.includes(this.contentType)) {
+      store.dispatch({
+        type: 'PING',
+        payload: 'PONG',
+      });
+    }
   }
 }

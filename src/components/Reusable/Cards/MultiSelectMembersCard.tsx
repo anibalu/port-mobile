@@ -9,7 +9,7 @@
  */
 import React from 'react';
 import SimpleCard from './SimpleCard';
-import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import MultiSelectMemberRadio from '../MultiSelectMembers/MultiSelectMemberRadio';
 import LineSeparator from '../Separators/LineSeparator';
 import {View} from 'react-native';

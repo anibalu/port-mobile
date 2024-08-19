@@ -18,12 +18,12 @@ import store from '@store/appStore';
 import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
 import {fetchNewPorts} from '@utils/Ports';
 import {deleteProfile, setupProfile} from '@utils/Profile';
-import {ProfileStatus} from '@utils/Profile/interfaces';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import React, {useEffect} from 'react';
 import {BackHandler, StyleSheet, View} from 'react-native';
 import {CircleSnail} from 'react-native-progress';
-import {useErrorModal} from 'src/context/ErrorModalContext';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'SetupUser'>;
 
@@ -39,7 +39,7 @@ const Loader = () => {
 
 function SetupUser({route, navigation}: Props) {
   //importing onboarding error
-  const {onboardingFailureError} = useErrorModal();
+  const {showToast} = useToast();
   //we get user name and profile picture from route params
   const {name, avatar} = route.params;
   const processedName: string = name || DEFAULT_NAME;
@@ -91,8 +91,10 @@ function SetupUser({route, navigation}: Props) {
 
     runActions().then(ret => {
       if (!ret) {
-        onboardingFailureError();
-        //delete whatever profile is setup so it can begin again cleanly.
+        showToast(
+          'Error in setting you up, please check your network.',
+          ToastType.error,
+        ); //delete whatever profile is setup so it can begin again cleanly.
         deleteProfile().then(() => {
           navigation.navigate('OnboardingStack', {screen: 'NameScreen'});
         });

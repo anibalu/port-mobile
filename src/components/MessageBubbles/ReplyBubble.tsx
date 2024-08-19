@@ -98,6 +98,8 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: REPLY_MEDIA_HEIGHT,
     minWidth: MIN_WIDTH_REPLY,
+    overflow: 'hidden',
+    borderRadius: 16,
   },
   childContainer: {
     width: '100%',

@@ -1,5 +1,35 @@
 import {runSimpleQuery} from './dbCommon';
-import {CryptoData, CryptoDataEntry} from '@utils/Crypto/interfaces';
+
+export interface CryptoData {
+  privateKey?: string | null;
+  publicKey?: string | null;
+  sharedSecret?: string | null;
+  peerPublicKeyHash?: string | null;
+  rad?: string | null;
+}
+
+export interface CryptoDataStrict extends CryptoData {
+  privateKey: string;
+  publicKey: string;
+  sharedSecret: string | null;
+  peerPublicKeyHash: string | null;
+  rad: string | null;
+}
+
+export interface CryptoDataEntry extends CryptoData {
+  cryptoId: string;
+}
+
+export interface CryptoDataMember extends CryptoData {
+  publicKey?: string;
+  sharedSecret: string;
+}
+
+export interface CryptoDataContactPort extends CryptoData {
+  publicKey: string;
+  peerPublicKeyHash: string;
+  rad: string;
+}
 
 /**
  * Add a new cryptoData entry with no other columns set
@@ -17,6 +47,10 @@ export async function newCryptoEntry(id: string) {
   );
 }
 
+/**
+ * Adds crypto data to storage
+ * @param data - crypto data
+ */
 export async function addCryptoEntry(data: CryptoDataEntry) {
   await runSimpleQuery(
     `
@@ -117,26 +151,3 @@ export async function deleteCryptoData(id: string) {
     (tx, results) => {},
   );
 }
-
-/**
- * Test cases for cryptoData CRUD operations
- * @returns whether the tests pass
- */
-// export async function testCryptoData(): Promise<boolean> {
-//   const id: string = '12345678901234567890123456789012';
-//   const privateKey: string = id + id;
-//   await newCryptoEntry(id);
-//   if ((await getCryptoData(id)).privateKey) {
-//     return false;
-//   }
-//   await updateCryptoData(id, {privateKey});
-//   if ((await getCryptoData(id)).privateKey !== privateKey) {
-//     return false;
-//   }
-//   await deleteCryptoData(id);
-//   if ((await getCryptoData(id)).privateKey) {
-//     return false;
-//   }
-//   console.log('[DBCALLS CRYPTO] Passed all tests');
-//   return true;
-// }

@@ -1,26 +1,24 @@
 import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
-import {getConnections} from '@utils/Connections';
-import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
 import {generateKeys} from '@utils/Crypto/ed25519';
 import {pickRandomAvatarId} from '@utils/IdGenerator';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {DEFAULT_NAME, NAME_LENGTH_LIMIT} from '../../configs/constants';
 import store from '../../store/appStore';
 import * as storage from '../Storage/profile';
-import {connectionFsSync} from '../Synchronization';
 import * as API from './APICalls';
-import {ProfileInfo, ProfileInfoUpdate, ProfileStatus} from './interfaces';
-import {getChatPermissions} from '@utils/ChatPermissions';
-import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
+import {
+  ProfileInfo,
+  ProfileInfoUpdate,
+  ProfileStatus,
+} from '@utils/Storage/RNSecure/secureProfileHandler';
+import {connectionFsSync} from '../Synchronization';
 
 /**
  * Fetches default avatar file attributes
  * @returns default avatar file attributes
  */
-function getDefaultAvatarInfo(): FileAttributes {
+export function getDefaultAvatarInfo(): FileAttributes {
   return {...DEFAULT_PROFILE_AVATAR_INFO};
 }
 
@@ -241,110 +239,7 @@ export async function getLastBackupTime(): Promise<string | undefined> {
  */
 export async function getProfilePictureUri(): Promise<string> {
   const file = await getProfilePicture();
-  if (file.fileType === 'avatar') {
-    return file.fileUri;
-  } else {
-    return getSafeAbsoluteURI(file.fileUri, 'doc');
-  }
-}
-
-/**
- * Sets new profile picture with new file attributes and sends it to contacts with profile picture permissions.
- * This function skips media upload step if user has not connections (as would be the case at onboarding).
- * @param {FileAttributes} file - new profile picture file attributes
- */
-export async function setNewProfilePicture(
-  file: FileAttributes = getDefaultAvatarInfo(),
-) {
-  try {
-    await removeProfilePicture();
-    const connections: ConnectionInfo[] = await getConnections();
-    if (file.fileType === 'avatar') {
-      for (const conn of connections) {
-        const isAllowed = (
-          await getChatPermissions(
-            conn.chatId,
-            conn.connectionType === ChatType.group
-              ? ChatType.group
-              : ChatType.direct,
-          )
-        ).displayPicture;
-        if (isAllowed) {
-          const sendDisplayPicture = new SendMessage(
-            conn.chatId,
-            ContentType.displayAvatar,
-            {
-              ...file,
-              fileType: 'avatar',
-            },
-          );
-          sendDisplayPicture.send();
-        }
-      }
-      await updateProfileInfo({profilePicInfo: file});
-    } else {
-      const newFile = (await storage.moveProfilePictureToProfileDir(
-        file,
-      )) as LargeDataParams;
-      await updateProfileInfo({profilePicInfo: newFile as FileAttributes});
-      //upload step is skipped if there are no connections
-      if (connections.length > 0) {
-        // Upload the profile picture to prevent re-uploads for each chat
-        const uploader = new LargeDataUpload(
-          newFile.fileUri || 'missing file path in profile upload',
-          newFile.fileName,
-          newFile.fileType,
-        );
-        await uploader.upload();
-        const {mediaId, key} = uploader.getMediaIdAndKey();
-        newFile.mediaId = mediaId;
-        newFile.key = key;
-        for (const conn of connections) {
-          const isAllowed = (
-            await getChatPermissions(
-              conn.chatId,
-              conn.connectionType === ChatType.group
-                ? ChatType.group
-                : ChatType.direct,
-            )
-          ).displayPicture;
-          if (isAllowed && newFile.mediaId) {
-            const sendDisplayPicture = new SendMessage(
-              conn.chatId,
-              ContentType.displayImage,
-              {
-                ...newFile,
-                mediaId,
-                key,
-              },
-            );
-            sendDisplayPicture.send();
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.log('error updating profile pic: ', error);
-  }
-}
-
-/**
- * deletes existing profile picture and updates with default picture
- */
-export async function removeProfilePicture() {
-  try {
-    const profile: ProfileInfo | undefined = await getProfileInfo();
-    if (!profile) {
-      throw new Error('NoProfile');
-    }
-    const file = profile.profilePicInfo;
-    if (file.fileType !== 'avatar') {
-      await storage.removeProfilePicture(file);
-    }
-    await updateProfileInfo({profilePicInfo: getDefaultAvatarInfo()});
-  } catch (error) {
-    console.log('error removing profile pic: ', error);
-  }
+  return getSafeAbsoluteURI(file.fileUri);
 }
 
 /**

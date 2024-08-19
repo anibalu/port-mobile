@@ -1,4 +1,4 @@
-import {PortBundle} from '@utils/Ports/interfaces';
+import {DirectContactPortBundle, PortBundle} from '@utils/Ports/interfaces';
 
 /**
  * Enum representing the promise resolve values of the sendMessage function.
@@ -48,6 +48,9 @@ export enum ContentType {
   disappearingMessages = 22,
   contactBundleRequestInfo = 23,
   contactBundleShareRequest = 24,
+  contactPortBundle = 25,
+  contactPortTicket = 26,
+  contactPortRequest = 27,
 }
 
 /**
@@ -147,6 +150,9 @@ export const connectionUpdateExemptTypes = [
   ContentType.handshakeB2,
   ContentType.handshakeA1,
   ContentType.initialInfoRequest,
+  ContentType.contactPortBundle,
+  ContentType.contactPortTicket,
+  ContentType.contactPortRequest,
 ];
 
 /**
@@ -173,7 +179,10 @@ export type DataType =
   | ReceiptParams
   | InitialInfoRequestParams
   | DisappearingMessageParams
-  | ContactBundleRequestInfoParams;
+  | ContactBundleRequestInfoParams
+  | ContactPortBundleParams
+  | ContactPortTicketParams
+  | ContactPortRequestParams;
 
 export interface LinkParams extends TextParams {
   title?: string | null;
@@ -239,7 +248,13 @@ export interface ContactBundleParams {
   createdChatId?: string;
   bundle: PortBundle;
 }
-
+export interface ContactPortBundleParams {
+  bundle?: DirectContactPortBundle | null;
+}
+export interface ContactPortTicketParams {
+  contactPortId: string;
+  ticketId: string;
+}
 export interface ContactBundleRequestParams {
   destinationName: string;
   approved?: boolean;
@@ -269,6 +284,7 @@ export interface ReactionParams {
 }
 
 export interface InitialInfoRequestParams {}
+export interface ContactPortRequestParams {}
 
 export type MessageDataTypeBasedOnContentType<T extends ContentType> =
   T extends ContentType.newChat
@@ -315,6 +331,12 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? DisappearingMessageParams
     : T extends ContentType.contactBundleRequestInfo
     ? ContactBundleRequestInfoParams
+    : T extends ContentType.contactPortBundle
+    ? ContactPortBundleParams
+    : T extends ContentType.contactPortTicket
+    ? ContactPortTicketParams
+    : T extends ContentType.contactPortRequest
+    ? ContactPortRequestParams
     : never;
 
 /**

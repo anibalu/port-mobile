@@ -1,5 +1,8 @@
 import {defaultPermissions} from '@configs/constants';
-import {GroupPermissions} from './interfaces';
+import {
+  GroupPermissions,
+  Permissions,
+} from '../Storage/DBCalls/permissions/interfaces';
 import Group from '@utils/Groups/Group';
 
 /**
@@ -15,4 +18,12 @@ export async function getChatPermissions(
 ): Promise<GroupPermissions> {
   const group = new Group(chatId);
   return await group.getPermissions();
+}
+
+export async function updatePermissions(
+  chatId: string,
+  update: Permissions,
+): Promise<void> {
+  const chat = new Group(chatId);
+  await chat.updatePermissions(update);
 }

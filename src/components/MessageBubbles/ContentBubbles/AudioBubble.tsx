@@ -141,7 +141,10 @@ const AudioBubble = ({
         {message.messageStatus === MessageStatus.unsent ? (
           <>
             {loadingRetry ? (
-              <View>
+              <View
+                style={{
+                  marginRight: PortSpacing.tertiary.right,
+                }}>
                 <ActivityIndicator
                   size={'small'}
                   color={Colors.primary.accent}

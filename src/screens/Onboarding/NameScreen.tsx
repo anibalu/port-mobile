@@ -26,7 +26,7 @@ import {
 import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
 import {checkPermissions} from '@utils/AppPermissions/checkAllPermissions';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
@@ -270,7 +270,7 @@ const styling = (color: any) =>
     profilePictureHitbox: {
       marginTop: PortSpacing.primary.top,
       marginBottom: PortSpacing.primary.bottom,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: PortSpacing.tertiary.uniform,
       flexDirection: 'column',
       alignItems: 'flex-end',
       justifyContent: 'flex-end',
@@ -281,7 +281,7 @@ const styling = (color: any) =>
       backgroundColor: color.primary.accent,
       position: 'absolute',
       bottom: -8,
-      right: 8,
+      right: 4,
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 9,

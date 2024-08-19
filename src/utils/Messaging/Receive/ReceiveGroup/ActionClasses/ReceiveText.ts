@@ -1,7 +1,8 @@
 import {MessageStatus, TextParams} from '@utils/Messaging/interfaces';
-import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
+import {getConnection} from '@utils/Storage/connections';
+import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import {displaySimpleNotification} from '@utils/Notifications';
-import {ChatType} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import GroupReceiveAction from '../GroupReceiveAction';
 import {getChatPermissions} from '@utils/ChatPermissions';
 

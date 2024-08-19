@@ -1,5 +1,7 @@
-import {THEME} from '@configs/constants';
+import {ThemeOptionTypes} from '@components/Reusable/BottomSheets/ThemeBottomsheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const THEME = 'theme';
 
 export enum ThemeType {
   dark = 'dark',
@@ -40,7 +42,17 @@ export async function getTheme() {
   }
 }
 
-export default {
-  saveTheme,
-  getTheme,
-};
+export const themeOptions: ThemeOptionTypes[] = [
+  {
+    key: 'System default',
+    value: ThemeType.default,
+  },
+  {
+    key: 'Light',
+    value: ThemeType.light,
+  },
+  {
+    key: 'Dark',
+    value: ThemeType.dark,
+  },
+];

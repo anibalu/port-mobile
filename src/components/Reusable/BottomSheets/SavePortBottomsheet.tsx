@@ -20,8 +20,8 @@ import {
   GroupBundle,
   GroupSuperportBundle,
   PortBundle,
-  PortTable,
 } from '@utils/Ports/interfaces';
+import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
 import {cleanDeletePort, updateGeneratedPortLabel} from '@utils/Ports';
 import {useNavigation} from '@react-navigation/native';
 import DynamicColors from '@components/DynamicColors';

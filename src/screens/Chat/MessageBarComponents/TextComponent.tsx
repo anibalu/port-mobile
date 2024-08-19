@@ -4,7 +4,14 @@ import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useMemo, useState} from 'react';
-import {Keyboard, Pressable, StyleSheet, TextInput, View} from 'react-native';
+import {
+  Keyboard,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import PurplePlus from '@assets/icons/PurplePlus.svg';
 import PurpleKeyboard from '@assets/icons/Keyboard.svg';
 import PopUpActions from './PopUpActions';
@@ -198,7 +205,7 @@ const TextComponent = ({
       <View style={styles.mainContainer}>
         {!replyToMessage && !showPreview && (
           <View style={styles.plus}>
-            <Pressable hitSlop={24} onPress={onPressPurpleActionButton}>
+            <TouchableOpacity hitSlop={24} onPress={onPressPurpleActionButton}>
               {isPopUpVisible ? (
                 <Animated.View style={[animatedStyleKeyboard]}>
                   <PurpleKeyboard height={24} width={24} />
@@ -208,7 +215,7 @@ const TextComponent = ({
                   <PurplePlus height={24} width={24} />
                 </Animated.View>
               )}
-            </Pressable>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -248,13 +255,13 @@ const TextComponent = ({
           )}
         </View>
 
-        <Pressable onPress={onHandleClick}>
+        <TouchableOpacity onPress={onHandleClick}>
           {text.length > 0 || replyToMessage ? (
             <SendIcon />
           ) : (
             <MicrophoneIcon style={styles.microphone} />
           )}
-        </Pressable>
+        </TouchableOpacity>
       </View>
 
       {/* opens emoji keyboard */}

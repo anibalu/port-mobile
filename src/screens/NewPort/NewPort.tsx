@@ -2,22 +2,15 @@
  * This screen displays a new port to connect over
  */
 import {SafeAreaView} from '@components/SafeAreaView';
-import React, {ReactNode, useEffect, useState} from 'react';
-import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
-import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
+import React, {ReactNode, useEffect, useMemo, useState} from 'react';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
-import {PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import PortCard from '@components/Reusable/ConnectionCards/PortCard';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {
   DEFAULT_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
@@ -30,12 +23,10 @@ import {
   getBundleClickableLink,
   getGeneratedPortData,
 } from '@utils/Ports';
-import {
-  BundleTarget,
-  PortBundle,
-  PortData,
-  PortTable,
-} from '@utils/Ports/interfaces';
+import {PortBundle} from '@utils/Ports/interfaces';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
+import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 import SharePortLink from '@components/Reusable/BottomSheets/SharePortLink';
 import {wait} from '@utils/Time';
@@ -44,14 +35,36 @@ import Share from 'react-native-share';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import SavePortBottomsheet from '@components/Reusable/BottomSheets/SavePortBottomsheet';
+import RotatingPortCard from './RotatingPortCard';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {getDefaultPermissions} from '@utils/ChatPermissions';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {getPermissions} from '@utils/Storage/permissions';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import {getAllFolders} from '@utils/Storage/folders';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 
 function NewPortScreen({route, navigation}: Props): ReactNode {
+  //profile information
+  const profile = useSelector(state => state.profile.profile);
+  const {name, avatar} = useMemo(() => {
+    return {
+      name: profile?.name || DEFAULT_NAME,
+      avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
+    };
+  }, [profile]);
   //we get user name and profile picture from route params
-  const {name, avatar} = route.params;
+  const {folder} = route.params;
+  //display name shown on the Port card
   const displayName: string = name || DEFAULT_NAME;
+  //display picture shown on the Port card
   const profilePicAttr: FileAttributes = avatar || DEFAULT_PROFILE_AVATAR_INFO;
+  //the folder the formed connection should go to.
+  const [taggedFolder, setTaggedFolder] = useState(folder || defaultFolderInfo);
+  //the folder the formed connection should go to.
+  const [folders, setFolders] = useState<FolderInfo[]>([]);
+
   //state of qr code generation
   const [isLoading, setIsLoading] = useState(true);
   //whether qr code generation has failed
@@ -70,17 +83,44 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
   const [openShouldKeepPortModal, setOpenShouldKeepPortModal] = useState(false);
 
   const [shareContactName, setShareContactName] = useState('');
+  const [permissions, setPermissions] = useState<PermissionsStrict>(
+    getDefaultPermissions(ChatType.direct),
+  );
+  const [permissionId, setPermissionId] = useState<string | null | undefined>(
+    null,
+  );
 
   //checks latest new connection
   const latestNewConnection = useSelector(state => state.latestNewConnection);
 
-  //fetches a port
+  const fetchFolders = async () => {
+    try {
+      setFolders(await getAllFolders());
+    } catch (error) {
+      console.log('Failed to fetch folders');
+    }
+  };
+
+  //fetches a port and its associated permissions
   const fetchPort = async () => {
     try {
       setIsLoading(true);
       setHasFailed(false);
-      const bundle: PortBundle = await generateBundle(BundleTarget.direct);
+      const bundle: PortBundle = await generateBundle(
+        BundleTarget.direct,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        taggedFolder.folderId,
+      );
+      const generatedPort = await getGeneratedPortData(bundle.portId);
+      const assignedPermissions = await getPermissions(
+        generatedPort.permissionsId,
+      );
       if (bundle) {
+        setPermissionId(generatedPort.permissionsId);
+        setPermissions(assignedPermissions);
         setQrData(bundle);
       }
       setIsLoading(false);
@@ -144,6 +184,8 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
 
   useEffect(() => {
     fetchPort();
+    fetchFolders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //navigates to home screen if latest new connection Id matches port Id
@@ -153,8 +195,9 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
         const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
         if (qrData && !linkData) {
           if (qrData.portId === latestUsedConnectionLinkId) {
+            //todo - test that this leads to the correct folder tab
             navigation.navigate('HomeTab', {
-              selectedFolder: {...defaultFolderInfo},
+              selectedFolder: {...taggedFolder},
             });
             return;
           }
@@ -165,19 +208,6 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestNewConnection]);
-
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        closeAction();
-        return true;
-      },
-    );
-
-    return () => backHandler.remove();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const closeAction = async () => {
     if (linkData && qrData) {
@@ -228,63 +258,45 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
           heading={'New Port'}
         />
         <ScrollView
-          style={{width: '100%', backgroundColor: Colors.primary.background}}>
-          <View style={{flex: 1, justifyContent: 'space-between'}}>
-            <View style={styles.qrArea}>
-              <PortCard
-                isLoading={isLoading}
-                isLinkLoading={isLoadingLink}
-                hasFailed={hasFailed}
-                isSuperport={false}
-                title={displayName}
-                profileUri={profilePicAttr.fileUri}
-                qrData={qrData}
-                onShareLinkClicked={fetchLinkData}
-                onTryAgainClicked={fetchPort}
-              />
-              <TertiaryButton
-                tertiaryButtonColor={'b'}
-                buttonText={'Scan instead'}
-                Icon={ScanIcon}
-                onClick={async () => {
-                  //delete generated port and navigate to scan screen.
-                  if (qrData) {
-                    await cleanDeletePort(qrData.portId, PortTable.generated);
-                  }
-                  navigation.navigate('Scan');
-                }}
-                disabled={false}
-              />
-            </View>
-            <View style={styles.superportArea}>
-              <NumberlessText
-                textColor={Colors.text.primary}
-                style={{alignSelf: 'center'}}
-                fontType={FontType.md}
-                fontSizeType={FontSizeType.m}>
-                Need to add multiple contacts ?
-              </NumberlessText>
-              <NumberlessText
-                textColor={Colors.text.subtitle}
-                style={styles.subtitle}
-                fontType={FontType.rg}
-                fontSizeType={FontSizeType.s}>
-                To enable multiple connections with one Port, create a
-                Superport. Share it on your website or social channels for easy
-                access
-              </NumberlessText>
-              <SecondaryButton
-                secondaryButtonColor={'b'}
-                buttonText={'Create a Superport'}
-                onClick={() =>
-                  navigation.navigate('SuperportScreen', {
-                    name: displayName,
-                    avatar: profilePicAttr,
-                  })
-                }
-              />
-            </View>
+          style={{
+            width: '100%',
+            backgroundColor: Colors.primary.background,
+          }}>
+          <View style={styles.qrArea}>
+            <RotatingPortCard
+              isLoading={isLoading}
+              isLinkLoading={isLoadingLink}
+              hasFailed={hasFailed}
+              title={displayName}
+              profileUri={
+                permissions.displayPicture ? profilePicAttr.fileUri : null
+              }
+              qrData={qrData}
+              onShareLinkClicked={fetchLinkData}
+              onTryAgainClicked={fetchPort}
+              chosenFolder={taggedFolder}
+              permissionsArray={permissions}
+              setPermissionsArray={setPermissions}
+              folder={taggedFolder}
+              setFolder={setTaggedFolder}
+              permissionsId={permissionId}
+              portId={qrData?.portId}
+              foldersArray={folders}
+            />
           </View>
+          <TertiaryButton
+            tertiaryButtonColor={'b'}
+            buttonText={'Scan instead'}
+            Icon={ScanIcon}
+            onClick={async () => {
+              //delete generated port and navigate to scan screen.
+              if (qrData) {
+                await cleanDeletePort(qrData.portId, PortTable.generated);
+              }
+              navigation.navigate('Scan');
+            }}
+            disabled={false}
+          />
         </ScrollView>
         <ErrorBottomSheet
           visible={openErrorModal}
@@ -323,17 +335,13 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
 const styles = StyleSheet.create({
   screen: {
     alignItems: 'center',
-    flex: 1,
   },
   qrArea: {
+    justifyContent: 'space-between',
     paddingHorizontal: PortSpacing.secondary.uniform,
     gap: PortSpacing.secondary.uniform,
-    marginTop: 30 + PortSpacing.primary.top, //accounts for profile picture offset
-  },
-  superportArea: {
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingTop: PortSpacing.intermediate.top,
-    paddingBottom: PortSpacing.secondary.bottom,
+    paddingTop: PortSpacing.secondary.uniform,
+    height: screen.height - 30,
   },
   subtitle: {
     alignSelf: 'center',

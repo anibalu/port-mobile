@@ -12,6 +12,9 @@ class ReceiveContactBundleResponse extends DirectReceiveAction {
 
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    // Prevent reprocessing the same Contact bundle relay
+    this.doubleProcessingGuard();
+    this.saveMessage();
 
     const {approvedMessageId, bundle} = this.decryptedMessageContent
       .data as ContactBundleResponseParams;

@@ -1,7 +1,7 @@
 import {profileDir} from '@configs/paths';
 import RNFS from 'react-native-fs';
 import {connectionFsSync} from '../../Synchronization';
-import {FileAttributes} from '../interfaces';
+import {FileAttributes} from './interfaces';
 import {getRelativeURI, getSafeAbsoluteURI} from './sharedFileHandlers';
 
 /**

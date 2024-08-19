@@ -1,46 +1,40 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
-import {useNavigation} from '@react-navigation/native';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import TouchableOption from './TouchableOption';
-import {FileAttributes} from '@utils/Storage/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useBottomNavContext} from 'src/context/BottomNavContext';
+import {useNavigation} from '@react-navigation/native';
 
-interface ConnectionOptionsProps {
-  setVisible: (isShown: boolean) => void;
-  visible: boolean;
-  name: string;
-  avatar: FileAttributes;
-}
+export default function ConnectionOptions() {
+  const {
+    isConnectionOptionsModalOpen,
+    setIsConnectionOptionsModalOpen,
+    selectedFolderData,
+  } = useBottomNavContext();
 
-export default function ConnectionOptions(props: ConnectionOptionsProps) {
-  const {setVisible, visible} = props;
   const navigation = useNavigation();
 
   const openNewPortScreen = () => {
-    setVisible(false);
+    setIsConnectionOptionsModalOpen(false);
     navigation.navigate('NewPortScreen', {
-      name: props.name,
-      avatar: props.avatar,
+      folder: selectedFolderData,
     });
   };
 
   // const handleOpenNewGroup = () => {
-  //   setVisible(false);
+  //   setIsConnectionOptionsModalOpen(false);
   //   navigation.navigate('CreateNewGroup');
   // };
 
   const handleOpenSuperport = () => {
-    setVisible(false);
-    navigation.navigate('SuperportScreen', {
-      name: props.name,
-      avatar: props.avatar,
-    });
+    setIsConnectionOptionsModalOpen(false);
+    navigation.navigate('SuperportScreen', {});
   };
 
   const handleOpenScan = () => {
-    setVisible(false);
+    setIsConnectionOptionsModalOpen(false);
     navigation.navigate('Scan');
   };
 
@@ -71,9 +65,9 @@ export default function ConnectionOptions(props: ConnectionOptionsProps) {
     <PrimaryBottomSheet
       showClose={false}
       bgColor={'w'}
-      visible={visible}
+      visible={isConnectionOptionsModalOpen}
       showNotch={true}
-      onClose={() => setVisible(false)}>
+      onClose={() => setIsConnectionOptionsModalOpen(false)}>
       <View style={styles.connectionOptionsRegion}>
         <View style={styles.mainContainer}>
           <TouchableOption
@@ -114,22 +108,5 @@ const styles = StyleSheet.create({
   mainContainer: {
     paddingTop: PortSpacing.tertiary.top,
     flexDirection: 'column',
-  },
-  listItem: {
-    paddingVertical: PortSpacing.secondary.uniform,
-    borderRadius: 0,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    borderBottomColor: PortColors.stroke,
-    borderBottomWidth: 1,
-    borderBottomEndRadius: 8,
-  },
-  listContentWrapper: {
-    marginLeft: PortSpacing.secondary.uniform,
-    flexDirection: 'column',
-    flex: 1,
-    alignItems: 'stretch',
-    justifyContent: 'center',
   },
 });

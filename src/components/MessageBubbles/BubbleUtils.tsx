@@ -177,6 +177,7 @@ export const RenderTimeStamp = ({
   const animatedStyle = useAnimatedStyle(() => {
     return {
       flexDirection: 'row',
+      alignItems: 'center',
       transform: [
         {
           translateX: withTiming(

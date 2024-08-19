@@ -2,15 +2,14 @@ import {signMessage} from '@utils/Crypto/ed25519';
 import {TOKEN_VALIDITY_INTERVAL} from '../../configs/constants';
 import store from '../../store/appStore';
 import {getProfileInfo} from '../Profile';
-import {ProfileInfo} from '../Profile/interfaces';
+import {ProfileInfo} from '@utils/Storage/RNSecure/secureProfileHandler';
 import {readAuthToken, saveAuthToken} from '../Storage/authToken';
 import {connectionFsSync} from '../Synchronization';
 import {checkTimeout, generateISOTimeStamp} from '../Time';
 import {
   SavedServerAuthToken,
   ServerAuthToken,
-  SolvedAuthChallenge,
-} from './interfaces';
+} from '@utils/Storage/RNSecure/secureTokenHandler';
 import * as API from './APICalls';
 
 /**
@@ -46,10 +45,9 @@ async function generateNewAuthToken(
 ): Promise<ServerAuthToken> {
   const challenge = await API.getNewAuthChallenge(profile.clientId);
   const encChallenge: string = await signMessage(challenge, profile.privateKey);
-  const cipher: SolvedAuthChallenge = {signedChallenge: encChallenge};
   const token: ServerAuthToken = await API.postSolvedAuthChallenge(
     profile.clientId,
-    cipher,
+    {signedChallenge: encChallenge},
   );
   return token;
 }

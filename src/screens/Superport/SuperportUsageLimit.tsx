@@ -13,16 +13,12 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const SuperportUsageLimit = ({
   connectionsMade,
-  onSetUsageLimit,
   connectionLimit,
   setOpenUsageLimitsModal,
-  limitsArray,
 }: {
   connectionsMade: number;
-  onSetUsageLimit: (limit: number) => void;
   connectionLimit: number;
   setOpenUsageLimitsModal: (x: boolean) => void;
-  limitsArray: number[];
 }) => {
   const Colors = DynamicColors();
   const svgArray = [
@@ -51,6 +47,7 @@ const SuperportUsageLimit = ({
         <View
           style={{
             flexDirection: 'row',
+            alignItems: 'center',
             justifyContent: 'space-between',
             flex: 1,
           }}>
@@ -60,18 +57,24 @@ const SuperportUsageLimit = ({
               marginLeft: PortSpacing.tertiary.left,
             }}
             fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}>
-            Set up usage limit
+            fontSizeType={FontSizeType.l}>
+            Setup usage credits
           </NumberlessText>
-          <NumberlessText
+          <View
             style={{
-              color: Colors.text.primary,
               marginLeft: PortSpacing.tertiary.left,
-            }}
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}>
-            {`${connectionsMade}/${connectionLimit}`}
-          </NumberlessText>
+              backgroundColor: Colors.primary.surface2,
+              paddingHorizontal: PortSpacing.tertiary.uniform,
+              paddingVertical: 4,
+              borderRadius: PortSpacing.secondary.uniform,
+            }}>
+            <NumberlessText
+              textColor={Colors.text.subtitle}
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.s}>
+              {`${connectionsMade}/${connectionLimit}`} used
+            </NumberlessText>
+          </View>
         </View>
       </View>
       <View style={{marginBottom: PortSpacing.secondary.bottom}}>
@@ -84,18 +87,10 @@ const SuperportUsageLimit = ({
         </NumberlessText>
       </View>
       <View style={styles.pillrow}>
-        {limitsArray.map((number, index) => {
-          return (
-            <NumberPill
-              connectionLimit={connectionLimit}
-              isCustom={limitsArray.length - 1 === index}
-              key={index}
-              value={number}
-              onClick={onSetUsageLimit}
-              setOpenUsageLimitsModal={setOpenUsageLimitsModal}
-            />
-          );
-        })}
+        <NumberPill
+          connectionLimit={connectionLimit}
+          setOpenUsageLimitsModal={setOpenUsageLimitsModal}
+        />
       </View>
     </SimpleCard>
   );

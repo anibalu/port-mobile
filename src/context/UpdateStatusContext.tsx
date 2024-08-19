@@ -76,13 +76,13 @@ export const UpdateStatusProvider: React.FC<ModalProviderProps> = ({
       //if the key exist in localstorage with any value, wether both are same or indifferent, we will simply store that in state
       if (localResponse) {
         setTermsAndConditionsStatus(localResponse);
-      }
-      if (localResponse.needsToAccept) {
-        // if needsToAccept value in localstorage in true then show hard modal as this takes preferance
-        setShowHardUpdateInfoModal(true);
-      } else if (localResponse.shouldNotify) {
-        // if shouldNotify value in localstorage in true then show soft modal
-        setShowSoftUpdateInfoModal(true);
+        if (localResponse.needsToAccept) {
+          // if needsToAccept value in localstorage in true then show hard modal as this takes preferance
+          setShowHardUpdateInfoModal(true);
+        } else if (localResponse.shouldNotify) {
+          // if shouldNotify value in localstorage in true then show soft modal
+          setShowSoftUpdateInfoModal(true);
+        }
       }
     })();
   }, [reloadTrigger]);

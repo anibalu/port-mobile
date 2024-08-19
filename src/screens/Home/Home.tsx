@@ -4,27 +4,15 @@
  * screen id: 5
  */
 import ChatTile, {ChatTileProps} from '@components/ChatTile/ChatTile';
-import {SafeAreaView} from '@components/SafeAreaView';
 
-import notifee, {
-  AuthorizationStatus,
-  EventDetail,
-  EventType,
-} from '@notifee/react-native';
+import notifee, {AuthorizationStatus} from '@notifee/react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
-import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
-import {
-  bundleTargetToChatType,
-  getAllCreatedSuperports,
-  getReadPorts,
-} from '@utils/Ports';
 import React, {
   ReactElement,
-  ReactNode,
+  useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import {
@@ -38,156 +26,44 @@ import {
 import {useSelector} from 'react-redux';
 import HomeTopbar from './HomeTopbar';
 import HomescreenPlaceholder from './HomescreenPlaceholder';
-import ConnectionOptions from './ConnectionOptions';
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import {
-  DEFAULT_NAME,
-  DEFAULT_PROFILE_AVATAR_INFO,
-  SIDE_DRAWER_WIDTH,
-  defaultFolderId,
-  focusFolderInfo,
-  safeModalCloseDuration,
-} from '@configs/constants';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import {getProfileName, getProfilePicture} from '@utils/Profile';
-import {FileAttributes} from '@utils/Storage/interfaces';
-import {FolderInfo, FolderInfoWithUnread} from '@utils/ChatFolders/interfaces';
-import {getAllFoldersWithUnreadCount} from '@utils/ChatFolders';
-import {getConnections, getNewMessageCount} from '@utils/Connections';
-import FolderScreenPlaceholder from './FolderScreenPlaceholder';
+import DynamicColors from '@components/DynamicColors';
+import {useTheme} from 'src/context/ThemeContext';
+import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
+import {useBottomNavContext} from 'src/context/BottomNavContext';
+import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
+import SearchBar from '@components/SearchBar';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '@navigation/AppStackTypes';
-import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
-import {hasExpired, wait} from '@utils/Time';
-import ErrorAddingContactBottomSheet from '@components/Reusable/BottomSheets/ErrorAddingContactBottomSheet';
-import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactBottomSheet';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {cleanDeleteReadPort} from '@utils/Ports/direct';
-import {useConnectionModal} from 'src/context/ConnectionModalContext';
-import ErrorSimpleBottomSheet from '@components/Reusable/BottomSheets/ErrorSimpleBottomSheet';
+import {BottomNavStackParamList} from '@navigation/BottomNavStackTypes';
+import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {GestureHandlerRootView, Swipeable} from 'react-native-gesture-handler';
-import SideDrawer from './SideDrawer';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import LinearGradient from 'react-native-linear-gradient';
-import {ChatActionsBar} from './ChatActionsBar';
-import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
-import MoveToFolder from '@components/Reusable/BottomSheets/MoveToFolderBottomsheet';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {useTheme} from 'src/context/ThemeContext';
-import {useErrorModal} from 'src/context/ErrorModalContext';
-import {resetAppBadge} from '@utils/Notifications';
-import {getAllChatsInFocus} from '@utils/Storage/folders';
 
-//Handles notification routing on tapping notification
-const performNotificationRouting = (
-  type: EventType,
-  detail: EventDetail,
-  navigation: any,
-) => {
-  if (type === EventType.PRESS && detail.notification?.data) {
-    const {chatId, isGroup, isConnected, isAuthenticated} =
-      detail.notification.data;
+type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
-    if (
-      chatId != undefined &&
-      isGroup != undefined &&
-      isConnected != undefined
-    ) {
-      navigation.push('DirectChat', {
-        chatId: chatId,
-        isGroupChat: (isGroup as string).toLowerCase() === 'true',
-        isConnected: (isConnected as string).toLowerCase() === 'true',
-        profileUri: '',
-        isAuthenticated: isAuthenticated
-          ? (isAuthenticated as string).toLowerCase() === 'true'
-          : false,
-      });
-    }
-  }
-};
+const Home = ({navigation}: Props) => {
+  //Sets up handlers to route notifications
+  useEffect(() => {
+    const foregroundHandler = notifee.onForegroundEvent(({type, detail}) => {
+      //If data exists for the notification
+      performNotificationRouting(type, detail, navigation);
+    });
 
-//renders default chat tile when there are no connections to display
-function renderDefaultTile(
-  name: string,
-  profilePicAttr: FileAttributes,
-  selectedFolderData: FolderInfo,
-): ReactNode {
-  if (
-    selectedFolderData.folderId === defaultFolderId ||
-    selectedFolderData.folderId === 'focus'
-  ) {
-    return (
-      <HomescreenPlaceholder name={name} profilePicAttr={profilePicAttr} />
-    );
-  } else {
-    return (
-      <FolderScreenPlaceholder
-        name={name}
-        profilePicAttr={profilePicAttr}
-        selectedFolderData={selectedFolderData}
-      />
-    );
-  }
-}
+    notifee.onBackgroundEvent(async ({type, detail}) => {
+      //If data exists for the notification
+      performNotificationRouting(type, detail, navigation);
+    });
 
-type Props = NativeStackScreenProps<AppStackParamList, 'HomeTab'>;
-
-function Home({route, navigation}: Props) {
-  const ping: any = useSelector(state => state.ping.ping);
-  const params = route.params;
-  const [name, setName] = useState<string>(DEFAULT_NAME);
-  const [profilePicAttr, setProfilePicAttr] = useState(
-    DEFAULT_PROFILE_AVATAR_INFO,
-  );
-  const [folders, setFolders] = useState<FolderInfoWithUnread[]>([]);
-  //sets selected folder info
-  const [selectedFolderData, setSelectedFolderData] =
-    useState<FolderInfo>(focusFolderInfo);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  //all connections available
-  const [connections, setConnections] = useState<ChatTileProps[] | null>(null);
-  //connections displayed on home screen (depending on what the search string is).
-  //If search string is empty, all connections are displayed
-  const [viewableConnections, setViewableConnections] = useState<
-    ChatTileProps[]
-  >([]);
-
-  //whether the screen is in selection mode
-  const [selectionMode, setSelectionMode] = useState(false);
-
-  //selected connection Ids
-  const [selectedConnections, setSelectedConnections] = useState<
-    ChatTileProps[]
-  >([]);
-
-  const [searchText, setSearchText] = useState<string>('');
-  //total unread messages
-  const [totalUnread, setTotalUnread] = useState<number>(0);
-
-  //controls failed modal
-  const [openFailedModal, setOpenFailedModal] = useState(false);
-  //controls adding new contact modal
-  const [openAddingNewContactModal, setOpenAddingNewContactModal] =
-    useState(false);
-  const [selectedProps, setSelectedProps] = useState<ChatTileProps | null>(
-    null,
-  );
-  const [searchReturnedNull, setSearchReturnedNull] = useState(false);
-
-  const colors = DynamicColors();
-
-  const getUnread = (folderId: string) => {
-    const found = folders.find(item => item.folderId === folderId);
-    if (found) {
-      setTotalUnread(found.unread);
-    }
-  };
+    return () => {
+      foregroundHandler();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [isNotifPermissionGranted, setIsNotifPermissionGranted] =
     useState(false);
@@ -206,9 +82,9 @@ function Home({route, navigation}: Props) {
   //checks if notification permission is granted
   async function checkNotificationPermission() {
     const settings = await notifee.getNotificationSettings();
-    if (settings.authorizationStatus == AuthorizationStatus.AUTHORIZED) {
+    if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
       setIsNotifPermissionGranted(true);
-    } else if (settings.authorizationStatus == AuthorizationStatus.DENIED) {
+    } else if (settings.authorizationStatus === AuthorizationStatus.DENIED) {
       setIsNotifPermissionGranted(false);
     }
   }
@@ -216,15 +92,6 @@ function Home({route, navigation}: Props) {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        //loads up initial user name, profile picture
-        try {
-          const profilePictureURI = await getProfilePicture();
-          const fetchedName = await getProfileName();
-          setName(fetchedName);
-          setProfilePicAttr(profilePictureURI);
-        } catch (error) {
-          console.log('Error fetching user details', error);
-        }
         // Attempt to get notification permissions from the user, if needed
         try {
           console.log({isNotifPermissionGranted});
@@ -236,298 +103,91 @@ function Home({route, navigation}: Props) {
         // Run basic periodic operations
         debouncedPeriodicOperations();
         // Set superport length to allow
-        setSuperportsLength((await getAllCreatedSuperports()).length);
         // Reset app badge information on iOS
         resetAppBadge();
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
+  const colors = DynamicColors();
+  const styles = styling(colors);
+  const ping: any = useSelector(state => state.ping.ping);
 
-  const [totalUnreadCount, setTotalUnreadCount] = useState<number>(0);
+  const {
+    totalUnreadCount,
+    setTotalUnreadCount,
+    connections,
+    setConnections,
+    setSelectedFolderData,
+  } = useBottomNavContext();
 
-  const onRefresh = async () => {
-    try {
-      const fetchedFolders = await getAllFoldersWithUnreadCount();
-      const allUnreadCount = await getNewMessageCount();
-      setTotalUnreadCount(allUnreadCount);
-      const fetchedFoldersWithAll = [
-        {
-          ...focusFolderInfo,
-          unread: allUnreadCount,
-        },
-        ...fetchedFolders,
-      ];
-      setFolders(fetchedFoldersWithAll);
-      //fetch all connections
-      const fetchedConnections: ChatTileProps[] = await getConnections();
-      //fetch all read ports
-      const fetchedReadPorts: ChatTileProps[] = (await getReadPorts()).map(
-        port => {
-          return {
-            chatId: port.portId,
-            connectionType: bundleTargetToChatType(port.target),
-            name: port.name,
-            recentMessageType: ContentType.newChat,
-            readStatus: MessageStatus.latest,
-            authenticated: false,
-            timestamp: port.usedOnTimestamp,
-            newMessageCount: 0,
-            folderId: port.folderId,
-            isReadPort: true,
-            expired: hasExpired(port.expiryTimestamp),
-          };
-        },
-      );
-      const newArray = fetchedConnections
-        .concat(fetchedReadPorts)
-        .sort(
-          (a, b) =>
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-        );
-      //stitch them together
-      setConnections(newArray);
-    } catch (error) {
-      console.log('Error connections or folders', error);
+  //loader that waits for home screen to finish loading.
+  const isLoading = useMemo(() => {
+    if (connections) {
+      return false;
+    } else {
+      return true;
     }
-  };
-  //loads up connections and available folders
+  }, [connections]);
+
+  //subset of the connections that are viewable on homescreen.
+  const [viewableConnections, setViewableConnections] = useState<
+    ChatTileProps[]
+  >(connections || []);
+
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  //connections displayed on home screen (depending on what the search string is).
+  //If search string is empty, all connections are displayed
+
+  const [searchText, setSearchText] = useState<string>('');
+
+  //loads up connections
+  useEffect(() => {
+    (async () => {
+      const output = await loadHomeScreenConnections();
+      setConnections(output.connections);
+      setTotalUnreadCount(output.unread);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ping]);
+
   useFocusEffect(
-    React.useCallback(() => {
-      onRefresh();
+    useCallback(() => {
+      setSelectedFolderData(null);
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ping]),
+    }, []),
   );
-
-  //sets up selected folder
-  useMemo(() => {
-    if (selectedProps) {
-      if (selectedProps.expired) {
-        //open failure modal
-        setOpenFailedModal(true);
-      } else {
-        //open adding new contact modal
-        setOpenAddingNewContactModal(true);
-      }
-    }
-  }, [selectedProps]);
-
-  const onStopAddingPress = async (props: ChatTileProps) => {
-    try {
-      if (props.isReadPort) {
-        //delete read port
-        await cleanDeleteReadPort(props.chatId);
-      } else {
-        //delete unauthenticated chat
-        if (props.connectionType === ChatType.direct) {
-          const chatHandler = new DirectChat(props.chatId);
-          await chatHandler.delete();
-        }
-      }
-      setSelectedConnections([]);
-      setSelectionMode(false);
-    } catch (error) {
-      console.log('Error stopping adding process', error);
-    }
-    await onRefresh();
-  };
-
-  //filter by folder
-  const getFilteredConnectionsByFolder = async (chats: ConnectionInfo[]) => {
-    return chats.filter(
-      connection => connection.folderId === selectedFolderData.folderId,
-    );
-  };
-
   //filter by search string
-  const getFilteredConnectionsBySearch = (chats: ConnectionInfo[]) => {
-    setSearchReturnedNull(false);
+  const getFilteredConnectionsBySearch = (chats: ChatTileProps[]) => {
     const filteredSearch = chats.filter(connection =>
       connection.name.toLowerCase().includes(searchText.toLowerCase()),
     );
-    if (filteredSearch.length === 0) {
-      setSearchReturnedNull(true);
-    }
     return filteredSearch;
   };
-
-  //sets up selected folder
-  useMemo(() => {
-    if (params) {
-      if (params.selectedFolder) {
-        setSelectedFolderData(params.selectedFolder);
-      }
-    }
-  }, [params]);
 
   //sets up viewable connections
   useMemo(() => {
     (async () => {
       if (connections) {
         if (searchText === '') {
-          setSearchReturnedNull(false);
-          if (
-            selectedFolderData.folderId === 'focus' ||
-            selectedFolderData === undefined
-          ) {
-            // gets all connections which have focus permission as true
-            const chats = await getAllChatsInFocus();
-            setViewableConnections(chats);
-          } else {
-            setViewableConnections(
-              await getFilteredConnectionsByFolder(connections),
-            );
-          }
+          setViewableConnections(connections);
         } else {
           setViewableConnections(getFilteredConnectionsBySearch(connections));
         }
-        getUnread(selectedFolderData.folderId);
       }
     })();
-
-    // eslint-disable-next-line
-  }, [connections, selectedFolderData, searchText]);
-
-  //Sets up handlers to route notifications
-  useEffect(() => {
-    const foregroundHandler = notifee.onForegroundEvent(({type, detail}) => {
-      //If data exists for the notification
-      performNotificationRouting(type, detail, navigation);
-    });
-
-    notifee.onBackgroundEvent(async ({type, detail}) => {
-      //If data exists for the notification
-      performNotificationRouting(type, detail, navigation);
-    });
-
-    return () => {
-      foregroundHandler();
-    };
-    // eslint-disable-next-line
-  }, []);
-
-  //control whether connections modal is open
-  const [isConnectionOptionsModalOpen, setIsConnectionOptionsModalOpen] =
-    useState(false);
-
-  const [superportsLength, setSuperportsLength] = useState(0);
-
-  const [moveToFolderSheet, setMoveToFolderSheet] = useState(false);
-  const [confirmSheetDelete, setConfirmSheetDelete] = useState(false);
-  const [confirmSheet, setConfirmSheet] = useState(false);
-
-  //responsible for providing information about what kind of error occured while trying to connect with a link.
-  const {linkUseError, setLinkUseError} = useConnectionModal();
-  //show link use error modal
-  const [openLinkUseErrorModal, setOpenLinkUseErrorModal] = useState(false);
-  //close all other modal before opening this modal
-  const cleanOpenLinkUseErrorModal = async () => {
-    setSelectedConnections([]);
-    setSelectionMode(false);
-    setIsConnectionOptionsModalOpen(false);
-    setOpenFailedModal(false);
-    setOpenAddingNewContactModal(false);
-    setOpenLinkUseErrorModal(false);
-    setConfirmSheet(false);
-    setConfirmSheetDelete(false);
-    setMoveToFolderSheet(false);
-    await wait(safeModalCloseDuration);
-    setOpenLinkUseErrorModal(true);
-  };
-  const getLinkUseErrorDescription = () => {
-    switch (linkUseError) {
-      case 1:
-        return 'Please check your internet connection and try clicking on the link again.';
-      case 2:
-        return 'This Port link has expired or has already been used. Please try again with a valid Port link.';
-      default:
-        return 'Nothing went wrong';
-    }
-  };
-  //sets up selected folder
-  useMemo(() => {
-    if (linkUseError) {
-      cleanOpenLinkUseErrorModal();
-    }
-  }, [linkUseError]);
-
-  const insets = useSafeAreaInsets();
-  const swipeableRef = useRef(null);
-  const openSwipeable = () => {
-    if (swipeableRef.current) {
-      swipeableRef.current.openLeft();
-    }
-  };
-  const closeSwipeable = () => {
-    if (swipeableRef.current) {
-      swipeableRef.current.close();
-    }
-  };
-
-  const openRightModal = () => {
-    if (selectedConnections[0]) {
-      if (selectedConnections[0].isReadPort) {
-        //open adding new contact modal
-        setOpenAddingNewContactModal(true);
-      } else {
-        if (selectedConnections[0].connectionType === ChatType.direct) {
-          if (selectedConnections[0].authenticated) {
-            if (selectedConnections[0].disconnected) {
-              setConfirmSheetDelete(true);
-            } else {
-              setConfirmSheet(true);
-            }
-          } else {
-            //open adding new contact modal
-            setOpenAddingNewContactModal(true);
-          }
-        }
-      }
-    }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connections, searchText]);
 
   //rendered chat tile of a connection
   function renderChatTile(connection: ChatTileProps): ReactElement {
     try {
-      return (
-        <ChatTile
-          selectedFolder={selectedFolderData}
-          props={connection}
-          setSelectedProps={setSelectedProps}
-          selectedConnections={selectedConnections}
-          setSelectedConnections={setSelectedConnections}
-          selectionMode={selectionMode}
-          setSelectionMode={setSelectionMode}
-        />
-      );
+      return <ChatTile props={connection} />;
     } catch (error) {
       return <></>;
     }
   }
 
-  const showPrompt = useMemo(() => {
-    if (selectedFolderData.folderId === 'focus') {
-      return false;
-    } else if (totalUnreadCount > 0) {
-      return !folders.some(
-        folder =>
-          folder.folderId === selectedFolderData.folderId && folder.unread > 0,
-      );
-    } else {
-      return false;
-    }
-  }, [totalUnreadCount, folders, selectedFolderData]);
-
-  const svgArray = [
-    {
-      assetName: 'Plus',
-      light: require('@assets/light/icons/BlackPlus.svg').default,
-      dark: require('@assets/dark/icons/PlusAccent.svg').default,
-    },
-  ];
-
-  const results = useDynamicSVG(svgArray);
-  const Plus = results.Plus;
   const {themeValue} = useTheme();
 
   const opacityAnimation = useMemo(() => new Animated.Value(1), []);
@@ -548,7 +208,7 @@ function Home({route, navigation}: Props) {
         }),
       ]),
     );
-    if (connections === null) {
+    if (isLoading) {
       breathingAnimation.start();
     } else {
       breathingAnimation.stop();
@@ -557,315 +217,149 @@ function Home({route, navigation}: Props) {
     return () => {
       breathingAnimation.stop();
     };
-  }, [connections, opacityAnimation]);
-
-  const {DisconnectChatError} = useErrorModal();
-
-  const disconnectSelectedConnections = async () => {
-    try {
-      await Promise.all(
-        selectedConnections.map(async connection => {
-          const chatHandler = new DirectChat(connection.chatId);
-          await chatHandler.disconnect();
-        }),
-      );
-    } catch (error) {
-      console.error(
-        'Error disconnecting chat. Please check your network connection',
-        error,
-      );
-      DisconnectChatError();
-    } finally {
-      setSelectedConnections([]);
-      setSelectionMode(false);
-      onRefresh();
-    }
-  };
+  }, [isLoading, opacityAnimation]);
 
   return (
-    <GestureHandlerRootView>
-      <Swipeable
-        ref={swipeableRef}
-        overshootLeft={false}
-        leftThreshold={SIDE_DRAWER_WIDTH / 2}
-        enabled={!selectionMode}
-        renderLeftActions={(progress, dragX) => {
-          const trans = dragX.interpolate({
-            inputRange: [0, SIDE_DRAWER_WIDTH],
-            outputRange: [-SIDE_DRAWER_WIDTH, 0],
-          });
-          return (
-            <Animated.View
-              style={[
-                {width: SIDE_DRAWER_WIDTH},
-                {
-                  transform: [{translateX: trans}],
-                },
-              ]}>
-              <SideDrawer
-                selectedFolderData={selectedFolderData}
-                setSelectedFolderData={setSelectedFolderData}
-                closeSwipeable={closeSwipeable}
-                folders={folders}
-                name={name}
-                profilePicAttr={profilePicAttr}
-                superportsLength={superportsLength}
-                pendingRequestsLength={0}
-              />
-            </Animated.View>
-          );
-        }}>
-        <View
-          style={{
-            width: screen.width,
-            height: isIOS ? screen.height : screen.height + insets.top,
-          }}>
-          <CustomStatusBar backgroundColor={colors.primary.surface} />
-          <SafeAreaView style={{backgroundColor: colors.primary.background}}>
-            <View
-              style={[
-                {
-                  width: SIDE_DRAWER_WIDTH,
-                  height: isIOS ? screen.height : screen.height + insets.top,
-                  position: 'absolute',
-                  // zIndex: 2,
-                },
-              ]}>
-              <LinearGradient
-                colors={[
-                  'rgba(0, 0, 0, 0.05)',
-                  'rgba(0, 0, 0, 0)',
-                  'rgba(0, 0, 0, 0)',
-                  'rgba(0, 0, 0, 0)',
-                ]}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
-                style={{width: '100%', height: '100%'}}
-              />
-            </View>
-            <HomeTopbar
-              openSwipeable={openSwipeable}
-              showPrompt={showPrompt}
-              searchText={searchText}
-              setSearchText={setSearchText}
-              unread={totalUnread}
-              totalUnreadCount={totalUnreadCount}
-              folder={selectedFolderData}
-              selectionMode={selectionMode}
-              setSelectionMode={setSelectionMode}
-              selectedConnections={selectedConnections}
-              setSelectedConnections={setSelectedConnections}
-            />
-            <KeyboardAvoidingView
-              behavior={isIOS ? 'padding' : 'height'}
-              keyboardVerticalOffset={isIOS ? 50 : 0}
-              style={styles.scrollViewContainer}>
-              <View style={{flex: 1}}>
-                {connections === null ? (
-                  <Animated.View style={{opacity: opacityAnimation}}>
-                    <View style={styles.tilePlaceholderContainer}>
-                      {Array.from({length: 10}).map((_, index) => (
-                        <View
-                          key={index}
-                          style={StyleSheet.compose(styles.tilePlaceholder, {
-                            backgroundColor:
-                              themeValue === 'light' ? '#CFCCD6' : '#27272B',
-                          })}
-                        />
-                      ))}
-                    </View>
-                  </Animated.View>
-                ) : !searchReturnedNull ? (
+    <>
+      <CustomStatusBar backgroundColor={colors.primary.surface} />
+      <GestureSafeAreaView style={{backgroundColor: colors.primary.surface}}>
+        <HomeTopbar unread={totalUnreadCount} />
+        <KeyboardAvoidingView
+          behavior={isIOS ? 'padding' : 'height'}
+          keyboardVerticalOffset={isIOS ? 50 : 0}
+          style={styles.scrollViewContainer}>
+          <View style={{flex: 1}}>
+            {isLoading ? (
+              <Animated.View style={{opacity: opacityAnimation}}>
+                <View style={styles.tilePlaceholderContainer}>
+                  {Array.from({length: 10}).map((_, index) => (
+                    <View
+                      key={index}
+                      style={StyleSheet.compose(styles.tilePlaceholder, {
+                        backgroundColor:
+                          themeValue === 'light' ? '#CFCCD6' : '#27272B',
+                      })}
+                    />
+                  ))}
+                </View>
+              </Animated.View>
+            ) : (
+              <>
+                {connections && connections.length > 0 ? (
                   <FlatList
                     data={viewableConnections}
                     renderItem={element => renderChatTile(element.item)}
                     style={styles.chats}
                     scrollEnabled={viewableConnections.length > 0}
-                    contentContainerStyle={
-                      viewableConnections.length > 0 && {
-                        rowGap: PortSpacing.tertiary.uniform,
-                      }
+                    ListHeaderComponent={
+                      connections && connections.length > 0 ? (
+                        <View style={styles.barWrapper}>
+                          <SearchBar
+                            style={styles.search}
+                            searchText={searchText}
+                            setSearchText={setSearchText}
+                            placeholder={'Search for chats'}
+                          />
+                        </View>
+                      ) : null
                     }
-                    ListHeaderComponent={<View style={{height: 4}} />}
                     ListFooterComponent={
-                      <View style={{height: PortSpacing.tertiary.bottom}} />
+                      <View style={{height: BOTTOMBAR_HEIGHT}} />
                     }
                     refreshing={refreshing}
                     onRefresh={async () => {
                       setRefreshing(true);
                       await debouncedPeriodicOperations();
-                      await onRefresh();
+                      const output = await loadHomeScreenConnections();
+                      setConnections(output.connections);
+                      setTotalUnreadCount(output.unread);
                       setRefreshing(false);
                     }}
                     keyExtractor={connection => connection.chatId}
-                    ListEmptyComponent={() =>
-                      renderDefaultTile(
-                        name,
-                        profilePicAttr,
-                        selectedFolderData,
-                      )
-                    }
+                    ListEmptyComponent={() => (
+                      <View
+                        style={{
+                          height: 100,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                        <NumberlessText
+                          textColor={colors.text.subtitle}
+                          fontSizeType={FontSizeType.l}
+                          fontType={FontType.rg}>
+                          No matching chats found
+                        </NumberlessText>
+                      </View>
+                    )}
                   />
                 ) : (
-                  <View style={{alignSelf: 'center', marginTop: 50}}>
-                    <NumberlessText
-                      textColor={colors.text.subtitle}
-                      fontType={FontType.rg}
-                      fontSizeType={FontSizeType.m}>
-                      No results found
-                    </NumberlessText>
-                  </View>
+                  <HomescreenPlaceholder />
                 )}
-              </View>
-              {selectionMode ? (
-                <ChatActionsBar
-                  selectedConnections={selectedConnections}
-                  openModal={openRightModal}
-                  openMoveToFolder={() => setMoveToFolderSheet(true)}
-                />
-              ) : (
-                <Plus
-                  onPress={() => {
-                    setIsConnectionOptionsModalOpen(p => !p);
-                  }}
-                  style={styles.addButtonWrapper}
-                />
-              )}
-            </KeyboardAvoidingView>
-            {/* go to component isolation playground */}
-            {/* <GenericButton
-              onPress={() => navigation.navigate('Isolation')}
-              buttonStyle={styles.isolationButton}>
-              🔑
-            </GenericButton> */}
-
-            <ConnectionOptions
-              visible={isConnectionOptionsModalOpen}
-              setVisible={setIsConnectionOptionsModalOpen}
-              name={name}
-              avatar={profilePicAttr}
-            />
-            <ErrorAddingContactBottomSheet
-              visible={openFailedModal}
-              title="Failed to add new contact"
-              description="Looks like this Port has expired. Please use a valid Port to connect"
-              onClose={() => {
-                setSelectedProps(null);
-                setOpenFailedModal(false);
-              }}
-            />
-            <LoadingBottomSheet
-              visible={openAddingNewContactModal}
-              onClose={() => {
-                setSelectedProps(null);
-                setOpenAddingNewContactModal(false);
-              }}
-              title="Adding new contact..."
-              onStopPress={async () => {
-                if (selectedProps) {
-                  await onStopAddingPress(selectedProps);
-                } else if (selectedConnections[0]) {
-                  await onStopAddingPress(selectedConnections[0]);
-                }
-              }}
-            />
-            <ConfirmationBottomSheet
-              visible={confirmSheet}
-              onClose={() => setConfirmSheet(false)}
-              onConfirm={async () => await disconnectSelectedConnections()}
-              title={`Are you sure you want to disconnect ${
-                selectedConnections.length > 1 ? 'these chats' : 'this chat'
-              } ?`}
-              description={
-                'Disconnecting a chat will prevent further messaging. Current chat history will be saved, but you can subsequently choose to delete it.'
-              }
-              buttonText={'Disconnect'}
-              buttonColor="r"
-            />
-            <ConfirmationBottomSheet
-              visible={confirmSheetDelete}
-              onClose={() => setConfirmSheetDelete(false)}
-              onConfirm={async () => {
-                await Promise.all(
-                  selectedConnections.map(async connection => {
-                    const chatHandler = new DirectChat(connection.chatId);
-                    await chatHandler.delete();
-                  }),
-                );
-                setSelectedConnections([]);
-                setSelectionMode(false);
-                await onRefresh();
-              }}
-              title={'Are you sure you want to delete chat history?'}
-              description={'Deleting history will erase all chat data'}
-              buttonText={'Delete history'}
-              buttonColor="r"
-            />
-            <MoveToFolder
-              setSelectedFolderData={setSelectedFolderData}
-              selectedConnections={selectedConnections}
-              setSelectedConnections={setSelectedConnections}
-              setSelectionMode={setSelectionMode}
-              onRefresh={onRefresh}
-              visible={moveToFolderSheet}
-              onClose={() => setMoveToFolderSheet(false)}
-              buttonText={'Move to folder'}
-              buttonColor="b"
-              currentFolder={selectedFolderData}
-            />
-            <ErrorSimpleBottomSheet
-              visible={openLinkUseErrorModal}
-              onClose={() => {
-                setLinkUseError(0);
-                setOpenLinkUseErrorModal(false);
-              }}
-              title={'Error using Port link'}
-              description={getLinkUseErrorDescription()}
-            />
-          </SafeAreaView>
-        </View>
-      </Swipeable>
-    </GestureHandlerRootView>
+              </>
+            )}
+          </View>
+        </KeyboardAvoidingView>
+      </GestureSafeAreaView>
+    </>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  chats: {
-    flex: 1,
-  },
-  isolationButton: {
-    alignSelf: 'flex-end',
-    position: 'absolute',
-    bottom: PortSpacing.primary.bottom,
-    left: PortSpacing.secondary.left,
-    height: 56,
-    width: 56,
-  },
-  tilePlaceholder: {
-    height: 91,
-    marginHorizontal: PortSpacing.tertiary.uniform,
-    marginBottom: PortSpacing.tertiary.uniform,
-    borderRadius: 16,
-  },
-  tilePlaceholderContainer: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    paddingVertical: PortSpacing.medium.uniform,
-  },
-  addButtonWrapper: {
-    alignSelf: 'flex-end',
-    position: 'absolute',
-    bottom: PortSpacing.primary.bottom,
-    right: PortSpacing.secondary.right,
-    height: 56,
-    width: 56,
-  },
-  scrollViewContainer: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    chats: {
+      flex: 1,
+      backgroundColor: colors.primary.surface,
+    },
+    isolationButton: {
+      alignSelf: 'flex-end',
+      position: 'absolute',
+      bottom: PortSpacing.primary.bottom,
+      left: PortSpacing.secondary.left,
+      height: 56,
+      width: 56,
+    },
+    barWrapper: {
+      backgroundColor: colors.primary.surface,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.tertiary.uniform,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    search: {
+      backgroundColor: colors.primary.surface2,
+      width: '100%',
+      flexDirection: 'row',
+      height: 44,
+      alignItems: 'center',
+      borderRadius: 12,
+      paddingHorizontal: PortSpacing.tertiary.uniform,
+    },
+    tilePlaceholder: {
+      height: 91,
+      marginHorizontal: PortSpacing.tertiary.uniform,
+      marginBottom: PortSpacing.tertiary.uniform,
+      borderRadius: 16,
+    },
+    tilePlaceholderContainer: {
+      flex: 1,
+      justifyContent: 'flex-start',
+      paddingVertical: PortSpacing.medium.uniform,
+    },
+    addButtonWrapper: {
+      alignSelf: 'flex-end',
+      position: 'absolute',
+      bottom: PortSpacing.primary.bottom,
+      right: PortSpacing.secondary.right,
+      height: 56,
+      width: 56,
+    },
+    scrollViewContainer: {
+      flex: 1,
+      width: '100%',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+    },
+  });
 
 export default Home;

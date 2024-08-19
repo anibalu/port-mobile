@@ -1,42 +1,43 @@
-import {DEFAULT_NAME} from '@configs/constants';
-import {runSimpleQuery} from './dbCommon';
-import {
-  LineData,
-  LineDataEntry,
-  LineDataStrict,
-} from '@utils/DirectChats/interfaces';
+import {runSimpleQuery, toBool} from './dbCommon';
 
-function toBool(a: number | boolean | null | undefined): boolean {
-  if (a) {
-    return true;
-  } else {
-    return false;
-  }
+export interface LineDataUpdate {
+  authenticated?: boolean | null;
+  disconnected?: boolean | null;
+  cryptoId?: string | null;
+  permissionsId?: string | null;
 }
 
+export interface LineData extends LineDataUpdate {
+  authenticated: boolean;
+  disconnected: boolean;
+  cryptoId: string;
+  permissionsId: string;
+}
+
+export interface LineDataEntry extends LineData {
+  lineId: string;
+}
+
+/**
+ * Add a new entry to the lines storage
+ * @param lineData - attributes of the line
+ */
 export async function addLine(lineData: LineDataEntry) {
   await runSimpleQuery(
     `
-    INSERT INTO lines
-    (lineId,
-    name ,
-    displayPic ,
-    authenticated ,
-    disconnected ,
-    cryptoId ,
-    connectedOn ,
-    connectedUsing ,
-    permissionsId ) VALUES (?,?,?,?,?,?,?,?,?) ;
+    INSERT INTO lines (
+    lineId,
+    authenticated,
+    disconnected,
+    cryptoId,
+    permissionsId 
+    ) VALUES (?,?,?,?,?) ;
     `,
     [
       lineData.lineId,
-      lineData.name,
-      lineData.displayPic,
       lineData.authenticated,
       lineData.disconnected,
       lineData.cryptoId,
-      lineData.connectedOn,
-      lineData.connectedUsing,
       lineData.permissionsId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -44,6 +45,10 @@ export async function addLine(lineData: LineDataEntry) {
   );
 }
 
+/**
+ * Get a list of lines and their attributes
+ * @returns - all lines
+ */
 export async function getLines(): Promise<LineDataEntry[]> {
   const lines: LineDataEntry[] = [];
   await runSimpleQuery('SELECT * FROM lines;', [], (tx, results) => {
@@ -53,26 +58,10 @@ export async function getLines(): Promise<LineDataEntry[]> {
       entry = results.rows.item(i);
       entry.authenticated = toBool(entry.authenticated);
       entry.disconnected = toBool(entry.disconnected);
-      lines.push(results.rows.item(i));
+      lines.push(entry);
     }
   });
   return lines;
-}
-
-/**
- * Save a new, unauthenticated line
- * @param lineId a 32 character lineId
- */
-export async function newLine(lineId: string) {
-  await runSimpleQuery(
-    `
-    INSERT INTO lines
-    (lineId, authenticated) VALUES (?, FALSE) ;
-    `,
-    [lineId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, results) => {},
-  );
 }
 
 /**
@@ -80,10 +69,10 @@ export async function newLine(lineId: string) {
  * @param lineId a 32 char lineId
  * @returns
  */
-export async function readLineData(
+export async function getLineData(
   lineId: string,
-): Promise<LineDataStrict | null> {
-  let match: LineDataStrict | null = null;
+): Promise<LineDataEntry | null> {
+  let match: LineDataEntry | null = null;
   await runSimpleQuery(
     `
     SELECT *
@@ -96,9 +85,6 @@ export async function readLineData(
         const newMatch = results.rows.item(0);
         newMatch.authenticated = toBool(newMatch.authenticated);
         newMatch.disconnected = toBool(newMatch.disconnected);
-        if (!newMatch.name) {
-          newMatch.name = DEFAULT_NAME;
-        }
         match = newMatch;
       }
     },
@@ -111,32 +97,22 @@ export async function readLineData(
  * @param lineId a 32 char lineId
  * @param update changes to be applied to the line
  */
-export async function updateLine(lineId: string, update: LineData) {
+export async function updateLine(lineId: string, update: LineDataUpdate) {
   await runSimpleQuery(
     `
     UPDATE lines
     SET
-    name = COALESCE(?, name), 
-    displayPic = COALESCE(?, displayPic), 
     authenticated = COALESCE(?, authenticated), 
     disconnected = COALESCE(?, disconnected),
     cryptoId = COALESCE(?, cryptoId),
-    connectedOn = COALESCE(?, connectedOn),
-    connectedUsing = COALESCE(? , connectedUsing),
-    permissionsId = COALESCE(? , permissionsId),
-    pairHash = COALESCE(pairHash, ?)
+    permissionsId = COALESCE(? , permissionsId)
     WHERE lineId = ? ;
     `,
     [
-      update.name,
-      update.displayPic,
       update.authenticated,
       update.disconnected,
       update.cryptoId,
-      update.connectedOn,
-      update.connectedUsing,
       update.permissionsId,
-      update.pairHash,
       lineId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -148,10 +124,8 @@ export async function updateLine(lineId: string, update: LineData) {
  * Get all saved yet unauthenticated lines
  * @returns list of all unauthenticated lines
  */
-export async function getUnauthenticatedLines(): Promise<
-  Array<LineDataStrict>
-> {
-  const matches: Array<LineDataStrict> = [];
+export async function getUnauthenticatedLines(): Promise<LineDataEntry[]> {
+  const matches: LineDataEntry[] = [];
   await runSimpleQuery(
     `
     SELECT *
@@ -161,10 +135,10 @@ export async function getUnauthenticatedLines(): Promise<
     [],
     (tx, results) => {
       for (let i = 0; i < results.rows.length; i++) {
-        const newMatch: LineData = results.rows.item(i);
+        const newMatch = results.rows.item(i);
         newMatch.authenticated = toBool(newMatch.authenticated);
         newMatch.disconnected = toBool(newMatch.disconnected);
-        matches.push(newMatch as LineDataStrict);
+        matches.push(newMatch);
       }
     },
   );
@@ -186,38 +160,3 @@ export async function deleteLine(lineId: string) {
     (tx, results) => {},
   );
 }
-
-// export async function testLineInfo(): Promise<boolean> {
-//   const id = '12345678901234567890123456789012';
-//   const authenticated = true;
-//   const name = 'A TEST LINE NAME';
-//   await newLine(id);
-//   if ((await getUnauthenticatedLines()).length < 1) {
-//     console.log(
-//       '[DBCALLS LINES] Expected an unauthenticated line but found none',
-//     );
-//     return false;
-//   }
-
-//   await updateLine(id, {name, authenticated});
-//   if ((await getUnauthenticatedLines()).length) {
-//     console.log(
-//       '[DBCALLS LINES] Got an unauthenticated line when we expected none',
-//       await getUnauthenticatedLines(),
-//     );
-//     return false;
-//   }
-
-//   if ((await readLineData(id)).name !== name) {
-//     console.log('[DBCALLS LINES] Name was not set correctly');
-//     return false;
-//   }
-
-//   await deleteLine(id);
-//   if ((await readLineData(id)).name) {
-//     console.log('[DBCALLS LINES] Found a deleted line');
-//     return false;
-//   }
-//   console.log('[DBCALLS LINES] Successfully passed all tests');
-//   return true;
-// }

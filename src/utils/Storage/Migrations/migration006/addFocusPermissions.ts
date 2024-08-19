@@ -1,6 +1,10 @@
-import {defaultFolderId, defaultPermissionsId} from '@configs/constants';
+import {
+  defaultFolderId,
+  defaultPermissions,
+  defaultPermissionsId,
+} from '@configs/constants';
 
-import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {runSimpleQuery} from '@utils/Storage/DBCalls/dbCommon';
 
 /**
@@ -13,10 +17,10 @@ export async function setFocusPermissionForDefaultFolder() {
     `
     UPDATE folders
     SET
-    name = COALESCE(?, name)
+    name = 'Default'
     WHERE folderId = ? ;
     `,
-    ['Default', defaultFolderId],
+    [defaultFolderId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
@@ -29,7 +33,7 @@ export async function setFocusPermissionForDefaultFolder() {
     focus = COALESCE(?, focus)
     WHERE permissionsId = ? ;
     `,
-    [true, defaultPermissionsId],
+    [defaultPermissions.focus, defaultPermissionsId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
@@ -98,7 +102,7 @@ export async function setFocusPermissionForDefaultFolder() {
     focus = COALESCE(?, focus)
     WHERE permissionsId = ? ;
     `,
-      [true, permissionId],
+      [defaultPermissions.focus, permissionId],
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       (tx, results) => {},
     );

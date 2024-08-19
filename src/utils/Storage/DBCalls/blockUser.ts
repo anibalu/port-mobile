@@ -3,7 +3,7 @@ import {runSimpleQuery} from './dbCommon';
 export interface BlockedUser {
   name: string;
   pairHash: string;
-  time: string;
+  blockTimestamp: string;
 }
 
 export async function blockUser(user: BlockedUser) {
@@ -12,7 +12,7 @@ export async function blockUser(user: BlockedUser) {
     INSERT INTO blockedUsers (
       pairHash, name, blockTimestamp
     ) VALUES (?,?,?);`,
-    [user.pairHash, user.name, user.time],
+    [user.pairHash, user.name, user.blockTimestamp],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, result) => {},
   );

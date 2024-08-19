@@ -1,17 +1,11 @@
 import {PAGINATION_LIMIT} from '@configs/constants';
-import {runSimpleQuery} from './dbCommon';
+import {runSimpleQuery, toBool} from './dbCommon';
 import {
   DataType,
   MessageStatus,
   SavedMessageParams,
 } from '@utils/Messaging/interfaces';
 
-function toBool(a: number) {
-  if (a) {
-    return true;
-  }
-  return false;
-}
 export async function addMessage(message: SavedMessageParams) {
   await runSimpleQuery(
     `

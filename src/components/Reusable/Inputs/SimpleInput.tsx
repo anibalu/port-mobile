@@ -21,7 +21,9 @@ const SimpleInput = ({
   placeholderText = 'Type here..',
   bgColor = 'w',
   keyboardType = 'ascii-capable',
+  isEditable = true,
 }: {
+  isEditable?: boolean;
   text: string;
   placeholderText?: string;
   setText: (text: string) => void;
@@ -40,6 +42,7 @@ const SimpleInput = ({
   return (
     <>
       <TextInput
+        editable={isEditable}
         style={StyleSheet.compose(styles.textInput, {
           color: Colors.text.primary,
           borderColor: isFocused
@@ -47,7 +50,7 @@ const SimpleInput = ({
             : Colors.primary.stroke,
           backgroundColor:
             bgColor && bgColor === 'g'
-              ? Colors.primary.lightgrey
+              ? Colors.primary.background
               : themeValue === 'dark'
               ? Colors.primary.surface
               : Colors.primary.white,

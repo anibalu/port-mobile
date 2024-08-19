@@ -1,16 +1,16 @@
-import {defaultFolderId} from '@configs/constants';
-import {runSimpleQuery} from './dbCommon';
-import {FolderInfo, FolderInfoWithUnread} from '@utils/ChatFolders/interfaces';
-import {getPermissions} from './permissions';
-import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
-import {getNewMessageCount} from './connections';
-import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {runSimpleQuery, toNumber} from './dbCommon';
+
+export interface FolderInfo {
+  folderId: string;
+  name: string;
+  permissionsId: string;
+}
 
 /**
  * Save a new folder.
  * @param folder - folder info to save
  */
-export async function addNewFolder(folder: FolderInfo) {
+export async function addFolderEntry(folder: FolderInfo) {
   await runSimpleQuery(
     `
       INSERT INTO folders
@@ -24,32 +24,6 @@ export async function addNewFolder(folder: FolderInfo) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
-}
-
-/**
- * Fetches the permissions for a folder
- * @param folderId
- * @returns permissions for the folder
- */
-export async function getFolderPermissions(
-  folderId: string,
-): Promise<PermissionsStrict> {
-  let match: string = defaultFolderId;
-  await runSimpleQuery(
-    `
-    SELECT *
-    FROM folders
-    WHERE folderId = ? ;
-    `,
-    [folderId],
-    (tx, results) => {
-      if (results.rows.length > 0) {
-        const obj = results.rows.item(0);
-        match = obj.permissionsId;
-      }
-    },
-  );
-  return await getPermissions(match);
 }
 
 /**
@@ -75,6 +49,48 @@ export async function getFolder(folderId: string): Promise<FolderInfo | null> {
 }
 
 /**
+ * Get number of superports for a folder
+ * @param folderId
+ * @returns - count
+ */
+export async function getSuperportCountForFolder(folderId: string) {
+  let count = 0;
+  await runSimpleQuery(
+    `
+      SELECT COUNT(*) as superportCount
+      FROM superPorts 
+      WHERE folderId = ?;
+    `,
+    [folderId],
+    (tx, results) => {
+      count = toNumber(results.rows.item(0).superportCount);
+    },
+  );
+  return count;
+}
+
+/**
+ * Get number of connections for a folder
+ * @param folderId
+ * @returns - count
+ */
+export async function getConnectionsCountForFolder(folderId: string) {
+  let count = 0;
+  await runSimpleQuery(
+    `
+      SELECT COUNT(*) as connectionsCount
+      FROM connections 
+      WHERE folderId = ?;
+    `,
+    [folderId],
+    (tx, results) => {
+      count = toNumber(results.rows.item(0).connectionsCount);
+    },
+  );
+  return count;
+}
+
+/**
  * Fetch all folders
  * @returns - list of folders
  */
@@ -93,33 +109,6 @@ export async function getAllFolders(): Promise<FolderInfo[]> {
       }
     },
   );
-  return matches;
-}
-
-/**
- * Fetch all folders with unread count
- * @returns - list of folders
- */
-export async function getAllFoldersWithUnreadCount(): Promise<
-  FolderInfoWithUnread[]
-> {
-  let matches: FolderInfoWithUnread[] = [];
-  await runSimpleQuery(
-    `
-    SELECT *
-    FROM folders;
-    `,
-    [],
-    (tx, results) => {
-      const len = results.rows.length;
-      for (let i = 0; i < len; i++) {
-        matches.push({...results.rows.item(i), unread: 0});
-      }
-    },
-  );
-  for (let index = 0; index < matches.length; index++) {
-    matches[index].unread = await getNewMessageCount(matches[index].folderId);
-  }
   return matches;
 }
 
@@ -154,91 +143,4 @@ export async function deleteFolder(folderId: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
-}
-
-/**
- * This util gets all connections in any folder
- * @param folderId folder id required
- * @returns an array of all connections
- */
-export async function getChatsInAFolder(folderId: string) {
-  let connections: ConnectionInfo[] = [];
-  await runSimpleQuery(
-    `
-       SELECT
-    connections.chatId,
-    connections.connectionType,
-    connections.name,
-    connections.text,
-    connections.recentMessageType,
-    connections.pathToDisplayPic,
-    connections.readStatus,
-    connections.authenticated,
-    connections.timestamp,
-    connections.newMessageCount,
-    connections.disconnected,
-    connections.latestMessageId,
-    connections.folderId,
-    folders.name AS folderName,
-    folders.permissionsId
-FROM
-    connections
-LEFT JOIN
-    folders ON connections.folderId = folders.folderId
-    WHERE connections.folderId = ?
-    ;
-        `,
-    [folderId],
-    (tx, results) => {
-      const len = results.rows.length;
-      let entry;
-      for (let i = 0; i < len; i++) {
-        entry = results.rows.item(i);
-        connections.push(entry);
-      }
-    },
-  );
-  return connections;
-}
-
-/**
- * This util returns all chats which has focus permission as true
- * @returns chats with focus permission turned on
- */
-export async function getAllChatsInFocus() {
-  let connections: ConnectionInfo[] = [];
-  await runSimpleQuery(
-    `
-      SELECT
-  connections.chatId,
-  connections.connectionType,
-  connections.name,
-  connections.text,
-  connections.recentMessageType,
-  connections.pathToDisplayPic,
-  connections.readStatus,
-  connections.authenticated,
-  connections.timestamp,
-  connections.newMessageCount,
-  connections.disconnected,
-  connections.latestMessageId,
-  connections.folderId
-    FROM ((connections
-    JOIN lines ON connections.chatId = lines.lineId)
-    JOIN permissions ON lines.permissionsId = permissions.permissionsId)
-    WHERE permissions.focus = true
-    ORDER BY timestamp DESC;
-`,
-    [],
-    (tx, results) => {
-      const len = results.rows.length;
-      let entry;
-      for (let i = 0; i < len; i++) {
-        entry = results.rows.item(i);
-        connections.push(entry);
-      }
-    },
-  );
-
-  return connections;
 }

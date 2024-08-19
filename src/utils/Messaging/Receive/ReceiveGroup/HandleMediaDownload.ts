@@ -1,4 +1,3 @@
-import store from '@store/appStore';
 import {ContentType, LargeDataParams} from '@utils/Messaging/interfaces';
 import * as groupMessages from '@utils/Storage/groupMessages';
 import {createPreview} from '@utils/ImageUtils';
@@ -56,14 +55,6 @@ export const handleAsyncMediaDownload = async (
       });
 
       await groupMessages.updateGroupMessage(chatId, messageId, data);
-      store.dispatch({
-        type: 'NEW_MEDIA_STATUS_UPDATE',
-        payload: {
-          chatId: chatId,
-          messageId: messageId,
-          data: data,
-        },
-      });
     }
   }
 };

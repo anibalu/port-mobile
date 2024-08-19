@@ -11,7 +11,7 @@
  * 4. onSelect - will handle addition to array
  * 5. onUnselect - will handle removal to array
  */
-import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React, {useMemo, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';

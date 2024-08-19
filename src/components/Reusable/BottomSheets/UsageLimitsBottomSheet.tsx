@@ -33,8 +33,6 @@ const UsageLimitsBottomSheet = ({
   title,
   description,
   connectionsMade,
-  limitsArray,
-  setLimitsArray,
 }: {
   visible: boolean;
   onClose?: () => void;
@@ -44,8 +42,6 @@ const UsageLimitsBottomSheet = ({
   title: string;
   description?: string;
   connectionsMade: number;
-  limitsArray: number[];
-  setLimitsArray: (x: number[]) => void;
 }) => {
   const [newLocalLimit, setNewLocalLimit] = useState<string>(
     newLimit.toString(),
@@ -62,9 +58,6 @@ const UsageLimitsBottomSheet = ({
   };
   const onSavePress = () => {
     setNewLimit(parseInt(newLocalLimit));
-    const newArray = [...limitsArray];
-    newArray[limitsArray.length - 1] = parseInt(newLocalLimit);
-    setLimitsArray(newArray);
     onSave();
     Keyboard.dismiss();
   };
@@ -118,8 +111,7 @@ const UsageLimitsBottomSheet = ({
           disabled={
             connectionsMade >= parseInt(newLocalLimit) ||
             newLocalLimit === '' ||
-            parseInt(newLocalLimit) === newLimit ||
-            limitsArray.includes(parseInt(newLocalLimit))
+            parseInt(newLocalLimit) === newLimit
           }
           onClick={onSavePress}
         />

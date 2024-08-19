@@ -4,11 +4,11 @@ import {
   NameParams,
 } from '@utils/Messaging/interfaces';
 import DirectReceiveAction from '../DirectReceiveAction';
-import {updateConnectionOnNewMessage} from '@utils/Connections';
+import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import {DEFAULT_NAME} from '@configs/constants';
 import {displaySimpleNotification} from '@utils/Notifications';
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 

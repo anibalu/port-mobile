@@ -14,7 +14,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {getAllBlockedUsers} from '@utils/UserBlocking';
+import {getAllBlockedUsers} from '@utils/Storage/blockUsers';
 import DynamicColors from '@components/DynamicColors';
 
 const BlockedContacts = () => {

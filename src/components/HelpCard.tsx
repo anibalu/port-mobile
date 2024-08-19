@@ -34,14 +34,14 @@ const HelpCard = () => {
   return (
     <SimpleCard style={styles.card}>
       <Pressable style={styles.button} onPress={() => onPress()}>
-        <View style={{flexDirection: 'row'}}>
-          <HelpQuestionMark />
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <HelpQuestionMark height={20} width={20} />
           <NumberlessText
             style={{marginLeft: PortSpacing.tertiary.left}}
             textColor={Colors.text.primary}
             fontType={FontType.sb}
             fontSizeType={FontSizeType.l}>
-            Help
+            Legal
           </NumberlessText>
         </View>
         <View style={{flexDirection: 'row', gap: 3, alignItems: 'center'}}>

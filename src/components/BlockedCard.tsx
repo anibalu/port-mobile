@@ -35,8 +35,8 @@ const BlockedCard = ({listLength}: {listLength: number}) => {
   return (
     <SimpleCard style={styles.card}>
       <View style={styles.title}>
-        <View style={{flexDirection: 'row'}}>
-          <Blocked />
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Blocked height={20} width={20} />
           <NumberlessText
             style={{marginLeft: PortSpacing.tertiary.left}}
             textColor={Colors.text.primary}
@@ -75,7 +75,7 @@ const styling = (colors: any) =>
     card: {
       width: '100%',
       paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingTop: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.secondary.uniform,
       marginTop: PortSpacing.secondary.top,
     },
     title: {

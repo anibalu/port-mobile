@@ -314,10 +314,11 @@ const styling = (colors: any) =>
     topElementWrapper: {
       marginLeft: PortSpacing.secondary.left,
       backgroundColor: colors.primary.surface2,
-      padding: 8,
+      paddingHorizontal: 8,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       width: screen.width - 70,
+      paddingTop: 8,
     },
     linkPreviewWrapper: {
       backgroundColor: colors.primary.background,
@@ -325,7 +326,7 @@ const styling = (colors: any) =>
     },
     buttonWrapper: {
       position: 'absolute',
-      top: 10,
+      top: 12,
       right: 12,
       borderRadius: 12,
       backgroundColor: colors.primary.surface,

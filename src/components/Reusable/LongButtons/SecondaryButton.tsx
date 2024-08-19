@@ -34,7 +34,7 @@ const SecondaryButton = ({
 }: {
   isLoading?: boolean;
   buttonText: string;
-  secondaryButtonColor: 'b' | 'r' | 'w' | 'black' | 'grey';
+  secondaryButtonColor: 'b' | 'r' | 'w' | 'black' | 'grey' | 'green';
   Icon?: FC<SvgProps>;
   iconSize?: 's' | 'm';
   onClick: () => void;
@@ -51,6 +51,8 @@ const SecondaryButton = ({
       return styles.blackButton;
     } else if (secondaryButtonColor === 'grey') {
       return styles.greyButton;
+    } else if (secondaryButtonColor === 'green') {
+      return styles.greenButton;
     } else {
       return styles.blueButton;
     }
@@ -66,6 +68,8 @@ const SecondaryButton = ({
       return styles.blackButtonText;
     } else if (secondaryButtonColor === 'grey') {
       return styles.greyButtonText;
+    } else if (secondaryButtonColor === 'green') {
+      return styles.greenButtonText;
     } else {
       return styles.blueButtonText;
     }
@@ -123,10 +127,17 @@ const styling = (color: any, buttonHeight: number) =>
       borderColor: color.button.accent,
       borderWidth: 1,
     },
+    greenButton: {
+      borderColor: color.primary.green,
+      borderWidth: 1,
+    },
     greyButton: {borderColor: color.primary.darkgrey, borderWidth: 1},
 
     redButtonText: {
       color: color.primary.red,
+    },
+    greenButtonText: {
+      color: color.primary.green,
     },
     whiteButtonText: {color: color.primary.white},
     blackButtonText: {color: color.primary.black},

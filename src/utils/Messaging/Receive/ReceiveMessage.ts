@@ -1,3 +1,4 @@
+import {getChatIdFromRoutingId} from '@utils/Storage/connections';
 import ReceiveDirectMessage from './ReceiveDirect/ReceiveDirectMessage';
 import ReceiveGroupMessage from './ReceiveGroup/ReceiveGroupMessage';
 
@@ -7,6 +8,7 @@ class ReceiveMessage {
   private receiveTime: string;
   private isGroupMessage: boolean;
   private senderId: string | null;
+  private routingId: string;
   //construct the class
   constructor(messageRaw: any, receiveTime: string = new Date().toISOString()) {
     this.message = this.processRawMessage(messageRaw);
@@ -20,7 +22,10 @@ class ReceiveMessage {
       console.log('Incompatible time stamp received', error);
     }
     this.receiveTime = messageTime;
-    this.chatId = this.assignChatId();
+    this.routingId = this.assignRoutingId();
+    //empty string is initially assigned to chat Id.
+    //We will later extrapolate chatId from routingId.
+    this.chatId = '';
     this.isGroupMessage = this.checkIfGroupMessage();
     this.senderId = this.assignSenderId();
   }
@@ -35,7 +40,7 @@ class ReceiveMessage {
     }
   }
   //assigns chatId
-  private assignChatId(): string {
+  private assignRoutingId(): string {
     return (
       this.message.lineId || this.message.deletion || this.message.group || ''
     );
@@ -51,9 +56,31 @@ class ReceiveMessage {
     }
     return null;
   }
+
+  /**
+   * Extrapolate chatId to proceed with message processing.
+   */
+  private async extrapolateChatId() {
+    try {
+      const extrapolatedChatId = await getChatIdFromRoutingId(this.routingId);
+      if (!extrapolatedChatId) {
+        throw new Error('NoChatIdForRoutingId');
+      }
+      this.chatId = extrapolatedChatId;
+    } catch (error) {
+      console.log(
+        'No chatId for routing Id. Using routing Id as chat Id: ',
+        error,
+      );
+      this.chatId = this.routingId;
+    }
+  }
+
   //receives message appropriately
   public async receive() {
     try {
+      //extrapolate chat Id.
+      await this.extrapolateChatId();
       if (this.isGroupMessage) {
         //call group receive class and receive
         const receiver = new ReceiveGroupMessage(
@@ -67,12 +94,13 @@ class ReceiveMessage {
         //call direct receive class and receive
         const receiver = new ReceiveDirectMessage(
           this.chatId,
+          this.routingId,
           this.message,
           this.receiveTime,
         );
         await receiver.receive();
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error.message !== 'AttemptedReprocessingError') {
         console.log('Error receiving message: ', error);
       }

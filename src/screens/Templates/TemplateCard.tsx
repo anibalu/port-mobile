@@ -22,7 +22,7 @@ const TemplateCard = ({
   loadTemplates,
 }: {
   template: TemplateParams;
-  onSendMessage: (template: TemplateParams) => Promise<void>;
+  onSendMessage: (template: TemplateParams) => void;
   loadTemplates: () => Promise<void>;
 }) => {
   const [openEditBottomsheet, setEditOpenBottomsheet] =

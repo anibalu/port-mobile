@@ -2,8 +2,11 @@ import RNFS from 'react-native-fs';
 import {conversationsDir, filesDir, mediaDir} from '@configs/paths';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {SHARED_FILE_SIZE_LIMIT_IN_BYTES} from '@configs/constants';
-import {decryptFile} from '@utils/Crypto/aesFile';
+import {
+  FILE_ENCRYPTION_KEY_LENGTH,
+  SHARED_FILE_SIZE_LIMIT_IN_BYTES,
+} from '@configs/constants';
+import * as numberlessCrypto from '@numberless/react-native-numberless-crypto';
 
 /**
  * Creates a conversations directory if it doesn't exist and returns the path to it.
@@ -178,17 +181,6 @@ async function moveToMediaDir(
   return destinationPath;
 }
 
-// async function initialiseTempDirAsync() {
-//   const tempDirPath = RNFS.DocumentDirectoryPath + `${tempDir}`;
-//   const folderExists = await RNFS.exists(tempDirPath);
-//   if (folderExists) {
-//     return tempDirPath;
-//   } else {
-//     await RNFS.mkdir(tempDirPath);
-//     return tempDirPath;
-//   }
-// }
-
 /**
  * Checks if file size is lower than shared file size limit.
  * @param fileUri
@@ -220,6 +212,65 @@ export async function initialiseEncryptedTempFile(): Promise<string> {
   const tempFilePath = tempDirPath + '/' + tempName;
   await RNFS.writeFile(tempFilePath, '');
   return tempFilePath;
+}
+
+export interface EncryptedFileProperties {
+  key: string;
+  encryptedFilePath: string;
+}
+
+/**
+ * Encrypt a file using AES scheme.
+ * @param inputFilePath - file being encrypted.
+ * @returns
+ */
+export async function encryptFile(
+  inputFilePath: string,
+): Promise<EncryptedFileProperties> {
+  const encryptedFilePath = await initialiseEncryptedTempFile();
+  try {
+    const key = await numberlessCrypto.encryptFile(
+      removeFilePrefix(inputFilePath),
+      encryptedFilePath,
+    );
+    if (key.length !== FILE_ENCRYPTION_KEY_LENGTH) {
+      throw new Error(key);
+    }
+    return {key: key, encryptedFilePath: encryptedFilePath};
+  } catch (error) {
+    console.log('Error encrypting file: ', error);
+    await deleteFile(encryptedFilePath);
+    throw new Error('FileEncryptionError');
+  }
+}
+
+/**
+ * Decrypt a file encrypted using AES scheme.
+ * @param encryptedFilePath
+ * @param decryptedFilePath - location to decrypt the file to.
+ * @param key
+ */
+export async function decryptFile(
+  encryptedFilePath: string,
+  decryptedFilePath: string,
+  key: string,
+) {
+  try {
+    await RNFS.writeFile(decryptedFilePath, '');
+    console.log('initial file created');
+    const response = await numberlessCrypto.decryptFile(
+      encryptedFilePath,
+      decryptedFilePath,
+      key,
+    );
+    if (response !== 'success') {
+      throw new Error(response);
+    }
+  } catch (error) {
+    await RNFS.unlink(decryptedFilePath);
+    console.log('Error decrypting file: ', error);
+    throw new Error('Error decrypting file');
+  }
 }
 
 /**

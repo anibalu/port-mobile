@@ -15,6 +15,7 @@ import {
 } from '@components/NumberlessText';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {TOPBAR_HEIGHT} from '@configs/constants';
 
 const BackTopbar = ({
   onBackPress,
@@ -57,7 +58,7 @@ const BackTopbar = ({
           }}
           textColor={Colors.text.primary}
           fontType={FontType.md}
-          fontSizeType={FontSizeType.l}>
+          fontSizeType={FontSizeType.xl}>
           {title}
         </NumberlessText>
       )}
@@ -76,7 +77,7 @@ const styling = (Color: any) =>
       paddingHorizontal: PortSpacing.secondary.uniform,
       alignItems: 'center',
       backgroundColor: Color.primary.surface,
-      height: 56,
+      height: TOPBAR_HEIGHT,
     },
     backButton: {
       position: 'absolute',

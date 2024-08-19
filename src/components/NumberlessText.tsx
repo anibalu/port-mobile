@@ -44,6 +44,7 @@ export const getWeight = (fontType: FontType): '400' | '500' | '600' => {
       return '400';
     }
   }
+  return '400';
 };
 
 type TypographyProps = TextProps & {
@@ -106,7 +107,6 @@ export const NumberlessText: React.FC<TypographyProps> = ({
   <Text
     style={StyleSheet.compose(
       {
-        fontFamily: fontType,
         fontSize: fontSizeType,
         fontWeight: getWeight(fontType),
         color: textColor,

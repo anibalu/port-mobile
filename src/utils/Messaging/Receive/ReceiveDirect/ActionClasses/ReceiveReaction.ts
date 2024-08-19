@@ -7,9 +7,10 @@ import {
 import * as storage from '@utils/Storage/messages';
 import * as ReactionStorage from '@utils/Storage/reactions';
 import DirectReceiveAction from '../DirectReceiveAction';
-import {getConnection, updateConnection} from '@utils/Connections';
+import {getConnection} from '@utils/Storage/connections';
+import {updateConnection} from '@utils/Storage/connections';
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Connections/interfaces';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {displaySimpleNotification} from '@utils/Notifications';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 

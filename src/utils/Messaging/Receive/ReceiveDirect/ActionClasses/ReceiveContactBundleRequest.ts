@@ -5,8 +5,9 @@ import {
   MessageStatus,
 } from '@utils/Messaging/interfaces';
 import {approveContactShareIfPermitted} from '@utils/ContactSharing';
-import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
-import {ChatType} from '@utils/Connections/interfaces';
+import {getConnection} from '@utils/Storage/connections';
+import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {displaySimpleNotification} from '@utils/Notifications';
 import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';

@@ -105,3 +105,28 @@ export async function runSimpleQuery(
     }
   }
 }
+
+/**
+ * Database returns 1 or 0 for false or true. This needs to be converted to ts boolean types.
+ * @param a - value returned by db
+ * @returns - ts boolean value
+ */
+export function toBool(a: number | boolean | null | undefined): boolean {
+  if (a) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * To return null values as a number
+ * @param a - number or null value
+ * @returns - a number
+ */
+export function toNumber(a: number | null): number {
+  if (!a) {
+    return 0;
+  }
+  return a;
+}

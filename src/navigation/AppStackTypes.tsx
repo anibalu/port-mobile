@@ -1,16 +1,17 @@
-import {FolderInfo} from '@utils/ChatFolders/interfaces';
-import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {SavedMessageParams} from '@utils/Messaging/interfaces';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+import {LineDataCombined} from '@utils/DirectChats/DirectChat';
 
 export type AppStackParamList = {
-  HomeTab: {selectedFolder?: FolderInfo};
-  Superports: {name: string; avatar: FileAttributes};
+  HomeTab: undefined;
+  PortContactList: undefined;
+  PhoneContactList: undefined;
   SuperportScreen: {
     portId?: string;
-    name: string;
-    avatar: FileAttributes;
     selectedFolder?: FolderInfo;
   };
   CreateFolder: {
@@ -18,14 +19,14 @@ export type AppStackParamList = {
     portId?: string;
     chatId?: string;
     superportLabel?: string;
+    saveDetails?: boolean;
+    onSaveDetails?: (folderPermissions: PermissionsStrict) => void;
+    savedFolderPermissions?: PermissionsStrict;
   };
   EditFolder: {selectedFolder: FolderInfo};
   MoveToFolder: {selectedFolder: FolderInfo};
   Scan: undefined;
   ConnectionCentre: undefined;
-  MyProfile: {name: string; avatar: FileAttributes};
-  ManageMembers: {groupId: string};
-  AddMembers: {groupId: string};
   Scanner: undefined;
   DirectChat: {
     chatId: string;
@@ -35,16 +36,15 @@ export type AppStackParamList = {
     isAuthenticated: boolean;
     ifTemplateExists?: TemplateParams;
   };
+  ChatProfile: {
+    chatId: string;
+    chatData: LineDataCombined;
+  };
   ContactProfile: {
     chatId: string;
-    name: string;
-    profileUri: string;
-    permissionsId: string;
-    isConnected: boolean;
+    chatData: LineDataCombined;
   };
   Placeholder: undefined;
-  ShareGroup: {groupId: string};
-  GroupProfile: {groupId: string};
   NewContact: {groupId: string};
   ViewPhotosVideos: {chatId: string};
   SharedMedia: {chatId: string};
@@ -77,7 +77,7 @@ export type AppStackParamList = {
   CaptureMedia: {chatId: string; isGroupChat?: boolean};
   PendingRequests: undefined;
   Isolation: undefined;
-  NewPortScreen: {name: string; avatar: FileAttributes};
+  NewPortScreen: {folder?: FolderInfo};
   PreviewShareablePort: {
     qrData: string | null;
     linkData: string | null;

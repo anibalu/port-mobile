@@ -27,7 +27,7 @@ const AddTemplateBottomsheet = ({
   templatetitle?: string;
   scope: 'add' | 'edit';
   id?: string;
-  onSendMessage: (template: TemplateParams) => Promise<void>;
+  onSendMessage: (template: TemplateParams) => void;
   loadTemplates: () => Promise<void>;
 }) => {
   const Colors = DynamicColors();

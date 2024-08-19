@@ -2,17 +2,18 @@ import {
   Permissions,
   PermissionsEntry,
   PermissionsStrict,
-} from '@utils/ChatPermissions/interfaces';
+} from '@utils/Storage/DBCalls/permissions/interfaces';
 import * as dbCalls from './DBCalls/permissions';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {getChatsInAFolder} from './DBCalls/folders';
+import {getConnectionsByFolder} from './connections';
+import {getFolder} from './folders';
+import {generateRandomHexId} from '@utils/IdGenerator';
 
 /**
- * Track a new chat's permissions
- * @param chatId a chatId to track permissions for
+ * Adds a set of permissions to storage
+ * @param data - permissions
  */
-export async function newPermissionEntry(permissionsId: string) {
-  await dbCalls.newPermissionEntry(permissionsId);
+export async function addPermissionEntry(data: PermissionsEntry) {
+  await dbCalls.addPermissionEntry(data);
 }
 
 export async function getAllPermissions(): Promise<PermissionsEntry[]> {
@@ -25,7 +26,7 @@ export async function getAllPermissions(): Promise<PermissionsEntry[]> {
  * @returns the permissions for a given chat
  */
 export async function getPermissions(
-  permissionsId?: string,
+  permissionsId?: string | null,
 ): Promise<PermissionsStrict> {
   return await dbCalls.getPermissions(permissionsId);
 }
@@ -55,10 +56,35 @@ export async function updateChatPermissionsInAFolder(
   permissions: Permissions,
 ) {
   // TODO: write db call for this and remove this layer
-  const connections = await getChatsInAFolder(folderId);
+  const connections = await getConnectionsByFolder(folderId);
   for (let index = 0; index < connections.length; index++) {
     //update chat permissions to folder permissions
-    const chat = new DirectChat(connections[index].chatId);
-    await chat.updatePermissions(permissions);
+    await updatePermissions(connections[index].permissionsId, permissions);
   }
+}
+
+/**
+ * Fetches the permissions for a folder
+ * @param folderId
+ * @returns permissions for the folder
+ */
+export async function getFolderPermissions(
+  folderId: string,
+): Promise<PermissionsStrict> {
+  const folder = await getFolder(folderId);
+  return await dbCalls.getPermissions(folder?.permissionsId);
+}
+
+/**
+ * Creates permissions based on folder permissions and returns permissionsId.
+ * @param folderId
+ * @returns - newly created permissionsId
+ */
+export async function createChatPermissionsFromFolderId(
+  folderId: string,
+): Promise<string> {
+  const permissions: PermissionsStrict = await getFolderPermissions(folderId);
+  const permissionsId = generateRandomHexId();
+  await addPermissionEntry({permissionsId: permissionsId, ...permissions});
+  return permissionsId;
 }

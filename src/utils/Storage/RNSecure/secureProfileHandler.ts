@@ -1,7 +1,7 @@
 import {sessionKey} from '@configs/paths';
-import {ProfileInfo} from '@utils/Profile/interfaces';
 import {connectionFsSync} from '@utils/Synchronization';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import {FileAttributes} from '../StorageRNFS/interfaces';
 
 /**
  * reads profile info from file
@@ -67,4 +67,38 @@ export async function saveProfileInfoRNSS(
   } else {
     await writeProfileInfoAsync(profile);
   }
+}
+
+export interface ProfileInfoUpdate {
+  //name chosen by user
+  name?: string;
+  //Id assigned by the server to client. this is not permanent and will change frequently.
+  clientId?: string;
+  //user's private key for commmunication with server
+  privateKey?: string;
+  //details of user's profile picture
+  profilePicInfo?: FileAttributes;
+  //last backup time
+  lastBackupTime?: string;
+}
+
+export interface ProfileInfo extends ProfileInfoUpdate {
+  //name chosen by user
+  name: string;
+  //Id assigned by the server to client. this is not permanent and will change frequently.
+  clientId: string;
+  //user's private key for commmunication with server
+  privateKey: string;
+  //details of user's profile picture
+  profilePicInfo: FileAttributes;
+  //last backup time
+  lastBackupTime?: string;
+}
+
+/**
+ * If Profile has been created properly or not.
+ */
+export enum ProfileStatus {
+  created,
+  failed,
 }

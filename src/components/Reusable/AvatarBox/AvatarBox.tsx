@@ -18,11 +18,13 @@ export function AvatarBox({
   avatarSize,
   onPress,
   fromPreview = true,
+  isHomeContact = false,
 }: {
   profileUri?: string | null;
   avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 'xl' | 's+';
   onPress?: () => void;
   fromPreview?: boolean;
+  isHomeContact?: boolean;
 }) {
   const Icon = getIconByUri(profileUri);
 
@@ -30,8 +32,8 @@ export function AvatarBox({
     <Pressable
       onPress={onPress}
       style={StyleSheet.compose(
-        styles.container,
-        avatarSizeStylePicker(avatarSize),
+        containerStyles.container,
+        avatarContainerSizeStylePicker(avatarSize, isHomeContact),
       )}>
       {isAvatarUri(profileUri) ? (
         <Icon
@@ -44,13 +46,14 @@ export function AvatarBox({
             mediaUri={profileUri}
             avatarSize={avatarSize}
             fromPreview={fromPreview}
+            isHomeContact={isHomeContact}
           />
         )
       ) : (
         profileUri && (
           <Image
             source={{uri: getDisplayableUri(profileUri)}}
-            style={avatarSizeStylePicker(avatarSize)}
+            style={avatarContainerSizeStylePicker(avatarSize, isHomeContact)}
           />
         )
       )}
@@ -78,24 +81,56 @@ const getAvatarId = (uri?: string | null) => {
   return '1';
 };
 
-// set size of avatar according to specs
-function avatarSizeStylePicker(avatarSize?: string) {
+// set size of avatar container according to specs
+function avatarContainerSizeStylePicker(
+  avatarSize?: string,
+  isHomeContact?: boolean,
+) {
   if (avatarSize === 'es') {
-    return styles.extraSmall;
+    return containerStyles.extraSmall;
   } else if (avatarSize === 's') {
-    return styles.small;
+    return containerStyles.small;
   } else if (avatarSize === 's+') {
-    return styles.smallMedium;
+    return containerStyles.smallMedium;
   } else if (avatarSize === 'm') {
-    return styles.medium;
+    if (isHomeContact) {
+      return containerStyles.mediumHome;
+    } else {
+      return containerStyles.medium;
+    }
   } else if (avatarSize === 'i') {
-    return styles.intermediate;
+    return containerStyles.intermediate;
   } else if (avatarSize === 'l') {
-    return styles.large;
+    return containerStyles.large;
   } else if (avatarSize === 'xl') {
-    return styles.extraLarge;
+    return containerStyles.extraLarge;
   } else {
-    return styles.medium;
+    return containerStyles.medium;
+  }
+}
+
+//set size of avatar according to specs
+function avatarSizeStylePicker(avatarSize?: string, isHomeContact?: boolean) {
+  if (avatarSize === 'es') {
+    return avatarStyles.extraSmall;
+  } else if (avatarSize === 's') {
+    return avatarStyles.small;
+  } else if (avatarSize === 's+') {
+    return avatarStyles.smallMedium;
+  } else if (avatarSize === 'm') {
+    if (isHomeContact) {
+      return avatarStyles.mediumHome;
+    } else {
+      return avatarStyles.medium;
+    }
+  } else if (avatarSize === 'i') {
+    return avatarStyles.intermediate;
+  } else if (avatarSize === 'l') {
+    return avatarStyles.large;
+  } else if (avatarSize === 'xl') {
+    return avatarStyles.extraLarge;
+  } else {
+    return avatarStyles.medium;
   }
 }
 
@@ -123,7 +158,12 @@ const isMediaUri = (uri?: string | null) => {
 
 const getDisplayableUri = (uri: string): string => {
   const displayableUri =
-    uri.substring(0, 7) === 'file://' ? uri : getSafeAbsoluteURI(uri, 'doc');
+    // 'content' substring is for phonebook contact's thumbnail uri in android
+    uri.substring(0, 7) === 'content'
+      ? uri
+      : uri.substring(0, 7) === 'file://'
+      ? uri
+      : getSafeAbsoluteURI(uri, 'doc');
   return displayableUri;
 };
 
@@ -131,10 +171,12 @@ function DisplayFromMediaId({
   mediaUri,
   avatarSize,
   fromPreview,
+  isHomeContact = false,
 }: {
   mediaUri: string;
-  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+';
+  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+' | 'xl';
   fromPreview: boolean;
+  isHomeContact?: boolean;
 }) {
   const [imageUri, setImageUri] = useState<string | null>(null);
   // fetches media Id
@@ -161,14 +203,14 @@ function DisplayFromMediaId({
       {imageUri && (
         <Image
           source={{uri: getDisplayableUri(imageUri)}}
-          style={avatarSizeStylePicker(avatarSize)}
+          style={avatarContainerSizeStylePicker(avatarSize, isHomeContact)}
         />
       )}
     </>
   );
 }
 
-const styles = StyleSheet.create({
+const containerStyles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -178,36 +220,89 @@ const styles = StyleSheet.create({
   extraSmall: {
     height: 24,
     width: 24,
-    borderRadius: 6,
+    borderRadius: 100,
   },
   small: {
     height: 40,
     width: 40,
-    borderRadius: 12,
+    borderRadius: 100,
   },
   smallMedium: {
     height: 58,
     width: 58,
-    borderRadius: 12,
+    borderRadius: 150,
   },
   large: {
     height: 170,
     width: 170,
-    borderRadius: 56,
+    borderRadius: 500,
   },
   extraLarge: {
     height: 300,
     width: 300,
-    borderRadius: 5,
+    borderRadius: 600,
   },
   intermediate: {
     height: 75,
     width: 75,
-    borderRadius: 12,
+    borderRadius: 8,
   },
   medium: {
     height: 100,
     width: 100,
-    borderRadius: 32,
+    borderRadius: 200,
+  },
+  mediumHome: {
+    height: 100,
+    width: 100,
+    borderRadius: 200,
+    borderWidth: 2,
+    borderColor: '#F99520',
+  },
+});
+
+//SVG scaling is not perfect. sometimes, we need the SVGs to be slightly bigger than their container to fit properly.
+const avatarStyles = StyleSheet.create({
+  extraSmall: {
+    height: 24,
+    width: 24,
+    borderRadius: 100,
+  },
+  small: {
+    height: 40,
+    width: 40,
+    borderRadius: 100,
+  },
+  smallMedium: {
+    height: 58,
+    width: 58,
+    borderRadius: 150,
+  },
+  large: {
+    height: 170,
+    width: 170,
+    borderRadius: 500,
+  },
+  extraLarge: {
+    height: 300,
+    width: 300,
+    borderRadius: 600,
+  },
+  intermediate: {
+    height: 75,
+    width: 75,
+    borderRadius: 8,
+  },
+  medium: {
+    height: 105,
+    width: 105,
+    borderRadius: 200,
+  },
+  mediumHome: {
+    height: 105,
+    width: 105,
+    borderRadius: 200,
+    borderWidth: 2,
+    borderColor: '#F99520',
   },
 });

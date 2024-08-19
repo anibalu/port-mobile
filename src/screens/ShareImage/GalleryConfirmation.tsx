@@ -24,7 +24,7 @@ import {
   compressImage,
   compressVideo,
 } from '@utils/Compressor/graphicCompressors';
-import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {

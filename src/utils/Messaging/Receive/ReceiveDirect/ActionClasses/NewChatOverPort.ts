@@ -1,16 +1,20 @@
 import {useCreatedBundle} from '@utils/Ports';
 import DirectReceiveAction from '../DirectReceiveAction';
-import {BundleTarget} from '@utils/Ports/interfaces';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 
 class NewChatOverPort extends DirectReceiveAction {
+  /**
+   * new chat creation classes can skip validation.
+   */
+  async validate(): Promise<void> {}
+
   generatePreviewText(): string {
     return '';
   }
   async performAction(): Promise<void> {
-    console.log('newchatoverport pairhash: ', this.message.pairHash);
     // eslint-disable-next-line react-hooks/rules-of-hooks
     await useCreatedBundle(
-      this.chatId,
+      this.lineId, //routing Id and chat Id are same when a new chat is being formed.
       this.message.lineLinkId,
       BundleTarget.direct,
       this.message.pairHash,

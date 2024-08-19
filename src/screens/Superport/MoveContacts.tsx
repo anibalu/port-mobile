@@ -8,7 +8,7 @@ import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import React, {useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import FolderPill from '@components/Reusable/Pill/FolderPill';
-import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 

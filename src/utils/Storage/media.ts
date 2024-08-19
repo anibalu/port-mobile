@@ -1,4 +1,5 @@
-import {MediaEntry, MediaUpdate} from '@utils/Media/interfaces';
+import {MediaEntry} from './DBCalls/media';
+import {MediaUpdate} from './DBCalls/media';
 import * as dbCalls from './DBCalls/media';
 import {ContentType} from '@utils/Messaging/interfaces';
 

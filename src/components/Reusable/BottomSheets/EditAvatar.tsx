@@ -21,7 +21,7 @@ import {
 import {GenericButton} from '@components/GenericButton';
 import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {launchImageLibrary} from 'react-native-image-picker';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {DirectAvatarMapping} from '@configs/avatarmapping';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
@@ -300,7 +300,7 @@ const styling = (colors: any) =>
     },
     placeholder: {
       backgroundColor: '#f0f0f0',
-      borderRadius: 12,
+      borderRadius: 100,
       width: 40,
       height: 40,
     },
@@ -319,7 +319,7 @@ const styling = (colors: any) =>
     avatarBoxBorder: {
       width: 40,
       height: 40,
-      borderRadius: 12,
+      borderRadius: 100,
       alignItems: 'center',
       justifyContent: 'center',
       overflow: 'hidden',

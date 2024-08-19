@@ -7,9 +7,9 @@ import {
 import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {useNavigation} from '@react-navigation/native';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 

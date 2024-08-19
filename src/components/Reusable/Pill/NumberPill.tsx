@@ -6,52 +6,54 @@ import {
 } from '@components/NumberlessText';
 import React from 'react';
 import {Pressable, StyleSheet} from 'react-native';
-import EditIcon from '@assets/icons/PencilAccent.svg';
 import DynamicColors from '@components/DynamicColors';
+import {useTheme} from 'src/context/ThemeContext';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const NumberPill = ({
-  value,
-  onClick,
-  isCustom = false,
   connectionLimit,
   setOpenUsageLimitsModal,
 }: {
-  value: number;
-  onClick: (value: number) => void;
-  isCustom?: boolean;
   connectionLimit: number;
   setOpenUsageLimitsModal: (x: boolean) => void;
 }) => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
+  const {themeValue} = useTheme();
+
+  const svgArray = [
+    {
+      assetName: 'EditIcon',
+      light: require('@assets/icons/PencilAccent.svg').default,
+      dark: require('@assets/icons/PencilWhite.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const EditIcon = results.EditIcon;
   return (
     <Pressable
-      style={connectionLimit === value ? styles.activePill : styles.pill}
+      style={StyleSheet.compose(styles.activePill, {
+        backgroundColor:
+          themeValue === 'light'
+            ? Colors.lowAccentColors.violet
+            : Colors.primary.accent,
+      })}
       onPress={() => {
-        if (isCustom) {
-          setOpenUsageLimitsModal(true);
-        } else {
-          onClick(value);
-        }
+        setOpenUsageLimitsModal(true);
       }}>
       <NumberlessText
         style={{
           color:
-            connectionLimit === value
+            themeValue === 'light'
               ? Colors.primary.accent
-              : Colors.text.subtitle,
+              : Colors.primary.white,
         }}
-        fontType={FontType.rg}
+        fontType={FontType.sb}
         fontSizeType={FontSizeType.m}>
-        {isCustom
-          ? value == 0 || value !== connectionLimit
-            ? '+ Custom'
-            : value
-          : value}
+        {connectionLimit}
       </NumberlessText>
-      {isCustom && !(value == 0 || value !== connectionLimit) && (
-        <EditIcon width={16} height={16} style={{marginLeft: 3}} />
-      )}
+      <EditIcon width={16} height={16} style={{marginLeft: 3}} />
     </Pressable>
   );
 };
@@ -66,13 +68,11 @@ const styling = (color: any) =>
       flexDirection: 'row',
     },
     activePill: {
-      paddingHorizontal: 15,
-      paddingVertical: 7,
-      borderRadius: 8,
-      backgroundColor: color.primary.white,
+      gap: 4,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingVertical: PortSpacing.tertiary.uniform,
+      borderRadius: 45,
       flexDirection: 'row',
-      borderColor: color.primary.accent,
-      borderWidth: 1,
     },
   });
 export default NumberPill;

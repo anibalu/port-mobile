@@ -14,13 +14,13 @@ import {
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {readSecureDataBackup} from '@utils/Backup/backupUtils';
 import store from '@store/appStore';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import DynamicColors from '@components/DynamicColors';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 const RestoreAccount = () => {
   const navigation = useNavigation();
 
-  const {BackupRestoreError} = useErrorModal();
+  const {showToast} = useToast();
 
   const onSuccess = () => {
     store.dispatch({
@@ -31,7 +31,7 @@ const RestoreAccount = () => {
   };
 
   const onFailure = () => {
-    BackupRestoreError();
+    showToast('Did not restore from backup', ToastType.error);
     setIsLoading(false);
   };
   const [isLoading, setIsLoading] = useState(false);

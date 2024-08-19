@@ -1,9 +1,5 @@
 import {ContentType, PayloadMessageParams} from '@utils/Messaging/interfaces';
 import Deletion from './ActionClasses/Deletion';
-import {
-  HandshakeResponseA1,
-  HandshakeResponseB2,
-} from './ActionClasses/HandshakeResponse';
 import InitialInfoResponse from './ActionClasses/InitialInfoResponse';
 import NewChatOverPort from './ActionClasses/NewChatOverPort';
 import NewChatOverSuperport from './ActionClasses/NewChatOverSuperport';
@@ -24,6 +20,10 @@ import DirectReceiveAction from './DirectReceiveAction';
 import ReceiveReceipt from './ActionClasses/ReceiveReceipt';
 import ReceiveMessageDeletion from './ActionClasses/ReceiveMessageDeletion';
 import ReceiveDisappearingMessage from './ActionClasses/ReceiveDisappearingMessage';
+import ReceiveContactPortBundle from './ActionClasses/ReceiveContactPortBundle';
+import ReceiveContactPortTicket from './ActionClasses/ReceiveContactPortTicket';
+import ReceiveContactPortRequest from './ActionClasses/ReceiveContactPortRequest';
+import NewChatOverContactPort from './ActionClasses/NewChatOverContactPort';
 
 const SupportedReceieveDecryptedContentTypes = [
   ContentType.name,
@@ -45,6 +45,9 @@ const SupportedReceieveDecryptedContentTypes = [
   ContentType.contactBundle,
   ContentType.contactBundleRequest,
   ContentType.contactBundleResponse,
+  ContentType.contactPortBundle,
+  ContentType.contactPortTicket,
+  ContentType.contactPortRequest,
 ];
 
 const AssignDecryptedContentReceiver: Record<
@@ -64,27 +67,27 @@ const AssignDecryptedContentReceiver: Record<
   [ContentType.audioRecording]: ReceiveAudio,
   [ContentType.reaction]: ReceiveReaction,
   [ContentType.receipt]: ReceiveReceipt,
-  [ContentType.handshakeA1]: HandshakeResponseA1,
-  [ContentType.handshakeB2]: HandshakeResponseB2,
   [ContentType.initialInfoRequest]: InitialInfoResponse,
   [ContentType.contactBundle]: ReceiveContactBundle,
   [ContentType.contactBundleRequest]: ReceiveContactBundleRequest,
   [ContentType.contactBundleResponse]: ReceiveContactBundleResponse,
+  [ContentType.contactPortBundle]: ReceiveContactPortBundle,
+  [ContentType.contactPortTicket]: ReceiveContactPortTicket,
+  [ContentType.contactPortRequest]: ReceiveContactPortRequest,
 };
 
-export async function directReceiveActionPicker(
+export async function pickDirectReceiveAction(
   chatId: string,
+  lineId: string,
   message: any,
   receiveTime: string,
   decryptedMessageContent: PayloadMessageParams | null = null,
 ): Promise<DirectReceiveAction | null> {
-  if (message.deletion) {
-    return new Deletion(chatId, message, receiveTime, decryptedMessageContent);
-  }
   if (!message.messageContent && message.lineLinkId) {
-    if (!message.superportId || message.superportId === 'None') {
-      return new NewChatOverPort(
+    if (message.contactPortId && message.contactPortId !== 'None') {
+      return new NewChatOverContactPort(
         chatId,
+        lineId,
         message,
         receiveTime,
         decryptedMessageContent,
@@ -93,12 +96,34 @@ export async function directReceiveActionPicker(
     if (message.superportId && message.superportId !== 'None') {
       return new NewChatOverSuperport(
         chatId,
+        lineId,
+        message,
+        receiveTime,
+        decryptedMessageContent,
+      );
+    }
+    if (message.lineLinkId !== 'None') {
+      return new NewChatOverPort(
+        chatId,
+        lineId,
         message,
         receiveTime,
         decryptedMessageContent,
       );
     }
   }
+  if (message.deletion) {
+    return new Deletion(
+      chatId,
+      lineId,
+      message,
+      receiveTime,
+      decryptedMessageContent,
+    );
+  }
+  /**
+   * These helpers use chatId instead of directly using lineId.
+   */
   if (decryptedMessageContent) {
     if (
       SupportedReceieveDecryptedContentTypes.includes(
@@ -107,7 +132,7 @@ export async function directReceiveActionPicker(
     ) {
       return new AssignDecryptedContentReceiver[
         decryptedMessageContent.contentType as keyof typeof AssignDecryptedContentReceiver
-      ](chatId, message, receiveTime, decryptedMessageContent);
+      ](chatId, lineId, message, receiveTime, decryptedMessageContent);
     }
   }
   return null;

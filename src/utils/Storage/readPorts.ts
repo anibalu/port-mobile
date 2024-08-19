@@ -1,5 +1,5 @@
-import {ReadPortData} from '@utils/Ports/interfaces';
-import * as dbCalls from './DBCalls/readPorts';
+import {ReadPortData} from './DBCalls/ports/readPorts';
+import * as dbCalls from './DBCalls/ports/readPorts';
 
 /**
  * Create a new readPorts entry

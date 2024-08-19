@@ -12,7 +12,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {MediaEntry} from '@utils/Media/interfaces';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
 import Share from 'react-native-share';

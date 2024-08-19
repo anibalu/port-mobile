@@ -14,25 +14,37 @@ import ChatSettingsCard from '@components/Reusable/PermissionCards/ChatSettingsC
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {defaultPermissions} from '@configs/constants';
 import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
-import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {addNewFolder} from '@utils/ChatFolders';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {updateGeneratedSuperportFolder} from '@utils/Ports';
-import {moveConnectionToNewFolder} from '@utils/Connections';
+import {moveConnectionToNewFolder} from '@utils/ChatFolders';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useTheme} from 'src/context/ThemeContext';
+import store from '@store/appStore';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CreateFolder'>;
 
 const CreateFolder = ({navigation, route}: Props) => {
-  const {setSelectedFolder, portId, chatId, superportLabel} = route.params;
+  const {
+    onSaveDetails,
+    setSelectedFolder = () => {},
+    portId,
+    chatId,
+    superportLabel,
+    saveDetails,
+    savedFolderPermissions,
+  } = route.params;
   //sets folder name
   const [folderName, setFolderName] = useState<string>(superportLabel || '');
   //set permissions
-  const [permissions, setPermissions] = useState<PermissionsStrict>({
-    ...defaultPermissions,
-  });
+  const [permissions, setPermissions] = useState<PermissionsStrict>(
+    savedFolderPermissions
+      ? {...savedFolderPermissions}
+      : {...defaultPermissions},
+  );
   //for loader used in the screen
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const Colors = DynamicColors();
@@ -46,26 +58,41 @@ const CreateFolder = ({navigation, route}: Props) => {
   ];
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
+  const styles = styling(Colors);
+  const {themeValue} = useTheme();
 
   return (
     <>
-      <CustomStatusBar backgroundColor={Colors.primary.surface} />
-      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
+      <CustomStatusBar
+        backgroundColor={
+          themeValue === 'dark'
+            ? Colors.primary.background
+            : Colors.primary.surface
+        }
+      />
+      <SafeAreaView
+        style={{
+          backgroundColor:
+            themeValue === 'dark'
+              ? Colors.primary.background
+              : Colors.primary.surface,
+        }}>
         <TopBarWithRightIcon
+          bgColor={themeValue === 'dark' ? 'b' : 'g'}
           onIconRightPress={() => navigation.goBack()}
           IconRight={CrossButton}
-          heading={'Create new folder'}
+          heading={saveDetails ? ' Edit Folder Settings' : 'Create new folder'}
         />
         <View
           style={{
             paddingHorizontal: PortSpacing.secondary.uniform,
             paddingBottom: PortSpacing.secondary.bottom,
-            paddingTop: PortSpacing.tertiary.top,
-            backgroundColor: Colors.primary.surface,
+            paddingTop: PortSpacing.secondary.top,
           }}>
           <SimpleInput
+            isEditable={!saveDetails}
             placeholderText="Folder name"
-            bgColor="w"
+            bgColor={themeValue === 'dark' ? 'w' : 'g'}
             text={folderName}
             setText={setFolderName}
           />
@@ -86,16 +113,16 @@ const CreateFolder = ({navigation, route}: Props) => {
               }}>
               <NumberlessText
                 style={{
-                  color: Colors.text.primary,
+                  color: Colors.primary.accent,
                   marginBottom: PortSpacing.tertiary.bottom,
                 }}
                 fontSizeType={FontSizeType.l}
-                fontType={FontType.md}>
+                fontType={FontType.rg}>
                 Customize chats in this folder
               </NumberlessText>
               <NumberlessText
                 style={{color: Colors.text.subtitle}}
-                fontSizeType={FontSizeType.m}
+                fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
                 Changes to these settings will apply to all new chats added to
                 this folder. If you change settings for a specific chat later,
@@ -103,46 +130,61 @@ const CreateFolder = ({navigation, route}: Props) => {
               </NumberlessText>
             </View>
             <View style={styles.chatSettingsContainer}>
-              <ChatSettingsCard
-                showDissapearingMessagesOption={false}
+              <AdvanceSettingsCard
                 permissions={permissions}
                 setPermissions={setPermissions}
               />
-            </View>
-            <View>
-              <AdvanceSettingsCard
+              <ChatSettingsCard
+                showDissapearingMessagesOption={true}
                 permissions={permissions}
                 setPermissions={setPermissions}
               />
             </View>
           </ScrollView>
           <View style={styles.buttonWrapper}>
-            <PrimaryButton
-              isLoading={isLoading}
-              disabled={folderName.trim() === ''}
-              primaryButtonColor="b"
-              buttonText="Create folder"
-              onClick={async () => {
-                setIsLoading(true);
-                const folder = await addNewFolder(folderName, permissions);
-                if (portId) {
-                  await updateGeneratedSuperportFolder(portId, folder.folderId);
-                } else if (chatId) {
-                  await moveConnectionToNewFolder(chatId, folder.folderId);
-                  setSelectedFolder(folder);
-                } else {
-                  setSelectedFolder(folder);
-                }
-                setIsLoading(false);
-                if (portId) {
-                  navigation.navigate('SuperportScreen', {portId: portId});
-                } else {
-                  navigation.goBack();
-                }
-
-                // navigation.navigate('HomeTab', {selectedFolder: folder});
-              }}
-            />
+            {!saveDetails ? (
+              <PrimaryButton
+                isLoading={isLoading}
+                disabled={folderName.trim() === ''}
+                primaryButtonColor="b"
+                buttonText="Create folder"
+                onClick={async () => {
+                  setIsLoading(true);
+                  const folder = await addNewFolder(folderName, permissions);
+                  if (portId) {
+                    await updateGeneratedSuperportFolder(
+                      portId,
+                      folder.folderId,
+                    );
+                  } else if (chatId) {
+                    await moveConnectionToNewFolder(chatId, folder.folderId);
+                    setSelectedFolder(folder);
+                  } else {
+                    setSelectedFolder(folder);
+                  }
+                  setIsLoading(false);
+                  if (portId) {
+                    navigation.navigate('SuperportScreen', {portId: portId});
+                  } else {
+                    navigation.goBack();
+                  }
+                  store.dispatch({
+                    type: 'PING',
+                    payload: 'PONG',
+                  });
+                }}
+              />
+            ) : (
+              <PrimaryButton
+                isLoading={isLoading}
+                disabled={folderName.trim() === ''}
+                primaryButtonColor="b"
+                buttonText="Save"
+                onClick={() => {
+                  onSaveDetails && onSaveDetails(permissions);
+                }}
+              />
+            )}
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -150,20 +192,24 @@ const CreateFolder = ({navigation, route}: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  scrollViewContainer: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-  chatSettingsContainer: {
-    marginBottom: PortSpacing.secondary.bottom,
-  },
-  buttonWrapper: {
-    paddingVertical: PortSpacing.secondary.uniform,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    scrollViewContainer: {
+      flex: 1,
+      width: '100%',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+    },
+    chatSettingsContainer: {
+      marginBottom: PortSpacing.secondary.bottom,
+      borderWidth: 0.5,
+      borderColor: colors.primary.stroke,
+      borderRadius: PortSpacing.secondary.uniform,
+    },
+    buttonWrapper: {
+      paddingVertical: PortSpacing.secondary.uniform,
+    },
+  });
 
 export default CreateFolder;

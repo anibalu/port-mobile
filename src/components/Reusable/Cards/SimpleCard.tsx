@@ -11,14 +11,18 @@ import {View} from 'react-native';
 const SimpleCard = ({
   children,
   style,
+  pointerEvents,
 }: {
   children?: any;
   style?: ViewStyle | StyleProp<ViewStyle>;
+  pointerEvents?: 'auto' | 'box-none' | 'none' | 'box-only';
 }) => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
   return (
-    <View style={StyleSheet.compose(styles.cardContainer, style)}>
+    <View
+      style={StyleSheet.compose(styles.cardContainer, style)}
+      pointerEvents={pointerEvents}>
       {children}
     </View>
   );

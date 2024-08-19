@@ -24,26 +24,28 @@ import {useNavigation} from '@react-navigation/native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {TOPBAR_HEIGHT} from '@configs/constants';
 
 const UserInfoTopbar = ({
   IconRight,
   avatarUri,
   backgroundColor,
   heading,
-  onIconRightPress,
-  showUserInfo,
+  onIconRightPress = async () => {},
+  showUserInfo = false,
+  showShareContact = true,
 }: {
   backgroundColor: 'g' | 'w';
   avatarUri: string;
-  IconRight?: FC<SvgProps>;
+  IconRight: FC<SvgProps>;
   heading?: string;
   showUserInfo?: boolean;
-  onIconRightPress?: () => void;
+  onIconRightPress?: () => Promise<void>;
+  showShareContact: boolean;
 }) => {
   const navigation = useNavigation();
   const Colors = DynamicColors();
-  const styles = styling(Colors);
-
+  const styles = styling(Colors, showUserInfo);
   const svgArray = [
     // 1.NotificationOutline
     {
@@ -90,16 +92,27 @@ const UserInfoTopbar = ({
           </NumberlessText>
         </View>
       )}
-      {IconRight && (
-        <Pressable onPress={onIconRightPress}>
-          <IconRight width={24} height={24} />
+      {showShareContact && (
+        <Pressable
+          style={styles.button}
+          onPress={async () => {
+            console.log('attempting contact share');
+            await onIconRightPress();
+          }}>
+          <IconRight width={20} height={20} />
+          <NumberlessText
+            fontType={FontType.rg}
+            textColor={Colors.primary.white}
+            fontSizeType={FontSizeType.s}>
+            Share Contact
+          </NumberlessText>
         </Pressable>
       )}
     </View>
   );
 };
 
-const styling = (colors: any) =>
+const styling = (colors: any, showUserInfo: boolean) =>
   StyleSheet.create({
     topbarContainer: {
       alignSelf: 'stretch',
@@ -107,13 +120,25 @@ const styling = (colors: any) =>
       paddingHorizontal: 16,
       alignItems: 'center',
       justifyContent: 'space-between',
-      height: 56,
+      height: TOPBAR_HEIGHT,
+      borderBottomColor: showUserInfo ? colors.primary.stroke : 'transparent',
+      borderBottomWidth: 0.5,
     },
     heading: {
       color: colors.primary.mainelements,
       fontFamily: FontType.md,
       fontSize: FontSizeType.l,
       fontWeight: getWeight(FontType.rg),
+    },
+    button: {
+      backgroundColor: colors.button.black,
+      height: 40,
+      borderRadius: 12,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      justifyContent: 'center',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
     },
   });
 

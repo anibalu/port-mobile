@@ -4,14 +4,13 @@ import * as storageGroupPorts from '@utils/Storage/groupPorts';
 import {
   CURRENT_GROUPPORT_VERSION,
   IDEAL_UNUSED_PORTS_NUMBER,
+  ORG_NAME,
   defaultFolderId,
 } from '@configs/constants';
-import {
-  BundleTarget,
-  GroupBundle,
-  GroupPortData,
-  ReadPortData,
-} from './interfaces';
+import {GroupBundle} from './interfaces';
+import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {GroupPortData} from '@utils/Storage/DBCalls/ports/groupPorts';
 import {expiryOptionsTypes} from '@utils/Time/interfaces';
 import Group from '@utils/Groups/Group';
 import {
@@ -23,7 +22,7 @@ import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {getProfileName} from '@utils/Profile';
-import {createChatPermissionsFromFolderId} from '@utils/ChatPermissions';
+import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 
 /**
@@ -66,21 +65,6 @@ async function getUnusedGroupPort(groupId: string): Promise<string> {
 }
 
 /**
- * Port instrument version
- * @returns - version string
- */
-function getCurrentGroupportVersion() {
-  return CURRENT_GROUPPORT_VERSION;
-}
-/**
- * to determine legitimate ports
- * @returns - organisation identifier
- */
-function getOrganisationName() {
-  return 'numberless.tech';
-}
-
-/**
  * Fetches a generated group port's data
  * @param portId
  * @returns - generated data
@@ -89,11 +73,10 @@ async function getGeneratedGroupPortData(
   portId: string,
 ): Promise<GroupPortData> {
   const portData = await storageGroupPorts.getGroupPortData(portId);
-  if (portData && portData.usedOnTimestamp) {
-    const generatedPortData = {portId: portId, ...portData} as GroupPortData;
-    return generatedPortData;
+  if (!portData) {
+    throw new Error('NoSuchGeneratedPort');
   }
-  throw new Error('NoSuchGeneratedPort');
+  return portData;
 }
 
 /**
@@ -108,8 +91,8 @@ async function getGeneratedGroupPortData(
 export async function generateNewGroupPortBundle(
   groupId: string,
   expiry: expiryOptionsTypes,
-  channel: string | null = null,
-  folderId: string = defaultFolderId,
+  channel: string | null,
+  folderId: string,
 ): Promise<GroupBundle> {
   //get required params
   const group = new Group(groupId);
@@ -118,7 +101,7 @@ export async function generateNewGroupPortBundle(
     throw new Error('NoSuchGroup');
   }
   const portId = await getUnusedGroupPort(groupId);
-  const version = getCurrentGroupportVersion();
+  const version = CURRENT_GROUPPORT_VERSION;
   const name = groupData.name;
   const currentTimestamp = generateISOTimeStamp();
   const expiryTimestamp = getExpiryTimestamp(currentTimestamp, expiry);
@@ -135,11 +118,10 @@ export async function generateNewGroupPortBundle(
   const displayBundle: GroupBundle = {
     portId: portId,
     version: version,
-    org: getOrganisationName(),
+    org: ORG_NAME,
     target: BundleTarget.group,
     name: name,
     description: groupData.description,
-    expiryTimestamp: expiryTimestamp,
   };
   return displayBundle;
 }

@@ -12,7 +12,7 @@
  * 3. profileUri - will be using generic avatar here(will have a default avatar)
  */
 
-import {ConnectionInfo} from '@utils/Connections/interfaces';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React from 'react';
 import {Pressable, View} from 'react-native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';

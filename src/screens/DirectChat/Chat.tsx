@@ -13,7 +13,7 @@ import {
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 //import store from '@store/appStore';
-import {toggleRead} from '@utils/Connections';
+import {toggleRead} from '@utils/Storage/connections';
 import store from '@store/appStore';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import DirectChat from '@utils/DirectChats/DirectChat';
@@ -209,7 +209,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
 
   return (
     <AudioPlayerProvider>
-      <CustomStatusBar backgroundColor={Colors.primary.surface} />
+      <CustomStatusBar backgroundColor={Colors.primary.surface2} />
       <GestureSafeAreaView style={styles.screen}>
         <ChatTopbar />
         <KeyboardAvoidingView

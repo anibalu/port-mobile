@@ -202,3 +202,60 @@ export const checkSavingImagesPermission = async (
   }
   return;
 };
+
+/**
+ * Function to check and request contact read permissions
+ * @param setIsContactPermissionGranted - a setter function that sets state based on the response
+ */
+export const checkContactPermission = async (
+  setIsContactPermissionGranted: Function,
+) => {
+  try {
+    const requestContactPermission = async (contactPermission: Permission) => {
+      const contactPermissionStatus = await request(contactPermission);
+      console.log('Requested contactPermissionStatus', contactPermissionStatus);
+      if (contactPermissionStatus === RESULTS.GRANTED) {
+        setIsContactPermissionGranted(true);
+      }
+    };
+
+    const contactPermission = Platform.select({
+      android: PERMISSIONS.ANDROID.READ_CONTACTS,
+      ios: PERMISSIONS.IOS.CONTACTS,
+    });
+
+    if (contactPermission === undefined) {
+      console.log('This platform is not supported');
+      return;
+    }
+
+    const contactPermissionStatus = await check(contactPermission);
+    console.log('Checked contactPermissionStatus', contactPermissionStatus);
+
+    switch (contactPermissionStatus) {
+      case RESULTS.UNAVAILABLE:
+        console.log(
+          'This feature is not available (on this device / in this context)',
+        );
+        break;
+      case RESULTS.DENIED:
+        console.log(
+          'The permission has not been requested / is denied but requestable',
+        );
+        await requestContactPermission(contactPermission);
+        break;
+      case RESULTS.GRANTED:
+        console.log('The permission is granted');
+        setIsContactPermissionGranted(true);
+        break;
+      case RESULTS.BLOCKED:
+        console.log('The permission is denied and not requestable anymore');
+        break;
+    }
+  } catch (error) {
+    console.error(
+      'An error occurred while checking contact permission:',
+      error,
+    );
+  }
+};

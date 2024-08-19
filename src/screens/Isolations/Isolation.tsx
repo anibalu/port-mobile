@@ -3,12 +3,19 @@ import React from 'react';
 import {StyleSheet} from 'react-native';
 
 import {screen} from '@components/ComponentUtils';
-import FolderPlaceholderQuickActions from '@screens/Home/FolderPlaceholderQuickActions';
+import Flipper from '@components/FlippingComponents/Flipper';
+import Front from '@components/FlippingComponents/QR/Front';
+import Back from '@components/FlippingComponents/QR/Back';
 
 const Isolation = () => {
+  const onFlipPress = () => console.log('flippedd!!');
   return (
     <SafeAreaView style={styles.screen}>
-      <FolderPlaceholderQuickActions />
+      <Flipper
+        FrontElement={Front}
+        onFlipPress={onFlipPress}
+        BackElement={Back}
+      />
     </SafeAreaView>
   );
 };
@@ -17,7 +24,7 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     alignSelf: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     width: screen.width,
     backgroundColor: '#F2F4F7',
   },

@@ -5,7 +5,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import React from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 

@@ -1,9 +1,9 @@
-import {encryptFile} from '@utils/Crypto/aesFile';
 import * as API from './APICalls';
 import {
   addFilePrefix,
   deleteFile,
   getSafeAbsoluteURI,
+  encryptFile,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 /**

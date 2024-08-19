@@ -5,12 +5,42 @@ import notifee, {
   AndroidMessagingStyle,
   AndroidStyle,
   AndroidVisibility,
+  EventDetail,
+  EventType,
   Notification,
 } from '@notifee/react-native';
 import store from '@store/appStore';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
 import {AppState, Platform, Settings} from 'react-native';
+
+//Handles notification routing on tapping notification
+export const performNotificationRouting = (
+  type: EventType,
+  detail: EventDetail,
+  navigation: any,
+) => {
+  if (type === EventType.PRESS && detail.notification?.data) {
+    const {chatId, isGroup, isConnected, isAuthenticated} =
+      detail.notification.data;
+
+    if (
+      chatId !== undefined &&
+      isGroup !== undefined &&
+      isConnected !== undefined
+    ) {
+      navigation.push('DirectChat', {
+        chatId: chatId,
+        isGroupChat: (isGroup as string).toLowerCase() === 'true',
+        isConnected: (isConnected as string).toLowerCase() === 'true',
+        profileUri: '',
+        isAuthenticated: isAuthenticated
+          ? (isAuthenticated as string).toLowerCase() === 'true'
+          : false,
+      });
+    }
+  }
+};
 
 /**
  * Displays all notifications for the app.

@@ -5,8 +5,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import * as storage from '@utils/Storage/messages';
 import DirectReceiveAction from '../DirectReceiveAction';
-import {updateReadReceiptOnConnection} from '@utils/Connections';
-import {ConnectionInfoUpdate} from '@utils/Connections/interfaces';
+import {updateConnectionIfLatestMessageIsX} from '@utils/Storage/connections';
 
 /**
  * Handles any form of silent message updates, such as read receipts and payload deliveries.
@@ -28,16 +27,12 @@ export default class ReceiveReceipt extends DirectReceiveAction {
         : MessageStatus.delivered,
     });
 
-    const update: ConnectionInfoUpdate = {
+    const update = {
       chatId: this.chatId,
       readStatus: receipt.readAt ? MessageStatus.read : MessageStatus.delivered,
       recentMessageType: ContentType.receipt,
     };
-
     // update read status on connection card after we receive
-    await updateReadReceiptOnConnection({
-      messageIdToBeUpdated: receipt.messageId,
-      update,
-    });
+    await updateConnectionIfLatestMessageIsX(receipt.messageId, update);
   }
 }

@@ -176,7 +176,7 @@ export class SendPlaintextDirectMessage<
       );
       return MessageStatus.sent;
     } catch (error) {
-      console.log('send attempt failed, message to be journaled');
+      console.log('send attempt failed, message to be journaled: ', error);
       return MessageStatus.journaled;
     }
   }

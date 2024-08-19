@@ -7,10 +7,9 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {DEFAULT_AVATAR} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
-import {toggleRead} from '@utils/Connections';
+import {toggleRead} from '@utils/Storage/connections';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
@@ -33,7 +32,6 @@ function ChatTopbar(): ReactNode {
     setSelectionMode,
     selectedMessages,
     setSelectedMessages,
-    isConnected,
     isDisappearingMessagOn,
   } = useChatContext();
 
@@ -55,23 +53,29 @@ function ChatTopbar(): ReactNode {
       light: require('@assets/light/icons/ClockIcon.svg').default,
       dark: require('@assets/dark/icons/ClockIcon.svg').default,
     },
+    {
+      assetName: 'ContactShareIcon',
+      dark: require('@assets/light/icons/ContactShareIcon.svg').default,
+      light: require('@assets/dark/icons/ContactShareIcon.svg').default,
+    },
   ];
 
   const results = useDynamicSVG(svgArray);
   const CloseIcon = results.CloseIcon;
-  const SettingsIcon = results.SettingsIcon;
+  const ContactShareIcon = results.ContactShareIcon;
   const ClockIcon = results.ClockIcon;
 
   const onSettingsPressed = async () => {
-    const dataHandler = new DirectChat(chatId);
-    const chatData = await dataHandler.getChatData();
-    navigation.navigate('ContactProfile', {
-      chatId: chatId,
-      name: name,
-      profileUri: profileUri || DEFAULT_AVATAR,
-      permissionsId: chatData.permissionsId,
-      isConnected: isConnected,
-    });
+    try {
+      const dataHandler = new DirectChat(chatId);
+      const chatData = await dataHandler.getChatData();
+      navigation.navigate('ChatProfile', {
+        chatId: chatId,
+        chatData: chatData,
+      });
+    } catch (error) {
+      console.error('Error navigating to contact profile page: ', error);
+    }
   };
 
   const onBackPress = async (): Promise<void> => {
@@ -94,10 +98,6 @@ function ChatTopbar(): ReactNode {
 
   const handleCancellation = () => {
     onCancelPressed();
-  };
-
-  const handleSettings = () => {
-    onSettingsPressed();
   };
 
   return (
@@ -133,12 +133,26 @@ function ChatTopbar(): ReactNode {
               : name}
           </NumberlessText>
         </View>
-        <View>
-          <GenericButton
-            buttonStyle={selectionMode ? styles.crossBox : styles.settingsBox}
-            IconLeft={selectionMode ? CloseIcon : SettingsIcon}
-            onPress={selectionMode ? handleCancellation : handleSettings}
-          />
+        <View style={{flexDirection: 'row'}}>
+          {selectionMode ? (
+            <GenericButton
+              buttonStyle={styles.crossBox}
+              IconLeft={CloseIcon}
+              onPress={handleCancellation}
+            />
+          ) : (
+            <Pressable
+              style={styles.button}
+              onPress={() => console.log('djdjdjjdjdjdj')}>
+              <ContactShareIcon width={16} height={16} />
+              <NumberlessText
+                fontType={FontType.rg}
+                textColor={Colors.primary.white}
+                fontSizeType={FontSizeType.s}>
+                Share Contact
+              </NumberlessText>
+            </Pressable>
+          )}
         </View>
       </Pressable>
     </View>
@@ -190,14 +204,14 @@ const styling = (colors: any) =>
       paddingTop: 13,
     },
     settingsBox: {
-      backgroundColor: colors.primary.surface,
+      backgroundColor: colors.primary.surface2,
       alignItems: 'flex-end',
       height: 40,
       top: 7,
       width: 40,
     },
     crossBox: {
-      backgroundColor: colors.primary.surface,
+      backgroundColor: colors.primary.surface2,
       alignItems: 'flex-end',
       height: 40,
       top: 7,
@@ -219,6 +233,16 @@ const styling = (colors: any) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    button: {
+      backgroundColor: colors.button.black,
+      height: 40,
+      borderRadius: 12,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      justifyContent: 'center',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
     },
   });
 

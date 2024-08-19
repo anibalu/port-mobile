@@ -13,7 +13,7 @@ class AddMember extends GroupReceiveAction {
     store.dispatch({
       type: 'NEW_CONNECTION',
       payload: {
-        chatId: this.chatId,
+        groupId: this.chatId,
         connectionLinkId: this.receiveTime,
       },
     });

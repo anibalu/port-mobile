@@ -51,9 +51,8 @@ const BackupCard = () => {
   return (
     <SimpleCard style={styles.card}>
       <View style={styles.title}>
-        <View style={{flexDirection: 'row'}}>
-          <Clock />
-
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Clock height={20} width={20} />
           <NumberlessText
             style={{marginLeft: PortSpacing.tertiary.left}}
             textColor={Colors.text.primary}
@@ -78,9 +77,20 @@ const BackupCard = () => {
         textColor={Colors.text.subtitle}
         fontType={FontType.rg}
         fontSizeType={FontSizeType.m}>
-        A local backup containing all your connections and folders will be
-        created on your device. Currently, Port does not support backing up chat
-        history.
+        A local backup containing all your connections, folders and superports
+        will be created on your device. Currently, Port does not support backing
+        up chat history.
+      </NumberlessText>
+      <NumberlessText
+        style={{
+          marginLeft: PortSpacing.tertiary.left,
+          marginTop: PortSpacing.medium.top,
+        }}
+        textColor={Colors.text.subtitle}
+        fontType={FontType.rg}
+        fontSizeType={FontSizeType.m}>
+        To restore from a backup, install a new copy of the Port app. Open the
+        app, tap 'Restore backup' and then locate the backup file.
       </NumberlessText>
       <View style={styles.button}>
         <TertiaryButton

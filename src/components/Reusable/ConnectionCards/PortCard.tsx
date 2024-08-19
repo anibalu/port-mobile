@@ -17,7 +17,6 @@ import {StyleSheet, View} from 'react-native';
 import SimpleCard from '../Cards/SimpleCard';
 import QrWithLogo from '../QR/QrWithLogo';
 import {AVATAR_ARRAY} from '@configs/constants';
-import {AvatarBox} from '../AvatarBox/AvatarBox';
 import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
@@ -68,7 +67,6 @@ const PortCard = ({
   onTryAgainClicked: () => Promise<void>;
 }) => {
   const Colors = DynamicColors();
-  const styles = styling(Colors);
 
   const svgArray = [
     {
@@ -86,13 +84,36 @@ const PortCard = ({
   const Share = results.ShareAccent;
   const Eye = results.Eye;
   const {themeValue} = useTheme();
+  const styles = styling(Colors);
 
   return (
     <SimpleCard style={styles.cardWrapper}>
-      <View style={styles.avatarArea}>
-        <AvatarBox profileUri={profileUri} avatarSize="s+" />
-      </View>
       <View style={styles.contentBox}>
+        <View
+          style={{
+            paddingVertical: 4,
+            paddingHorizontal: 6,
+            borderRadius: PortSpacing.intermediate.uniform,
+            marginBottom: PortSpacing.medium.uniform,
+            backgroundColor:
+              themeValue === 'dark'
+                ? Colors.primary.accent
+                : Colors.lowAccentColors.violet,
+          }}>
+          <NumberlessText
+            textColor={
+              themeValue === 'dark'
+                ? Colors.primary.white
+                : Colors.primary.accent
+            }
+            style={{
+              textAlign: 'center',
+            }}
+            fontType={FontType.sb}
+            fontSizeType={FontSizeType.s}>
+            {isSuperport ? '  Multi-use QR' : 'One-time use QR'}
+          </NumberlessText>
+        </View>
         <NumberlessText
           style={{alignSelf: 'center'}}
           fontType={FontType.md}
@@ -100,35 +121,13 @@ const PortCard = ({
           fontSizeType={FontSizeType.xl}>
           {title}
         </NumberlessText>
-        {isSuperport ? (
-          <NumberlessText
-            style={{
-              alignSelf: 'center',
-              color:
-                themeValue === 'dark'
-                  ? Colors.messagebubble.replyBubbleInner
-                  : Colors.primary.accent,
-            }}
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}>
-            Multi-use QR
-          </NumberlessText>
-        ) : (
-          <NumberlessText
-            style={{
-              alignSelf: 'center',
-              color:
-                themeValue === 'dark'
-                  ? Colors.messagebubble.replyBubbleInner
-                  : Colors.primary.accent,
-            }}
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.m}>
-            One-time use QR
-          </NumberlessText>
-        )}
       </View>
-      <QrWithLogo qrData={qrData} isLoading={isLoading} hasFailed={hasFailed} />
+      <QrWithLogo
+        qrData={qrData}
+        profileUri={profileUri}
+        isLoading={isLoading}
+        hasFailed={hasFailed}
+      />
       {!hasFailed && (
         <View style={styles.contentBox}>
           {isSuperport ? (
@@ -200,7 +199,7 @@ const PortCard = ({
           />
         </View>
       )}
-      {!hasFailed && !isLoading && isSuperport && (
+      {!hasFailed && isSuperport && (
         <View style={styles.shareBox}>
           <AlternateSecondaryButton
             buttonText={'Share multi-use link'}
@@ -239,24 +238,15 @@ const styling = (color: any) =>
       justifyContent: 'flex-start',
       alignItems: 'center',
       paddingVertical: 0, //overrides simple card default padding
-      paddingTop: 30,
       width: '100%',
-    },
-    avatarArea: {
-      position: 'absolute',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: 60,
-      width: 60,
-      borderRadius: 12,
-      backgroundColor: color.primary.surface,
-      marginTop: -30,
+      borderWidth: 0.5,
+      borderColor: color.primary.stroke,
     },
     contentBox: {
       justifyContent: 'center',
       alignItems: 'center',
       width: '100%',
-      padding: PortSpacing.intermediate.uniform,
+      padding: PortSpacing.secondary.uniform,
     },
     errorBox: {
       justifyContent: 'center',

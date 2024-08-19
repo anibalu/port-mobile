@@ -1,10 +1,11 @@
-import {ServerAuthToken} from '@utils/ServerAuth/interfaces';
+import {ServerAuthToken} from '@utils/Storage/RNSecure/secureTokenHandler';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
 import {
   DIRECT_MESSAGING_RESOURCE,
   GROUP_MESSAGING_RESOURCE,
 } from '@configs/api';
+import {getLineIdFromChatId} from '@utils/Storage/connections';
 
 /**
  * API call to send a payload
@@ -32,12 +33,14 @@ export async function sendObject(
       {headers: {Authorization: `${token}`}},
     );
   } else {
+    //get lineId from chatId
+    const lineId = await getLineIdFromChatId(chatId);
     //post to direct messaging resource
     await axios.post(
       DIRECT_MESSAGING_RESOURCE,
       {
         message: processedPayload,
-        line: chatId,
+        line: lineId,
         silent,
       },
       {headers: {Authorization: `${token}`}},

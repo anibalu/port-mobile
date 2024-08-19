@@ -5,7 +5,8 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {cleanDeletePort} from '@utils/Ports';
-import {PendingCardInfo, PortTable} from '@utils/Ports/interfaces';
+import {PendingCardInfo} from '@utils/Ports';
+import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
 import {formatTimeAgo} from '@utils/Time';
 import React, {useState} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';

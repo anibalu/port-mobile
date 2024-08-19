@@ -12,18 +12,11 @@ import {
 import AdvanceSettingsCard from '@components/Reusable/PermissionCards/AdvanceSettingsCard';
 import ChatSettingsCard from '@components/Reusable/PermissionCards/ChatSettingsCard';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import {
-  defaultFolderId,
-  defaultFolderInfo,
-  defaultPermissions,
-} from '@configs/constants';
-import {PermissionsStrict} from '@utils/ChatPermissions/interfaces';
-import {
-  applyFolderPermissions,
-  deleteFolder,
-  editFolderName,
-  getFolderPermissions,
-} from '@utils/ChatFolders';
+import {defaultFolderId, defaultPermissions} from '@configs/constants';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {applyFolderPermissions, deleteFolder} from '@utils/ChatFolders';
+import {updateFolderName} from '@utils/Storage/folders';
+import {getFolderPermissions} from '@utils/Storage/permissions';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import EditName from '@components/Reusable/BottomSheets/EditName';
@@ -54,7 +47,7 @@ const EditFolder = ({route, navigation}: Props) => {
   }, []);
 
   const onSaveFolderName = async () => {
-    await editFolderName(selectedFolder.folderId, folderName);
+    await updateFolderName(selectedFolder.folderId, folderName);
     setIsEditFolderNameModalOpen(false);
   };
 
@@ -205,9 +198,7 @@ const EditFolder = ({route, navigation}: Props) => {
           buttonText="Delete folder"
           onConfirm={async () => {
             await deleteFolder(selectedFolder.folderId);
-            navigation.navigate('HomeTab', {
-              selectedFolder: {...defaultFolderInfo},
-            });
+            navigation.goBack();
           }}
         />
       </SafeAreaView>

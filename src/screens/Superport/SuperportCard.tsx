@@ -7,12 +7,13 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import {SuperportData} from '@utils/Ports/interfaces';
-import {defaultFolderId, defaultFolderInfo} from '@configs/constants';
-import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import {SuperportData} from '@utils/Storage/DBCalls/ports/superPorts';
+import {defaultFolderInfo} from '@configs/constants';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {formatTimeAgo} from '@utils/Time';
 import {SvgXml} from 'react-native-svg';
 import DynamicColors from '@components/DynamicColors';
+import {folderIdToHex} from '@utils/Folders/folderIdToHex';
 
 const SuperportCard = ({
   superportData,
@@ -30,15 +31,12 @@ const SuperportCard = ({
     </g>
     </svg>`;
   };
-  const getFolderColor = (folder: FolderInfo) => {
-    if (folder.folderId === defaultFolderId) {
-      return PortColors.primary.blue.app;
-    } else {
-      return '#' + folder.folderId.substring(0, 6).replace(/[^\da-f]/gi, '0');
-    }
-  };
 
   const Colors = DynamicColors();
+  const folderColor =
+    selectedFolder &&
+    folderIdToHex(selectedFolder?.folderId, Colors.boldAccentColors);
+
   return (
     <TouchableOpacity
       onPress={onClick}
@@ -51,10 +49,10 @@ const SuperportCard = ({
         }}>
         <View style={styles.headerContainer}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <SvgXml xml={getSvgXml(getFolderColor(selectedFolder))} />
+            <SvgXml xml={getSvgXml(folderColor)} />
             <NumberlessText
               style={{
-                color: getFolderColor(selectedFolder),
+                color: folderColor,
                 marginLeft: PortSpacing.tertiary.left,
               }}
               fontSizeType={FontSizeType.s}

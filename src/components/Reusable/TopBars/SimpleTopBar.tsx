@@ -27,9 +27,9 @@ const SimpleTopbar = ({
   onIconRightPress,
 }: {
   onIconLeftPress: () => void;
-  onIconRightPress: () => void;
+  onIconRightPress?: () => void;
   IconLeft: FC<SvgProps>;
-  IconRight: FC<SvgProps>;
+  IconRight?: FC<SvgProps>;
   heading: string;
 }) => {
   const Colors = DynamicColors();
@@ -40,17 +40,23 @@ const SimpleTopbar = ({
         <IconLeft width={24} height={24} />
       </Pressable>
       <NumberlessText
-        style={{textAlign: 'center'}}
+        style={{
+          textAlign: 'center',
+          alignSelf: 'center',
+          flex: 1,
+        }}
         numberOfLines={1}
         textColor={Colors.text.primary}
         ellipsizeMode="tail"
         fontType={FontType.md}
-        fontSizeType={FontSizeType.l}>
+        fontSizeType={FontSizeType.xl}>
         {heading}
       </NumberlessText>
-      <Pressable onPress={onIconRightPress}>
-        <IconRight width={24} height={24} />
-      </Pressable>
+      {IconRight && (
+        <Pressable onPress={onIconRightPress}>
+          <IconRight width={24} height={24} />
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -62,9 +68,10 @@ const styling = (color: any) =>
       flexDirection: 'row',
       paddingHorizontal: 16,
       alignItems: 'center',
-      justifyContent: 'space-between',
       backgroundColor: color.primary.surface,
       height: 56,
+      borderBottomColor: color.primary.stroke,
+      borderBottomWidth: 0.5,
     },
   });
 

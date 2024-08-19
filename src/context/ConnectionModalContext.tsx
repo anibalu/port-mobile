@@ -4,7 +4,7 @@ import {getBundleFromLink} from '@utils/DeepLinking';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {processReadBundles, readBundle} from '@utils/Ports';
 import {addFilePrefix} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {Mutex} from 'async-mutex';
 import React, {
   ReactNode,
@@ -139,6 +139,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
 
       // Extract the bundle from a URL
       const bundle = await getBundleFromLink({url: url});
+      console.log('read bundle: ', bundle);
       // Add the bundle to the list of read bundles and use ALL bundles read so far
       await readBundle(bundle);
       store.dispatch({

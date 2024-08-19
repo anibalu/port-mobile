@@ -4,9 +4,9 @@
 import {PortSpacing, screen} from '@components/ComponentUtils';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import FolderPlaceholderQuickActions from './FolderPlaceholderQuickActions';
-import {FolderInfo} from '@utils/ChatFolders/interfaces';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 
 function FolderScreenPlaceholder({
   name,

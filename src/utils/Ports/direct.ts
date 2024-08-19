@@ -3,12 +3,14 @@ import {
   DEFAULT_NAME,
   IDEAL_UNUSED_PORTS_NUMBER,
   ORG_NAME,
-  defaultFolderId,
 } from '@configs/constants';
 import * as API from './APICalls';
 import * as storageMyPorts from '@utils/Storage/myPorts';
 import * as storageReadPorts from '@utils/Storage/readPorts';
-import {BundleTarget, PortBundle, PortData, ReadPortData} from './interfaces';
+import {PortBundle} from './interfaces';
+import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {getProfileName} from '@utils/Profile';
 import {
@@ -18,11 +20,18 @@ import {
 } from '@utils/Time';
 import {expiryOptionsTypes} from '@utils/Time/interfaces';
 import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
-import {ContactBundleParams, ContentType} from '@utils/Messaging/interfaces';
+import {ContactBundleParams} from '@utils/Messaging/interfaces';
 import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import {getMessage, updateMessageData} from '@utils/Storage/messages';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {createChatPermissionsFromFolderId} from '@utils/ChatPermissions';
+import {
+  clearPermissions,
+  createChatPermissionsFromFolderId,
+} from '@utils/Storage/permissions';
+import {checkLineExists} from '@utils/Storage/lines';
+import {
+  generatorInitialInfoSend,
+  readerInitialInfoSend,
+} from '@utils/DirectChats/initialInfoExchange';
 
 /**
  * Fetches new unused ports and stores it in storage.
@@ -61,38 +70,16 @@ async function getUnusedPort(): Promise<string> {
 }
 
 /**
- * Port instrument version
- * @returns - version string
- */
-function getCurrentPortVersion() {
-  return CURRENT_PORT_VERSION;
-}
-
-/**
  * Fetches a generated port's data
  * @param portId
  * @returns - generated data
  */
 export async function getGeneratedPortData(portId: string): Promise<PortData> {
   const portData = await storageMyPorts.getPortData(portId);
-  if (portData && portData.usedOnTimestamp) {
-    const generatedPortData = {portId: portId, ...portData} as PortData;
-    return generatedPortData;
+  if (!portData) {
+    throw new Error('NoUsedPortFound');
   }
-  throw new Error('NoPortFound');
-}
-
-/**
- * Fetches a read port's data
- * @param portId
- * @returns - read data
- */
-async function getReadPortData(portId: string): Promise<ReadPortData> {
-  const portData = await storageReadPorts.getReadPortData(portId);
-  if (portData) {
-    return portData;
-  }
-  throw new Error('NoSuchReadPort');
+  return portData;
 }
 
 /**
@@ -107,8 +94,8 @@ async function getReadPortData(portId: string): Promise<ReadPortData> {
 export async function generateNewPortBundle(
   label: string,
   expiry: expiryOptionsTypes,
-  channel: string | null = null,
-  folderId: string = defaultFolderId,
+  channel: string | null,
+  folderId: string,
 ): Promise<PortBundle> {
   //get required params
   const portId = await getUnusedPort();
@@ -118,10 +105,11 @@ export async function generateNewPortBundle(
   const rad = await cryptoDriver.getRad();
   const keyHash = await cryptoDriver.getPublicKeyHash();
   const pubkey = await cryptoDriver.getPublicKey();
-  const version = getCurrentPortVersion();
+  const version = CURRENT_PORT_VERSION;
   const name = await getProfileName();
   const currentTimestamp = generateISOTimeStamp();
   const expiryTimestamp = getExpiryTimestamp(currentTimestamp, expiry);
+  const permissionsId = await createChatPermissionsFromFolderId(folderId);
   //update port with new info
   await storageMyPorts.updatePortData(portId, {
     version: version,
@@ -131,6 +119,7 @@ export async function generateNewPortBundle(
     cryptoId: cryptoId,
     channel: channel,
     folderId: folderId,
+    permissionsId: permissionsId,
   });
   //generate bundle to display
   const displayBundle: PortBundle = {
@@ -139,7 +128,6 @@ export async function generateNewPortBundle(
     org: ORG_NAME,
     target: BundleTarget.direct,
     name,
-    expiryTimestamp,
     rad,
     keyHash,
     pubkey,
@@ -172,8 +160,8 @@ export async function updateGeneratedPortLabel(portId: string, label: string) {
  */
 export async function acceptPortBundle(
   portBundle: PortBundle,
-  channel: string | null = null,
-  folderId: string = defaultFolderId,
+  channel: string | null,
+  folderId: string,
 ) {
   //setup crypto
   const cryptoDriver = new CryptoDriver();
@@ -219,13 +207,14 @@ export async function acceptPortBundle(
  * @param readPortBundle - direct chat port bundle that is read.
  */
 export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
+  console.log('[Attempting to form chat using read port]: ', readPortBundle);
   if (!readPortBundle.cryptoId) {
     throw new Error('NoCryptoId');
   }
   const cryptoId: string = readPortBundle.cryptoId;
   const chat = new DirectChat();
   const cryptoDriver = new CryptoDriver(cryptoId);
-  //check timestamp expiry
+  //check timestamp expiry.
   if (hasExpired(readPortBundle.expiryTimestamp)) {
     //cleanup
     await storageReadPorts.deleteReadPortData(readPortBundle.portId);
@@ -238,19 +227,18 @@ export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
   );
   try {
     //try to create direct chat. If port is invalid, expire the port
-    await chat.createChat(
+    await chat.createChatUsingPortId(
+      readPortBundle.portId,
       {
         name: readPortBundle.name,
         authenticated: false,
         disconnected: false,
         cryptoId: cryptoId,
         connectedOn: readPortBundle.usedOnTimestamp,
-        connectedUsing: readPortBundle.channel,
+        connectionSource: readPortBundle.channel,
         permissionsId: permissionsId,
       },
       readPortBundle.folderId,
-      readPortBundle.portId,
-      null,
       false,
     );
     if (readPortBundle.channel) {
@@ -266,7 +254,11 @@ export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
         }
       }
     }
+    console.log('[Deleting read port on successful chat formation]');
     await storageReadPorts.deleteReadPortData(readPortBundle.portId);
+    console.log('[Sending initial set of messages]');
+    const chatId = chat.getChatId();
+    await readerInitialInfoSend(chatId);
   } catch (error: any) {
     if (typeof error === 'object' && error.response) {
       if (error.response.status === 404) {
@@ -281,14 +273,24 @@ export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
 /**
  * Create a new direct chat using a generated port and server assigned chat Id
  * @param portId - port id of generated port
- * @param chatId - chat Id assigned by the server
+ * @param lineId - chat Id assigned by the server
  */
 export async function newChatOverGeneratedPortBundle(
   portId: string,
-  chatId: string,
-  pairHash: string | null = null,
-  introMessage: IntroMessage | null = null,
+  lineId: string,
+  pairHash: string,
+  introMessage: IntroMessage,
 ) {
+  console.log(
+    '[Attempting to form chat using lineId and pairHash]: ',
+    lineId,
+    pairHash,
+  );
+  //if chat is already formed, this guard prevents retrying new chat over generated port.
+  const chatExists = await checkLineExists(lineId);
+  if (chatExists) {
+    throw new Error('Attempted to retry new chat over generated port bundle');
+  }
   const generatedPort: PortData = await getGeneratedPortData(portId);
   if (!generatedPort.cryptoId) {
     throw new Error('NoCryptoId');
@@ -301,36 +303,39 @@ export async function newChatOverGeneratedPortBundle(
     //cleanup
     await storageMyPorts.deletePortData(generatedPort.portId);
     await cryptoDriver.deleteCryptoData();
+    if (generatedPort.permissionsId) {
+      await clearPermissions(generatedPort.permissionsId);
+    }
     return;
   }
   const channel = generatedPort.channel;
   //create chat permissions to be assigned to chat using folder Id
-  const permissionsId = await createChatPermissionsFromFolderId(
-    generatedPort.folderId,
-  );
+  const permissionsId =
+    generatedPort.permissionsId ||
+    (await createChatPermissionsFromFolderId(generatedPort.folderId));
   //create direct chat
-  await chat.createChat(
+  await chat.createChatUsingLineId(
+    lineId,
+    portId,
     {
       name: generatedPort.label ? generatedPort.label : DEFAULT_NAME,
       authenticated: false,
       disconnected: false,
       cryptoId: cryptoId,
       connectedOn: generateISOTimeStamp(),
-      connectedUsing: channel,
+      connectionSource: channel,
       permissionsId: permissionsId,
     },
-    generatedPort.folderId,
-    generatedPort.portId,
-    chatId,
-    false,
-    pairHash,
     introMessage,
+    pairHash,
+    generatedPort.folderId,
+  );
+  console.log(
+    '[Deleting generated port on successfully forming/rejecting a chat]',
   );
   await storageMyPorts.deletePortData(generatedPort.portId);
-  const sender = new SendMessage(chatId, ContentType.handshakeA1, {
-    pubKey: await cryptoDriver.getPublicKey(),
-  });
-  await sender.send(true, false);
+  const chatId = chat.getChatId();
+  generatorInitialInfoSend(chatId);
 }
 
 /**
@@ -389,7 +394,10 @@ export async function cleanUpExpiredGeneratedPorts() {
  */
 export async function cleanDeleteReadPort(portId: string) {
   try {
-    const readPort = await getReadPortData(portId);
+    const readPort = await storageReadPorts.getReadPortData(portId);
+    if (!readPort) {
+      throw new Error('NoSuchReadPort');
+    }
     await storageReadPorts.deleteReadPortData(readPort.portId);
     if (readPort.cryptoId) {
       const cryptoDriver = new CryptoDriver(readPort.cryptoId);

@@ -1,7 +1,9 @@
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {DirectPermissions} from '@utils/ChatPermissions/interfaces';
-import {getConnection, updateConnectionOnNewMessage} from '@utils/Connections';
-import {ChatType, ConnectionInfo} from '@utils/Connections/interfaces';
+import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {getConnection} from '@utils/Storage/connections';
+import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {
   DataType,
   LargeDataParams,

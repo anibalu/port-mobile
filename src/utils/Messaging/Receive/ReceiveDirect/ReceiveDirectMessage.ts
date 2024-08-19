@@ -1,20 +1,27 @@
 import {PayloadMessageParams} from '@utils/Messaging/interfaces';
 import DirectReceiveAction from './DirectReceiveAction';
-import {directReceiveActionPicker} from './possibleActions';
+import {pickDirectReceiveAction} from './possibleActions';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 
 class ReceiveDirectMessage {
   private message: any;
   private chatId: string;
+  private lineId: string;
   private receiveTime: string;
   private receiveClass: DirectReceiveAction | null;
   private decryptedMessageContent: PayloadMessageParams | null;
   //construct the class
-  constructor(chatId: string, message: any, receiveTime: string) {
+  constructor(
+    chatId: string,
+    lineId: string,
+    message: any,
+    receiveTime: string,
+  ) {
     this.message = message;
     this.receiveTime = receiveTime;
     this.chatId = chatId;
+    this.lineId = lineId;
     this.receiveClass = null;
     this.decryptedMessageContent = null;
   }
@@ -54,8 +61,9 @@ class ReceiveDirectMessage {
   }
   //assign receive action
   private async assignReceiverClass() {
-    this.receiveClass = await directReceiveActionPicker(
+    this.receiveClass = await pickDirectReceiveAction(
       this.chatId,
+      this.lineId,
       this.message,
       this.receiveTime,
       this.decryptedMessageContent,
@@ -65,8 +73,10 @@ class ReceiveDirectMessage {
   async receive() {
     await this.extractDecryptedMessageContent();
     await this.assignReceiverClass();
-    console.log('Trying to assign receiver for: ', this.message);
+    console.log('Trying to assign receiver for: ', this.lineId, this.message);
     if (this.receiveClass) {
+      console.log('validating message');
+      await this.receiveClass.validate();
       await this.receiveClass.performAction();
     }
   }

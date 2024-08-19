@@ -5,7 +5,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import DirectReceiveAction from '../DirectReceiveAction';
-import {updateConnectionOnNewMessage} from '@utils/Connections';
+import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 

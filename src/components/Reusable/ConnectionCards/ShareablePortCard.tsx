@@ -10,7 +10,7 @@
  * 9. onTryAgainClicked - what to do when try again is clicked
  */
 
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {Pressable, StyleSheet, TextInput, View} from 'react-native';
 import SimpleCard from '../Cards/SimpleCard';
 import QrWithLogo from '../QR/QrWithLogo';
@@ -18,9 +18,10 @@ import {
   DEFAULT_PROFILE_AVATAR_INFO,
   NAME_LENGTH_LIMIT,
 } from '@configs/constants';
-import {AvatarBox} from '../AvatarBox/AvatarBox';
+import Logo from '@assets/icons/Portlogo.svg';
+import MultiuseQr from '@assets/icons/MultiuseQr.svg';
+
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import EditIcon from '@assets/icons/PencilCircleAccent.svg';
 import {
   DirectSuperportBundle,
   GroupBundle,
@@ -28,7 +29,7 @@ import {
   PortBundle,
 } from '@utils/Ports/interfaces';
 import EditAvatar from '../BottomSheets/EditAvatar';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {FontSizeType, FontType} from '@components/NumberlessText';
 
 const ShareablePortCard = ({
@@ -49,30 +50,51 @@ const ShareablePortCard = ({
 }) => {
   const [profilePictureAttributes, setProfilePcitureAttributes] =
     useState<FileAttributes>(profilePicAttr);
-  const [name, setName] = useState(title);
+  const [newName, setNewName] = useState(title);
   const [description, setDescription] = useState(
-    'Scan this code to add me as a contact',
+    'Scan this code with your Port camera to add me as a contact.',
   );
 
+  const [newQrData, setNewQrData] = useState(qrData);
   const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
   const onChangeText = (text: string) => {
-    setName(text);
+    setNewName(text);
   };
   const onChangeDescription = (description: string) => {
     setDescription(description);
   };
+
+  useMemo(() => {
+    if (newName) {
+      setNewQrData({...qrData, name: newName});
+    }
+  }, [newName, qrData]);
+
   return (
     <SimpleCard style={styles.cardWrapper}>
+      <Logo
+        style={{
+          alignSelf: 'center',
+          marginTop: PortSpacing.intermediate.top,
+          marginBottom: PortSpacing.tertiary.bottom,
+        }}
+      />
+      <MultiuseQr
+        style={{
+          alignSelf: 'center',
+          marginBottom: PortSpacing.tertiary.top,
+        }}
+      />
       <Pressable
-        onPress={toBeEdited ? () => setOpenEditAvatarModal(true) : () => {}}
-        style={styles.avatarArea}>
-        <AvatarBox
-          onPress={toBeEdited ? () => setOpenEditAvatarModal(true) : () => {}}
+        onPress={toBeEdited ? () => setOpenEditAvatarModal(true) : () => {}}>
+        <QrWithLogo
           profileUri={profilePictureAttributes.fileUri}
-          avatarSize="s+"
+          qrData={newQrData}
+          isLoading={false}
+          hasFailed={false}
         />
-        {toBeEdited && <EditIcon style={styles.edit} height={20} width={20} />}
       </Pressable>
+
       <View style={styles.contentBox}>
         <TextInput
           style={StyleSheet.compose(
@@ -87,13 +109,9 @@ const ShareablePortCard = ({
           )}
           maxLength={NAME_LENGTH_LIMIT}
           onChangeText={onChangeText}
-          value={name}
+          value={newName}
           editable={toBeEdited}
         />
-      </View>
-      <QrWithLogo qrData={qrData} isLoading={false} hasFailed={false} />
-
-      <View style={styles.contentBox}>
         <TextInput
           multiline
           style={StyleSheet.compose(
@@ -131,7 +149,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingVertical: 0, //overrides simple card default padding
-    paddingTop: 30,
     width: '100%',
     backgroundColor: 'white',
   },
@@ -149,21 +166,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    padding: PortSpacing.intermediate.uniform,
-  },
-  errorBox: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    padding: PortSpacing.secondary.uniform,
-  },
-  shareBox: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    paddingBottom: PortSpacing.secondary.bottom,
-    gap: PortSpacing.tertiary.uniform,
   },
   name: {
     color: 'black',
@@ -175,6 +177,9 @@ const styles = StyleSheet.create({
     fontFamily: FontType.rg,
     fontSize: FontSizeType.m,
     textAlign: 'center',
+    marginBottom: PortSpacing.secondary.uniform,
+    marginTop: -PortSpacing.secondary.top,
+    paddingHorizontal: PortSpacing.intermediate.uniform,
   },
   edit: {
     position: 'absolute',

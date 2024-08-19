@@ -11,10 +11,14 @@ import {
   getWeight,
 } from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {
+  DEFAULT_NAME,
+  DEFAULT_PROFILE_AVATAR_INFO,
+  TOPBAR_HEIGHT,
+} from '@configs/constants';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {setNewProfilePicture, updateProfileName} from '@utils/Profile';
+import {updateProfileName} from '@utils/Profile';
+import {setNewProfilePicture} from '@utils/ProfilePicture';
 import React, {
   ReactNode,
   useCallback,
@@ -24,9 +28,8 @@ import React, {
 } from 'react';
 import {StyleSheet, View, Pressable, ScrollView} from 'react-native';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
-import {FileAttributes} from '@utils/Storage/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 
@@ -41,13 +44,21 @@ import {ThemeType} from '@utils/Themes';
 import {useTheme} from 'src/context/ThemeContext';
 import BlockedCard from '@components/BlockedCard';
 import {useFocusEffect} from '@react-navigation/native';
-import {getCountOfBlockedUsers} from '@utils/UserBlocking';
+import {getCountOfBlockedUsers} from '@utils/Storage/blockUsers';
 import HelpCard from '@components/HelpCard';
+import {BottomNavStackParamList} from '@navigation/BottomNavStackTypes';
+import {useSelector} from 'react-redux';
 
-type Props = NativeStackScreenProps<AppStackParamList, 'MyProfile'>;
+type Props = NativeStackScreenProps<BottomNavStackParamList, 'MyProfile'>;
 
-function MyProfile({route, navigation}: Props): ReactNode {
-  const {name, avatar} = route.params;
+const MyProfile = ({navigation}: Props): ReactNode => {
+  const profile = useSelector(state => state.profile.profile);
+  const {name, avatar} = useMemo(() => {
+    return {
+      name: profile?.name || DEFAULT_NAME,
+      avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
+    };
+  }, [profile]);
   const processedName: string = name || DEFAULT_NAME;
   const processedAvatar: FileAttributes = avatar || DEFAULT_PROFILE_AVATAR_INFO;
 
@@ -108,7 +119,6 @@ function MyProfile({route, navigation}: Props): ReactNode {
     <>
       <CustomStatusBar backgroundColor={colors.primary.background} />
       <SafeAreaView style={styles.profileScreen}>
-        <BackTopbar onBackPress={() => navigation.goBack()} />
         <ScrollView contentContainerStyle={styles.profile}>
           <View style={{alignItems: 'center', width: '100%'}}>
             <View style={styles.profilePictureHitbox}>
@@ -133,8 +143,8 @@ function MyProfile({route, navigation}: Props): ReactNode {
                   textAlign: 'center',
                   marginTop: PortSpacing.secondary.uniform,
                 }}>
-                Your profile picture and name is shared with your contacts using
-                end-to-end encryption.
+                Port servers don't see unencrypted versions of your name and
+                profile picture.
               </NumberlessText>
               <ThemeCard
                 selected={selectedTheme}
@@ -142,18 +152,6 @@ function MyProfile({route, navigation}: Props): ReactNode {
               />
               <BlockedCard listLength={blockedContactsLength} />
               <BackupCard />
-              <NumberlessText
-                fontSizeType={FontSizeType.m}
-                fontType={FontType.rg}
-                textColor={colors.text.subtitle}
-                style={{
-                  textAlign: 'center',
-                  marginVertical: PortSpacing.secondary.uniform,
-                }}>
-                To restore from a backup, install a new copy of the Port app.
-                Open the app, tap 'Restore backup' and then locate the backup
-                file.
-              </NumberlessText>
               <HelpCard />
             </View>
           </View>
@@ -170,7 +168,7 @@ function MyProfile({route, navigation}: Props): ReactNode {
         </ScrollView>
 
         <EditName
-          title={'Edit your Name'}
+          title={'Edit your name'}
           visible={editingName}
           name={newName}
           setName={setNewName}
@@ -191,7 +189,7 @@ function MyProfile({route, navigation}: Props): ReactNode {
       </SafeAreaView>
     </>
   );
-}
+};
 
 const styling = (colors: any) =>
   StyleSheet.create({
@@ -211,6 +209,7 @@ const styling = (colors: any) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingBottom: PortSpacing.secondary.bottom,
+      paddingTop: TOPBAR_HEIGHT,
       paddingHorizontal: PortSpacing.secondary.uniform,
     },
     bottomContainer: {
@@ -240,8 +239,8 @@ const styling = (colors: any) =>
     },
     cameraIconWrapper: {
       width: 32,
-      bottom: -8,
-      right: -8,
+      bottom: -4,
+      right: -4,
       height: 32,
       backgroundColor: colors.primary.accent,
       position: 'absolute',

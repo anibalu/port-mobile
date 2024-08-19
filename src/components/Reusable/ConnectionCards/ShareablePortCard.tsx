@@ -11,7 +11,7 @@
  */
 
 import React, {useMemo, useState} from 'react';
-import {Pressable, StyleSheet, TextInput, View} from 'react-native';
+import {StyleSheet, TextInput, View} from 'react-native';
 import SimpleCard from '../Cards/SimpleCard';
 import QrWithLogo from '../QR/QrWithLogo';
 import {
@@ -21,7 +21,7 @@ import {
 import Logo from '@assets/icons/Portlogo.svg';
 import MultiuseQr from '@assets/icons/MultiuseQr.svg';
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   DirectSuperportBundle,
   GroupBundle,
@@ -85,15 +85,15 @@ const ShareablePortCard = ({
           marginBottom: PortSpacing.tertiary.top,
         }}
       />
-      <Pressable
-        onPress={toBeEdited ? () => setOpenEditAvatarModal(true) : () => {}}>
-        <QrWithLogo
-          profileUri={profilePictureAttributes.fileUri}
-          qrData={newQrData}
-          isLoading={false}
-          hasFailed={false}
-        />
-      </Pressable>
+
+      <QrWithLogo
+        onClickAvatar={() => setOpenEditAvatarModal(true)}
+        tobeEdited={toBeEdited}
+        profileUri={profilePictureAttributes.fileUri}
+        qrData={newQrData}
+        isLoading={false}
+        hasFailed={false}
+      />
 
       <View style={styles.contentBox}>
         <TextInput
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     fontSize: FontSizeType.m,
     textAlign: 'center',
     marginBottom: PortSpacing.secondary.uniform,
-    marginTop: -PortSpacing.secondary.top,
+    marginTop: isIOS ? 0 : -PortSpacing.secondary.top,
     paddingHorizontal: PortSpacing.intermediate.uniform,
   },
   edit: {

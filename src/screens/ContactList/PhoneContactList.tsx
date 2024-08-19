@@ -62,14 +62,16 @@ const PhoneContactList = ({navigation}: Props) => {
         );
 
         // // Grouping contacts by the first letter
-        const groupedContacts = contacts.reduce((groups: any, contact) => {
-          const firstLetter = contact.givenName[0].toUpperCase();
-          if (!groups[firstLetter]) {
-            groups[firstLetter] = [];
-          }
-          groups[firstLetter].push(contact);
-          return groups;
-        }, {});
+        const groupedContacts = contacts
+          .filter(x => x.givenName)
+          .reduce((groups: any, contact) => {
+            const firstLetter = contact.givenName[0].toUpperCase();
+            if (!groups[firstLetter]) {
+              groups[firstLetter] = [];
+            }
+            groups[firstLetter].push(contact);
+            return groups;
+          }, {});
 
         setContactList(groupedContacts);
         setFilteredContacts(groupedContacts);

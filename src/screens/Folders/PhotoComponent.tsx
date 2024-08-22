@@ -20,30 +20,40 @@ export const PhotoComponent = ({
     return <View style={{height: 35}} />;
   }
   return (
-    <View style={{height: 35}}>
-      <View style={{flexDirection: 'row', gap: -8}}>
+    <View>
+      <View
+        style={{
+          height: 35,
+          flexDirection: 'row',
+          gap: -8,
+          alignItems: 'center',
+        }}>
         {photos.map((item, index) => {
           return (
-            <View
-              key={index}
-              style={{
-                height: 35,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <AvatarBox avatarSize="es" profileUri={item} />
+            <View>
+              <View
+                key={index}
+                style={{
+                  borderRadius: 50,
+                  borderWidth: 1.5,
+                  borderColor: 'white',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <AvatarBox avatarSize="es" profileUri={item} />
+              </View>
             </View>
           );
         })}
         {connectionsCount > 4 && (
           <View
             style={{
-              borderWidth: 2,
+              borderWidth: 1.5,
               borderRadius: 50,
               borderColor: 'white',
               backgroundColor: Colors.primary.surface2,
-              height: 28,
-              width: 28,
+              height: 27,
+              width: 27,
               justifyContent: 'center',
               alignItems: 'center',
             }}>

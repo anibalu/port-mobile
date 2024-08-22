@@ -89,8 +89,9 @@ const BackupCard = () => {
         textColor={Colors.text.subtitle}
         fontType={FontType.rg}
         fontSizeType={FontSizeType.m}>
-        To restore from a backup, install a new copy of the Port app. Open the
-        app, tap 'Restore backup' and then locate the backup file.
+        You can, however, create backup files here manually. To restore from
+        backup in a new device, open the app, tap 'restore backup' and then
+        locate the backup file saved.
       </NumberlessText>
       <View style={styles.button}>
         <TertiaryButton

@@ -67,7 +67,7 @@ const SuperportsInfo = ({
             fontSizeType={FontSizeType.xl}
             fontType={FontType.sb}
             textColor={Colors.text.primary}>
-            Create your first superport
+            Create your first Superport
           </NumberlessText>
           <NumberlessText
             fontSizeType={FontSizeType.l}

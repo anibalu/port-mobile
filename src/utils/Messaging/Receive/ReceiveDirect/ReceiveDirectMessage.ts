@@ -45,18 +45,33 @@ class ReceiveDirectMessage {
         this.message.messageContent.encryptedContent
       ) {
         const chat = new DirectChat(this.chatId);
-        const cryptoDriver = new CryptoDriver(await chat.getCryptoId());
-        const decryptedAndProcessed = JSON.parse(
-          await cryptoDriver.decrypt(
-            this.message.messageContent.encryptedContent,
-          ),
-        );
-        this.decryptedMessageContent =
-          decryptedAndProcessed as PayloadMessageParams;
+        try {
+          //check if chat data exists and is still connected
+          if ((await chat.getChatData()).disconnected) {
+            throw new Error('MessageReceivedForDisconnectedChat');
+          }
+          const cryptoDriver = new CryptoDriver(await chat.getCryptoId());
+          const decryptedAndProcessed = JSON.parse(
+            await cryptoDriver.decrypt(
+              this.message.messageContent.encryptedContent,
+            ),
+          );
+          this.decryptedMessageContent =
+            decryptedAndProcessed as PayloadMessageParams;
+        } catch (error) {
+          console.log(
+            'No line data found while decrypting encrypted content. Forcing disconnection: ',
+            error,
+          );
+          //If validation fails, attempt disconnection.
+          chat.disconnect(this.lineId);
+          this.decryptedMessageContent = null;
+        }
       }
     } catch (error) {
       console.log('Error in extracting decrypted message content: ', error);
       this.decryptedMessageContent = null;
+      throw new Error('Message content extraction failed');
     }
   }
   //assign receive action
@@ -71,11 +86,11 @@ class ReceiveDirectMessage {
   }
   //perform receive action
   async receive() {
+    console.log('Extracting decrypted content');
     await this.extractDecryptedMessageContent();
-    await this.assignReceiverClass();
     console.log('Trying to assign receiver for: ', this.lineId, this.message);
+    await this.assignReceiverClass();
     if (this.receiveClass) {
-      console.log('validating message');
       await this.receiveClass.validate();
       await this.receiveClass.performAction();
     }

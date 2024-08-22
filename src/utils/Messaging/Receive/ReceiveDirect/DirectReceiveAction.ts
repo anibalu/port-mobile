@@ -11,7 +11,6 @@ import {
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import * as storage from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';
-import DirectChat from '@utils/DirectChats/DirectChat';
 
 class DirectReceiveAction {
   protected message: any;
@@ -36,21 +35,7 @@ class DirectReceiveAction {
   /**
    * Default validation steps. This may differ for some classes like new chat creation classes.
    */
-  async validate(): Promise<void> {
-    const chat = new DirectChat(this.chatId);
-    try {
-      //check if line and associated data exists
-      const lineData = await chat.getChatData();
-      //check if line is still connected
-      if (lineData.disconnected) {
-        throw new Error('MessageReceivedForDisconnectedChat');
-      }
-    } catch (error) {
-      //If validation fails, attempt disconnection.
-      //We don't need to go this extreme in the future.
-      await chat.disconnect(this.lineId);
-    }
-  }
+  async validate(): Promise<void> {}
 
   async performAction(): Promise<void> {}
   decryptedMessageContentNotNullRule(): PayloadMessageParams {

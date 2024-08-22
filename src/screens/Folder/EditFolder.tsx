@@ -24,6 +24,7 @@ import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'EditFolder'>;
 
@@ -70,6 +71,7 @@ const EditFolder = ({route, navigation}: Props) => {
   ];
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
+  const {showToast} = useToast();
   return (
     <>
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
@@ -187,7 +189,14 @@ const EditFolder = ({route, navigation}: Props) => {
           buttonColor="b"
           buttonText="Apply to existing"
           onConfirm={async () => {
-            await applyFolderPermissions(selectedFolder.folderId);
+            try {
+              await applyFolderPermissions(selectedFolder.folderId);
+            } catch (error) {
+              showToast(
+                'Updating some permissions requires you to have an active network connection. Please check and try again.',
+                ToastType.error,
+              );
+            }
           }}
         />
         <ConfirmationBottomSheet
@@ -207,7 +216,7 @@ const EditFolder = ({route, navigation}: Props) => {
   );
 };
 
-const styling = colors =>
+const styling = (colors: any) =>
   StyleSheet.create({
     scrollViewContainer: {
       flex: 1,

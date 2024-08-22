@@ -15,12 +15,11 @@ import {defaultFolderId} from '@configs/constants';
 import {ChatType, ConnectionEntry} from '@utils/Storage/DBCalls/connections';
 import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 import {getFolder} from '@utils/Storage/folders';
-import {updateChatPermissions} from '@utils/ChatPermissions';
 import {
-  fetchContactPortBundle,
   remotePauseContactPorts,
   remoteResumeContactPorts,
 } from '@utils/Ports/contactport';
+import {getContactPortDataFromPairHash} from '@utils/Storage/contactPorts';
 
 /**
  * Add a new chat folder and returns folderId
@@ -79,10 +78,12 @@ export async function applyFolderPermissions(folderId: string) {
 
   const notificationUpdateChatList: {id: string; type: 'line' | 'group'}[] = [];
   const contactPortList: string[] = [];
+  let contactPort = null;
   for (let i = 0; i < connections.length; i++) {
-    contactPortList.push(
-      (await fetchContactPortBundle(connections[i].pairHash)).portId,
-    );
+    contactPort = await getContactPortDataFromPairHash(connections[i].pairHash);
+    if (contactPort) {
+      contactPortList.push(contactPort.portId);
+    }
     notificationUpdateChatList.push({
       id: await getLineIdFromChatId(connections[i].chatId),
       type: (connections[i].connectionType === ChatType.direct
@@ -90,30 +91,15 @@ export async function applyFolderPermissions(folderId: string) {
         : 'group') as 'line' | 'group',
     });
   }
-
-  try {
-    await setRemoteNotificationPermissionsForChats(
-      newNotificationPermissionState,
-      notificationUpdateChatList,
-    );
-  } catch (e) {
-    console.error(
-      '[FOLDER PERMISSIONS] Could not set permissions on backend',
-      e,
-    );
-    // TODO add feedback for the user that it failed
-    return;
+  await setRemoteNotificationPermissionsForChats(
+    newNotificationPermissionState,
+    notificationUpdateChatList,
+  );
+  if (folderPermissions.contactSharing) {
+    await remoteResumeContactPorts(contactPortList);
+  } else {
+    await remotePauseContactPorts(contactPortList);
   }
-  try {
-    if (folderPermissions.contactSharing) {
-      remoteResumeContactPorts(contactPortList);
-    } else {
-      remotePauseContactPorts(contactPortList);
-    }
-  } catch (e) {
-    console.error('Could not set contact sharing permissions', e);
-  }
-
   // updates permissions of all chats in a folder
   await permissionsStorage.updateChatPermissionsInAFolder(
     folderId,
@@ -130,7 +116,7 @@ export async function deleteFolder(
 ) {
   try {
     //move existing chats to new destination folder
-    await moveConnectionsToNewFolder(
+    await moveConnectionsToNewFolderWithoutPermissionChange(
       await getConnectionsByFolder(folderId),
       destinationFolderId,
     );
@@ -138,28 +124,6 @@ export async function deleteFolder(
     await folderStorage.deleteFolder(folderId);
   } catch (error) {
     console.log('Error deleting folder', error);
-  }
-}
-
-/**
- * Assign connections to a different folder
- */
-export async function moveConnectionsToNewFolder(
-  connections: ConnectionEntry[],
-  folderId: string,
-) {
-  //get folder permissions
-  const folderPermissions = await permissionsStorage.getFolderPermissions(
-    folderId,
-  );
-  for (let index = 0; index < connections.length; index++) {
-    //update chat permissions to folder permissions
-    await updateChatPermissions(connections[index].chatId, folderPermissions);
-    //update chat folder Id
-    await updateConnection({
-      chatId: connections[index].chatId,
-      folderId: folderId,
-    });
   }
 }
 
@@ -180,24 +144,8 @@ export async function moveConnectionsToNewFolderWithoutPermissionChange(
 }
 
 /**
- * Assign connections to a different folder
+ * Assign connection to a different folder
  */
-export async function moveConnectionToNewFolder(
-  chatId: string,
-  folderId: string,
-) {
-  //get folder permissions
-  const folderPermissions = await permissionsStorage.getFolderPermissions(
-    folderId,
-  );
-  //update chat permissions to folder permissions
-  await updateChatPermissions(chatId, folderPermissions);
-  //update chat folder Id
-  await updateConnection({
-    chatId: chatId,
-    folderId: folderId,
-  });
-}
 export async function moveConnectionToNewFolderWithoutPermissionChange(
   chatId: string,
   folderId: string,

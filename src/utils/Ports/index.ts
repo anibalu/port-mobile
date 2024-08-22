@@ -384,7 +384,8 @@ export async function useCreatedBundle(
       error.message &&
       (error.message === 'NoSuperportFound' ||
         error.message === 'NoPortFound' ||
-        error.message === 'NoContactPortFound')
+        error.message === 'NoContactPortFound' ||
+        error.message === 'SuperportPaused')
     ) {
       //this happens when bundle has been deleted locally and somebody has used that bundle.
       //In this case, send a disconnected message to the created chat Id.
@@ -392,7 +393,12 @@ export async function useCreatedBundle(
         const chat = new DirectChat();
         chat.disconnect(lineId);
         if (bundleTarget === BundleTarget.superportDirect) {
-          deleteDirectSuperport(portId);
+          if (error.message === 'NoSuperportFound') {
+            deleteDirectSuperport(portId);
+          }
+          if (error.message === 'SuperportPaused') {
+            superport.pauseSuperport(portId);
+          }
         }
       } catch {
         console.error('Error occurred while disconnecting:', error);

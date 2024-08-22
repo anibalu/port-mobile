@@ -188,12 +188,34 @@ export async function getContactPortBundleClickableLink(
  * Pause a contact port for a pairHash
  * @param pairHash
  */
-async function pauseContactPortForPairHash(pairHash: string) {
+export async function pauseContactPortForPairHash(pairHash: string) {
   const contactPortBundle = await fetchContactPortBundle(pairHash);
   await API.pauseContactPorts([contactPortBundle.portId]);
   await storageContactPorts.updateContactPortData(contactPortBundle.portId, {
     paused: true,
   });
+  const chatId = await getChatIdFromPairHash(pairHash);
+  if (chatId) {
+    const directChat = new DirectChat(chatId);
+    await directChat.updatePermissions({contactSharing: false});
+  }
+}
+
+/**
+ * Resume a contact port for a pairHash
+ * @param pairHash
+ */
+export async function resumeContactPortForPairHash(pairHash: string) {
+  const contactPortBundle = await fetchContactPortBundle(pairHash);
+  await API.resumeContactPorts([contactPortBundle.portId]);
+  await storageContactPorts.updateContactPortData(contactPortBundle.portId, {
+    paused: false,
+  });
+  const chatId = await getChatIdFromPairHash(pairHash);
+  if (chatId) {
+    const directChat = new DirectChat(chatId);
+    await directChat.updatePermissions({contactSharing: true});
+  }
 }
 
 export async function remotePauseContactPorts(contactPortIds: string[]) {
@@ -201,18 +223,6 @@ export async function remotePauseContactPorts(contactPortIds: string[]) {
 }
 export async function remoteResumeContactPorts(contactPortIds: string[]) {
   API.resumeContactPorts(contactPortIds);
-}
-
-/**
- * Resume a contact port for a pairHash
- * @param pairHash
- */
-async function resumeContactPortForPairHash(pairHash: string) {
-  const contactPortBundle = await fetchContactPortBundle(pairHash);
-  await API.resumeContactPorts([contactPortBundle.portId]);
-  await storageContactPorts.updateContactPortData(contactPortBundle.portId, {
-    paused: false,
-  });
 }
 
 /**
@@ -330,7 +340,8 @@ export async function checkAndAcceptContactPortTicket(
   try {
     const connection = await getConnection(chatId);
     const contactPort = await getCreatedContactPortData(contactPortId);
-    if (connection.pairHash === contactPort.pairHash) {
+    //if pairHashes match and the contact port is not paused, accept the ticket.
+    if (connection.pairHash === contactPort.pairHash && !contactPort.paused) {
       console.log(
         'Checking and accepting ticket: ',
         contactPortId,
@@ -391,15 +402,10 @@ export async function newChatOverCreatedContactPortBundle(
   const contactPortCryptoId: string = createdContactPort.cryptoId;
   const chat = new DirectChat();
   const contactPortCryptoDriver = new CryptoDriver(contactPortCryptoId);
-  try {
-    //check if contact port is already paused. If it is, then we can use this opportunity to inform the server of this.
-    if (createdContactPort.paused) {
-      console.log('Contact port is paused locally');
-      pauseContactPortForPairHash(portId);
-      return;
-    }
-  } catch (error) {
-    console.log('Error pausing contact port during chat creation: ', error);
+  //check if contact port is already paused locally. If it is, we use this opportunity to try the API call.
+  if (createdContactPort.paused) {
+    console.log('Contact port is paused locally');
+    pauseContactPortForPairHash(pairHash);
   }
   //create crypto duplicated entry
   const cryptoDriver = new CryptoDriver();

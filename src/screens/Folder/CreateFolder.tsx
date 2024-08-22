@@ -15,11 +15,13 @@ import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {defaultPermissions} from '@configs/constants';
 import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {addNewFolder} from '@utils/ChatFolders';
+import {
+  addNewFolder,
+  moveConnectionToNewFolderWithoutPermissionChange,
+} from '@utils/ChatFolders';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {updateGeneratedSuperportFolder} from '@utils/Ports';
-import {moveConnectionToNewFolder} from '@utils/ChatFolders';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useTheme} from 'src/context/ThemeContext';
@@ -158,7 +160,10 @@ const CreateFolder = ({navigation, route}: Props) => {
                       folder.folderId,
                     );
                   } else if (chatId) {
-                    await moveConnectionToNewFolder(chatId, folder.folderId);
+                    await moveConnectionToNewFolderWithoutPermissionChange(
+                      chatId,
+                      folder.folderId,
+                    );
                     setSelectedFolder(folder);
                   } else {
                     setSelectedFolder(folder);

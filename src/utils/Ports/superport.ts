@@ -308,22 +308,12 @@ export async function newChatOverCreatedSuperportBundle(
   const superportCryptoId: string = createdSuperport.cryptoId;
   const chat = new DirectChat();
   const superportCryptoDriver = new CryptoDriver(superportCryptoId);
-  try {
-    //check if superport is already paused. If it is, then we can use this opportunity to inform the server of this.
-    if (createdSuperport.paused) {
-      pauseSuperport(portId);
-      return;
-    }
-    //check if superport limit reached. If so, pause superport
-    if (
-      createdSuperport.connectionsMade === createdSuperport.connectionsLimit
-    ) {
-      //pause superport
-      pauseSuperport(portId);
-      return;
-    }
-  } catch (error) {
-    console.log('Error pausing superport during chat creation: ', error);
+  //check if superport is already paused. If it is, then we can use this opportunity to inform the server of this.
+  if (
+    createdSuperport.paused ||
+    createdSuperport.connectionsMade === createdSuperport.connectionsLimit
+  ) {
+    throw new Error('SuperportPaused');
   }
   //create crypto duplicated entry
   const cryptoDriver = new CryptoDriver();
@@ -350,6 +340,15 @@ export async function newChatOverCreatedSuperportBundle(
     pairHash,
     createdSuperport.folderId,
   );
+  //check if superport limit is reached with this connection. If so, pause superport
+  if (
+    createdSuperport.connectionsMade ===
+    createdSuperport.connectionsLimit - 1
+  ) {
+    //pause superport
+    pauseSuperport(portId);
+    return;
+  }
   //increase the count of connections made using this superport
   await storageSuperports.incrementConnectionsMade(
     createdSuperport.portId,

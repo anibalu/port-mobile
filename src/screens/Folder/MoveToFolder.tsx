@@ -7,7 +7,7 @@ import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React, {useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, View, ScrollView} from 'react-native';
 import {TOPBAR_HEIGHT} from '@configs/constants';
-import {moveConnectionsToNewFolder} from '@utils/ChatFolders';
+import {moveConnectionsToNewFolderWithoutPermissionChange} from '@utils/ChatFolders';
 import {getConnections} from '@utils/Storage/connections';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStackTypes';
@@ -104,7 +104,7 @@ const MoveToFolder = ({route, navigation}: Props) => {
               onClick={async () => {
                 setIsLoading(true);
                 //logic goes here
-                await moveConnectionsToNewFolder(
+                await moveConnectionsToNewFolderWithoutPermissionChange(
                   selectedMembers,
                   selectedFolder.folderId,
                 );

@@ -1,4 +1,4 @@
-import React, {useMemo, useState, useRef, useEffect, useCallback} from 'react';
+import React, {useMemo, useState, useRef, useCallback} from 'react';
 import {Animated, Easing, Pressable, StyleSheet, View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import SearchBar from '@components/SearchBar';
@@ -70,15 +70,21 @@ const Folders = () => {
 
   const {themeValue} = useTheme();
 
-  useEffect(() => {
-    (async () => {
-      const folders = await getAllFoldersWithUnreadCount();
-      setFolders(folders);
-      setViewableFolders(folders);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ping]);
-
+  useFocusEffect(
+    useCallback(() => {
+      const fetchFolders = async () => {
+        try {
+          const folders = await getAllFoldersWithUnreadCount();
+          setFolders(folders);
+          setViewableFolders(folders);
+        } catch (error) {
+          console.error('Error fetching folders:', error);
+        }
+      };
+      fetchFolders();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ping]),
+  );
   useMemo(() => {
     const filteredData = folders.filter(item => {
       return item.name.toLowerCase().includes(searchText.toLowerCase());

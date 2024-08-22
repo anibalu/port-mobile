@@ -199,7 +199,7 @@ const EditFolder = ({route, navigation}: Props) => {
           buttonText="Delete folder"
           onConfirm={async () => {
             await deleteFolder(selectedFolder.folderId);
-            navigation.goBack();
+            navigation.navigate('Folders');
           }}
         />
       </SafeAreaView>

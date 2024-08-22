@@ -17,7 +17,6 @@ import {
 } from '@components/NumberlessText';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {useTheme} from 'src/context/ThemeContext';
 import CheckBox from '../MultiSelectMembers/CheckBox';
 import {useUpdateStatus} from 'src/context/UpdateStatusContext';
 import {sendUpdatedAcceptance} from '@utils/TermsAndConditions/APICalls';
@@ -31,7 +30,6 @@ const HardUpdateInfoBlurView = () => {
     setUpdateStatusLoading,
     updateStatusLoading,
   } = useUpdateStatus();
-  const {themeValue} = useTheme();
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
   const Colors = DynamicColors();
   const svgArray = [
@@ -148,7 +146,7 @@ const HardUpdateInfoBlurView = () => {
             disabled={!acceptedTerms}
             isLoading={updateStatusLoading}
             onClick={async () => await onAcceptClicked()}
-            primaryButtonColor={themeValue !== 'dark' ? 'w' : 'black'}
+            primaryButtonColor={'black'}
           />
         </View>
       </TouchableOpacity>

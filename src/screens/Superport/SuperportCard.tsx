@@ -33,6 +33,7 @@ const SuperportCard = ({
   };
 
   const Colors = DynamicColors();
+  const styles = styling(Colors);
   const folderColor =
     selectedFolder &&
     folderIdToHex(selectedFolder?.folderId, Colors.boldAccentColors);
@@ -113,26 +114,27 @@ const SuperportCard = ({
   );
 };
 
-const styles = StyleSheet.create({
-  footerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    flexWrap: 'wrap',
-  },
-  titleWrapper: {
-    color: PortColors.title,
-    paddingVertical: PortSpacing.tertiary.uniform,
-    borderBottomColor: PortColors.stroke,
-    borderBottomWidth: 0.4,
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-  headerContainer: {
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    footerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      flexWrap: 'wrap',
+    },
+    titleWrapper: {
+      color: PortColors.title,
+      paddingVertical: PortSpacing.tertiary.uniform,
+      borderBottomColor: colors.primary.stroke,
+      borderBottomWidth: 0.5,
+      marginHorizontal: PortSpacing.secondary.uniform,
+    },
+    headerContainer: {
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+  });
 
 export default SuperportCard;

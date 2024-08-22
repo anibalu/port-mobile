@@ -223,7 +223,7 @@ const VoiceRecorder = ({
               </Pressable>
             ) : (
               <Pressable
-                style={{marginLeft: 10}}
+                style={{marginLeft: 11}}
                 onPress={startPlay}
                 hitSlop={{top: 20, right: 20, left: 10, bottom: 20}}>
                 <PlayIcon style={{marginRight: 8}} />
@@ -234,6 +234,7 @@ const VoiceRecorder = ({
               <NumberlessText
                 style={{
                   color: Colors.text.subtitle,
+                  width: 35,
                 }}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
@@ -331,7 +332,7 @@ const styling = (colors: any) =>
       backgroundColor: colors.button.black,
     },
     recordingbox: {
-      width: MESSAGE_INPUT_TEXT_WIDTH + 16,
+      width: MESSAGE_INPUT_TEXT_WIDTH + 15,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',

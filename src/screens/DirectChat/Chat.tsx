@@ -36,6 +36,7 @@ import ReportMessageBottomSheet from '@components/Reusable/BottomSheets/ReportMe
 import DynamicColors from '@components/DynamicColors';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
+import {useTheme} from 'src/context/ThemeContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 
@@ -191,7 +192,8 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   }, []);
 
   const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const styles = styling();
+  const {themeValue} = useTheme();
 
   const onChatScreenPressed = () => {
     // if pop up actions is visible
@@ -208,8 +210,20 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
 
   return (
     <AudioPlayerProvider>
-      <CustomStatusBar backgroundColor={Colors.primary.surface2} />
-      <GestureSafeAreaView style={styles.screen}>
+      <CustomStatusBar
+        backgroundColor={
+          themeValue === 'dark'
+            ? Colors.primary.surface
+            : Colors.primary.surface2
+        }
+      />
+      <GestureSafeAreaView
+        style={StyleSheet.compose(styles.screen, {
+          backgroundColor:
+            themeValue === 'dark'
+              ? Colors.primary.background
+              : Colors.primary.surface,
+        })}>
         <KeyboardAvoidingView
           style={styles.main}
           behavior={isIOS ? 'padding' : 'height'}
@@ -277,7 +291,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   );
 }
 
-const styling = (colors: any) =>
+const styling = () =>
   StyleSheet.create({
     main: {
       flex: 1,
@@ -287,7 +301,6 @@ const styling = (colors: any) =>
     },
     screen: {
       flexDirection: 'column',
-      backgroundColor: colors.primary.surface,
     },
     background: {
       position: 'absolute',

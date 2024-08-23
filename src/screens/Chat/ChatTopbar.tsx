@@ -17,6 +17,7 @@ import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {ChatTopBarWithAccessControls} from './DragDownTopBar';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useTheme} from 'src/context/ThemeContext';
 
 /**
  * Handles top bar for chat
@@ -106,10 +107,19 @@ function ChatTopbar(): ReactNode {
     onCancelPressed();
   };
 
+  const {themeValue} = useTheme();
+
   return (
     <View style={{...styles.bar, marginTop: isIOS ? 0 : insets.top}}>
       {!selectionMode && <ChatTopBarWithAccessControls />}
-      <Pressable style={styles.profileBar} onPress={handlePress}>
+      <Pressable
+        style={StyleSheet.compose(styles.profileBar, {
+          backgroundColor:
+            themeValue === 'dark'
+              ? Colors.primary.surface
+              : Colors.primary.surface2,
+        })}
+        onPress={handlePress}>
         {!selectionMode && (
           <BackButton style={styles.backIcon} onPress={onBackPress} />
         )}
@@ -169,7 +179,6 @@ const styling = (colors: any) =>
       paddingHorizontal: 8,
       height: 56,
       position: 'absolute',
-      backgroundColor: colors.primary.surface2,
     },
     titleBar: {
       flex: 1,

@@ -119,7 +119,17 @@ export function ChatTopBarWithAccessControls() {
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={[styles.container, animatedStyleHeight]}>
+      <Animated.View
+        style={[
+          styles.container,
+          animatedStyleHeight,
+          {
+            backgroundColor:
+              themeValue === 'dark'
+                ? Colors.primary.surface
+                : Colors.primary.surface2,
+          },
+        ]}>
         <View style={styles.parent}>
           {permissionsArray && permissionsId ? (
             <View style={styles.permissionsParent}>
@@ -143,7 +153,17 @@ export function ChatTopBarWithAccessControls() {
                   );
                 })}
               </View>
-              <Animated.View style={[styles.permissionCards, animatedStyle]}>
+              <Animated.View
+                style={[
+                  styles.permissionCards,
+                  animatedStyle,
+                  {
+                    backgroundColor:
+                      themeValue === 'dark'
+                        ? Colors.primary.surface
+                        : Colors.primary.surface2,
+                  },
+                ]}>
                 <ChatSettingsCard
                   chatId={chatId}
                   permissions={permissionsArray}
@@ -174,7 +194,13 @@ export function ChatTopBarWithAccessControls() {
             </View>
           )}
         </View>
-        <View style={styles.slider}>
+        <View
+          style={StyleSheet.compose(styles.slider, {
+            backgroundColor:
+              themeValue === 'dark'
+                ? Colors.primary.surface
+                : Colors.primary.surface2,
+          })}>
           <View style={styles.notch} />
         </View>
       </Animated.View>
@@ -189,7 +215,6 @@ const styling = (colors: any) =>
       width: screen.width,
       justifyContent: 'flex-end',
       alignItems: 'center',
-      backgroundColor: colors.primary.surface2,
       overflow: 'hidden',
     },
     slider: {
@@ -197,7 +222,6 @@ const styling = (colors: any) =>
       height: SLIDER_HEIGHT,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: colors.primary.surface2,
     },
     notch: {
       width: 40,
@@ -240,7 +264,6 @@ const styling = (colors: any) =>
       justifyContent: 'flex-end',
       alignItems: 'center',
       height: PERMISSIONS_OPEN_HEIGHT,
-      backgroundColor: colors.primary.surface2,
       bottom: PERMISSION_BAR_HEIGHT,
       position: 'absolute',
     },

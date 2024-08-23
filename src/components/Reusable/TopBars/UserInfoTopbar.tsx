@@ -107,16 +107,19 @@ const UserInfoTopbar = ({
             setSharingContact(false);
           }}>
           <IconRight width={20} height={20} />
-          {sharingContact ? (
-            <ActivityIndicator size="small" color={Colors.primary.white} />
-          ) : (
-            <NumberlessText
-              fontType={FontType.rg}
-              textColor={Colors.primary.white}
-              fontSizeType={FontSizeType.s}>
-              Share Contact
-            </NumberlessText>
-          )}
+          <View style={{flex: 1}}>
+            {sharingContact ? (
+              <ActivityIndicator size="small" color={Colors.primary.white} />
+            ) : (
+              <NumberlessText
+                numberOfLines={1}
+                fontType={FontType.rg}
+                textColor={Colors.primary.white}
+                fontSizeType={FontSizeType.s}>
+                Share Contact
+              </NumberlessText>
+            )}
+          </View>
         </Pressable>
       )}
     </View>
@@ -144,12 +147,13 @@ const styling = (colors: any, showUserInfo: boolean) =>
     button: {
       backgroundColor: colors.button.black,
       height: 40,
+      width: 130,
       borderRadius: 12,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: PortSpacing.medium.uniform,
       justifyContent: 'center',
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 8,
+      gap: 5,
     },
   });
 

@@ -20,7 +20,10 @@ export type AppStackParamList = {
     chatId?: string;
     superportLabel?: string;
     saveDetails?: boolean;
-    onSaveDetails?: (folderPermissions: PermissionsStrict) => void;
+    onSaveDetails?: (
+      folderPermissions: PermissionsStrict,
+      folderName: string,
+    ) => void;
     savedFolderPermissions?: PermissionsStrict;
   };
   EditFolder: {selectedFolder: FolderInfo};

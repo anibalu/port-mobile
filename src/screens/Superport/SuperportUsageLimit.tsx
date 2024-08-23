@@ -58,7 +58,7 @@ const SuperportUsageLimit = ({
             }}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.l}>
-            Setup usage credits
+            Setup usage limits
           </NumberlessText>
           <View
             style={{

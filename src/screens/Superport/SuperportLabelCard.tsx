@@ -1,5 +1,5 @@
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import React, {useState} from 'react';
+import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {
   FontSizeType,
@@ -17,32 +17,31 @@ import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 
 const SuperportLabelCard = ({
   autoFolderCreateToggle,
+  createdFolderName,
   permissionsArray,
   label,
   chosenFolder,
   showEmptyLabelError,
-  setShowEmptyLabelError,
   setOpenModal,
   onChooseFolder,
   onEditFolder,
+  autoCreateFolder,
+  setAutoCreateFolder,
 }: {
+  createdFolderName: string;
+  autoCreateFolder: boolean;
+  setAutoCreateFolder: (x: boolean) => void;
   permissionsArray: PermissionsStrict;
   autoFolderCreateToggle: boolean;
   chosenFolder: FolderInfo;
   onEditFolder: () => void;
   onChooseFolder: () => void;
   showEmptyLabelError: boolean;
-  setShowEmptyLabelError: (x: boolean) => void;
   label: string;
   setOpenModal: (p: boolean) => void;
 }) => {
-  const [toggle, setToggle] = useState<boolean>(false);
   const onToggleChange = () => {
-    if (!label) {
-      setShowEmptyLabelError(true);
-    } else {
-      setToggle(p => !p);
-    }
+    setAutoCreateFolder(p => !p);
   };
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -118,23 +117,24 @@ const SuperportLabelCard = ({
             Automatically create a new folder and link it to this Superport.
           </NumberlessText>
           <ToggleSwitch
-            isOn={toggle}
+            isOn={autoCreateFolder}
             onColor={Colors.primary.darkGreen}
             offColor={Colors.primary.lightgrey}
             onToggle={onToggleChange}
           />
         </View>
       )}
-
-      <SuperportLinkedFolderCard
-        permissionsArray={permissionsArray}
-        chosenFolder={chosenFolder}
-        onEditFolder={onEditFolder}
-        onChooseFolder={onChooseFolder}
-        toggleState={toggle}
-        label={label}
-        autoFolderCreateToggle={autoFolderCreateToggle}
-      />
+      {(createdFolderName || label || !autoCreateFolder) && (
+        <SuperportLinkedFolderCard
+          permissionsArray={permissionsArray}
+          chosenFolder={chosenFolder}
+          onEditFolder={onEditFolder}
+          onChooseFolder={onChooseFolder}
+          toggleState={autoCreateFolder}
+          folderName={createdFolderName || label}
+          autoFolderCreateToggle={autoFolderCreateToggle}
+        />
+      )}
     </SimpleCard>
   );
 };

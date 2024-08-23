@@ -12,28 +12,54 @@ import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import React from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
+import {updateGeneratedSuperportFolder} from '@utils/Ports';
 
-const LinkToFolderBottomSheet = ({
+/**
+ * FilterByFolderBottomSheet
+ *
+ * This component renders a bottom sheet that allows users to select a folder from a list for the filteration of ports.
+ *
+ * Props:
+ * - foldersArray: Array of FolderInfo objects representing the list of available folders.
+ * - visible: Boolean indicating whether the bottom sheet is visible or not.
+ * - onClose: Function to be called when the bottom sheet is closed.
+ * - currentFolder: The currently selected folder, used to indicate which option is selected.
+ * - setSelectedFolderData: Function to update the selected folder data in the parent component.
+ * - portId: (Optional) The ID of the port to be linked to the selected folder.
+ * - title: The title displayed at the top of the bottom sheet.
+ * - subtitle: (Optional) A subtitle displayed below the title.
+ */
+
+const FilterByFolderBottomSheet = ({
   foldersArray,
   visible,
   onClose,
-  folder,
-  setSelectedFolder,
+  currentFolder,
+  setSelectedFolderData,
+  portId,
   title,
   subtitle,
 }: {
+  portId?: any;
   foldersArray: FolderInfo[];
-  setSelectedFolder: (folder: FolderInfo) => void;
+  setSelectedFolderData: (folder: FolderInfo | null) => void;
   visible: boolean;
   onClose: () => void;
-  folder: FolderInfo;
+  currentFolder: FolderInfo;
   title: string;
   subtitle?: string;
 }) => {
   const Colors = DynamicColors();
 
-  const onRadioClick = (item: FolderInfo) => {
-    setSelectedFolder(item);
+  const onRadioClick = async (item: FolderInfo) => {
+    if (item.folderId === 'all') {
+      setSelectedFolderData(null);
+    } else {
+      setSelectedFolderData(item);
+    }
+    if (portId) {
+      await updateGeneratedSuperportFolder(portId, item.folderId);
+    }
     onClose();
   };
 
@@ -45,11 +71,15 @@ const LinkToFolderBottomSheet = ({
       onClose={onClose}
       title={title}>
       <View
-        style={{marginBottom: PortSpacing.secondary.uniform, width: '100%'}}>
+        style={{
+          marginBottom: PortSpacing.secondary.uniform,
+          width: '100%',
+        }}>
         {subtitle && (
           <NumberlessText
             textColor={Colors.text.subtitle}
             style={{
+              width: '100%',
               marginTop: PortSpacing.secondary.uniform,
             }}
             fontSizeType={FontSizeType.m}
@@ -60,16 +90,30 @@ const LinkToFolderBottomSheet = ({
       </View>
 
       <SimpleCard style={styles.cardWrapper}>
-        <NumberlessText
-          style={{
-            marginVertical: PortSpacing.secondary.uniform,
-            paddingHorizontal: PortSpacing.secondary.uniform,
-          }}
-          textColor={Colors.text.primary}
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.md}>
-          Choose folder
-        </NumberlessText>
+        {foldersArray.length > 0 ? (
+          <NumberlessText
+            style={{
+              marginVertical: PortSpacing.secondary.uniform,
+              paddingHorizontal: PortSpacing.secondary.uniform,
+            }}
+            textColor={Colors.text.primary}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}>
+            Choose folder
+          </NumberlessText>
+        ) : (
+          <NumberlessText
+            style={{
+              textAlign: 'center',
+              marginVertical: PortSpacing.secondary.uniform,
+              paddingHorizontal: PortSpacing.secondary.uniform,
+            }}
+            textColor={Colors.primary.mediumgrey}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.md}>
+            No folders data available
+          </NumberlessText>
+        )}
         <FlatList
           data={foldersArray}
           scrollEnabled={true}
@@ -80,8 +124,8 @@ const LinkToFolderBottomSheet = ({
             return (
               <>
                 <OptionWithRadio
-                  onClick={async () => onRadioClick(item.item)}
-                  selectedOption={folder.folderId}
+                  onClick={async () => await onRadioClick(item.item)}
+                  selectedOption={currentFolder.folderId}
                   selectedOptionComparision={item.item.folderId}
                   title={item.item.name}
                 />
@@ -120,4 +164,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LinkToFolderBottomSheet;
+export default FilterByFolderBottomSheet;

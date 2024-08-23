@@ -15,7 +15,7 @@ import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 
 const SuperportLinkedFolderCard = ({
   toggleState,
-  label,
+  folderName,
   chosenFolder,
   onChooseFolder,
   onEditFolder,
@@ -28,7 +28,7 @@ const SuperportLinkedFolderCard = ({
   onChooseFolder: () => void;
   onEditFolder: () => void;
   toggleState: boolean;
-  label: string;
+  folderName: string;
 }) => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -131,7 +131,9 @@ const SuperportLinkedFolderCard = ({
             }
             fontType={FontType.sb}
             fontSizeType={FontSizeType.s}>
-            {toggleState && autoFolderCreateToggle ? label : chosenFolder.name}
+            {toggleState && autoFolderCreateToggle
+              ? folderName
+              : chosenFolder.name}
           </NumberlessText>
         </View>
       </View>

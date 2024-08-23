@@ -92,7 +92,7 @@ const CreateFolder = ({navigation, route}: Props) => {
             paddingTop: PortSpacing.secondary.top,
           }}>
           <SimpleInput
-            isEditable={!saveDetails}
+            isEditable={true}
             placeholderText="Folder name"
             bgColor={themeValue === 'dark' ? 'w' : 'g'}
             text={folderName}
@@ -187,7 +187,7 @@ const CreateFolder = ({navigation, route}: Props) => {
                 primaryButtonColor="b"
                 buttonText="Save"
                 onClick={() => {
-                  onSaveDetails && onSaveDetails(permissions);
+                  onSaveDetails && onSaveDetails(permissions, folderName);
                 }}
               />
             )}

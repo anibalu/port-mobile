@@ -34,7 +34,7 @@ import {DirectSuperportBundle} from '@utils/Ports/interfaces';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import Share from 'react-native-share';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import {addNewFolder} from '@utils/ChatFolders';
+import {addNewFolder, deleteFolder} from '@utils/ChatFolders';
 import {getAllFolders} from '@utils/Storage/folders';
 import EditName from '@components/Reusable/BottomSheets/EditName';
 import UsageLimitsBottomSheet from '@components/Reusable/BottomSheets/UsageLimitsBottomSheet';
@@ -48,10 +48,10 @@ import {useSelector} from 'react-redux';
 import DynamicColors from '@components/DynamicColors';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
-import LinkToFolderBottomSheet from '@screens/Home/LinkToFolderBottomSheet';
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {useFocusEffect} from '@react-navigation/native';
 import {ToastType, useToast} from 'src/context/ToastContext';
+import LinkToFolderBottomSheet from '@components/Reusable/BottomSheets/LinkToFolderBottomSheet';
 type Props = NativeStackScreenProps<AppStackParamList, 'SuperportScreen'>;
 
 const SuperportScreen = ({route, navigation}: Props) => {
@@ -80,6 +80,9 @@ const SuperportScreen = ({route, navigation}: Props) => {
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const [openErrorModalPreviewImage, setOpenErrorModalPreviewImage] =
     useState(false);
+
+  //toggle value
+  const [autoCreateFolder, setAutoCreateFolder] = useState<boolean>(true);
 
   //control label assigned to superport
   const [label, setLabel] = useState('');
@@ -120,8 +123,13 @@ const SuperportScreen = ({route, navigation}: Props) => {
   );
 
   const latestNewConnection = useSelector(state => state.latestNewConnection);
+  const [createdFolderName, setCreatedFolderName] = useState<string>('');
 
-  const onSaveDetails = (folderPermissions: PermissionsStrict) => {
+  const onSaveDetails = (
+    folderPermissions: PermissionsStrict,
+    folderName: string,
+  ) => {
+    setCreatedFolderName(folderName);
     setSavedFolderPermissions(folderPermissions);
     navigation.goBack();
   };
@@ -130,7 +138,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
     navigation.navigate('CreateFolder', {
       setSelectedFolder: setFolder,
       portId: qrData?.portId ? qrData.portId : '',
-      superportLabel: label,
+      superportLabel: createdFolderName || label,
       saveDetails: true,
       onSaveDetails,
       savedFolderPermissions,
@@ -148,8 +156,13 @@ const SuperportScreen = ({route, navigation}: Props) => {
   const [foldersArray, setFoldersArray] = useState<FolderInfo[]>([]);
 
   const createFolderAndSuperport = async () => {
-    const folder = await addNewFolder(label, savedFolderPermissions);
-    fetchPort(folder);
+    const folderLabel = createdFolderName || label;
+    if (autoCreateFolder && folderLabel) {
+      const folder = await addNewFolder(folderLabel, savedFolderPermissions);
+      fetchPort(folder);
+    } else {
+      fetchPort();
+    }
   };
 
   //fetches a port
@@ -167,12 +180,19 @@ const SuperportScreen = ({route, navigation}: Props) => {
         setQrData(bundle);
         setIsPaused(superport.paused);
         setLabel(superport.label);
+        setCreatedFolderName(superport.label);
         setConnectionLimit(superport.connectionsLimit);
         setConnectionMade(superport.connectionsMade);
         setChosenFolder(folder ? folder : chosenFolder);
         setIsLoading(false);
       } catch (error) {
         console.log('Failed to fetch superport: ', error);
+        //deleting created folder if superport creation fails.
+        folder && (await deleteFolder(folder.folderId));
+        showToast(
+          'Superport could not be created! Please check your internet connection and try again.',
+          ToastType.error,
+        );
         setHasFailed(true);
         setIsLoading(false);
         setQrData(null);
@@ -266,6 +286,9 @@ const SuperportScreen = ({route, navigation}: Props) => {
     if (qrData?.portId) {
       await updateGeneratedSuperportLabel(qrData.portId, label);
     }
+    if (label) {
+      setAutoCreateFolder(true);
+    }
     setOpenLabelModal(false);
   };
 
@@ -285,8 +308,8 @@ const SuperportScreen = ({route, navigation}: Props) => {
           'New limit could not be set. please check your internet connection and try again',
           ToastType.error,
         );
-        setNewLimitLoading(false);
       } finally {
+        setNewLimitLoading(false);
         setOpenUsageLimitsModal(false);
       }
     } else {
@@ -315,7 +338,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
         }
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [portId]),
+    }, [portId, openLinkToFolder]),
   );
 
   const updateConnectionCount = async () => {
@@ -351,9 +374,12 @@ const SuperportScreen = ({route, navigation}: Props) => {
         await cleanDeleteSuperport(qrData.portId);
         navigation.goBack();
       } catch (error) {
-        setDeleteSuperportError(true);
-        setDeleteSuperportLoading(false);
         console.error('Error deleting superport', error);
+        setIsDeleteConfirmOpen(false);
+        await wait(safeModalCloseDuration);
+        setDeleteSuperportError(true);
+      } finally {
+        setDeleteSuperportLoading(false);
       }
     }
   };
@@ -369,9 +395,12 @@ const SuperportScreen = ({route, navigation}: Props) => {
         await changePausedStateOfSuperport(qrData.portId, !isPaused);
         setIsPaused(!isPaused);
       } catch (error) {
-        setPauseSuperportLoading(false);
         console.error('Error pausing or resuming superport', error);
+        setIsPauseConfirmOpen(false);
+        await wait(safeModalCloseDuration);
         setPauseSuperportError(true);
+      } finally {
+        setPauseSuperportLoading(false);
       }
     }
   };
@@ -423,9 +452,11 @@ const SuperportScreen = ({route, navigation}: Props) => {
                 textColor={Colors.text.subtitle}
                 fontType={FontType.rg}
                 fontSizeType={FontSizeType.m}>
-                Customize your port
+                Customize your Superport
               </NumberlessText>
               <SuperportLabelCard
+                autoCreateFolder={autoCreateFolder}
+                setAutoCreateFolder={setAutoCreateFolder}
                 permissionsArray={savedFolderPermissions}
                 autoFolderCreateToggle={!qrData ? true : false}
                 onEditFolder={onEditFolder}
@@ -434,8 +465,8 @@ const SuperportScreen = ({route, navigation}: Props) => {
                   setOpenLinkToFolder(true);
                 }}
                 showEmptyLabelError={showEmptyLabelError}
-                setShowEmptyLabelError={setShowEmptyLabelError}
                 label={label}
+                createdFolderName={createdFolderName}
                 setOpenModal={setOpenLabelModal}
               />
             </View>
@@ -516,8 +547,8 @@ const SuperportScreen = ({route, navigation}: Props) => {
           onTryAgain={previewImage}
         />
         <EditName
-          title="Edit Superport label"
-          description="Choose a label that describes the purpose or destination for the Superport."
+          title="Edit Superport name"
+          description="Adding a name to this Superport makes it easy to recognize it in your Superports tab."
           onClose={() => setOpenLabelModal(false)}
           visible={openLabelModal}
           setName={setLabel}
@@ -536,7 +567,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
         <ConfirmationBottomSheet
           visible={isDeleteConfirmOpen}
           onClose={() => setIsDeleteConfirmOpen(false)}
-          onConfirm={async () => await deleteSuperport()}
+          onConfirm={deleteSuperport}
           title="Are you sure you want to delete this Superport?"
           description="Deleting this Superport will prevent new connections from forming using this Superport.
           Connections already formed using this Superport will remain unaffected."
@@ -545,8 +576,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
         />
         <LinkToFolderBottomSheet
           title="Link it to an existing folder"
-          subtitle="When you move a chat to a chat folder, its initial settings will be
-        inherited from the settings set for the folder."
+          subtitle="New chats from this Superport will form and inherit initial settings from the linked folder."
           portId={portId}
           currentFolder={chosenFolder}
           foldersArray={foldersArray}
@@ -557,10 +587,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
         <ConfirmationBottomSheet
           visible={isPauseConfirmOpen}
           onClose={() => setIsPauseConfirmOpen(false)}
-          onConfirm={async () => {
-            await pauseSuperport();
-            setPauseSuperportLoading(false);
-          }}
+          onConfirm={pauseSuperport}
           title={
             isPaused
               ? 'Are you sure you want to unpause this Superport?'

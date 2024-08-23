@@ -37,11 +37,11 @@ import {SuperportData} from '@utils/Storage/DBCalls/ports/superPorts';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import BackTopbarWithButton from '@components/Reusable/TopBars/BackTopBarWithButton';
 import SearchBar from '@components/SearchBar';
-import LinkToFolderBottomSheet from '@screens/Home/LinkToFolderBottomSheet';
 import {BottomNavStackParamList} from '@navigation/BottomNavStackTypes';
 import {useSelector} from 'react-redux';
 import {SvgXml} from 'react-native-svg';
 import {folderIdToHex} from '@utils/Folders/folderIdToHex';
+import FilterByFolderBottomSheet from './FilterByFolderBottomSheet';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Superports'>;
 
@@ -370,7 +370,7 @@ const Superports = ({navigation}: Props) => {
             )}
           </>
         )}
-        <LinkToFolderBottomSheet
+        <FilterByFolderBottomSheet
           title={'Filter by folder'}
           currentFolder={
             selectedFolder

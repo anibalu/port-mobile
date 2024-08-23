@@ -49,9 +49,11 @@ const EditName = ({
   }, [name]);
 
   const onSavePress = () => {
-    setName(newName);
+    const trimmedName = newName.trim();
+    setName(trimmedName);
     onSave();
     Keyboard.dismiss();
+    onClose && onClose();
   };
 
   const Colors = DynamicColors();

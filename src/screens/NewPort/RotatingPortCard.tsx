@@ -29,7 +29,7 @@ import {
   updatePermissions,
 } from '@utils/Storage/permissions';
 import {updatePortData} from '@utils/Storage/myPorts';
-import LinkToFolderBottomSheet from './LinkToFolderBottomSheet';
+import LinkToFolderBottomSheet from '@components/Reusable/BottomSheets/LinkToFolderBottomSheet';
 
 const RotatingPortCard = ({
   isLoading,
@@ -390,10 +390,10 @@ const EditSettings = ({
         title="Link it to an existing folder"
         subtitle="When you move a chat to a chat folder, its initial settings will be
         inherited from the settings set for the folder."
-        folder={taggedFolder}
+        currentFolder={taggedFolder}
         foldersArray={folders}
         onClose={() => setOpenLinkToFolder(false)}
-        setSelectedFolder={setTaggedFolder}
+        setSelectedFolderData={setTaggedFolder}
         visible={openLinkToFolder}
       />
     </SimpleCard>

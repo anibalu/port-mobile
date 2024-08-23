@@ -14,6 +14,23 @@ import {FlatList, StyleSheet, View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import {updateGeneratedSuperportFolder} from '@utils/Ports';
 
+/**
+ * LinkToFolderBottomSheet
+ *
+ * This component renders a bottom sheet that allows users to select a folder from a list.
+ * The selected folder is linked to a specified port ID
+ *
+ * Props:
+ * - foldersArray: Array of FolderInfo objects representing the list of available folders.
+ * - visible: Boolean indicating whether the bottom sheet is visible or not.
+ * - onClose: Function to be called when the bottom sheet is closed.
+ * - currentFolder: The currently selected folder, used to indicate which option is selected.
+ * - setSelectedFolderData: Function to update the selected folder data in the parent component.
+ * - portId: (Optional) The ID of the port to be linked to the selected folder.
+ * - title: The title displayed at the top of the bottom sheet.
+ * - subtitle: (Optional) A subtitle displayed below the title.
+ */
+
 const LinkToFolderBottomSheet = ({
   foldersArray,
   visible,
@@ -26,21 +43,17 @@ const LinkToFolderBottomSheet = ({
 }: {
   portId?: any;
   foldersArray: FolderInfo[];
-  setSelectedFolderData: (folder: FolderInfo | null) => void;
+  setSelectedFolderData: (folder: FolderInfo) => void;
   visible: boolean;
   onClose: () => void;
-  currentFolder: FolderInfo | null;
+  currentFolder: FolderInfo;
   title: string;
   subtitle?: string;
 }) => {
   const Colors = DynamicColors();
 
   const onRadioClick = async (item: FolderInfo) => {
-    if (item.folderId === 'all') {
-      setSelectedFolderData(null);
-    } else {
-      setSelectedFolderData(item);
-    }
+    setSelectedFolderData(item);
     if (portId) {
       await updateGeneratedSuperportFolder(portId, item.folderId);
     }

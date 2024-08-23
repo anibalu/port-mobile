@@ -7,7 +7,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {ReactNode, useMemo, useState} from 'react';
+import React, {ReactNode, useMemo} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import DynamicColors from '@components/DynamicColors';
@@ -23,7 +23,7 @@ import Scanner from '@assets/icons/ScannerDarkGreen.svg';
 import PortBrand from '@assets/icons/PortBrandPurple.svg';
 import InviteContact from '@assets/icons/InviteContactOrange.svg';
 import {useSelector} from 'react-redux';
-import {checkContactPermission} from '@utils/AppPermissions';
+import {checkAndAskContactPermission} from '@utils/AppPermissions';
 
 function HomescreenPlaceholder(): ReactNode {
   const navigation = useNavigation();
@@ -56,16 +56,13 @@ function HomescreenPlaceholder(): ReactNode {
 
   const styles = styling(Colors);
 
-  const [isContactPermissionGranted, setIsContactPermissionGranted] =
-    useState<boolean>(false);
-
-  const onInviteContactClick = () => {
-    if (isContactPermissionGranted) {
+  const onInviteContactClick = async () => {
+    const granted = await checkAndAskContactPermission();
+    if (granted) {
       navigation.navigate('PhoneContactList');
-    } else {
-      checkContactPermission(setIsContactPermissionGranted);
     }
   };
+
   const onScanQRClick = () => {
     navigation.navigate('Scan');
   };

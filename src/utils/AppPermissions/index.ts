@@ -205,18 +205,16 @@ export const checkSavingImagesPermission = async (
 
 /**
  * Function to check and request contact read permissions
- * @param setIsContactPermissionGranted - a setter function that sets state based on the response
  */
-export const checkContactPermission = async (
-  setIsContactPermissionGranted: Function,
-) => {
+export async function checkAndAskContactPermission(): Promise<boolean> {
   try {
     const requestContactPermission = async (contactPermission: Permission) => {
       const contactPermissionStatus = await request(contactPermission);
       console.log('Requested contactPermissionStatus', contactPermissionStatus);
       if (contactPermissionStatus === RESULTS.GRANTED) {
-        setIsContactPermissionGranted(true);
+        return true;
       }
+      return false;
     };
 
     const contactPermission = Platform.select({
@@ -226,7 +224,7 @@ export const checkContactPermission = async (
 
     if (contactPermission === undefined) {
       console.log('This platform is not supported');
-      return;
+      return false;
     }
 
     const contactPermissionStatus = await check(contactPermission);
@@ -237,25 +235,25 @@ export const checkContactPermission = async (
         console.log(
           'This feature is not available (on this device / in this context)',
         );
-        break;
+        return false;
       case RESULTS.DENIED:
         console.log(
           'The permission has not been requested / is denied but requestable',
         );
-        await requestContactPermission(contactPermission);
-        break;
+        return await requestContactPermission(contactPermission);
       case RESULTS.GRANTED:
         console.log('The permission is granted');
-        setIsContactPermissionGranted(true);
-        break;
+        return true;
       case RESULTS.BLOCKED:
         console.log('The permission is denied and not requestable anymore');
-        break;
+        return false;
     }
+    return false;
   } catch (error) {
     console.error(
       'An error occurred while checking contact permission:',
       error,
     );
+    return false;
   }
-};
+}

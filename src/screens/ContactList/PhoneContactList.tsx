@@ -1,5 +1,11 @@
-import React, {ReactElement, useEffect, useState} from 'react';
-import {FlatList, StyleSheet, View, TouchableOpacity} from 'react-native';
+import React, {ReactElement, useEffect, useMemo, useState} from 'react';
+import {
+  FlatList,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
@@ -8,7 +14,6 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import Contacts from 'react-native-contacts';
-import {AVATAR_ARRAY, TOPBAR_HEIGHT} from '@configs/constants';
 import SearchBar from '@components/SearchBar';
 import {PortSpacing} from '@components/ComponentUtils';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
@@ -19,13 +24,14 @@ import {
 } from '@components/NumberlessText';
 import {useTheme} from 'src/context/ThemeContext';
 import InviteContactBottomsheet from '@components/Reusable/BottomSheets/InviteContactBottomsheet';
-interface ContactInfo {
-  contactName: string;
-  contactEmail?: string;
-  contactNumber?: string;
-}
 
 type Props = NativeStackScreenProps<AppStackParamList, 'PhoneContactList'>;
+
+interface ContactInfo {
+  contactName: string;
+  contactEmail: Contacts.EmailAddress[];
+  contactNumber: Contacts.PhoneNumber[];
+}
 
 const PhoneContactList = ({navigation}: Props) => {
   const Colors = DynamicColors();
@@ -33,12 +39,12 @@ const PhoneContactList = ({navigation}: Props) => {
 
   const styles = styling(Colors);
   const [searchText, setSearchtext] = useState<string>('');
-  const [visible, setVisible] = useState<boolean>(false);
-  const [contactList, setContactList] = useState<any[]>([]);
-  const [filteredContacts, setFilteredContacts] = useState<any[]>([]);
-  const [selectedContacInfo, setSelectedContactInfo] = useState<ContactInfo>({
-    contactName: '',
-  });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [contactList, setContactList] = useState<any>({});
+  const [filteredContacts, setFilteredContacts] = useState<any>({});
+  const [numberOfContacts, setNumberOfContacts] = useState<number>(0);
+  const [selectedContacInfo, setSelectedContactInfo] =
+    useState<ContactInfo | null>(null);
 
   const svgArray = [
     {
@@ -52,15 +58,15 @@ const PhoneContactList = ({navigation}: Props) => {
 
   useEffect(() => {
     // fetching all contacts from phonebook
-    Contacts.getAll()
-      .then(contacts => {
+    (async () => {
+      try {
+        const contacts = await Contacts.getAll();
         // Sorting contacts alphabetically
         contacts.sort((a, b) =>
           (a.givenName + ' ' + a.familyName).localeCompare(
             b.givenName + ' ' + b.familyName,
           ),
         );
-
         // // Grouping contacts by the first letter
         const groupedContacts = contacts
           .filter(x => x.givenName)
@@ -75,38 +81,47 @@ const PhoneContactList = ({navigation}: Props) => {
 
         setContactList(groupedContacts);
         setFilteredContacts(groupedContacts);
-      })
-      .catch(e => {
-        console.log(e);
-      });
+      } catch (error) {
+        console.error('Error loading contacts: ', error);
+      }
+      setIsLoading(false);
+    })();
   }, []);
 
-  useEffect(() => {
-    // Filter the contacts based on the search text
-    if (searchText.trim() === '') {
-      setFilteredContacts(contactList);
-    } else {
-      const filtered = Object.keys(contactList).reduce((result, key) => {
-        const matchingContacts = contactList[key].filter(contact =>
-          (contact.givenName + ' ' + contact.familyName)
-            .toLowerCase()
-            .includes(searchText.toLowerCase()),
+  useMemo(() => {
+    if (contactList) {
+      // Filter the contacts based on the search text
+      if (searchText.trim() === '') {
+        setFilteredContacts(contactList);
+      } else {
+        const filtered = Object.keys(contactList).reduce(
+          (result: any, key: string) => {
+            const matchingContacts = (
+              contactList[key] as Contacts.Contact[]
+            ).filter(contact =>
+              (contact.givenName + ' ' + contact.familyName)
+                .toLowerCase()
+                .includes(searchText.toLowerCase()),
+            );
+            if (matchingContacts.length > 0) {
+              result[key] = matchingContacts;
+            }
+            return result;
+          },
+          {},
         );
-        if (matchingContacts.length > 0) {
-          result[key] = matchingContacts;
-        }
-        return result;
-      }, {});
-
-      setFilteredContacts(filtered);
+        setFilteredContacts(filtered);
+      }
     }
   }, [searchText, contactList]);
 
-  function renderContactTile({item}: {item: any}): ReactElement {
+  interface ItemInterface extends Contacts.Contact {
+    firstLetter: string;
+    index: number;
+  }
+  function renderContactTile({item}: {item: ItemInterface}): ReactElement {
     const isLastInGroup =
       item.index === filteredContacts[item.firstLetter].length - 1;
-    const contactName = item.givenName + ' ' + item.familyName;
-
     return (
       <View>
         {item.index === 0 && (
@@ -128,17 +143,14 @@ const PhoneContactList = ({navigation}: Props) => {
             borderBottomWidth: isLastInGroup ? 0 : 0.5,
             borderBottomColor: Colors.primary.stroke,
           }}>
-          <AvatarBox
-            avatarSize="s"
-            profileUri={item.thumbnailPath ?? AVATAR_ARRAY[0]}
-          />
+          <AvatarBox avatarSize="s" profileUri={item.thumbnailPath} />
           <View style={{flex: 1}}>
             <NumberlessText
               numberOfLines={1}
               textColor={Colors.text.primary}
               fontType={FontType.rg}
               fontSizeType={FontSizeType.m}>
-              {contactName}
+              {item.givenName + ' ' + item.familyName}
             </NumberlessText>
           </View>
           <TouchableOpacity
@@ -146,8 +158,8 @@ const PhoneContactList = ({navigation}: Props) => {
             onPress={() =>
               onInviteContactClick({
                 contactName: item.givenName,
-                contactEmail: item.emailAddresses[0],
-                contactNumber: item.phoneNumbers[0]?.number,
+                contactEmail: item.emailAddresses,
+                contactNumber: item.phoneNumbers,
               })
             }
             style={{
@@ -171,16 +183,13 @@ const PhoneContactList = ({navigation}: Props) => {
             </NumberlessText>
           </TouchableOpacity>
         </View>
-        <InviteContactBottomsheet
-          visible={visible}
-          setVisible={setVisible}
-          name={selectedContacInfo.contactName}
-          email={selectedContacInfo.contactEmail || ''}
-          number={selectedContacInfo.contactNumber || ''}
-        />
       </View>
     );
   }
+
+  useMemo(() => {
+    setNumberOfContacts(Object.values(filteredContacts).flat().length);
+  }, [filteredContacts]);
 
   const onClose = () => {
     navigation.goBack();
@@ -188,10 +197,7 @@ const PhoneContactList = ({navigation}: Props) => {
 
   const onInviteContactClick = (contact: ContactInfo) => {
     setSelectedContactInfo(contact);
-    setVisible(true);
   };
-
-  const numContacts = Object.values(contactList).flat().length;
 
   return (
     <>
@@ -199,8 +205,8 @@ const PhoneContactList = ({navigation}: Props) => {
       <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <TopBarWithRightIcon
           heading={
-            numContacts > 0
-              ? `Phone contacts (${numContacts})`
+            numberOfContacts > 0
+              ? `Phone contacts (${numberOfContacts})`
               : 'Phone contacts'
           }
           IconRight={CrossButton}
@@ -212,38 +218,43 @@ const PhoneContactList = ({navigation}: Props) => {
             gap: PortSpacing.secondary.uniform,
             flex: 1,
           }}>
-          {numContacts > 0 && (
-            <View
+          <View
+            style={{
+              paddingHorizontal: PortSpacing.secondary.uniform,
+              paddingVertical: PortSpacing.tertiary.uniform,
+              backgroundColor: Colors.primary.surface,
+              borderTopWidth: 0.5,
+              borderTopColor: Colors.primary.stroke,
+            }}>
+            <SearchBar
               style={{
-                paddingHorizontal: PortSpacing.secondary.uniform,
-                paddingVertical: PortSpacing.tertiary.uniform,
-                backgroundColor: Colors.primary.surface,
-                borderTopWidth: 0.5,
-                borderTopColor: Colors.primary.stroke,
-              }}>
-              <SearchBar
-                style={{
-                  backgroundColor: Colors.primary.background,
-                  borderWidth: 0.5,
-                  borderColor: Colors.primary.stroke,
-                  borderRadius: PortSpacing.medium.uniform,
-                }}
-                searchText={searchText}
-                setSearchText={setSearchtext}
-              />
-            </View>
-          )}
+                backgroundColor: Colors.primary.background,
+                borderWidth: 0.5,
+                borderColor: Colors.primary.stroke,
+                borderRadius: PortSpacing.medium.uniform,
+              }}
+              searchText={searchText}
+              setSearchText={setSearchtext}
+            />
+          </View>
           {/* main container */}
           <View style={{flexShrink: 1}}>
-            {Object.keys(filteredContacts).length > 0 ? (
+            {isLoading ? (
+              <ActivityIndicator color={Colors.text.subtitle} />
+            ) : (
               <FlatList
                 data={Object.entries(filteredContacts).flatMap(
-                  ([firstLetter, contacts]) =>
-                    contacts.map((contact: any, index: number) => ({
-                      ...contact,
-                      firstLetter,
-                      index,
-                    })),
+                  ([firstLetter, contacts]: [
+                    firstLetter: any,
+                    contacts: any,
+                  ]) =>
+                    contacts.map(
+                      (contact: Contacts.Contact, index: number) => ({
+                        ...contact,
+                        firstLetter,
+                        index,
+                      }),
+                    ),
                 )}
                 renderItem={renderContactTile}
                 keyExtractor={item => item.recordID}
@@ -252,20 +263,37 @@ const PhoneContactList = ({navigation}: Props) => {
                 ListFooterComponent={
                   <View style={{height: PortSpacing.secondary.bottom}} />
                 }
+                ListEmptyComponent={() => (
+                  <View
+                    style={{
+                      height: 100,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <NumberlessText
+                      textColor={Colors.text.subtitle}
+                      fontSizeType={FontSizeType.l}
+                      fontType={FontType.rg}>
+                      No Phone Contacts found
+                    </NumberlessText>
+                  </View>
+                )}
               />
-            ) : (
-              <View style={styles.placeholderContainer}>
-                <NumberlessText
-                  style={{textAlign: 'center'}}
-                  textColor={Colors.primary.mediumgrey}
-                  fontType={FontType.rg}
-                  fontSizeType={FontSizeType.l}>
-                  No contacts found
-                </NumberlessText>
-              </View>
             )}
           </View>
         </View>
+        {/* We need to conditionally mount and unmount the modal for better state cleanup */}
+        {selectedContacInfo && (
+          <InviteContactBottomsheet
+            visible={selectedContacInfo ? true : false}
+            onClose={() => {
+              setSelectedContactInfo(null);
+            }}
+            name={selectedContacInfo.contactName}
+            email={selectedContacInfo.contactEmail}
+            phoneNumber={selectedContacInfo.contactNumber}
+          />
+        )}
       </SafeAreaView>
     </>
   );
@@ -273,10 +301,6 @@ const PhoneContactList = ({navigation}: Props) => {
 
 const styling = (colors: any) =>
   StyleSheet.create({
-    placeholderContainer: {
-      padding: TOPBAR_HEIGHT,
-      justifyContent: 'center',
-    },
     contactListContainer: {
       borderWidth: 0.5,
       backgroundColor: colors.primary.surface,

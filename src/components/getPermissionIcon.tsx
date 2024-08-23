@@ -80,7 +80,7 @@ const permissionConfigMap: {[key: string]: PermissionConfig} = {
     disabledIconDark: CheckCircleDisabledDark,
   },
   displayPicture: {
-    bgColor: 'violet',
+    bgColor: 'blue',
     enabledIcon: ProfileTeal,
     disabledIconLight: ProfileDisabled,
     disabledIconDark: ProfileDisabledDark,

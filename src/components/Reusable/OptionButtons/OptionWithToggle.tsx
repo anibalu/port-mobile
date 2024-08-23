@@ -16,7 +16,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import React, {FC} from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import ToggleSwitch from 'toggle-switch-react-native';
@@ -38,10 +38,7 @@ const OptionWithToggle = ({
 }) => {
   const Colors = DynamicColors();
   return (
-    <TouchableOpacity
-      style={styles.optionWrapper}
-      accessibilityIgnoresInvertColors
-      activeOpacity={0.6}>
+    <View style={styles.optionWrapper} accessibilityIgnoresInvertColors>
       <View style={styles.topContainer}>
         {IconLeft && <IconLeft height={20} width={20} />}
         {IconLeftView && IconLeftView}
@@ -70,7 +67,7 @@ const OptionWithToggle = ({
           {description}
         </NumberlessText>
       )} */}
-    </TouchableOpacity>
+    </View>
   );
 };
 

@@ -1,5 +1,5 @@
 import {PortSpacing} from '@components/ComponentUtils';
-import React from 'react';
+import React, {useMemo} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import CardTile from './CardTile';
 import {BOTTOMBAR_HEIGHT} from '@configs/constants';
@@ -19,14 +19,31 @@ const CardView = ({
   const numColumns = toggleOn ? 1 : 2; // Adjust columns based on toggleOn state
   const listKey = toggleOn ? 'listView' : 'gridView'; // Change key to force re-render
 
+  const sortedFolders = useMemo(() => {
+    const defaultObject = folders.find(item => item.name === 'Default');
+    const nonDefaultFolders = folders
+      .filter(item => item.name !== 'Default')
+      .sort((a, b) => b.unread - a.unread);
+
+    if (defaultObject) {
+      nonDefaultFolders.unshift(defaultObject);
+    }
+
+    return nonDefaultFolders;
+  }, [folders]);
+
   return (
     <View style={styles.screen}>
       <FlatList
-        key={listKey} // Dynamically changing the key
-        data={folders}
+        key={listKey}
+        data={sortedFolders}
+        contentContainerStyle={{
+          flex: 1,
+          flexDirection: 'column',
+        }}
         showsHorizontalScrollIndicator={false}
         scrollEnabled={true}
-        numColumns={numColumns} // Using numColumns to create a grid
+        numColumns={numColumns}
         keyExtractor={folder => folder.folderId}
         renderItem={item => renderFolderTile(item.item)}
       />

@@ -161,7 +161,17 @@ export function ChatTopBarWithAccessControls() {
               </Animated.View>
             </View>
           ) : (
-            <ActivityIndicator color={Colors.text.subtitle} />
+            <View
+              style={{
+                width: '100%',
+                height: PERMISSIONS_OPEN_HEIGHT + PERMISSION_BAR_HEIGHT,
+                paddingBottom: PortSpacing.medium.uniform,
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+              }}>
+              <ActivityIndicator color={Colors.text.subtitle} />
+            </View>
           )}
         </View>
         <View style={styles.slider}>

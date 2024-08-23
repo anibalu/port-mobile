@@ -25,8 +25,8 @@ export function MediaMessageActionsBar({
     // 1.NotificationOutline
     {
       assetName: 'Share',
-      light: require('@assets/icons/ShareBold.svg').default,
-      dark: require('@assets/icons/Share.svg').default,
+      light: require('@assets/light/icons/Share.svg').default,
+      dark: require('@assets/dark/icons/Share.svg').default,
     },
     {
       assetName: 'DownloadIcon',

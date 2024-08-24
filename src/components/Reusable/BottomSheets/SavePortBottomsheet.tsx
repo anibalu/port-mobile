@@ -124,7 +124,7 @@ const SavePortBottomsheet = ({
               />
             </View>
             <PrimaryButton
-              buttonText={'Save To Pending Ports'}
+              buttonText={'Save Port'}
               primaryButtonColor={'b'}
               isLoading={isLoading}
               disabled={newName.trim().length >= MIN_NAME_LENGTH ? false : true}

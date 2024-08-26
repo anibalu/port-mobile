@@ -39,7 +39,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>19</string>
+    <string>21</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>LSSupportsOpeningDocumentsInPlace</key>
@@ -60,7 +60,7 @@
     <key>NSCameraUsageDescription</key>
     <string>Port would like to access your camera to take pictures or scan QR codes</string>
     <key>NSContactsUsageDescription</key>
-    <string>Port would like access to your Contacts to fetch your contacts from phonebook</string>
+    <string>Port would like access to your contacts to invite them to Port</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Port would like access to your Microphone to take videos or send voice notes</string>
     <key>NSPhotoLibraryUsageDescription</key>

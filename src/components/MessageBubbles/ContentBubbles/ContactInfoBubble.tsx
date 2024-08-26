@@ -73,7 +73,10 @@ const ContactInfoBubble = ({message}: {message: LoadedMessage}) => {
         {chatName} may have disabled contact sharing. They can approve this
         request at any time.
       </NumberlessText>
-      <View>
+      <View
+        style={{
+          marginRight: 16,
+        }}>
         <RenderTimeStamp showReadReceipts={false} message={message} />
       </View>
     </View>

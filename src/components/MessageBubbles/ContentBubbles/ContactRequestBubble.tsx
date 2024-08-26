@@ -123,9 +123,20 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
                 and it is awaiting their approval.
               </NumberlessText>
             )}
-            <View style={{position: 'absolute', right: 4, bottom: 0}}>
-              <RenderTimeStamp message={message} />
-            </View>
+          </View>
+          <View
+            style={
+              approved
+                ? {
+                    position: 'absolute',
+                    bottom: 8,
+                    right: 4,
+                  }
+                : {
+                    marginTop: 2,
+                  }
+            }>
+            <RenderTimeStamp message={message} />
           </View>
         </>
       ) : (

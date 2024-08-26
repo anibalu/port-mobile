@@ -17,7 +17,7 @@ export async function getContact(
 ): Promise<DBCalls.ContactEntry> {
   const contact = await DBCalls.getContact(pairHash);
   if (!contact) {
-    throw new Error('No such contact');
+    throw new Error('NoContactFound');
   }
   return contact;
 }

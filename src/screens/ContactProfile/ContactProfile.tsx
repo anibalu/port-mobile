@@ -24,28 +24,18 @@ import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {useFocusEffect} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import EditName from '@components/Reusable/BottomSheets/EditName';
-import {
-  DEFAULT_AVATAR,
-  DEFAULT_NAME,
-  safeModalCloseDuration,
-} from '@configs/constants';
+import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
 
 import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import * as storage from '@utils/Storage/blockUsers';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {getChatTileTimestamp, wait} from '@utils/Time';
+import {getChatTileTimestamp} from '@utils/Time';
 import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePictureBlurView';
 import Notes from '@components/Notes';
 import {ToastType, useToast} from 'src/context/ToastContext';
-import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
-import {getBundleClickableLink} from '@utils/Ports';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import Share from 'react-native-share';
-import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
+import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -67,7 +57,7 @@ const ContactProfile = ({route, navigation}: Props) => {
   const connected = !chatData.disconnected;
   const [focusProfilePicture, setFocusProfilePicture] =
     useState<boolean>(false);
-
+  const [isSharingContact, setIsSharingContact] = useState(false);
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
@@ -153,51 +143,9 @@ const ContactProfile = ({route, navigation}: Props) => {
   const onProfilePictureClick = () => {
     setFocusProfilePicture(true);
   };
-  const [contactPortMissing, setContactPortMissing] = useState(false);
-  const [networkError, setNetworkError] = useState(false);
 
-  const onShareContactPressed = async () => {
-    try {
-      const bundle = await convertAuthorizedContactPortToShareablePort(
-        pairHash,
-      );
-      const bundleLink = await getBundleClickableLink(
-        BundleTarget.contactPort,
-        bundle.portId,
-        JSON.stringify(bundle),
-      );
-      setContactPortMissing(false);
-      setNetworkError(false);
-      try {
-        const shareContent = {
-          title: `Sharing ${displayName}'s a contact`,
-          message: `Click on this link to connect with ${displayName} on Port \n ${bundleLink}`,
-        };
-        await Share.open(shareContent);
-      } catch (error) {
-        console.log('link not shared', error);
-      }
-    } catch (error: any) {
-      console.error('Unable to share contact: ', error);
-      if (
-        error &&
-        error.message &&
-        (error.message === 'NoAuthorizedContactPort' ||
-          error.message === 'PermissionError')
-      ) {
-        if (networkError) {
-          setNetworkError(false);
-          wait(safeModalCloseDuration);
-        }
-        setContactPortMissing(true);
-      } else {
-        if (contactPortMissing) {
-          setContactPortMissing(false);
-          wait(safeModalCloseDuration);
-        }
-        setNetworkError(true);
-      }
-    }
+  const onShareContactPressed = () => {
+    setIsSharingContact(true);
   };
 
   return (
@@ -371,35 +319,13 @@ const ContactProfile = ({route, navigation}: Props) => {
           buttonText={isBlocked ? 'Unblock contact' : 'Block contact'}
           buttonColor="r"
         />
-        <ErrorBottomSheet
-          visible={networkError}
-          title={'Network error in trying to share contact'}
-          description={
-            'Please ensure you have an active network connection to share this contact.'
-          }
-          onClose={() => setNetworkError(false)}
-          onTryAgain={onShareContactPressed}
-        />
-        <ConfirmationBottomSheet
-          visible={contactPortMissing}
-          onClose={() => setContactPortMissing(false)}
-          onConfirm={async () => {
-            try {
-              const sender = new SendMessage(
-                chatId,
-                ContentType.contactPortRequest,
-                {},
-              );
-              await sender.send();
-            } catch (error) {
-              console.error('Error requesting contact port: ', error);
-            }
-          }}
-          title={"You don't have permission to share this contact."}
-          description={`${displayName} is either on an older version of Port or has not given you permissions to share their contact`}
-          buttonText={'Request permission'}
-          buttonColor={'b'}
-        />
+        {isSharingContact && (
+          <ContactSharingBottomsheet
+            visible={isSharingContact}
+            onClose={() => setIsSharingContact(false)}
+            contactShareParams={{name: displayName, pairHash: pairHash}}
+          />
+        )}
         {focusProfilePicture && (
           <ProfilePictureBlurViewModal
             avatarUrl={displayPic}

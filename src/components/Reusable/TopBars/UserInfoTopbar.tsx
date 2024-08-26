@@ -16,8 +16,8 @@ import {
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
-import React, {FC, useState} from 'react';
-import {ActivityIndicator, Pressable, StyleSheet} from 'react-native';
+import React, {FC} from 'react';
+import {Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import {useNavigation} from '@react-navigation/native';
@@ -40,10 +40,9 @@ const UserInfoTopbar = ({
   IconRight: FC<SvgProps>;
   heading?: string;
   showUserInfo?: boolean;
-  onIconRightPress?: () => Promise<void>;
+  onIconRightPress?: () => void;
   showShareContact: boolean;
 }) => {
-  const [sharingContact, setSharingContact] = useState<boolean>(false);
   const navigation = useNavigation();
   const Colors = DynamicColors();
   const styles = styling(Colors, showUserInfo);
@@ -97,28 +96,17 @@ const UserInfoTopbar = ({
         <Pressable
           style={styles.button}
           onPress={async () => {
-            console.log('attempting contact share');
-            setSharingContact(true);
-            try {
-              await onIconRightPress();
-            } catch (e) {
-              console.error('Could not share contact', e);
-            }
-            setSharingContact(false);
+            await onIconRightPress();
           }}>
           <IconRight width={20} height={20} />
           <View style={{flex: 1}}>
-            {sharingContact ? (
-              <ActivityIndicator size="small" color={Colors.primary.white} />
-            ) : (
-              <NumberlessText
-                numberOfLines={1}
-                fontType={FontType.rg}
-                textColor={Colors.primary.white}
-                fontSizeType={FontSizeType.s}>
-                Share Contact
-              </NumberlessText>
-            )}
+            <NumberlessText
+              numberOfLines={1}
+              fontType={FontType.rg}
+              textColor={Colors.primary.white}
+              fontSizeType={FontSizeType.s}>
+              Share Contact
+            </NumberlessText>
           </View>
         </Pressable>
       )}

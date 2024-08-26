@@ -51,6 +51,7 @@ export enum ContentType {
   contactPortBundle = 25,
   contactPortTicket = 26,
   contactPortRequest = 27,
+  contactPortPermissionRequest = 28,
 }
 
 /**
@@ -193,7 +194,8 @@ export type DataType =
   | ContactBundleRequestInfoParams
   | ContactPortBundleParams
   | ContactPortTicketParams
-  | ContactPortRequestParams;
+  | ContactPortRequestParams
+  | ContactPortPermissionRequestParams;
 
 export interface LinkParams extends TextParams {
   title?: string | null;
@@ -296,6 +298,7 @@ export interface ReactionParams {
 
 export interface InitialInfoRequestParams {}
 export interface ContactPortRequestParams {}
+export interface ContactPortPermissionRequestParams {}
 
 export type MessageDataTypeBasedOnContentType<T extends ContentType> =
   T extends ContentType.newChat
@@ -348,6 +351,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? ContactPortTicketParams
     : T extends ContentType.contactPortRequest
     ? ContactPortRequestParams
+    : T extends ContentType.contactPortPermissionRequest
+    ? ContactPortPermissionRequestParams
     : never;
 
 /**

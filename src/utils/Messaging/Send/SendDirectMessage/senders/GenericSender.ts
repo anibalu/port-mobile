@@ -31,6 +31,7 @@ export const genericContentTypes: ContentType[] = [
   ContentType.disappearingMessages,
   ContentType.contactBundleResponse,
   ContentType.contactPortRequest,
+  ContentType.contactPortPermissionRequest,
 ];
 
 /**

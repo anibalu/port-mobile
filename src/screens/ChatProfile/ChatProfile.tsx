@@ -54,16 +54,10 @@ import Notes from '../../components/Notes';
 import {getPermissions} from '@utils/Storage/permissions';
 import {getContact} from '@utils/Storage/contacts';
 import {ToastType, useToast} from 'src/context/ToastContext';
-import Share from 'react-native-share';
-import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
-import {getBundleClickableLink} from '@utils/Ports';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import {deleteAllMessagesInChat} from '@utils/Storage/messages';
-import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
-import {ContentType} from '@utils/Messaging/interfaces';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import ChatSettingsCard from '@components/Reusable/PermissionCards/ChatSettingsCard';
 import AdvanceSettingsCard from '@components/Reusable/PermissionCards/AdvanceSettingsCard';
+import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ChatProfile'>;
 
@@ -87,6 +81,8 @@ const ChatProfile = ({route, navigation}: Props) => {
   const [confirmBlockUserSheet, setConfirmBlockUserSheet] = useState(false);
   const pairHash = chatData.pairHash;
   const [isBlocked, setIsBlocked] = useState(false);
+  const [isSharingContact, setIsSharingContact] = useState(false);
+
   const [note, setNote] = useState<string>(chatData.notes || '');
 
   const [connected, setConnected] = useState(!chatData.disconnected);
@@ -99,9 +95,6 @@ const ChatProfile = ({route, navigation}: Props) => {
   const [permissions, setPermissions] = useState<PermissionsStrict>({
     ...defaultPermissions,
   });
-
-  const [contactPortMissing, setContactPortMissing] = useState(false);
-  const [networkError, setNetworkError] = useState(false);
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -160,48 +153,8 @@ const ChatProfile = ({route, navigation}: Props) => {
     }, [connected]),
   );
 
-  const onShareContactPressed = async () => {
-    try {
-      const bundle = await convertAuthorizedContactPortToShareablePort(
-        pairHash,
-      );
-      const bundleLink = await getBundleClickableLink(
-        BundleTarget.contactPort,
-        bundle.portId,
-        JSON.stringify(bundle),
-      );
-      setContactPortMissing(false);
-      setNetworkError(false);
-      try {
-        const shareContent = {
-          title: `Sharing ${displayName}'s a contact`,
-          message: `Click on this link to connect with ${displayName} on Port \n ${bundleLink}`,
-        };
-        await Share.open(shareContent);
-      } catch (error) {
-        console.log('link not shared', error);
-      }
-    } catch (error: any) {
-      console.error('Unable to share contact: ', error);
-      if (
-        error &&
-        error.message &&
-        (error.message === 'NoAuthorizedContactPort' ||
-          error.message === 'PermissionError')
-      ) {
-        if (networkError) {
-          setNetworkError(false);
-          wait(safeModalCloseDuration);
-        }
-        setContactPortMissing(true);
-      } else {
-        if (contactPortMissing) {
-          setContactPortMissing(false);
-          wait(safeModalCloseDuration);
-        }
-        setNetworkError(true);
-      }
-    }
+  const onShareContactPressed = () => {
+    setIsSharingContact(true);
   };
 
   const onSaveName = async () => {
@@ -544,35 +497,13 @@ const ChatProfile = ({route, navigation}: Props) => {
           buttonText={isBlocked ? 'Unblock contact' : 'Block contact'}
           buttonColor="r"
         />
-        <ErrorBottomSheet
-          visible={networkError}
-          title={'Network error in trying to share contact'}
-          description={
-            'Please ensure you have an active network connection to share this contact.'
-          }
-          onClose={() => setNetworkError(false)}
-          onTryAgain={onShareContactPressed}
-        />
-        <ConfirmationBottomSheet
-          visible={contactPortMissing}
-          onClose={() => setContactPortMissing(false)}
-          onConfirm={async () => {
-            try {
-              const sender = new SendMessage(
-                chatId,
-                ContentType.contactPortRequest,
-                {},
-              );
-              await sender.send();
-            } catch (error) {
-              console.error('Error requesting contact port: ', error);
-            }
-          }}
-          title={"You don't have permission to share this contact."}
-          description={`${displayName} is either on an older version of Port or has not given you permissions to share their contact`}
-          buttonText={'Request permission'}
-          buttonColor={'b'}
-        />
+        {isSharingContact && (
+          <ContactSharingBottomsheet
+            visible={isSharingContact}
+            onClose={() => setIsSharingContact(false)}
+            contactShareParams={{name: displayName, pairHash: pairHash}}
+          />
+        )}
         {focusProfilePicture && (
           <ProfilePictureBlurViewModal
             avatarUrl={displayPic}

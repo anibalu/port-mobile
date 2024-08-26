@@ -48,6 +48,7 @@ const SupportedReceieveDecryptedContentTypes = [
   ContentType.contactPortBundle,
   ContentType.contactPortTicket,
   ContentType.contactPortRequest,
+  ContentType.contactPortPermissionRequest,
 ];
 
 const AssignDecryptedContentReceiver: Record<
@@ -74,6 +75,7 @@ const AssignDecryptedContentReceiver: Record<
   [ContentType.contactPortBundle]: ReceiveContactPortBundle,
   [ContentType.contactPortTicket]: ReceiveContactPortTicket,
   [ContentType.contactPortRequest]: ReceiveContactPortRequest,
+  [ContentType.contactPortPermissionRequest]: ReceiveContactPortRequest,
 };
 
 export async function pickDirectReceiveAction(

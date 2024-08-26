@@ -23,8 +23,6 @@ import {useTheme} from 'src/context/ThemeContext';
 import SecondaryButton from '../LongButtons/SecondaryButton';
 import {generateBundle, getBundleClickableLink} from '@utils/Ports';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import WhatsAppLogo from '@assets/icons/WhatsAppLogo.svg';
-import SMSIcon from '@assets/icons/SMSRed.svg';
 import Share from 'react-native-share';
 import Contacts from 'react-native-contacts';
 import {jsonToUrl} from '@utils/JsonToUrl';
@@ -137,12 +135,24 @@ const InviteContactBottomsheet = ({
       light: require('@assets/light/icons/navigation/AngleRight.svg').default,
       dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
     },
+    {
+      assetName: 'WhatsAppLogo',
+      light: require('@assets/light/icons/WhatsApp.svg').default,
+      dark: require('@assets/dark/icons/WhatsApp.svg').default,
+    },
+    {
+      assetName: 'Message',
+      light: require('@assets/light/icons/Message.svg').default,
+      dark: require('@assets/dark/icons/Message.svg').default,
+    },
   ];
   const results = useDynamicSVG(svgArray);
   const AddMessage = results.AddMessage;
   const EmailIcon = results.EmailIcon;
   const Retry = results.Retry;
   const RightChevron = results.RightChevron;
+  const WhatsAppLogo = results.WhatsAppLogo;
+  const Message = results.Message;
 
   const {themeValue} = useTheme();
 
@@ -302,9 +312,11 @@ const InviteContactBottomsheet = ({
                     style={{width: '100%', gap: PortSpacing.secondary.bottom}}>
                     <SecondaryButton
                       buttonText={'Message'}
-                      secondaryButtonColor="r"
+                      secondaryButtonColor={
+                        themeValue === 'dark' ? 'w' : 'black'
+                      }
                       iconSize="s"
-                      Icon={SMSIcon}
+                      Icon={Message}
                       onClick={() => {
                         if (phoneNumber.length === 1) {
                           Linking.openURL(
@@ -319,7 +331,9 @@ const InviteContactBottomsheet = ({
                     />
                     <SecondaryButton
                       buttonText={'WhatsApp'}
-                      secondaryButtonColor="green"
+                      secondaryButtonColor={
+                        themeValue === 'dark' ? 'w' : 'black'
+                      }
                       Icon={WhatsAppLogo}
                       iconSize="s"
                       onClick={() => {
@@ -336,6 +350,14 @@ const InviteContactBottomsheet = ({
                     />
                   </View>
                 )}
+
+                <NumberlessText
+                  style={{alignSelf: 'center'}}
+                  textColor={Colors.text.primary}
+                  fontSizeType={FontSizeType.m}
+                  fontType={FontType.rg}>
+                  Or
+                </NumberlessText>
                 <PrimaryButton
                   buttonText="Share on other platforms"
                   primaryButtonColor="b"

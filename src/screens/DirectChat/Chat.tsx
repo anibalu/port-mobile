@@ -17,7 +17,6 @@ import {toggleRead} from '@utils/Storage/connections';
 import store from '@store/appStore';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {useSelector} from 'react-redux';
 import {getLatestMessages} from '@utils/Storage/messages';
 import {isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
@@ -37,6 +36,8 @@ import DynamicColors from '@components/DynamicColors';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
 import {useTheme} from 'src/context/ThemeContext';
+import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
+import {TRIGGER_TYPES} from '@store/triggerRedraw';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 
@@ -102,7 +103,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   const navigation = useNavigation();
 
   //re-render trigger
-  const ping: any = useSelector(state => (state as any).ping.ping);
+  const newMessageTrigger = useListenForTrigger(TRIGGER_TYPES.NEW_MESSAGE);
 
   //effect runs when screen is focused
   //retrieves name of connection
@@ -144,7 +145,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
 
   useEffect(() => {
     (async () => {
-      console.log('[PINGING] ', ping);
+      console.log('[TRIGGER REDRAW] ', newMessageTrigger);
       // Guard against being in the background state
       // This helps prevent read receipts from being sent when they shouldn't be
       if (AppState.currentState !== 'active') {
@@ -160,7 +161,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
       setMessages(resp);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ping, cursor]);
+  }, [newMessageTrigger, cursor]);
 
   const onStartReached = async (): Promise<void> => {
     const initCursor = cursor;

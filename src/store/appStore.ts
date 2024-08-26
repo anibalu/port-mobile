@@ -6,6 +6,7 @@ import authToken from './authToken';
 import triggerPendingRequestsReload from './triggerPendingRequestsReload';
 import ping from './ping';
 import triggerUpdateStatusRefetch from './triggerUpdateStatusRefetch';
+import triggerRedraw from './triggerRedraw';
 
 const rootReducer = combineReducers({
   triggerUpdateStatusRefetch,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   authToken,
   triggerPendingRequestsReload,
   ping,
+  triggerRedraw,
 });
 
 const store = configureStore({

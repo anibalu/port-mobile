@@ -25,7 +25,7 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {ToastType, useToast} from 'src/context/ToastContext';
-import store from '@store/appStore';
+import {redrawOnNewMessage} from '@utils/TriggerTools/RedrawTrigger/redrawOnTrigger';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 115;
 
@@ -191,10 +191,8 @@ const VoiceRecorder = ({
         newData,
       );
       await sender.send();
-      store.dispatch({
-        type: 'PING',
-        payload: 'PONG',
-      });
+      //dispatches redraw trigger for new message
+      redrawOnNewMessage();
     } catch (error) {
       showToast('Network error in sending voice note', ToastType.error);
     }

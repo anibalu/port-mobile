@@ -286,8 +286,10 @@ const EditSettings = ({
   };
 
   useMemo(async () => {
-    setPermissions(await getFolderPermissions(taggedFolder.folderId));
-  }, [taggedFolder]);
+    if (folder.folderId !== taggedFolder.folderId) {
+      setPermissions(await getFolderPermissions(taggedFolder.folderId));
+    }
+  }, [taggedFolder.folderId, folder.folderId]);
 
   return (
     <SimpleCard style={styles.settingsCardWrapper}>

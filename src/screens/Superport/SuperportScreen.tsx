@@ -52,6 +52,7 @@ import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {useFocusEffect} from '@react-navigation/native';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import LinkToFolderBottomSheet from '@components/Reusable/BottomSheets/LinkToFolderBottomSheet';
+import {getFolderPermissions} from '@utils/Storage/permissions';
 type Props = NativeStackScreenProps<AppStackParamList, 'SuperportScreen'>;
 
 const SuperportScreen = ({route, navigation}: Props) => {
@@ -124,6 +125,16 @@ const SuperportScreen = ({route, navigation}: Props) => {
 
   const latestNewConnection = useSelector(state => state.latestNewConnection);
   const [createdFolderName, setCreatedFolderName] = useState<string>('');
+  useMemo(() => {
+    if (portId) {
+      (async () => {
+        setSavedFolderPermissions(
+          await getFolderPermissions(chosenFolder.folderId),
+        );
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [portId]);
 
   const onSaveDetails = (
     folderPermissions: PermissionsStrict,
@@ -428,7 +439,11 @@ const SuperportScreen = ({route, navigation}: Props) => {
                 hasFailed={hasFailed}
                 isSuperport={true}
                 title={displayName}
-                profileUri={profilePicAttr.fileUri}
+                profileUri={
+                  savedFolderPermissions.displayPicture
+                    ? profilePicAttr.fileUri
+                    : null
+                }
                 qrData={qrData}
                 onShareLinkClicked={fetchLinkData}
                 onTryAgainClicked={fetchPort}

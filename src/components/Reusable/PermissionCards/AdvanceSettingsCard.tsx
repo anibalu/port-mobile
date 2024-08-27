@@ -60,22 +60,31 @@ const AdvanceSettingsCard = ({
     if (newPermission && chatId) {
       try {
         await resumeContactPortForDirectChat(chatId);
+        if (permissionsId) {
+          await updatePermissions(permissionsId, updatedPermissions);
+        }
       } catch (e) {
         console.error('Could not resume contact port', e);
         setPermissions(oldPermissions);
+        if (permissionsId) {
+          await updatePermissions(permissionsId, oldPermissions);
+        }
         return;
       }
     } else if (chatId) {
       try {
         await pauseContactPortForDirectChat(chatId);
+        if (permissionsId) {
+          await updatePermissions(permissionsId, updatedPermissions);
+        }
       } catch (e) {
         console.error('Could not pause contact port', e);
         setPermissions(oldPermissions);
+        if (permissionsId) {
+          await updatePermissions(permissionsId, oldPermissions);
+        }
         return;
       }
-    }
-    if (permissionsId) {
-      await updatePermissions(permissionsId, updatedPermissions);
     }
   }
 

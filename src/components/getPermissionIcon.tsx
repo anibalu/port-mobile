@@ -95,7 +95,7 @@ const getPermissionIcon = ([permissionName, isEnabled, themeValue]: [
   const Colors = DynamicColors();
   const config = permissionConfigMap[permissionName];
   if (!config) {
-    return null;
+    return <></>;
   }
 
   const Icon = isEnabled

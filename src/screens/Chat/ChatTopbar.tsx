@@ -144,7 +144,7 @@ function ChatTopbar(): ReactNode {
                 ? 'Selected (' + selectedMessages.length.toString() + ')'
                 : name}
             </NumberlessText>
-            <AngleRight height={20} width={20} />
+            {!selectionMode && <AngleRight height={20} width={20} />}
           </View>
         </View>
         <View style={{flexDirection: 'row'}}>

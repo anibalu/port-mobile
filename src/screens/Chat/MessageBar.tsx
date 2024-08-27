@@ -248,59 +248,56 @@ const MessageBar = ({
   }, [replyToMessage]);
 
   return (
-    <View>
-      <View style={styles.textInputContainer}>
-        <View>
-          {replyToMessage && (
-            <View style={styles.topElementWrapper}>
-              <ReplyBubbleMessageBar replyTo={replyToMessage} />
-              <Pressable
-                onPress={clearEverything}
-                hitSlop={24}
-                style={styles.buttonWrapper}>
-                <PlusIcon height={18} width={18} style={styles.plus} />
-              </Pressable>
-            </View>
-          )}
+    <View style={styles.textInputContainer}>
+      <View>
+        {replyToMessage && (
+          <View style={styles.topElementWrapper}>
+            <ReplyBubbleMessageBar replyTo={replyToMessage} />
+            <Pressable
+              onPress={clearEverything}
+              hitSlop={24}
+              style={styles.buttonWrapper}>
+              <PlusIcon height={18} width={18} style={styles.plus} />
+            </Pressable>
+          </View>
+        )}
 
-          {!replyToMessage && showPreview && (
-            <View style={styles.topElementWrapper}>
-              <View style={styles.linkPreviewWrapper}>
-                <LinkPreview
-                  showPreview={showPreview}
-                  setShowPreview={setShowPreview}
-                  link={url}
-                  loading={loading}
-                  data={openGraphData}
-                />
-              </View>
-            </View>
-          )}
-
-          {microphoneClicked ? (
-            <Animated.View
-              style={[styles.voiceRecorderContainer, slideInStyle]}>
-              <VoiceRecorder
-                chatId={chatId}
-                setMicrophoneClicked={setMicrophoneClicked}
+        {!replyToMessage && showPreview && (
+          <View style={styles.topElementWrapper}>
+            <View style={styles.linkPreviewWrapper}>
+              <LinkPreview
+                showPreview={showPreview}
+                setShowPreview={setShowPreview}
+                link={url}
+                loading={loading}
+                data={openGraphData}
               />
-            </Animated.View>
-          ) : (
-            <TextComponent
+            </View>
+          </View>
+        )}
+
+        {microphoneClicked ? (
+          <Animated.View style={[styles.voiceRecorderContainer, slideInStyle]}>
+            <VoiceRecorder
               chatId={chatId}
-              isGroupChat={isGroupChat}
-              replyToMessage={replyToMessage}
-              setText={setText}
-              text={text}
-              inputRef={inputRef}
-              onPressSend={onPressSend}
               setMicrophoneClicked={setMicrophoneClicked}
-              showPreview={showPreview}
-              setCounter={setCounter}
-              setEmojiSelected={setEmojiSelected}
             />
-          )}
-        </View>
+          </Animated.View>
+        ) : (
+          <TextComponent
+            chatId={chatId}
+            isGroupChat={isGroupChat}
+            replyToMessage={replyToMessage}
+            setText={setText}
+            text={text}
+            inputRef={inputRef}
+            onPressSend={onPressSend}
+            setMicrophoneClicked={setMicrophoneClicked}
+            showPreview={showPreview}
+            setCounter={setCounter}
+            setEmojiSelected={setEmojiSelected}
+          />
+        )}
       </View>
     </View>
   );

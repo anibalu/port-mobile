@@ -1,115 +1,118 @@
-import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, ActivityIndicator} from 'react-native';
+import React, {useMemo, useState} from 'react';
+import {View, StyleSheet} from 'react-native';
 import Animated, {
-  useSharedValue,
+  runOnJS,
+  useAnimatedReaction,
   useAnimatedStyle,
-  withTiming,
 } from 'react-native-reanimated';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import {PortSpacing, screen} from '@components/ComponentUtils';
+import {screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import getPermissionIcon from '@components/getPermissionIcon';
+import {
+  ICON_DISPLAY_HEIGHT,
+  MAX_SLIDER_HEIGHT,
+  PERMISSION_BAR_HEIGHT,
+  PERMISSIONS_OPEN_HEIGHT,
+  SLIDER_CLOSED_HEIGHT,
+  SLIDER_EXCESS_HEIGHT,
+  SLIDER_HEIGHT,
+  THRESHOLD_CLOSE,
+  THRESHOLD_OPEN,
+  useChatContext,
+} from '@screens/DirectChat/ChatContext';
 import {useTheme} from 'src/context/ThemeContext';
 import ChatSettingsCard from '@components/Reusable/PermissionCards/ChatSettingsCard';
 import AdvanceSettingsCard from '@components/Reusable/PermissionCards/AdvanceSettingsCard';
-
-const TOP_BAR_HEIGHT = 56;
-const PERMISSION_BAR_HEIGHT =
-  Math.floor((screen.width - 32) / (20 + 12)) > 7 ? 52 : 88;
-const SLIDER_HEIGHT = 12;
-const PERMISSIONS_OPEN_HEIGHT = 504;
-const THRESHOLD_OPEN = 150;
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import PermissionIcons from '@components/PermissionIcons';
 
 export function ChatTopBarWithAccessControls() {
-  const {chatId} = useChatContext();
   const {themeValue} = useTheme();
-  const [permissionsArray, setPermissionsArray] =
-    useState<PermissionsStrict | null>(null);
-  const [permissionsId, setPermissionsId] = useState<string | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const chat = new DirectChat(chatId);
-        const chatData = await chat.getChatData();
-        setPermissionsId(chatData.permissionsId);
-        const permissions: PermissionsStrict = await chat.getPermissions();
-        setPermissionsArray(permissions);
-      } catch (error) {
-        setPermissionsArray(null);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const Colors = DynamicColors();
   const styles = styling(Colors);
-  const hasStarted = useSharedValue(false);
-  const heightInitiaValue = useSharedValue(
-    TOP_BAR_HEIGHT + PERMISSION_BAR_HEIGHT + SLIDER_HEIGHT,
-  );
-  const height = useSharedValue(
-    TOP_BAR_HEIGHT + PERMISSION_BAR_HEIGHT + SLIDER_HEIGHT,
-  );
+
+  const {
+    chatId,
+    permissions,
+    setPermissions,
+    permissionsId,
+    hasStarted,
+    isScreenClickable,
+    movingDown,
+    sliderHeight,
+    sliderHeightInitiaValue,
+    permissionCardHeight,
+    permissionIconHeight,
+    moveSliderCompleteClosed,
+    moveSliderCompleteOpen,
+    moveSliderIntermediateOpen,
+  } = useChatContext();
+
   const animatedStyleHeight = useAnimatedStyle(() => {
     return {
-      height: height.value,
+      height: sliderHeight.value,
     };
   });
-  const translateY = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{translateY: translateY.value}],
+      transform: [{translateY: permissionCardHeight.value}],
     };
   });
+  const animatedStylePermissionIcons = useAnimatedStyle(() => {
+    return {
+      transform: [{translateY: permissionIconHeight.value}],
+    };
+  });
+
+  useMemo(() => {
+    if (permissions) {
+      moveSliderIntermediateOpen();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permissions]);
+
   const pan = Gesture.Pan()
     .onBegin(() => {
       hasStarted.value = true;
     })
     .onUpdate(e => {
-      height.value = Math.min(
-        e.translationY + heightInitiaValue.value,
-        PERMISSIONS_OPEN_HEIGHT + SLIDER_HEIGHT + TOP_BAR_HEIGHT,
+      sliderHeight.value = Math.max(
+        Math.min(
+          e.translationY + sliderHeightInitiaValue.value,
+          MAX_SLIDER_HEIGHT,
+        ),
+        SLIDER_CLOSED_HEIGHT,
       );
+      if (sliderHeight.value > sliderHeightInitiaValue.value) {
+        movingDown.value = true;
+      } else {
+        movingDown.value = false;
+      }
     })
     .onEnd(() => {
-      if (
-        height.value <
-        PERMISSION_BAR_HEIGHT + SLIDER_HEIGHT + TOP_BAR_HEIGHT
-      ) {
-        height.value = withTiming(SLIDER_HEIGHT + TOP_BAR_HEIGHT, {
-          duration: 500,
-        });
-        heightInitiaValue.value = SLIDER_HEIGHT + TOP_BAR_HEIGHT;
-        translateY.value = withTiming(0, {duration: 500});
-      } else {
-        if (
-          height.value >
-          PERMISSION_BAR_HEIGHT +
-            SLIDER_HEIGHT +
-            TOP_BAR_HEIGHT +
-            THRESHOLD_OPEN
-        ) {
-          height.value = withTiming(
-            PERMISSIONS_OPEN_HEIGHT + SLIDER_HEIGHT + TOP_BAR_HEIGHT,
-            {duration: 500},
-          );
-          heightInitiaValue.value =
-            PERMISSIONS_OPEN_HEIGHT + SLIDER_HEIGHT + TOP_BAR_HEIGHT;
-          translateY.value = withTiming(PERMISSION_BAR_HEIGHT, {
-            duration: 500,
-          });
+      if (sliderHeight.value <= ICON_DISPLAY_HEIGHT) {
+        if (movingDown.value) {
+          moveSliderIntermediateOpen();
         } else {
-          height.value = withTiming(
-            PERMISSION_BAR_HEIGHT + SLIDER_HEIGHT + TOP_BAR_HEIGHT,
-            {duration: 500},
-          );
-          heightInitiaValue.value =
-            PERMISSION_BAR_HEIGHT + SLIDER_HEIGHT + TOP_BAR_HEIGHT;
-          translateY.value = withTiming(0, {duration: 500});
+          moveSliderCompleteClosed();
+        }
+      } else {
+        if (movingDown.value) {
+          if (sliderHeight.value > ICON_DISPLAY_HEIGHT + THRESHOLD_OPEN) {
+            moveSliderCompleteOpen();
+          } else {
+            moveSliderIntermediateOpen();
+          }
+        } else {
+          if (sliderHeight.value < MAX_SLIDER_HEIGHT - THRESHOLD_CLOSE) {
+            moveSliderIntermediateOpen();
+          } else {
+            moveSliderCompleteOpen();
+          }
         }
       }
     })
@@ -117,6 +120,13 @@ export function ChatTopBarWithAccessControls() {
       hasStarted.value = false;
     });
 
+  const [sliderOpen, setSliderOpen] = useState<boolean>(true);
+  useAnimatedReaction(
+    () => isScreenClickable.value,
+    value => {
+      runOnJS(setSliderOpen)(value ? false : true);
+    },
+  );
   return (
     <GestureDetector gesture={pan}>
       <Animated.View
@@ -130,70 +140,6 @@ export function ChatTopBarWithAccessControls() {
                 : Colors.primary.surface2,
           },
         ]}>
-        <View style={styles.parent}>
-          {permissionsArray && permissionsId ? (
-            <View style={styles.permissionsParent}>
-              <View style={styles.minimizedPermissionBar}>
-                {Object.entries(permissionsArray).map(permission => {
-                  const PermissionIcon = getPermissionIcon([
-                    permission[0],
-                    permission[1],
-                    themeValue,
-                  ]);
-                  return (
-                    <View
-                      key={permission[0]}
-                      style={{
-                        flexDirection: 'row',
-                        gap: PortSpacing.tertiary.uniform,
-                        alignItems: 'center',
-                      }}>
-                      <View>{PermissionIcon}</View>
-                    </View>
-                  );
-                })}
-              </View>
-              <Animated.View
-                style={[
-                  styles.permissionCards,
-                  animatedStyle,
-                  {
-                    backgroundColor:
-                      themeValue === 'dark'
-                        ? Colors.primary.surface
-                        : Colors.primary.surface2,
-                  },
-                ]}>
-                <ChatSettingsCard
-                  chatId={chatId}
-                  permissions={permissionsArray}
-                  permissionsId={permissionsId}
-                  setPermissions={setPermissionsArray}
-                  showDissapearingMessagesOption={true}
-                />
-                <AdvanceSettingsCard
-                  chatId={chatId}
-                  permissions={permissionsArray}
-                  permissionsId={permissionsId}
-                  setPermissions={setPermissionsArray}
-                  heading={'Allow this contact to'}
-                />
-              </Animated.View>
-            </View>
-          ) : (
-            <View
-              style={{
-                width: '100%',
-                height: PERMISSIONS_OPEN_HEIGHT + PERMISSION_BAR_HEIGHT,
-                paddingBottom: PortSpacing.medium.uniform,
-                flexDirection: 'column',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-              }}>
-              <ActivityIndicator color={Colors.text.subtitle} />
-            </View>
-          )}
-        </View>
         <View
           style={StyleSheet.compose(styles.slider, {
             backgroundColor:
@@ -201,8 +147,66 @@ export function ChatTopBarWithAccessControls() {
                 ? Colors.primary.surface
                 : Colors.primary.surface2,
           })}>
+          {!sliderOpen && (
+            <NumberlessText
+              textColor={Colors.text.subtitle}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}
+              allowFontScaling={false}
+              style={{marginBottom: 4}}>
+              Drag this slider down to edit permissions
+            </NumberlessText>
+          )}
           <View style={styles.notch} />
         </View>
+        {permissions && permissionsId && (
+          <View style={styles.permissionsParent}>
+            <Animated.View
+              style={[
+                styles.minimizedPermissionBar,
+                animatedStylePermissionIcons,
+                {
+                  backgroundColor:
+                    themeValue === 'dark'
+                      ? Colors.primary.surface
+                      : Colors.primary.surface2,
+                },
+              ]}>
+              <PermissionIcons
+                chatId={chatId}
+                permissions={permissions}
+                permissionsId={permissionsId}
+                setPermissions={setPermissions}
+              />
+            </Animated.View>
+            <Animated.View
+              style={[
+                styles.permissionCards,
+                animatedStyle,
+                {
+                  backgroundColor:
+                    themeValue === 'dark'
+                      ? Colors.primary.surface
+                      : Colors.primary.surface2,
+                },
+              ]}>
+              <ChatSettingsCard
+                chatId={chatId}
+                permissions={permissions}
+                permissionsId={permissionsId}
+                setPermissions={setPermissions}
+                showDissapearingMessagesOption={true}
+              />
+              <AdvanceSettingsCard
+                chatId={chatId}
+                permissions={permissions}
+                permissionsId={permissionsId}
+                setPermissions={setPermissions}
+                heading={'Allow this contact to'}
+              />
+            </Animated.View>
+          </View>
+        )}
       </Animated.View>
     </GestureDetector>
   );
@@ -216,12 +220,15 @@ const styling = (colors: any) =>
       justifyContent: 'flex-end',
       alignItems: 'center',
       overflow: 'hidden',
+      borderBottomRightRadius: 16,
+      borderBottomLeftRadius: 16,
     },
     slider: {
-      width: '100%',
+      width: screen.width,
       height: SLIDER_HEIGHT,
-      justifyContent: 'center',
+      justifyContent: 'flex-end',
       alignItems: 'center',
+      paddingBottom: 4,
     },
     notch: {
       width: 40,
@@ -230,32 +237,24 @@ const styling = (colors: any) =>
       backgroundColor: colors.text.subtitle,
     },
     sliderText: {
-      width: '100%',
+      width: screen.width,
       height: 20,
       justifyContent: 'center',
       alignItems: 'center',
     },
-    parent: {
-      width: '100%',
-      flexDirection: 'column',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-    },
     permissionsParent: {
-      width: '100%',
+      width: screen.width,
       height: PERMISSIONS_OPEN_HEIGHT + PERMISSION_BAR_HEIGHT,
       flexDirection: 'column',
       justifyContent: 'flex-end',
       alignItems: 'center',
+      position: 'absolute',
+      bottom: SLIDER_HEIGHT - SLIDER_EXCESS_HEIGHT,
     },
     minimizedPermissionBar: {
-      width: '100%',
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexWrap: 'wrap',
+      width: screen.width,
+      height: PERMISSION_BAR_HEIGHT,
       paddingHorizontal: 16,
-      gap: 12,
       paddingVertical: 8,
     },
     permissionCards: {
@@ -264,7 +263,7 @@ const styling = (colors: any) =>
       justifyContent: 'flex-end',
       alignItems: 'center',
       height: PERMISSIONS_OPEN_HEIGHT,
-      bottom: PERMISSION_BAR_HEIGHT,
+      bottom: PERMISSION_BAR_HEIGHT + SLIDER_EXCESS_HEIGHT,
       position: 'absolute',
     },
   });

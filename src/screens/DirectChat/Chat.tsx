@@ -36,6 +36,7 @@ import DynamicColors from '@components/DynamicColors';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
 import {useTheme} from 'src/context/ThemeContext';
+import {runOnJS, useAnimatedReaction} from 'react-native-reanimated';
 import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
 import {TRIGGER_TYPES} from '@store/triggerRedraw';
 
@@ -91,12 +92,25 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     performDelete,
     performGlobalDelete,
     setIsAuthenticated,
-    setsDisappearingMessagOn,
     isPopUpVisible,
     togglePopUp,
     isEmojiSelectorVisible,
     setIsEmojiSelectorVisible,
+    setPermissions,
+    setPermissionsId,
+    isScreenClickable,
+    moveSliderIntermediateOpen,
   } = useChatContext();
+
+  const [pointerEvents, setPointerEvents] = useState<
+    'auto' | 'none' | 'box-none' | 'box-only'
+  >('auto');
+  useAnimatedReaction(
+    () => isScreenClickable.value,
+    value => {
+      runOnJS(setPointerEvents)(value ? 'auto' : 'box-only');
+    },
+  );
 
   //cursor for number of messages on screen
   const [cursor, setCursor] = useState(50);
@@ -117,6 +131,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         });
         const dataHandler = new DirectChat(chatId);
         const chatData = await dataHandler.getChatData();
+        setPermissionsId(chatData.permissionsId);
         setName(chatData.name);
         setProfileUri(
           chatData.displayPic ? chatData.displayPic : DEFAULT_AVATAR,
@@ -128,8 +143,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         //Notifying that initial message load is complete.
         setMessagesLoaded(true);
         await debouncedPeriodicOperations();
-        const permissionsResp = await dataHandler.getPermissions();
-        setsDisappearingMessagOn(permissionsResp.disappearingMessages > 0);
+        setPermissions(await dataHandler.getPermissions());
       })();
 
       return () => {
@@ -197,6 +211,10 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   const {themeValue} = useTheme();
 
   const onChatScreenPressed = () => {
+    //If slider is open, close it.
+    if (!isScreenClickable.value) {
+      moveSliderIntermediateOpen();
+    }
     // if pop up actions is visible
     // close component
     if (isPopUpVisible) {
@@ -229,7 +247,10 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
           style={styles.main}
           behavior={isIOS ? 'padding' : 'height'}
           keyboardVerticalOffset={isIOS ? 50 : 0}>
-          <Pressable style={styles.main} onPress={onChatScreenPressed}>
+          <Pressable
+            style={styles.main}
+            onPress={onChatScreenPressed}
+            pointerEvents={pointerEvents}>
             <ChatList
               messages={messages.filter(x =>
                 DisplayableContentTypes.includes(x.contentType),
@@ -238,48 +259,56 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
               onEndReached={onEndReached}
             />
           </Pressable>
-          <ReportMessageBottomSheet
-            description="If you report this message, an unencrypted copy of this message is sent to our servers."
-            openModal={showReportModal}
-            topButton={'Report and Disconnect'}
-            middleButton={'Report'}
-            onClose={() => {
-              setShowReportModal(false);
-            }}
-          />
-          <DualActionBottomSheet
-            showMore={showDeleteForEveryone}
-            openModal={openDeleteMessageModal}
-            title={'Delete message'}
-            topButton={
-              showDeleteForEveryone ? 'Delete for everyone' : 'Delete for me'
-            }
-            topButtonFunction={
-              showDeleteForEveryone ? performGlobalDelete : performDelete
-            }
-            middleButton="Delete for me"
-            middleButtonFunction={performDelete}
-            onClose={() => {
-              setOpenDeleteMessageModal(false);
-            }}
-          />
-          {isConnected ? (
-            <>
-              {selectionMode ? (
-                <MessageActionsBar />
-              ) : (
-                <MessageBar ifTemplateExists={ifTemplateExists} />
-              )}
-            </>
-          ) : selectionMode ? (
-            <MessageActionsBar />
-          ) : (
-            <View style={{paddingTop: 60}}>
-              <Disconnected name={name} />
-            </View>
-          )}
+          <Pressable
+            pointerEvents={pointerEvents}
+            onPress={() => {
+              if (!isScreenClickable.value) {
+                moveSliderIntermediateOpen();
+              }
+            }}>
+            {isConnected ? (
+              <>
+                {selectionMode ? (
+                  <MessageActionsBar />
+                ) : (
+                  <MessageBar ifTemplateExists={ifTemplateExists} />
+                )}
+              </>
+            ) : selectionMode ? (
+              <MessageActionsBar />
+            ) : (
+              <View style={{paddingTop: 60}}>
+                <Disconnected name={name} />
+              </View>
+            )}
+          </Pressable>
         </KeyboardAvoidingView>
         <ChatTopbar />
+        <ReportMessageBottomSheet
+          description="If you report this message, an unencrypted copy of this message is sent to our servers."
+          openModal={showReportModal}
+          topButton={'Report and Disconnect'}
+          middleButton={'Report'}
+          onClose={() => {
+            setShowReportModal(false);
+          }}
+        />
+        <DualActionBottomSheet
+          showMore={showDeleteForEveryone}
+          openModal={openDeleteMessageModal}
+          title={'Delete message'}
+          topButton={
+            showDeleteForEveryone ? 'Delete for everyone' : 'Delete for me'
+          }
+          topButtonFunction={
+            showDeleteForEveryone ? performGlobalDelete : performDelete
+          }
+          middleButton="Delete for me"
+          middleButtonFunction={performDelete}
+          onClose={() => {
+            setOpenDeleteMessageModal(false);
+          }}
+        />
         <RichReactionsBottomsheet
           chatId={chatId}
           currentReactionMessage={currentReactionMessage}

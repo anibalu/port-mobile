@@ -259,6 +259,7 @@ export class SendMediaDirectMessage<
       throw Error('MessageNotFound');
     }
     this.savedMessage = savedMessage;
+    this.data = savedMessage.data;
     this.payload = {
       messageId: savedMessage.messageId,
       contentType: this.contentType,

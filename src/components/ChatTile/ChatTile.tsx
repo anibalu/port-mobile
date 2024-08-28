@@ -18,7 +18,6 @@ import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {ContentType} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import {
-  ActivityIndicator,
   Animated,
   Easing,
   Pressable,
@@ -26,15 +25,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Share from 'react-native-share';
 import DisplayStatus from './DisplayStatus';
 import RenderText from './RenderText';
 import RenderTimestamp from './RenderTimestamp';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {Swipeable} from 'react-native-gesture-handler';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
-import {getBundleClickableLink} from '@utils/Ports';
 
 export interface ChatTileProps extends ConnectionInfo {
   expired?: boolean;
@@ -57,6 +52,7 @@ function ChatTile({
     setSelectionMode,
     setMoveToFolderSheet,
     setIsChatActionBarVisible,
+    setContactShareParams,
   } = useBottomNavContext();
   const isSelected = selectedConnections.some(x => x.chatId === props.chatId);
   const navigation = useNavigation<any>();
@@ -135,7 +131,6 @@ function ChatTile({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectionMode]);
-  const [sharingContact, setSharingContact] = useState<boolean>(false);
 
   const moveAnim = useRef(new Animated.Value(0)).current; // Starts from position 0
   const swipableRef = useRef(null);
@@ -162,7 +157,6 @@ function ChatTile({
               flexDirection: 'column',
               width: 80,
               flex: 1,
-
               backgroundColor: Colors.lowAccentColors.violet,
               alignItems: 'center',
               justifyContent: 'center',
@@ -192,7 +186,6 @@ function ChatTile({
       <View
         style={{
           width: 80,
-          backgroundColor: Colors.lowAccentColors.violet,
         }}>
         <View
           style={{
@@ -204,29 +197,11 @@ function ChatTile({
           }}>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={async () => {
-              setSharingContact(true);
-              try {
-                // Issue tickets, etc for their ContactPort
-                const bundle =
-                  await convertAuthorizedContactPortToShareablePort(
-                    props.pairHash,
-                  );
-                // Convert the ContactPort into a link
-                const bundleLink = await getBundleClickableLink(
-                  BundleTarget.contactPort,
-                  bundle.portId,
-                  JSON.stringify(bundle),
-                );
-                const shareContent = {
-                  title: `Sharing ${props.name}'s a contact`,
-                  message: `Click on this link to connect with ${props.name} on Port \n ${bundleLink}`,
-                };
-                await Share.open(shareContent);
-              } catch (e) {
-                console.error("Didn't share contact from ChatTile", e);
-              }
-              setSharingContact(false);
+            onPress={() => {
+              setContactShareParams({
+                name: props.name,
+                pairHash: props.pairHash,
+              });
             }}
             style={{
               flexDirection: 'column',
@@ -243,21 +218,13 @@ function ChatTile({
                 gap: PortSpacing.tertiary.uniform,
               }}>
               <ShareContactGreen height={24} width={24} />
-              {sharingContact ? (
-                <ActivityIndicator
-                  size="small"
-                  style={{marginTop: 5}}
-                  color={Colors.primary.darkGreen}
-                />
-              ) : (
-                <NumberlessText
-                  style={{textAlign: 'center'}}
-                  fontSizeType={FontSizeType.s}
-                  fontType={FontType.sb}
-                  textColor={Colors.primary.darkGreen}>
-                  {'Share\ncontact'}
-                </NumberlessText>
-              )}
+              <NumberlessText
+                style={{textAlign: 'center'}}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.sb}
+                textColor={Colors.primary.darkGreen}>
+                {'Share\ncontact'}
+              </NumberlessText>
             </Animated.View>
           </TouchableOpacity>
         </View>
@@ -266,33 +233,8 @@ function ChatTile({
   };
   if (props.isReadPort) {
     return (
-      <Animated.View
-        style={
-          true
-            ? {...styles.container, justifyContent: 'flex-end'}
-            : [
-                {...styles.container, justifyContent: 'flex-start'},
-                {transform: [{translateX: moveAnim}]},
-              ]
-        }>
+      <View style={{...styles.container, justifyContent: 'flex-end'}}>
         <View style={styles.container}>
-          {selectionMode && !props.isReadPort && (
-            <Pressable
-              style={StyleSheet.compose(styles.checkboxContainer, {
-                backgroundColor: isSelected
-                  ? Colors.primary.accentOverlay
-                  : 'transparent',
-              })}
-              onPress={() => {
-                if (!isSelected) {
-                  select();
-                } else {
-                  unselect();
-                }
-              }}>
-              <CheckBox value={isSelected} />
-            </Pressable>
-          )}
           <Animated.View
             style={{
               flex: 1,
@@ -329,82 +271,40 @@ function ChatTile({
                   <RenderTimestamp props={props} />
                 </View>
                 <View style={styles.textAndStatus}>
-                  {props.disconnected ? (
-                    <NumberlessText
-                      ellipsizeMode="tail"
-                      numberOfLines={1}
-                      fontType={FontType.rg}
-                      style={{
-                        flex: 1,
-                      }}
-                      fontSizeType={FontSizeType.m}
-                      textColor={PortColors.primary.red.error}>
-                      Disconnected
-                    </NumberlessText>
-                  ) : (
-                    <>
-                      {!props.isReadPort ? (
-                        <>
-                          {props.recentMessageType === ContentType.newChat ? (
-                            <NumberlessText
-                              ellipsizeMode="tail"
-                              numberOfLines={1}
-                              fontType={FontType.rg}
-                              style={{
-                                flex: 1,
-                              }}
-                              fontSizeType={FontSizeType.m}
-                              textColor={Colors.button.accent}>
-                              {'New connection'}
-                            </NumberlessText>
-                          ) : (
-                            <>
-                              <RenderText newMessage={props} />
-                              <DisplayStatus newMessage={props} />
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          {
-                            //if not authenticated yet, could be a read port
-                            props.expired ? (
-                              <NumberlessText
-                                ellipsizeMode="tail"
-                                numberOfLines={2}
-                                fontType={FontType.rg}
-                                style={{
-                                  flex: 1,
-                                }}
-                                fontSizeType={FontSizeType.m}
-                                textColor={PortColors.primary.red.error}>
-                                Failed to add this contact. You used an expired
-                                Port.
-                              </NumberlessText>
-                            ) : (
-                              <NumberlessText
-                                ellipsizeMode="tail"
-                                numberOfLines={1}
-                                fontType={FontType.rg}
-                                style={{
-                                  flex: 1,
-                                }}
-                                fontSizeType={FontSizeType.m}
-                                textColor={PortColors.text.title}>
-                                Adding new contact...
-                              </NumberlessText>
-                            )
-                          }
-                        </>
-                      )}
-                    </>
-                  )}
+                  {
+                    //if not authenticated yet, could be a read port
+                    props.expired ? (
+                      <NumberlessText
+                        ellipsizeMode="tail"
+                        numberOfLines={2}
+                        fontType={FontType.rg}
+                        style={{
+                          flex: 1,
+                        }}
+                        fontSizeType={FontSizeType.m}
+                        textColor={PortColors.primary.red.error}>
+                        Failed to add this contact. You used an expired Port.
+                      </NumberlessText>
+                    ) : (
+                      <NumberlessText
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                        fontType={FontType.rg}
+                        style={{
+                          flex: 1,
+                        }}
+                        fontSizeType={FontSizeType.m}
+                        textColor={Colors.button.accent}>
+                        Adding new contact...
+                      </NumberlessText>
+                    )
+                  }
                 </View>
               </View>
             </Pressable>
           </Animated.View>
         </View>
-      </Animated.View>
+      </View>
     );
   } else {
     return (
@@ -429,7 +329,7 @@ function ChatTile({
                 ]
           }>
           <View style={styles.container}>
-            {selectionMode && !props.isReadPort && (
+            {selectionMode && (
               <Pressable
                 style={StyleSheet.compose(styles.checkboxContainer, {
                   backgroundColor: isSelected
@@ -494,62 +394,22 @@ function ChatTile({
                         textColor={PortColors.primary.red.error}>
                         Disconnected
                       </NumberlessText>
+                    ) : props.recentMessageType === ContentType.newChat ? (
+                      <NumberlessText
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                        fontType={FontType.rg}
+                        style={{
+                          flex: 1,
+                        }}
+                        fontSizeType={FontSizeType.m}
+                        textColor={Colors.button.accent}>
+                        {'New connection'}
+                      </NumberlessText>
                     ) : (
                       <>
-                        {!props.isReadPort ? (
-                          <>
-                            {props.recentMessageType === ContentType.newChat ? (
-                              <NumberlessText
-                                ellipsizeMode="tail"
-                                numberOfLines={1}
-                                fontType={FontType.rg}
-                                style={{
-                                  flex: 1,
-                                }}
-                                fontSizeType={FontSizeType.m}
-                                textColor={Colors.button.accent}>
-                                {'New connection'}
-                              </NumberlessText>
-                            ) : (
-                              <>
-                                <RenderText newMessage={props} />
-                                <DisplayStatus newMessage={props} />
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            {
-                              //if not authenticated yet, could be a read port
-                              props.expired ? (
-                                <NumberlessText
-                                  ellipsizeMode="tail"
-                                  numberOfLines={2}
-                                  fontType={FontType.rg}
-                                  style={{
-                                    flex: 1,
-                                  }}
-                                  fontSizeType={FontSizeType.m}
-                                  textColor={PortColors.primary.red.error}>
-                                  Failed to add this contact. You used an
-                                  expired Port.
-                                </NumberlessText>
-                              ) : (
-                                <NumberlessText
-                                  ellipsizeMode="tail"
-                                  numberOfLines={1}
-                                  fontType={FontType.rg}
-                                  style={{
-                                    flex: 1,
-                                  }}
-                                  fontSizeType={FontSizeType.m}
-                                  textColor={PortColors.text.title}>
-                                  Adding new contact...
-                                </NumberlessText>
-                              )
-                            }
-                          </>
-                        )}
+                        <RenderText newMessage={props} />
+                        <DisplayStatus newMessage={props} />
                       </>
                     )}
                   </View>
@@ -608,7 +468,7 @@ const styling = (colors: any) =>
       justifyContent: 'flex-start',
       alignItems: 'flex-start',
       borderBottomColor: colors.primary.stroke,
-      borderBottomWidth: 0.5,
+      borderBottomWidth: 0.25,
       flex: 1,
       paddingBottom: PortSpacing.medium.uniform,
     },

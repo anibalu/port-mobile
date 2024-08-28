@@ -260,6 +260,8 @@ export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
     const chatId = chat.getChatId();
     await readerInitialInfoSend(chatId);
   } catch (error: any) {
+    //delete permissions if there is an error.
+    await clearPermissions(permissionsId);
     if (typeof error === 'object' && error.response) {
       if (error.response.status === 404) {
         console.log('Port has expired');

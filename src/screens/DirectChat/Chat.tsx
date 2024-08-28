@@ -39,6 +39,7 @@ import {useTheme} from 'src/context/ThemeContext';
 import {runOnJS, useAnimatedReaction} from 'react-native-reanimated';
 import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
 import {TRIGGER_TYPES} from '@store/triggerRedraw';
+import {useSelector} from 'react-redux';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 
@@ -118,6 +119,8 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
 
   //re-render trigger
   const newMessageTrigger = useListenForTrigger(TRIGGER_TYPES.NEW_MESSAGE);
+  //pings need to be deprecated in favor of new trigger system.
+  const ping: any = useSelector(state => (state as any).ping.ping);
 
   //effect runs when screen is focused
   //retrieves name of connection
@@ -159,7 +162,6 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
 
   useEffect(() => {
     (async () => {
-      console.log('[TRIGGER REDRAW] ', newMessageTrigger);
       // Guard against being in the background state
       // This helps prevent read receipts from being sent when they shouldn't be
       if (AppState.currentState !== 'active') {
@@ -175,7 +177,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
       setMessages(resp);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newMessageTrigger, cursor]);
+  }, [ping, newMessageTrigger, cursor]);
 
   const onStartReached = async (): Promise<void> => {
     const initCursor = cursor;

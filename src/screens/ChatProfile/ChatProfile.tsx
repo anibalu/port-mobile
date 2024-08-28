@@ -55,8 +55,6 @@ import {getPermissions} from '@utils/Storage/permissions';
 import {getContact} from '@utils/Storage/contacts';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import {deleteAllMessagesInChat} from '@utils/Storage/messages';
-import ChatSettingsCard from '@components/Reusable/PermissionCards/ChatSettingsCard';
-import AdvanceSettingsCard from '@components/Reusable/PermissionCards/AdvanceSettingsCard';
 import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ChatProfile'>;
@@ -321,21 +319,6 @@ const ChatProfile = ({route, navigation}: Props) => {
                     </Pressable>
                   </SimpleCard>
                 </View>
-                <AdvanceSettingsCard
-                  chatId={chatId}
-                  permissions={permissions}
-                  permissionsId={chatData.permissionsId}
-                  setPermissions={setPermissions}
-                  heading={'Allow this contact to'}
-                />
-                <ChatSettingsCard
-                  chatId={chatId}
-                  permissions={permissions}
-                  permissionsId={chatData.permissionsId}
-                  setPermissions={setPermissions}
-                  showDissapearingMessagesOption={true}
-                />
-                <View style={{height: 16}} />
                 <Notes pairHash={pairHash} note={note} />
                 <View style={styles.sharedMediaContainer}>
                   <SharedMediaCard media={media} chatId={chatId} />

@@ -24,6 +24,16 @@ interface BottomNavContextType {
   setSelectedFolderData: (x: FolderInfo | null | undefined) => void;
   selectedProps: ChatTileProps | null;
   setSelectedProps: (x: ChatTileProps | null) => void;
+  contactShareParams: {
+    name: string;
+    pairHash: string;
+  } | null;
+  setContactShareParams: (
+    x: {
+      name: string;
+      pairHash: string;
+    } | null,
+  ) => void;
   selectedConnections: ChatTileProps[];
   setSelectedConnections: (x: ChatTileProps[]) => void;
   selectionMode: boolean;
@@ -60,6 +70,10 @@ export const BottomNavProvider = ({children}: {children: ReactNode}) => {
   const [selectedProps, setSelectedProps] = useState<ChatTileProps | null>(
     null,
   );
+  const [contactShareParams, setContactShareParams] = useState<{
+    name: string;
+    pairHash: string;
+  } | null>(null);
   //selected connection Ids
   const [selectedConnections, setSelectedConnections] = useState<
     ChatTileProps[]
@@ -98,6 +112,8 @@ export const BottomNavProvider = ({children}: {children: ReactNode}) => {
         setSelectedFolderData,
         selectedProps,
         setSelectedProps,
+        contactShareParams,
+        setContactShareParams,
         selectedConnections,
         setSelectedConnections,
         selectionMode,

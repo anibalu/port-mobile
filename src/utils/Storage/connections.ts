@@ -1,7 +1,6 @@
 import {generateISOTimeStamp} from '@utils/Time';
 import * as DBCalls from './DBCalls/connections';
 import {ChatType, NewMessageCountAction} from './DBCalls/connections';
-import {MessageStatus} from '@utils/Messaging/interfaces';
 
 /**
  * Get connections. By default, you get all connections.
@@ -192,7 +191,6 @@ export async function toggleRead(chatId: string) {
   await DBCalls.updateConnection(
     {
       chatId: chatId,
-      readStatus: MessageStatus.read,
     },
     NewMessageCountAction.reset,
   );

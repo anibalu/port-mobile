@@ -43,6 +43,9 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactBottomSheet';
+import {cleanDeleteReadPort} from '@utils/Ports/direct';
+import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
@@ -119,6 +122,10 @@ const Home = ({navigation}: Props) => {
     connections,
     setConnections,
     setSelectedFolderData,
+    selectedProps,
+    setSelectedProps,
+    contactShareParams,
+    setContactShareParams,
   } = useBottomNavContext();
 
   //loader that waits for home screen to finish loading.
@@ -299,6 +306,26 @@ const Home = ({navigation}: Props) => {
             )}
           </View>
         </KeyboardAvoidingView>
+        <LoadingBottomSheet
+          visible={selectedProps ? true : false}
+          onClose={() => setSelectedProps(null)}
+          title={'Adding new contact...'}
+          onStopPress={async () => {
+            if (selectedProps?.isReadPort) {
+              await cleanDeleteReadPort(selectedProps.chatId);
+              const output = await loadHomeScreenConnections();
+              setConnections(output.connections);
+              setTotalUnreadCount(output.unread);
+            }
+          }}
+        />
+        {contactShareParams && (
+          <ContactSharingBottomsheet
+            visible={contactShareParams ? true : false}
+            contactShareParams={contactShareParams}
+            onClose={() => setContactShareParams(null)}
+          />
+        )}
       </GestureSafeAreaView>
     </>
   );

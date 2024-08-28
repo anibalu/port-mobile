@@ -18,8 +18,9 @@ import {
   getWeight,
 } from '@components/NumberlessText';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import PrimaryButton from '../LongButtons/PrimaryButton';
+import DynamicColors from '@components/DynamicColors';
 
 const LoadingBottomSheet = ({
   visible,
@@ -32,6 +33,8 @@ const LoadingBottomSheet = ({
   title: string;
   onStopPress: () => Promise<void>;
 }) => {
+  const Colors = DynamicColors();
+
   const [isLoading, setIsLoading] = useState(false);
   const onClick = async () => {
     setIsLoading(true);
@@ -52,7 +55,7 @@ const LoadingBottomSheet = ({
           <NumberlessText
             style={{
               width: '100%',
-              color: PortColors.subtitle,
+              color: Colors.text.subtitle,
               marginBottom: PortSpacing.secondary.bottom,
             }}
             fontSizeType={FontSizeType.m}
@@ -62,7 +65,7 @@ const LoadingBottomSheet = ({
           <View style={{flexDirection: 'row', gap: PortSpacing.tertiary.right}}>
             <WifiOff width={16} height={16} />
             <NumberlessText
-              style={styles.subDescText}
+              style={{...styles.subDescText, color: Colors.text.subtitle}}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               You or your contact are not connected to the internet.
@@ -71,7 +74,7 @@ const LoadingBottomSheet = ({
           <View style={{flexDirection: 'row', gap: PortSpacing.tertiary.right}}>
             <CloudOff width={16} height={16} />
             <NumberlessText
-              style={styles.subDescText}
+              style={{...styles.subDescText, color: Colors.text.subtitle}}
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}>
               Port servers are facing issues.
@@ -103,11 +106,9 @@ const styles = StyleSheet.create({
     fontFamily: FontType.rg,
     fontSize: FontSizeType.l,
     fontWeight: getWeight(FontType.rg),
-    color: PortColors.title,
     marginLeft: PortSpacing.tertiary.left,
   },
   subDescText: {
-    color: PortColors.subtitle,
     marginBottom: PortSpacing.tertiary.bottom,
     marginLeft: 4,
     flex: 1,

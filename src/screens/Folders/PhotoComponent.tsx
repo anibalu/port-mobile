@@ -30,18 +30,16 @@ export const PhotoComponent = ({
         }}>
         {photos.map((item, index) => {
           return (
-            <View>
-              <View
-                key={index}
-                style={{
-                  borderRadius: 50,
-                  borderWidth: 1.5,
-                  borderColor: 'white',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <AvatarBox avatarSize="es" profileUri={item} />
-              </View>
+            <View
+              key={index}
+              style={{
+                borderRadius: 50,
+                borderWidth: 1.5,
+                borderColor: 'white',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <AvatarBox avatarSize="es" profileUri={item} />
             </View>
           );
         })}

@@ -46,9 +46,9 @@ const MessageStatusIndicator = ({readStatus}: {readStatus: MessageStatus}) => {
 
   const results = useDynamicSVG(svgArray);
   const Read = results.Read;
-  const Delivered = results.Delivered;
+  // const Delivered = results.Delivered;
   if (!readStatus) {
-    return <Delivered />;
+    return <></>;
   }
   switch (readStatus) {
     case MessageStatus.journaled:

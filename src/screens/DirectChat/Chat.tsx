@@ -145,8 +145,8 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         setMessages(resp);
         //Notifying that initial message load is complete.
         setMessagesLoaded(true);
-        await debouncedPeriodicOperations();
         setPermissions(await dataHandler.getPermissions());
+        await debouncedPeriodicOperations();
       })();
 
       return () => {

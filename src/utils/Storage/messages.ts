@@ -13,6 +13,7 @@ import {deleteFile} from './StorageRNFS/sharedFileHandlers';
 import {deleteMedia, getMedia} from './media';
 import {getConnection, updateConnection} from './connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {ConnectionInfo} from './DBCalls/connections';
 
 /**
  * saves message to storage.
@@ -132,8 +133,15 @@ export async function cleanDeleteMessage(
   tombstone: boolean = false,
 ) {
   const message = await getMessage(chatId, messageId);
-  const connection = await getConnection(chatId);
-  if (!connection) {
+  let connection: ConnectionInfo;
+  try {
+    connection = await getConnection(chatId);
+  } catch (e) {
+    console.error('The chat associated with this message no longer exists', e);
+    lineDBCalls.permanentlyDeleteMessage(chatId, messageId);
+  }
+  if (!connection!) {
+    // Something very wrong is happening here
     return;
   }
   //checks if passed in messageId belongs to the latest message

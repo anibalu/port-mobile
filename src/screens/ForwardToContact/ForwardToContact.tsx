@@ -8,7 +8,6 @@ import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React, {useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, View, ScrollView} from 'react-native';
 
-import {TOPBAR_HEIGHT} from '@configs/constants';
 import {getConnection} from '@utils/Storage/connections';
 import {getConnections} from '@utils/Storage/connections';
 // import SearchBar from '@components/Reusable/TopBars/SearchBar';
@@ -194,12 +193,12 @@ const styling = (colors: any) =>
       paddingHorizontal: PortSpacing.tertiary.uniform,
     },
     barWrapper: {
-      paddingHorizontal: 15,
+      paddingHorizontal: PortSpacing.secondary.uniform,
       flexDirection: 'row',
       justifyContent: 'space-between',
       backgroundColor: colors.primary.surface,
       alignItems: 'center',
-      height: TOPBAR_HEIGHT,
+      paddingVertical: PortSpacing.tertiary.uniform,
     },
     buttonWrapper: {
       paddingVertical: PortSpacing.secondary.top,

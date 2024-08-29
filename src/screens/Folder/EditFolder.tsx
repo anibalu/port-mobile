@@ -93,8 +93,7 @@ const EditFolder = ({route, navigation}: Props) => {
           <View
             style={{
               paddingHorizontal: PortSpacing.secondary.uniform,
-              paddingBottom: PortSpacing.secondary.bottom,
-              paddingTop: PortSpacing.tertiary.top,
+              paddingVertical: PortSpacing.tertiary.uniform,
               backgroundColor: Colors.primary.surface,
             }}>
             <EditableInputCard

@@ -223,15 +223,16 @@ const PhoneContactList = ({navigation}: Props) => {
               paddingHorizontal: PortSpacing.secondary.uniform,
               paddingVertical: PortSpacing.tertiary.uniform,
               backgroundColor: Colors.primary.surface,
-              borderTopWidth: 0.5,
-              borderTopColor: Colors.primary.stroke,
             }}>
             <SearchBar
               style={{
-                backgroundColor: Colors.primary.background,
-                borderWidth: 0.5,
-                borderColor: Colors.primary.stroke,
-                borderRadius: PortSpacing.medium.uniform,
+                backgroundColor: Colors.primary.surface2,
+                height: 44,
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderRadius: 12,
+                paddingHorizontal: PortSpacing.tertiary.uniform,
               }}
               searchText={searchText}
               setSearchText={setSearchtext}

@@ -186,7 +186,7 @@ const styling = (colors: any) =>
       flex: 1,
     },
     barWrapper: {
-      paddingHorizontal: 15,
+      paddingHorizontal: PortSpacing.secondary.uniform,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',

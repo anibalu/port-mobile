@@ -1,4 +1,4 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 import React from 'react';
 import {Pressable, StyleSheet, Text} from 'react-native';
@@ -26,7 +26,7 @@ const EditableInputCard = ({
               fontFamily: FontType.rg,
               fontSize: FontSizeType.m,
               fontWeight: getWeight(FontType.rg),
-              color: PortColors.primary.grey.medium,
+              color: Colors.primary.mediumgrey,
               flex: 1,
             }}>
             {placeholder}
@@ -52,13 +52,11 @@ const EditableInputCard = ({
 const styling = (colors: any) =>
   StyleSheet.create({
     mainContainer: {
-      height: 50,
+      height: 46,
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'stretch',
-      backgroundColor: colors.primary.surface,
-      borderWidth: 1,
-      borderColor: colors.primary.stroke,
+      backgroundColor: colors.primary.surface2,
     },
     cardWrapper: {
       borderRadius: 12,

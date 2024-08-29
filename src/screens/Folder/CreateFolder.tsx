@@ -80,7 +80,6 @@ const CreateFolder = ({navigation, route}: Props) => {
               : Colors.primary.surface,
         }}>
         <TopBarWithRightIcon
-          bgColor={themeValue === 'dark' ? 'b' : 'g'}
           onIconRightPress={() => navigation.goBack()}
           IconRight={CrossButton}
           heading={saveDetails ? ' Edit Folder Settings' : 'Create new folder'}
@@ -88,8 +87,8 @@ const CreateFolder = ({navigation, route}: Props) => {
         <View
           style={{
             paddingHorizontal: PortSpacing.secondary.uniform,
-            paddingBottom: PortSpacing.secondary.bottom,
-            paddingTop: PortSpacing.secondary.top,
+            paddingVertical: PortSpacing.tertiary.uniform,
+            backgroundColor: Colors.primary.surface,
           }}>
           <SimpleInput
             isEditable={true}

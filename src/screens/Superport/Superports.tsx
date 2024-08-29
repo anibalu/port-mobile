@@ -410,7 +410,7 @@ const styling = (color: any) =>
       textAlign: 'center',
     },
     barWrapper: {
-      paddingHorizontal: 15,
+      paddingHorizontal: PortSpacing.secondary.uniform,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',

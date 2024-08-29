@@ -16,6 +16,7 @@ import {
 } from '@components/NumberlessText';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import DynamicColors from '@components/DynamicColors';
+import {TOPBAR_HEIGHT} from '@configs/constants';
 
 const BackTopbarWithSubtitle = ({
   onBackPress,
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: PortSpacing.secondary.uniform,
     alignItems: 'center',
     backgroundColor: PortColors.primary.white,
-    height: 56,
+    height: TOPBAR_HEIGHT,
     width: '100%',
   },
   backButton: {

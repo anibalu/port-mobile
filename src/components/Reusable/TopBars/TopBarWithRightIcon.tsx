@@ -33,6 +33,7 @@ const TopBarWithRightIcon = ({
   heading: string;
 }) => {
   const Colors = DynamicColors();
+  const styles = styling(Colors);
   return (
     <View
       style={StyleSheet.compose(styles.topbarAcontainer, {
@@ -64,16 +65,18 @@ const TopBarWithRightIcon = ({
   );
 };
 
-const styles = StyleSheet.create({
-  topbarAcontainer: {
-    flexDirection: 'row',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    alignItems: 'center',
-    borderBottomWidth: 0.5,
-    height: TOPBAR_HEIGHT,
-    justifyContent: 'center',
-    width: '100%',
-  },
-});
+const styling = (Color: any) =>
+  StyleSheet.create({
+    topbarAcontainer: {
+      flexDirection: 'row',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      alignItems: 'center',
+      borderBottomWidth: 0.5,
+      borderBottomColor: Color.primary.stroke,
+      height: TOPBAR_HEIGHT,
+      justifyContent: 'center',
+      width: '100%',
+    },
+  });
 
 export default TopBarWithRightIcon;

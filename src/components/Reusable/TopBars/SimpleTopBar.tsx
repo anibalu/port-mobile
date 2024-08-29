@@ -14,6 +14,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {TOPBAR_HEIGHT} from '@configs/constants';
 import React, {FC} from 'react';
 import {Pressable, StyleSheet} from 'react-native';
 import {View} from 'react-native';
@@ -69,7 +70,7 @@ const styling = (color: any) =>
       paddingHorizontal: 16,
       alignItems: 'center',
       backgroundColor: color.primary.surface,
-      height: 56,
+      height: TOPBAR_HEIGHT,
       borderBottomColor: color.primary.stroke,
       borderBottomWidth: 0.5,
     },

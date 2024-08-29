@@ -6,9 +6,8 @@
  * 3. Placeholder text
  */
 
-import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+import {FontType} from '@components/NumberlessText';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {useState} from 'react';
 import {KeyboardTypeOptions, StyleSheet, TextInput} from 'react-native';
@@ -33,6 +32,7 @@ const SimpleInput = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const onTextChange = (newText: string) => {
+    console.log('isFocused', isFocused);
     setText(newText);
   };
   const Colors = DynamicColors();
@@ -45,14 +45,11 @@ const SimpleInput = ({
         editable={isEditable}
         style={StyleSheet.compose(styles.textInput, {
           color: Colors.text.primary,
-          borderColor: isFocused
-            ? Colors.primary.accent
-            : Colors.primary.stroke,
           backgroundColor:
             bgColor && bgColor === 'g'
               ? Colors.primary.background
               : themeValue === 'dark'
-              ? Colors.primary.surface
+              ? Colors.primary.surface2
               : Colors.primary.white,
         })}
         onFocus={() => setIsFocused(true)}
@@ -70,14 +67,13 @@ const SimpleInput = ({
 
 const styles = StyleSheet.create({
   textInput: {
-    padding: PortSpacing.secondary.uniform,
+    paddingHorizontal: 16,
     alignSelf: 'stretch',
-    borderWidth: 1,
     fontFamily: FontType.rg,
-    fontSize: FontSizeType.m,
-    fontWeight: getWeight(FontType.rg),
+    fontSize: 15,
+    fontWeight: '400',
     borderRadius: 12,
-    height: 50,
+    height: 46,
   },
 });
 

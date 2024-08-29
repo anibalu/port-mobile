@@ -7,7 +7,6 @@ import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React, {useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, View, ScrollView} from 'react-native';
 
-import {TOPBAR_HEIGHT} from '@configs/constants';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
@@ -144,12 +143,12 @@ const styling = (color: any) =>
       paddingHorizontal: PortSpacing.secondary.uniform,
     },
     barWrapper: {
-      paddingHorizontal: 15,
+      paddingHorizontal: PortSpacing.secondary.uniform,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor: color.primary.surface,
-      height: TOPBAR_HEIGHT,
+      paddingVertical: PortSpacing.tertiary.uniform,
     },
     buttonWrapper: {
       paddingVertical: PortSpacing.secondary.top,

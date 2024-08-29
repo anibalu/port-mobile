@@ -78,6 +78,8 @@ const styling = (Color: any) =>
       alignItems: 'center',
       backgroundColor: Color.primary.surface,
       height: TOPBAR_HEIGHT,
+      borderBottomWidth: 0.5,
+      borderBottomColor: Color.primary.stroke,
     },
     backButton: {
       position: 'absolute',

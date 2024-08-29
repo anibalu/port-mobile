@@ -2,7 +2,6 @@ import SearchGrey from '@assets/icons/GreySearch.svg';
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {memo, useState} from 'react';
 import {Pressable, StyleSheet, TextInput, View} from 'react-native';
-import {PortColors} from './ComponentUtils';
 import DynamicColors from './DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
@@ -52,7 +51,7 @@ const SearchBar = ({
       )}
       <TextInput
         style={{
-          marginLeft: 12,
+          marginLeft: 4,
           flex: 1,
           fontSize: 15,
           color: Colors.text.primary,
@@ -60,7 +59,7 @@ const SearchBar = ({
         textAlign="left"
         maxLength={NAME_LENGTH_LIMIT}
         placeholder={isFocused ? '' : placeholder}
-        placeholderTextColor={PortColors.primary.grey.medium}
+        placeholderTextColor={Colors.primary.mediumgrey}
         onChangeText={onChangeText}
         value={searchText}
         onBlur={() => setIsFocused(false)}

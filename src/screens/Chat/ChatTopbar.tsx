@@ -18,6 +18,7 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {ChatTopBarWithAccessControls} from './DragDownTopBar';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme} from 'src/context/ThemeContext';
+import {TOPBAR_HEIGHT} from '@configs/constants';
 
 /**
  * Handles top bar for chat
@@ -114,6 +115,8 @@ function ChatTopbar(): ReactNode {
       {!selectionMode && <ChatTopBarWithAccessControls />}
       <Pressable
         style={StyleSheet.compose(styles.profileBar, {
+          height: selectionMode ? TOPBAR_HEIGHT : 56,
+
           backgroundColor:
             themeValue === 'dark'
               ? Colors.primary.surface
@@ -133,19 +136,36 @@ function ChatTopbar(): ReactNode {
               />
             </View>
           )}
-          <View style={styles.nameBar}>
-            <NumberlessText
-              fontSizeType={FontSizeType.l}
-              fontType={FontType.md}
-              ellipsizeMode="tail"
-              style={selectionMode ? styles.selected : styles.title}
-              numberOfLines={1}>
-              {selectionMode
-                ? 'Selected (' + selectedMessages.length.toString() + ')'
-                : name}
-            </NumberlessText>
-            {!selectionMode && <AngleRight height={20} width={20} />}
-          </View>
+          {selectionMode ? (
+            <View
+              style={
+                selectionMode ? styles.nameBarInSelection : styles.nameBar
+              }>
+              <NumberlessText
+                fontSizeType={FontSizeType.xl}
+                fontType={FontType.sb}
+                ellipsizeMode="tail"
+                style={selectionMode ? styles.selected : styles.title}
+                numberOfLines={1}>
+                {'Selected (' + selectedMessages.length.toString() + ')'}
+              </NumberlessText>
+            </View>
+          ) : (
+            <View
+              style={
+                selectionMode ? styles.nameBarInSelection : styles.nameBar
+              }>
+              <NumberlessText
+                fontSizeType={FontSizeType.l}
+                fontType={FontType.md}
+                ellipsizeMode="tail"
+                style={selectionMode ? styles.selected : styles.title}
+                numberOfLines={1}>
+                {name}
+              </NumberlessText>
+              <AngleRight height={20} width={20} />
+            </View>
+          )}
         </View>
         <View style={{flexDirection: 'row'}}>
           {selectionMode && (
@@ -177,7 +197,6 @@ const styling = (colors: any) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingHorizontal: 8,
-      height: 56,
       position: 'absolute',
     },
     titleBar: {
@@ -191,6 +210,14 @@ const styling = (colors: any) =>
     nameBar: {
       flexDirection: 'row',
       alignItems: 'center',
+    },
+    nameBarInSelection: {
+      flex: 1,
+      maxWidth: '60%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      gap: PortSpacing.tertiary.uniform,
     },
     title: {
       color: colors.text.primary,
@@ -216,7 +243,7 @@ const styling = (colors: any) =>
       width: 40,
     },
     crossBox: {
-      backgroundColor: colors.primary.surface2,
+      backgroundColor: 'transparent',
       alignItems: 'flex-end',
       height: 40,
       top: 7,

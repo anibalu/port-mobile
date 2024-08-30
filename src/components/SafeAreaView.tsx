@@ -8,7 +8,16 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {PortSpacing, isIOS} from './ComponentUtils';
 import DynamicColors from './DynamicColors';
 
-export function SafeAreaView({children, style, ...rest}: ViewProps) {
+interface SafeAreaViewProps extends ViewProps {
+  removeOffset?: boolean;
+}
+
+export function SafeAreaView({
+  children,
+  style,
+  removeOffset = false,
+  ...rest
+}: SafeAreaViewProps) {
   const insets = useSafeAreaInsets();
   const Colors = DynamicColors();
   const safeAreaStyle: ViewStyle = {
@@ -17,7 +26,9 @@ export function SafeAreaView({children, style, ...rest}: ViewProps) {
     paddingTop: isIOS ? 0 : insets.top,
     paddingLeft: insets.left,
     paddingRight: insets.right,
-    paddingBottom: isIOS ? PortSpacing.secondary.bottom : insets.bottom,
+    paddingBottom: isIOS
+      ? (!removeOffset && PortSpacing.secondary.bottom) || 0
+      : insets.bottom,
   };
 
   return (

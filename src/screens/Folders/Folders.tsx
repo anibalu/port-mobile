@@ -1,5 +1,12 @@
 import React, {useMemo, useState, useRef, useCallback} from 'react';
-import {Animated, Easing, Pressable, StyleSheet, View} from 'react-native';
+import {
+  Animated,
+  Easing,
+  KeyboardAvoidingView,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import SearchBar from '@components/SearchBar';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -9,12 +16,11 @@ import {
 } from '@utils/Storage/folders';
 import CardView from './CardView';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import BackTopbarWithButton from '@components/Reusable/TopBars/BackTopBarWithButton';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme} from 'src/context/ThemeContext';
 import {useSelector} from 'react-redux';
 import {
@@ -22,6 +28,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 
 const Folders = () => {
   const ping: any = useSelector(state => state.ping.ping);
@@ -94,7 +101,6 @@ const Folders = () => {
   }, [searchText]);
 
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
 
   useFocusEffect(
     useCallback(() => {
@@ -102,15 +108,11 @@ const Folders = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
+
   return (
-    <View
-      style={{
-        backgroundColor: Colors.primary.surface,
-        width: screen.width,
-        height: isIOS ? screen.height : screen.height + insets.top,
-      }}>
+    <>
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
-      <SafeAreaView>
+      <SafeAreaView removeOffset={true}>
         <View style={styles.topRegion}>
           <BackTopbarWithButton
             onButtonPress={() => navigation.navigate('CreateFolder', {})}
@@ -128,50 +130,56 @@ const Folders = () => {
             />
           </View>
         </View>
-        {viewableFolders.length > 0 ? (
-          <View style={styles.container}>
-            <Pressable
-              onPress={toggleSwitch}
-              style={StyleSheet.compose(styles.toggle, {
-                borderColor:
-                  themeValue === 'light'
-                    ? Colors.primary.white
-                    : Colors.primary.surface2,
-                backgroundColor:
-                  themeValue === 'light'
-                    ? Colors.primary.stroke
-                    : Colors.primary.surface,
-              })}>
-              <Animated.View
-                style={{
-                  transform: [{translateX: translateXAnim}],
-                }}>
-                {toggleOn ? (
-                  <List height={24} width={24} />
-                ) : (
-                  <Card height={24} width={24} />
-                )}
-              </Animated.View>
-            </Pressable>
-            <CardView toggleOn={toggleOn} folders={viewableFolders} />
-          </View>
-        ) : (
-          <View
-            style={{
-              height: 100,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <NumberlessText
-              textColor={Colors.text.subtitle}
-              fontSizeType={FontSizeType.l}
-              fontType={FontType.rg}>
-              No matching folders found
-            </NumberlessText>
-          </View>
-        )}
+        <KeyboardAvoidingView
+          behavior={isIOS ? 'padding' : 'height'}
+          keyboardVerticalOffset={isIOS ? 50 : BOTTOMBAR_HEIGHT}
+          style={styles.scrollViewContainer}>
+          {viewableFolders.length > 0 ? (
+            <View style={styles.container}>
+              <Pressable
+                onPress={toggleSwitch}
+                style={StyleSheet.compose(styles.toggle, {
+                  borderColor:
+                    themeValue === 'light'
+                      ? Colors.primary.white
+                      : Colors.primary.surface2,
+                  backgroundColor:
+                    themeValue === 'light'
+                      ? Colors.primary.stroke
+                      : Colors.primary.surface,
+                })}>
+                <Animated.View
+                  style={{
+                    transform: [{translateX: translateXAnim}],
+                  }}>
+                  {toggleOn ? (
+                    <List height={24} width={24} />
+                  ) : (
+                    <Card height={24} width={24} />
+                  )}
+                </Animated.View>
+              </Pressable>
+              <CardView toggleOn={toggleOn} folders={viewableFolders} />
+            </View>
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                height: 100,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <NumberlessText
+                textColor={Colors.text.subtitle}
+                fontSizeType={FontSizeType.l}
+                fontType={FontType.rg}>
+                No matching folders found
+              </NumberlessText>
+            </View>
+          )}
+        </KeyboardAvoidingView>
       </SafeAreaView>
-    </View>
+    </>
   );
 };
 
@@ -194,6 +202,12 @@ const styling = (colors: any) =>
     },
     topRegion: {
       backgroundColor: colors.primary.surface,
+    },
+    scrollViewContainer: {
+      flex: 1,
+      width: '100%',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
     },
     search: {
       backgroundColor: colors.primary.surface2,

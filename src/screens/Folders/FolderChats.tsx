@@ -157,7 +157,11 @@ const FolderChats = ({route}: Props) => {
   return (
     <>
       <CustomStatusBar backgroundColor={colors.primary.surface} />
-      <GestureSafeAreaView style={{backgroundColor: colors.primary.surface}}>
+      <GestureSafeAreaView
+        removeOffset={true}
+        style={{
+          backgroundColor: colors.primary.surface,
+        }}>
         <FolderChatsTopBar />
         <KeyboardAvoidingView
           behavior={isIOS ? 'padding' : 'height'}

@@ -9,7 +9,16 @@ import {PortSpacing, isIOS} from './ComponentUtils';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import DynamicColors from './DynamicColors';
 
-export function GestureSafeAreaView({children, style, ...rest}: ViewProps) {
+interface GestureSafeAreaViewProps extends ViewProps {
+  removeOffset?: boolean;
+}
+
+export function GestureSafeAreaView({
+  children,
+  style,
+  removeOffset = false,
+  ...rest
+}: GestureSafeAreaViewProps) {
   const insets = useSafeAreaInsets();
   const Colors = DynamicColors();
   const safeAreaStyle: ViewStyle = {
@@ -18,7 +27,9 @@ export function GestureSafeAreaView({children, style, ...rest}: ViewProps) {
     paddingTop: isIOS ? 0 : insets.top,
     paddingLeft: insets.left,
     paddingRight: insets.right,
-    paddingBottom: isIOS ? PortSpacing.secondary.bottom : insets.bottom,
+    paddingBottom: isIOS
+      ? (!removeOffset && PortSpacing.secondary.bottom) || 0
+      : insets.bottom,
   };
 
   return (

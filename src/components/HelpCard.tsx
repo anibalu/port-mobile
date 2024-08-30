@@ -17,9 +17,9 @@ const HelpCard = () => {
 
   const svgArray = [
     {
-      assetName: 'HelpQuestionMark',
-      light: require('@assets/light/icons/HelpQuestionMark.svg').default,
-      dark: require('@assets/dark/icons/HelpQuestionMark.svg').default,
+      assetName: 'LegalHammer',
+      light: require('@assets/light/icons/LegalHammer.svg').default,
+      dark: require('@assets/dark/icons/LegalHammer.svg').default,
     },
     {
       assetName: 'AngleRight',
@@ -28,14 +28,14 @@ const HelpCard = () => {
     },
   ];
   const results = useDynamicSVG(svgArray);
-  const HelpQuestionMark = results.HelpQuestionMark;
+  const LegalHammer = results.LegalHammer;
   const BlackAngleRight = results.AngleRight;
 
   return (
     <SimpleCard style={styles.card}>
       <Pressable style={styles.button} onPress={() => onPress()}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <HelpQuestionMark height={20} width={20} />
+          <LegalHammer height={20} width={20} />
           <NumberlessText
             style={{marginLeft: PortSpacing.tertiary.left}}
             textColor={Colors.text.primary}

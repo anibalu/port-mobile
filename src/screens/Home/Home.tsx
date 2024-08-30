@@ -229,7 +229,11 @@ const Home = ({navigation}: Props) => {
   return (
     <>
       <CustomStatusBar backgroundColor={colors.primary.surface} />
-      <GestureSafeAreaView style={{backgroundColor: colors.primary.surface}}>
+      <GestureSafeAreaView
+        removeOffset={true}
+        style={{
+          backgroundColor: colors.primary.surface,
+        }}>
         <HomeTopbar unread={totalUnreadCount} />
         <KeyboardAvoidingView
           behavior={isIOS ? 'padding' : 'height'}

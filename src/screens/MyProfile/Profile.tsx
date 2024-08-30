@@ -118,7 +118,12 @@ const MyProfile = ({navigation}: Props): ReactNode => {
   return (
     <>
       <CustomStatusBar backgroundColor={colors.primary.background} />
-      <SafeAreaView style={styles.profileScreen}>
+      <SafeAreaView
+        removeOffset={true}
+        style={{
+          alignItems: 'center',
+          backgroundColor: colors.primary.background,
+        }}>
         <ScrollView contentContainerStyle={styles.profile}>
           <View style={{alignItems: 'center', width: '100%'}}>
             <View style={styles.profilePictureHitbox}>
@@ -193,10 +198,6 @@ const MyProfile = ({navigation}: Props): ReactNode => {
 
 const styling = (colors: any) =>
   StyleSheet.create({
-    profileScreen: {
-      alignItems: 'center',
-      backgroundColor: colors.primary.background,
-    },
     mainContainer: {
       flexDirection: 'column',
       alignItems: 'center',

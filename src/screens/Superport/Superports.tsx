@@ -178,7 +178,7 @@ const Superports = ({navigation}: Props) => {
   return (
     <>
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
-      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
+      <SafeAreaView removeOffset={true}>
         {isLoading ? (
           <>
             <SuperportsTopbar heading={'Superports'} />

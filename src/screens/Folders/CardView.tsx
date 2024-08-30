@@ -2,7 +2,6 @@ import {PortSpacing} from '@components/ComponentUtils';
 import React, {useMemo} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import CardTile from './CardTile';
-import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 import {FolderInfoWithUnread} from '@utils/Storage/folders';
 
 const CardView = ({
@@ -38,7 +37,6 @@ const CardView = ({
         key={listKey}
         data={sortedFolders}
         contentContainerStyle={{
-          flex: 1,
           flexDirection: 'column',
         }}
         showsHorizontalScrollIndicator={false}
@@ -57,7 +55,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignContent: 'center',
     marginTop: PortSpacing.tertiary.uniform,
-    marginBottom: BOTTOMBAR_HEIGHT,
   },
 });
 

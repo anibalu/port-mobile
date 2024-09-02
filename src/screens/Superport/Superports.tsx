@@ -43,9 +43,15 @@ import {SvgXml} from 'react-native-svg';
 import {folderIdToHex} from '@utils/Folders/folderIdToHex';
 import FilterByFolderBottomSheet from './FilterByFolderBottomSheet';
 
+// Define the type of the route parameters
+type RouteParams = {
+  selectedFolderFilter?: FolderInfo;
+};
+
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Superports'>;
 
-const Superports = ({navigation}: Props) => {
+const Superports = ({route, navigation}: Props) => {
+  const params: RouteParams = useMemo(() => route.params || {}, [route.params]);
   const profile = useSelector(state => state.profile.profile);
   const {name, avatar} = useMemo(() => {
     return {
@@ -125,7 +131,14 @@ const Superports = ({navigation}: Props) => {
       }
     });
     setFilteredSuperportsData(pausedFilteredData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFolder, searchText, selectedFilter, superportsData]);
+
+  useMemo(() => {
+    if (params && params.selectedFolderFilter) {
+      setSelectedFolder(params.selectedFolderFilter);
+    }
+  }, [params]);
 
   const onRadioClick = async (item: string) => {
     setSelectedFilter(item);

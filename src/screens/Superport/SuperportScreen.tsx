@@ -344,12 +344,13 @@ const SuperportScreen = ({route, navigation}: Props) => {
     React.useCallback(() => {
       (async () => {
         await fetchFoldersData();
+        selectedFolder && setAutoCreateFolder(false);
         if (portId) {
           await fetchPort();
         }
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [portId, openLinkToFolder]),
+    }, [portId, openLinkToFolder, selectedFolder]),
   );
 
   const updateConnectionCount = async () => {

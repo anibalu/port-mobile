@@ -33,8 +33,10 @@ import {loadFolderScreenConnections} from '@utils/Connections/onRefresh';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import {useTheme} from 'src/context/ThemeContext';
 import {FolderChatsTopBar} from './FolderChatsTopBar';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import FolderOptionWithChevron from '@screens/DefaultFolderScreen/FolderOptionWithChevron';
+import LinkSuperport from '@assets/light/icons/folders/LinkSuperport.svg';
 
 type Props = NativeStackScreenProps<FolderNavStackParamList, 'FolderChats'>;
 
@@ -153,6 +155,7 @@ const FolderChats = ({route}: Props) => {
   }, [isLoading, opacityAnimation]);
 
   const {themeValue} = useTheme();
+  const navigation = useNavigation();
 
   return (
     <>
@@ -193,12 +196,36 @@ const FolderChats = ({route}: Props) => {
                     ListHeaderComponent={
                       folderConnections && folderConnections.length > 0 ? (
                         <View style={styles.barWrapper}>
-                          <SearchBar
-                            style={styles.search}
-                            searchText={searchText}
-                            setSearchText={setSearchText}
-                            placeholder={'Search for chats in this folder'}
-                          />
+                          <View
+                            style={{
+                              paddingHorizontal: PortSpacing.secondary.uniform,
+                            }}>
+                            <SearchBar
+                              style={styles.search}
+                              searchText={searchText}
+                              setSearchText={setSearchText}
+                              placeholder={'Search for chats in this folder'}
+                            />
+                          </View>
+
+                          {folder.superportCount > 0 && (
+                            <FolderOptionWithChevron
+                              subtitle="Tap here to view linked Supeports"
+                              text={`This folder is linked to ${
+                                folder.superportCount
+                              } ${
+                                folder.superportCount > 1
+                                  ? 'Superports'
+                                  : 'Superport'
+                              }`}
+                              Icon={LinkSuperport}
+                              onPress={() => {
+                                navigation.navigate('Superports', {
+                                  selectedFolderFilter: {...folder},
+                                });
+                              }}
+                            />
+                          )}
                         </View>
                       ) : null
                     }
@@ -275,9 +302,8 @@ const styling = (colors: any) =>
     },
     barWrapper: {
       backgroundColor: colors.primary.surface,
-      paddingHorizontal: PortSpacing.secondary.uniform,
       paddingVertical: PortSpacing.tertiary.uniform,
-      flexDirection: 'row',
+      flexDirection: 'column',
       justifyContent: 'space-between',
       alignItems: 'center',
     },

@@ -62,7 +62,7 @@ const styling = (colors: any) =>
     mainContainer: {
       flexDirection: 'row',
       paddingVertical: PortSpacing.secondary.top,
-      alignItems: 'center',
+      alignItems: 'flex-start',
       marginHorizontal: 16,
       borderWidth: 1,
       borderColor: colors.primary.stroke,

@@ -10,10 +10,10 @@ import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio'
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import {getAllFolders} from '@utils/Storage/folders';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import {defaultFolderInfo} from '@configs/constants';
+import {defaultFolderInfo, safeModalCloseDuration} from '@configs/constants';
 import PrimaryButton from '../../components/Reusable/LongButtons/PrimaryButton';
 import DynamicColors from '@components/DynamicColors';
 import {useBottomNavContext} from '../../context/BottomNavContext';
@@ -99,6 +99,24 @@ const MoveToFolder = ({
   const onRadioClick = async (item: FolderInfo) => {
     setSelectedFolder(item);
   };
+  const flatlistScrollViewRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    let timerId: NodeJS.Timeout | null = null;
+
+    if (visible) {
+      timerId = setTimeout(() => {
+        // Flash scroll indicators when the bottom sheet opens
+        flatlistScrollViewRef?.current?.flashScrollIndicators();
+      }, safeModalCloseDuration);
+    }
+
+    return () => {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+    };
+  }, [visible]);
 
   return (
     <PrimaryBottomSheet
@@ -129,6 +147,7 @@ const MoveToFolder = ({
           Choose folder
         </NumberlessText>
         <FlatList
+          ref={flatlistScrollViewRef}
           data={folders}
           scrollEnabled={true}
           showsHorizontalScrollIndicator={false}

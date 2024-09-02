@@ -5,7 +5,7 @@ import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React, {useEffect, useMemo, useState} from 'react';
-import {KeyboardAvoidingView, StyleSheet, View, ScrollView} from 'react-native';
+import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 
 import {getConnections} from '@utils/Storage/connections';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -85,16 +85,13 @@ const SelectShareContacts = ({route, navigation}: Props) => {
           behavior={isIOS ? 'padding' : 'height'}
           keyboardVerticalOffset={isIOS ? 50 : 0}
           style={styles.scrollViewContainer}>
-          <ScrollView
-            horizontal={false}
-            showsHorizontalScrollIndicator={false}
-            showsVerticalScrollIndicator={false}>
+          <View style={{flex: 1}}>
             <MultiSelectMembers
               selectedMembers={selectedMembers}
               setSelectedMembers={setSelectedMembers}
               members={viewableMembers}
             />
-          </ScrollView>
+          </View>
           <View style={styles.buttonWrapper}>
             <PrimaryButton
               isLoading={loading}
@@ -148,7 +145,6 @@ const styling = (Color: any) =>
       width: '100%',
       flexDirection: 'column',
       justifyContent: 'flex-start',
-      paddingHorizontal: PortSpacing.secondary.uniform,
     },
     barWrapper: {
       paddingHorizontal: PortSpacing.secondary.uniform,
@@ -161,7 +157,7 @@ const styling = (Color: any) =>
       paddingVertical: PortSpacing.tertiary.uniform,
     },
     buttonWrapper: {
-      paddingVertical: PortSpacing.secondary.top,
+      padding: PortSpacing.secondary.uniform,
     },
     search: {
       backgroundColor: Color.primary.surface2,

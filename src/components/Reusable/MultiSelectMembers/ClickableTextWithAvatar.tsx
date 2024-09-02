@@ -1,4 +1,3 @@
-// @sumaanta
 /**
  * A clickable text with an avatar will be used in Port to display selected members
  * Possible states:
@@ -13,7 +12,7 @@
  */
 
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
-import React from 'react';
+import React, {useMemo, useState} from 'react';
 import {Pressable, View} from 'react-native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import {PortSpacing} from '@components/ComponentUtils';
@@ -28,14 +27,23 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 const ClickableTextWithAvatar = ({
   selectedMembers,
   setSelectedMembers,
+  setSelectAll,
 }: {
   selectedMembers: ConnectionInfo[];
+  setSelectAll: (p: any) => void;
   setSelectedMembers: (member: any) => void;
 }) => {
+  const [showAll, setShowAll] = useState(false);
+
   const onUnselect = (chatId: string) => {
-    setSelectedMembers(
-      selectedMembers.filter(member => member.chatId !== chatId),
+    const newSelectedMmbers = selectedMembers.filter(
+      member => member.chatId !== chatId,
     );
+    setSelectedMembers(newSelectedMmbers);
+    if (newSelectedMmbers.length <= 7) {
+      setShowAll(false);
+    }
+    setSelectAll(false);
   };
 
   const Colors = DynamicColors();
@@ -49,54 +57,100 @@ const ClickableTextWithAvatar = ({
 
   const results = useDynamicSVG(svgArray);
   const CloseIcon = results.CloseIcon;
+
+  const visibleMembers = useMemo(
+    () => (showAll ? selectedMembers : selectedMembers.slice(0, 7)),
+    [selectedMembers, showAll],
+  );
+  const remainingCount = useMemo(
+    () => selectedMembers.length - visibleMembers.length,
+    [selectedMembers.length, visibleMembers.length],
+  );
+
   return (
     <View
       style={{
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: PortSpacing.tertiary.uniform,
-        marginTop: PortSpacing.tertiary.top,
+        paddingHorizontal: PortSpacing.secondary.uniform,
+        paddingVertical: PortSpacing.tertiary.uniform,
+        backgroundColor: Colors.primary.surface,
       }}>
-      {selectedMembers.map(member => {
-        return (
-          <View
-            key={member.chatId}
+      {visibleMembers.map(member => (
+        <View
+          key={member.chatId}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: 'transparent',
+            borderColor: Colors.primary.stroke,
+            borderWidth: 0.5,
+            borderRadius: PortSpacing.tertiary.uniform,
+            maxWidth: 180,
+            height: 36,
+            justifyContent: 'flex-start',
+          }}>
+          <Pressable
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: Colors.primary.surface,
-              borderRadius: PortSpacing.tertiary.uniform,
               maxWidth: 180,
-              height: 36,
+              paddingHorizontal: 4,
               justifyContent: 'flex-start',
-            }}>
-            <Pressable
+            }}
+            onPress={() => onUnselect(member.chatId)}>
+            <AvatarBox avatarSize="es" profileUri={member.pathToDisplayPic} />
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}
+              textColor={Colors.text.subtitle}
+              numberOfLines={1}
+              ellipsizeMode="tail"
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                maxWidth: 180,
-                paddingHorizontal: 4,
-                justifyContent: 'flex-start',
-              }}
-              onPress={() => onUnselect(member.chatId)}>
-              <AvatarBox avatarSize="es" profileUri={member.pathToDisplayPic} />
-              <NumberlessText
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}
-                textColor={Colors.text.primary}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={{
-                  maxWidth: 130,
-                  paddingHorizontal: PortSpacing.tertiary.uniform,
-                }}>
-                {member.name}
-              </NumberlessText>
-              <CloseIcon />
-            </Pressable>
-          </View>
-        );
-      })}
+                maxWidth: 130,
+                paddingHorizontal: PortSpacing.tertiary.uniform,
+              }}>
+              {member.name}
+            </NumberlessText>
+            <CloseIcon width={16} height={16} />
+          </Pressable>
+        </View>
+      ))}
+
+      {remainingCount > 0 && !showAll && (
+        <Pressable
+          style={{
+            justifyContent: 'center',
+            borderRadius: PortSpacing.tertiary.uniform,
+            height: 36,
+          }}
+          onPress={() => setShowAll(true)}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}
+            textColor={Colors.text.memberName}>
+            +{remainingCount} more
+          </NumberlessText>
+        </Pressable>
+      )}
+
+      {showAll && (
+        <Pressable
+          style={{
+            justifyContent: 'center',
+            borderRadius: PortSpacing.tertiary.uniform,
+            height: 36,
+          }}
+          onPress={() => setShowAll(false)}>
+          <NumberlessText
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}
+            textColor={Colors.text.memberName}>
+            Show less
+          </NumberlessText>
+        </Pressable>
+      )}
     </View>
   );
 };

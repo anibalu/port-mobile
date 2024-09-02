@@ -8,7 +8,7 @@
  * 5. visible - to determine if bottom sheet should be visible
  */
 
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {StyleSheet, View, FlatList, Animated, Easing} from 'react-native';
 
 import Delete from '@assets/icons/TrashcanWhite.svg';
@@ -19,7 +19,10 @@ import {
   screen,
 } from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
-import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+import {
+  DEFAULT_PROFILE_AVATAR_INFO,
+  safeModalCloseDuration,
+} from '@configs/constants';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {DirectAvatarMapping} from '@configs/avatarmapping';
@@ -149,6 +152,25 @@ export default function EditAvatar(props: EditAvatarProps) {
 
   const GalleryIcon = results.GalleryIcon;
 
+  const flatlistScrollViewRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    let timerId: NodeJS.Timeout | null = null;
+
+    if (visible) {
+      timerId = setTimeout(() => {
+        // Flash scroll indicators when the bottom sheet opens
+        flatlistScrollViewRef?.current?.flashScrollIndicators();
+      }, safeModalCloseDuration);
+    }
+
+    return () => {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+    };
+  }, [visible]);
+
   return (
     <PrimaryBottomSheet
       bgColor="g"
@@ -179,6 +201,8 @@ export default function EditAvatar(props: EditAvatarProps) {
         <SimpleCard style={styles.avatarArea}>
           <OptionWithRightIcon title={'Choose an avatar'} onClick={() => {}} />
           <FlatList
+            ref={flatlistScrollViewRef}
+            persistentScrollbar={true}
             data={avatarArray}
             keyExtractor={item => item.id.toString()}
             renderItem={({item}) => (

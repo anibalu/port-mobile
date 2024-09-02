@@ -9,10 +9,11 @@ import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import {updateGeneratedSuperportFolder} from '@utils/Ports';
+import {safeModalCloseDuration} from '@configs/constants';
 
 /**
  * LinkToFolderBottomSheet
@@ -59,6 +60,25 @@ const LinkToFolderBottomSheet = ({
     }
     onClose();
   };
+
+  const flatlistScrollViewRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    let timerId: NodeJS.Timeout | null = null;
+
+    if (visible) {
+      timerId = setTimeout(() => {
+        // Flash scroll indicators when the bottom sheet opens
+        flatlistScrollViewRef?.current?.flashScrollIndicators();
+      }, safeModalCloseDuration);
+    }
+
+    return () => {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+    };
+  }, [visible]);
 
   return (
     <PrimaryBottomSheet
@@ -112,9 +132,12 @@ const LinkToFolderBottomSheet = ({
           </NumberlessText>
         )}
         <FlatList
+          ref={flatlistScrollViewRef}
           data={foldersArray}
           scrollEnabled={true}
           showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
+          persistentScrollbar={true}
           horizontal={false}
           keyExtractor={(item: any) => item.folderId}
           renderItem={item => {

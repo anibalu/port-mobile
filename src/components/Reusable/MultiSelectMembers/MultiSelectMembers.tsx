@@ -8,11 +8,11 @@
  * 3. setSelectedMembers - handles selection and unselection of members
  */
 
-import React from 'react';
-import {View} from 'react-native';
+import React, {useState} from 'react';
 import ClickableTextWithAvatar from './ClickableTextWithAvatar';
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import MultiSelectMembersCard from '../Cards/MultiSelectMembersCard';
+import {View} from 'react-native';
 
 const MultiSelectMembers = ({
   members,
@@ -23,16 +23,20 @@ const MultiSelectMembers = ({
   setSelectedMembers: (member: any) => void;
   selectedMembers: ConnectionInfo[];
 }) => {
+  const [selectAll, setSelectAll] = useState(false);
   return (
-    <View style={{marginTop: 8}}>
+    <View style={{flex: 1}}>
       {selectedMembers.length > 0 && (
         <ClickableTextWithAvatar
+          setSelectAll={setSelectAll}
           setSelectedMembers={setSelectedMembers}
           selectedMembers={selectedMembers}
         />
       )}
       {members.length > 0 && (
         <MultiSelectMembersCard
+          selectAll={selectAll}
+          setSelectAll={setSelectAll}
           setSelectedMembers={setSelectedMembers}
           members={members}
           selectedMembers={selectedMembers}

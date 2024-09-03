@@ -13,7 +13,6 @@ import AdvanceSettingsCard from '@components/Reusable/PermissionCards/AdvanceSet
 import ChatSettingsCard from '@components/Reusable/PermissionCards/ChatSettingsCard';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {defaultPermissions} from '@configs/constants';
-import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {
   addNewFolder,
@@ -26,6 +25,7 @@ import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useTheme} from 'src/context/ThemeContext';
 import store from '@store/appStore';
+import InputWithoutBorder from '@components/Reusable/Inputs/InputWithoutBorder';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CreateFolder'>;
 
@@ -90,7 +90,7 @@ const CreateFolder = ({navigation, route}: Props) => {
             paddingVertical: PortSpacing.tertiary.uniform,
             backgroundColor: Colors.primary.surface,
           }}>
-          <SimpleInput
+          <InputWithoutBorder
             isEditable={true}
             placeholderText="Folder name"
             bgColor={themeValue === 'dark' ? 'w' : 'g'}

@@ -20,11 +20,11 @@ import {getFolderPermissions} from '@utils/Storage/permissions';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import EditName from '@components/Reusable/BottomSheets/EditName';
-import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {ToastType, useToast} from 'src/context/ToastContext';
+import EditableInputCardWithoutBorder from '@components/Reusable/Cards/EditableInputCardWithoutBorder';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'EditFolder'>;
 
@@ -96,7 +96,7 @@ const EditFolder = ({route, navigation}: Props) => {
               paddingVertical: PortSpacing.tertiary.uniform,
               backgroundColor: Colors.primary.surface,
             }}>
-            <EditableInputCard
+            <EditableInputCardWithoutBorder
               text={folderName}
               setOpenModal={setIsEditFolderNameModalOpen}
             />

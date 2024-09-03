@@ -6,7 +6,7 @@ import SimpleCard from './SimpleCard';
 import EditIcon from '@assets/icons/PencilAccent.svg';
 import DynamicColors from '@components/DynamicColors';
 
-const EditableInputCard = ({
+const EditableInputCardWithoutBorder = ({
   text,
   setOpenModal,
   placeholder = 'Enter a name',
@@ -52,13 +52,11 @@ const EditableInputCard = ({
 const styling = (colors: any) =>
   StyleSheet.create({
     mainContainer: {
-      height: 50,
+      height: 46,
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'stretch',
-      backgroundColor: colors.primary.surface,
-      borderWidth: 1,
-      borderColor: colors.primary.stroke,
+      backgroundColor: colors.primary.surface2,
     },
     cardWrapper: {
       borderRadius: 12,
@@ -70,4 +68,4 @@ const styling = (colors: any) =>
     },
   });
 
-export default EditableInputCard;
+export default EditableInputCardWithoutBorder;

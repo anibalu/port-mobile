@@ -29,7 +29,7 @@ const styling = Colors =>
   StyleSheet.create({
     main: {
       backgroundColor: Colors.primary.surface2,
-      height: BOTTOMBAR_HEIGHT,
+      height: BOTTOMBAR_HEIGHT + 10,
       justifyContent: 'center',
       flexDirection: 'row',
       alignItems: 'flex-start',

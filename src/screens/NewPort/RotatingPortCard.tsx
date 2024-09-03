@@ -269,8 +269,8 @@ const EditSettings = ({
     if (portId && permissionsId) {
       setPermissionsArray(permissions);
       setFolder(taggedFolder);
-      await updatePermissions(permissionsId, permissions);
       await updatePortData(portId, {folderId: taggedFolder.folderId});
+      await updatePermissions(permissionsId, permissions);
     }
     flipCard();
   };
@@ -285,11 +285,11 @@ const EditSettings = ({
     setOpenLinkToFolder(true);
   };
 
-  useMemo(async () => {
-    if (folder.folderId !== taggedFolder.folderId) {
+  useMemo(() => {
+    (async () => {
       setPermissions(await getFolderPermissions(taggedFolder.folderId));
-    }
-  }, [taggedFolder.folderId, folder.folderId]);
+    })();
+  }, [taggedFolder]);
 
   return (
     <SimpleCard style={styles.settingsCardWrapper}>

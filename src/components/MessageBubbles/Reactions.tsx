@@ -198,7 +198,7 @@ const styling = (colors: any) =>
       justifyContent: 'center',
     },
     hasReactionMessage: {
-      backgroundColor: colors.primary.stroke,
+      backgroundColor: colors.primary.surface2,
       alignItems: 'center',
       textAlign: 'center',
       justifyContent: 'center',
@@ -206,8 +206,8 @@ const styling = (colors: any) =>
     reactionsWrapper: {
       justifyContent: 'center',
       alignItems: 'center',
-      width: 48,
-      height: 48,
+      width: 44,
+      height: 44,
       overflow: 'hidden',
       borderRadius: 100,
     },

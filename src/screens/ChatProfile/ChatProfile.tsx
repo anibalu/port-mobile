@@ -233,7 +233,6 @@ const ChatProfile = ({route, navigation}: Props) => {
           avatarUri={displayPic}
           showUserInfo={showUserInfoInTopbar}
           IconRight={ContactShareIcon}
-          showShareContact={connected}
           onIconRightPress={onShareContactPressed}
         />
         <View style={styles.mainContainer}>

@@ -209,8 +209,9 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   }, []);
 
   const Colors = DynamicColors();
-  const styles = styling();
+
   const {themeValue} = useTheme();
+  const styles = styling(themeValue, Colors);
 
   const onChatScreenPressed = () => {
     //If slider is open, close it.
@@ -323,13 +324,17 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   );
 }
 
-const styling = () =>
+const styling = (themeValue: any, Colors: any) =>
   StyleSheet.create({
     main: {
       flex: 1,
       width: screen.width,
       flexDirection: 'column',
       justifyContent: 'flex-start',
+      backgroundColor:
+        themeValue === 'dark'
+          ? Colors.primary.background
+          : Colors.primary.surface,
     },
     screen: {
       flexDirection: 'column',

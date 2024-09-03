@@ -5,7 +5,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
-import {PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 import DynamicColors from '@components/DynamicColors';
 
@@ -98,6 +98,7 @@ const styling = (colors: any) =>
       paddingTop: PortSpacing.secondary.uniform,
       paddingHorizontal: PortSpacing.secondary.uniform,
       borderRadius: 30,
+      ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
     },
     loader: {
       flex: 1,

@@ -1,4 +1,4 @@
-import {PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     maxHeight: 250,
     width: '100%',
     paddingVertical: PortSpacing.tertiary.uniform,
-    paddingBottom: PortSpacing.secondary.bottom,
+    ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
   },
   optionContainer: {
     paddingHorizontal: PortSpacing.secondary.uniform,

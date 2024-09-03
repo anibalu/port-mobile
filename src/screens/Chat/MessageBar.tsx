@@ -1,4 +1,4 @@
-import {PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {ReplyBubbleMessageBar} from '@components/MessageBubbles/ReplyBubble';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
@@ -314,6 +314,7 @@ const styling = (colors: any) =>
       alignItems: 'center',
       borderTopColor: colors.primary.stroke,
       borderTopWidth: 1,
+      marginBottom: isIOS ? -16 : 0,
     },
     topElementWrapper: {
       marginLeft: PortSpacing.secondary.left,

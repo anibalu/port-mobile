@@ -1,4 +1,4 @@
-import {PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -91,6 +91,7 @@ const LinkToFolderBottomSheet = ({
         style={{
           marginBottom: PortSpacing.secondary.uniform,
           width: '100%',
+          ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
         }}>
         {subtitle && (
           <NumberlessText

@@ -507,6 +507,7 @@ const styling = (colors: any) =>
     card: {
       width: '100%',
       marginTop: PortSpacing.secondary.top,
+      ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
     },
     options: {
       marginVertical: PortSpacing.secondary.uniform,

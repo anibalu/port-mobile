@@ -33,7 +33,6 @@ const UserInfoTopbar = ({
   heading,
   onIconRightPress = async () => {},
   showUserInfo = false,
-  showShareContact = true,
 }: {
   backgroundColor: 'g' | 'w';
   avatarUri: string;
@@ -41,7 +40,6 @@ const UserInfoTopbar = ({
   heading?: string;
   showUserInfo?: boolean;
   onIconRightPress?: () => void;
-  showShareContact: boolean;
 }) => {
   const navigation = useNavigation();
   const Colors = DynamicColors();
@@ -82,7 +80,9 @@ const UserInfoTopbar = ({
           }}>
           <AvatarBox avatarSize="s" profileUri={avatarUri} />
           <NumberlessText
-            style={{textAlign: 'center'}}
+            style={{
+              flex: 1,
+            }}
             numberOfLines={1}
             ellipsizeMode="tail"
             fontType={FontType.md}
@@ -90,25 +90,23 @@ const UserInfoTopbar = ({
             fontSizeType={FontSizeType.l}>
             {heading}
           </NumberlessText>
+          <Pressable
+            style={styles.button}
+            onPress={async () => {
+              await onIconRightPress();
+            }}>
+            <IconRight width={20} height={20} />
+            <View style={{flex: 1}}>
+              <NumberlessText
+                numberOfLines={1}
+                fontType={FontType.rg}
+                textColor={Colors.primary.white}
+                fontSizeType={FontSizeType.s}>
+                Share Contact
+              </NumberlessText>
+            </View>
+          </Pressable>
         </View>
-      )}
-      {showShareContact && (
-        <Pressable
-          style={styles.button}
-          onPress={async () => {
-            await onIconRightPress();
-          }}>
-          <IconRight width={20} height={20} />
-          <View style={{flex: 1}}>
-            <NumberlessText
-              numberOfLines={1}
-              fontType={FontType.rg}
-              textColor={Colors.primary.white}
-              fontSizeType={FontSizeType.s}>
-              Share Contact
-            </NumberlessText>
-          </View>
-        </Pressable>
       )}
     </View>
   );

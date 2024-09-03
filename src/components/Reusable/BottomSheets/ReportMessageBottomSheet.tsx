@@ -5,7 +5,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {StyleSheet, View, Keyboard} from 'react-native';
-import {PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 
@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
     width: screen.width,
     paddingHorizontal: PortSpacing.secondary.uniform,
     borderRadius: 30,
+    ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
   },
   buttonWrapper: {
     gap: PortSpacing.tertiary.uniform,

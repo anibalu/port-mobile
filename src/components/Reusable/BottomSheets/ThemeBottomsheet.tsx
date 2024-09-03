@@ -1,4 +1,4 @@
-import {PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
@@ -45,6 +45,7 @@ const ThemeBottomsheet = ({
           paddingVertical: PortSpacing.secondary.uniform,
           width: '100%',
           marginTop: PortSpacing.medium.top,
+          ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
         }}>
         <FlatList
           keyExtractor={(item, index) => index.toString()}

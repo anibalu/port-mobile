@@ -493,39 +493,36 @@ const SuperportScreen = ({route, navigation}: Props) => {
                 setOpenUsageLimitsModal={setOpenUsageLimitsModal}
               />
             </View>
-          </View>
-        </ScrollView>
-        <View
-          style={{
-            margin: PortSpacing.secondary.bottom,
-            gap: PortSpacing.secondary.uniform,
-          }}>
-          {portId || qrData ? (
-            <>
-              <SecondaryButton
-                secondaryButtonColor="black"
-                buttonText={isPaused ? 'Unpause Superport' : 'Pause Superport'}
-                onClick={() => setIsPauseConfirmOpen(true)}
-                isLoading={pauseSuperportLoading}
-              />
+            {portId || qrData ? (
+              <>
+                <SecondaryButton
+                  secondaryButtonColor="black"
+                  buttonText={
+                    isPaused ? 'Unpause Superport' : 'Pause Superport'
+                  }
+                  onClick={() => setIsPauseConfirmOpen(true)}
+                  isLoading={pauseSuperportLoading}
+                />
+                <PrimaryButton
+                  primaryButtonColor="r"
+                  buttonText="Delete Superport"
+                  onClick={() => setIsDeleteConfirmOpen(true)}
+                  isLoading={deleteSuperportLoading}
+                  disabled={false}
+                />
+              </>
+            ) : (
               <PrimaryButton
-                primaryButtonColor="r"
-                buttonText="Delete Superport"
-                onClick={() => setIsDeleteConfirmOpen(true)}
-                isLoading={deleteSuperportLoading}
+                primaryButtonColor="b"
+                buttonText={'Create Superport'}
+                onClick={createFolderAndSuperport}
+                isLoading={isLoading}
                 disabled={false}
               />
-            </>
-          ) : (
-            <PrimaryButton
-              primaryButtonColor="b"
-              buttonText={'Create Superport'}
-              onClick={createFolderAndSuperport}
-              isLoading={isLoading}
-              disabled={false}
-            />
-          )}
-        </View>
+            )}
+          </View>
+        </ScrollView>
+
         <ErrorBottomSheet
           visible={pauseSuperportError}
           title={'Superport could not be paused'}

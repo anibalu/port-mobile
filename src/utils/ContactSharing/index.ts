@@ -2,6 +2,7 @@ import {getChatPermissions} from '@utils/ChatPermissions';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
+  ContactBundleParams,
   ContactBundleRequestParams,
   ContentType,
   MessageStatus,
@@ -153,6 +154,9 @@ export async function relayContactBundle(
   );
   if (!msg) {
     throw new Error('ApprovedMessageNotFound');
+  }
+  if ((msg.data as ContactBundleParams).accepted) {
+    throw new Error('ContactSharingRequestAlreadyApproved');
   }
   const data = msg.data as ContactBundleRequestParams;
   const destinationChatId = data.destinationChatId as string;

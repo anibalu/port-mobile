@@ -11,10 +11,10 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {getProfilePhotosOfChatsInFolder} from '@utils/Storage/connections';
 import React, {useCallback, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Superport from '@assets/icons/GreySuperport.svg';
 import {PhotoComponent} from './PhotoComponent';
 import {folderIdToHex} from '@utils/Folders/folderIdToHex';
 import {FolderInfoWithUnread} from '@utils/Storage/folders';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 //Converts the new message count to a display string, with '999+' for counts over 999.
 function displayNumber(unread: number): string {
@@ -55,7 +55,7 @@ const CardTile = ({
   toggleOn: boolean;
 }) => {
   const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const styles = styling(Colors, toggleOn);
   const [chatProfilePhotos, setChatProfilePhotos] = useState<
     (string | null | undefined)[]
   >([]);
@@ -72,6 +72,23 @@ const CardTile = ({
     }, []),
   );
 
+  const svgArray = [
+    {
+      assetName: 'Superport',
+      light: require('@assets/icons/GreySuperport.svg').default,
+      dark: require('@assets/dark/icons/Superport.svg').default,
+    },
+    {
+      assetName: 'GreyChat',
+      light: require('@assets/icons/GreyChat.svg').default,
+      dark: require('@assets/dark/icons/GreyChat.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const GreyChat = results.GreyChat;
+  const Superport = results.Superport;
+
   const folderColor = folderIdToHex(folder.folderId, Colors.boldAccentColors);
   return (
     <Pressable
@@ -80,7 +97,7 @@ const CardTile = ({
       }}>
       <SimpleCard
         style={StyleSheet.compose(styles.tile, {
-          height: toggleOn ? 110 : 170,
+          height: toggleOn ? 127 : 180,
           width: toggleOn
             ? screen.width - PortSpacing.primary.uniform
             : screen.width / 2 - 20,
@@ -94,38 +111,69 @@ const CardTile = ({
             },
           )}>
           <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-            <NumberlessText
-              textColor={Colors.text.primary}
-              fontSizeType={FontSizeType.l}
-              fontType={FontType.sb}>
-              {folder.name}
-            </NumberlessText>
-            <ShowUnreadCount unread={folder.unread} />
-          </View>
-          {folder.folderId === defaultFolderId && (
-            <NumberlessText
-              textColor={Colors.text.subtitle}
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              By default, all your chats are saved to this folder.
-            </NumberlessText>
-          )}
-
-          <View style={styles.row}>
-            <View style={styles.rowItems}>
-              <Superport />
+            style={
+              !toggleOn
+                ? {
+                    gap: 5,
+                  }
+                : {
+                    gap: 5,
+                    flex: 1,
+                  }
+            }>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
               <NumberlessText
-                textColor={Colors.text.subtitle}
+                textColor={Colors.text.primary}
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.sb}>
-                {folder.superportCount}
+                {folder.name}
+              </NumberlessText>
+              {!toggleOn && <ShowUnreadCount unread={folder.unread} />}
+            </View>
+            <View style={styles.rowItems}>
+              <Superport width={12} height={12} />
+              <NumberlessText
+                textColor={Colors.text.primary}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                {folder.superportCount} linked superports
               </NumberlessText>
             </View>
+            <View style={styles.rowItems}>
+              <GreyChat width={12} height={12} />
+              <NumberlessText
+                textColor={Colors.text.primary}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                {folder.connectionsCount} chats
+              </NumberlessText>
+            </View>
+            {folder.folderId === defaultFolderId && (
+              <NumberlessText
+                style={toggleOn && {flex: 1}}
+                ellipsizeMode="tail"
+                numberOfLines={toggleOn ? 2 : 3}
+                textColor={Colors.text.primary}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                By default, all your chats are saved to this folder.
+              </NumberlessText>
+            )}
+          </View>
+          <View
+            style={StyleSheet.compose(
+              styles.row,
+              toggleOn && {
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              },
+            )}>
+            {toggleOn && <ShowUnreadCount unread={folder.unread} />}
             {folder.connectionsCount === 0 ? (
               <Pressable
                 onPress={() =>
@@ -154,7 +202,7 @@ const CardTile = ({
   );
 };
 
-const styling = (colors: any) =>
+const styling = (colors: any, toggleOn: boolean) =>
   StyleSheet.create({
     screen: {
       flex: 1,
@@ -163,10 +211,13 @@ const styling = (colors: any) =>
       marginTop: PortSpacing.tertiary.uniform,
     },
     tileWrapper: {
-      padding: PortSpacing.medium.uniform,
-      paddingLeft: 10,
+      gap: 5,
       flex: 1,
+      paddingVertical: PortSpacing.medium.uniform,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingLeft: 10,
       justifyContent: 'space-between',
+      flexDirection: toggleOn ? 'row' : 'column',
     },
     tile: {
       overflow: 'hidden',
@@ -185,9 +236,8 @@ const styling = (colors: any) =>
     },
     row: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      height: 35,
+      justifyContent: 'flex-end',
+      alignItems: 'flex-end',
     },
     rowItems: {
       flexDirection: 'row',

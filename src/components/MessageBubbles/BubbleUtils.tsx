@@ -140,8 +140,10 @@ export const handleMediaOpen = (
   onUndefined: () => void,
   onError: () => void,
 ) => {
-  if (fileURI != undefined && fileURI != null) {
-    FileViewer.open(getSafeAbsoluteURI(fileURI, 'doc'), {
+  if (fileURI) {
+    const safeAbsoluteURI = getSafeAbsoluteURI(fileURI, 'doc');
+    const absoluteFilePath = safeAbsoluteURI.slice('file://'.length);
+    FileViewer.open(absoluteFilePath, {
       displayName: fileName,
       showOpenWithDialog: true,
     }).catch(e => {

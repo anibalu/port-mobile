@@ -131,7 +131,6 @@ const Superports = ({route, navigation}: Props) => {
       }
     });
     setFilteredSuperportsData(pausedFilteredData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFolder, searchText, selectedFilter, superportsData]);
 
   useMemo(() => {

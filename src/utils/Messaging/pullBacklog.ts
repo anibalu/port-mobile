@@ -65,6 +65,11 @@ const backlogLock = new Mutex();
  * Retrieve messages from the server over the WebSocket protocol
  */
 async function backlogPullWithWS() {
+  // If we're already fetching messsages, return since the message that triggered this
+  // pullBacklog will get fetched. There is a minor race condition that we can safely ignore.
+  if (backlogLock.isLocked()) {
+    return;
+  }
   // Process messages cached locally
   await processLocallyCachedMessages();
   /**
@@ -81,12 +86,6 @@ async function backlogPullWithWS() {
     token = await getToken();
   } catch (e) {
     console.error('Could not get token to fetch messages', e);
-    return;
-  }
-
-  // If we're already fetching messsages, return since the message that triggered this
-  // pullBacklog will get fetched. There is a minor race condition that we can safely ignore.
-  if (backlogLock.isLocked()) {
     return;
   }
 

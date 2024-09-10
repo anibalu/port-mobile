@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useMemo, useState} from 'react';
+import React, {ReactElement, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -26,9 +26,9 @@ import {
 import {checkAndAskContactPermission} from '@utils/AppPermissions';
 import {getContacts} from '@utils/Storage/contacts';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
-import DirectChat from '@utils/DirectChats/DirectChat';
+import DirectChat, {LineDataCombined} from '@utils/DirectChats/DirectChat';
 import {ContactEntry} from '@utils/Storage/DBCalls/contacts';
-import {ToastType, useToast} from 'src/context/ToastContext';
+import {useFocusEffect} from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'PortContactList'>;
 
@@ -56,8 +56,7 @@ const PortContactList = ({navigation}: Props) => {
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
   const AngleRight = results.AngleRight;
-  const {showToast} = useToast();
-  useEffect(() => {
+  useFocusEffect(() => {
     (async () => {
       try {
         const contacts = await getContacts();
@@ -81,7 +80,7 @@ const PortContactList = ({navigation}: Props) => {
       }
       setIsLoading(false);
     })();
-  }, []);
+  });
 
   useMemo(() => {
     if (contactList) {
@@ -119,19 +118,16 @@ const PortContactList = ({navigation}: Props) => {
     return (
       <Pressable
         onPress={async () => {
-          const chatId = await getChatIdFromPairHash(item.pairHash);
-          if (!chatId) {
-            showToast(
-              'This contact has no chat associated with it.',
-              ToastType.error,
-            );
-            return;
+          let chatId = await getChatIdFromPairHash(item.pairHash);
+          let chatData: LineDataCombined | null = null;
+          if (chatId) {
+            const chat = new DirectChat(chatId);
+            chatData = await chat.getChatData();
           }
-          const chat = new DirectChat(chatId);
-          const chatData = await chat.getChatData();
           navigation.navigate('ContactProfile', {
             chatId,
             chatData: chatData,
+            contactInfo: item as ContactEntry, // DEBT: highlights need for better typing on this page
           });
         }}>
         {item.index === 0 && (

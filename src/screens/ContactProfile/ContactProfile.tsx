@@ -22,7 +22,6 @@ import {
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {useFocusEffect} from '@react-navigation/native';
-import DirectChat from '@utils/DirectChats/DirectChat';
 import EditName from '@components/Reusable/BottomSheets/EditName';
 import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
 
@@ -36,25 +35,26 @@ import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePi
 import Notes from '@components/Notes';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
+import {updateContact} from '@utils/Storage/contacts';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
 const ContactProfile = ({route, navigation}: Props) => {
-  const {chatId, chatData} = route.params;
+  const {contactInfo, chatId, chatData} = route.params;
   const [showUserInfoInTopbar, setShowUserInfoInTopbar] = useState(false);
   const userAvatarViewRef = useRef<View>(null);
   const [displayName, setDisplayName] = useState<string>(
-    chatData.name || DEFAULT_NAME,
+    contactInfo.name || DEFAULT_NAME,
   );
-  const displayPic = chatData.displayPic || DEFAULT_AVATAR;
+  const displayPic = contactInfo.displayPic || DEFAULT_AVATAR;
 
   const {showToast} = useToast();
   const [editingName, setEditingName] = useState(false);
   const [confirmBlockUserSheet, setConfirmBlockUserSheet] = useState(false);
-  const pairHash = chatData.pairHash;
+  const pairHash = contactInfo.pairHash;
   const [isBlocked, setIsBlocked] = useState(false);
 
-  const connected = !chatData.disconnected;
+  const connected = chatId && !chatData?.disconnected;
   const [focusProfilePicture, setFocusProfilePicture] =
     useState<boolean>(false);
   const [isSharingContact, setIsSharingContact] = useState(false);
@@ -97,8 +97,7 @@ const ContactProfile = ({route, navigation}: Props) => {
   );
 
   const onSaveName = async () => {
-    const chatHandler = new DirectChat(chatId);
-    await chatHandler.updateName(displayName);
+    await updateContact(pairHash, {name: displayName});
     setEditingName(false);
   };
   useMemo(() => {
@@ -147,6 +146,7 @@ const ContactProfile = ({route, navigation}: Props) => {
   const onShareContactPressed = () => {
     setIsSharingContact(true);
   };
+  console.info(contactInfo);
 
   return (
     <>
@@ -200,20 +200,21 @@ const ContactProfile = ({route, navigation}: Props) => {
                 </NumberlessText>
                 <EditIcon height={20} width={20} />
               </Pressable>
-
-              <NumberlessText
-                textColor={Colors.text.subtitle}
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                {chatData.connectedOn
-                  ? 'Connection since : ' +
-                    getChatTileTimestamp(chatData.connectedOn)
-                  : ''}
-              </NumberlessText>
+              {chatData && (
+                <NumberlessText
+                  textColor={Colors.text.subtitle}
+                  fontSizeType={FontSizeType.s}
+                  fontType={FontType.rg}>
+                  {chatData.connectedOn
+                    ? 'Connection since : ' +
+                      getChatTileTimestamp(chatData.connectedOn)
+                    : ''}
+                </NumberlessText>
+              )}
             </View>
-            <Notes pairHash={pairHash} note={chatData.notes || ''} />
+            <Notes pairHash={pairHash} note={contactInfo.notes || ''} />
 
-            {connected ? (
+            {chatId && connected ? (
               <View
                 style={{
                   gap: 10,
@@ -224,13 +225,13 @@ const ContactProfile = ({route, navigation}: Props) => {
                   buttonText="Go to chat"
                   isLoading={false}
                   disabled={false}
-                  onClick={() => {
+                  onClick={async () => {
                     navigation.navigate('DirectChat', {
                       chatId,
                       isConnected: true,
-                      profileUri: chatData.displayPic,
-                      name: chatData.name,
-                      isAuthenticated: chatData.authenticated,
+                      profileUri: contactInfo.displayPic,
+                      name: contactInfo.name,
+                      isAuthenticated: true, // We know this because of of the order of contact creation and authentication in the chat creation process
                     });
                   }}
                 />
@@ -256,7 +257,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                   </NumberlessText>
                 </View>
               </View>
-            ) : (
+            ) : !connected ? (
               <View style={styles.disconnectedwrapper}>
                 <View style={styles.alertwrapper}>
                   <Alert style={{alignSelf: 'center'}} />
@@ -270,9 +271,9 @@ const ContactProfile = ({route, navigation}: Props) => {
                     textColor={Colors.text.subtitle}
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}>
-                    Your chat has been disconnected. If you block this contact
-                    they cannot connect with you using Ports, Superports or
-                    contact sharing.
+                    Your do not have an active chat with {contactInfo.name}. If
+                    you block them they cannot connect with you using Ports,
+                    Superports or contact sharing.
                   </NumberlessText>
                 </View>
                 <View
@@ -289,6 +290,8 @@ const ContactProfile = ({route, navigation}: Props) => {
                   />
                 </View>
               </View>
+            ) : (
+              <></>
             )}
           </ScrollView>
         </View>

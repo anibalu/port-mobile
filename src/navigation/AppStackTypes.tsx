@@ -5,6 +5,7 @@ import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {LineDataCombined} from '@utils/DirectChats/DirectChat';
+import {ContactEntry} from '@utils/Storage/DBCalls/contacts';
 
 export type AppStackParamList = {
   HomeTab: undefined;
@@ -44,8 +45,9 @@ export type AppStackParamList = {
     chatData: LineDataCombined;
   };
   ContactProfile: {
-    chatId: string;
-    chatData: LineDataCombined;
+    contactInfo: ContactEntry;
+    chatId: string | null;
+    chatData: LineDataCombined | null;
   };
   Placeholder: undefined;
   NewContact: {groupId: string};

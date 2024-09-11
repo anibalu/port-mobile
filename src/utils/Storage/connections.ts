@@ -85,6 +85,19 @@ export async function getLineIdFromChatId(chatId: string) {
 }
 
 /**
+ * Get groupId from chat Id.
+ * @param chatId
+ * @returns - groupId.
+ */
+export async function getGroupIdFromChatId(chatId: string) {
+  const connection = await DBCalls.getConnection(chatId);
+  if (!connection) {
+    throw new Error('No such connection');
+  }
+  return connection.routingId;
+}
+
+/**
  * @param connection Add a new connection to storage
  */
 export async function addConnection(connection: DBCalls.ConnectionEntry) {

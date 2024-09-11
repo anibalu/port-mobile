@@ -1,11 +1,9 @@
 import {ServerAuthToken} from '@utils/Storage/RNSecure/secureTokenHandler';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
-import {
-  DIRECT_MESSAGING_RESOURCE,
-  GROUP_MESSAGING_RESOURCE,
-} from '@configs/api';
-import {getLineIdFromChatId} from '@utils/Storage/connections';
+import {MESSAGING_RESOURCE} from '@configs/api';
+import {getBasicConnectionInfo} from '@utils/Storage/connections';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 /**
  * API call to send a payload
@@ -17,33 +15,27 @@ import {getLineIdFromChatId} from '@utils/Storage/connections';
 export async function sendObject(
   chatId: string,
   processedPayload: object,
-  isGroup: boolean,
+  isGroup: boolean = false,
   silent: boolean = false,
 ): Promise<void> {
   const token: ServerAuthToken = await getToken();
-  if (isGroup) {
-    //post to group messaging resource
-    await axios.post(
-      GROUP_MESSAGING_RESOURCE,
-      {
-        type: 'group',
-        message_mapping: processedPayload,
-        chat: chatId,
-      },
-      {headers: {Authorization: `${token}`}},
-    );
-  } else {
-    //get lineId from chatId
-    const lineId = await getLineIdFromChatId(chatId);
-    //post to direct messaging resource
-    await axios.post(
-      DIRECT_MESSAGING_RESOURCE,
-      {
-        message: processedPayload,
-        line: lineId,
-        silent,
-      },
-      {headers: {Authorization: `${token}`}},
-    );
+  const connection = await getBasicConnectionInfo(chatId);
+  if (!connection) {
+    throw new Error('No such connection');
   }
+  let isGroupChat = isGroup;
+  isGroupChat = connection.connectionType === ChatType.group;
+  const routingId = connection.routingId;
+  console.log('sending message :', processedPayload);
+  //post to messaging resource
+  await axios.post(
+    MESSAGING_RESOURCE,
+    {
+      type: isGroupChat ? 'group' : 'line',
+      message: processedPayload,
+      chatId: routingId,
+      silent,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
 }

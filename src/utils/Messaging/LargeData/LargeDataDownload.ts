@@ -41,6 +41,17 @@ class LargeDataDownload {
       console.log('Error downloading large data: ', error);
     }
   }
+  async downloadGroupData(groupId: string) {
+    try {
+      //download file to temp location
+      await this.groupS3Download(groupId);
+      //decrypt temp file to local chat storage
+      await this.createDecryptedFile();
+    } catch (error) {
+      await this.cleanUpEncryptedTempFile();
+      console.log('Error downloading large data: ', error);
+    }
+  }
   getDownloadedFilePath() {
     return this.checkOutputFileNotNull();
   }
@@ -77,6 +88,14 @@ class LargeDataDownload {
       return;
     }
     const downloadUrl: string = await API.getDownloadPresignedUrl(this.mediaId);
+    this.encryptedTempFilePath = await downloadResourceToTmpDir(downloadUrl);
+  }
+  private async groupS3Download(groupId: string) {
+    if (this.encryptedTempFilePath) {
+      return;
+    }
+    const downloadUrl: string =
+      await API.getDownloadPresignedUrlFromGroupPictureResource(groupId);
     this.encryptedTempFilePath = await downloadResourceToTmpDir(downloadUrl);
   }
 }

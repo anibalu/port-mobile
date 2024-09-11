@@ -1,7 +1,7 @@
 import {
   ContentType,
   DataType,
-  LineReactionSender,
+  ReactionSender,
   MessageDataTypeBasedOnContentType,
   MessageStatus,
   PayloadMessageParams,
@@ -128,16 +128,9 @@ export class SendReactionDirectMessage<
         return false;
       }
       await this.loadSavedMessage();
-      console.log('api call');
       // Perform API call
       const processedPayload = await this.encryptedMessage();
       const newSendStatus = await this.attempt(processedPayload);
-      console.log('finish api call', newSendStatus);
-      // Update message's send status
-      await MessageStorage.updateMessageStatus(this.chatId, {
-        messageIdToBeUpdated: this.messageId,
-        updatedMessageStatus: newSendStatus,
-      });
       // Update connection card's message
       await this.updateConnectionInfo(newSendStatus);
       if (newSendStatus === MessageStatus.sent) {
@@ -213,7 +206,7 @@ export class SendReactionDirectMessage<
       await ReactionStorage.deleteReaction(
         this.chatId,
         this.savedMessage.data.messageId,
-        LineReactionSender.self,
+        ReactionSender.self,
       );
     } catch (error) {
       console.error('Error deleting reaction', error);
@@ -241,13 +234,13 @@ export class SendReactionDirectMessage<
       ReactionStorage.deleteReaction(
         this.chatId,
         reactionData.messageId,
-        LineReactionSender.self,
+        ReactionSender.self,
       );
     } else {
       await ReactionStorage.addReaction(
         this.chatId,
         reactionData.messageId,
-        LineReactionSender.self,
+        ReactionSender.self,
         reactionData.reaction,
       );
     }

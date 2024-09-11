@@ -150,7 +150,9 @@ export async function messageReactionCounts(
   return reactions;
 }
 
-interface reaction {
+export interface reaction {
+  chatId: string;
+  messageId: string;
   senderId: string;
   reaction: string;
 }

@@ -185,7 +185,6 @@ const CaptureMedia = ({navigation, route}: Props) => {
         selectedMembers: [{chatId: route.params.chatId}],
         shareMessages: mediaList,
         isChat: true,
-        isGroupChat: route.params.isGroupChat,
         fromCapture: true,
         onRemove: (item: any) => {
           setMediaList((oldList: any[]) =>

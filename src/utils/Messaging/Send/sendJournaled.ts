@@ -12,7 +12,7 @@ async function sendJournaled() {
 
     const journaledGroupMessages = await getGroupJournaled();
     for (let index = 0; index < journaledGroupMessages.length; index++) {
-      const {contentType, data, replyId, messageId, chatId} =
+      const {contentType, data, replyId, messageId, chatId, singleRecepient} =
         journaledGroupMessages[index];
 
       const sender = new SendMessage(
@@ -21,6 +21,7 @@ async function sendJournaled() {
         data,
         replyId,
         messageId,
+        singleRecepient,
       );
       await sender.retry();
     }

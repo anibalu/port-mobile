@@ -1,0 +1,295 @@
+import React, {useMemo, useState} from 'react';
+import SimpleCard from './Reusable/Cards/SimpleCard';
+import {PortSpacing} from './ComponentUtils';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import DynamicColors from './DynamicColors';
+import {Pressable, StyleSheet, View} from 'react-native';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
+import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
+import {
+  DEFAULT_GROUP_MEMBER_NAME,
+  DEFAULT_PROFILE_AVATAR_INFO,
+  GROUP_MEMBER_LIMIT,
+} from '@configs/constants';
+import {useNavigation} from '@react-navigation/native';
+import {GroupData} from '@utils/Storage/DBCalls/group';
+import {useSelector} from 'react-redux';
+import {getChatIdFromPairHash} from '@utils/Storage/connections';
+import DirectChat, {LineDataCombined} from '@utils/DirectChats/DirectChat';
+import {getContact} from '@utils/Storage/contacts';
+
+const AddMembersCard = ({
+  members,
+  chatId,
+  chatData,
+}: {
+  members: GroupMemberLoadedData[];
+  chatId: string;
+  chatData: GroupData;
+}) => {
+  const profile = useSelector(state => state.profile.profile);
+  const {name, avatar} = useMemo(() => {
+    return {
+      name: 'You',
+      avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
+    };
+  }, [profile]);
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+  const svgArray = [
+    {
+      assetName: 'Plus',
+      light: require('@assets/light/icons/Plus.svg').default,
+      dark: require('@assets/dark/icons/Plus.svg').default,
+    },
+    {
+      assetName: 'Link',
+      light: require('@assets/light/icons/Link.svg').default,
+      dark: require('@assets/dark/icons/Link.svg').default,
+    },
+    {
+      assetName: 'AngleRight',
+      light: require('@assets/light/icons/navigation/AngleRight.svg').default,
+      dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const navigation = useNavigation();
+  // const Plus = results.Plus;
+  const Link = results.Link;
+  const AngleRight = results.AngleRight;
+  const [modifiedMembers, setModifedMembers] = useState<
+    GroupMemberLoadedData[]
+  >([
+    {
+      name: name,
+      displayPic: avatar.fileUri,
+      isAdmin: chatData.amAdmin,
+      memberId: 'self',
+      pairHash: 'self',
+      joinedAt: chatData.joinedAt,
+      cryptoId: 'self',
+      deleted: chatData.disconnected,
+    },
+    ...members,
+  ]);
+
+  const onCreateGroupPort = () => {
+    navigation.navigate('NewGroupPort', {
+      chatId: chatId,
+      chatData: chatData,
+    });
+  };
+
+  const onPressMember = async (pairHash: string) => {
+    try {
+      if (pairHash === 'self') {
+        navigation.navigate('MyProfile');
+      } else {
+        //navigate to contact profile page.
+
+        const contactInfo = await getContact(pairHash);
+        let chatId = await getChatIdFromPairHash(pairHash);
+        let chatData: LineDataCombined | null = null;
+        if (chatId) {
+          const chat = new DirectChat(chatId);
+          chatData = await chat.getChatData();
+        }
+        navigation.navigate('ContactProfile', {
+          chatId,
+          chatData: chatData,
+          contactInfo: contactInfo,
+        });
+      }
+    } catch (error) {
+      console.error('Error navigating to member contact profile: ', error);
+    }
+  };
+
+  useMemo(() => {
+    setModifedMembers([
+      {
+        name: name,
+        displayPic: avatar.fileUri,
+        isAdmin: chatData.amAdmin,
+        memberId: 'self',
+        pairHash: 'self',
+        joinedAt: chatData.joinedAt,
+        cryptoId: 'self',
+        deleted: chatData.disconnected,
+      },
+      ...members,
+    ]);
+    // eslint-disable-next-line
+  }, [chatData, members]);
+
+  return (
+    <SimpleCard
+      style={{
+        paddingVertical: PortSpacing.secondary.uniform,
+        paddingHorizontal: PortSpacing.secondary.uniform,
+      }}>
+      <View style={styles.headerWrapper}>
+        <NumberlessText
+          textColor={Colors.labels.text}
+          fontType={FontType.md}
+          fontSizeType={FontSizeType.l}>
+          Group members
+        </NumberlessText>
+        <NumberlessText
+          style={{
+            color: Colors.labels.text,
+            paddingRight: 4,
+          }}
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}>
+          {`${members.length + 1}/${GROUP_MEMBER_LIMIT}`}
+        </NumberlessText>
+      </View>
+      {chatData.amAdmin && (
+        <>
+          {/* <Pressable
+            onPress={() => {
+              navigation.navigate('AddNewContacts', {
+                chatId: chatId,
+              });
+            }}
+            style={StyleSheet.compose(
+              {
+                borderBottomWidth: 0.5,
+                borderBottomColor: Colors.primary.stroke,
+              },
+              styles.heading,
+            )}>
+            <Plus height={24} width={24} />
+            <NumberlessText
+              style={styles.text}
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.m}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              Add new members from contacts
+            </NumberlessText>
+          </Pressable> */}
+          <Pressable onPress={onCreateGroupPort} style={styles.heading}>
+            <Link height={24} width={24} />
+            <NumberlessText
+              style={styles.text}
+              fontType={FontType.rg}
+              fontSizeType={FontSizeType.m}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              Add new members using a Group Port
+            </NumberlessText>
+          </Pressable>
+        </>
+      )}
+      <View>
+        {modifiedMembers.slice(0, 4).map((member, index) => {
+          return (
+            <Pressable
+              key={member.memberId}
+              style={StyleSheet.compose(styles.row, {
+                borderBottomWidth: 0.5,
+                borderBottomColor:
+                  modifiedMembers.length - 1 === index
+                    ? 'transparent'
+                    : Colors.primary.stroke,
+              })}
+              onPress={() => onPressMember(member.pairHash)}>
+              <AvatarBox avatarSize="s" profileUri={member.displayPic} />
+              <View style={styles.item}>
+                <NumberlessText
+                  style={{
+                    color: Colors.labels.text,
+                    paddingLeft: PortSpacing.secondary.left,
+                  }}
+                  fontType={FontType.rg}
+                  fontSizeType={FontSizeType.m}>
+                  {member.name || DEFAULT_GROUP_MEMBER_NAME}
+                </NumberlessText>
+                {member.isAdmin && (
+                  <View
+                    style={{
+                      backgroundColor: Colors.primary.background,
+                      padding: 4,
+                      borderRadius: 6,
+                    }}>
+                    <NumberlessText
+                      textColor={Colors.text.subtitle}
+                      fontType={FontType.rg}
+                      fontSizeType={FontSizeType.m}>
+                      Admin
+                    </NumberlessText>
+                  </View>
+                )}
+              </View>
+            </Pressable>
+          );
+        })}
+        <Pressable
+          onPress={() => {
+            navigation.navigate('AllMembers', {
+              chatId: chatId,
+              members: members,
+              chatData: chatData,
+            });
+          }}
+          style={styles.button}>
+          <NumberlessText
+            style={{
+              color: Colors.labels.text,
+              paddingLeft: PortSpacing.secondary.left,
+            }}
+            fontType={FontType.sb}
+            fontSizeType={FontSizeType.l}>
+            See all participants
+          </NumberlessText>
+          <AngleRight />
+        </Pressable>
+      </View>
+    </SimpleCard>
+  );
+};
+
+const styling = (Colors: any) =>
+  StyleSheet.create({
+    row: {
+      flex: 1,
+      paddingVertical: PortSpacing.tertiary.bottom,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    headerWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: PortSpacing.secondary.bottom,
+    },
+    button: {
+      flex: 1,
+      marginTop: PortSpacing.secondary.top,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+    },
+    heading: {
+      flex: 1,
+      paddingVertical: PortSpacing.secondary.bottom,
+      flexDirection: 'row',
+    },
+    item: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    text: {
+      flex: 1,
+      color: Colors.labels.text,
+      paddingLeft: PortSpacing.tertiary.left,
+      marginTop: 2,
+    },
+  });
+
+export default AddMembersCard;

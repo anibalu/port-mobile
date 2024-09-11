@@ -5,7 +5,7 @@ export interface ContactEntry extends ContactInfo {
 }
 
 export interface ContactInfo extends ContactUpdate {
-  name: string;
+  name?: string | null;
 }
 
 export interface ContactUpdate {

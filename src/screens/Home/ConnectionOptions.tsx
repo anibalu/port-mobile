@@ -23,10 +23,10 @@ export default function ConnectionOptions() {
     });
   };
 
-  // const handleOpenNewGroup = () => {
-  //   setIsConnectionOptionsModalOpen(false);
-  //   navigation.navigate('CreateNewGroup');
-  // };
+  const handleOpenNewGroup = () => {
+    setIsConnectionOptionsModalOpen(false);
+    navigation.navigate('CreateNewGroup');
+  };
 
   const handleOpenSuperport = () => {
     setIsConnectionOptionsModalOpen(false);
@@ -50,6 +50,11 @@ export default function ConnectionOptions() {
       dark: require('assets/dark/icons/NewPort.svg').default,
     },
     {
+      assetName: 'NewGroupIcon',
+      light: require('@assets/light/icons/NewGroup.svg').default,
+      dark: require('assets/dark/icons/NewGroup.svg').default,
+    },
+    {
       assetName: 'ScanQRIcon',
       light: require('@assets/light/icons/ScanQR.svg').default,
       dark: require('assets/dark/icons/ScanQR.svg').default,
@@ -59,6 +64,7 @@ export default function ConnectionOptions() {
 
   const NewSuperportIcon = results.NewSuperportIcon;
   const NewPortIcon = results.NewPortIcon;
+  const NewGroupIcon = results.NewGroupIcon;
   const ScanQRIcon = results.ScanQRIcon;
 
   return (
@@ -82,12 +88,12 @@ export default function ConnectionOptions() {
             IconLeft={NewSuperportIcon}
             onClick={handleOpenSuperport}
           />
-          {/* <TouchableOption
+          <TouchableOption
             title={'New Group'}
             subtitle={'A private group with other Port users'}
             IconLeft={NewGroupIcon}
             onClick={handleOpenNewGroup}
-          /> */}
+          />
           <TouchableOption
             showBorderBottom={false}
             title={'Scan QR'}

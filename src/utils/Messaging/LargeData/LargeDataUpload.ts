@@ -12,14 +12,14 @@ import {
 class LargeDataUpload {
   private fileUri: string; //can be relative or absolute Uri
   private fileName: string;
-  private fileType: string;
+  private fileType: string | null;
   private key: string | null;
   private mediaId: string | null;
   private encryptedTempFilePath: string | null;
   constructor(
     fileUri: string,
     fileName: string,
-    fileType: string,
+    fileType: string | null = null,
     key: string | null = null,
     mediaId: string | null = null,
     encryptedTempFilePath: string | null = null,
@@ -46,9 +46,36 @@ class LargeDataUpload {
     }
   }
 
+  /**
+   * Upload to group's large data bucket
+   * @param groupId
+   */
+  async uploadGroupData(groupId: string) {
+    try {
+      //create encrypted temp file with associated decryption key
+      await this.createEncryptedTempFile();
+      //upload large data to s3 bucket
+      await this.groupS3Upload(groupId);
+    } catch (error) {
+      await this.cleanUpEncryptedTempFile();
+      console.log('Error uploading large data: ', error);
+    }
+  }
+
   //get upload media Id and key
   getMediaIdAndKey() {
     return {mediaId: this.mediaId, key: this.key};
+  }
+
+  /**
+   * Gets the key used to encrypt large file.
+   * @returns - key used for encryption
+   */
+  public getKeyNotNull() {
+    if (!this.key) {
+      throw new Error('KeyIsNull');
+    }
+    return this.key;
   }
 
   private async createEncryptedTempFile() {
@@ -75,13 +102,42 @@ class LargeDataUpload {
 
   private async s3Upload() {
     this.encryptedTempFilePath = this.checkEncryptedTempFileNotNull();
-    const uploadParams = await API.getUploadPresignedUrl();
-    const mediaId = uploadParams.mediaId;
-    const url: string | null = uploadParams.url.url
-      ? uploadParams.url.url
+    const response = await API.getUploadPresignedUrl();
+    const uploadParams = response.uploadParams;
+    const mediaId = response.mediaId;
+    const url: string | null = uploadParams.url ? uploadParams.url : null;
+    const fields: object | null = uploadParams.fields
+      ? uploadParams.fields
       : null;
-    const fields: object | null = uploadParams.url.fields
-      ? uploadParams.url.fields
+    if (!url || !fields) {
+      throw new Error('ImproperUploadParams');
+    }
+    const formData = new FormData();
+    Object.entries(fields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+    await API.s3Upload(
+      this.encryptedTempFilePath,
+      formData,
+      url,
+      this.fileName,
+    );
+    if (mediaId) {
+      this.mediaId = mediaId;
+    }
+    await this.cleanUpEncryptedTempFile();
+  }
+
+  private async groupS3Upload(groupId: string) {
+    this.encryptedTempFilePath = this.checkEncryptedTempFileNotNull();
+    const response = await API.getUploadPresignedUrlFromGroupPictureResource(
+      groupId,
+    );
+    const uploadParams = response.uploadParams;
+    const mediaId = response.mediaId;
+    const url: string | null = uploadParams.url ? uploadParams.url : null;
+    const fields: object | null = uploadParams.fields
+      ? uploadParams.fields
       : null;
     if (!url || !fields) {
       throw new Error('ImproperUploadParams');

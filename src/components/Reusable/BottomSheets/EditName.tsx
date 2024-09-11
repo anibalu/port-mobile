@@ -36,7 +36,7 @@ const EditName = ({
 }: {
   visible: boolean;
   onClose?: () => void;
-  onSave?: () => void;
+  onSave?: (name?: string) => void;
   name: string;
   setName: (name: string) => void;
   title?: string;
@@ -51,7 +51,7 @@ const EditName = ({
   const onSavePress = () => {
     const trimmedName = newName.trim();
     setName(trimmedName);
-    onSave();
+    onSave && onSave(trimmedName);
     Keyboard.dismiss();
     onClose && onClose();
   };

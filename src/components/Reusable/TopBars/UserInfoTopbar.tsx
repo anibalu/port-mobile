@@ -70,7 +70,7 @@ const UserInfoTopbar = ({
         style={{marginRight: PortSpacing.tertiary.right}}>
         <DynamicBackIcon width={24} height={24} />
       </Pressable>
-      {showUserInfo && (
+      {showUserInfo ? (
         <View
           style={{
             flexDirection: 'row',
@@ -93,7 +93,7 @@ const UserInfoTopbar = ({
           <Pressable
             style={styles.button}
             onPress={async () => {
-              await onIconRightPress();
+              onIconRightPress();
             }}>
             <IconRight width={20} height={20} />
             <View style={{flex: 1}}>
@@ -107,6 +107,23 @@ const UserInfoTopbar = ({
             </View>
           </Pressable>
         </View>
+      ) : (
+        <Pressable
+          style={styles.button}
+          onPress={async () => {
+            onIconRightPress();
+          }}>
+          <IconRight width={20} height={20} />
+          <View style={{flex: 1}}>
+            <NumberlessText
+              numberOfLines={1}
+              fontType={FontType.rg}
+              textColor={Colors.primary.white}
+              fontSizeType={FontSizeType.s}>
+              Share Contact
+            </NumberlessText>
+          </View>
+        </Pressable>
       )}
     </View>
   );

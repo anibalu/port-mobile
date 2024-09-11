@@ -1,39 +1,12 @@
 import {runSimpleQuery} from '@utils/Storage/DBCalls/dbCommon';
 
-/**
- * Set up storage for groupos
- * - Create the groups table
- * - Create the groupMembers table
- * - Create an index to get members of a given group more easily
- */
-export default async function groups() {
-  await runSimpleQuery(
-    `
-    CREATE TABLE IF NOT EXISTS groups (
-      groupId CHAR(32) PRIMARY KEY,
-      name VARCHAR(64),
-      joinedAt VARCHAR(27),
-      description VARCHAR(256),
-      groupPicture VARCHAR(128),
-      amAdmin BOOL,
-      selfCryptoId CHAR(32),
-      permissionsId CHAR(32),
-      FOREIGN KEY (permissionsId) REFERENCES permissions(permissionsId)
-    ) ;
-    `,
-    [],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, results) => {
-      console.log('[DB MIGRATION] Successfully added the groups table');
-    },
-  );
-
+export async function setUpGroupMembers() {
   await runSimpleQuery(
     `
     CREATE TABLE IF NOT EXISTS groupMembers (
       groupId CHAR(32),
-      name VARCHAR(64),
       memberId CHAR(32),
+      pairHash CHAR(64),
       joinedAt VARCHAR(27),
       cryptoId CHAR(32) REFERENCES cryptoData(cryptoId),
       isAdmin BOOL,

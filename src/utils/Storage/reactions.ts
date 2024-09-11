@@ -1,7 +1,8 @@
-import {LineReactionSender} from '@utils/Messaging/interfaces';
+import {ReactionSender} from '@utils/Messaging/interfaces';
 import * as DBCalls from './DBCalls/reactions';
 import {getConnection} from './connections';
-import {getProfileInfo} from './profile';
+import Group from '@utils/Groups/Group';
+import {DEFAULT_GROUP_MEMBER_NAME, DEFAULT_NAME} from '@configs/constants';
 
 /**
  * Add a reaction to a message
@@ -58,10 +59,8 @@ export async function getReactionCounts(
   return DBCalls.messageReactionCounts(chatId, messageId);
 }
 
-export interface RichReaction {
+export interface RichReaction extends DBCalls.reaction {
   senderName?: string;
-  reaction: string;
-  senderId?: string;
 }
 
 export async function getRichReactions(
@@ -69,22 +68,37 @@ export async function getRichReactions(
   messageId: string,
   line: Boolean = true,
 ): Promise<RichReaction[]> {
+  const self_name = 'You';
   if (line) {
-    const self_name = (await getProfileInfo())?.name;
-    const peer_name = (await getConnection(chatId))?.name;
+    const peer_name = (await getConnection(chatId))?.name || DEFAULT_NAME;
     const richReactions: RichReaction[] = await DBCalls.getAllReactions(
       chatId,
       messageId,
     );
     for (let i = 0; i < richReactions.length; i++) {
-      if (LineReactionSender.self === richReactions[i].senderId) {
+      if (ReactionSender.self === richReactions[i].senderId) {
         richReactions[i].senderName = self_name;
       }
-      if (LineReactionSender.peer === richReactions[i].senderId) {
+      if (ReactionSender.peer === richReactions[i].senderId) {
         richReactions[i].senderName = peer_name;
       }
     }
     return richReactions;
+  } else {
+    const group = new Group(chatId);
+    const richReactions: RichReaction[] = await DBCalls.getAllReactions(
+      chatId,
+      messageId,
+    );
+    for (let i = 0; i < richReactions.length; i++) {
+      if (ReactionSender.self === richReactions[i].senderId) {
+        richReactions[i].senderName = self_name;
+      } else {
+        richReactions[i].senderName =
+          (await group.getMember(richReactions[i].senderId))?.name ||
+          DEFAULT_GROUP_MEMBER_NAME;
+      }
+    }
+    return richReactions;
   }
-  throw new Error('NotImplementedRichGroupReactions');
 }

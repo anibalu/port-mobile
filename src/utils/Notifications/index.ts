@@ -55,6 +55,7 @@ export async function displaySimpleNotification(
   isConnected: boolean,
   chatId?: string,
   isGroup: boolean = false,
+  subtitle?: string,
 ) {
   /*
    * Guard to remove client-generated notifications on iOS until
@@ -91,6 +92,7 @@ export async function displaySimpleNotification(
 
   const notification: Notification = {
     title: title,
+    subtitle: subtitle,
     body: body,
     data: {
       ...(chatId && {chatId: chatId}),

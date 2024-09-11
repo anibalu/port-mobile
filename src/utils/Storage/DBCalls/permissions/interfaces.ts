@@ -61,5 +61,6 @@ interface GroupPermissionsInit extends Permissions {
   autoDownload: boolean;
   displayPicture: boolean;
   disappearingMessages: number;
+  focus: boolean;
 }
 export type GroupPermissions = Omit<GroupPermissionsInit, 'contactSharing'>;

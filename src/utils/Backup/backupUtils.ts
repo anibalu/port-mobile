@@ -26,6 +26,9 @@ import {blockUser, getAllBlockedUsers} from '@utils/Storage/blockUsers';
 import {addSuperport, getAllSuperports} from '@utils/Storage/superPorts';
 import {addContact, getContacts} from '@utils/Storage/contacts';
 import {addContactPort, getAllContactPorts} from '@utils/Storage/contactPorts';
+import {addGroup, getAllGroups} from '@utils/Storage/group';
+import {getAllGroupMembers, newMember} from '@utils/Storage/groupMembers';
+import {GroupMemberEntry} from '@utils/Storage/DBCalls/groupMembers';
 
 const BACKUP_VERSION = '20240412'; // Write as date to guesstimate when the backup code was written
 const sectionSplitMagic = '\n<---SECTION SPLIT--->\n'; // TODO Debt: need to account for and escape this sequence across sections
@@ -39,7 +42,9 @@ type tableOpt =
   | 'blockedUsers'
   | 'superPorts'
   | 'contacts'
-  | 'contactPorts';
+  | 'contactPorts'
+  | 'groups'
+  | 'groupMembers';
 const tablesToSertialize: tableOpt[] = [
   'connections',
   'permissions',
@@ -50,6 +55,8 @@ const tablesToSertialize: tableOpt[] = [
   'superPorts',
   'contacts',
   'contactPorts',
+  'groups',
+  'groupMembers',
 ];
 
 /**
@@ -178,6 +185,37 @@ const tableSerializationData = {
     booleanColumns: ['owner', 'paused'],
     inserter: addContactPort,
     ennumerator: getAllContactPorts,
+  },
+  groups: {
+    columns: [
+      'groupId',
+      'name',
+      'joinedAt',
+      'description',
+      'amAdmin',
+      'selfCryptoId',
+      'permissionsId',
+      'groupPictureKey',
+      'initialMemberInfoReceived',
+      'disconnected',
+    ],
+    booleanColumns: ['disconnected', 'amAdmin', 'initialMemberInfoReceived'],
+    inserter: addGroup,
+    ennumerator: getAllGroups,
+  },
+  groupMembers: {
+    columns: [
+      'memberId',
+      'groupId',
+      'pairHash',
+      'joinedAt',
+      'cryptoId',
+      'isAdmin',
+      'deleted',
+    ],
+    booleanColumns: ['isAdmin', 'deleted'],
+    inserter: (x: GroupMemberEntry) => newMember(x.groupId, x),
+    ennumerator: getAllGroupMembers,
   },
 };
 

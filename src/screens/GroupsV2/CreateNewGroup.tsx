@@ -14,7 +14,6 @@ import {useNavigation} from '@react-navigation/native';
 import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {GenericButton} from '@components/GenericButton';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {
   DEFAULT_PROFILE_AVATAR_INFO,
   safeModalCloseDuration,
@@ -23,10 +22,11 @@ import EditCameraIcon from '@assets/icons/EditCamera.svg';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-// import Group from '@utils/Groups/Group';
-// import {fetchNewPorts} from '@utils/Ports';
+import Group from '@utils/Groups/Group';
+import {fetchNewPorts} from '@utils/Ports';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 import {wait} from '@utils/Time';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 
 const CreateNewGroup = () => {
   const navigation = useNavigation();
@@ -52,18 +52,18 @@ const CreateNewGroup = () => {
     }
     setSetupLoading(true);
     try {
-      throw new Error('Groups unsupported at the moment');
-      // const groupHandler = new Group();
-      // await groupHandler.createGroup(
-      //   groupName.trim(),
-      //   groupDescription.trim(),
-      //   null,
-      // );
-      // //generate ports for group
-      // await fetchNewPorts(groupHandler.getGroupIdNotNull());
-      // navigation.navigate('NewGroupPort', {
-      //   groupId: groupHandler.getGroupIdNotNull(),
-      // });
+      // throw new Error('Groups unsupported at the moment');
+      const groupHandler = new Group();
+      await groupHandler.createGroup(
+        groupName.trim(),
+        groupDescription.trim(),
+        imageAttr.fileUri,
+      );
+      //generate ports for group
+      await fetchNewPorts(groupHandler.getGroupIdNotNull());
+      //uploads encrypted group picture
+      await groupHandler.uploadGroupPicture();
+      navigation.goBack();
     } catch (error) {
       setErrorVisible(true);
       console.log('error in group creation: ', error);
@@ -78,7 +78,10 @@ const CreateNewGroup = () => {
   };
   return (
     <>
-      <CustomStatusBar backgroundColor={PortColors.primary.white} />
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.white}
+      />
       <SafeAreaView style={{backgroundColor: PortColors.background}}>
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}

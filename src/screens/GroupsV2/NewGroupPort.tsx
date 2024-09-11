@@ -1,4 +1,3 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {SafeAreaView} from '@components/SafeAreaView';
@@ -7,94 +6,140 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
-import CrossButton from '@assets/icons/BlackCross.svg';
 import PortCard from '@components/Reusable/ConnectionCards/PortCard';
-import {expiryOptions} from '@utils/Time/interfaces';
 import {useSelector} from 'react-redux';
-import {DEFAULT_NAME} from '@configs/constants';
-import Group from '@utils/Groups/Group';
+import {
+  DEFAULT_AVATAR,
+  DEFAULT_GROUP_NAME,
+  safeModalCloseDuration,
+} from '@configs/constants';
 import {generateBundle, getBundleClickableLink} from '@utils/Ports';
+import {wait} from '@utils/Time';
+import Share from 'react-native-share';
 import {GroupBundle} from '@utils/Ports/interfaces';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewGroupPort'>;
 const NewGroupPort = ({route}: Props) => {
-  const {groupId} = route.params;
+  const {chatId, chatData} = route.params;
+  const processedName: string = chatData.name || DEFAULT_GROUP_NAME;
+  const processedGroupPic: string = chatData.groupPicture || DEFAULT_AVATAR;
+  // const [groupPicUri] = useState(processedGroupPic);
+  const [displayName] = useState<string>(processedName);
 
   const navigation = useNavigation();
-  const [isLoadingBundle, setIsLoadingBundle] = useState(true);
-  const [generate, setGenerate] = useState(0);
-  const [bundleGenError, setBundleGenError] = useState(false);
-  const [qrCodeData, setQRCodeData] = useState<string>('');
-  const [selectedTime] = useState(expiryOptions[0]);
-  const [linkData, setLinkData] = useState<string>('');
-  const [name, setName] = useState(DEFAULT_NAME);
-  const [groupData, setGroupData] = useState({name: DEFAULT_NAME});
+  //state of qr code generation
+  const [isLoading, setIsLoading] = useState(true);
+  //whether qr code generation has failed
+  const [hasFailed, setHasFailed] = useState(false);
+  //qr code data to display
+  const [qrData, setQrData] = useState<GroupBundle | null>(null);
+  //whether is link is being generated
+  const [isLoadingLink, setIsLoadingLink] = useState(false);
+  //whether is error bottom sheet should open
+  const [openErrorModal, setOpenErrorModal] = useState(false);
+
   const latestNewConnection = useSelector(state => state.latestNewConnection);
 
-  useEffect(() => {
-    (async () => {
-      const group = new Group(groupId);
-      const fetchedGroupData = await group.getData();
-      if (fetchedGroupData) {
-        setName(fetchedGroupData.name);
-        setGroupData(fetchedGroupData);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const fetchQRCodeData = async () => {
+  const svgArray = [
+    // 1.CrossButton
+    {
+      assetName: 'CrossButton',
+      light: require('@assets/light/icons/Cross.svg').default,
+      dark: require('@assets/dark/icons/Cross.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const CrossButton = results.CrossButton;
+
+  const fetchPort = async () => {
+    console.log('fetching group port for: ', chatId);
     try {
-      setBundleGenError(false);
-      setIsLoadingBundle(true);
+      setIsLoading(true);
+      setHasFailed(false);
       //use this function to generate and fetch QR code data.
-      const bundle = await generateBundle(
-        BundleTarget.group,
-        groupId,
-        null,
-        selectedTime,
-      );
-      setQRCodeData(JSON.stringify(bundle));
+      const bundle = await generateBundle(BundleTarget.group, chatData.groupId);
+      if (bundle) {
+        setQrData(bundle);
+      }
+      setIsLoading(false);
     } catch (error) {
-      console.log('Error in QR generation: ', error);
-      //set bundle generated error
-      setBundleGenError(true);
-    } finally {
-      setIsLoadingBundle(false);
+      console.log('Failed to fetch group port: ', error);
+      setHasFailed(true);
+      setIsLoading(false);
+      setQrData(null);
+    }
+  };
+
+  //converts qr bundle into link.
+  const fetchLinkData = async () => {
+    //If error sheet is opened when this function is called, wait for the error sheet to close.
+    if (openErrorModal) {
+      setOpenErrorModal(false);
+      await wait(safeModalCloseDuration);
+    }
+    try {
+      setIsLoadingLink(true);
+      if (qrData && qrData.portId) {
+        const link = await getBundleClickableLink(
+          BundleTarget.group,
+          qrData.portId,
+          JSON.stringify(qrData),
+        );
+        setIsLoadingLink(false);
+        try {
+          const shareContent = {
+            title: 'Share a group link',
+            message:
+              `Click the link to join the group ${displayName} on Port.\n` +
+              link,
+          };
+          await Share.open(shareContent);
+        } catch (error) {
+          console.log('Link not shared', error);
+        }
+        return;
+      }
+      throw new Error('No qr data');
+    } catch (error) {
+      console.log('Failed to fetch port link: ', error);
+      setIsLoadingLink(false);
+      setOpenErrorModal(true);
     }
   };
 
   //initial effect that generates initial connection bundle and displays it.
   useEffect(() => {
-    fetchQRCodeData();
+    fetchPort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generate]);
-  //converts qr bundle into link.
-  const fetchLinkData = async () => {
-    if (!isLoadingBundle && !bundleGenError && qrCodeData !== '') {
-      if (linkData === '') {
-        const bundle: GroupBundle = JSON.parse(qrCodeData);
-        const link = await getBundleClickableLink(
-          BundleTarget.group,
-          bundle.portId,
-          qrCodeData,
-        );
-        setLinkData(link);
-      }
-    }
-    throw new Error('Bundle incomplete');
-  };
+  }, []);
+
+  //navigates to home screen if latest new connection Id matches port Id
   useEffect(() => {
-    if (latestNewConnection) {
-      if (latestNewConnection.groupId === groupId) {
-        setGenerate(generate + 1);
+    try {
+      if (latestNewConnection) {
+        const latestUsedConnectionGroupId = latestNewConnection.groupId;
+        if (qrData) {
+          if (chatData.groupId === latestUsedConnectionGroupId) {
+            navigation.goBack();
+            return;
+          }
+        }
       }
+    } catch (error) {
+      console.log('error autoclosing modal: ', error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestNewConnection]);
+
   return (
     <>
-      <CustomStatusBar backgroundColor={PortColors.primary.white} />
+      <CustomStatusBar
+        barStyle="dark-content"
+        backgroundColor={PortColors.primary.white}
+      />
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}
@@ -105,15 +150,15 @@ const NewGroupPort = ({route}: Props) => {
           <View style={{flex: 1, justifyContent: 'space-between'}}>
             <View style={styles.qrArea}>
               <PortCard
-                isLoading={false}
-                isLinkLoading={false}
-                hasFailed={false}
+                isLoading={isLoading}
+                isLinkLoading={isLoadingLink}
+                hasFailed={hasFailed}
                 isSuperport={false}
-                title={name}
-                profileUri={groupData?.groupPicture}
-                qrData={qrCodeData}
+                title={displayName}
+                profileUri={processedGroupPic}
+                qrData={qrData}
                 onShareLinkClicked={fetchLinkData}
-                onTryAgainClicked={fetchQRCodeData}
+                onTryAgainClicked={fetchPort}
               />
             </View>
           </View>

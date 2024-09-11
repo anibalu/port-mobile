@@ -1,5 +1,5 @@
 import GroupReceiveAction from '../GroupReceiveAction';
-import {DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
 import Group from '@utils/Groups/Group';
 
 class RemoveMember extends GroupReceiveAction {
@@ -14,12 +14,12 @@ class RemoveMember extends GroupReceiveAction {
     if (!removedMemberInfo) {
       throw new Error('NoSuchMember');
     }
-    await this.saveMessage({
-      info: `${
-        removedMemberInfo.name || DEFAULT_NAME
-      } is no longer in the group`,
-    });
     await groupHandler.markMemberRemoved(removedMemberId);
+    await this.saveInfoMessage(
+      `${
+        removedMemberInfo.name || DEFAULT_GROUP_MEMBER_NAME
+      } is no longer in the group`,
+    );
   }
 }
 

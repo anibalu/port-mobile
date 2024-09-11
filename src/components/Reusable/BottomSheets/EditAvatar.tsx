@@ -96,7 +96,7 @@ export default function EditAvatar(props: EditAvatarProps) {
         setImageAttr({
           fileUri: compressedUri || selectedAssets.assets[0].uri,
           fileName: selectedAssets.assets[0].fileName || 'profilePic',
-          fileType: selectedAssets.assets[0].type || 'avatar',
+          fileType: selectedAssets.assets[0].type || 'image',
         });
         setSelectedAvatar('');
       }

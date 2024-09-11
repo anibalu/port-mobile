@@ -1,7 +1,6 @@
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
-import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useMemo, useState} from 'react';
 import {
@@ -25,6 +24,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
 
 const TextComponent = ({
   replyToMessage,
@@ -39,7 +39,7 @@ const TextComponent = ({
   setEmojiSelected,
   setCounter,
 }: {
-  replyToMessage: LineMessageData | null; // message to be replied to
+  replyToMessage: GroupMessageData | null; // message to be replied to
   text: string;
   setText: (val: string) => void;
   inputRef: any;

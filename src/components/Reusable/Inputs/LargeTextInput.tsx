@@ -28,6 +28,7 @@ const LargeTextInput = ({
   showLimit,
   bgColor = 'w',
   scrollToFocus = () => {},
+  isEditable = true,
 }: {
   text: string;
   placeholderText?: string;
@@ -36,6 +37,7 @@ const LargeTextInput = ({
   showLimit?: boolean;
   bgColor?: 'w' | 'g';
   scrollToFocus?: any;
+  isEditable?: boolean;
 }) => {
   const onTextChange = (newText: string) => {
     setText(newText);
@@ -76,6 +78,7 @@ const LargeTextInput = ({
         placeholderTextColor={Colors.primary.mediumgrey}
         onChangeText={onTextChange}
         textAlignVertical="top"
+        editable={isEditable}
         value={text}
       />
       {showLimit && (

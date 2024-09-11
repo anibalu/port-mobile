@@ -1,50 +1,104 @@
 import store from '@store/appStore';
-import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import {deriveSharedSecret} from '@utils/Crypto/x25519';
 import Group from '@utils/Groups/Group';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
-import {getProfileName} from '@utils/Profile';
-import {generateISOTimeStamp} from '@utils/Time';
+import {getProfileInfo} from '@utils/Profile';
 import GroupReceiveAction from '../GroupReceiveAction';
+import {isAvatarUri} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 class AddMember extends GroupReceiveAction {
   async performAction(): Promise<void> {
+    //add new member to member list
+    const groupHandler = new Group(this.chatId);
+    await groupHandler.addGroupMember({
+      memberId: this.content.newMember,
+      pairHash: this.content.pairHash,
+      pubkey: this.content.pubkey,
+      admin: this.content.isAdmin,
+    });
     store.dispatch({
       type: 'NEW_CONNECTION',
       payload: {
-        groupId: this.chatId,
+        groupId: this.groupId,
         connectionLinkId: this.receiveTime,
       },
     });
-
-    //add new member to member list
-    const groupHandler = new Group(this.chatId);
     const groupData = await groupHandler.getData();
-
-    const driver = new CryptoDriver(groupData!.selfCryptoId);
-    const driverData = await driver.getData();
-    const sharedSecret = await deriveSharedSecret(
-      driverData.privateKey,
-      this.content.pubkey,
-    );
-    const memberCryptoDriver = new CryptoDriver();
-    await memberCryptoDriver.createForMember({
-      sharedSecret: sharedSecret,
-    });
-
-    await groupHandler.addGroupMember({
-      memberId: this.content.newMember,
-      name: null,
-      joinedAt: generateISOTimeStamp(),
-      cryptoId: memberCryptoDriver.getCryptoId(),
-      isAdmin: false,
-    });
-    //send your name
-    const sender = new SendMessage(this.chatId, ContentType.name, {
-      name: await getProfileName(),
-    });
-    await sender.send();
+    if (!groupData) {
+      throw new Error('Group data not found');
+    }
+    console.log('added new member to group');
+    //send group picture if you're the admin and group picture exists
+    if (groupData.amAdmin && groupData.groupPicture) {
+      const sender = isAvatarUri(groupData.groupPicture)
+        ? new SendMessage(
+            this.chatId,
+            ContentType.groupAvatar,
+            {fileUri: groupData.groupPicture},
+            undefined,
+            undefined,
+            this.content.newMember,
+          )
+        : groupData.groupPictureKey
+        ? new SendMessage(
+            this.chatId,
+            ContentType.groupPicture,
+            {groupPictureKey: groupData.groupPictureKey},
+            undefined,
+            undefined,
+            this.content.newMember,
+          )
+        : null;
+      if (sender) {
+        sender.send();
+      }
+    }
+    //send your name and profile picture to the new member
+    const profileInfo = await getProfileInfo();
+    const members = (await groupHandler.getMembers())
+      .filter(x => x.memberId !== this.content.newMember)
+      .map(x => {
+        return {name: x.name, memberId: x.memberId};
+      });
+    if (profileInfo) {
+      const sender = new SendMessage(
+        this.chatId,
+        ContentType.groupInitialMemberInfo,
+        {senderName: profileInfo.name, members: members},
+        undefined,
+        undefined,
+        this.content.newMember,
+      );
+      sender.send();
+      const profilePicturePermission = (await groupHandler.getPermissions())
+        .displayPicture;
+      if (profilePicturePermission) {
+        const sender = isAvatarUri(profileInfo.profilePicInfo.fileUri)
+          ? new SendMessage(
+              this.chatId,
+              ContentType.displayAvatar,
+              {
+                ...profileInfo.profilePicInfo,
+                fileType: 'avatar',
+              },
+              undefined,
+              undefined,
+              this.content.newMember,
+            )
+          : new SendMessage(
+              this.chatId,
+              ContentType.displayImage,
+              {
+                ...profileInfo.profilePicInfo,
+              },
+              undefined,
+              undefined,
+              this.content.newMember,
+            );
+        //send asynchronously
+        sender.send();
+      }
+    }
   }
 }
 

@@ -7,14 +7,17 @@ import {groupReceiveActionPicker} from './possibleActions';
 class ReceiveGroupMessage {
   private message: any;
   private chatId: string;
+  private groupId: string;
   private receiveTime: string;
   private senderId: string | null;
   private receiveClass: GroupReceiveAction | null;
   private decryptedMessageContent: PayloadMessageParams | null;
+  //object containing unencrypted message sent by the server or encrytped message sent by another user
   private content: any;
   //construct the class
   constructor(
     chatId: string,
+    groupId: string,
     senderId: string | null,
     message: any,
     receiveTime: string,
@@ -22,20 +25,17 @@ class ReceiveGroupMessage {
     this.message = message;
     this.receiveTime = receiveTime;
     this.chatId = chatId;
+    this.groupId = groupId;
     this.receiveClass = null;
     this.senderId = senderId;
     this.decryptedMessageContent = null;
   }
-  //make sure sender id isn't null
-  private senderIdNotNullRule(): string {
-    if (!this.senderId) {
-      throw new Error('NullSenderId');
-    }
-    return this.senderId as string;
-  }
+  /**
+   * Save the message content object (un-decrypted)
+   */
   private extractContent(): void {
     try {
-      if (!this.message.content) {
+      if (!this.message.messageContent) {
         this.content = null;
         return;
       }
@@ -45,27 +45,31 @@ class ReceiveGroupMessage {
       this.content = null;
     }
   }
+  /**
+   * save decrypted message content if the message requires decryption.
+   */
   private async extractDecryptedMessageContent(): Promise<void> {
     try {
-      if (!this.message.content) {
+      this.extractContent();
+      if (!this.content) {
         this.decryptedMessageContent = null;
         return;
       } else {
-        if (this.content.encryptedContent && this.senderId) {
+        if (
+          this.content.encryptedContent &&
+          this.senderId &&
+          this.senderId !== ''
+        ) {
           const group = new Group(this.chatId);
-
           const member = await group.getMember(this.senderId);
-
           const cryptoDriver = new CryptoDriver(member!.cryptoId);
-
           const decryptedAndProcessed = JSON.parse(
             await cryptoDriver.decrypt(this.content.encryptedContent),
           );
-
           this.decryptedMessageContent =
             decryptedAndProcessed as PayloadMessageParams;
         } else {
-          this.decryptedMessageContent = this.content as PayloadMessageParams;
+          this.decryptedMessageContent = null;
         }
       }
     } catch (error) {
@@ -75,9 +79,9 @@ class ReceiveGroupMessage {
   }
   //assign receive action
   private async assignReceiverClass() {
-    this.senderId = this.senderIdNotNullRule();
     this.receiveClass = await groupReceiveActionPicker(
       this.chatId,
+      this.groupId,
       this.senderId,
       this.message,
       this.receiveTime,
@@ -87,10 +91,12 @@ class ReceiveGroupMessage {
   }
   //perform receive action
   async receive() {
-    this.extractContent();
+    console.log('group message received', this.message);
+    console.log('Trying to assign receiver for: ', this.groupId, this.message);
     await this.extractDecryptedMessageContent();
     await this.assignReceiverClass();
     if (this.receiveClass) {
+      await this.receiveClass.validate();
       await this.receiveClass.performAction();
     }
   }

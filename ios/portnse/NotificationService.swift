@@ -196,7 +196,7 @@ func getSharedSecretForLineChat(_ chatId: String) -> String{
   var statement: OpaquePointer?
   // Prepare a statement to get the chat's name
   if sqlite3_prepare_v2(db, "SELECT sharedSecret FROM (lines JOIN cryptoData on lines.cryptoId = cryptoData.cryptoId) WHERE lines.lineId = ? ;", -1, &statement, nil) != SQLITE_OK {
-let errmsg = String(cString: sqlite3_errmsg(db)!)
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
     print("error preparing insert: \(errmsg)")
     return ""
   }
@@ -213,6 +213,64 @@ let errmsg = String(cString: sqlite3_errmsg(db)!)
     let errmsg = String(cString: sqlite3_errmsg(db)!)
     print("failure binding foo: \(errmsg)")
   }
+  
+  var sharedSecret: String = ""
+  // Step through results for possible names
+  while sqlite3_step(statement) == SQLITE_ROW {
+    if let cString = sqlite3_column_text(statement, 0) {
+      sharedSecret = String(cString: cString) // Replace the default name with one that actually works
+      print("sharedSecret = \(sharedSecret)")
+    } else {
+      print("shared secret not found")
+    }
+  }
+  // Finish running the statement
+  if sqlite3_finalize(statement) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("error finalizing prepared statement: \(errmsg)")
+  }
+  
+  closeDB()
+  // Convert the shared secret to binary data
+  return sharedSecret
+}
+
+
+func getSharedSecretForGroupMember(_ chatId: String, _ memberId: String) -> String {
+  openDB()
+  // Pointer to the statement to execute
+  var statement: OpaquePointer?
+  // Prepare a statement to get the chat's name
+  if sqlite3_prepare_v2(db, "SELECT sharedSecret FROM (groupMembers JOIN cryptoData on groupMembers.cryptoId = cryptoData.cryptoId) WHERE groupMembers.groupId = ? AND groupMembers.memberId = ?;", -1, &statement, nil) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("error preparing insert: \(errmsg)")
+    return ""
+  }
+  // Set the chatId in the query to execute
+  if sqlite3_bind_text(
+    statement,
+    1,
+    chatId,
+    -1,
+    // Tells the function to make a copy of chatId while preparing the statement
+    unsafeBitCast(-1, to: sqlite3_destructor_type.self) // SQLITE_TRANSIENT
+  ) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("failure binding foo: \(errmsg)")
+  }
+  
+  if sqlite3_bind_text(
+    statement,
+    2,
+    memberId,
+    -1,
+    // Tells the function to make a copy of chatId while preparing the statement
+    unsafeBitCast(-1, to: sqlite3_destructor_type.self) // SQLITE_TRANSIENT
+  ) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("failure binding foo: \(errmsg)")
+  }
+  
   
   var sharedSecret: String = "No Shared Secret"  // A default name to use
   // Step through results for possible names
@@ -243,7 +301,7 @@ func getChatName(_ chatId: String) throws -> String {
   // Pointer to the statement to execute
   var statement: OpaquePointer?
   // Prepare a statement to get the chat's name
-  if sqlite3_prepare_v2(db, "SELECT contacts.name AS name FROM (connections JOIN lines on connections.routingId = lines.lineId) JOIN contacts on contacts.pairHash = connections.pairHash WHERE lines.lineId = ? ;", -1, &statement, nil) != SQLITE_OK {
+  if sqlite3_prepare_v2(db, "SELECT COALESCE(contacts.name, groups.name) AS name FROM (connections LEFT JOIN lines on connections.routingId = lines.lineId) LEFT JOIN contacts on contacts.pairHash = connections.pairHash LEFT JOIN groups on groups.groupId = connections.routingId WHERE COALESCE(lines.lineId, groups.groupId) = ?  ;", -1, &statement, nil) != SQLITE_OK {
     let errmsg = String(cString: sqlite3_errmsg(db)!)
     print("error preparing insert: \(errmsg)")
     return ""
@@ -282,6 +340,67 @@ func getChatName(_ chatId: String) throws -> String {
   closeDB()
   return name
 }
+
+func getGroupMemberName(_ chatId: String, _ memberId: String) -> String {
+  openDB()
+  // Pointer to the statement to execute
+  var statement: OpaquePointer?
+  // Prepare a statement to get the chat's name
+  if sqlite3_prepare_v2(db, "SELECT contacts.name FROM groupMembers LEFT JOIN contacts ON contacts.pairHash = groupMembers.pairHash WHERE groupId = ? AND memberId = ?;", -1, &statement, nil) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("error preparing insert: \(errmsg)")
+    return ""
+  }
+  
+  // Set the chatId in the query to execute
+  if sqlite3_bind_text(
+    statement,
+    1,
+    chatId,
+    -1,
+    // Tells the function to make a copy of chatId while preparing the statement
+    unsafeBitCast(-1, to: sqlite3_destructor_type.self) // SQLITE_TRANSIENT
+  ) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("failure binding foo: \(errmsg)")
+  }
+  
+  // Bind the memberId to the query
+  if sqlite3_bind_text(
+    statement,
+    2,
+    memberId,
+    -1,
+    // Tells the function to make a copy of chatId while preparing the statement
+    unsafeBitCast(-1, to: sqlite3_destructor_type.self) // SQLITE_TRANSIENT
+  ) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("failure binding foo: \(errmsg)")
+  }
+
+  
+  var name: String = "New contact"  // A default name to use
+  // Step through results for possible names
+  while sqlite3_step(statement) == SQLITE_ROW {
+    if let cString = sqlite3_column_text(statement, 0) {
+      name = String(cString: cString) // Replace the default name with one that actually works
+      print("name = \(name)")
+    } else {
+      print("name not found")
+    }
+  }
+  // Finish running the statement
+  if sqlite3_finalize(statement) != SQLITE_OK {
+    let errmsg = String(cString: sqlite3_errmsg(db)!)
+    print("error finalizing prepared statement: \(errmsg)")
+  }
+  
+  
+  closeDB()
+  return name
+}
+
+
 
 func decryptTriggerMessage(_ trigger: String?, sharedSecret: String) throws -> String {
   
@@ -367,6 +486,12 @@ class NotificationService: UNNotificationServiceExtension {
     } else {
       providedSource = "no source"
     }
+    
+    var providedMember: String? = nil
+    if request.content.userInfo["member"] != nil {
+      providedMember = request.content.userInfo["member"] as! String
+    }
+    
     var triggerMessage: String
     if (request.content.userInfo["trigger"] != nil) {
       triggerMessage = request.content.userInfo["trigger"] as! String
@@ -381,9 +506,17 @@ class NotificationService: UNNotificationServiceExtension {
       } catch {
         // Revert to server title
       }
+      var sharedSecret: String
+      if providedMember == nil {
+        sharedSecret = getSharedSecretForLineChat(providedSource)
+      } else {
+        sharedSecret = getSharedSecretForGroupMember(providedSource, providedMember as! String)
+        let groupMemberName = getGroupMemberName(providedSource, providedMember as! String)
+        bestAttemptContent.subtitle = groupMemberName
+      }
       var plaintextMessage: String
       do {
-        try plaintextMessage = decryptTriggerMessage(triggerMessage, sharedSecret: getSharedSecretForLineChat(providedSource))
+        try plaintextMessage = decryptTriggerMessage(triggerMessage, sharedSecret: sharedSecret)
       } catch {
         plaintextMessage = ""
       }

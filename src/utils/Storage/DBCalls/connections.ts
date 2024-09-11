@@ -37,7 +37,6 @@ export interface ConnectionEntry extends ConnectionUpdate {
   timestamp: string;
   newMessageCount: number;
   folderId: string;
-  pairHash: string;
   routingId: string;
 }
 
@@ -76,16 +75,19 @@ export async function loadConnection(
       connection.pairHash as pairHash,
       connection.routingId as routingId,
       lines.authenticated as authenticated,
-      lines.disconnected as disconnected,
+      COALESCE(lines.disconnected, groups.disconnected) as disconnected,
       lines.permissionsId as permissionsId,
-      contacts.name as name,
-      contacts.displayPic as pathToDisplayPic,
+      COALESCE(contacts.name, groups.name) as name,
+      COALESCE(contacts.displayPic, groups.groupPicture) as pathToDisplayPic,
       folder.name as folderName
     FROM 
       (SELECT * FROM connections WHERE chatId = ?) connection
       LEFT JOIN
       lines
       ON connection.routingId = lines.lineId
+      LEFT JOIN
+      groups
+      ON connection.routingId = groups.groupId
       LEFT JOIN
       contacts
       ON connection.pairHash = contacts.pairHash
@@ -128,16 +130,19 @@ export async function loadConnections(): Promise<ConnectionInfo[]> {
       connection.pairHash as pairHash,
       connection.routingId as routingId,
       lines.authenticated as authenticated,
-      lines.disconnected as disconnected,
+      COALESCE(lines.disconnected, groups.disconnected) as disconnected,
       lines.permissionsId as permissionsId,
-      contacts.name as name,
-      contacts.displayPic as pathToDisplayPic,
+      COALESCE(contacts.name, groups.name) as name,
+      COALESCE(contacts.displayPic, groups.groupPicture) as pathToDisplayPic,
       folder.name as folderName
     FROM 
       connections connection
       LEFT JOIN
       lines
       ON connection.routingId = lines.lineId
+      LEFT JOIN
+      groups
+      ON connection.routingId = groups.groupId
       LEFT JOIN
       contacts
       ON connection.pairHash = contacts.pairHash
@@ -183,16 +188,19 @@ export async function loadConnectionsInFolder(
       connection.pairHash as pairHash,
       connection.routingId as routingId,
       lines.authenticated as authenticated,
-      lines.disconnected as disconnected,
+      COALESCE(lines.disconnected, groups.disconnected) as disconnected,
       lines.permissionsId as permissionsId,
-      contacts.name as name,
-      contacts.displayPic as pathToDisplayPic,
+      COALESCE(contacts.name, groups.name) as name,
+      COALESCE(contacts.displayPic, groups.groupPicture) as pathToDisplayPic,
       folder.name as folderName
     FROM 
       (SELECT * FROM connections WHERE folderId = ?) connection
       LEFT JOIN
       lines
       ON connection.routingId = lines.lineId
+      LEFT JOIN
+      groups
+      ON groups.groupId = connection.routingId
       LEFT JOIN
       contacts
       ON connection.pairHash = contacts.pairHash
@@ -287,10 +295,10 @@ export async function loadConnectionsInFocus() {
       connection.pairHash as pairHash,
       connection.routingId as routingId,
       lines.authenticated as authenticated,
-      lines.disconnected as disconnected,
+      COALESCE(lines.disconnected, groups.disconnected) as disconnected,
       lines.permissionsId as permissionsId,
-      contacts.name as name,
-      contacts.displayPic as pathToDisplayPic,
+      COALESCE(contacts.name, groups.name) as name,
+      COALESCE(contacts.displayPic, groups.groupPicture) as pathToDisplayPic,
       folder.name as folderName
     FROM 
       connections connection
@@ -298,15 +306,18 @@ export async function loadConnectionsInFocus() {
       lines
       ON connection.routingId = lines.lineId
     LEFT JOIN
+      groups
+      ON connection.routingId = groups.groupId
+    LEFT JOIN
       contacts
       ON connection.pairHash = contacts.pairHash
     LEFT JOIN
       folders folder
       ON connection.folderId = folder.folderId
-    JOIN permissions ON lines.permissionsId = permissions.permissionsId
+    LEFT JOIN permissions ON COALESCE(lines.permissionsId, groups.permissionsId) = permissions.permissionsId
     WHERE permissions.focus = true
     ORDER BY connection.timestamp DESC
-;`,
+    ;`,
     [],
     (tx, results) => {
       const len = results.rows.length;

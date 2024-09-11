@@ -68,14 +68,22 @@ function ChatTile({
       } else if (selectionMode) {
         select();
       } else {
-        navigation.navigate('DirectChat', {
-          chatId: props.chatId,
-          isGroupChat: props.connectionType === ChatType.group,
-          isConnected: !props.disconnected,
-          profileUri: props.pathToDisplayPic || DEFAULT_AVATAR,
-          name: props.name,
-          isAuthenticated: props.authenticated,
-        });
+        if (props.connectionType === ChatType.group) {
+          navigation.navigate('GroupChat', {
+            chatId: props.chatId,
+            isConnected: !props.disconnected,
+            profileUri: props.pathToDisplayPic || DEFAULT_AVATAR,
+            name: props.name,
+          });
+        } else {
+          navigation.navigate('DirectChat', {
+            chatId: props.chatId,
+            isConnected: !props.disconnected,
+            profileUri: props.pathToDisplayPic || DEFAULT_AVATAR,
+            name: props.name,
+            isAuthenticated: props.authenticated,
+          });
+        }
       }
     }
   };
@@ -198,10 +206,12 @@ function ChatTile({
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => {
-              setContactShareParams({
-                name: props.name,
-                pairHash: props.pairHash,
-              });
+              if (props.connectionType === ChatType.direct) {
+                setContactShareParams({
+                  name: props.name,
+                  pairHash: props.pairHash,
+                });
+              }
             }}
             style={{
               flexDirection: 'column',

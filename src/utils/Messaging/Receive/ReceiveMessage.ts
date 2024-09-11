@@ -12,6 +12,7 @@ class ReceiveMessage {
   //construct the class
   constructor(messageRaw: any, receiveTime: string = new Date().toISOString()) {
     this.message = this.processRawMessage(messageRaw);
+    console.log('receiver invoked: ', this.message);
     let messageTime = receiveTime;
     try {
       if (this.message.timestamp) {
@@ -42,12 +43,16 @@ class ReceiveMessage {
   //assigns chatId
   private assignRoutingId(): string {
     return (
-      this.message.lineId || this.message.deletion || this.message.group || ''
+      this.message.lineId ||
+      this.message.deletion ||
+      this.message.group ||
+      this.message.removedFromGroup ||
+      ''
     );
   }
   //checks if group message
   private checkIfGroupMessage(): boolean {
-    return this.message.group ? true : false;
+    return this.message.group || this.message.removedFromGroup ? true : false;
   }
   //assigns sender Id
   private assignSenderId(): string | null {
@@ -85,6 +90,7 @@ class ReceiveMessage {
         //call group receive class and receive
         const receiver = new ReceiveGroupMessage(
           this.chatId,
+          this.routingId,
           this.senderId,
           this.message,
           this.receiveTime,

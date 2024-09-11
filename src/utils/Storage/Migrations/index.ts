@@ -5,10 +5,11 @@ import {migration005} from './migration005';
 import {migration006} from './migration006';
 import {migration007} from './migration007';
 import {migration009} from './migration009';
+import migration010 from './migration010';
 
 // Increment this counter everytime you add a migration.
 // If this file has been modified, hopefully this counter has ticked.
-// MOST_RECENT_MIGRATION_NUMBER = 009
+// MOST_RECENT_MIGRATION_NUMBER = 010
 
 // To run a migration, write a suitible callback and add it to the list.
 // Make sure to increment the counter above to make sure we don't do weird things.
@@ -19,6 +20,7 @@ const migrations: [number, () => Promise<void>][] = [
   [6, migration006],
   [7, migration007],
   [9, migration009],
+  [10, migration010],
 ];
 
 export default async function runMigrations() {

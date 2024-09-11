@@ -12,6 +12,9 @@ export const ARTIFICIAL_LOADER_INTERVAL = 300;
 export const TOKEN_VALIDITY_INTERVAL = 4 * 60 * 1000;
 export const IDEAL_UNUSED_PORTS_NUMBER = 5;
 export const DEFAULT_NAME = 'New contact';
+export const DEFAULT_GROUP_NAME = 'New group';
+export const DEFAULT_GROUP_MEMBER_NAME = 'Unknown member';
+export const GROUP_MEMBER_LIMIT = 64;
 export const APP_VERSION = '1.0';
 
 //versions

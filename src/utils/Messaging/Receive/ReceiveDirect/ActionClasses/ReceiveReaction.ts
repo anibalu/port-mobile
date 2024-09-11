@@ -1,6 +1,6 @@
 import {
   ContentType,
-  LineReactionSender,
+  ReactionSender,
   MessageStatus,
   ReactionParams,
 } from '@utils/Messaging/interfaces';
@@ -67,13 +67,13 @@ class ReceiveReaction extends DirectReceiveAction {
       ReactionStorage.deleteReaction(
         this.chatId,
         reactionData.messageId,
-        LineReactionSender.peer,
+        ReactionSender.peer,
       );
     } else {
       await ReactionStorage.addReaction(
         this.chatId,
         reactionData.messageId,
-        LineReactionSender.peer,
+        ReactionSender.peer,
         reactionData.reaction,
       );
     }

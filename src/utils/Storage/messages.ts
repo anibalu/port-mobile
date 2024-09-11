@@ -9,8 +9,7 @@ import {
   MessageStatus,
 } from '../Messaging/interfaces';
 import * as lineDBCalls from './DBCalls/lineMessage';
-import {deleteFile} from './StorageRNFS/sharedFileHandlers';
-import {deleteMedia, getMedia} from './media';
+import {deleteMedia} from './media';
 import {getConnection, updateConnection} from './connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {ConnectionInfo} from './DBCalls/connections';
@@ -150,16 +149,7 @@ export async function cleanDeleteMessage(
     const contentType = message.contentType;
     if (LargeDataMessageContentTypes.includes(contentType)) {
       const mediaId = message.mediaId;
-      if (mediaId) {
-        const mediaInfo = await getMedia(mediaId);
-        if (mediaInfo?.filePath) {
-          await deleteFile(mediaInfo?.filePath);
-        }
-        if (mediaInfo?.previewPath) {
-          await deleteFile(mediaInfo?.previewPath);
-        }
-        await deleteMedia(mediaId);
-      }
+      await deleteMedia(mediaId);
     }
     //if message contains reaction, set the chat tile with latest message contents
     if (message.hasReaction) {

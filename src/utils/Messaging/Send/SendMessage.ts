@@ -6,6 +6,7 @@ import {
   MessageDataTypeBasedOnContentType,
 } from '../interfaces';
 import {retryDirect, sendDirect} from './SendDirectMessage';
+import {retryGroup, sendGroup} from './SendGroupMessage';
 
 class SendMessage<T extends ContentType> {
   private chatId: string; //chatId of chat
@@ -13,6 +14,7 @@ class SendMessage<T extends ContentType> {
   private data: DataType; //message data corresponding to the content type
   private replyId: string | null; //not null if message is a reply message (optional)
   private messageId: string; //messageId of message (optional)
+  private singleRecipient: string | null;
 
   //construct the class.
   constructor(
@@ -21,12 +23,14 @@ class SendMessage<T extends ContentType> {
     data: MessageDataTypeBasedOnContentType<T>,
     replyId: string | null = null,
     messageId: string = generateRandomHexId(),
+    singleRecipient: string | null | undefined = null,
   ) {
     this.chatId = chatId;
     this.contentType = type;
     this.data = data;
     this.messageId = messageId;
     this.replyId = replyId;
+    this.singleRecipient = singleRecipient;
   }
 
   //only public function. Handles lifecycle of send operation.
@@ -37,14 +41,16 @@ class SendMessage<T extends ContentType> {
   ) {
     const isGroup = await isGroupChat(this.chatId);
     if (isGroup) {
-      // const sender = new SendGroupMessage(
-      //   this.chatId,
-      //   this.contentType,
-      //   this.data,
-      //   this.replyId,
-      //   this.messageId,
-      // );
-      // await sender.send(journal, shouldEncrypt, onUpdateSuccess);
+      console.log('Sending group message');
+      await sendGroup(
+        this.chatId,
+        this.contentType,
+        this.data,
+        this.replyId,
+        this.messageId,
+        this.singleRecipient,
+        onUpdateSuccess,
+      );
     } else {
       await sendDirect(
         this.chatId,
@@ -60,14 +66,15 @@ class SendMessage<T extends ContentType> {
   public async retry(onUpdateSuccess?: (x: boolean) => void) {
     const isGroup = await isGroupChat(this.chatId);
     if (isGroup) {
-      // const sender = new SendGroupMessage(
-      //   this.chatId,
-      //   this.contentType,
-      //   this.data,
-      //   this.replyId,
-      //   this.messageId,
-      // );
-      // await sender.send(journal, shouldEncrypt, onUpdateSuccess);
+      await retryGroup(
+        this.chatId,
+        this.contentType,
+        this.data,
+        this.replyId,
+        this.messageId,
+        this.singleRecipient,
+        onUpdateSuccess,
+      );
     } else {
       await retryDirect(
         this.chatId,

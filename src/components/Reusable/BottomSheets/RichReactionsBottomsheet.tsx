@@ -17,22 +17,17 @@ import {
 } from '@components/NumberlessText';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {PortSpacing} from '@components/ComponentUtils';
-import {getRichReactions} from '@utils/Storage/reactions';
+import {getRichReactions, RichReaction} from '@utils/Storage/reactions';
 import SimpleCard from '../Cards/SimpleCard';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import LineSeparator from '../Separators/LineSeparator';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType, SavedMessageParams} from '@utils/Messaging/interfaces';
+import {ContentType} from '@utils/Messaging/interfaces';
 import {getProfilePictureUri} from '@utils/Profile';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-
-interface ReactionItem {
-  senderName?: string;
-  reaction: string;
-  senderId?: string;
-}
+import {DEFAULT_NAME} from '@configs/constants';
 
 const RichReactionsBottomsheet = ({
   visible,
@@ -45,7 +40,7 @@ const RichReactionsBottomsheet = ({
   chatId: string;
   currentReactionMessage: string[];
 }) => {
-  const [reactions, setReactions] = useState<ReactionItem[]>([]);
+  const [reactions, setReactions] = useState<RichReaction[]>([]);
   const [senderAvatarUri, setSenderAvatarUri] = useState<string>('');
   const [profileAvatarUri, setProfileAvatarUri] = useState('');
 
@@ -79,7 +74,7 @@ const RichReactionsBottomsheet = ({
 
   const [selectedPillIndex, setSelectedPillIndex] = useState<number>(0);
 
-  const handleRemoveReaction = async (message: SavedMessageParams) => {
+  const handleRemoveReaction = async (message: RichReaction | null) => {
     if (!message) {
       return;
     }
@@ -105,7 +100,7 @@ const RichReactionsBottomsheet = ({
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
 
-  const renderBarItem = (item: ReactionItem, index: number, Colors: any) => {
+  const renderBarItem = (item: RichReaction, index: number, Colors: any) => {
     const selfReactedMessage = item.senderId === 'SELF' ? item : null;
     const receiverReactedMessage = item.senderId === 'PEER' ? item : null;
 
@@ -126,7 +121,7 @@ const RichReactionsBottomsheet = ({
               fontType={FontType.rg}>
               {item.senderId === 'SELF'
                 ? 'You'
-                : receiverReactedMessage?.senderName || ''}
+                : receiverReactedMessage?.senderName || DEFAULT_NAME}
             </NumberlessText>
             {item.senderId === 'SELF' && (
               <NumberlessText
@@ -148,7 +143,11 @@ const RichReactionsBottomsheet = ({
     );
   };
 
-  const renderPillItem = (item: ReactionItem, index: number, Colors: any) => {
+  const renderPillItem = (
+    item: RichReaction | {reaction: string},
+    index: number,
+    Colors: any,
+  ) => {
     let count = 1;
 
     if (item.reaction === 'All') {

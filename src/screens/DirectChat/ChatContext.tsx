@@ -9,12 +9,13 @@ import React, {createContext, useState, useContext} from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
-import {cleanDeleteGroupMessage} from '@utils/Storage/groupMessages';
-import {getGroupMessage} from '@utils/Storage/groupMessages';
 import {getRichReactions} from '@utils/Storage/reactions';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {useNavigation} from '@react-navigation/native';
-import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
+import {
+  LineMessageData,
+  LoadedMessage,
+} from '@utils/Storage/DBCalls/lineMessage';
 import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {screen} from '@components/ComponentUtils';
 import {SharedValue, useSharedValue, withTiming} from 'react-native-reanimated';
@@ -94,8 +95,8 @@ type ChatContextType = {
   onReaction: (message: LoadedMessage, reaction: string) => void;
 
   //message to be replied to
-  replyToMessage: LoadedMessage | null;
-  setReplyToMessage: (x: LoadedMessage | null) => void;
+  replyToMessage: LineMessageData | null;
+  setReplyToMessage: (x: LineMessageData | null) => void;
 
   //selected messages
   selectedMessages: string[];
@@ -328,21 +329,13 @@ export const ChatContextProvider = ({
   };
 
   const performDelete = async (): Promise<void> => {
-    if (isGroupChat) {
-      for (const msg of selectedMessages) {
-        await cleanDeleteGroupMessage(chatId, msg);
-      }
-      updateAfterDeletion(selectedMessages);
-      clearSelection();
-      setOpenDeleteMessageModal(false);
-    } else {
-      for (const msg of selectedMessages) {
-        await cleanDeleteMessage(chatId, msg, false);
-      }
-      updateAfterDeletion(selectedMessages);
-      clearSelection();
-      setOpenDeleteMessageModal(false);
+    for (const msg of selectedMessages) {
+      await cleanDeleteMessage(chatId, msg, false);
     }
+    updateAfterDeletion(selectedMessages);
+    clearSelection();
+    setOpenDeleteMessageModal(false);
+
     if (selectedMessage) {
       onCleanCloseFocus();
     }
@@ -364,7 +357,7 @@ export const ChatContextProvider = ({
   };
 
   //message to be replied to
-  const [replyToMessage, setReplyToMessage] = useState<LoadedMessage | null>(
+  const [replyToMessage, setReplyToMessage] = useState<LineMessageData | null>(
     null,
   );
 
@@ -526,11 +519,10 @@ export const ChatContextProvider = ({
 
   const onReply = async (): Promise<void> => {
     if (selectedMessages.length > 0) {
-      setReplyToMessage(
-        isGroupChat
-          ? await getGroupMessage(chatId, selectedMessages[0])
-          : await getMessage(chatId, selectedMessages[0]),
-      );
+      const reply = await getMessage(chatId, selectedMessages[0]);
+      if (reply) {
+        setReplyToMessage(reply);
+      }
     }
     onCleanCloseFocus();
   };

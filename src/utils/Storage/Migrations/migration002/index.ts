@@ -3,8 +3,6 @@ import connections from './connections';
 import contactSharing from './contactSharing';
 import cryptoData from './cryptoData';
 import folders from './folders';
-import groupMessages from './groupMessages';
-import groups from './groups';
 import lineMessages from './lineMessages';
 import lines from './lines';
 import media from './media';
@@ -26,12 +24,10 @@ export default async function migration002() {
   await connections();
   await lineMessages();
   await cryptoData();
-  await groups();
   await lines();
   await ports();
   await contactSharing();
   await reactions();
   // Latest migration 002
   await media();
-  await groupMessages();
 }

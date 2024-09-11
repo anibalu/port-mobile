@@ -2,6 +2,9 @@ import {MediaEntry} from './DBCalls/media';
 import {MediaUpdate} from './DBCalls/media';
 import * as dbCalls from './DBCalls/media';
 import {ContentType} from '@utils/Messaging/interfaces';
+import {deleteFile} from './StorageRNFS/sharedFileHandlers';
+
+const MEDIA_ID_LENGTH = 32;
 
 /**
  * Save a new media file
@@ -32,8 +35,17 @@ export async function updateMedia(mediaId: string, update: MediaUpdate) {
  * @param mediaId - media Id associated with info
  * @returns - media info
  */
-export async function getMedia(mediaId: string): Promise<MediaEntry | null> {
-  return await dbCalls.getMedia(mediaId);
+export async function getMedia(
+  mediaId?: string | null,
+): Promise<MediaEntry | null> {
+  if (!mediaId) {
+    return null;
+  }
+  const newMediaId = mediaId.replace(/^media:\/\//, '');
+  if (newMediaId.length !== MEDIA_ID_LENGTH) {
+    return null;
+  }
+  return await dbCalls.getMedia(newMediaId);
 }
 
 /**
@@ -64,6 +76,20 @@ export async function getImagesAndVideos(
  * Deletes a given mediaId from the table
  * @param mediaId
  */
-export async function deleteMedia(mediaId: string) {
+export async function deleteMedia(mediaId?: string | null) {
+  if (!mediaId) {
+    return;
+  }
+  const newMediaId = mediaId.replace(/^media:\/\//, '');
+  if (newMediaId.length !== MEDIA_ID_LENGTH) {
+    return;
+  }
+  const mediaInfo = await dbCalls.getMedia(mediaId);
+  if (mediaInfo?.filePath) {
+    await deleteFile(mediaInfo?.filePath);
+  }
+  if (mediaInfo?.previewPath) {
+    await deleteFile(mediaInfo?.previewPath);
+  }
   await dbCalls.deleteMedia(mediaId);
 }

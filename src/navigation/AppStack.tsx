@@ -4,6 +4,7 @@
  */
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import DirectChat from '@screens/DirectChat/Chat';
+import GroupChat from '@screens/GroupChat/Chat';
 import ChatProfile from '@screens/ChatProfile/ChatProfile';
 import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
 import PendingRequests from '@screens/PendingRequests/PendingRequests';
@@ -34,6 +35,9 @@ import PortContactList from '@screens/ContactList/PortContactList';
 import PhoneContactList from '@screens/ContactList/PhoneContactList';
 import BottomNavStack from './BottomNavStack';
 import ContactProfile from '@screens/ContactProfile/ContactProfile';
+import GroupProfile from '@screens/GroupsV2/GroupProfile';
+import AddNewContacts from '@screens/GroupsV2/AddNewContacts';
+import AllMembers from '@screens/GroupsV2/AllMembers';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -53,6 +57,8 @@ function AppStack() {
           <Stack.Screen name="DirectChat" component={DirectChat} />
           <Stack.Screen name="ChatProfile" component={ChatProfile} />
           <Stack.Screen name="ContactProfile" component={ContactProfile} />
+          <Stack.Screen name="GroupChat" component={GroupChat} />
+          <Stack.Screen name="GroupProfile" component={GroupProfile} />
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
           <Stack.Screen name="ShareContact" component={ShareContact} />
           <Stack.Screen
@@ -85,6 +91,8 @@ function AppStack() {
             name="PreviewShareablePort"
             component={PreviewShareablePort}
           />
+          <Stack.Screen name="AddNewContacts" component={AddNewContacts} />
+          <Stack.Screen name="AllMembers" component={AllMembers} />
         </Stack.Navigator>
       </ConnectionModalProvider>
     </>

@@ -1,12 +1,60 @@
-import {PAGINATION_LIMIT} from '@configs/constants';
 import {runSimpleQuery, toBool} from './dbCommon';
-import {
-  DataType,
-  MessageStatus,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
+import {generateISOTimeStamp} from '@utils/Time';
 
-export async function addMessage(message: SavedMessageParams) {
+export interface updateGroupMessageParams {
+  contentType?: ContentType | null; // What type of message the content is
+  data?: any; // The content itself
+  replyId?: string | null; // The id of the message this was sent as a reply to
+  timestamp?: string | null; // When the message was sent/received
+  messageStatus?: MessageStatus | null; // What state is the message in eg: read/unsent
+  hasReaction?: boolean | null; // Does this message have reactions
+  expiresOn?: string | null; // When does this message need to disappear after
+  mediaId?: string | null; // ID of potentially associated media
+}
+
+export interface GroupMessageData extends updateGroupMessageParams {
+  messageId: string;
+  chatId: string; // What chat does this message belong to
+  sender: boolean; // Whether the message was sent by this device
+  mtime?: string | null; // When was this message last modified
+  contentType: ContentType;
+  data: any;
+  memberId?: string | null;
+  singleRecepient?: string | null;
+}
+
+export interface GroupReplyContent {
+  contentType: ContentType | null;
+  data: any | null;
+  sender: boolean | null;
+  chatId: string | null;
+  memberId: string | null;
+  name: string | null;
+  displayPic: string | null;
+}
+
+export interface LoadedGroupMessage {
+  chatId: string;
+  messageId: string;
+  contentType: ContentType;
+  data: any;
+  timestamp: string;
+  sender: boolean;
+  memberId: string | null;
+  singleRecepient: string | null;
+  messageStatus: MessageStatus;
+  expiresOn: string | null;
+  hasReaction: boolean | null;
+  mtime: string | null;
+  reply: GroupReplyContent;
+  mediaId: string | null;
+  filePath: string | null;
+  name: string | null;
+  displayPic: string | null;
+}
+
+export async function addMessage(message: GroupMessageData) {
   await runSimpleQuery(
     `
     INSERT INTO groupMessages (
@@ -15,12 +63,16 @@ export async function addMessage(message: SavedMessageParams) {
       contentType,
       data,
       replyId,
+      mediaId,
       sender,
       memberId,
       timestamp,
       messageStatus,
-      expiresOn
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
+      expiresOn,
+      hasReaction,
+      singleRecepient,
+      mtime
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
     `,
     [
       message.messageId,
@@ -28,29 +80,16 @@ export async function addMessage(message: SavedMessageParams) {
       message.contentType,
       JSON.stringify(message.data),
       message.replyId,
+      message.mediaId,
       message.sender,
       message.memberId,
       message.timestamp,
       message.messageStatus,
       message.expiresOn,
+      message.hasReaction,
+      message.singleRecepient,
+      generateISOTimeStamp(),
     ],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
-  );
-}
-
-export async function updateMessage(
-  chatId: string,
-  messageId: string,
-  data: DataType,
-) {
-  await runSimpleQuery(
-    `
-    UPDATE groupMessages
-    SET data = ?
-    WHERE chatId = ? AND messageId = ? ;
-    `,
-    [JSON.stringify(data), chatId, messageId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
@@ -65,7 +104,7 @@ export async function updateMessage(
 export async function getMessage(
   chatId: string,
   messageId: string,
-): Promise<null | SavedMessageParams> {
+): Promise<null | GroupMessageData> {
   let entry = null;
   await runSimpleQuery(
     `
@@ -78,6 +117,7 @@ export async function getMessage(
         entry = results.rows.item(0);
         entry.data = JSON.parse(entry.data);
         entry.sender = toBool(entry.sender);
+        entry.hasReaction = toBool(entry.hasReaction);
       }
     },
   );
@@ -85,58 +125,184 @@ export async function getMessage(
 }
 
 /**
- * Update the status of a message. Do not use for success, only intermediary states
- * or failute.
- * @param chatId the chatId of the message to udpate
- * @param messageId the messageId of the message to update
- * @param readStatus The new read status. Note, if success, use set Sent.
- * @returns null
+ * Get fully loaded message
+ * @param chatId
+ * @param messageId
+ * @returns - message with additional attributes joined to it.
  */
-export async function updateStatus(
+export async function getLoadedMessage(
   chatId: string,
   messageId: string,
-  messageStatus: MessageStatus,
-) {
-  if (!messageStatus) {
-    return;
-  }
+): Promise<LoadedGroupMessage | null> {
+  let message: LoadedGroupMessage | null = null;
   await runSimpleQuery(
     `
-    UPDATE groupMessages
-    SET messageStatus = ?
-    WHERE chatId = ? AND messageId = ? ;
+    SELECT
+      message.chatId as chatId,
+      message.messageId as messageId,
+      message.contentType as contentType,
+      message.data as data,
+      message.timestamp as timestamp,
+      message.sender as sender,
+      message.messageStatus as messageStatus,
+      message.expiresOn as expiresOn,
+      message.hasReaction as hasReaction,
+      message.mtime as mtime,
+      message.memberId as memberId,
+      message.singleRecepient as singleRecepient,
+      message.mediaId as mediaId,
+      media.filePath as filePath,
+      contact.name as name,
+      contact.displayPic as displayPic,
+      reply.contentType as reply_contentType,
+      reply.data as reply_data,
+      reply.sender as reply_sender,
+      reply.memberId as reply_memberId,
+      reply.chatId as reply_chatId,
+      contactReply.name as reply_name,
+      contactReply.displayPic as reply_displayPic
+    FROM
+      (SELECT * FROM groupMessages
+      WHERE chatId = ? AND messageId = ?) message
+      LEFT JOIN 
+      groupMessages reply
+      ON message.replyId = reply.messageId
+      LEFT JOIN
+      media
+      ON message.mediaId = media.mediaId
+      LEFT JOIN
+      groupMembers groupMember
+      ON message.memberId = groupMember.memberId
+      LEFT JOIN
+      contacts contact
+      ON groupMember.pairHash = contact.pairHash
+      LEFT JOIN
+      groupMembers groupMemberReply
+      ON reply.memberId = groupMemberReply.memberId
+      LEFT JOIN
+      contacts contactReply
+      ON groupMemberReply.pairHash = contactReply.pairHash
+    ;
     `,
-    [messageStatus, chatId, messageId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
+    [chatId, messageId],
+    (tx, results) => {
+      const len = results.rows.length;
+      let entry;
+      if (len > 0) {
+        entry = results.rows.item(0);
+        // We convert some columns into correct destination types
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+        entry.hasReaction = toBool(entry.hasReaction);
+        // We convert the reply columns into a more typescript friendly format
+        entry.reply = {};
+        entry.reply.contentType = entry.reply_contentType;
+        entry.reply.data = JSON.parse(entry.reply_data);
+        entry.reply.sender = toBool(entry.reply_sender);
+        entry.reply.memberId = entry.reply_memberId;
+        entry.reply.chatId = entry.reply_chatId;
+        entry.reply.name = entry.reply_name;
+        entry.reply.displayPic = entry.reply_displayPic;
+        message = entry;
+      }
+    },
   );
+  return message;
 }
 
 /**
- * @param chatId , chat to be loaded
- * @param latestTimestamp , lower bound of messages that need to be fetched
- * @returns {SavedMessageParams[]} list of messages
- * has been directly imported without abstraction
+ * Get the latest messages in a chat
+ * @param chatId
+ * @param limit The maximum number of latest messages to return
+ * @returns Up to the <limit> latest messages in <chatId>
  */
 export async function getLatestMessages(
   chatId: string,
-  latestTimestamp: string,
-): Promise<SavedMessageParams[]> {
-  let messageList: SavedMessageParams[] = [];
+  limit: number = 50,
+): Promise<LoadedGroupMessage[]> {
+  let messageList: LoadedGroupMessage[] = [];
+  /**
+   * We begin by getting the first <limit> most recent messages and alias
+   * that to the table messages.
+   * Next we left join that with the lineMessages table aliased to reply.
+   * With this, messages that have a reply have been joined to their reply.
+   * With this, messages that have media have media params joined.
+   * We finally project this onto the fields that we want, renaming columns as needed.
+   */
+  /**
+   * In the future, we should explore performing the limit and the sorting AFTER
+   * the join to see if the query optimizer picks up on that.
+   */
   await runSimpleQuery(
     `
-    SELECT * FROM groupMessages
-    WHERE chatId = ? AND timestamp > ?
-    ORDER BY timestamp ASC ;
+    SELECT
+      message.chatId as chatId,
+      message.messageId as messageId,
+      message.contentType as contentType,
+      message.data as data,
+      message.timestamp as timestamp,
+      message.sender as sender,
+      message.messageStatus as messageStatus,
+      message.expiresOn as expiresOn,
+      message.hasReaction as hasReaction,
+      message.mtime as mtime,
+      message.memberId as memberId,
+      message.singleRecepient as singleRecepient,
+      message.mediaId as mediaId,
+      media.filePath as filePath,
+      contact.name as name,
+      contact.displayPic as displayPic,
+      reply.contentType as reply_contentType,
+      reply.data as reply_data,
+      reply.sender as reply_sender,
+      reply.memberId as reply_memberId,
+      reply.chatId as reply_chatId,
+      contactReply.name as reply_name,
+      contactReply.displayPic as reply_displayPic
+    FROM
+      (SELECT * FROM groupMessages
+      WHERE chatId = ?
+      ORDER BY timestamp DESC
+      LIMIT ?) message
+      LEFT JOIN 
+      groupMessages reply
+      ON message.replyId = reply.messageId
+      LEFT JOIN
+      media
+      ON message.mediaId = media.mediaId
+      LEFT JOIN
+      groupMembers groupMember
+      ON message.memberId = groupMember.memberId
+      LEFT JOIN
+      contacts contact
+      ON groupMember.pairHash = contact.pairHash
+      LEFT JOIN
+      groupMembers groupMemberReply
+      ON reply.memberId = groupMemberReply.memberId
+      LEFT JOIN
+      contacts contactReply
+      ON groupMemberReply.pairHash = contactReply.pairHash
+    ;
     `,
-    [chatId, latestTimestamp],
+    [chatId, limit],
     (tx, results) => {
       const len = results.rows.length;
       let entry;
       for (let i = 0; i < len; i++) {
         entry = results.rows.item(i);
+        // We convert some columns into correct destination types
         entry.data = JSON.parse(entry.data);
         entry.sender = toBool(entry.sender);
+        entry.hasReaction = toBool(entry.hasReaction);
+        // We convert the reply columns into a more typescript friendly format
+        entry.reply = {};
+        entry.reply.contentType = entry.reply_contentType;
+        entry.reply.data = JSON.parse(entry.reply_data);
+        entry.reply.sender = toBool(entry.reply_sender);
+        entry.reply.memberId = entry.reply_memberId;
+        entry.reply.chatId = entry.reply_chatId;
+        entry.reply.name = entry.reply_name;
+        entry.reply.displayPic = entry.reply_displayPic;
         messageList.push(entry);
       }
     },
@@ -145,93 +311,83 @@ export async function getLatestMessages(
 }
 
 /**
- * Get the list of messages for a chatId
- * @param chatId the chat id to get messages for
- * @returns the list of chat ids to get messages for
+ * Update an existing message
+ * @param chatId A chat
+ * @param messageId  A message in the given chat
+ * @param updateParams The parameters to change
  */
-async function getMessageIterator(chatId: string) {
-  let messageIterator = {};
+export async function updateSavedMessage(
+  chatId: string,
+  messageId: string,
+  updateParams: updateGroupMessageParams,
+) {
   await runSimpleQuery(
+    /**
+     * You may notice that some coalesces are backwards from the rest.
+     * This is because some columns cannot be updated from non-null values.
+     */
     `
-    SELECT * FROM groupMessages
-    WHERE chatId = ? 
-    ORDER BY timestamp ASC ;
-    `,
-    [chatId],
-    (tx, results) => {
-      messageIterator = results;
-    },
-  );
-  return messageIterator;
-}
-
-//Is reversed, fetches messages from end of list.
-export async function getPaginatedMessages(chatId: string, cursor?: number) {
-  const iter: any = await getMessageIterator(chatId);
-  const len = iter.rows.length;
-  let messages = [];
-
-  // Reverse pagination logic
-  let startFetchIndex;
-  let endFetchIndex;
-
-  if (cursor === undefined) {
-    // Fetching the latest messages, up to PAGINATION_LIMIT. This only runs if there is no cursor for the query.
-    startFetchIndex = Math.max(0, len - PAGINATION_LIMIT);
-    endFetchIndex = len;
-  } else if (cursor < PAGINATION_LIMIT) {
-    // Not enough messages for a full page, which means we fetch from 0 to cursor.
-    startFetchIndex = 0;
-    endFetchIndex = cursor;
-  } else {
-    // Standard reverse pagination, fetching from cursor-X to curson
-    startFetchIndex = cursor - PAGINATION_LIMIT;
-    endFetchIndex = cursor;
-  }
-
-  // Fetch messages, if the cursor isn't 0. Cursor = 0 implies no messages left to fetch
-  if (cursor !== 0) {
-    for (let i = startFetchIndex; i < endFetchIndex; i++) {
-      let entry = iter.rows.item(i);
-      entry.data = JSON.parse(entry.data);
-      entry.sender = toBool(entry.sender);
-      messages.push(entry);
-    }
-  }
-
-  // Reverse the order to send latest messages first
-  messages.reverse();
-
-  // Calculate new cursor position
-  const newCursor = Math.max(0, startFetchIndex);
-
-  return {messages: messages, cursor: newCursor, maxLength: len};
-}
-
-/**
- * Mark a message as sent. Separate from heloer because it provides a hint
- * to the database to manage indices. Research if definitely needed.
- * @param chatId the chat id of the message to set as sent
- * @param messageId the message id of the message to set as sent
- */
-export async function setSent(chatId: string, messageId: string) {
-  await runSimpleQuery(
-    `
-    UPDATE groupMessages
-    SET messageStatus = ?
+    UPDATE groupMessages SET
+      contentType = COALESCE(?, contentType),
+      data = COALESCE(?, data),
+      replyId = COALESCE(?, replyId),
+      timestamp = COALESCE(?, timestamp),
+      messageStatus = COALESCE(?, messageStatus),
+      hasReaction = COALESCE(?, hasReaction),
+      expiresOn = COALESCE(?, expiresOn),
+      mediaId = COALESCE(?, mediaId),
+      mtime = COALESCE(?, mtime)
     WHERE chatId = ? AND messageId = ? ;
     `,
-    [MessageStatus.sent, chatId, messageId],
+    [
+      updateParams.contentType,
+      JSON.stringify(updateParams.data),
+      updateParams.replyId,
+      updateParams.timestamp,
+      updateParams.messageStatus,
+      updateParams.hasReaction,
+      updateParams.expiresOn,
+      updateParams.mediaId,
+      generateISOTimeStamp(),
+      chatId,
+      messageId,
+    ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, res) => {},
   );
 }
+
+/**
+ * Retrieves all the messageIds associated with a given chatId.
+ * @param chatId string: The ID of the chat to retrieve messages for.
+ * @returns {<string[]>} array of message ids
+ */
+export async function getAllMessagesIdsInChat(
+  chatId: string,
+): Promise<string[]> {
+  let messages: string[] = [];
+  await runSimpleQuery(
+    `
+    SELECT messageId FROM groupMessages
+    WHERE chatId = ?
+    `,
+    [chatId],
+    (tx, results) => {
+      for (let i = 0; i < results.rows.length; i++) {
+        let entry = results.rows.item(i).messageId;
+        messages.push(entry);
+      }
+    },
+  );
+  return messages;
+}
+
 /**
  * Get ALL unsent messages
  * @returns all messages that haven't been sent
  */
-export async function getUnsent(): Promise<SavedMessageParams[]> {
-  let unsent: SavedMessageParams[] = [];
+export async function getUnsent(): Promise<GroupMessageData[]> {
+  let unsent: GroupMessageData[] = [];
   await runSimpleQuery(
     `
     SELECT * FROM groupMessages 
@@ -245,29 +401,12 @@ export async function getUnsent(): Promise<SavedMessageParams[]> {
         entry = results.rows.item(i);
         entry.data = JSON.parse(entry.data);
         entry.sender = toBool(entry.sender);
+        entry.hasReaction = toBool(entry.hasReaction);
         unsent.push(entry);
       }
     },
   );
   return unsent;
-}
-
-export async function toggleReactionState(
-  hasReaction: boolean,
-  chatId: string,
-  messageId: string,
-) {
-  await runSimpleQuery(
-    `
-    UPDATE groupMessages
-    SET
-    hasReaction = COALESCE(?, hasReaction)
-    WHERE chatId = ? AND messageId = ? ;
-    `,
-    [hasReaction, chatId, messageId],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, res) => {},
-  );
 }
 
 /**
@@ -277,8 +416,8 @@ export async function toggleReactionState(
  */
 export async function getExpiredMessages(
   currentTimestamp: string,
-): Promise<SavedMessageParams[]> {
-  let expired: SavedMessageParams[] = [];
+): Promise<GroupMessageData[]> {
+  let expired: GroupMessageData[] = [];
   await runSimpleQuery(
     `
     SELECT * FROM groupMessages 
@@ -292,6 +431,7 @@ export async function getExpiredMessages(
         entry = results.rows.item(i);
         entry.data = JSON.parse(entry.data);
         entry.sender = toBool(entry.sender);
+        entry.hasReaction = toBool(entry.hasReaction);
         expired.push(entry);
       }
     },
@@ -316,6 +456,21 @@ export async function permanentlyDeleteMessage(
     WHERE chatId = ? AND messageId = ? ;
     `,
     [chatId, messageId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
+}
+
+/**
+ * delete ALL unsent messages
+ */
+export async function deleteUnsent() {
+  await runSimpleQuery(
+    `
+    DELETE FROM groupMessages 
+    WHERE messageStatus = ? ;
+    `,
+    [MessageStatus.journaled],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );

@@ -1,9 +1,12 @@
+import Group from '@utils/Groups/Group';
 import GroupReceiveAction from '../GroupReceiveAction';
-import {updateConnection} from '@utils/Storage/connections';
 
 class RemoveSelf extends GroupReceiveAction {
   async performAction(): Promise<void> {
-    await updateConnection({chatId: this.chatId, disconnected: true});
+    const group = new Group(this.chatId);
+    console.log('updating group as disconnected', this.chatId);
+    await group.updateData({disconnected: true});
+    console.log('updated group as disconnected');
   }
 }
 

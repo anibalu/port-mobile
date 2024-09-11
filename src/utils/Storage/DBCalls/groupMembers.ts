@@ -1,18 +1,51 @@
-import {GroupMemberStrict, GroupMemberUpdate} from '@utils/Groups/interfaces';
-import {runSimpleQuery} from './dbCommon';
+import {runSimpleQuery, toBool} from './dbCommon';
+
+export interface GroupMemberUpdate {
+  joinedAt?: string;
+  cryptoId?: string;
+  isAdmin?: boolean;
+  deleted?: boolean;
+}
+
+export interface GroupMember extends GroupMemberUpdate {
+  memberId: string;
+  pairHash: string;
+  joinedAt: string;
+  cryptoId: string;
+  isAdmin: boolean;
+  deleted: boolean;
+}
+
+export interface GroupMemberLoadedData extends GroupMember {
+  name?: string | null;
+  displayPic?: string | null;
+}
 
 /**
  * Add a member to a group
- * @param groupId a 32 char identifier for a group
- * @param memberId a 32 character identifier for a member of a group
+ * @param member details of group member
  */
-export async function newMember(groupId: string, memberId: string) {
+export async function newMember(groupId: string, member: GroupMember) {
   await runSimpleQuery(
     `
-    INSERT INTO groupMembers
-    (groupId, memberId, deleted) VALUES (?, ?, FALSE)
+    INSERT INTO groupMembers (
+      groupId, 
+      memberId, 
+      pairHash,
+      joinedAt,
+      cryptoId,
+      isAdmin,
+      deleted 
+    ) VALUES (?,?,?,?,?,?,FALSE)
     `,
-    [groupId, memberId],
+    [
+      groupId,
+      member.memberId,
+      member.pairHash,
+      member.joinedAt,
+      member.cryptoId,
+      member.isAdmin,
+    ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
@@ -25,19 +58,61 @@ export async function newMember(groupId: string, memberId: string) {
  */
 export async function getMembers(
   groupId: string,
-): Promise<Array<GroupMemberStrict>> {
-  const matches: Array<GroupMemberStrict> = [];
+): Promise<Array<GroupMemberLoadedData>> {
+  const matches: Array<GroupMemberLoadedData> = [];
   await runSimpleQuery(
     `
-    SELECT name, memberId, joinedAt, cryptoId, isAdmin
+    SELECT 
+      member.memberId as memberId, 
+      member.pairHash as pairHash, 
+      member.joinedAt as joinedAt, 
+      member.cryptoId as cryptoId, 
+      member.isAdmin as isAdmin, 
+      member.deleted as deleted,
+      contacts.name as name,
+      contacts.displayPic as displayPic
+    FROM 
+      (SELECT * FROM groupMembers WHERE groupId = ? AND deleted = FALSE) member
+    LEFT JOIN
+      contacts
+      ON member.pairHash = contacts.pairHash
+    ;`,
+    [groupId],
+
+    (tx, results) => {
+      let row;
+      for (let i = 0; i < results.rows.length; i++) {
+        row = results.rows.item(i);
+        row.deleted = toBool(row.deleted);
+        row.isAdmin = toBool(row.isAdmin);
+        matches.push(row);
+      }
+    },
+  );
+  return matches;
+}
+
+/**
+ * Fetches all memberId for a group
+ * @param groupId
+ * @returns
+ */
+export async function getAllMemberIds(groupId: string): Promise<Array<string>> {
+  const matches: Array<string> = [];
+  await runSimpleQuery(
+    `
+    SELECT memberId
     FROM groupMembers
-    WHERE groupId = ? AND deleted = FALSE ;
+    WHERE groupId = ?;
     `,
     [groupId],
 
     (tx, results) => {
-      for (let i = 0; i < results.rows.length; i++) {
-        matches.push(results.rows.item(i));
+      if (results.rows.length > 0) {
+        for (let i = 0; i < results.rows.length; i++) {
+          const memberId = results.rows.item(i).memberId;
+          matches.push(memberId);
+        }
       }
     },
   );
@@ -83,19 +158,33 @@ export async function getMemberCryptoPairs(
 export async function getMember(
   groupId: string,
   memberId: string,
-): Promise<GroupMemberStrict | null> {
-  let match: GroupMemberStrict | null = null;
+): Promise<GroupMemberLoadedData | null> {
+  let match: GroupMemberLoadedData | null = null;
   await runSimpleQuery(
     `
-    SELECT name, memberId, joinedAt, cryptoId, isAdmin
-    FROM groupMembers
-    WHERE groupId = ? and memberId = ? ;
-    `,
+    SELECT 
+      member.memberId as memberId, 
+      member.pairHash as pairHash, 
+      member.joinedAt as joinedAt, 
+      member.cryptoId as cryptoId, 
+      member.isAdmin as isAdmin, 
+      member.deleted as deleted,
+      contacts.name as name,
+      contacts.displayPic as displayPic
+    FROM 
+      (SELECT * FROM groupMembers WHERE groupId = ? AND memberId = ?) member
+    LEFT JOIN
+      contacts
+      ON member.pairHash = contacts.pairHash
+    ;`,
     [groupId, memberId],
 
     (tx, results) => {
       if (results.rows.length > 0) {
-        match = results.rows.item(0);
+        const row = results.rows.item(0);
+        row.deleted = toBool(row.deleted);
+        row.isAdmin = toBool(row.isAdmin);
+        match = row;
       }
     },
   );
@@ -117,17 +206,17 @@ export async function updateMember(
     `
     UPDATE groupMembers
     SET
-    name = COALESCE(?, name),
     joinedAt = COALESCE(?, joinedAt),
     cryptoId = COALESCE(?, cryptoId),
-    isAdmin = COALESCE(?, isAdmin)
+    isAdmin = COALESCE(?, isAdmin),
+    deleted = COALESCE(?, deleted)
     WHERE groupId = ? AND memberId = ? ;
     `,
     [
-      update.name,
       update.joinedAt,
       update.cryptoId,
       update.isAdmin,
+      update.deleted,
       groupId,
       memberId,
     ],
@@ -156,4 +245,57 @@ export async function removeMember(groupId: string, memberId: string) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
   );
+}
+
+/**
+ * Completely delete a group member entry.
+ * @param groupId
+ * @param memberId
+ */
+export async function deleteMember(groupId: string, memberId: string) {
+  await runSimpleQuery(
+    `
+    DELETE FROM groupMembers
+    WHERE groupId = ? AND memberId = ? ;
+    `,
+    [groupId, memberId],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => {},
+  );
+}
+
+export interface GroupMemberEntry extends GroupMember {
+  groupId: string;
+}
+
+/**
+ * Get al group member entries straight from the database
+ * @returns Unprocessed, unaugmented group member entries
+ */
+export async function getAllGroupMembers(): Promise<GroupMemberEntry[]> {
+  const members: Array<GroupMemberEntry> = [];
+  await runSimpleQuery(
+    `
+    SELECT 
+      groupId,
+      memberId, 
+      pairHash, 
+      joinedAt, 
+      cryptoId, 
+      isAdmin, 
+      deleted
+    FROM groupMembers
+    ;`,
+    [],
+    (tx, results) => {
+      let row;
+      for (let i = 0; i < results.rows.length; i++) {
+        row = results.rows.item(i);
+        row.deleted = toBool(row.deleted);
+        row.isAdmin = toBool(row.isAdmin);
+        members.push(row);
+      }
+    },
+  );
+  return members;
 }

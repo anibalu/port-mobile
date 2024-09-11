@@ -52,6 +52,11 @@ export enum ContentType {
   contactPortTicket = 26,
   contactPortRequest = 27,
   contactPortPermissionRequest = 28,
+  groupPicture = 29,
+  groupAvatar = 30,
+  groupName = 31,
+  groupDescription = 32,
+  groupInitialMemberInfo = 33,
 }
 
 /**
@@ -94,6 +99,7 @@ export const LargeDataMessageContentTypes = [
   ContentType.file,
   ContentType.displayImage,
   ContentType.audioRecording,
+  ContentType.groupPicture,
 ];
 export const DisappearMessageExemptContentTypes = [
   ContentType.newChat,
@@ -167,6 +173,21 @@ export const connectionUpdateExemptTypes = [
   ContentType.contactPortRequest,
 ];
 
+export const connectionUpdateTypes = [
+  ContentType.text,
+  ContentType.link,
+  ContentType.image,
+  ContentType.video,
+  ContentType.audioRecording,
+  ContentType.file,
+  ContentType.newChat,
+  ContentType.contactBundle,
+  ContentType.deleted,
+  ContentType.disappearingMessages,
+  ContentType.info,
+  ContentType.reaction,
+];
+
 /**
  * Data interfaces corresponding to various content types.
  */
@@ -195,7 +216,12 @@ export type DataType =
   | ContactPortBundleParams
   | ContactPortTicketParams
   | ContactPortRequestParams
-  | ContactPortPermissionRequestParams;
+  | ContactPortPermissionRequestParams
+  | GroupAvatarParams
+  | GroupPictureParams
+  | GroupNameParams
+  | GroupDescriptionParams
+  | GroupInitialMemberInfoParams;
 
 export interface LinkParams extends TextParams {
   title?: string | null;
@@ -296,9 +322,27 @@ export interface ReactionParams {
   tombstone?: boolean;
 }
 
+export interface GroupPictureParams {
+  groupPictureKey: string;
+}
+export interface GroupAvatarParams {
+  fileUri: string;
+}
+export interface GroupNameParams {
+  groupName: string;
+}
+export interface GroupDescriptionParams {
+  groupDescription: string;
+}
+
 export interface InitialInfoRequestParams {}
 export interface ContactPortRequestParams {}
 export interface ContactPortPermissionRequestParams {}
+
+export interface GroupInitialMemberInfoParams {
+  senderName: string;
+  members: {memberId: string; name?: string | null}[];
+}
 
 export type MessageDataTypeBasedOnContentType<T extends ContentType> =
   T extends ContentType.newChat
@@ -353,6 +397,16 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? ContactPortRequestParams
     : T extends ContentType.contactPortPermissionRequest
     ? ContactPortPermissionRequestParams
+    : T extends ContentType.groupPicture
+    ? GroupPictureParams
+    : T extends ContentType.groupAvatar
+    ? GroupAvatarParams
+    : T extends ContentType.groupName
+    ? GroupNameParams
+    : T extends ContentType.groupDescription
+    ? GroupDescriptionParams
+    : T extends ContentType.groupInitialMemberInfo
+    ? GroupInitialMemberInfoParams
     : never;
 
 /**
@@ -378,7 +432,7 @@ export interface SavedMessageParams {
   mtime?: string;
 }
 
-export enum LineReactionSender {
+export enum ReactionSender {
   self = 'SELF',
   peer = 'PEER',
 }

@@ -1,14 +1,7 @@
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {
-  StyleSheet,
-  View,
-  ScrollView,
-  Pressable,
-  NativeSyntheticEvent,
-  ScrollViewProps,
-} from 'react-native';
+import {StyleSheet, View, Pressable, KeyboardAvoidingView} from 'react-native';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {PortSpacing, screen} from '@components/ComponentUtils';
@@ -36,12 +29,13 @@ import Notes from '@components/Notes';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 import {updateContact} from '@utils/Storage/contacts';
+import {CommonGroups} from '@components/CommonGroups';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
 const ContactProfile = ({route, navigation}: Props) => {
   const {contactInfo, chatId, chatData} = route.params;
-  const [showUserInfoInTopbar, setShowUserInfoInTopbar] = useState(false);
+  const showUserInfoInTopbar = false;
   const userAvatarViewRef = useRef<View>(null);
   const [displayName, setDisplayName] = useState<string>(
     contactInfo.name || DEFAULT_NAME,
@@ -105,18 +99,6 @@ const ContactProfile = ({route, navigation}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displayName]);
 
-  const handleScroll = (event: NativeSyntheticEvent<ScrollViewProps>) => {
-    const {contentOffset} = event.nativeEvent;
-    if (contentOffset) {
-      const {y} = contentOffset;
-      if (y >= 120) {
-        setShowUserInfoInTopbar(true);
-      } else {
-        setShowUserInfoInTopbar(false);
-      }
-    }
-  };
-
   const blockUser = async () => {
     try {
       await storage.blockUser({
@@ -167,13 +149,7 @@ const ContactProfile = ({route, navigation}: Props) => {
           onIconRightPress={onShareContactPressed}
         />
         <View style={styles.mainContainer}>
-          <ScrollView
-            contentContainerStyle={{height: connected ? 'auto' : '100%'}}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            horizontal={false}
-            showsHorizontalScrollIndicator={false}
-            showsVerticalScrollIndicator={false}>
+          <KeyboardAvoidingView style={{height: connected ? 'auto' : '100%'}}>
             <View style={styles.avatarContainer} ref={userAvatarViewRef}>
               <AvatarBox
                 isHomeContact={false}
@@ -213,7 +189,7 @@ const ContactProfile = ({route, navigation}: Props) => {
               )}
             </View>
             <Notes pairHash={pairHash} note={contactInfo.notes || ''} />
-
+            <CommonGroups pairHash={pairHash} />
             {chatId && connected ? (
               <View
                 style={{
@@ -293,7 +269,7 @@ const ContactProfile = ({route, navigation}: Props) => {
             ) : (
               <></>
             )}
-          </ScrollView>
+          </KeyboardAvoidingView>
         </View>
         <EditName
           visible={editingName}

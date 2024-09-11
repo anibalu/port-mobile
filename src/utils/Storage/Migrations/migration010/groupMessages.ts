@@ -17,12 +17,15 @@ export default async function groupMessages() {
       contentType INT,
       data VARCHAR(2048),
       replyId CHAR(32) REFERENCES messages(messageId),
+      mediaId CHAR(32) REFERENCES media(mediaId),
       sender BOOL,
       memberId CHAR(32),
       timestamp VARCHAR(27),
       messageStatus INT,
       expiresOn VARCHAR(27),
       hasReaction BOOL,
+      mtime VARCHAR(27),
+      singleRecepient CHAR(32),
       FOREIGN KEY (chatID) REFERENCES connections(chatId),
       UNIQUE(chatID, messageId)
     );

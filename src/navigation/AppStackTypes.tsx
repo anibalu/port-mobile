@@ -6,6 +6,8 @@ import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {LineDataCombined} from '@utils/DirectChats/DirectChat';
 import {ContactEntry} from '@utils/Storage/DBCalls/contacts';
+import {GroupData} from '@utils/Storage/DBCalls/group';
+import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
 
 export type AppStackParamList = {
   HomeTab: undefined;
@@ -36,13 +38,25 @@ export type AppStackParamList = {
     chatId: string;
     isConnected: boolean;
     profileUri: string | undefined | null;
-    name?: string;
+    name?: string | null;
     isAuthenticated: boolean;
+    ifTemplateExists?: TemplateParams;
+  };
+  GroupChat: {
+    chatId: string;
+    isConnected: boolean;
+    profileUri: string | undefined | null;
+    name?: string;
     ifTemplateExists?: TemplateParams;
   };
   ChatProfile: {
     chatId: string;
     chatData: LineDataCombined;
+  };
+  GroupProfile: {
+    chatId: string;
+    chatData: GroupData;
+    members: GroupMemberLoadedData[];
   };
   ContactProfile: {
     contactInfo: ContactEntry;
@@ -59,6 +73,12 @@ export type AppStackParamList = {
     chatId: string;
   };
   ShareContact: {chatId: string};
+  AddNewContacts: {chatId: string};
+  AllMembers: {
+    chatId: string;
+    members: GroupMemberLoadedData[];
+    chatData: GroupData;
+  };
   AddCategoryScreen: undefined;
   ReportIssueScreen: {
     category: string;
@@ -75,7 +95,6 @@ export type AppStackParamList = {
     shareMessages: any[];
     isChat?: boolean;
     fromShare?: boolean;
-    isGroupChat?: boolean;
     fromCapture?: boolean;
     onRemove?: (item: any) => void;
   };
@@ -90,7 +109,7 @@ export type AppStackParamList = {
     profilePicAttr: FileAttributes;
   };
   CreateNewGroup: undefined;
-  NewGroupPort: {groupId: string};
+  NewGroupPort: {chatId: string; chatData: GroupData};
   GiveUsFeedbackScreen: undefined;
   MediaViewer: {message: SavedMessageParams};
   BlockedContacts: undefined;

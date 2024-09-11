@@ -1,20 +1,23 @@
-import {
-  LargeDataMessageContentTypes,
-  LargeDataParams,
-  SavedMessageParams,
-} from '@utils/Messaging/interfaces';
 import * as groupDBCalls from './DBCalls/groupMessage';
 import {UpdateParams} from './messages';
-import {deleteFile} from './StorageRNFS/sharedFileHandlers';
 import {deleteMedia} from './media';
 import {generateISOTimeStamp} from '@utils/Time';
+import {
+  ContentType,
+  DataType,
+  LargeDataMessageContentTypes,
+  MessageStatus,
+} from '@utils/Messaging/interfaces';
+import {ConnectionInfo} from './DBCalls/connections';
+import {getConnection, updateConnection} from './connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 
 /**
  * saves group message to storage.
- * @param {SavedMessageParams} message - message to save
+ * @param {groupDBCalls.GroupMessageData} message - message to save
  */
 export async function saveGroupMessage(
-  message: SavedMessageParams,
+  message: groupDBCalls.GroupMessageData,
 ): Promise<void> {
   await groupDBCalls.addMessage(message);
   return;
@@ -24,98 +27,79 @@ export async function saveGroupMessage(
  *
  * @param {string} chatId
  * @param {string} messageId
- * @returns {Promise<{SavedMessageParams|null}>} - message for the given chat and messsageId, if it exists
+ * @returns {Promise<{groupDBCalls.GroupMessageData|null}>} - message for the given chat and messsageId, if it exists
  */
 export async function getGroupMessage(
   chatId: string,
   messageId: string,
-): Promise<null | SavedMessageParams> {
+): Promise<null | groupDBCalls.GroupMessageData> {
   return await groupDBCalls.getMessage(chatId, messageId);
 }
-export async function updateGroupReaction(
+
+/**
+ * Get fully loaded message
+ * @param chatId
+ * @param messageId
+ * @returns - message with additional attributes joined to it.
+ */
+export async function getLoadedGroupMessage(
   chatId: string,
   messageId: string,
-  hasReaction: boolean = false,
-) {
-  return await groupDBCalls.toggleReactionState(hasReaction, chatId, messageId);
+): Promise<groupDBCalls.LoadedGroupMessage | null> {
+  return await groupDBCalls.getLoadedMessage(chatId, messageId);
 }
 
 /**
- * Update the data of an existing message in storage
+ * Update just the data field of an existing message in storage
  * @param chatId the chatId of a message in storage
  * @param messageId the messageId of a message in storage
- * @param update the new data value
+ * @param data the new data value
  */
-export async function updateGroupMessage(
+export async function updateGroupMessageData(
   chatId: string,
   messageId: string, //with sender prefix
-  update: any,
+  data: DataType, //{...data,deleted:true}
 ): Promise<void> {
-  await groupDBCalls.updateMessage(chatId, messageId, update);
+  await groupDBCalls.updateSavedMessage(chatId, messageId, {data: data});
 }
 
 /**
- * reads messages of a chat from storage using pagination
- * @param {string} chatId - chatId of chat
- * @param {number} startIndex - index to get the next 'X' messages from.
- * @returns {Promise<{DBCalls.MessageEntry[],number}>} - messages in storage
+ * Params used by a few update functions in this file.
+ * TODO - We need to move away from this eventually.
  */
-export async function readPaginatedGroupMessages(
-  chatId: string,
-  cursor?: number,
-): Promise<{
-  messages: SavedMessageParams[];
-  cursor: number;
-  maxLength: number;
-}> {
-  return await groupDBCalls.getPaginatedMessages(chatId, cursor);
+export interface UpdateGroupParams {
+  messageIdToBeUpdated: string;
+  updatedMessageStatus?: MessageStatus | null;
+  updatedContentType?: ContentType;
 }
 
 /**
  * Set the status of a message in storage
  * @param chatId the chatId of the message to update
- * @param messageId the messageId of message to update
- * @param updatedStatus the value to update to
- * @param blocking deprecated, unused value
+ * @param updateParams the params to update
  * @returns
  */
-export async function updateGroupMessageSendStatus(
+export async function updateGroupMessageStatus(
   chatId: string,
   updateParams: UpdateParams,
 ): Promise<void> {
-  if (
-    updateParams.updatedMessageStatus ||
-    updateParams.updatedMessageStatus === 0
-  ) {
-    if (updateParams.updatedMessageStatus === MessageStatus.sent) {
-      await groupDBCalls.setSent(chatId, updateParams.messageIdToBeUpdated);
-    } else {
-      await groupDBCalls.updateStatus(
-        chatId,
-        updateParams.messageIdToBeUpdated,
-        updateParams.updatedMessageStatus,
-      );
-    }
-    return;
-  }
-  console.log('attempted update without an actual status');
-  return;
+  await groupDBCalls.updateSavedMessage(
+    chatId,
+    updateParams.messageIdToBeUpdated,
+    {
+      messageStatus: updateParams.updatedMessageStatus,
+      contentType: updateParams.updatedContentType,
+    },
+  );
 }
 
 /**
- * @param chatId , chat to be loaded
- * @param latestTimestamp , lower bound of messages that need to be fetched
- * @returns {SavedMessageParams[]} list of messages
- * has been directly imported without abstraction
+ * Get a list of journaled group messages
+ * @returns list of journaled group messages
  */
-export async function getLatestGroupMessages(
-  chatId: string,
-  latestTimestamp: string,
-): Promise<SavedMessageParams[]> {
-  return await groupDBCalls.getLatestMessages(chatId, latestTimestamp);
-}
-
-export async function getGroupJournaled(): Promise<SavedMessageParams[]> {
+export async function getGroupJournaled(): Promise<
+  groupDBCalls.GroupMessageData[]
+> {
   return await groupDBCalls.getUnsent();
 }
 
@@ -126,7 +110,7 @@ export async function getGroupJournaled(): Promise<SavedMessageParams[]> {
  */
 export async function getExpiredGroupMessages(
   currentTimestamp: string,
-): Promise<SavedMessageParams[]> {
+): Promise<groupDBCalls.GroupMessageData[]> {
   return await groupDBCalls.getExpiredMessages(currentTimestamp);
 }
 
@@ -143,24 +127,96 @@ export async function permanentlyDeleteGroupMessage(
 ) {
   await groupDBCalls.permanentlyDeleteMessage(chatId, messageId);
 }
+
+/**
+ * Cleanly delete a message while taking media and reactions into consideration
+ * @param chatId
+ * @param messageId
+ * @param tombstone If true, data is emptied and content type is set to deleted.
+ * If false, message is permanently deleted.
+ * @todo - move out unnecessary logic from this helper.
+ */
 export async function cleanDeleteGroupMessage(
   chatId: string,
   messageId: string,
+  tombstone: boolean = false,
 ) {
-  const message = await groupDBCalls.getMessage(chatId, messageId);
+  const message = await getGroupMessage(chatId, messageId);
+  let connection: ConnectionInfo;
+  try {
+    connection = await getConnection(chatId);
+  } catch (e) {
+    console.error('The chat associated with this message no longer exists', e);
+    groupDBCalls.permanentlyDeleteMessage(chatId, messageId);
+  }
+  if (!connection!) {
+    // Something very wrong is happening here
+    return;
+  }
+  //checks if passed in messageId belongs to the latest message
+  const isLatestMessage: boolean = messageId === connection.latestMessageId;
   if (message) {
     const contentType = message.contentType;
     if (LargeDataMessageContentTypes.includes(contentType)) {
-      const data = message.data as LargeDataParams;
-      const fileUri = data.fileUri;
-      if (fileUri) {
-        await deleteFile(fileUri);
-        if (data.mediaId) {
-          await deleteMedia(data.mediaId);
-        }
+      const mediaId = message.mediaId;
+      await deleteMedia(mediaId);
+    }
+    //if message contains reaction, set the chat tile with latest message contents
+    if (message.hasReaction) {
+      const latestMessage = await getGroupMessage(
+        chatId,
+        connection.latestMessageId || '',
+      );
+      if (latestMessage) {
+        const updatedText = getConnectionTextByContentType(
+          latestMessage.contentType,
+          latestMessage.data,
+        );
+        // Update updatedText based on the latest message
+        await updateConnection({
+          chatId: chatId,
+          text: updatedText,
+          readStatus: latestMessage.messageStatus,
+          recentMessageType: latestMessage.contentType,
+          timestamp: latestMessage.timestamp,
+        });
       }
     }
-    await permanentlyDeleteGroupMessage(chatId, messageId);
+    if (tombstone) {
+      groupDBCalls.updateSavedMessage(chatId, messageId, {
+        contentType: ContentType.deleted,
+        data: {},
+      });
+    } else {
+      await permanentlyDeleteGroupMessage(chatId, messageId);
+      if (isLatestMessage) {
+        //shows the second latest message on chattile, if present,  of the person who deleted the msg
+        await updateConnection({
+          chatId: chatId,
+          text: '',
+        });
+      }
+    }
+  }
+}
+
+/**
+ * Retrieves all messages associated with a given chat ID.
+ * @param chatId string: The ID of the chat to retrieve messages for.
+ * @returns {string[]} A promise that resolves to an array of the message Ids.
+ */
+async function getAllGroupMessages(chatId: string): Promise<string[]> {
+  return await groupDBCalls.getAllMessagesIdsInChat(chatId);
+}
+
+/**
+ * Cleanly deletes all the messages in a Chat
+ * @param chatId string: The ID of the chat to retrieve messages for.
+ */
+export async function deleteAllMessagesInChat(chatId: string) {
+  const messageIds: string[] = await getAllGroupMessages(chatId);
+  for (const messageId of messageIds) {
+    await cleanDeleteGroupMessage(chatId, messageId, false);
   }
 }
 
@@ -173,4 +229,26 @@ export async function deleteExpiredGroupMessages() {
       expiredMessages[index].messageId,
     );
   }
+}
+
+/**
+ * Get the latest messages in a chat
+ * @param chatId
+ * @param limit The maximum number of latest messages to return
+ * @returns Up to the <limit> latest messages in <chatId>
+ */
+export async function getLatestGroupMessages(
+  chatId: string,
+  limit: number = 50,
+): Promise<groupDBCalls.LoadedGroupMessage[]> {
+  return await groupDBCalls.getLatestMessages(chatId, limit);
+}
+
+/**
+ * Set that a message contains reactions.
+ * @param chatId
+ * @param messageId
+ */
+export async function setHasGroupReactions(chatId: string, messageId: string) {
+  await groupDBCalls.updateSavedMessage(chatId, messageId, {hasReaction: true});
 }

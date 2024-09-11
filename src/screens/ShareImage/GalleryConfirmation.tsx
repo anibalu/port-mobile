@@ -24,14 +24,13 @@ import {
   compressImage,
   compressVideo,
 } from '@utils/Compressor/graphicCompressors';
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {
   getRelativeURI,
   moveToTmp,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -48,12 +47,13 @@ import {useErrorModal} from 'src/context/ErrorModalContext';
 import useKeyboardVisibility from '../../utils/Hooks/useKeyboardVisibility';
 import Group from '@utils/Groups/Group';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {GroupMemberStrict} from '@utils/Groups/interfaces';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {createPreview} from '@utils/ImageUtils';
 import DynamicColors from '@components/DynamicColors';
+import {DEFAULT_NAME} from '@configs/constants';
+import {isGroupChat} from '@utils/Storage/connections';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -63,7 +63,6 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     shareMessages,
     isChat = false,
     fromShare = false,
-    isGroupChat,
     fromCapture = false,
     onRemove = undefined,
   } = route.params;
@@ -77,8 +76,6 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const isKeyboardVisible = useKeyboardVisibility();
   const [userNameInDM, setUserNameInDM] = useState('');
-  const [groupMembers, setGroupMembers] = useState<GroupMemberStrict[]>([]);
-
   const {compressionError, FileTooLarge} = useErrorModal();
 
   const Colors = DynamicColors();
@@ -134,11 +131,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     setLoading(false);
   };
 
-  const renderItemTile = ({
-    item,
-  }: {
-    item: ConnectionInfo | GroupMemberStrict;
-  }) => {
+  const renderItemTile = ({item}: {item: any}) => {
     return (
       <NumberlessText
         fontSizeType={FontSizeType.s}
@@ -153,7 +146,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         }}
         textColor={Colors.primary.white}
         fontType={FontType.sb}>
-        {item.name}
+        {item.name || DEFAULT_NAME}
       </NumberlessText>
     );
   };
@@ -345,29 +338,22 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
     }
   };
 
-  const groupHandler = useMemo(() => {
-    return new Group(selectedMembers[0].chatId);
-  }, [selectedMembers]);
-
-  useEffect(() => {
-    (async () => {
-      const membersInGroup = await groupHandler.getMembers();
-      setGroupMembers(membersInGroup);
-    })();
-  }, [groupHandler]);
-
-  const dataHandler = useMemo(() => {
-    return isChat && new DirectChat(selectedMembers[0].chatId);
-  }, [isChat, selectedMembers]);
-
   useEffect(() => {
     if (selectedMembers.length <= 1 && isChat) {
       (async () => {
-        const chatData = await (dataHandler as DirectChat).getChatData();
-        setUserNameInDM(chatData.name);
+        const isGroup = await isGroupChat(selectedMembers[0].chatId);
+        const dataHandler = isGroup
+          ? new Group(selectedMembers[0].chatId)
+          : new DirectChat(selectedMembers[0].chatId);
+        const chatData = isGroup
+          ? await (dataHandler as Group).getData()
+          : await (dataHandler as DirectChat).getChatData();
+        if (chatData) {
+          setUserNameInDM(chatData.name || DEFAULT_NAME);
+        }
       })();
     }
-  }, [dataHandler, isChat, selectedMembers]);
+  }, [isChat, selectedMembers]);
 
   return (
     <>
@@ -444,21 +430,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
             <View style={styles.bottombarUserPills}>
               <View style={styles.bottomUserPillsBg} />
               <View style={styles.selectedUserContainer}>
-                {isGroupChat && groupMembers.length >= 1 ? (
-                  <FlatList
-                    data={groupMembers}
-                    horizontal={true}
-                    contentContainerStyle={{
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      columnGap: 8,
-                    }}
-                    showsHorizontalScrollIndicator={false}
-                    scrollEnabled={true}
-                    keyExtractor={item => item.memberId}
-                    renderItem={renderItemTile}
-                  />
-                ) : selectedMembers.length >= 1 && !isChat ? (
+                {selectedMembers.length >= 1 && !isChat ? (
                   <FlatList
                     data={selectedMembers}
                     horizontal={true}

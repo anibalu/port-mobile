@@ -15,7 +15,10 @@ import {VideoReplyBubble} from './ReplyBubbles/VideoReplyBubble';
 import FileReplyBubble from './ReplyBubbles/FileReplyBubble';
 import ContactReplyBubble from './ReplyBubbles/ContactReplyBubble';
 import AudioReplyBubble from './ReplyBubbles/AudioReplyBubble';
-import {LoadedMessage, ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
+import {
+  LineMessageData,
+  ReplyContent,
+} from '@utils/Storage/DBCalls/lineMessage';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 
 export const ReplyBubble = ({reply}: {reply: ReplyContent}): ReactNode => {
@@ -37,7 +40,7 @@ export const ReplyBubble = ({reply}: {reply: ReplyContent}): ReactNode => {
 export const ReplyBubbleMessageBar = ({
   replyTo,
 }: {
-  replyTo: LoadedMessage;
+  replyTo: LineMessageData;
 }): ReactNode => {
   const {name} = useChatContext();
   return (

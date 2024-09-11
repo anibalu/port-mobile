@@ -19,11 +19,10 @@ import {
   hasExpired,
 } from '@utils/Time';
 import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
-import {getProfileName} from '@utils/Profile';
 import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import {getGroupData} from '@utils/Storage/group';
+import {readerInitialInfoSend} from '@utils/Groups/InitialInfoExchange';
 
 /**
  * Fetches and stores unused ports for a particular group
@@ -95,8 +94,7 @@ export async function generateNewGroupPortBundle(
   folderId: string,
 ): Promise<GroupBundle> {
   //get required params
-  const group = new Group(groupId);
-  const groupData = await group.getData();
+  const groupData = await getGroupData(groupId);
   if (!groupData) {
     throw new Error('NoSuchGroup');
   }
@@ -165,6 +163,10 @@ export async function acceptGroupPortBundle(
 export async function newGroupChatOverReadPortBundle(
   readPortBundle: ReadPortData,
 ) {
+  console.log('[Attempting to join group using read port]: ', readPortBundle);
+  if (!readPortBundle.cryptoId) {
+    throw new Error('NoCryptoId');
+  }
   const cryptoId: string = readPortBundle.cryptoId;
   const chat = new Group();
   const cryptoDriver = new CryptoDriver(cryptoId);
@@ -190,24 +192,17 @@ export async function newGroupChatOverReadPortBundle(
         joinedAt: readPortBundle.usedOnTimestamp,
         permissionsId: permissionsId,
         selfCryptoId: cryptoId,
+        disconnected: false,
+        initialMemberInfoReceived: false,
       },
       readPortBundle.folderId,
     );
     await storageReadPorts.deleteReadPortData(readPortBundle.portId);
-    try {
-      const myName = await getProfileName();
-      const sender = new SendMessage(
-        chat.getGroupIdNotNull(),
-        ContentType.name,
-        {
-          name: myName,
-        },
-      );
-      await sender.send();
-    } catch (error) {
-      console.log('Error sending name to group:', error);
-    }
+    console.log('[Sending initial set of messages]');
+    const chatId = chat.getChatId();
+    await readerInitialInfoSend(chatId);
   } catch (error: any) {
+    console.log('error joining group: ', error);
     if (typeof error === 'object' && error.response) {
       if (error.response.status === 404) {
         console.log('Port has expired');

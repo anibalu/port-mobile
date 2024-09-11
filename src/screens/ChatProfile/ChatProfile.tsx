@@ -21,7 +21,7 @@ import {
 } from '@components/NumberlessText';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import SharedMediaCard from './SharedMediaCard';
+import SharedMediaCard from '../../components/SharedMediaCard';
 import {useFocusEffect} from '@react-navigation/native';
 import {getImagesAndVideos} from '@utils/Storage/media';
 import {MediaEntry} from '@utils/Storage/DBCalls/media';

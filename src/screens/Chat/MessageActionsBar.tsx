@@ -1,10 +1,6 @@
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-
 import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
-
-import {getMessage} from '@utils/Storage/messages';
-import {getGroupMessage} from '@utils/Storage/groupMessages';
 import {
   FontSizeType,
   FontType,
@@ -13,6 +9,7 @@ import {
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {getMessage} from '@utils/Storage/messages';
 
 /**
  * Renders action bar based on messages that are selected
@@ -27,16 +24,14 @@ export function MessageActionsBar(): ReactNode {
     onForward,
     onCopy,
     chatId,
-    isGroupChat,
     isConnected,
     selectedMessages,
   } = useChatContext();
   const performReply = async (): Promise<void> => {
-    setReplyToMessage(
-      isGroupChat
-        ? await getGroupMessage(chatId, selectedMessages[0])
-        : await getMessage(chatId, selectedMessages[0]),
-    );
+    const reply = await getMessage(chatId, selectedMessages[0]);
+    if (reply) {
+      setReplyToMessage(reply);
+    }
     clearSelection();
   };
 

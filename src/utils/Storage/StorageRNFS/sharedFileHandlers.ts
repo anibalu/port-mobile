@@ -461,9 +461,12 @@ export const isAvatarUri = (uri: string) => {
  * @param uri
  * @returns
  */
-export const isMediaUri = (uri: string) => {
-  const isMedia = uri.substring(0, 8) === 'media://';
-  return isMedia;
+export const isMediaUri = (uri?: string | null) => {
+  if (uri) {
+    const isMedia = uri.substring(0, 8) === 'media://';
+    return isMedia;
+  }
+  return false;
 };
 
 /**

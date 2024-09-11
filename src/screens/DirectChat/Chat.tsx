@@ -101,6 +101,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     setPermissionsId,
     isScreenClickable,
     moveSliderIntermediateOpen,
+    setIsConnected,
   } = useChatContext();
 
   const [pointerEvents, setPointerEvents] = useState<
@@ -139,6 +140,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         setProfileUri(
           chatData.displayPic ? chatData.displayPic : DEFAULT_AVATAR,
         );
+        setIsConnected(!chatData.disconnected);
         setIsAuthenticated(chatData.authenticated);
         //set saved messages
         const resp = await getLatestMessages(chatId, cursor);
@@ -170,11 +172,16 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         );
         return;
       }
-      const dataHandler = new DirectChat(chatId);
-      const chatData = await dataHandler.getChatData();
-      setIsAuthenticated(chatData.authenticated);
-      const resp = await getLatestMessages(chatId, cursor);
-      setMessages(resp);
+      try {
+        const dataHandler = new DirectChat(chatId);
+        const chatData = await dataHandler.getChatData();
+        setIsConnected(!chatData.disconnected);
+        setIsAuthenticated(chatData.authenticated);
+        const resp = await getLatestMessages(chatId, cursor);
+        setMessages(resp);
+      } catch (error) {
+        console.error('Error fetching chat data: ', error);
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ping, newMessageTrigger, cursor]);

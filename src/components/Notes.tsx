@@ -9,15 +9,24 @@ import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
 import Tick from '@assets/icons/notes/Tick.svg';
 import Greentick from '@assets/icons/notes/Greentick.svg';
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {updateContact} from '@utils/Storage/contacts';
 
-const Notes = ({note, pairHash}: {note: string; pairHash: string}) => {
+const Notes = ({
+  note,
+  pairHash,
+  getNote,
+}: {
+  note: string;
+  pairHash: string;
+  getNote: () => void;
+}) => {
   const Colors = DynamicColors();
   const [changesSaved, setChangesSaved] = useState(false);
   const [newNote, setNewNote] = useState(note);
+  const timeoutId = useRef(null);
 
   const onChangeText = (text: string) => {
     setNewNote(text);
@@ -33,11 +42,22 @@ const Notes = ({note, pairHash}: {note: string; pairHash: string}) => {
   ];
   const results = useDynamicSVG(svgArray);
   const Cross = results.Cross;
+
   useMemo(() => {
     if (note) {
       setNewNote(note);
     }
   }, [note]);
+
+  useEffect(() => {
+    // clear timeout on unmount
+    return () => {
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeoutId.current]);
 
   return (
     <SimpleCard style={styles.main}>
@@ -67,6 +87,14 @@ const Notes = ({note, pairHash}: {note: string; pairHash: string}) => {
                   onPress={async () => {
                     await updateContact(pairHash, {notes: newNote});
                     setChangesSaved(true);
+                    if (timeoutId.current) {
+                      clearTimeout(timeoutId.current);
+                    }
+
+                    timeoutId.current = setTimeout(async () => {
+                      await getNote();
+                      setChangesSaved(false);
+                    }, 2000);
                   }}
                 />
                 <Cross

@@ -318,7 +318,8 @@ const ChatProfile = ({route, navigation}: Props) => {
                     </Pressable>
                   </SimpleCard>
                 </View>
-                <Notes pairHash={pairHash} note={note} />
+
+                <Notes getNote={getNote} pairHash={pairHash} note={note} />
                 <View style={styles.sharedMediaContainer}>
                   <SharedMediaCard media={media} chatId={chatId} />
                 </View>

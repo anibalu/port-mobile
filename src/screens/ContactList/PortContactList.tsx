@@ -1,4 +1,4 @@
-import React, {ReactElement, useMemo, useState} from 'react';
+import React, {ReactElement, useEffect, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -28,7 +28,7 @@ import {getContacts} from '@utils/Storage/contacts';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
 import DirectChat, {LineDataCombined} from '@utils/DirectChats/DirectChat';
 import {ContactEntry} from '@utils/Storage/DBCalls/contacts';
-import {useFocusEffect} from '@react-navigation/native';
+import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'PortContactList'>;
 
@@ -56,16 +56,28 @@ const PortContactList = ({navigation}: Props) => {
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
   const AngleRight = results.AngleRight;
-  useFocusEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         const contacts = await getContacts();
         // Sorting contacts alphabetically
-        contacts.sort((a, b) => a.name.localeCompare(b.name));
-
+        contacts.sort((a, b) => {
+          if (!a.name && !b.name) {
+            return 0;
+          }
+          if (!a.name) {
+            return 1;
+          } // Or -1 if you prefer nulls at the start
+          if (!b.name) {
+            return -1;
+          }
+          return a.name.localeCompare(b.name);
+        });
         // Grouping contacts by the first letter
         const groupedContacts = contacts.reduce((groups: any, contact) => {
-          const firstLetter = contact.name[0].toUpperCase();
+          const firstLetter = contact.name
+            ? contact.name[0].toUpperCase()
+            : 'Unknown';
           if (!groups[firstLetter]) {
             groups[firstLetter] = [];
           }
@@ -80,7 +92,7 @@ const PortContactList = ({navigation}: Props) => {
       }
       setIsLoading(false);
     })();
-  });
+  }, []);
 
   useMemo(() => {
     if (contactList) {
@@ -92,9 +104,15 @@ const PortContactList = ({navigation}: Props) => {
           (result: any, key: string) => {
             const matchingContacts = (
               contactList[key] as ContactEntry[]
-            ).filter(contact =>
-              contact.name.toLowerCase().includes(searchText.toLowerCase()),
-            );
+            ).filter(contact => {
+              if (contact.name) {
+                return contact.name
+                  .toLowerCase()
+                  .includes(searchText.toLowerCase());
+              } else {
+                return false;
+              }
+            });
             if (matchingContacts.length > 0) {
               result[key] = matchingContacts;
             }
@@ -155,7 +173,7 @@ const PortContactList = ({navigation}: Props) => {
             textColor={Colors.text.primary}
             fontType={FontType.rg}
             fontSizeType={FontSizeType.m}>
-            {item.name}
+            {item.name || DEFAULT_GROUP_MEMBER_NAME}
           </NumberlessText>
         </View>
       </Pressable>

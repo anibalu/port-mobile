@@ -14,6 +14,7 @@ import ViewPhotosVideos from './ViewPhotosVideos';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 import DynamicColors from '@components/DynamicColors';
+import {PortSpacing} from '@components/ComponentUtils';
 type Props = NativeStackScreenProps<AppStackParamList, 'SharedMedia'>;
 
 export type TabStackParamList = {
@@ -80,7 +81,7 @@ function NumberlessTopTabBar({
                       backgroundColor: Colors.primary.accent,
                     }
                   : {
-                      backgroundColor: Colors.primary.background,
+                      backgroundColor: Colors.primary.surface2,
                     },
               )}>
               <NumberlessText
@@ -159,7 +160,7 @@ const styling = (colors: any) =>
     tabbarContainerStyle: {
       flexDirection: 'row',
       paddingHorizontal: 20,
-      paddingBottom: 13,
+      paddingVertical: PortSpacing.tertiary.uniform,
       alignItems: 'center',
       backgroundColor: colors.primary.surface,
     },

@@ -35,8 +35,8 @@ export default function FileTile({
         <FileIcon color={Colors.primary.background} width="24" height="24" />
         <NumberlessText
           fontSizeType={FontSizeType.xs}
-          fontType={FontType.md}
-          textColor={Colors.text.primary}>
+          fontType={FontType.sb}
+          textColor={Colors.primary.white}>
           {getMediaType(mediaItem.name)}
         </NumberlessText>
       </View>

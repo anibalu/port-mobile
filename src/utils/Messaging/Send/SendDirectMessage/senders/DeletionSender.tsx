@@ -149,10 +149,20 @@ export class SendDeleteDirectMessage<
   }
 
   /**
-   * Retry sending a journalled message using only API calls
+   * Deleted messages should never get journaled.
+   * If for some reason an older version has journaled deleted messages, this cleans it up.
    */
   async retry(): Promise<boolean> {
-    throw new Error('NotJournallable');
+    try {
+      throw new Error('NotJournallable');
+    } catch (error) {
+      console.log(
+        'Retry failed. Deleting message to avoid future retries: ',
+        error,
+      );
+      await storage.permanentlyDeleteMessage(this.chatId, this.messageId);
+      return false;
+    }
   }
 
   private async onFailure() {

@@ -11,37 +11,55 @@ async function sendJournaled() {
     //get current journal
 
     const journaledGroupMessages = await getGroupJournaled();
+    console.log('journaled group messages: ', journaledGroupMessages);
     for (let index = 0; index < journaledGroupMessages.length; index++) {
-      const {contentType, data, replyId, messageId, chatId, singleRecepient} =
-        journaledGroupMessages[index];
+      try {
+        const {contentType, data, replyId, messageId, chatId, singleRecepient} =
+          journaledGroupMessages[index];
 
-      const sender = new SendMessage(
-        chatId,
-        contentType,
-        data,
-        replyId,
-        messageId,
-        singleRecepient,
-      );
-      await sender.retry();
+        const sender = new SendMessage(
+          chatId,
+          contentType,
+          data,
+          replyId,
+          messageId,
+          singleRecepient,
+        );
+        await sender.retry();
+      } catch (error) {
+        console.log(
+          'Error in emptying journaled group message: ',
+          error,
+          journaledGroupMessages[index],
+        );
+      }
     }
 
     const journaledMessages = await getJournaled();
+    console.log('journaled messages: ', journaledMessages);
     for (let index = 0; index < journaledMessages.length; index++) {
-      const {contentType, data, replyId, messageId, chatId} =
-        journaledMessages[index];
+      try {
+        const {contentType, data, replyId, messageId, chatId} =
+          journaledMessages[index];
 
-      const sender = new SendMessage(
-        chatId,
-        contentType,
-        data,
-        replyId,
-        messageId,
-      );
-      await sender.retry();
+        const sender = new SendMessage(
+          chatId,
+          contentType,
+          data,
+          replyId,
+          messageId,
+        );
+        await sender.retry();
+      } catch (error) {
+        console.log(
+          'Error in emptying journaled message: ',
+          error,
+          journaledMessages[index],
+        );
+      }
     }
   } catch (error) {
-    console.log('Error in emptying journal: ', error);
+    console.log('Error fetching journal: ', error);
   }
 }
 

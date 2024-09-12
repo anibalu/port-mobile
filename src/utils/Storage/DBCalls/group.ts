@@ -270,7 +270,7 @@ export async function getGroupsWithContact(
     FROM
       groups JOIN groupMembers
       ON groups.groupId = groupMembers.groupId
-    WHERE groupMembers.pairHash = ?
+    WHERE groupMembers.pairHash = ? AND deleted = FALSE
     ;
     `,
     [pairHash],

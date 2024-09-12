@@ -3,6 +3,7 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
 import SearchBar from '@components/SearchBar';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import LinkSuperport from '@assets/light/icons/folders/LinkSuperport.svg';
 import React, {
   ReactElement,
   useCallback,
@@ -35,8 +36,13 @@ import {useTheme} from 'src/context/ThemeContext';
 import {FolderChatsTopBar} from './FolderChatsTopBar';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
+import {TRIGGER_TYPES} from '@store/triggerRedraw';
 import FolderOptionWithChevron from '@screens/DefaultFolderScreen/FolderOptionWithChevron';
-import LinkSuperport from '@assets/light/icons/folders/LinkSuperport.svg';
+import {countOfConnections} from '@utils/Storage/connections';
+import {getFolder} from '@utils/Storage/folders';
 
 type Props = NativeStackScreenProps<FolderNavStackParamList, 'FolderChats'>;
 
@@ -45,6 +51,7 @@ const FolderChats = ({route}: Props) => {
   const colors = DynamicColors();
   const styles = styling(colors);
   const ping: any = useSelector(state => state.ping.ping);
+  const folderChangedTrigger = useListenForTrigger(TRIGGER_TYPES.FOLDER_UPDATE);
 
   const {
     setTotalFolderUnreadCount,
@@ -86,12 +93,15 @@ const FolderChats = ({route}: Props) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ping, selectedFolderData]);
-  useFocusEffect(
-    useCallback(() => {
-      setSelectedFolderData(folder as FolderInfo);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
-  );
+
+  useEffect(() => {
+    (async () => {
+      const newFolder = await getFolder(folder.folderId);
+      setSelectedFolderData(newFolder ? newFolder : (folder as FolderInfo));
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folderChangedTrigger]);
+
   //filter by search string
   const getFilteredConnectionsBySearch = (chats: ChatTileProps[]) => {
     const filteredSearch = chats.filter(connection =>
@@ -155,7 +165,38 @@ const FolderChats = ({route}: Props) => {
   }, [isLoading, opacityAnimation]);
 
   const {themeValue} = useTheme();
+  const svgArray = [
+    {
+      assetName: 'MoveChats',
+      light: require('@assets/light/icons/Movechats.svg').default,
+      dark: require('@assets/dark/icons/Movechats.svg').default,
+    },
+  ];
+
+  const results = useDynamicSVG(svgArray);
+  const Movechats = results.MoveChats;
   const navigation = useNavigation();
+  const [connectionsCount, setConnectionsCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        setConnectionsCount(await countOfConnections());
+      })();
+    }, []),
+  );
+  const onClickAddChats = () => {
+    if (connectionsCount === 0) {
+      setSelectedFolderData(folder);
+      navigation.navigate('FolderStack', {
+        screen: 'NoConnectionsScreen',
+      });
+    } else {
+      navigation.navigate('MoveToFolder', {
+        selectedFolder: folder,
+      });
+    }
+  };
 
   return (
     <>
@@ -163,7 +204,7 @@ const FolderChats = ({route}: Props) => {
       <GestureSafeAreaView
         removeOffset={true}
         style={{
-          backgroundColor: colors.primary.surface,
+          backgroundColor: colors.primary.background,
         }}>
         <FolderChatsTopBar />
         <KeyboardAvoidingView
@@ -265,16 +306,49 @@ const FolderChats = ({route}: Props) => {
                 ) : (
                   <View
                     style={{
-                      height: 100,
+                      flex: 1,
                       justifyContent: 'center',
-                      alignItems: 'center',
+                      marginHorizontal: PortSpacing.secondary.uniform,
                     }}>
-                    <NumberlessText
-                      textColor={colors.text.subtitle}
-                      fontSizeType={FontSizeType.l}
-                      fontType={FontType.rg}>
-                      No chats in this folder
-                    </NumberlessText>
+                    <SimpleCard
+                      style={{
+                        paddingVertical: PortSpacing.secondary.uniform,
+                      }}>
+                      <NumberlessText
+                        style={{
+                          paddingHorizontal: PortSpacing.secondary.uniform,
+                        }}
+                        textColor={colors.text.primary}
+                        fontSizeType={FontSizeType.xl}
+                        fontType={FontType.sb}>
+                        Looks like you haven’t added any chats yet
+                      </NumberlessText>
+                      <NumberlessText
+                        style={{
+                          paddingHorizontal: PortSpacing.secondary.uniform,
+                        }}
+                        textColor={colors.text.primary}
+                        fontSizeType={FontSizeType.l}
+                        fontType={FontType.rg}>
+                        Choose an option below to add chats to this folder
+                      </NumberlessText>
+                      <FolderOptionWithChevron
+                        text={`Move chats to ${folder.name}`}
+                        subtitle="Tap here to move chats to this folder"
+                        onPress={onClickAddChats}
+                        Icon={Movechats}
+                      />
+                      <FolderOptionWithChevron
+                        subtitle="Tap here to view linked Supeports"
+                        text={'Tap here to link superports with this folder'}
+                        Icon={LinkSuperport}
+                        onPress={() => {
+                          navigation.navigate('Superports', {
+                            selectedFolderFilter: {...folder},
+                          });
+                        }}
+                      />
+                    </SimpleCard>
                   </View>
                 )}
               </>

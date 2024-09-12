@@ -166,6 +166,23 @@ export async function loadConnections(): Promise<ConnectionInfo[]> {
 }
 
 /**
+ * Gets a count of all connections
+ * @returns count of all connections
+ */
+export async function countOfConnections(): Promise<number> {
+  let count = 0;
+  await runSimpleQuery(
+    `SELECT COUNT(*) as count
+      FROM connections
+      ;`,
+    [],
+    (tx, results) => {
+      count = results.rows.item(0).count;
+    },
+  );
+  return count;
+}
+/**
  * Get a connection with all attached attributes if it exists
  * @param chatId The id of the chat to get
  * @returns If found, the connection queried

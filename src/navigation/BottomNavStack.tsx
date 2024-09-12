@@ -30,6 +30,7 @@ import {
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ChatActionsBar} from '@screens/Home/ChatActionsBar';
 import FolderChats from '@screens/Folders/FolderChats';
+import NoConnectionsScreen from '@screens/NoConnectionsScreen/NoConnectionsScreen';
 
 const Tab = createBottomTabNavigator<BottomNavStackParamList>();
 
@@ -217,6 +218,10 @@ function FolderStackScreens() {
       initialRouteName={'Folders'}>
       <FolderStack.Screen name="Folders" component={Folders} />
       <FolderStack.Screen name="FolderChats" component={FolderChats} />
+      <FolderStack.Screen
+        name="NoConnectionsScreen"
+        component={NoConnectionsScreen}
+      />
     </FolderStack.Navigator>
   );
 }

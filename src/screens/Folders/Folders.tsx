@@ -1,4 +1,4 @@
-import React, {useMemo, useState, useRef, useCallback} from 'react';
+import React, {useMemo, useState, useRef, useCallback, useEffect} from 'react';
 import {
   Animated,
   Easing,
@@ -22,22 +22,27 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import BackTopbarWithButton from '@components/Reusable/TopBars/BackTopBarWithButton';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {useTheme} from 'src/context/ThemeContext';
-import {useSelector} from 'react-redux';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import {BOTTOMBAR_HEIGHT} from '@configs/constants';
+import {useSelector} from 'react-redux';
+import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
+import {TRIGGER_TYPES} from '@store/triggerRedraw';
 
 const Folders = () => {
-  const ping: any = useSelector(state => state.ping.ping);
   const {folders, setFolders, setSelectedFolderData} = useBottomNavContext();
   const [viewableFolders, setViewableFolders] = useState<
     FolderInfoWithUnread[]
   >([]);
+
+  const folderChangedTrigger = useListenForTrigger(TRIGGER_TYPES.FOLDER_UPDATE);
+
   const [toggleOn, setToggleOn] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const ping: any = useSelector(state => state.ping.ping);
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -77,21 +82,20 @@ const Folders = () => {
 
   const {themeValue} = useTheme();
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchFolders = async () => {
-        try {
-          const folders = await getAllFoldersWithUnreadCount();
-          setFolders(folders);
-          setViewableFolders(folders);
-        } catch (error) {
-          console.error('Error fetching folders:', error);
-        }
-      };
-      fetchFolders();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ping]),
-  );
+  useEffect(() => {
+    const fetchFolders = async () => {
+      try {
+        const folders = await getAllFoldersWithUnreadCount();
+        setFolders(folders);
+        setViewableFolders(folders);
+      } catch (error) {
+        console.error('Error fetching folders:', error);
+      }
+    };
+    fetchFolders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ping, folderChangedTrigger]);
+
   useMemo(() => {
     const filteredData = folders.filter(item => {
       return item.name.toLowerCase().includes(searchText.toLowerCase());

@@ -8,12 +8,16 @@ import {
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import {defaultFolderId} from '@configs/constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {getProfilePhotosOfChatsInFolder} from '@utils/Storage/connections';
+import {
+  countOfConnections,
+  getProfilePhotosOfChatsInFolder,
+} from '@utils/Storage/connections';
 import React, {useCallback, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {PhotoComponent} from './PhotoComponent';
 import {folderIdToHex} from '@utils/Folders/folderIdToHex';
 import {FolderInfoWithUnread} from '@utils/Storage/folders';
+import {useBottomNavContext} from 'src/context/BottomNavContext';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 //Converts the new message count to a display string, with '999+' for counts over 999.
@@ -60,10 +64,13 @@ const CardTile = ({
     (string | null | undefined)[]
   >([]);
   const navigation = useNavigation();
+  const [connectionsCount, setConnectionsCount] = useState(0);
+  const {setSelectedFolderData} = useBottomNavContext();
 
   useFocusEffect(
     useCallback(() => {
       (async () => {
+        setConnectionsCount(await countOfConnections());
         setChatProfilePhotos(
           await getProfilePhotosOfChatsInFolder(folder.folderId),
         );
@@ -90,6 +97,19 @@ const CardTile = ({
   const Superport = results.Superport;
 
   const folderColor = folderIdToHex(folder.folderId, Colors.boldAccentColors);
+
+  const onClickAddChats = () => {
+    if (connectionsCount === 0) {
+      setSelectedFolderData(folder);
+      navigation.navigate('FolderStack', {
+        screen: 'NoConnectionsScreen',
+      });
+    } else {
+      navigation.navigate('MoveToFolder', {
+        selectedFolder: folder,
+      });
+    }
+  };
   return (
     <Pressable
       onPress={() => {
@@ -175,13 +195,7 @@ const CardTile = ({
             )}>
             {toggleOn && <ShowUnreadCount unread={folder.unread} />}
             {folder.connectionsCount === 0 ? (
-              <Pressable
-                onPress={() =>
-                  navigation.navigate('MoveToFolder', {
-                    selectedFolder: folder,
-                  })
-                }
-                style={styles.button}>
+              <Pressable onPress={onClickAddChats} style={styles.button}>
                 <NumberlessText
                   textColor={Colors.primary.white}
                   fontType={FontType.md}

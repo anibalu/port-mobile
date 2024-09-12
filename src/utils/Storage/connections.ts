@@ -20,6 +20,14 @@ export async function getConnections(
 }
 
 /**
+ * Gets a count of all connections
+ * @returns count of all connections
+ */
+export async function countOfConnections(): Promise<number> {
+  return DBCalls.countOfConnections();
+}
+
+/**
  * Get connections by chat folder
  * @param folderId
  * @returns - connections that belong to a folder

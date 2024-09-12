@@ -14,6 +14,7 @@ import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import SearchBar from '@components/SearchBar';
+import {redrawOnFolderUpdate} from '@utils/TriggerTools/RedrawTrigger/redrawOnTrigger';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MoveToFolder'>;
 
@@ -105,6 +106,7 @@ const MoveToFolder = ({route, navigation}: Props) => {
                   selectedFolder.folderId,
                 );
                 setIsLoading(false);
+                redrawOnFolderUpdate();
                 navigation.navigate('HomeTab', {
                   selectedFolder: selectedFolder,
                 });

@@ -25,6 +25,7 @@ import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import EditableInputCardWithoutBorder from '@components/Reusable/Cards/EditableInputCardWithoutBorder';
+import {redrawOnFolderUpdate} from '@utils/TriggerTools/RedrawTrigger/redrawOnTrigger';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'EditFolder'>;
 
@@ -54,6 +55,7 @@ const EditFolder = ({route, navigation}: Props) => {
 
   useMemo(() => {
     onSaveFolderName();
+    redrawOnFolderUpdate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderName]);
 

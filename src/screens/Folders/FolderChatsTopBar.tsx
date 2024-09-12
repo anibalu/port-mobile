@@ -16,7 +16,11 @@ import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
 
-export function FolderChatsTopBar(): ReactNode {
+export function FolderChatsTopBar({
+  showEdit = true,
+}: {
+  showEdit: boolean;
+}): ReactNode {
   const navigation = useNavigation<any>();
   const {
     setIsChatActionBarVisible,
@@ -99,7 +103,7 @@ export function FolderChatsTopBar(): ReactNode {
             onPress={() => {
               setFolderConnections(null);
               setTotalFolderUnreadCount(0);
-              navigation.goBack();
+              navigation.navigate('Folders');
             }}
             style={{paddingRight: 8}}>
             <DynamicBackIcon width={24} height={24} />
@@ -111,29 +115,35 @@ export function FolderChatsTopBar(): ReactNode {
               ellipsizeMode="tail"
               fontType={FontType.sb}
               fontSizeType={FontSizeType.xl}>
-              {title}
+              {showEdit ? `${title}` : `Move chats to ${title}`}
             </NumberlessText>
           </View>
-          <View style={{paddingLeft: 4}}>
-            {selectedFolderData && (
-              <Pressable
-                style={styles.iconWrapper}
-                onPress={() => {
-                  navigation.navigate('EditFolder', {
-                    selectedFolder: selectedFolderData,
-                  });
-                }}>
-                <SettingsIcon style={{marginRight: 4}} width={20} height={20} />
-                <NumberlessText
-                  numberOfLines={1}
-                  textColor={Colors.text.primary}
-                  fontType={FontType.md}
-                  fontSizeType={FontSizeType.m}>
-                  Edit Settings
-                </NumberlessText>
-              </Pressable>
-            )}
-          </View>
+          {showEdit && (
+            <View style={{paddingLeft: 4}}>
+              {selectedFolderData && (
+                <Pressable
+                  style={styles.iconWrapper}
+                  onPress={() => {
+                    navigation.navigate('EditFolder', {
+                      selectedFolder: selectedFolderData,
+                    });
+                  }}>
+                  <SettingsIcon
+                    style={{marginRight: 4}}
+                    width={20}
+                    height={20}
+                  />
+                  <NumberlessText
+                    numberOfLines={1}
+                    textColor={Colors.text.primary}
+                    fontType={FontType.md}
+                    fontSizeType={FontSizeType.m}>
+                    Edit Settings
+                  </NumberlessText>
+                </Pressable>
+              )}
+            </View>
+          )}
         </View>
       )}
     </>

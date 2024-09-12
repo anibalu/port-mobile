@@ -30,6 +30,7 @@ import RenderText from './RenderText';
 import RenderTimestamp from './RenderTimestamp';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {Swipeable} from 'react-native-gesture-handler';
+import {useTheme} from 'src/context/ThemeContext';
 
 export interface ChatTileProps extends ConnectionInfo {
   expired?: boolean;
@@ -89,7 +90,8 @@ function ChatTile({
   };
 
   const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const {themeValue} = useTheme();
+  const styles = styling(Colors, themeValue);
 
   const options = {
     enableVibrateFallback: true /* iOS Only */,
@@ -433,14 +435,17 @@ function ChatTile({
   }
 }
 
-const styling = (colors: any) =>
+const styling = (colors: any, themeValue: any) =>
   StyleSheet.create({
     container: {
       flexDirection: 'row',
       width: screen.width,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: colors.primary.surface,
+      backgroundColor:
+        themeValue === 'dark'
+          ? colors.primary.background
+          : colors.primary.surface,
     },
     checkboxContainer: {
       height: '100%',

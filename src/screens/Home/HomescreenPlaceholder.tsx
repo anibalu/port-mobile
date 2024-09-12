@@ -259,7 +259,7 @@ const styling = (colors: any) =>
       gap: PortSpacing.secondary.uniform,
       padding: PortSpacing.secondary.uniform,
       borderRadius: PortSpacing.medium.uniform,
-      borderWidth: 1,
+      borderWidth: 0.5,
       borderColor: colors.primary.stroke,
       flexGrow: 1,
       flexBasis: 0,
@@ -269,7 +269,7 @@ const styling = (colors: any) =>
       alignItems: 'flex-start',
       padding: PortSpacing.secondary.uniform,
       borderRadius: PortSpacing.medium.uniform,
-      borderWidth: 1,
+      borderWidth: 0.5,
       borderColor: colors.primary.stroke,
     },
     headingWrapper: {

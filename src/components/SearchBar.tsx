@@ -4,6 +4,7 @@ import React, {memo, useState} from 'react';
 import {Pressable, StyleSheet, TextInput, View} from 'react-native';
 import DynamicColors from './DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {PortSpacing} from './ComponentUtils';
 
 const SearchBar = ({
   searchText,
@@ -51,7 +52,7 @@ const SearchBar = ({
       )}
       <TextInput
         style={{
-          marginLeft: 4,
+          marginLeft: PortSpacing.tertiary.left,
           flex: 1,
           fontSize: 15,
           color: Colors.text.primary,

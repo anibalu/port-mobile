@@ -16,6 +16,7 @@ import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import ContactBook from '@assets/icons/ContactBook.svg';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
+import {useTheme} from 'src/context/ThemeContext';
 
 function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
   const title = useMemo(() => {
@@ -40,7 +41,8 @@ function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
     setIsChatActionBarVisible(false);
   };
   const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const {themeValue} = useTheme();
+  const styles = styling(Colors, themeValue);
 
   const svgArray = [
     {
@@ -121,7 +123,7 @@ function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
   );
 }
 
-const styling = (colors: any) =>
+const styling = (colors: any, themeValue: any) =>
   StyleSheet.create({
     bar: {
       height: TOPBAR_HEIGHT,
@@ -129,7 +131,10 @@ const styling = (colors: any) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: colors.primary.surface,
+      backgroundColor:
+        themeValue === 'dark'
+          ? colors.primary.background
+          : colors.primary.surface,
       borderBottomColor: colors.primary.stroke,
       borderBottomWidth: 0.5,
     },
@@ -139,7 +144,10 @@ const styling = (colors: any) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: colors.primary.surface,
+      backgroundColor:
+        themeValue === 'dark'
+          ? colors.primary.background
+          : colors.primary.surface,
       borderBottomColor: colors.primary.stroke,
       borderBottomWidth: 0.5,
     },
@@ -187,7 +195,7 @@ const styling = (colors: any) =>
       borderRadius: PortSpacing.tertiary.uniform,
       flexDirection: 'row',
       gap: 6,
-      backgroundColor: colors.primary.blue,
+      backgroundColor: colors.primary.tealBlue,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -197,7 +205,10 @@ const styling = (colors: any) =>
       width: screen.width / 2,
     },
     crossBox: {
-      backgroundColor: colors.primary.surface,
+      backgroundColor:
+        themeValue === 'dark'
+          ? colors.primary.background
+          : colors.primary.surface,
       alignItems: 'flex-end',
       height: 40,
       top: 7,

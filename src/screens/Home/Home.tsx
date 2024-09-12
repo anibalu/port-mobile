@@ -113,7 +113,8 @@ const Home = ({navigation}: Props) => {
     }, []),
   );
   const colors = DynamicColors();
-  const styles = styling(colors);
+  const {themeValue} = useTheme();
+  const styles = styling(colors, themeValue);
   const ping: any = useSelector(state => state.ping.ping);
 
   const {
@@ -195,8 +196,6 @@ const Home = ({navigation}: Props) => {
     }
   }
 
-  const {themeValue} = useTheme();
-
   const opacityAnimation = useMemo(() => new Animated.Value(1), []);
   useEffect(() => {
     const breathingAnimation = Animated.loop(
@@ -228,11 +227,20 @@ const Home = ({navigation}: Props) => {
 
   return (
     <>
-      <CustomStatusBar backgroundColor={colors.primary.surface} />
+      <CustomStatusBar
+        backgroundColor={
+          themeValue === 'dark'
+            ? colors.primary.background
+            : colors.primary.surface
+        }
+      />
       <GestureSafeAreaView
         removeOffset={true}
         style={{
-          backgroundColor: colors.primary.surface,
+          backgroundColor:
+            themeValue === 'dark'
+              ? colors.primary.background
+              : colors.primary.surface,
         }}>
         <HomeTopbar unread={totalUnreadCount} />
         <KeyboardAvoidingView
@@ -335,11 +343,14 @@ const Home = ({navigation}: Props) => {
   );
 };
 
-const styling = (colors: any) =>
+const styling = (colors: any, themeValue) =>
   StyleSheet.create({
     chats: {
       flex: 1,
-      backgroundColor: colors.primary.surface,
+      backgroundColor:
+        themeValue === 'dark'
+          ? colors.primary.background
+          : colors.primary.surface,
     },
     isolationButton: {
       alignSelf: 'flex-end',
@@ -350,7 +361,10 @@ const styling = (colors: any) =>
       width: 56,
     },
     barWrapper: {
-      backgroundColor: colors.primary.surface,
+      backgroundColor:
+        themeValue === 'dark'
+          ? colors.primary.background
+          : colors.primary.surface,
       paddingHorizontal: PortSpacing.secondary.uniform,
       paddingVertical: PortSpacing.tertiary.uniform,
       flexDirection: 'row',

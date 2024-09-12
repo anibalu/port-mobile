@@ -27,8 +27,8 @@ import {getAllFolders} from '@utils/Storage/folders';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {folderIdToHex} from '@utils/Folders/folderIdToHex';
 import {SvgXml} from 'react-native-svg';
-import PurpleCheckCircle from '@assets/icons/PurpleCheckCircle.svg';
-import CheckBox from '../MultiSelectMembers/CheckBox';
+// import PurpleCheckCircle from '@assets/icons/PurpleCheckCircle.svg';
+// import CheckBox from '../MultiSelectMembers/CheckBox';
 
 const MultiSelectMembersCard = ({
   members,
@@ -48,6 +48,7 @@ const MultiSelectMembersCard = ({
   const [foldersArray, setFoldersArray] = useState<FolderInfo[]>([]);
   const [filteredMembers, setFilteredMembers] =
     useState<ConnectionInfo[]>(members);
+  console.log('selectAll', selectAll);
 
   const Colors = DynamicColors();
 
@@ -65,15 +66,40 @@ const MultiSelectMembersCard = ({
     setSelectAll(false);
   };
 
-  const onSelectAll = () => {
-    setSelectAll(p => !p);
-    setSelectedMembers(selectAll ? [] : filteredMembers);
-  };
+  // commenting out select all logic untill we put optimised approach
+
+  // const onSelectAll = () => {
+  //   setSelectAll(p => !p);
+  //   setSelectedMembers(selectAll ? [] : filteredMembers);
+  // };
+  // useMemo(() => {
+  //   // Check if all members are selected
+  //   const areAllMembersSelected =
+  //     selectedMembers.length === filteredMembers.length;
+
+  //   // Compare selected and filtered members
+  //   const areMembersIdentical =
+  //     JSON.stringify(selectedMembers) === JSON.stringify(filteredMembers);
+
+  //   // Check if any selected member is in the filtered list
+  //   const areSomeMembersSelected = filteredMembers.some(member =>
+  //     selectedMembers.includes(member),
+  //   );
+
+  //   // Determine the value for selectAll
+  //   const shouldSelectAll = areAllMembersSelected
+  //     ? areMembersIdentical
+  //     : areSomeMembersSelected;
+
+  //   // Update the selectAll state
+  //   setSelectAll(shouldSelectAll);
+
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [filteredMembers, selectedMembers]);
 
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        setSelectAll(selectedMembers.length === filteredMembers.length);
         try {
           const fetchedFolders = await getAllFolders();
           setFoldersArray(fetchedFolders);
@@ -82,7 +108,7 @@ const MultiSelectMembersCard = ({
         }
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filteredMembers, selectedMembers]),
+    }, []),
   );
 
   useEffect(() => {
@@ -91,14 +117,13 @@ const MultiSelectMembersCard = ({
         const folderFilteredMembers = members.filter(
           member => member.folderId === selectedFolder.folderId,
         );
-        setFilteredMembers(
-          folderFilteredMembers.length > 0 ? folderFilteredMembers : [],
-        );
+        setFilteredMembers(folderFilteredMembers);
       } else {
         setFilteredMembers(members); // Set back to all members if no folder is selected
       }
     })();
-  }, [selectedFolder, selectedMembers, members]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFolder]);
 
   const svgArray = [
     {
@@ -168,7 +193,9 @@ const MultiSelectMembersCard = ({
               : 'Filter by folder'}
           </NumberlessText>
         </Pressable>
-        {filteredMembers.length > 0 && (
+
+        {/* commenting out below select all logic untill we put optimised approach */}
+        {/* {filteredMembers.length > 0 && (
           <Pressable
             onPress={onSelectAll}
             style={{
@@ -194,7 +221,7 @@ const MultiSelectMembersCard = ({
               <PurpleCheckCircle height={22} width={22} />
             )}
           </Pressable>
-        )}
+        )} */}
       </View>
       <SimpleCard
         style={{

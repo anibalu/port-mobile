@@ -43,6 +43,14 @@ const AlternateSecondaryButton = ({
       style={styles.button}
       activeOpacity={0.6}
       onPress={() => onClick()}>
+      {!isLoading && Icon && (
+        <Icon
+          height={iconSize === 's' ? 20 : 24}
+          width={iconSize === 's' ? 20 : 24}
+        />
+      )}
+      {isLoading && <SmallLoader size={iconSize === 's' ? 20 : 24} />}
+
       <NumberlessText
         fontSizeType={FontSizeType.m}
         fontType={FontType.rg}
@@ -52,13 +60,6 @@ const AlternateSecondaryButton = ({
         }}>
         {buttonText}
       </NumberlessText>
-      {!isLoading && Icon && (
-        <Icon
-          height={iconSize === 's' ? 20 : 24}
-          width={iconSize === 's' ? 20 : 24}
-        />
-      )}
-      {isLoading && <SmallLoader size={iconSize === 's' ? 20 : 24} />}
     </TouchableOpacity>
   );
 };
@@ -72,7 +73,7 @@ const styling = (_color: any) =>
       borderRadius: 12,
       backgroundColor: 'transparent',
       gap: PortSpacing.medium.right,
-      paddingBottom: PortSpacing.secondary.uniform,
+      paddingVertical: 12,
     },
   });
 

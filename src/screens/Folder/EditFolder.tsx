@@ -87,7 +87,7 @@ const EditFolder = ({route, navigation}: Props) => {
           IconRight={CrossButton}
           heading={
             selectedFolder.folderId === defaultFolderId
-              ? 'Primary folder settings'
+              ? 'Default folder settings'
               : 'Edit folder settings'
           }
         />

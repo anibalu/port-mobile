@@ -34,7 +34,6 @@ const AddTemplateBottomsheet = ({
   const styles = styling(Colors);
   const [title, setTitle] = useState(templatetitle || '');
   const [desc, setDesc] = useState(templatetext || '');
-
   const onSave = async () => {
     if (scope === 'add') {
       await addTemplate({

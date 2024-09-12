@@ -96,15 +96,13 @@ const UserInfoTopbar = ({
               onIconRightPress();
             }}>
             <IconRight width={20} height={20} />
-            <View style={{flex: 1}}>
-              <NumberlessText
-                numberOfLines={1}
-                fontType={FontType.rg}
-                textColor={Colors.primary.white}
-                fontSizeType={FontSizeType.s}>
-                Share Contact
-              </NumberlessText>
-            </View>
+            <NumberlessText
+              numberOfLines={1}
+              fontType={FontType.rg}
+              textColor={Colors.primary.white}
+              fontSizeType={FontSizeType.s}>
+              Share Contact
+            </NumberlessText>
           </Pressable>
         </View>
       ) : (

@@ -60,6 +60,7 @@ const DynamicColors = () => {
       subtitle: '#65626F',
       primary: '#04000F',
       memberName: '#6A35FF',
+      placeholder: '#7E7B84',
     },
     messagebubble: {
       receiver: '#E2D8FF',
@@ -123,6 +124,7 @@ const DynamicColors = () => {
       subtitle: '#CFCCD9',
       primary: '#EAECF0',
       memberName: '#FFFFFF',
+      placeholder: '#98A2B3',
     },
     messagebubble: {
       receiver: '#6A35FF',

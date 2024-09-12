@@ -231,7 +231,7 @@ const TextComponent = ({
             textAlign="left"
             multiline
             placeholder={isFocused ? '' : 'Type your message here'}
-            placeholderTextColor={Colors.primary.mediumgrey}
+            placeholderTextColor={Colors.text.placeholder}
             onChangeText={onChangeText}
             value={text}
             onFocus={onInputFocus}

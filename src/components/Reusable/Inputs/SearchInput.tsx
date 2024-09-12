@@ -58,7 +58,7 @@ const SearchInput = ({
         onBlur={() => setIsFocused(false)}
         style={styles.textInput}
         placeholder={'Search here...'}
-        placeholderTextColor={PortColors.primary.grey.medium}
+        placeholderTextColor={Colors.text.placeholder}
         maxLength={NAME_LENGTH_LIMIT}
         value={text}
         onChangeText={onTextChange}

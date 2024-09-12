@@ -41,8 +41,8 @@ export default function ConnectionOptions() {
   const svgArray = [
     {
       assetName: 'NewSuperportIcon',
-      light: require('@assets/light/icons/NewSuperport.svg').default,
-      dark: require('assets/dark/icons/NewSuperport.svg').default,
+      light: require('@assets/icons/OrangeSuperport.svg').default,
+      dark: require('assets/icons/OrangeSuperport.svg').default,
     },
     {
       assetName: 'NewPortIcon',

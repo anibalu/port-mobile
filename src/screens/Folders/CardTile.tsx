@@ -82,12 +82,12 @@ const CardTile = ({
   const svgArray = [
     {
       assetName: 'Superport',
-      light: require('@assets/icons/GreySuperport.svg').default,
+      light: require('@assets/light/icons/Superport.svg').default,
       dark: require('@assets/dark/icons/Superport.svg').default,
     },
     {
       assetName: 'GreyChat',
-      light: require('@assets/icons/GreyChat.svg').default,
+      light: require('@assets/light/icons/GreyChat.svg').default,
       dark: require('@assets/dark/icons/GreyChat.svg').default,
     },
   ];
@@ -158,7 +158,7 @@ const CardTile = ({
             <View style={styles.rowItems}>
               <Superport width={12} height={12} />
               <NumberlessText
-                textColor={Colors.text.primary}
+                textColor={Colors.text.subtitle}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
                 {folder.superportCount} linked superports
@@ -167,7 +167,7 @@ const CardTile = ({
             <View style={styles.rowItems}>
               <GreyChat width={12} height={12} />
               <NumberlessText
-                textColor={Colors.text.primary}
+                textColor={Colors.text.subtitle}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
                 {folder.connectionsCount} chats
@@ -178,7 +178,7 @@ const CardTile = ({
                 style={toggleOn && {flex: 1}}
                 ellipsizeMode="tail"
                 numberOfLines={toggleOn ? 2 : 3}
-                textColor={Colors.text.primary}
+                textColor={Colors.text.subtitle}
                 fontSizeType={FontSizeType.s}
                 fontType={FontType.rg}>
                 By default, all your chats are saved to this folder.
@@ -239,6 +239,8 @@ const styling = (colors: any, toggleOn: boolean) =>
       paddingVertical: 0,
       marginBottom: PortSpacing.tertiary.uniform,
       marginRight: 10,
+      borderColor: colors.primary.stroke,
+      borderWidth: 0.5,
     },
     button: {
       borderRadius: 8,

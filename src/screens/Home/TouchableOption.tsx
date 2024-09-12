@@ -49,7 +49,7 @@ const TouchableOption = ({
       activeOpacity={0.6}>
       <View
         style={StyleSheet.compose(styles.listItem, {
-          borderBottomWidth: showBorderBottom ? 1 : 0,
+          borderBottomWidth: showBorderBottom ? 0.5 : 0,
         })}>
         <IconLeft width={24} height={24} />
         <View style={styles.listContentWrapper}>
@@ -79,7 +79,7 @@ const styling = (colors: any) =>
       borderRadius: 0,
       flexDirection: 'row',
       justifyContent: 'flex-start',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       borderBottomColor: colors.primary.stroke,
     },
     listContentWrapper: {

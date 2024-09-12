@@ -60,7 +60,7 @@ const SearchBar = ({
         textAlign="left"
         maxLength={NAME_LENGTH_LIMIT}
         placeholder={isFocused ? '' : placeholder}
-        placeholderTextColor={Colors.primary.mediumgrey}
+        placeholderTextColor={Colors.text.placeholder}
         onChangeText={onChangeText}
         value={searchText}
         onBlur={() => setIsFocused(false)}

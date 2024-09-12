@@ -387,11 +387,11 @@ const Superports = ({route, navigation}: Props) => {
           currentFolder={
             selectedFolder
               ? selectedFolder
-              : {name: 'All Chats', folderId: 'all', permissionsId: 'all'}
+              : {name: 'All Folders', folderId: 'all', permissionsId: 'all'}
           }
           foldersArray={[
-            {name: 'All Chats', folderId: 'all', permissionsId: 'all'},
             ...foldersArray,
+            {name: 'All Folders', folderId: 'all', permissionsId: 'all'},
           ]}
           onClose={() => setOpenLinkToFolder(false)}
           setSelectedFolderData={setSelectedFolder}

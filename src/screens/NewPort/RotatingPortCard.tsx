@@ -168,12 +168,6 @@ const DisplayPortCard = ({
             {'One-time use QR'}
           </NumberlessText>
         </View>
-        <NumberlessText
-          fontType={FontType.md}
-          textColor={Colors.text.primary}
-          fontSizeType={FontSizeType.xl}>
-          {title}
-        </NumberlessText>
       </View>
       <QrWithLogo
         qrData={qrData}
@@ -181,6 +175,13 @@ const DisplayPortCard = ({
         isLoading={isLoading}
         hasFailed={hasFailed}
       />
+      <NumberlessText
+        style={{marginTop: PortSpacing.tertiary.top}}
+        fontType={FontType.md}
+        textColor={Colors.text.primary}
+        fontSizeType={FontSizeType.xl}>
+        {title}
+      </NumberlessText>
       {hasFailed && (
         <View style={styles.errorBox}>
           <NumberlessText
@@ -426,7 +427,7 @@ const styling = (color: any) =>
     },
     shareBox: {
       width: '100%',
-      marginTop: PortSpacing.secondary.uniform,
+      marginTop: PortSpacing.tertiary.uniform,
     },
     settingsCardWrapper: {
       paddingVertical: PortSpacing.secondary.uniform, //overrides simple card default padding

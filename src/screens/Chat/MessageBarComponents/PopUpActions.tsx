@@ -310,7 +310,7 @@ const styling = (colors: any) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 8,
-      backgroundColor: colors.primary.background,
+      backgroundColor: colors.primary.surface2,
     },
   });
 export default PopUpActions;

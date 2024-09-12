@@ -80,7 +80,7 @@ const LargeInputWithImageAttachment = ({
         multiline
         placeholder={placeholderText}
         maxLength={maxLength === 'inf' ? undefined : maxLength}
-        placeholderTextColor={Colors.primary.mediumgrey}
+        placeholderTextColor={Colors.text.placeholder}
         onChangeText={onTextChange}
         textAlignVertical="top"
         value={text}

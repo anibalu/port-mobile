@@ -65,20 +65,8 @@ const CreateFolder = ({navigation, route}: Props) => {
 
   return (
     <>
-      <CustomStatusBar
-        backgroundColor={
-          themeValue === 'dark'
-            ? Colors.primary.background
-            : Colors.primary.surface
-        }
-      />
-      <SafeAreaView
-        style={{
-          backgroundColor:
-            themeValue === 'dark'
-              ? Colors.primary.background
-              : Colors.primary.surface,
-        }}>
+      <CustomStatusBar backgroundColor={Colors.primary.surface} />
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}
           IconRight={CrossButton}
@@ -114,7 +102,7 @@ const CreateFolder = ({navigation, route}: Props) => {
               }}>
               <NumberlessText
                 style={{
-                  color: Colors.primary.accent,
+                  color: Colors.text.primary,
                   marginBottom: PortSpacing.tertiary.bottom,
                 }}
                 fontSizeType={FontSizeType.l}

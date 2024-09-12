@@ -58,7 +58,7 @@ const SimpleInput = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholderText}
-        placeholderTextColor={Colors.primary.mediumgrey}
+        placeholderTextColor={Colors.text.placeholder}
         maxLength={maxLength === 'inf' ? undefined : maxLength}
         value={text}
         onChangeText={onTextChange}

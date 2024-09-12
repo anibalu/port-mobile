@@ -114,13 +114,6 @@ const PortCard = ({
             {isSuperport ? '  Multi-use QR' : 'One-time use QR'}
           </NumberlessText>
         </View>
-        <NumberlessText
-          style={{alignSelf: 'center'}}
-          fontType={FontType.md}
-          textColor={Colors.text.primary}
-          fontSizeType={FontSizeType.xl}>
-          {title}
-        </NumberlessText>
       </View>
       <QrWithLogo
         qrData={qrData}
@@ -128,6 +121,13 @@ const PortCard = ({
         isLoading={isLoading}
         hasFailed={hasFailed}
       />
+      <NumberlessText
+        style={{alignSelf: 'center', marginTop: PortSpacing.tertiary.top}}
+        fontType={FontType.md}
+        textColor={Colors.text.primary}
+        fontSizeType={FontSizeType.xl}>
+        {title}
+      </NumberlessText>
       {!hasFailed && (
         <View style={styles.contentBox}>
           {isSuperport ? (
@@ -201,20 +201,26 @@ const PortCard = ({
       )}
       {!hasFailed && isSuperport && (
         <View style={styles.shareBox}>
-          <AlternateSecondaryButton
-            buttonText={'Share multi-use link'}
-            onClick={onShareLinkClicked}
-            Icon={Share}
-            isLoading={isLinkLoading}
-          />
-          <AlternateSecondaryButton
-            buttonText={'Preview shareable image'}
-            onClick={onPreviewImageClicked}
-            Icon={Eye}
-            isLoading={
-              isPreviewLoading === undefined ? isLinkLoading : isPreviewLoading
-            }
-          />
+          <View style={styles.card}>
+            <AlternateSecondaryButton
+              buttonText={'Preview shareable image'}
+              onClick={onPreviewImageClicked}
+              Icon={Eye}
+              isLoading={
+                isPreviewLoading === undefined
+                  ? isLinkLoading
+                  : isPreviewLoading
+              }
+            />
+          </View>
+          <View style={styles.card}>
+            <AlternateSecondaryButton
+              buttonText={'Share multi-use link'}
+              onClick={onShareLinkClicked}
+              Icon={Share}
+              isLoading={isLinkLoading}
+            />
+          </View>
         </View>
       )}
       {!hasFailed && !isLoading && !isSuperport && (
@@ -261,6 +267,12 @@ const styling = (color: any) =>
       paddingHorizontal: PortSpacing.secondary.uniform,
       paddingBottom: PortSpacing.secondary.bottom,
       gap: PortSpacing.tertiary.uniform,
+    },
+    card: {
+      width: '100%',
+      borderRadius: 12,
+      borderColor: color.primary.stroke,
+      borderWidth: 0.5,
     },
   });
 

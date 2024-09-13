@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import SimpleCard from './Reusable/Cards/SimpleCard';
 import {PortSpacing} from './ComponentUtils';
 import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
@@ -12,11 +12,12 @@ import {
   DEFAULT_PROFILE_AVATAR_INFO,
   GROUP_MEMBER_LIMIT,
 } from '@configs/constants';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {GroupData} from '@utils/Storage/DBCalls/group';
 import {useSelector} from 'react-redux';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
 import GroupMemberInfoBottomsheet from './Reusable/BottomSheets/GroupMemberInfoBottomsheet';
+import Group from '@utils/Groups/Group';
 
 interface GroupMemberUseableData extends GroupMemberLoadedData {
   directChatId?: string | null;
@@ -114,10 +115,29 @@ const AddMembersCard = ({
         cryptoId: 'self',
         deleted: chatData.disconnected,
       },
-      ...members,
+      ...allMembers,
     ]);
     // eslint-disable-next-line
-  }, [chatData, members]);
+  }, [chatData, allMembers]);
+
+  /**
+   * Effect to refresh group members
+   */
+  useFocusEffect(
+    useCallback(() => {
+      const fetchMembers = async () => {
+        try {
+          const groupHandler = new Group(chatId);
+          const groupMembers = await groupHandler.getMembers();
+          setAllMembers(groupMembers);
+        } catch (error) {
+          console.error('Error in loading group members: ', error);
+        }
+      };
+      fetchMembers();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
 
   return (
     <SimpleCard
@@ -139,7 +159,7 @@ const AddMembersCard = ({
           }}
           fontType={FontType.rg}
           fontSizeType={FontSizeType.m}>
-          {`${members.length + 1}/${GROUP_MEMBER_LIMIT}`}
+          {`${allMembers.length + 1}/${GROUP_MEMBER_LIMIT}`}
         </NumberlessText>
       </View>
       {chatData.amAdmin && (

@@ -1,5 +1,6 @@
 import {isIOS} from '@components/ComponentUtils';
 import {PERMISSION_MANAGEMENT_URL} from '@configs/api';
+import {DEFAULT_AVATAR} from '@configs/constants';
 import notifee, {
   AndroidGroupAlertBehavior,
   AndroidMessagingStyle,
@@ -11,33 +12,42 @@ import notifee, {
 } from '@notifee/react-native';
 import store from '@store/appStore';
 import {getToken} from '@utils/ServerAuth';
+import {getConnection} from '@utils/Storage/connections';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import axios from 'axios';
 import {AppState, Platform, Settings} from 'react-native';
 
 //Handles notification routing on tapping notification
-export const performNotificationRouting = (
+export const performNotificationRouting = async (
   type: EventType,
   detail: EventDetail,
   navigation: any,
 ) => {
   if (type === EventType.PRESS && detail.notification?.data) {
-    const {chatId, isGroup, isConnected, isAuthenticated} =
-      detail.notification.data;
-
-    if (
-      chatId !== undefined &&
-      isGroup !== undefined &&
-      isConnected !== undefined
-    ) {
-      navigation.push('DirectChat', {
-        chatId: chatId,
-        isGroupChat: (isGroup as string).toLowerCase() === 'true',
-        isConnected: (isConnected as string).toLowerCase() === 'true',
-        profileUri: '',
-        isAuthenticated: isAuthenticated
-          ? (isAuthenticated as string).toLowerCase() === 'true'
-          : false,
-      });
+    const {chatId} = detail.notification.data;
+    if (chatId) {
+      try {
+        const chatIdAsString = chatId as string;
+        const connection = await getConnection(chatIdAsString);
+        if (connection.connectionType === ChatType.group) {
+          navigation.navigate('GroupChat', {
+            chatId: connection.chatId,
+            isConnected: !connection.disconnected,
+            profileUri: connection.pathToDisplayPic || DEFAULT_AVATAR,
+            name: connection.name,
+          });
+        } else {
+          navigation.navigate('DirectChat', {
+            chatId: connection.chatId,
+            isConnected: !connection.disconnected,
+            profileUri: connection.pathToDisplayPic || DEFAULT_AVATAR,
+            name: connection.name,
+            isAuthenticated: connection.authenticated,
+          });
+        }
+      } catch (error) {
+        console.error('Error routing notification to chat: ', error);
+      }
     }
   }
 };

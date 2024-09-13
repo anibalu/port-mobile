@@ -32,7 +32,6 @@ const SimpleInput = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const onTextChange = (newText: string) => {
-    console.log('isFocused', isFocused);
     setText(newText);
   };
   const Colors = DynamicColors();

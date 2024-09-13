@@ -94,7 +94,7 @@ const SuperportLinkedFolderCard = ({
             fontType={FontType.rg}
             fontSizeType={FontSizeType.s}>
             {!autoFolderCreateToggle
-              ? 'change '
+              ? 'Change '
               : toggleState
               ? 'Edit '
               : 'Choose folder'}

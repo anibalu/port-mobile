@@ -9,9 +9,7 @@ import {
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import MicrophoneGrey from '@assets/icons/MicrophoneGrey.svg';
 import WhitecrossOutline from '@assets/icons/WhitecrossOutline.svg';
-import Stop from '@assets/icons/Stop.svg';
 import {useMicrophonePermission} from 'react-native-vision-camera';
 import BlinkingDot from './BlinkingDot';
 import AmplitudeBars from './Recording';
@@ -26,6 +24,7 @@ import {ContentType} from '@utils/Messaging/interfaces';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import {redrawOnNewMessage} from '@utils/TriggerTools/RedrawTrigger/redrawOnTrigger';
+import {useTheme} from 'src/context/ThemeContext';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 115;
 
@@ -68,6 +67,7 @@ const VoiceRecorder = ({
   }, [duration]);
 
   const Colors = DynamicColors();
+  const {themeValue} = useTheme();
   const styles = styling(Colors);
   const svgArray = [
     {
@@ -86,6 +86,16 @@ const VoiceRecorder = ({
       dark: require('@assets/dark/icons/Delete.svg').default,
     },
     {
+      assetName: 'Stop',
+      light: require('@assets/light/icons/Stop.svg').default,
+      dark: require('@assets/dark/icons/Stop.svg').default,
+    },
+    {
+      assetName: 'MicrophoneGrey',
+      light: require('@assets/light/icons/MicrophoneGrey.svg').default,
+      dark: require('@assets/dark/icons/MicrophoneGrey.svg').default,
+    },
+    {
       assetName: 'SendIcon',
       light: require('@assets/icons/navigation/WhiteArrowUp.svg').default,
       dark: require('@assets/icons/navigation/WhiteArrowUp.svg').default,
@@ -97,6 +107,8 @@ const VoiceRecorder = ({
   const PauseIcon = results.PauseIcon;
   const PlayIcon = results.PlayIcon;
   const SendIcon = results.SendIcon;
+  const Stop = results.Stop;
+  const MicrophoneGrey = results.MicrophoneGrey;
 
   const debouncedRecordVoice = debounce(onStartRecord, 300);
 
@@ -288,7 +300,11 @@ const VoiceRecorder = ({
             <View style={styles.box}>
               <NumberlessText
                 style={{marginLeft: 4, marginRight: 8}}
-                textColor={Colors.primary.mediumgrey}
+                textColor={
+                  themeValue === 'dark'
+                    ? Colors.primary.white
+                    : Colors.primary.mediumgrey
+                }
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.rg}>
                 {hasPermission

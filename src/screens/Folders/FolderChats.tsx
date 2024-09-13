@@ -249,7 +249,7 @@ const FolderChats = ({route}: Props) => {
                             />
                           </View>
 
-                          {folder.superportCount > 0 && (
+                          {folder.superportCount > 0 ? (
                             <FolderOptionWithChevron
                               subtitle="Tap here to view linked Supeports"
                               text={`This folder is linked to ${
@@ -263,6 +263,19 @@ const FolderChats = ({route}: Props) => {
                               onPress={() => {
                                 navigation.navigate('Superports', {
                                   selectedFolderFilter: {...folder},
+                                });
+                              }}
+                            />
+                          ) : (
+                            <FolderOptionWithChevron
+                              subtitle="This folder is not linked to any Superports"
+                              text={
+                                'Tap here to link a Superport with this folder'
+                              }
+                              Icon={LinkSuperport}
+                              onPress={() => {
+                                navigation.navigate('SuperportScreen', {
+                                  selectedFolder: {...folder},
                                 });
                               }}
                             />
@@ -339,12 +352,12 @@ const FolderChats = ({route}: Props) => {
                         Icon={Movechats}
                       />
                       <FolderOptionWithChevron
-                        subtitle="Tap here to view linked Supeports"
-                        text={'Tap here to link superports with this folder'}
+                        subtitle="This folder is not linked to any Superports"
+                        text={'Tap here to link a Superport with this folder'}
                         Icon={LinkSuperport}
                         onPress={() => {
-                          navigation.navigate('Superports', {
-                            selectedFolderFilter: {...folder},
+                          navigation.navigate('SuperportScreen', {
+                            selectedFolder: {...folder},
                           });
                         }}
                       />

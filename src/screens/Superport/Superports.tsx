@@ -295,6 +295,7 @@ const Superports = ({route, navigation}: Props) => {
                         )}
 
                         <NumberlessText
+                          style={{maxWidth: 100}}
                           numberOfLines={1}
                           textColor={
                             !selectedFolder
@@ -390,8 +391,8 @@ const Superports = ({route, navigation}: Props) => {
               : {name: 'All Folders', folderId: 'all', permissionsId: 'all'}
           }
           foldersArray={[
-            ...foldersArray,
             {name: 'All Folders', folderId: 'all', permissionsId: 'all'},
+            ...foldersArray,
           ]}
           onClose={() => setOpenLinkToFolder(false)}
           setSelectedFolderData={setSelectedFolder}

@@ -117,7 +117,7 @@ export default function LinkPreview({
             </View>
             <View
               style={StyleSheet.compose(styles.descContainer, {
-                backgroundColor: Colors.primary.surface2,
+                backgroundColor: Colors.primary.surface,
               })}>
               <View style={styles.detailsContainer}>
                 <GenericButton
@@ -204,6 +204,7 @@ const styling = (colors: any) =>
       width: LINK_MEDIA_WIDTH,
     },
     previewLeft: {
+      backgroundColor: colors.primary.background,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',

@@ -32,7 +32,12 @@ export const AuthenticatedStateBubble = (): ReactNode => {
   const styles = styling(Colors);
 
   return (
-    <View style={{width: screen.width, alignItems: 'center'}}>
+    <View
+      style={{
+        width: screen.width,
+        alignItems: 'center',
+        paddingTop: 110,
+      }}>
       {isAuthenticated ? (
         <View style={styles.container}>
           <LockIcon height={16} width={16} />

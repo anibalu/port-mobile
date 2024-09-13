@@ -20,6 +20,7 @@ import {useChatContext} from './ChatContext';
 import {MessageBubbleParent} from '@components/GroupMessageBubbles/MessageBubbleParent';
 import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
 import {AuthenticatedStateBubble} from '@components/GroupMessageBubbles/AuthenticatedStateBubble';
+import {useTheme} from 'src/context/ThemeContext';
 
 const MESSAGE_TIME_GAP_FOR_PADDING = 60 * 60 * 1000;
 
@@ -134,7 +135,8 @@ function ChatList({
   };
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const {themeValue} = useTheme();
+  const styles = styling(Colors, themeValue);
 
   return (
     <>
@@ -198,7 +200,7 @@ const determineSpacing = (
   }
 };
 
-const styling = color =>
+const styling = (color: any, themeValue: any) =>
   StyleSheet.create({
     handleStyle: {
       height: 45,
@@ -211,7 +213,10 @@ const styling = color =>
       borderBottomLeftRadius: 16,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: color.primary.accent,
+      backgroundColor:
+        themeValue === 'dark'
+          ? color.messagebubble.sender
+          : color.primary.accent,
     },
   });
 

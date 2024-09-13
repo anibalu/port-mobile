@@ -67,10 +67,12 @@ const MultiSelectMemberRadio = ({
       style={styles.container}
       //Prevents inner items from intercepting touches, all touches are handled by the parent.
       pointerEvents="box-only">
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
         <AvatarBox avatarSize="s" profileUri={member.pathToDisplayPic} />
         <NumberlessText
           style={styles.textBox}
+          ellipsizeMode="tail"
+          numberOfLines={1}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}
           textColor={Colors.text.primary}>
@@ -91,7 +93,9 @@ const styles = StyleSheet.create({
     height: 50,
   },
   textBox: {
+    flex: 1,
     marginLeft: 12,
+    marginRight: 8,
   },
 });
 

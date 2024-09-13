@@ -12,8 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import PurplePlus from '@assets/icons/PurplePlus.svg';
-import PurpleKeyboard from '@assets/icons/Keyboard.svg';
+import KeyboardIcon from '@assets/icons/Keyboard.svg';
 import PopUpActions from './PopUpActions';
 import EmojiKeyboard from './EmojiKeyboard';
 import {useChatContext} from '@screens/GroupChat/ChatContext';
@@ -69,11 +68,6 @@ const TextComponent = ({
 
   const svgArray = [
     {
-      assetName: 'PlusIcon',
-      light: require('@assets/light/icons/Plus.svg').default,
-      dark: require('@assets/dark/icons/Plus.svg').default,
-    },
-    {
       assetName: 'SendIcon',
       light: require('@assets/light/icons/BlackArrowUp.svg').default,
       dark: require('@assets/dark/icons/PurpleArrowUp.svg').default,
@@ -88,7 +82,6 @@ const TextComponent = ({
       light: require('@assets/light/icons/Emoji.svg').default,
       dark: require('@assets/dark/icons/Emoji.svg').default,
     },
-
     {
       assetName: 'Plus',
       light: require('@assets/light/icons/GreyPlus.svg').default,
@@ -205,14 +198,34 @@ const TextComponent = ({
       <View style={styles.mainContainer}>
         {!replyToMessage && !showPreview && (
           <View style={styles.plus}>
-            <TouchableOpacity hitSlop={24} onPress={onPressPurpleActionButton}>
+            <TouchableOpacity hitSlop={32} onPress={onPressPurpleActionButton}>
               {isPopUpVisible ? (
-                <Animated.View style={[animatedStyleKeyboard]}>
-                  <PurpleKeyboard height={24} width={24} />
+                <Animated.View
+                  style={[
+                    animatedStyleKeyboard,
+                    {
+                      backgroundColor: Colors.primary.surface2,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 6,
+                      borderRadius: 100,
+                    },
+                  ]}>
+                  <KeyboardIcon height={24} width={24} />
                 </Animated.View>
               ) : (
-                <Animated.View style={[animatedStylePlus]}>
-                  <PurplePlus height={24} width={24} />
+                <Animated.View
+                  style={[
+                    animatedStylePlus,
+                    {
+                      backgroundColor: Colors.primary.surface2,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 6,
+                      borderRadius: 100,
+                    },
+                  ]}>
+                  <Plus height={24} width={24} />
                 </Animated.View>
               )}
             </TouchableOpacity>
@@ -230,7 +243,7 @@ const TextComponent = ({
             ref={inputRef}
             textAlign="left"
             multiline
-            placeholder={isFocused ? '' : 'Type your message here'}
+            placeholder={isFocused ? '' : 'Message'}
             placeholderTextColor={Colors.primary.mediumgrey}
             onChangeText={onChangeText}
             value={text}
@@ -242,26 +255,23 @@ const TextComponent = ({
               <Plus />
             </Pressable>
           ) : (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: PortSpacing.tertiary.uniform,
-              }}>
-              <Pressable onPress={onEmojiKeyboardPressed} hitSlop={24}>
-                <Emoji />
-              </Pressable>
-            </View>
+            <Pressable onPress={onEmojiKeyboardPressed} hitSlop={24}>
+              <Emoji height={24} width={24} />
+            </Pressable>
           )}
         </View>
 
-        <TouchableOpacity onPress={onHandleClick}>
-          {text.length > 0 || replyToMessage ? (
-            <SendIcon />
-          ) : (
-            <MicrophoneIcon style={styles.microphone} />
-          )}
-        </TouchableOpacity>
+        <View style={styles.send}>
+          <TouchableOpacity hitSlop={40} onPress={onHandleClick}>
+            {text.length > 0 || replyToMessage ? (
+              <SendIcon />
+            ) : (
+              <View style={styles.microphone}>
+                <MicrophoneIcon />
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* opens emoji keyboard */}
@@ -285,13 +295,20 @@ const styling = (colors: any) =>
     mainContainer: {
       flexDirection: 'row',
       backgroundColor: colors.primary.surface,
+      width: screen.width,
       alignItems: 'center',
+      justifyContent: 'center',
     },
     plus: {
       paddingLeft: PortSpacing.secondary.left,
       paddingRight: PortSpacing.tertiary.right,
     },
+    send: {
+      paddingLeft: PortSpacing.tertiary.right,
+      paddingRight: PortSpacing.secondary.left,
+    },
     inputBox: {
+      flex: 1,
       backgroundColor: colors.primary.surface2,
       flexDirection: 'row',
       borderRadius: 24,
@@ -299,9 +316,8 @@ const styling = (colors: any) =>
       alignItems: 'center',
       paddingRight: PortSpacing.secondary.right,
     },
-
     replyInputBox: {
-      width: screen.width - 70,
+      width: screen.width - 80,
       backgroundColor: colors.primary.surface2,
       flexDirection: 'row',
       borderBottomLeftRadius: 24,
@@ -314,25 +330,23 @@ const styling = (colors: any) =>
     inputText: {
       maxHeight: 110,
       height: undefined,
-      minHeight: 45,
+      minHeight: 40,
       paddingLeft: PortSpacing.secondary.left,
       color: colors.text.primary,
-      //Remove additional padding on Android
-      ...(!isIOS && {paddingBottom: 0, paddingTop: 0}),
+      flex: 1,
       overflow: 'hidden',
       alignSelf: 'stretch',
       paddingRight: 5,
-      width: screen.width - 142,
-
       justifyContent: 'center',
       fontFamily: FontType.rg,
       fontSize: FontSizeType.l,
       fontWeight: getWeight(FontType.rg),
-      ...(isIOS && {paddingTop: 12}),
+      ...(isIOS && {paddingTop: 10}),
+      paddingBottom: 8,
     },
     microphone: {
-      paddingLeft: PortSpacing.primary.right,
-      paddingRight: PortSpacing.secondary.right,
+      padding: PortSpacing.tertiary.uniform,
+      borderRadius: 100,
     },
   });
 

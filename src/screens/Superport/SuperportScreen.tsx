@@ -134,7 +134,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portId]);
+  }, [portId, chosenFolder]);
 
   const onSaveDetails = (
     folderPermissions: PermissionsStrict,
@@ -350,7 +350,7 @@ const SuperportScreen = ({route, navigation}: Props) => {
         }
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [portId, openLinkToFolder, selectedFolder]),
+    }, [portId, selectedFolder]),
   );
 
   const updateConnectionCount = async () => {
@@ -630,6 +630,7 @@ const styling = (colors: any) =>
     },
     infoContainer: {
       paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingBottom: PortSpacing.tertiary.uniform,
       backgroundColor: colors.primary.background,
       gap: PortSpacing.secondary.uniform,
     },

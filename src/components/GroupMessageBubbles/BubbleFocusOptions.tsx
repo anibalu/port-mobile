@@ -10,6 +10,7 @@ import {useChatContext} from '@screens/GroupChat/ChatContext';
 import {
   ContentType,
   ReportMessageContentTypes,
+  UnCopyableMessageContentTypes,
   UnForwardableMessageContentTypes,
 } from '@utils/Messaging/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
@@ -36,6 +37,14 @@ const BubbleFocusOptions = () => {
   const allowForward =
     selectedMessage && selectedMessage.message
       ? !UnForwardableMessageContentTypes.includes(
+          selectedMessage.message.contentType,
+          selectedMessage.message.contentType,
+        )
+      : true;
+
+  const allowCopy =
+    selectedMessage && selectedMessage.message
+      ? !UnCopyableMessageContentTypes.includes(
           selectedMessage.message.contentType,
         )
       : true;
@@ -156,7 +165,7 @@ const BubbleFocusOptions = () => {
           </View>
         </TouchableHighlight>
       )}
-      {!isDeleted && (
+      {!isDeleted && allowCopy && (
         <TouchableHighlight
           underlayColor={Colors.primary.background}
           activeOpacity={1}

@@ -310,7 +310,9 @@ const styling = (colors: any) =>
       backgroundColor: colors.primary.surface,
       width: '100%',
       paddingTop: PortSpacing.tertiary.top,
-      paddingBottom: PortSpacing.secondary.bottom,
+      paddingBottom: isIOS
+        ? PortSpacing.intermediate.bottom
+        : PortSpacing.medium.bottom,
       alignItems: 'center',
       borderTopColor: colors.primary.stroke,
       borderTopWidth: 1,
@@ -322,7 +324,7 @@ const styling = (colors: any) =>
       paddingHorizontal: 8,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
-      width: screen.width - 70,
+      width: screen.width - 80,
       paddingTop: 8,
     },
     linkPreviewWrapper: {

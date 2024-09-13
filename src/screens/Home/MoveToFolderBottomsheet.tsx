@@ -172,7 +172,7 @@ const MoveToFolder = ({
         buttonText={buttonText}
         primaryButtonColor={buttonColor}
         isLoading={isLoading}
-        disabled={false}
+        disabled={selectedFolder.folderId === selectedFolderData?.folderId}
         onClick={onClick}
       />
     </PrimaryBottomSheet>

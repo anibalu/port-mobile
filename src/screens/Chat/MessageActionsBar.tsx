@@ -194,6 +194,8 @@ const styling = (colors: any) =>
       padding: PortSpacing.tertiary.top,
       paddingBottom: 10,
       backgroundColor: colors.primary.surface,
+      borderTopColor: colors.primary.stroke,
+      borderTopWidth: 0.5,
     },
     singleSelectedContainer: {
       flexDirection: 'row',

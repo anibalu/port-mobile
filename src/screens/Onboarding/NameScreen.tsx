@@ -33,7 +33,7 @@ import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {SafeAreaView} from '@components/SafeAreaView';
 import DynamicColors from '@components/DynamicColors';
 
-type Props = NativeStackScreenProps<OnboardingStackParamList, 'Onboarding'>;
+type Props = NativeStackScreenProps<OnboardingStackParamList, 'NameScreen'>;
 
 function NameScreen({navigation}: Props): ReactNode {
   //setting initial state of nickname string to ""

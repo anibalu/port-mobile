@@ -6,6 +6,7 @@ const initialState = {
   profile: {},
   //whether onboarding is complete
   onboardingComplete: false,
+  showInviteScreen: false,
   showOnboardingInfo: false,
   activeChat: undefined,
 };
@@ -21,6 +22,7 @@ export default function profile(state = initialState, action: any) {
       return {
         ...state,
         onboardingComplete: action.payload,
+        showInviteScreen: true,
         showOnboardingInfo: true,
       };
     case 'HIDE_ONBOARDING_INFO':
@@ -32,6 +34,11 @@ export default function profile(state = initialState, action: any) {
       return {
         ...state,
         activeChat: action.payload,
+      };
+    case 'SHOW_INVITE_SCREEN':
+      return {
+        ...state,
+        showInviteScreen: action.payload,
       };
     default:
       return state;

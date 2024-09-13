@@ -29,6 +29,7 @@ import {getChatIdFromPairHash} from '@utils/Storage/connections';
 import DirectChat, {LineDataCombined} from '@utils/DirectChats/DirectChat';
 import {ContactEntry} from '@utils/Storage/DBCalls/contacts';
 import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'PortContactList'>;
 
@@ -40,6 +41,7 @@ const PortContactList = ({navigation}: Props) => {
   const [numberOfContacts, setNumberOfContacts] = useState<number>(0);
   const [filteredContacts, setFilteredContacts] = useState<any>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const {showToast} = useToast();
 
   const svgArray = [
     {
@@ -188,6 +190,11 @@ const PortContactList = ({navigation}: Props) => {
     const granted = await checkAndAskContactPermission();
     if (granted) {
       navigation.navigate('PhoneContactList');
+    } else {
+      showToast(
+        'Please allow access to your contacts in order to continue. This can be changed in your Settings.',
+        ToastType.error,
+      );
     }
   };
 

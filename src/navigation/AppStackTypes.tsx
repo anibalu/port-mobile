@@ -115,4 +115,5 @@ export type AppStackParamList = {
   BlockedContacts: undefined;
   HelpScreen: undefined;
   Templates: undefined;
+  InviteFriends: undefined;
 };

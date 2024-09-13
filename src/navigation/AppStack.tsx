@@ -38,16 +38,20 @@ import ContactProfile from '@screens/ContactProfile/ContactProfile';
 import GroupProfile from '@screens/GroupsV2/GroupProfile';
 import AddNewContacts from '@screens/GroupsV2/AddNewContacts';
 import AllMembers from '@screens/GroupsV2/AllMembers';
+import InviteFriends from '@screens/Home/InviteFriends';
+import {useSelector} from 'react-redux';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 function AppStack() {
+  const showInviteScreen = useSelector(state => state.profile.showInviteScreen);
   return (
     <>
       <ConnectionModalProvider>
         <Stack.Navigator
-          initialRouteName="HomeTab"
+          initialRouteName={showInviteScreen ? 'InviteFriends' : 'HomeTab'}
           screenOptions={{headerShown: false, orientation: 'portrait'}}>
+          <Stack.Screen name="InviteFriends" component={InviteFriends} />
           <Stack.Screen name="PortContactList" component={PortContactList} />
           <Stack.Screen name="PhoneContactList" component={PhoneContactList} />
           <Stack.Screen name="HomeTab" component={BottomNavStack} />

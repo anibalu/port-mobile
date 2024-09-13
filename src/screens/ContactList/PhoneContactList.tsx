@@ -192,7 +192,7 @@ const PhoneContactList = ({navigation}: Props) => {
   }, [filteredContacts]);
 
   const onClose = () => {
-    navigation.goBack();
+    navigation.navigate('HomeTab');
   };
 
   const onInviteContactClick = (contact: ContactInfo) => {

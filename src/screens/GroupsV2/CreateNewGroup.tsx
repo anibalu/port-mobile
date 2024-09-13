@@ -1,14 +1,8 @@
-import {
-  PortColors,
-  PortSpacing,
-  isIOS,
-  screen,
-} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import React, {useRef, useState} from 'react';
 import {KeyboardAvoidingView, ScrollView, StyleSheet, View} from 'react-native';
-import Cross from '@assets/icons/BlackCross.svg';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {useNavigation} from '@react-navigation/native';
 import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
@@ -18,7 +12,6 @@ import {
   DEFAULT_PROFILE_AVATAR_INFO,
   safeModalCloseDuration,
 } from '@configs/constants';
-import EditCameraIcon from '@assets/icons/EditCamera.svg';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
@@ -27,6 +20,8 @@ import {fetchNewPorts} from '@utils/Ports';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 import {wait} from '@utils/Time';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+import DynamicColors from '@components/DynamicColors';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const CreateNewGroup = () => {
   const navigation = useNavigation();
@@ -76,13 +71,32 @@ const CreateNewGroup = () => {
       scrollViewRef.current.scrollToEnd({animated: true});
     }
   };
+
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
+  const svgArray = [
+    {
+      assetName: 'Cross',
+      light: require('@assets/light/icons/Cross.svg').default,
+      dark: require('@assets/dark/icons/Cross.svg').default,
+    },
+    {
+      assetName: 'EditCameraIcon',
+      light: require('@assets/light/icons/EditCamera.svg').default,
+      dark: require('@assets/dark/icons/EditCamera.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const Cross = results.Cross;
+  const EditCameraIcon = results.EditCameraIcon;
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
-      <SafeAreaView style={{backgroundColor: PortColors.background}}>
+      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}
           IconRight={Cross}
@@ -164,33 +178,34 @@ const CreateNewGroup = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    width: screen.width,
-    backgroundColor: '#F2F4F7',
-    paddingHorizontal: PortSpacing.secondary.uniform,
-  },
-  profilePictureHitbox: {
-    marginTop: PortSpacing.primary.top,
-    marginBottom: PortSpacing.primary.bottom,
-    paddingHorizontal: PortSpacing.secondary.uniform,
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
-    alignSelf: 'center',
-  },
-  updatePicture: {
-    width: 32,
-    height: 32,
-    backgroundColor: PortColors.primary.blue.app,
-    position: 'absolute',
-    bottom: -8,
-    right: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 9,
-  },
-});
+const styling = (colors: any) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      width: screen.width,
+      backgroundColor: colors.primary.background,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+    },
+    profilePictureHitbox: {
+      marginTop: PortSpacing.primary.top,
+      marginBottom: PortSpacing.primary.bottom,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      flexDirection: 'column',
+      alignItems: 'flex-end',
+      justifyContent: 'flex-end',
+      alignSelf: 'center',
+    },
+    updatePicture: {
+      width: 32,
+      height: 32,
+      backgroundColor: colors.primary.accent,
+      position: 'absolute',
+      bottom: -4,
+      right: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 9,
+    },
+  });
 
 export default CreateNewGroup;

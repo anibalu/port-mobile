@@ -274,6 +274,7 @@ const GroupProfile = ({route, navigation}: Props) => {
                       maxWidth:
                         screen.width - 2 * PortSpacing.secondary.uniform - 30,
                       marginRight: 4,
+                      paddingBottom: 2,
                     }}
                     textColor={Colors.labels.text}
                     fontSizeType={FontSizeType.xl}
@@ -291,6 +292,7 @@ const GroupProfile = ({route, navigation}: Props) => {
                       maxWidth:
                         screen.width - 2 * PortSpacing.secondary.uniform - 30,
                       marginRight: 4,
+                      paddingBottom: 2,
                     }}
                     textColor={Colors.labels.text}
                     fontSizeType={FontSizeType.xl}
@@ -561,6 +563,7 @@ const styling = (colors: any) =>
       marginTop: PortSpacing.secondary.top,
       flexDirection: 'row',
       alignItems: 'center',
+      gap: 4,
     },
     sharedMediaContainer: {
       marginBottom: PortSpacing.secondary.bottom,

@@ -2,7 +2,6 @@ import {BasicGroupInfo} from '@utils/Storage/DBCalls/group';
 import {getGroupsWithContact} from '@utils/Storage/group';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, View} from 'react-native';
-import {FlatList} from 'react-native';
 import DynamicColors from './DynamicColors';
 import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
 import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
@@ -20,11 +19,9 @@ export function CommonGroups({pairHash}: {pairHash: string}): ReactNode {
     return (
       <View
         style={{
-          marginTop: 16,
-          borderRadius: 16,
+          borderRadius: PortSpacing.secondary.top,
           backgroundColor: Colors.primary.surface,
-          padding: 8,
-          gap: 16,
+          padding: PortSpacing.secondary.top,
           maxHeight: 250,
         }}>
         <View
@@ -33,6 +30,7 @@ export function CommonGroups({pairHash}: {pairHash: string}): ReactNode {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
+            paddingBottom: PortSpacing.tertiary.bottom,
           }}>
           <NumberlessText
             fontSizeType={FontSizeType.l}
@@ -52,29 +50,29 @@ export function CommonGroups({pairHash}: {pairHash: string}): ReactNode {
             {groupsInCommon.length}
           </NumberlessText>
         </View>
-        <FlatList
-          data={groupsInCommon}
-          keyExtractor={group => group.groupId}
-          renderItem={groupInfo => {
-            return (
+        {groupsInCommon.map((item, index) => {
+          return (
+            <View key={index}>
               <BasicGroupCard
-                itemToRender={groupInfo}
+                index={index}
+                itemToRender={item}
                 listLength={groupsInCommon.length}
               />
-            );
-          }}
-        />
+            </View>
+          );
+        })}
       </View>
     );
   }
   return <></>;
 }
 
-function BasicGroupCard({itemToRender, listLength}: any): ReactNode {
-  const groupInfo = itemToRender.item as BasicGroupInfo;
-  const lastItem: boolean = listLength === itemToRender.index + 1;
+function BasicGroupCard({itemToRender, listLength, index}: any): ReactNode {
+  const groupInfo = itemToRender as BasicGroupInfo;
+  const lastItem: boolean = listLength === index + 1;
   const Colors = DynamicColors();
   const navigation = useNavigation();
+
   return (
     <Pressable
       onPress={async () => {
@@ -95,10 +93,10 @@ function BasicGroupCard({itemToRender, listLength}: any): ReactNode {
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        flex: 1,
         borderBottomColor: 'grey',
         borderBottomWidth: lastItem ? 0 : 0.5,
-        paddingBottom: 4,
+        paddingVertical: 10,
+        paddingBottom: lastItem ? 0 : 10,
       }}>
       <AvatarBox profileUri={groupInfo.groupPictureURI} avatarSize="s" />
       <View style={{flex: 1}}>
@@ -108,7 +106,6 @@ function BasicGroupCard({itemToRender, listLength}: any): ReactNode {
           ellipsizeMode="tail"
           numberOfLines={1}
           style={{
-            color: Colors.labels.text,
             paddingLeft: PortSpacing.secondary.left,
           }}
           textColor={Colors.labels.text}>

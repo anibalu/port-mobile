@@ -4,7 +4,7 @@ import DynamicColors from '@components/DynamicColors';
 import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React, {ReactElement, useMemo, useState} from 'react';
+import React, {ReactElement, useCallback, useMemo, useState} from 'react';
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 import SearchBar from '@components/SearchBar';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -23,6 +23,8 @@ import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
 import GroupMemberInfoBottomsheet from '@components/Reusable/BottomSheets/GroupMemberInfoBottomsheet';
 import {useSelector} from 'react-redux';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
+import {useFocusEffect} from '@react-navigation/native';
+import Group from '@utils/Groups/Group';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AllMembers'>;
 
@@ -98,6 +100,25 @@ const AllMembers = ({route, navigation}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText, allMembers]);
 
+  /**
+   * Effect to refresh group members
+   */
+  useFocusEffect(
+    useCallback(() => {
+      const fetchMembers = async () => {
+        try {
+          const groupHandler = new Group(chatId);
+          const groupMembers = await groupHandler.getMembers();
+          setAllMembers(groupMembers);
+        } catch (error) {
+          console.error('Error in loading group members: ', error);
+        }
+      };
+      fetchMembers();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
   function renderMemberTile({
     item,
     index,
@@ -137,7 +158,7 @@ const AllMembers = ({route, navigation}: Props) => {
             {item.isAdmin && (
               <View
                 style={{
-                  backgroundColor: Colors.primary.background,
+                  backgroundColor: Colors.primary.lightgrey,
                   padding: 4,
                   borderRadius: 6,
                 }}>

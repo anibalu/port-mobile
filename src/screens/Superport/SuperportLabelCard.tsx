@@ -9,7 +9,6 @@ import {
 import {PortSpacing} from '@components/ComponentUtils';
 import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
 import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import ToggleSwitch from 'toggle-switch-react-native';
 import SuperportLinkedFolderCard from './SuperportLinkedFolderCard';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
@@ -45,16 +44,6 @@ const SuperportLabelCard = ({
   };
   const Colors = DynamicColors();
   const styles = styling(Colors);
-  const svgArray = [
-    {
-      assetName: 'FilterIcon',
-      light: require('@assets/light/icons/Label.svg').default,
-      dark: require('@assets/dark/icons/Label.svg').default,
-    },
-  ];
-
-  const results = useDynamicSVG(svgArray);
-  const FilterIcon = results.FilterIcon;
 
   return (
     <SimpleCard
@@ -64,18 +53,14 @@ const SuperportLabelCard = ({
         gap: PortSpacing.intermediate.bottom,
       }}>
       <View style={styles.headngWrapper}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <FilterIcon width={20} height={20} />
-          <NumberlessText
-            style={{
-              color: Colors.text.primary,
-              marginLeft: PortSpacing.tertiary.left,
-            }}
-            fontType={FontType.rg}
-            fontSizeType={FontSizeType.l}>
-            Superport name *
-          </NumberlessText>
-        </View>
+        <NumberlessText
+          style={{
+            color: Colors.text.primary,
+          }}
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.l}>
+          Superport name *
+        </NumberlessText>
         <View style={{marginTop: PortSpacing.tertiary.bottom}}>
           <NumberlessText
             style={{color: Colors.text.subtitle}}
@@ -158,7 +143,6 @@ const styling = (color: any) =>
     headngWrapper: {
       flexDirection: 'column',
       alignItems: 'flex-start',
-      justifyContent: 'center',
     },
   });
 

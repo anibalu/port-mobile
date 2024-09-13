@@ -56,6 +56,7 @@ import {getContact} from '@utils/Storage/contacts';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import {deleteAllMessagesInChat} from '@utils/Storage/messages';
 import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
+import {CommonGroups} from '@components/CommonGroups';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ChatProfile'>;
 
@@ -323,6 +324,7 @@ const ChatProfile = ({route, navigation}: Props) => {
                 <View style={styles.sharedMediaContainer}>
                   <SharedMediaCard media={media} chatId={chatId} />
                 </View>
+                <CommonGroups pairHash={pairHash} />
                 <View style={{paddingBottom: PortSpacing.secondary.bottom}}>
                   <NumberlessText
                     style={{

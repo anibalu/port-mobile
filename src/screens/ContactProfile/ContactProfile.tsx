@@ -1,7 +1,13 @@
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {StyleSheet, View, Pressable, KeyboardAvoidingView} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Pressable,
+  KeyboardAvoidingView,
+  ScrollView,
+} from 'react-native';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {PortSpacing, screen} from '@components/ComponentUtils';
@@ -16,7 +22,7 @@ import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {useFocusEffect} from '@react-navigation/native';
 import EditName from '@components/Reusable/BottomSheets/EditName';
-import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT} from '@configs/constants';
 
 import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
@@ -56,7 +62,6 @@ const ContactProfile = ({route, navigation}: Props) => {
   const styles = styling(Colors);
 
   const svgArray = [
-    // 1.NotificationOutline
     {
       assetName: 'RightChevron',
       light: require('@assets/light/icons/navigation/AngleRight.svg').default,
@@ -128,7 +133,6 @@ const ContactProfile = ({route, navigation}: Props) => {
   const onShareContactPressed = () => {
     setIsSharingContact(true);
   };
-  console.info(contactInfo);
 
   return (
     <>
@@ -141,6 +145,7 @@ const ContactProfile = ({route, navigation}: Props) => {
       />
       <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <UserInfoTopbar
+          isConnected={connected}
           backgroundColor={showUserInfoInTopbar ? 'w' : 'g'}
           heading={displayName}
           avatarUri={displayPic}
@@ -148,7 +153,7 @@ const ContactProfile = ({route, navigation}: Props) => {
           IconRight={ContactShareIcon}
           onIconRightPress={onShareContactPressed}
         />
-        <View style={styles.mainContainer}>
+        <ScrollView style={styles.mainContainer}>
           <KeyboardAvoidingView style={{height: connected ? 'auto' : '100%'}}>
             <View style={styles.avatarContainer} ref={userAvatarViewRef}>
               <AvatarBox
@@ -189,12 +194,14 @@ const ContactProfile = ({route, navigation}: Props) => {
               )}
             </View>
             <Notes pairHash={pairHash} note={contactInfo.notes || ''} />
-            <CommonGroups pairHash={pairHash} />
+            <View style={{marginVertical: PortSpacing.secondary.top}}>
+              <CommonGroups pairHash={pairHash} />
+            </View>
+
             {chatId && connected ? (
               <View
                 style={{
-                  gap: 10,
-                  marginTop: PortSpacing.primary.top,
+                  marginTop: PortSpacing.secondary.top,
                 }}>
                 <PrimaryButton
                   primaryButtonColor="p"
@@ -213,7 +220,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                 />
                 <View
                   style={{
-                    paddingTop: PortSpacing.primary.top,
+                    paddingTop: PortSpacing.secondary.top,
                   }}>
                   <NumberlessText
                     fontSizeType={FontSizeType.l}
@@ -242,12 +249,12 @@ const ContactProfile = ({route, navigation}: Props) => {
                       alignSelf: 'center',
                       textAlign: 'center',
                       width: '100%',
-                      marginTop: PortSpacing.secondary.top,
+                      marginVertical: PortSpacing.secondary.top,
                     }}
                     textColor={Colors.text.subtitle}
                     fontSizeType={FontSizeType.m}
                     fontType={FontType.rg}>
-                    Your do not have an active chat with {contactInfo.name}. If
+                    You do not have an active chat with {contactInfo.name}. If
                     you block them they cannot connect with you using Ports,
                     Superports or contact sharing.
                   </NumberlessText>
@@ -270,7 +277,7 @@ const ContactProfile = ({route, navigation}: Props) => {
               <></>
             )}
           </KeyboardAvoidingView>
-        </View>
+        </ScrollView>
         <EditName
           visible={editingName}
           onClose={() => setEditingName(false)}
@@ -315,13 +322,25 @@ const ContactProfile = ({route, navigation}: Props) => {
   );
 };
 
-const styling = (_colors: any) =>
+const styling = (colors: any) =>
   StyleSheet.create({
     mainContainer: {
       padding: PortSpacing.secondary.uniform,
       paddingTop: 0,
       paddingBottom: 0,
       flex: 1,
+    },
+    topbarAcontainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      paddingHorizontal: PortSpacing.secondary.uniform,
+      alignItems: 'center',
+      backgroundColor: colors.primary.surface,
+      height: TOPBAR_HEIGHT,
+    },
+    backButton: {
+      position: 'absolute',
+      left: 16,
     },
     disconnectedwrapper: {
       flexDirection: 'column',

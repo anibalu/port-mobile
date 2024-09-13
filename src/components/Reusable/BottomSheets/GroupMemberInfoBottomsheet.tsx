@@ -21,8 +21,10 @@ import {getChatTileTimestamp, wait} from '@utils/Time';
 import Group from '@utils/Groups/Group';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import {useNavigation} from '@react-navigation/native';
-import DirectChat from '@utils/DirectChats/DirectChat';
+import DirectChat, {LineDataCombined} from '@utils/DirectChats/DirectChat';
 import SmallLoader from '../Loaders/SmallLoader';
+import {getChatIdFromPairHash} from '@utils/Storage/connections';
+import {getContact} from '@utils/Storage/contacts';
 
 interface GroupMemberUseableData extends GroupMemberLoadedData {
   directChatId?: string | null;
@@ -48,18 +50,23 @@ const GroupMemberInfoBottomsheet = ({
   const svgArray = [
     {
       assetName: 'ContactShareIcon',
-      light: require('@assets/icons/ContactShareIcon.svg').default,
-      dark: require('@assets/dark/icons/ContactShareIcon.svg').default,
+      light: require('@assets/light/icons/DirectChat.svg').default,
+      dark: require('@assets/dark/icons/DirectChat.svg').default,
     },
     {
       assetName: 'Admin',
-      light: require('@assets/light/icons/CreateSuperport.svg').default,
-      dark: require('@assets/dark/icons/CreateSuperport.svg').default,
+      light: require('@assets/light/icons/SuperportBold.svg').default,
+      dark: require('@assets/dark/icons/SuperportBold.svg').default,
     },
     {
       assetName: 'DeleteIcon',
       light: require('@assets/light/icons/Delete.svg').default,
       dark: require('@assets/dark/icons/Delete.svg').default,
+    },
+    {
+      assetName: 'Profile',
+      light: require('@assets/light/icons/ProfileIcon.svg').default,
+      dark: require('@assets/dark/icons/ProfileIcon.svg').default,
     },
   ];
 
@@ -67,6 +74,7 @@ const GroupMemberInfoBottomsheet = ({
   const ContactShareIcon = results.ContactShareIcon;
   const Admin = results.Admin;
   const DeleteIcon = results.DeleteIcon;
+  const Profile = results.Profile;
 
   const [isRemovingMember, setIsRemovingMember] = useState<boolean>(false);
   const onRemoveMember = async () => {
@@ -142,6 +150,26 @@ const GroupMemberInfoBottomsheet = ({
       );
     }
   };
+
+  const onGoToProfile = async (pairHash: string) => {
+    //navigate to contact profile page.
+    await wait(safeModalCloseDuration);
+    const contact = await getContact(pairHash);
+
+    let chatId = await getChatIdFromPairHash(pairHash);
+    let chatData: LineDataCombined | null = null;
+    if (chatId) {
+      const chat = new DirectChat(chatId);
+      chatData = await chat.getChatData();
+    }
+
+    onClose();
+    navigation.navigate('ContactProfile', {
+      chatId,
+      chatData: chatData,
+      contactInfo: contact,
+    });
+  };
   return (
     <PrimaryBottomSheet
       showClose={false}
@@ -171,26 +199,34 @@ const GroupMemberInfoBottomsheet = ({
       </View>
       <SimpleCard style={styles.item}>
         <Pressable
-          style={StyleSheet.compose(
-            styles.row,
-            amAdmin
-              ? {
-                  borderBottomColor: Colors.primary.stroke,
-                  borderBottomWidth: 0.5,
-                }
-              : {},
-          )}
+          style={StyleSheet.compose(styles.row, {
+            borderBottomColor: Colors.primary.stroke,
+            borderBottomWidth: 0.5,
+          })}
+          onPress={() => onGoToProfile(member.pairHash)}>
+          <NumberlessText
+            textColor={Colors.text.primary}
+            fontSizeType={FontSizeType.m}
+            fontType={FontType.rg}>
+            View contact
+          </NumberlessText>
+          <Profile width={20} height={20} />
+        </Pressable>
+        <Pressable
+          style={StyleSheet.compose(styles.row, {
+            borderBottomColor: Colors.primary.stroke,
+            borderBottomWidth: 0.5,
+          })}
           onPress={() => onChatRequestClick(member.directChatId)}>
           <NumberlessText
             textColor={Colors.text.primary}
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>
-            {member.directChatId
-              ? 'Go to direct chat'
-              : 'Request to form direct chat'}
+            {member.directChatId ? 'Go to chat' : 'Request to form chat'}
           </NumberlessText>
           <ContactShareIcon width={20} height={20} />
         </Pressable>
+
         {amAdmin && (
           <>
             <Pressable

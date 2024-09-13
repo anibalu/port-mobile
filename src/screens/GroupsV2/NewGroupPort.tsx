@@ -2,11 +2,10 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {AppStackParamList} from '@navigation/AppStackTypes';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
-import PortCard from '@components/Reusable/ConnectionCards/PortCard';
 import {useSelector} from 'react-redux';
 import {
   DEFAULT_AVATAR,
@@ -20,15 +19,46 @@ import {GroupBundle} from '@utils/Ports/interfaces';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import DynamicColors from '@components/DynamicColors';
+import GroupPortCard from '@components/Reusable/ConnectionCards/GroupPortCard';
+import Group from '@utils/Groups/Group';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewGroupPort'>;
 const NewGroupPort = ({route}: Props) => {
   const {chatId, chatData} = route.params;
-  const processedName: string = chatData.name || DEFAULT_GROUP_NAME;
-  const processedGroupPic: string = chatData.groupPicture || DEFAULT_AVATAR;
-  // const [groupPicUri] = useState(processedGroupPic);
-  const [displayName] = useState<string>(processedName);
 
+  const [name, setName] = useState(chatData.name || DEFAULT_GROUP_NAME);
+  const [profileUri, setProfileUri] = useState(
+    chatData.groupPicture || DEFAULT_AVATAR,
+  );
+  const [desc, setDesc] = useState(chatData.description || '');
+
+  //effect runs when screen is focused
+  //retrieves name of grouo
+  // and display pic of grouo
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        try {
+          const dataHandler = new Group(chatId);
+          const chatData = await dataHandler.getData();
+          if (!chatData) {
+            throw new Error('No chat data available');
+          }
+
+          setName(chatData.name);
+          setProfileUri(
+            chatData.groupPicture ? chatData.groupPicture : DEFAULT_AVATAR,
+          );
+          setDesc(chatData?.description || '');
+        } catch (error) {
+          console.error('No such chat or no available group members: ', error);
+        }
+      })();
+
+      // eslint-disable-next-line
+    }, []),
+  );
   const navigation = useNavigation();
   //state of qr code generation
   const [isLoading, setIsLoading] = useState(true);
@@ -40,6 +70,8 @@ const NewGroupPort = ({route}: Props) => {
   const [isLoadingLink, setIsLoadingLink] = useState(false);
   //whether is error bottom sheet should open
   const [openErrorModal, setOpenErrorModal] = useState(false);
+
+  const Colors = DynamicColors();
 
   const latestNewConnection = useSelector(state => state.latestNewConnection);
 
@@ -53,7 +85,6 @@ const NewGroupPort = ({route}: Props) => {
   ];
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
-
   const fetchPort = async () => {
     console.log('fetching group port for: ', chatId);
     try {
@@ -93,8 +124,7 @@ const NewGroupPort = ({route}: Props) => {
           const shareContent = {
             title: 'Share a group link',
             message:
-              `Click the link to join the group ${displayName} on Port.\n` +
-              link,
+              `Click the link to join the group ${name} on Port.\n` + link,
           };
           await Share.open(shareContent);
         } catch (error) {
@@ -138,7 +168,7 @@ const NewGroupPort = ({route}: Props) => {
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={PortColors.primary.white}
+        backgroundColor={Colors.primary.surface}
       />
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
@@ -146,19 +176,20 @@ const NewGroupPort = ({route}: Props) => {
           IconRight={CrossButton}
           heading={'Group Port'}
         />
-        <ScrollView style={{width: '100%'}}>
+        <ScrollView
+          style={{width: '100%', backgroundColor: Colors.primary.background}}>
           <View style={{flex: 1, justifyContent: 'space-between'}}>
             <View style={styles.qrArea}>
-              <PortCard
+              <GroupPortCard
                 isLoading={isLoading}
                 isLinkLoading={isLoadingLink}
                 hasFailed={hasFailed}
-                isSuperport={false}
-                title={displayName}
-                profileUri={processedGroupPic}
+                title={name}
+                profileUri={profileUri}
                 qrData={qrData}
                 onShareLinkClicked={fetchLinkData}
                 onTryAgainClicked={fetchPort}
+                desc={desc}
               />
             </View>
           </View>
@@ -170,7 +201,6 @@ const NewGroupPort = ({route}: Props) => {
 const styles = StyleSheet.create({
   screen: {
     alignItems: 'center',
-    backgroundColor: PortColors.background,
     flex: 1,
   },
   qrArea: {

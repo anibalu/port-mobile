@@ -28,12 +28,14 @@ import {TOPBAR_HEIGHT} from '@configs/constants';
 
 const UserInfoTopbar = ({
   IconRight,
+  isConnected = true,
   avatarUri,
   backgroundColor,
   heading,
   onIconRightPress = async () => {},
   showUserInfo = false,
 }: {
+  isConnected?: boolean | null | '';
   backgroundColor: 'g' | 'w';
   avatarUri: string;
   IconRight: FC<SvgProps>;
@@ -45,7 +47,6 @@ const UserInfoTopbar = ({
   const Colors = DynamicColors();
   const styles = styling(Colors, showUserInfo);
   const svgArray = [
-    // 1.NotificationOutline
     {
       assetName: 'DynamicBackIcon',
       light: require('@assets/light/icons/navigation/BlackArrowLeftThin.svg')
@@ -90,6 +91,27 @@ const UserInfoTopbar = ({
             fontSizeType={FontSizeType.l}>
             {heading}
           </NumberlessText>
+          {isConnected && (
+            <Pressable
+              style={styles.button}
+              onPress={async () => {
+                onIconRightPress();
+              }}>
+              <IconRight width={20} height={20} />
+              <View style={{flex: 1}}>
+                <NumberlessText
+                  numberOfLines={1}
+                  fontType={FontType.rg}
+                  textColor={Colors.primary.white}
+                  fontSizeType={FontSizeType.s}>
+                  Share Contact
+                </NumberlessText>
+              </View>
+            </Pressable>
+          )}
+        </View>
+      ) : (
+        isConnected && (
           <Pressable
             style={styles.button}
             onPress={async () => {
@@ -104,24 +126,7 @@ const UserInfoTopbar = ({
               Share Contact
             </NumberlessText>
           </Pressable>
-        </View>
-      ) : (
-        <Pressable
-          style={styles.button}
-          onPress={async () => {
-            onIconRightPress();
-          }}>
-          <IconRight width={20} height={20} />
-          <View style={{flex: 1}}>
-            <NumberlessText
-              numberOfLines={1}
-              fontType={FontType.rg}
-              textColor={Colors.primary.white}
-              fontSizeType={FontSizeType.s}>
-              Share Contact
-            </NumberlessText>
-          </View>
-        </Pressable>
+        )
       )}
     </View>
   );

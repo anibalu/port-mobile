@@ -16,9 +16,11 @@ import {useNavigation} from '@react-navigation/native';
 import {GroupData} from '@utils/Storage/DBCalls/group';
 import {useSelector} from 'react-redux';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
-import DirectChat, {LineDataCombined} from '@utils/DirectChats/DirectChat';
-import {getContact} from '@utils/Storage/contacts';
+import GroupMemberInfoBottomsheet from './Reusable/BottomSheets/GroupMemberInfoBottomsheet';
 
+interface GroupMemberUseableData extends GroupMemberLoadedData {
+  directChatId?: string | null;
+}
 const AddMembersCard = ({
   members,
   chatId,
@@ -35,13 +37,17 @@ const AddMembersCard = ({
       avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
     };
   }, [profile]);
+  const [selectedMember, setSelectedMember] =
+    useState<GroupMemberUseableData | null>(null);
+  const [allMembers, setAllMembers] =
+    useState<GroupMemberLoadedData[]>(members);
   const Colors = DynamicColors();
   const styles = styling(Colors);
   const svgArray = [
     {
       assetName: 'Plus',
-      light: require('@assets/light/icons/Plus.svg').default,
-      dark: require('@assets/dark/icons/Plus.svg').default,
+      light: require('@assets/icons/AccentPlus.svg').default,
+      dark: require('@assets/icons/AccentPlus.svg').default,
     },
     {
       assetName: 'Link',
@@ -59,6 +65,7 @@ const AddMembersCard = ({
   // const Plus = results.Plus;
   const Link = results.Link;
   const AngleRight = results.AngleRight;
+
   const [modifiedMembers, setModifedMembers] = useState<
     GroupMemberLoadedData[]
   >([
@@ -72,7 +79,7 @@ const AddMembersCard = ({
       cryptoId: 'self',
       deleted: chatData.disconnected,
     },
-    ...members,
+    ...allMembers,
   ]);
 
   const onCreateGroupPort = () => {
@@ -82,25 +89,13 @@ const AddMembersCard = ({
     });
   };
 
-  const onPressMember = async (pairHash: string) => {
+  const onPressMember = async (member: GroupMemberLoadedData) => {
     try {
-      if (pairHash === 'self') {
+      if (member.pairHash === 'self') {
         navigation.navigate('MyProfile');
       } else {
-        //navigate to contact profile page.
-
-        const contactInfo = await getContact(pairHash);
-        let chatId = await getChatIdFromPairHash(pairHash);
-        let chatData: LineDataCombined | null = null;
-        if (chatId) {
-          const chat = new DirectChat(chatId);
-          chatData = await chat.getChatData();
-        }
-        navigation.navigate('ContactProfile', {
-          chatId,
-          chatData: chatData,
-          contactInfo: contactInfo,
-        });
+        const directChatId = await getChatIdFromPairHash(member.pairHash);
+        setSelectedMember({...member, directChatId});
       }
     } catch (error) {
       console.error('Error navigating to member contact profile: ', error);
@@ -197,7 +192,7 @@ const AddMembersCard = ({
                     ? 'transparent'
                     : Colors.primary.stroke,
               })}
-              onPress={() => onPressMember(member.pairHash)}>
+              onPress={() => onPressMember(member)}>
               <AvatarBox avatarSize="s" profileUri={member.displayPic} />
               <View style={styles.item}>
                 <NumberlessText
@@ -212,7 +207,7 @@ const AddMembersCard = ({
                 {member.isAdmin && (
                   <View
                     style={{
-                      backgroundColor: Colors.primary.background,
+                      backgroundColor: Colors.primary.lightgrey,
                       padding: 4,
                       borderRadius: 6,
                     }}>
@@ -249,6 +244,16 @@ const AddMembersCard = ({
           <AngleRight />
         </Pressable>
       </View>
+      {selectedMember && (
+        <GroupMemberInfoBottomsheet
+          chatId={chatId}
+          amAdmin={chatData.amAdmin}
+          member={selectedMember}
+          setMembers={setAllMembers}
+          onClose={() => setSelectedMember(null)}
+          visible={selectedMember ? true : false}
+        />
+      )}
     </SimpleCard>
   );
 };
@@ -278,6 +283,10 @@ const styling = (Colors: any) =>
       flex: 1,
       paddingVertical: PortSpacing.secondary.bottom,
       flexDirection: 'row',
+      borderColor: Colors.primary.stroke,
+      borderWidth: 0.5,
+      paddingHorizontal: PortSpacing.secondary.top,
+      borderRadius: 12,
     },
     item: {
       flex: 1,
@@ -286,7 +295,7 @@ const styling = (Colors: any) =>
     },
     text: {
       flex: 1,
-      color: Colors.labels.text,
+      color: Colors.primary.tealBlue,
       paddingLeft: PortSpacing.tertiary.left,
       marginTop: 2,
     },

@@ -72,7 +72,7 @@ const DynamicColors = () => {
       memberName: '#05070B',
     },
     labels: {
-      fill: '#FFFCEB',
+      fill: '#F3F3F5',
       stroke: '#FFF6C4',
       text: '#000000',
     },

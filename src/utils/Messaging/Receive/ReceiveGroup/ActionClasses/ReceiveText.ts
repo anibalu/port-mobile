@@ -45,18 +45,13 @@ class ReceiveText extends GroupReceiveAction {
       this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
       const senderName = await this.getSenderName();
       const connection = await getConnection(this.chatId);
-      const notificationData = {
-        title: senderName,
-        subtitle: connection.name,
-        body: (this.decryptedMessageContent.data as TextParams).text || '',
-      };
       displaySimpleNotification(
-        notificationData.title,
-        notificationData.body,
+        connection.name,
+        (this.decryptedMessageContent.data as TextParams).text || '',
         !connection.disconnected,
         this.chatId,
         true,
-        notificationData.subtitle,
+        senderName,
       );
     }
   }

@@ -110,18 +110,13 @@ class ReceiveLargeData extends GroupReceiveAction {
     if (shouldNotify) {
       this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
       const senderName = await this.getSenderName();
-      const notificationData = {
-        title: senderName,
-        subtitle: connection.name,
-        body: this.generatePreviewText(),
-      };
       displaySimpleNotification(
-        notificationData.title,
-        notificationData.body,
+        connection.name,
+        this.generatePreviewText(),
         !connection.disconnected,
         this.chatId,
         true,
-        notificationData.subtitle,
+        senderName,
       );
     }
   }

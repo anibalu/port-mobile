@@ -2,8 +2,10 @@ import {isIOS} from '@components/ComponentUtils';
 import {PERMISSION_MANAGEMENT_URL} from '@configs/api';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import notifee, {
+  AndroidColor,
   AndroidGroupAlertBehavior,
   AndroidMessagingStyle,
+  AndroidPerson,
   AndroidStyle,
   AndroidVisibility,
   EventDetail,
@@ -54,18 +56,18 @@ export const performNotificationRouting = async (
 
 /**
  * Displays all notifications for the app.
- * @param title
+ * @param chatName
  * @param body
  * @param chatId the chat that is linked to the notification
  * @param isGroup defines if the chat being linked to is a group
  */
 export async function displaySimpleNotification(
-  title: string,
+  chatName: string,
   body: string,
   isConnected: boolean,
   chatId?: string,
   isGroup: boolean = false,
-  subtitle?: string,
+  memberName?: string,
 ) {
   /*
    * Guard to remove client-generated notifications on iOS until
@@ -98,11 +100,22 @@ export async function displaySimpleNotification(
   }
 
   // Add the message to the list of existing messages for this chat's notification
-  messages.push({text: body, timestamp: Date.now()});
+  const newestMessage: {
+    text: string;
+    timestamp: number;
+    person?: AndroidPerson;
+  } = {
+    text: body,
+    timestamp: Date.now(),
+  };
+  if (memberName) {
+    const person = {name: memberName};
+    newestMessage.person = person;
+  }
+  messages.push(newestMessage);
 
   const notification: Notification = {
-    title: title,
-    subtitle: subtitle,
+    title: chatName,
     body: body,
     data: {
       ...(chatId && {chatId: chatId}),
@@ -111,20 +124,24 @@ export async function displaySimpleNotification(
     },
     android: {
       channelId,
+      smallIcon: 'ic_small_icon',
       style: {
         type: AndroidStyle.MESSAGING,
         person: {
-          name: title,
+          name: chatName,
         },
         messages: messages,
+        group: isGroup,
+        title: chatName,
       },
       // Open the app when the notification is pressed
       pressAction: {
         id: 'default',
       },
       groupId: chatId,
-      groupSummary: true,
+      groupSummary: false,
       groupAlertBehavior: AndroidGroupAlertBehavior.ALL,
+      color: AndroidColor.PURPLE,
     },
   };
 

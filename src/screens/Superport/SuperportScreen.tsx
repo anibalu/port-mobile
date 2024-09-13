@@ -133,7 +133,6 @@ const SuperportScreen = ({route, navigation}: Props) => {
         );
       })();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portId, chosenFolder]);
 
   const onSaveDetails = (

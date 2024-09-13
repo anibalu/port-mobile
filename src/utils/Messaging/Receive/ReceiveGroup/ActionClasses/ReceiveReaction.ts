@@ -38,18 +38,13 @@ class ReceiveReaction extends GroupReceiveAction {
       this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
       const senderName = await this.getSenderName();
       const connection = await getConnection(this.chatId);
-      const notificationData = {
-        title: senderName,
-        subtitle: connection.name,
-        body: updatedText || '',
-      };
       displaySimpleNotification(
-        notificationData.title,
-        notificationData.body,
+        connection.name,
+        updatedText,
         !connection.disconnected,
         this.chatId,
         true,
-        notificationData.subtitle,
+        senderName,
       );
     }
   }

@@ -56,18 +56,13 @@ class ReceiveLink extends GroupReceiveAction {
       this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
       const senderName = await this.getSenderName();
       const connection = await getConnection(this.chatId);
-      const notificationData = {
-        title: senderName,
-        subtitle: connection.name,
-        body: (this.decryptedMessageContent.data as LinkParams).text || '',
-      };
       displaySimpleNotification(
-        notificationData.title,
-        notificationData.body,
+        connection.name,
+        (this.decryptedMessageContent.data as LinkParams).text || '',
         !connection.disconnected,
         this.chatId,
         true,
-        notificationData.subtitle,
+        senderName,
       );
     }
   }

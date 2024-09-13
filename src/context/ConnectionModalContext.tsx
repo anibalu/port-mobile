@@ -19,6 +19,7 @@ import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 type ModalContextType = {
   linkUseError: number;
   setLinkUseError: (x: number) => void;
+  connectOverURL: ({url}: {url: string}) => Promise<void>;
 };
 
 const ConnectionModalContext = createContext<ModalContextType | undefined>(
@@ -199,6 +200,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       value={{
         linkUseError: linkUseError,
         setLinkUseError: setLinkUseError,
+        connectOverURL: connectOverURL,
       }}>
       {children}
     </ConnectionModalContext.Provider>

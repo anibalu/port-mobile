@@ -4,6 +4,7 @@
 import React from 'react';
 import {
   ColorValue,
+  Linking,
   StyleSheet,
   Text,
   TextProps,
@@ -11,6 +12,7 @@ import {
 } from 'react-native';
 import Autolink from 'react-native-autolink';
 import {PortColors} from './ComponentUtils';
+import {useConnectionModal} from 'src/context/ConnectionModalContext';
 
 export enum FontType {
   'sb' = 'Rubik-SemiBold',
@@ -68,27 +70,43 @@ export const NumberlessLinkText: React.FC<
   onLayout = () => {},
   textColor = PortColors.text.primary,
   linkColor,
-}) => (
-  <Autolink
-    text={children}
-    url
-    email
-    linkStyle={{
-      color: linkColor,
-      textDecorationLine: 'underline',
-    }}
-    onLayout={onLayout}
-    style={StyleSheet.compose(
-      {
-        fontFamily: fontType,
-        fontSize: fontSizeType,
-        fontWeight: getWeight(fontType),
-        color: textColor,
-      },
-      style,
-    )}
-  />
-);
+}) => {
+  const {connectOverURL} = useConnectionModal();
+  const handleLinkPress = (url: string) => {
+    const numberlessDomain = 'porting.me';
+    const match = url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
+    const hostname = match ? match[1] : null;
+    if (hostname && hostname.endsWith(numberlessDomain)) {
+      connectOverURL({url});
+    } else {
+      Linking.openURL(url).catch(err =>
+        console.error(`Failed to open URL: ${url} with Error: `, err),
+      );
+    }
+  };
+  return (
+    <Autolink
+      text={children}
+      url
+      email
+      linkStyle={{
+        color: linkColor,
+        textDecorationLine: 'underline',
+      }}
+      onLayout={onLayout}
+      onPress={handleLinkPress}
+      style={StyleSheet.compose(
+        {
+          fontFamily: fontType,
+          fontSize: fontSizeType,
+          fontWeight: getWeight(fontType),
+          color: textColor,
+        },
+        style,
+      )}
+    />
+  );
+};
 
 /**
  *

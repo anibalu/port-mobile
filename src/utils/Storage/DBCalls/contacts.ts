@@ -126,6 +126,7 @@ export async function updateContact(pairHash: string, update: ContactUpdate) {
  */
 export async function deleteContact(pairHash: string) {
   let shouldDeleteContact = true;
+  //check if a direct chat exists with the pair Hash.
   await runSimpleQuery(
     `
     SELECT EXISTS(
@@ -143,6 +144,26 @@ export async function deleteContact(pairHash: string) {
       }
     },
   );
+  //check if a group member exists with the pair hash.
+  if (shouldDeleteContact) {
+    await runSimpleQuery(
+      `
+      SELECT EXISTS(
+        SELECT 1 
+        FROM groupMembers 
+        WHERE pairHash = ?
+      );
+      `,
+      [pairHash],
+
+      (tx, results) => {
+        const exists = results.rows.item(0);
+        if (exists) {
+          shouldDeleteContact = false;
+        }
+      },
+    );
+  }
   if (shouldDeleteContact) {
     await runSimpleQuery(
       `

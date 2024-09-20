@@ -102,7 +102,11 @@ export const ImageBubble = ({
           )}
         </View>
         {(message.data as LargeDataParams).text ? (
-          <View style={{width: IMAGE_DIMENSIONS, paddingTop: 4}}>
+          <View
+            style={{
+              width: IMAGE_DIMENSIONS,
+              paddingTop: 4,
+            }}>
             <TextBubble message={message} />
           </View>
         ) : (

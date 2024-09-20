@@ -208,7 +208,7 @@ const PopUpActions = ({
   };
 
   const onTemplatePressed = async (): Promise<void> => {
-    navigation.navigate('Templates', {chatId: chatId});
+    navigation.navigate('GroupTemplates', {chatId: chatId});
   };
   const Colors = DynamicColors();
   const styles = styling(Colors);

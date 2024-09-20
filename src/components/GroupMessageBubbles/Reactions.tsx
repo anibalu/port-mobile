@@ -233,7 +233,7 @@ const styling = (colors: any) =>
       borderWidth: 0.5,
       borderColor: colors.primary.surface,
       paddingVertical: 4,
-      paddingLeft: 5,
+      paddingHorizontal: 5,
       marginTop: -4,
     },
   });

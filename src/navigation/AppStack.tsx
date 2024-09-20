@@ -40,6 +40,7 @@ import AddNewContacts from '@screens/GroupsV2/AddNewContacts';
 import AllMembers from '@screens/GroupsV2/AllMembers';
 import InviteFriends from '@screens/Home/InviteFriends';
 import {useSelector} from 'react-redux';
+import GroupTemplates from '@screens/Templates/GroupTemplates';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -97,6 +98,7 @@ function AppStack() {
           />
           <Stack.Screen name="AddNewContacts" component={AddNewContacts} />
           <Stack.Screen name="AllMembers" component={AllMembers} />
+          <Stack.Screen name="GroupTemplates" component={GroupTemplates} />
         </Stack.Navigator>
       </ConnectionModalProvider>
     </>

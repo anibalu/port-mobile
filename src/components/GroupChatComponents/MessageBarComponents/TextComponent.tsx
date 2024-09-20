@@ -262,7 +262,7 @@ const TextComponent = ({
         </View>
 
         <View style={styles.send}>
-          <TouchableOpacity hitSlop={40} onPress={onHandleClick}>
+          <TouchableOpacity hitSlop={24} onPress={onHandleClick}>
             {text.length > 0 || replyToMessage ? (
               <SendIcon />
             ) : (

@@ -58,8 +58,6 @@ const styling = (colors: any) =>
       paddingHorizontal: PortSpacing.secondary.uniform,
       backgroundColor: colors.labels.fill,
       borderRadius: 10,
-      borderWidth: 1,
-      borderColor: colors.labels.stroke,
       marginBottom: PortSpacing.tertiary.uniform,
       gap: PortSpacing.tertiary.uniform,
       marginTop: PortSpacing.tertiary.uniform,

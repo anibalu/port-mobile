@@ -36,7 +36,11 @@ export const TextBubble = ({
     <View
       style={
         hasOnlyEmojis(initialText)
-          ? {...styles.textContainerRow, flexDirection: 'column'}
+          ? {
+              ...styles.textContainerRow,
+              alignItems: 'flex-start',
+              flexDirection: 'column',
+            }
           : styles.textContainerRow
       }>
       {hasOnlyEmojis(initialText) ? (
@@ -81,5 +85,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingHorizontal: 4,
     paddingVertical: 4,
+    width: '100%',
   },
 });

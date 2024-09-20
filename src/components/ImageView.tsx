@@ -41,7 +41,7 @@ const ImageView = ({
                   {showFullText ? (
                     <NumberlessText
                       textColor={PortColors.primary.white}
-                      fontSizeType={FontSizeType.m}
+                      fontSizeType={FontSizeType.l}
                       fontType={FontType.rg}>
                       {attachedText}
                     </NumberlessText>
@@ -50,7 +50,7 @@ const ImageView = ({
                       ellipsizeMode="tail"
                       numberOfLines={3}
                       textColor={PortColors.primary.white}
-                      fontSizeType={FontSizeType.m}
+                      fontSizeType={FontSizeType.l}
                       fontType={FontType.rg}>
                       {attachedText}
                     </NumberlessText>

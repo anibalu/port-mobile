@@ -41,6 +41,8 @@ const AddTemplateBottomsheet = ({
         template: desc,
         title: title,
       });
+      setDesc('');
+      setTitle('');
     } else {
       if (id) {
         await editTemplate({
@@ -51,19 +53,39 @@ const AddTemplateBottomsheet = ({
       }
     }
     await loadTemplates();
-    setDesc('');
-    setTitle('');
     onClose();
   };
+
   const onSaveAndSend = async () => {
-    await onSave();
-    if (id) {
-      await onSendMessage({
-        templateId: id,
+    if (scope === 'add') {
+      const templateId = generateRandomHexId();
+      await addTemplate({
+        templateId: templateId,
         template: desc,
         title: title,
       });
+      setDesc('');
+      setTitle('');
+      onSendMessage({
+        templateId: templateId,
+        template: desc,
+        title: title,
+      });
+    } else {
+      if (id) {
+        await editTemplate({
+          templateId: id,
+          template: desc,
+          title: title,
+        });
+        onSendMessage({
+          templateId: id,
+          template: desc,
+          title: title,
+        });
+      }
     }
+    onClose();
   };
   return (
     <PrimaryBottomSheet

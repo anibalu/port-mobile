@@ -90,11 +90,7 @@ export async function leaveGroup(groupId: string): Promise<boolean> {
     );
     return true;
   } catch (error: any) {
-    if (typeof error === 'object' && error.response) {
-      if (error.response.status === 403) {
-        return true;
-      }
-    }
+    console.log('Error leaving group: ', error);
   }
   return false;
 }

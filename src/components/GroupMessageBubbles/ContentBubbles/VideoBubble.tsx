@@ -81,6 +81,7 @@ export const VideoBubble = ({
         triggerDownload();
       } else {
         navigation.navigate('MediaViewer', {
+          isGroup: true,
           message: message,
         });
       }

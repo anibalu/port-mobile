@@ -68,6 +68,7 @@ export const ImageBubble = ({
         triggerDownload();
       } else {
         navigation.navigate('MediaViewer', {
+          isGroup: true,
           message: message,
         });
       }

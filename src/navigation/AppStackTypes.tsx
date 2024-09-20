@@ -1,6 +1,5 @@
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {SavedMessageParams} from '@utils/Messaging/interfaces';
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
@@ -8,6 +7,8 @@ import {LineDataCombined} from '@utils/DirectChats/DirectChat';
 import {ContactEntry} from '@utils/Storage/DBCalls/contacts';
 import {GroupData} from '@utils/Storage/DBCalls/group';
 import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
+import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
 export type AppStackParamList = {
   HomeTab: undefined;
@@ -111,7 +112,7 @@ export type AppStackParamList = {
   CreateNewGroup: undefined;
   NewGroupPort: {chatId: string; chatData: GroupData};
   GiveUsFeedbackScreen: undefined;
-  MediaViewer: {message: SavedMessageParams};
+  MediaViewer: {isGroup?: boolean; message: GroupMessageData | LineMessageData};
   BlockedContacts: undefined;
   HelpScreen: undefined;
   Templates: undefined;

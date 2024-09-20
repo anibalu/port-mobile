@@ -236,7 +236,9 @@ export const wait = async (delay: number = ARTIFICIAL_LOADER_INTERVAL) => {
  * @param isoString the target time to convert to a readable string
  * @returns a user-readable string
  */
-export function getTimeAndDateStamp(isoString: string | undefined): string {
+export function getTimeAndDateStamp(
+  isoString: string | null | undefined,
+): string {
   if (!isoString) {
     return '';
   }

@@ -414,29 +414,6 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? GroupInitialMemberInfoParams
     : never;
 
-/**
- * Params associated with a message saved to storage.
- */
-export interface SavedMessageParams {
-  chatId: string;
-  messageId: string;
-  contentType: ContentType;
-  data: DataType;
-  timestamp: string;
-  sender: boolean; //true if user is sender. false if user is receiver
-  messageStatus?: MessageStatus | null; //not null for sent messages
-  replyId?: string | null; //not null if message is a reply message
-  memberId?: string | null; //not null for received group messages
-  expiresOn?: string | null; //when should the message expire.
-  shouldAck?: boolean; // if the message should be ack'ed. Useful for controlling read receipts. This is present only for messages that have been received by a user
-  recipientId?: string | null; //used when message has to be sent to one
-  hasReaction?: boolean;
-  deliveredTimestamp?: string | null;
-  readTimestamp?: string | null;
-  forceRender?: string; //Used to force re-render for bubbles when conditions cannot be explicitly defined.
-  mtime?: string;
-}
-
 export enum ReactionSender {
   self = 'SELF',
   peer = 'PEER',

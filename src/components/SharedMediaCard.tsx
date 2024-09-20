@@ -16,6 +16,8 @@ import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {getMessage} from '@utils/Storage/messages';
+import {isGroupChat} from '@utils/Storage/connections';
+import {getGroupMessage} from '@utils/Storage/groupMessages';
 
 const SharedMediaCard = ({
   chatId,
@@ -39,10 +41,16 @@ const SharedMediaCard = ({
   const RightChevron = results.RightChevron;
   const renderSelectedPhoto = ({item}: {item: MediaEntry}) => {
     const onClickMedia = async item => {
-      const media = await getMessage(item.chatId, item.messageId);
-      navigation.navigate('MediaViewer', {
-        message: media,
-      });
+      const isGroup = await isGroupChat(item.chatId);
+      const media = isGroup
+        ? await getGroupMessage(item.chatId, item.messageId)
+        : await getMessage(item.chatId, item.messageId);
+      if (media) {
+        navigation.navigate('MediaViewer', {
+          isGroup: isGroup,
+          message: media,
+        });
+      }
     };
     return (
       <View

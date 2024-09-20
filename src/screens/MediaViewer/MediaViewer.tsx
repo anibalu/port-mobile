@@ -9,6 +9,7 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import PopupBottomsheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
 import {cleanDeleteMessage} from '@utils/Storage/messages';
+import {cleanDeleteGroupMessage} from '@utils/Storage/groupMessages';
 import Share from 'react-native-share';
 import {MediaMessageActionsBar} from '@components/ActionBars/MediaMessageActionsBar';
 import {useNavigation} from '@react-navigation/native';
@@ -27,14 +28,19 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {ToastType, useToast} from 'src/context/ToastContext';
+import {DEFAULT_GROUP_MEMBER_NAME, DEFAULT_NAME} from '@configs/constants';
+import Group from '@utils/Groups/Group';
+import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MediaViewer'>;
 
 const MediaViewer = ({route}: Props) => {
-  const {message} = route.params;
+  const {isGroup, message} = route.params;
   const fileUri = getSafeAbsoluteURI(message.data?.fileUri, 'doc');
   const attachedText = message.data?.text || '';
-  const [owner, setOwner] = useState('New Contact');
+  const [owner, setOwner] = useState(
+    isGroup ? DEFAULT_GROUP_MEMBER_NAME : DEFAULT_NAME,
+  );
   const time = getTimeAndDateStamp(message.timestamp);
   const [showSuccessDownloaded, setShowSuccessDownloaded] = useState(false);
   const {showToast} = useToast();
@@ -43,9 +49,19 @@ const MediaViewer = ({route}: Props) => {
     if (message.sender) {
       return 'You';
     } else {
-      const dataHandler = new DirectChat(message.chatId);
-      const name = (await dataHandler.getChatData()).name;
-      return name;
+      if (isGroup) {
+        const newMessage = message as GroupMessageData;
+        const dataHandler = new Group(newMessage.chatId);
+        let name = null;
+        if (newMessage.memberId) {
+          name = (await dataHandler.getMember(newMessage.memberId))?.name;
+        }
+        return name || DEFAULT_GROUP_MEMBER_NAME;
+      } else {
+        const dataHandler = new DirectChat(message.chatId);
+        const name = (await dataHandler.getChatData()).name;
+        return name || DEFAULT_NAME;
+      }
     }
   };
 
@@ -71,7 +87,8 @@ const MediaViewer = ({route}: Props) => {
   };
 
   const performDelete = async (): Promise<void> => {
-    await cleanDeleteMessage(message.chatId, message.messageId, true);
+    const deleter = isGroup ? cleanDeleteGroupMessage : cleanDeleteMessage;
+    await deleter(message.chatId, message.messageId, true);
     setOpenDeleteModal(false);
     navigation.goBack();
   };

@@ -1,60 +1,81 @@
-export const WEBSOCKET_URL =
-  process.env.WEBSOCKET_URL || 'wss://dev.numberless.tech/ws';
-const BASE_URL = process.env.BASE_URL || 'https://dev.numberless.tech';
-const REPORTING_RESOURCE = BASE_URL + '/report';
-export const LINE_MESSAGE_REPORTING_RESOURCE = REPORTING_RESOURCE + '/line';
-export const GROUP_MESSAGE_REPORTING_RESOURCE = REPORTING_RESOURCE + '/group';
-const MANAGEMENT_BASE_URL = BASE_URL + '/management';
-export const POLICY_ACCEPTANCE = MANAGEMENT_BASE_URL + '/policy-acceptance';
-const MESSAGING_BASE_URL = BASE_URL + '/messaging';
-export const INITIAL_POST_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + '/user';
-export const AUTH_SERVER_CHALLENGE_RESOURCE = BASE_URL + '/auth/user';
-export const PERMISSION_MANAGEMENT_URL = MANAGEMENT_BASE_URL + '/permissions';
-export const LINE_LINKS_MANAGEMENT_RESOURCE =
-  MANAGEMENT_BASE_URL + '/line-links';
-export const LINE_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + '/line';
-export const LINE_RETRY_URL = LINE_MANAGEMENT_RESOURCE + '/retry';
-export const BUNDLE_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + '/bundle';
-export const LARGE_FILE_PRESIGNED_URL_RESOURCE = BASE_URL + '/multimedia';
-export const GROUP_MANAGEMENT_RESOURCE = MANAGEMENT_BASE_URL + '/group';
-export const GROUP_ADMIN_MANAGEMENT_RESOURCE =
-  GROUP_MANAGEMENT_RESOURCE + '/admins';
-export const GROUP_MEMBER_REMOVE_RESOURCE =
-  GROUP_MANAGEMENT_RESOURCE + '/remove';
-export const GROUP_EXIT_RESOURCE = GROUP_MANAGEMENT_RESOURCE + '/leave';
-export const GROUP_LINKS_MANAGEMENT_RESOURCE =
-  MANAGEMENT_BASE_URL + '/group-links';
-export const MESSAGING_RESOURCE = MESSAGING_BASE_URL + '/message';
-export const GROUP_MEMBER_RESOURCE = GROUP_MANAGEMENT_RESOURCE + '/member';
-export const GROUP_PICTURE_RESOURCE = GROUP_MANAGEMENT_RESOURCE + '/data';
-export const QUEUE_GET_URL = MESSAGING_BASE_URL + '/queue';
-export const BUG_REPORTING_ENDPOINT = BASE_URL + '/bugs';
+const useSSL = process.env.USE_SSL ? process.env.USE_SSL === 'true' : true;
+const DOMAIN = process.env.DOMAIN || 'dev.numberless.tech';
+
+/**
+ * Base Endpoints
+ */
+const BASE_URL = `${useSSL ? 'https' : 'http'}://${DOMAIN}`;
+const WS_BASE = `${useSSL ? 'wss' : 'ws'}://${DOMAIN}`;
+
+/**
+ * WebSocket and Call Endpoints
+ */
+export const WEBSOCKET_URL = `${WS_BASE}/ws`;
+export const CALL_URL = `${WS_BASE}/call`;
+
+/**
+ * Reporting Endpoints
+ */
+const REPORT_BASE = `${BASE_URL}/report`;
+export const LINE_MESSAGE_REPORTING_RESOURCE = `${REPORT_BASE}/line`;
+export const GROUP_MESSAGE_REPORTING_RESOURCE = `${REPORT_BASE}/group`;
+export const BUG_REPORTING_ENDPOINT = `${BASE_URL}/bugs`;
+
+/**
+ * Management Endpoints
+ */
+const MGMT_BASE = `${BASE_URL}/management`;
+export const POLICY_ACCEPTANCE = `${MGMT_BASE}/policy-acceptance`;
+export const INITIAL_POST_MANAGEMENT_RESOURCE = `${MGMT_BASE}/user`;
+export const AUTH_SERVER_CHALLENGE_RESOURCE = `${BASE_URL}/auth/user`;
+export const PERMISSION_MANAGEMENT_URL = `${MGMT_BASE}/permissions`;
+
+/**
+ * Line Management Endpoints
+ */
+export const LINE_LINKS_MANAGEMENT_RESOURCE = `${MGMT_BASE}/line-links`;
+export const LINE_MANAGEMENT_RESOURCE = `${MGMT_BASE}/line`;
+export const LINE_RETRY_URL = `${LINE_MANAGEMENT_RESOURCE}/retry`;
+
+/**
+ * Bundle Management Endpoints
+ */
+export const BUNDLE_MANAGEMENT_RESOURCE = `${MGMT_BASE}/bundle`;
 export const BUNDLE_ID_PREPEND_LINK = 'https://porting.me/?bundleId=';
 
 /**
- * Superport routes
+ * Group Management Endpoints
  */
-export const LINE_SUPERPORT_MANAGEMENT_RESOURCE =
-  MANAGEMENT_BASE_URL + '/superport';
-export const LINE_SUPERPORT_CREATION_DELETION =
-  LINE_SUPERPORT_MANAGEMENT_RESOURCE + '/line';
-export const LINE_SUPERPORT_LIMIT_MODIFICATION =
-  LINE_SUPERPORT_MANAGEMENT_RESOURCE + '/limit';
-export const LINE_SUPERPORT_PAUSE =
-  LINE_SUPERPORT_MANAGEMENT_RESOURCE + '/pause';
-export const LINE_SUPERPORT_RESUME =
-  LINE_SUPERPORT_MANAGEMENT_RESOURCE + '/resume';
-export const LINE_SUPERPORT_BULK_UPDATE =
-  LINE_SUPERPORT_MANAGEMENT_RESOURCE + '/bulk-update';
+const GROUP_BASE = `${MGMT_BASE}/group`;
+export const GROUP_ADMIN_MANAGEMENT_RESOURCE = `${GROUP_BASE}/admins`;
+export const GROUP_MEMBER_REMOVE_RESOURCE = `${GROUP_BASE}/remove`;
+export const GROUP_EXIT_RESOURCE = `${GROUP_BASE}/leave`;
+export const GROUP_LINKS_MANAGEMENT_RESOURCE = `${MGMT_BASE}/group-links`;
+export const GROUP_MEMBER_RESOURCE = `${GROUP_BASE}/member`;
+export const GROUP_PICTURE_RESOURCE = `${GROUP_BASE}/data`;
 
 /**
- * Contact port routes
+ * Messaging Endpoints
  */
-export const CONTACT_SHARING_MANAGEMENT_RESOURCE =
-  MANAGEMENT_BASE_URL + '/contact-sharing';
-export const CONTACT_SHARING_TICKET_MANAGEMENT =
-  CONTACT_SHARING_MANAGEMENT_RESOURCE + '/ticket';
-export const CONTACT_SHARING_PAUSE =
-  CONTACT_SHARING_MANAGEMENT_RESOURCE + '/pause';
-export const CONTACT_SHARING_RESUME =
-  CONTACT_SHARING_MANAGEMENT_RESOURCE + '/resume';
+const MSG_BASE = `${BASE_URL}/messaging`;
+export const MESSAGING_RESOURCE = `${MSG_BASE}/message`;
+export const QUEUE_GET_URL = `${MSG_BASE}/queue`;
+export const LARGE_FILE_PRESIGNED_URL_RESOURCE = `${BASE_URL}/multimedia`;
+
+/**
+ * Superport Endpoints
+ */
+const SUPERPORT_BASE = `${MGMT_BASE}/superport`;
+export const LINE_SUPERPORT_CREATION_DELETION = `${SUPERPORT_BASE}/line`;
+export const LINE_SUPERPORT_LIMIT_MODIFICATION = `${SUPERPORT_BASE}/limit`;
+export const LINE_SUPERPORT_PAUSE = `${SUPERPORT_BASE}/pause`;
+export const LINE_SUPERPORT_RESUME = `${SUPERPORT_BASE}/resume`;
+export const LINE_SUPERPORT_BULK_UPDATE = `${SUPERPORT_BASE}/bulk-update`;
+
+/**
+ * Contact Sharing Endpoints
+ */
+const CONTACT_BASE = `${MGMT_BASE}/contact-sharing`;
+export const CONTACT_SHARING_TICKET_MANAGEMENT = `${CONTACT_BASE}/ticket`;
+export const CONTACT_SHARING_PAUSE = `${CONTACT_BASE}/pause`;
+export const CONTACT_SHARING_RESUME = `${CONTACT_BASE}/resume`;

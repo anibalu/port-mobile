@@ -33,7 +33,7 @@ import {runOnJS, useAnimatedReaction} from 'react-native-reanimated';
 import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
 import {TRIGGER_TYPES} from '@store/triggerRedraw';
 import {useSelector} from 'react-redux';
-import Group from '@utils/Groups/Group';
+import Group from '@utils/Groups/GroupClass';
 import {getLatestGroupMessages} from '@utils/Storage/groupMessages';
 import {MessageActionsBar} from '@components/GroupChatComponents/MessageActionsBar';
 import MessageBar from '@components/GroupChatComponents/MessageBar';
@@ -100,6 +100,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     isScreenClickable,
     moveSliderIntermediateOpen,
     setIsConnected,
+    setGroupClass,
   } = useChatContext();
 
   const [pointerEvents, setPointerEvents] = useState<
@@ -132,11 +133,9 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
           payload: chatId,
         });
         try {
-          const dataHandler = new Group(chatId);
-          const chatData = await dataHandler.getData();
-          if (!chatData) {
-            throw new Error('No chat data available');
-          }
+          const dataHandler = await Group.load(chatId);
+          setGroupClass(dataHandler);
+          const chatData = dataHandler.getGroupData();
           setIsConnected(!chatData.disconnected);
           setPermissionsId(chatData.permissionsId);
           setName(chatData.name);
@@ -177,11 +176,9 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         return;
       }
       try {
-        const dataHandler = new Group(chatId);
-        const chatData = await dataHandler.getData();
-        if (!chatData) {
-          throw new Error('No chat data available');
-        }
+        const dataHandler = await Group.load(chatId);
+        setGroupClass(dataHandler);
+        const chatData = dataHandler.getGroupData();
         setIsConnected(!chatData.disconnected);
         setName(chatData.name);
         setProfileUri(

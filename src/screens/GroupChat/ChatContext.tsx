@@ -20,6 +20,7 @@ import {
   getGroupMessage,
   getLoadedGroupMessage,
 } from '@utils/Storage/groupMessages';
+import Group from '@utils/Groups/GroupClass';
 
 /**
  * Access slider constants
@@ -50,6 +51,8 @@ export interface SelectedMessageType {
 type ChatContextType = {
   //basic chat params
   chatId: string;
+  groupClass: Group | null;
+  setGroupClass: (x: Group | null) => void;
   isGroupChat: boolean;
   isConnected: boolean;
   setIsConnected: (x: boolean) => void;
@@ -176,6 +179,7 @@ export const ChatContextProvider = ({
   const [reportedMessages, setReportedMessages] = useState<string[] | null>(
     null,
   );
+  const [groupClass, setGroupClass] = useState<Group | null>(null);
   const [permissions, setPermissions] = useState<
     GroupPermissions | null | undefined
   >(null);
@@ -612,6 +616,8 @@ export const ChatContextProvider = ({
         isPopUpVisible,
         isEmojiSelectorVisible,
         setIsEmojiSelectorVisible,
+        groupClass,
+        setGroupClass,
       }}>
       {children}
     </ChatContext.Provider>

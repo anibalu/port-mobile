@@ -1,8 +1,10 @@
 import {isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
+import store from '@store/appStore';
 import React, {useEffect, useRef} from 'react';
 import {AppState} from 'react-native';
 import Modal from 'react-native-modal';
+import {useSelector} from 'react-redux';
 
 const GenericModal = ({
   onClose,
@@ -19,6 +21,9 @@ const GenericModal = ({
   position?: 'flex-end' | 'center';
   shouldAutoClose?: boolean;
 }) => {
+  const forceClose: boolean = useSelector(
+    state => state.forceCloseModal.forceClose,
+  );
   const Colors = DynamicColors();
 
   const appState = useRef(AppState.currentState);
@@ -40,6 +45,18 @@ const GenericModal = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (forceClose) {
+      onClose();
+      store.dispatch({
+        type: 'RESET_MODAL',
+        payload: 'RESET',
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [forceClose]);
+
   return (
     <Modal
       backdropColor={Colors.primary.overlay}
@@ -66,7 +83,7 @@ const GenericModal = ({
       }}
       hideModalContentWhileAnimating={true}
       onBackButtonPress={onClose}
-      isVisible={visible}
+      isVisible={!forceClose && visible}
       onBackdropPress={onClose}>
       {children}
     </Modal>

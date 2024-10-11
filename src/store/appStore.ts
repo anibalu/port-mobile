@@ -7,6 +7,7 @@ import triggerPendingRequestsReload from './triggerPendingRequestsReload';
 import ping from './ping';
 import triggerUpdateStatusRefetch from './triggerUpdateStatusRefetch';
 import triggerRedraw from './triggerRedraw';
+import forceCloseModal from './triggerAllModalsClose';
 
 const rootReducer = combineReducers({
   triggerUpdateStatusRefetch,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   triggerPendingRequestsReload,
   ping,
   triggerRedraw,
+  forceCloseModal,
 });
 
 const store = configureStore({

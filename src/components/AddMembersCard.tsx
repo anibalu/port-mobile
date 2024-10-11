@@ -302,6 +302,7 @@ const styling = (Colors: any) =>
     heading: {
       flex: 1,
       paddingVertical: PortSpacing.secondary.bottom,
+      marginBottom: PortSpacing.secondary.bottom,
       flexDirection: 'row',
       borderColor: Colors.primary.stroke,
       borderWidth: 0.5,

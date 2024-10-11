@@ -33,8 +33,12 @@ import {runOnJS, useAnimatedReaction} from 'react-native-reanimated';
 import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
 import {TRIGGER_TYPES} from '@store/triggerRedraw';
 import {useSelector} from 'react-redux';
+import {
+  getLatestGroupMessages,
+  getGroupMessagesAfterMessageId,
+  getGroupMessagesBeforeMessageId,
+} from '@utils/Storage/groupMessages';
 import Group from '@utils/Groups/GroupClass';
-import {getLatestGroupMessages} from '@utils/Storage/groupMessages';
 import {MessageActionsBar} from '@components/GroupChatComponents/MessageActionsBar';
 import MessageBar from '@components/GroupChatComponents/MessageBar';
 import Disconnected from '@components/GroupChatComponents/Disconnected';
@@ -88,6 +92,8 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     // showReportModal,
     // setShowReportModal,
     openDeleteMessageModal,
+    scrollToBottomClicked,
+    setScrollToBottomClicked,
     setOpenDeleteMessageModal,
     performDelete,
     performGlobalDelete,
@@ -99,8 +105,12 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     setPermissionsId,
     isScreenClickable,
     moveSliderIntermediateOpen,
+    listWindowMode,
+    setListWindowMode,
     setIsConnected,
+    setUnseenMessagesCount,
     setGroupClass,
+    setScrollToLatestMessage,
   } = useChatContext();
 
   const [pointerEvents, setPointerEvents] = useState<
@@ -113,8 +123,16 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     },
   );
 
-  //cursor for number of messages on screen
-  const [cursor, setCursor] = useState(50);
+  //initial cursor state values
+  const initialCursor = 25;
+  const initialCursorUp = 50;
+  const initialCursorDown = 50;
+
+  //cursor is for number of messages on screen
+  const [cursor, setCursor] = useState(initialCursor); // main cursor for scrolling only in up direction in normal mode
+  const [cursorUp, setCursorUp] = useState<number>(initialCursorUp); // cursor for scrolling up in window mode
+  const [cursorDown, setCursorDown] = useState<number>(initialCursorDown); // cursor for scrolling down in window mode
+
   const navigation = useNavigation();
 
   //re-render trigger
@@ -146,9 +164,12 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         } catch (error) {
           console.error('No such chat or no available group members: ', error);
         }
-        //set saved messages
-        const resp = await getLatestGroupMessages(chatId, cursor);
-        setMessages(resp);
+        // Prevent duplicate fetch
+        if (!messages || messages.length === 0) {
+          //set saved messages
+          const resp = await getLatestGroupMessages(chatId, cursor);
+          setMessages(resp);
+        }
         //Notifying that initial message load is complete.
         setMessagesLoaded(true);
         await debouncedPeriodicOperations();
@@ -164,6 +185,13 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
       // eslint-disable-next-line
     }, []),
   );
+
+  const [fetchLatestTrigger, setFetchLatestTrigger] = useState(false);
+  const [latestMessageId, setLatestMessageId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setFetchLatestTrigger(true);
+  }, [ping, newMessageTrigger]);
 
   useEffect(() => {
     (async () => {
@@ -184,26 +212,122 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         setProfileUri(
           chatData.groupPicture ? chatData.groupPicture : DEFAULT_AVATAR,
         );
-        const resp = await getLatestGroupMessages(chatId, cursor);
-        setMessages(resp);
+
+        // Prevent duplicate fetch
+        if (!messages || messages.length === 0 || fetchLatestTrigger) {
+          const resp = await getLatestGroupMessages(chatId, cursor);
+
+          if (latestMessageId) {
+            // Find the index of the message with latestMessageId in the fetched messages
+            const latestMessageIndex = resp.findIndex(
+              message => message.messageId === latestMessageId,
+            );
+
+            // If the latestMessageId is found in the list
+            if (latestMessageIndex !== -1) {
+              // Get all messages before the latestMessageId and filter by sender === false (i.e. unread messages)
+              const unreadMessages = resp
+                .slice(0, latestMessageIndex) // Slice the array to get messages before the found message
+                .filter(message => message.sender === false); // Filter messages where sender is false (unread)
+
+              // Calculate the unread message count based on the filtered array
+              const unseenMessagesCount = unreadMessages.length;
+
+              // Set the unseenMessagesCount state to trigger UI updates, like showing a badge
+              setUnseenMessagesCount(unseenMessagesCount);
+              setFetchLatestTrigger(false);
+            } else {
+              console.log(
+                'Latest message ID not found in the fetched messages.',
+              );
+            }
+
+            // Optionally, set a new messageId for future reference or testing purposes
+            setLatestMessageId(resp[0].messageId); // Set a new latest message ID
+          } else {
+            // If latestMessageId is not provided, set a default messageId
+            setLatestMessageId(resp[0].messageId); // Set a new latest message ID
+          }
+
+          if (resp[0].messageId !== messages[0].messageId) {
+            setMessages(resp);
+          }
+        }
       } catch (error) {
         console.log('Error fetching chat data: ', error);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ping, newMessageTrigger, cursor]);
+  }, [ping, newMessageTrigger, cursor, fetchLatestTrigger]);
 
+  // runs when you hit start point of chat flatlist
   const onStartReached = async (): Promise<void> => {
-    const initCursor = cursor;
-    const resp = await getLatestGroupMessages(chatId, initCursor + 50);
-    setMessages(resp);
-    console.log('setting cursor 2');
-    setCursor(cursor + 50);
+    if (!listWindowMode) {
+      const resp = await getLatestGroupMessages(chatId, cursor + 25);
+      setMessages(resp);
+
+      //if we fetch last message set which is less than set of expected 25
+      if (resp.length < messages.length + 25) {
+        setCursor(resp.length);
+      } else {
+        setCursor(cursor + 25);
+      }
+    } else {
+      const resp = await getGroupMessagesBeforeMessageId(
+        chatId,
+        messages[0].messageId,
+        cursorUp + 25,
+      );
+      setMessages(resp);
+
+      //if we fetch last message set which is less than set of expected 25
+      if (resp.length < messages.length + 25) {
+        setCursorUp(resp.length);
+        setCursorDown(resp.length);
+      } else {
+        setCursorUp(cursorUp + 25);
+        setCursorDown(cursorDown + 25);
+      }
+    }
   };
 
+  // runs when you hit end point of chat flatlist
   const onEndReached = async () => {
-    console.log('Marking chat as read');
-    await toggleRead(chatId);
+    if (!listWindowMode) {
+      console.log('Marking chat as read');
+      console.log('reseting all cursors');
+      setUnseenMessagesCount(0);
+      setCursor(25);
+      if (scrollToBottomClicked) {
+        setFetchLatestTrigger(true);
+        setScrollToLatestMessage(true);
+        setScrollToBottomClicked(false);
+      }
+      setCursorDown(initialCursorDown);
+      setCursorUp(initialCursorUp);
+      await toggleRead(chatId);
+    } else {
+      const resp = await getGroupMessagesAfterMessageId(
+        chatId,
+        messages[messages.length - 1].messageId,
+        cursorDown + 25,
+      );
+
+      // Append only the new messages
+      setMessages(resp);
+
+      // if we reach end of the list, i.e. no more messages to fetch
+      if (resp.length < messages.length + 25) {
+        // then Update cursorDown and cursorUp to fetched messages value if the response length is less than what was supposed to be fetched
+        setCursorUp(cursorUp + resp.length);
+        setCursorDown(cursorDown + resp.length);
+        setListWindowMode(false);
+      } else {
+        // then Update cursorDown and cursorUp to current messages array value
+        setCursorUp(cursorUp + 25);
+        setCursorDown(cursorDown + 25);
+      }
+    }
   };
 
   useEffect(() => {

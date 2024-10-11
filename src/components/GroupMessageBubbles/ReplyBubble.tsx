@@ -7,7 +7,7 @@ import {
 import {LinkPreviewReplyBubble} from './ReplyBubbles/LinkPreviewReplyBubble';
 import {ContentType} from '@utils/Messaging/interfaces';
 import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {TextReplyBubble} from './ReplyBubbles/TextReplyBubble';
 import {MIN_WIDTH_REPLY, REPLY_MEDIA_HEIGHT} from './BubbleUtils';
 import {ImageReplyBubble} from './ReplyBubbles/ImageReplyBubble';
@@ -19,10 +19,19 @@ import {
   LoadedGroupMessage,
 } from '@utils/Storage/DBCalls/groupMessage';
 import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
+import {useChatContext} from '@screens/GroupChat/ChatContext';
 
 export const ReplyBubble = ({reply}: {reply: GroupReplyContent}): ReactNode => {
+  const {onTargetPress, selectionMode} = useChatContext();
   return (
-    <View style={styles.container}>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        reply &&
+        !selectionMode &&
+        onTargetPress(reply.messageId, reply.timestamp)
+      }
+      style={styles.container}>
       {reply ? (
         <ReplyExistsBubble
           reply={reply}
@@ -33,7 +42,7 @@ export const ReplyBubble = ({reply}: {reply: GroupReplyContent}): ReactNode => {
       ) : (
         <View />
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 

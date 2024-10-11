@@ -30,6 +30,8 @@ export interface ReplyContent {
   data: any | null;
   sender: boolean | null;
   chatId: string | null;
+  messageId: string | null;
+  timestamp: string | null;
 }
 
 export interface LoadedMessage {
@@ -49,6 +51,7 @@ export interface LoadedMessage {
   reply: ReplyContent;
   mediaId: string | null;
   filePath: string | null;
+  isHighlighted?: boolean | null;
 }
 
 /**
@@ -123,7 +126,7 @@ export async function getMessage(
 }
 
 /**
- * Get the latest messages in a chat
+ * Get the latest messages in a chat, including the timestamp of any reply
  * @param chatId
  * @param limit The maximum number of latest messages to return
  * @returns Up to the <limit> latest messages in <chatId>
@@ -133,6 +136,7 @@ export async function getLatestMessages(
   limit: number = 50,
 ): Promise<LoadedMessage[]> {
   let messageList: LoadedMessage[] = [];
+
   /**
    * We begin by getting the first <limit> most recent messages and alias
    * that to the table messages.
@@ -166,7 +170,8 @@ export async function getLatestMessages(
       reply.contentType as reply_contentType,
       reply.data as reply_data,
       reply.sender as reply_sender,
-      reply.chatId as reply_chatId
+      reply.messageId as reply_messageId,
+      reply.timestamp as reply_timestamp
     FROM
       (SELECT * FROM lineMessages
       WHERE chatId = ?
@@ -186,21 +191,299 @@ export async function getLatestMessages(
       let entry;
       for (let i = 0; i < len; i++) {
         entry = results.rows.item(i);
-        // We convert some columns into correct destination types
+        // Convert some columns into correct destination types
         entry.data = JSON.parse(entry.data);
         entry.sender = toBool(entry.sender);
         entry.shouldAck = toBool(entry.shouldAck);
         entry.hasReaction = toBool(entry.hasReaction);
-        // We convert the reply columns into a more typescript friendly format
-        entry.reply = {};
-        entry.reply.contentType = entry.reply_contentType;
-        entry.reply.data = JSON.parse(entry.reply_data);
-        entry.reply.sender = toBool(entry.reply_sender);
-        entry.reply.chatId = entry.reply_chatId;
+        entry.reply = {
+          contentType: entry.reply_contentType,
+          data: JSON.parse(entry.reply_data),
+          sender: toBool(entry.reply_sender),
+          messageId: entry.reply_messageId,
+          timestamp: entry.reply_timestamp,
+        };
+
+        // Push the processed entry to the message list
         messageList.push(entry);
       }
     },
   );
+
+  return messageList;
+}
+
+/**
+ * Get 25 messages around (before and after) a specific timestamp in a chat and UNION them.
+ * Add an `isHighlighted` attribute to the target message.
+ * @param chatId
+ * @param timestamp The ISO string timestamp of the item we want to load around
+ * @returns An array of LoadedMessages around the specified <timestamp> (51 total including target message)
+ */
+export async function getMessagesAroundTimestamp(
+  chatId: string,
+  timestamp: string,
+): Promise<LoadedMessage[]> {
+  let messageList: LoadedMessage[] = [];
+
+  await runSimpleQuery(
+    `
+    SELECT * FROM (
+      SELECT 
+      message.chatId as chatId,
+      message.messageId as messageId,
+      message.contentType as contentType,
+      message.data as data,
+      message.timestamp as timestamp,
+      message.sender as sender,
+      message.messageStatus as messageStatus,
+      message.expiresOn as expiresOn,
+      message.shouldAck as shouldAck,
+      message.hasReaction as hasReaction,
+      message.readTimestamp as readTimestamp,
+      message.deliveredTimestamp as deliveredTimestamp,
+      message.mtime as mtime,
+      message.mediaId as mediaId,
+      media.filePath as filePath,
+      reply.contentType as reply_contentType,
+      reply.data as reply_data,
+      reply.sender as reply_sender,
+      reply.chatId as reply_chatId,
+      reply.messageId as reply_messageId,
+      reply.timestamp as reply_timestamp,
+      CASE WHEN message.timestamp = ? THEN 1 ELSE 0 END as isHighlighted
+    FROM
+      lineMessages message
+    LEFT JOIN 
+      lineMessages reply
+      ON message.replyId = reply.messageId
+    LEFT JOIN
+      media
+      ON message.mediaId = media.mediaId
+    WHERE message.chatId = ?
+    AND message.timestamp > ?
+    ORDER BY message.timestamp ASC
+    LIMIT 25
+    ) 
+    UNION ALL
+    SELECT * FROM (
+      SELECT 
+      message.chatId as chatId,
+      message.messageId as messageId,
+      message.contentType as contentType,
+      message.data as data,
+      message.timestamp as timestamp,
+      message.sender as sender,
+      message.messageStatus as messageStatus,
+      message.expiresOn as expiresOn,
+      message.shouldAck as shouldAck,
+      message.hasReaction as hasReaction,
+      message.readTimestamp as readTimestamp,
+      message.deliveredTimestamp as deliveredTimestamp,
+      message.mtime as mtime,
+      message.mediaId as mediaId,
+      media.filePath as filePath,
+      reply.contentType as reply_contentType,
+      reply.data as reply_data,
+      reply.sender as reply_sender,
+      reply.chatId as reply_chatId,
+      reply.messageId as reply_messageId,
+      reply.timestamp as reply_timestamp,
+      CASE WHEN message.timestamp = ? THEN 1 ELSE 0 END as isHighlighted
+    FROM
+      lineMessages message
+    LEFT JOIN 
+      lineMessages reply
+      ON message.replyId = reply.messageId
+    LEFT JOIN
+      media
+      ON message.mediaId = media.mediaId
+    WHERE message.chatId = ?
+    AND message.timestamp <= ?
+    ORDER BY message.timestamp DESC
+    LIMIT 25
+    )
+    ORDER BY timestamp DESC
+    `,
+    [timestamp, chatId, timestamp, timestamp, chatId, timestamp],
+    (tx, results) => {
+      const len = results.rows.length;
+      let entry;
+      for (let i = 0; i < len; i++) {
+        entry = results.rows.item(i);
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+        entry.shouldAck = toBool(entry.shouldAck);
+        entry.hasReaction = toBool(entry.hasReaction);
+        entry.reply = {
+          contentType: entry.reply_contentType,
+          data: JSON.parse(entry.reply_data),
+          sender: toBool(entry.reply_sender),
+          chatId: entry.reply_chatId,
+          messageId: entry.reply_messageId,
+          timestamp: entry.reply_timestamp,
+        };
+
+        messageList.push(entry);
+      }
+    },
+  );
+
+  return messageList;
+}
+
+/**
+ * Fetch messages after the given messageId with a specified limit
+ * @param chatId The chat to search in
+ * @param messageId The messageId to search after
+ * @param limit The number of messages to fetch (default 25)
+ * @returns An array of LoadedMessages fetched after the given messageId
+ */
+export async function getMessagesAfterMessageId(
+  chatId: string,
+  messageId: string,
+  limit: number = 25,
+): Promise<LoadedMessage[]> {
+  let messageList: LoadedMessage[] = [];
+
+  await runSimpleQuery(
+    `
+    SELECT * FROM (
+      SELECT
+          message.chatId AS chatId,
+          message.messageId AS messageId,
+          message.contentType AS contentType,
+          message.data AS data,
+          message.timestamp AS timestamp,
+          message.sender AS sender,
+          message.messageStatus AS messageStatus,
+          message.expiresOn AS expiresOn,
+          message.shouldAck AS shouldAck,
+          message.hasReaction AS hasReaction,
+          message.readTimestamp AS readTimestamp,
+          message.deliveredTimestamp AS deliveredTimestamp,
+          message.mtime AS mtime,
+          message.mediaId AS mediaId,
+          media.filePath AS filePath,
+          reply.contentType AS reply_contentType,
+          reply.data AS reply_data,
+          reply.sender AS reply_sender,
+          reply.chatId AS reply_chatId,
+          reply.messageId AS reply_messageId,
+          reply.timestamp AS reply_timestamp
+      FROM lineMessages message
+      LEFT JOIN lineMessages reply ON message.replyId = reply.messageId
+      LEFT JOIN media ON message.mediaId = media.mediaId
+      WHERE message.chatId = ?
+        AND message.timestamp >= (
+            SELECT timestamp
+            FROM lineMessages
+            WHERE messageId = ? 
+              AND chatId = ?
+        )
+      ORDER BY message.timestamp ASC
+      LIMIT ? + 1
+    )
+    ORDER BY timestamp DESC
+    `,
+    [chatId, messageId, chatId, limit],
+    (tx, results) => {
+      const len = results.rows.length;
+      for (let i = 0; i < len; i++) {
+        let entry = results.rows.item(i);
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+        entry.shouldAck = toBool(entry.shouldAck);
+        entry.hasReaction = toBool(entry.hasReaction);
+        entry.reply = {
+          contentType: entry.reply_contentType,
+          data: JSON.parse(entry.reply_data),
+          sender: toBool(entry.reply_sender),
+          chatId: entry.reply_chatId,
+          messageId: entry.reply_messageId,
+          timestamp: entry.reply_timestamp,
+        };
+        messageList.push(entry);
+      }
+    },
+  );
+
+  return messageList;
+}
+
+/**
+ * Fetch messages before the given messageId with a specified limit
+ * @param chatId The chat to search in
+ * @param messageId The messageId to search before
+ * @param limit The number of messages to fetch (default 25)
+ * @returns An array of LoadedMessages fetched before the given messageId
+ */
+export async function getMessagesBeforeMessageId(
+  chatId: string,
+  messageId: string,
+  limit: number = 25,
+): Promise<LoadedMessage[]> {
+  let messageList: LoadedMessage[] = [];
+
+  await runSimpleQuery(
+    `
+    SELECT
+      message.chatId AS chatId,
+      message.messageId AS messageId,
+      message.contentType AS contentType,
+      message.data AS data,
+      message.timestamp AS timestamp,
+      message.sender AS sender,
+      message.messageStatus AS messageStatus,
+      message.expiresOn AS expiresOn,
+      message.shouldAck AS shouldAck,
+      message.hasReaction AS hasReaction,
+      message.readTimestamp AS readTimestamp,
+      message.deliveredTimestamp AS deliveredTimestamp,
+      message.mtime AS mtime,
+      message.mediaId AS mediaId,
+      media.filePath AS filePath,
+      reply.contentType AS reply_contentType,
+      reply.data AS reply_data,
+      reply.sender AS reply_sender,
+      reply.chatId AS reply_chatId,
+      reply.messageId AS reply_messageId,
+      reply.timestamp AS reply_timestamp
+    FROM lineMessages message
+    LEFT JOIN lineMessages reply ON message.replyId = reply.messageId
+    LEFT JOIN media ON message.mediaId = media.mediaId
+    WHERE message.chatId = ? 
+      AND message.timestamp <= (
+          SELECT timestamp
+          FROM lineMessages
+          WHERE messageId = ? 
+            AND chatId = ?
+      )
+    ORDER BY message.timestamp DESC
+    LIMIT ? + 1
+    `,
+    [chatId, messageId, chatId, limit],
+    (tx, results) => {
+      const len = results.rows.length;
+      for (let i = 0; i < len; i++) {
+        let entry = results.rows.item(i);
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+        entry.shouldAck = toBool(entry.shouldAck);
+        entry.hasReaction = toBool(entry.hasReaction);
+        entry.reply = {
+          contentType: entry.reply_contentType,
+          data: JSON.parse(entry.reply_data),
+          sender: toBool(entry.reply_sender),
+          chatId: entry.reply_chatId,
+          messageId: entry.reply_messageId,
+          timestamp: entry.reply_timestamp,
+        };
+        messageList.push(entry);
+      }
+    },
+  );
+
   return messageList;
 }
 

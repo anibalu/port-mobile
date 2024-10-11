@@ -5,7 +5,7 @@ import {
   LinkParams,
   TextParams,
 } from '@utils/Messaging/interfaces';
-import React, {createContext, useState, useContext} from 'react';
+import React, {createContext, useState, useContext, useRef} from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {getRichReactions} from '@utils/Storage/reactions';
@@ -18,8 +18,13 @@ import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
 import {
   cleanDeleteGroupMessage,
   getGroupMessage,
+  getGroupMessagesAroundTimestamp,
   getLoadedGroupMessage,
 } from '@utils/Storage/groupMessages';
+import {
+  scrollToMessage,
+  exitWindowModeAndScrollDown,
+} from '@utils/MessageNavigation';
 import Group from '@utils/Groups/GroupClass';
 
 /**
@@ -87,6 +92,11 @@ type ChatContextType = {
   reportedMessages: string[] | null;
   setReportedMessages: (x: any) => void;
   determineDeleteModalDisplay: () => void;
+  listWindowMode: boolean;
+  setListWindowMode: (x: boolean) => void;
+  unseenMessagesCount: number;
+  resetViewAndScroll: () => void;
+  setUnseenMessagesCount: (x: number) => void;
   //reactions context
   currentReactionMessage: string[];
   setCurrentReactionMessage: (x: string[]) => void;
@@ -95,6 +105,13 @@ type ChatContextType = {
   setReaction: (messageId: string) => void;
   unsetRichReaction: () => void;
   onReaction: (message: LoadedGroupMessage, reaction: string) => void;
+
+  scrollToLoadedItem: boolean;
+  setScrollToLoadedItem: (p: boolean) => void;
+  scrollToLatestMessage: boolean;
+  setScrollToLatestMessage: (p: boolean) => void;
+  scrollToBottomClicked: boolean;
+  setScrollToBottomClicked: (p: boolean) => void;
 
   //message to be replied to
   replyToMessage: LoadedGroupMessage | null;
@@ -139,7 +156,9 @@ type ChatContextType = {
   updateAfterDeletion: (messageId: string[]) => void;
   updateAfterGlobalDeletion: (messageId: string[]) => void;
   isPopUpVisible: boolean;
+  flatlistRef: any;
   togglePopUp: () => void;
+  onTargetPress: (targetId: string | null, timestamp: string | null) => void;
   setIsEmojiSelectorVisible: (p: boolean) => void;
   isEmojiSelectorVisible: boolean;
 };
@@ -249,6 +268,59 @@ export const ChatContextProvider = ({
     permissionIconHeight.value = withTiming(0, {duration: 300});
   };
 
+  // if latest messages does not contain target message, theen we fetch new set and list window mode turns on (on click on a reply to navigate/search)
+  const [listWindowMode, setListWindowMode] = useState<boolean>(false);
+
+  // flatlist ref being used at chatList
+  const flatlistRef = useRef<any>(null);
+
+  const resetViewAndScroll = () => {
+    exitWindowModeAndScrollDown(flatlistRef, setListWindowMode);
+  };
+
+  // runs when you click on a target/reply bubble
+  const onTargetPress = async (
+    targetId: string | null,
+    timestamp: string | null,
+  ) => {
+    const filteredItem = messages.find(msg => msg.messageId === targetId);
+    if (filteredItem) {
+      // Add the isHighlighted attribute to the filtered item
+      const updatedMessages = messages.map(msg =>
+        msg.messageId === filteredItem.messageId
+          ? {...msg, isHighlighted: true} // Add the isHighlighted attribute to the target message
+          : msg,
+      );
+
+      setMessages(updatedMessages);
+
+      // Scroll to the highlighted message
+      scrollToMessage(filteredItem, flatlistRef, updatedMessages);
+    } else {
+      // if item is not present in the current list then fetch
+      const resp =
+        timestamp && (await getGroupMessagesAroundTimestamp(chatId, timestamp));
+
+      if (resp) {
+        setMessages(resp);
+        const filteredResp = resp.find(msg => msg.messageId === targetId);
+        if (filteredResp) {
+          setListWindowMode(true);
+          setScrollToLoadedItem(true);
+        }
+      }
+    }
+  };
+
+  // this triggers scroll only when list is updated in window mode
+  const [scrollToLoadedItem, setScrollToLoadedItem] = useState<boolean>(false);
+
+  const [scrollToLatestMessage, setScrollToLatestMessage] =
+    useState<boolean>(false);
+
+  const [scrollToBottomClicked, setScrollToBottomClicked] =
+    useState<boolean>(false);
+
   // for toggling emoji keyboard
   const [isEmojiSelectorVisible, setIsEmojiSelectorVisible] =
     useState<boolean>(false);
@@ -276,6 +348,8 @@ export const ChatContextProvider = ({
     setOpenDeleteMessageModal(true);
     return senderExists; // Return whether to show delete for everyone or not
   };
+
+  const [unseenMessagesCount, setUnseenMessagesCount] = useState<number>(null);
   const [currentReactionMessage, setCurrentReactionMessage] = useState<
     string[]
   >([]);
@@ -606,6 +680,7 @@ export const ChatContextProvider = ({
         onDelete,
         onReport,
         showReportModal,
+        resetViewAndScroll,
         setShowReportModal,
         onReply,
         setMessages,
@@ -616,6 +691,18 @@ export const ChatContextProvider = ({
         isPopUpVisible,
         isEmojiSelectorVisible,
         setIsEmojiSelectorVisible,
+        unseenMessagesCount,
+        setUnseenMessagesCount,
+        listWindowMode,
+        setListWindowMode,
+        onTargetPress,
+        scrollToLoadedItem,
+        setScrollToLoadedItem,
+        scrollToLatestMessage,
+        setScrollToLatestMessage,
+        scrollToBottomClicked,
+        setScrollToBottomClicked,
+        flatlistRef,
         groupClass,
         setGroupClass,
       }}>

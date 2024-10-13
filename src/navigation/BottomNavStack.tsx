@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import PlusButtonBlack from 'assets/icons/PlusButtonBlack.svg';
 import PlusButtonAccent from 'assets/icons/PlusButtonAccent.svg';
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -31,6 +31,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ChatActionsBar} from '@screens/Home/ChatActionsBar';
 import FolderChats from '@screens/Folders/FolderChats';
 import NoConnectionsScreen from '@screens/NoConnectionsScreen/NoConnectionsScreen';
+import {useInsetChecks} from '@components/DeviceUtils';
 
 const Tab = createBottomTabNavigator<BottomNavStackParamList>();
 
@@ -118,12 +119,15 @@ function NumberlessTabbar({
 
   const {isChatActionBarVisible, isConnectionOptionsModalOpen} =
     useBottomNavContext();
+  const {hasIosBottomNotch} = useInsetChecks();
 
   return (
     <View style={{backgroundColor: Colors.primary.surface}}>
       <View
         style={StyleSheet.compose(styles.tabbarContainerStyle, {
-          marginBottom: isIOS ? PortSpacing.secondary.bottom : insets.bottom,
+          marginBottom: hasIosBottomNotch
+            ? PortSpacing.secondary.bottom
+            : insets.bottom,
         })}>
         {isChatActionBarVisible ? (
           <ChatActionsBar />

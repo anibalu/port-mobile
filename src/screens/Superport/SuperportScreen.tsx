@@ -422,7 +422,10 @@ const SuperportScreen = ({route, navigation}: Props) => {
   return (
     <>
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
-      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
+      <SafeAreaView
+        style={{
+          backgroundColor: Colors.primary.background,
+        }}>
         <BackTopbar
           bgColor="w"
           onBackPress={() => navigation.goBack()}

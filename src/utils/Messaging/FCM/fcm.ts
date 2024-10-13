@@ -1,8 +1,12 @@
 import messaging from '@react-native-firebase/messaging';
 import {showDefaultNotification} from '@utils/Notifications';
-import _ from 'lodash';
 import pullBacklog from '../pullBacklog';
 import * as API from './APICalls';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export type FCMToken = string;
+
+const FCM_KEY = 'fcmToken';
 
 export const getFCMToken = async () => {
   const token = await messaging().getToken();
@@ -36,12 +40,51 @@ export const foregroundMessageHandler = () => {
   });
 };
 
+/**
+ * When we we successfully update an FCM token, we save a copy of it locally.
+ * We call initialise FCM often, but it only submits the new token to the backend if
+ * there is a change.
+ * We increased our frequency of initialising FCM because if you migrate to a new device
+ * using OS tools that ship with Android and iOS, we end up not detecting that we're on a new device
+ * and as such never attempt to update the new FCM registration token on the server.
+ */
+
+/**
+ * Reads FCM info from AsyncStorage
+ * @returns {FCMToken|undefined} - FCM info read from AsyncStorage. Returns undefined if the storage doesn't exist
+ */
+async function readCachedFCMToken(): Promise<FCMToken | undefined> {
+  try {
+    const FCMToken: any = await AsyncStorage.getItem(FCM_KEY);
+    return FCMToken;
+  } catch (error) {
+    console.log('Error reading token from AsyncStorage: ', error);
+    return undefined;
+  }
+}
+
+/**
+ * Writes FCMToken in AsyncStorage with new info
+ * @param {FCMToken} FCMToken - the token information to overwrite with
+ */
+async function cacheFCMToken(FCMToken: FCMToken): Promise<void> {
+  await AsyncStorage.setItem(FCM_KEY, FCMToken);
+}
+
+/**
+ * Checks if FCMToken is present in AsyncStorage and compares with FCM token from messaging servers
+ *  If localFCMToken is different, overwrite and patch on server
+ */
 export async function initialiseFCM(): Promise<boolean> {
-  const tokenFCM = await getFCMToken();
-  const response = await API.patchFCMToken(tokenFCM);
-  console.log('[FCM TOKEN POST] ', response);
-  if (_.isNil(response)) {
+  const currentFCMToken = await getFCMToken();
+  const cachedFCMToken = await readCachedFCMToken();
+  try {
+    if (cachedFCMToken !== currentFCMToken) {
+      await API.patchFCMToken(currentFCMToken);
+      await cacheFCMToken(currentFCMToken);
+    }
+    return true;
+  } catch {
     return false;
   }
-  return true;
 }

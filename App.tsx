@@ -13,7 +13,10 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Provider} from 'react-redux';
 import store from './src/store/appStore';
 
-import {foregroundMessageHandler} from '@utils/Messaging/FCM/fcm';
+import {
+  initialiseFCM,
+  foregroundMessageHandler,
+} from '@utils/Messaging/FCM/fcm';
 
 import ErrorModal from '@components/Modals/ErrorModal';
 import LoginStack from '@navigation/LoginStack';
@@ -64,6 +67,8 @@ function App(): JSX.Element {
     } finally {
       setInitialLoad(false);
       await runMigrations();
+      // Asynchronously attempt to re-upload FCM token if needed
+      initialiseFCM();
       await wait(300);
       //hides splash screen
       await BootSplash.hide({fade: false});

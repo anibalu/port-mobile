@@ -484,7 +484,9 @@ class NotificationService: UNNotificationServiceExtension {
     if (request.content.userInfo["source"] != nil) {
       providedSource = request.content.userInfo["source"] as! String
     } else {
-      providedSource = "no source"
+      // There was no source specified, so default to the server message.
+      contentHandler(bestAttemptContent!)
+      return
     }
     
     var providedMember: String? = nil

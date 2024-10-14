@@ -2,6 +2,8 @@ import messaging from '@react-native-firebase/messaging';
 import {showDefaultNotification} from '@utils/Notifications';
 import pullBacklog from '../pullBacklog';
 import * as API from './APICalls';
+import ReceiveMessage from '../Receive/ReceiveMessage';
+import {isIOS} from '@components/ComponentUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type FCMToken = string;
@@ -18,7 +20,16 @@ export const getFCMToken = async () => {
  * Payload is ignored, as pullBacklog is used to make an API call to fetch relevant messages
  */
 export const registerBackgroundMessaging = (): void => {
-  messaging().setBackgroundMessageHandler(async () => {
+  messaging().setBackgroundMessageHandler(async message => {
+    // On android we attempts to process the trigger message immediately so that we can
+    if (!isIOS && message.data?.trigger) {
+      try {
+        const receiver = new ReceiveMessage(message.data?.trigger);
+        await receiver.receive();
+      } catch (e) {
+        console.error('Could not process trigger message, skipping: ', e);
+      }
+    }
     console.log('[NEW BACKGROUND MESSAGE]');
     await pullBacklog().catch((e: any) => {
       console.log('Error in background message handler: ', e);

@@ -49,7 +49,8 @@ type Props = NativeStackScreenProps<FolderNavStackParamList, 'FolderChats'>;
 const FolderChats = ({route}: Props) => {
   const {folder} = route.params;
   const colors = DynamicColors();
-  const styles = styling(colors);
+  const {themeValue} = useTheme();
+  const styles = styling(colors, themeValue);
   const ping: any = useSelector(state => state.ping.ping);
   const folderChangedTrigger = useListenForTrigger(TRIGGER_TYPES.FOLDER_UPDATE);
 
@@ -164,7 +165,6 @@ const FolderChats = ({route}: Props) => {
     };
   }, [isLoading, opacityAnimation]);
 
-  const {themeValue} = useTheme();
   const svgArray = [
     {
       assetName: 'MoveChats',
@@ -239,6 +239,7 @@ const FolderChats = ({route}: Props) => {
                         <View style={styles.barWrapper}>
                           <View
                             style={{
+                              paddingVertical: PortSpacing.tertiary.uniform,
                               paddingHorizontal: PortSpacing.secondary.uniform,
                             }}>
                             <SearchBar
@@ -267,18 +268,20 @@ const FolderChats = ({route}: Props) => {
                               }}
                             />
                           ) : (
-                            <FolderOptionWithChevron
-                              subtitle="This folder is not linked to any Superports"
-                              text={
-                                'Tap here to link a Superport with this folder'
-                              }
-                              Icon={LinkSuperport}
-                              onPress={() => {
-                                navigation.navigate('SuperportScreen', {
-                                  selectedFolder: {...folder},
-                                });
-                              }}
-                            />
+                            <View style={styles.folderOptionContainer}>
+                              <FolderOptionWithChevron
+                                subtitle="This folder is not linked to any Superports"
+                                text={
+                                  'Tap here to link a Superport with this folder'
+                                }
+                                Icon={LinkSuperport}
+                                onPress={() => {
+                                  navigation.navigate('SuperportScreen', {
+                                    selectedFolder: {...folder},
+                                  });
+                                }}
+                              />
+                            </View>
                           )}
                         </View>
                       ) : null
@@ -373,11 +376,22 @@ const FolderChats = ({route}: Props) => {
   );
 };
 
-const styling = (colors: any) =>
+const styling = (colors: any, themeValue) =>
   StyleSheet.create({
     chats: {
       flex: 1,
-      backgroundColor: colors.primary.surface,
+      backgroundColor:
+        themeValue === 'dark'
+          ? colors.primary.background
+          : colors.primary.white,
+    },
+    folderOptionContainer: {
+      backgroundColor:
+        themeValue === 'dark'
+          ? colors.primary.background
+          : colors.primary.white,
+      width: '100%',
+      paddingBottom: PortSpacing.tertiary.uniform,
     },
     isolationButton: {
       alignSelf: 'flex-end',
@@ -389,7 +403,6 @@ const styling = (colors: any) =>
     },
     barWrapper: {
       backgroundColor: colors.primary.surface,
-      paddingVertical: PortSpacing.tertiary.uniform,
       flexDirection: 'column',
       justifyContent: 'space-between',
       alignItems: 'center',

@@ -19,7 +19,7 @@ import {useBottomNavContext} from 'src/context/BottomNavContext';
 export function FolderChatsTopBar({
   showEdit = true,
 }: {
-  showEdit: boolean;
+  showEdit?: boolean;
 }): ReactNode {
   const navigation = useNavigation<any>();
   const {

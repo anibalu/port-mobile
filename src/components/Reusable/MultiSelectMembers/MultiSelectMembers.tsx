@@ -33,15 +33,13 @@ const MultiSelectMembers = ({
           selectedMembers={selectedMembers}
         />
       )}
-      {members.length > 0 && (
-        <MultiSelectMembersCard
-          selectAll={selectAll}
-          setSelectAll={setSelectAll}
-          setSelectedMembers={setSelectedMembers}
-          members={members}
-          selectedMembers={selectedMembers}
-        />
-      )}
+      <MultiSelectMembersCard
+        selectAll={selectAll}
+        setSelectAll={setSelectAll}
+        setSelectedMembers={setSelectedMembers}
+        members={members}
+        selectedMembers={selectedMembers}
+      />
     </View>
   );
 };

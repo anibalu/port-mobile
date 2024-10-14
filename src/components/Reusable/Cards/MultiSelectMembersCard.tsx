@@ -122,7 +122,7 @@ const MultiSelectMembersCard = ({
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFolder]);
+  }, [selectedFolder, members]);
 
   const svgArray = [
     {

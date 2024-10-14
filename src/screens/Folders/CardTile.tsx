@@ -148,6 +148,8 @@ const CardTile = ({
                 justifyContent: 'space-between',
               }}>
               <NumberlessText
+                style={{flex: 1}}
+                numberOfLines={2}
                 textColor={Colors.text.primary}
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.sb}>

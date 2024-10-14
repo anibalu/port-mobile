@@ -16,7 +16,7 @@ export async function addPermissionEntry(data: PermissionsEntry) {
   await runSimpleQuery(
     `
     INSERT INTO permissions (
-      permissionsId, autoDownload, contactSharing, disappearingMessages, displayPicture, notifications,readReceipts,focus) VALUES (?,?,?,?,?,?,?,?);
+      permissionsId, autoDownload, contactSharing, disappearingMessages, displayPicture, notifications,readReceipts,focus, favourite) VALUES (?,?,?,?,?,?,?,?,?);
     `,
     [
       data.permissionsId,
@@ -27,6 +27,7 @@ export async function addPermissionEntry(data: PermissionsEntry) {
       data.notifications,
       data.readReceipts,
       data.focus,
+      data.favourite,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, results) => {},
@@ -108,7 +109,8 @@ export async function updatePermissions(
     contactSharing = COALESCE(?, contactSharing),
     disappearingMessages = COALESCE(?, disappearingMessages),
     readReceipts = COALESCE(?, readReceipts),
-    focus = COALESCE(?, focus)
+    focus = COALESCE(?, focus),
+    favourite =COALESCE(?, favourite)
     WHERE permissionsId = ? ;
     `,
     [
@@ -119,6 +121,7 @@ export async function updatePermissions(
       update.disappearingMessages,
       update.readReceipts,
       update.focus,
+      update.favourite,
       permissionsId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

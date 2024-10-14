@@ -54,6 +54,8 @@ interface BottomNavContextType {
   setConnections: (x: ChatTileProps[] | null) => void;
   folderConnections: ChatTileProps[] | null;
   setFolderConnections: (x: ChatTileProps[] | null) => void;
+  setConnectionsNotInFocus: (x: number) => void;
+  connectionsNotInFocus: number;
 }
 
 const BottomNavContext = createContext<BottomNavContextType | undefined>(
@@ -101,6 +103,8 @@ export const BottomNavProvider = ({children}: {children: ReactNode}) => {
     ChatTileProps[] | null
   >(null);
 
+  const [connectionsNotInFocus, setConnectionsNotInFocus] = useState(0);
+
   return (
     <BottomNavContext.Provider
       value={{
@@ -134,6 +138,8 @@ export const BottomNavProvider = ({children}: {children: ReactNode}) => {
         setConnections,
         folderConnections,
         setFolderConnections,
+        connectionsNotInFocus,
+        setConnectionsNotInFocus,
       }}>
       {children}
     </BottomNavContext.Provider>

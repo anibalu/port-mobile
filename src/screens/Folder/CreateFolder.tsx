@@ -26,6 +26,9 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useTheme} from 'src/context/ThemeContext';
 import store from '@store/appStore';
 import InputWithoutBorder from '@components/Reusable/Inputs/InputWithoutBorder';
+import FavouriteFolderBottomsheet from '@components/Reusable/BottomSheets/FavouriteFolderBottomsheet';
+import DisabledPermissionBottomSheet from '@components/Reusable/BottomSheets/DisabledPermissionBottomSheet';
+import FavouriteFolderSettingsCard from '@components/Reusable/PermissionCards/FavouriteFolderSettingsCard';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CreateFolder'>;
 
@@ -49,6 +52,8 @@ const CreateFolder = ({navigation, route}: Props) => {
   );
   //for loader used in the screen
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [openFolderBottomsheet, setOpenFolderBottomsheet] = useState(false);
+
   const Colors = DynamicColors();
   const svgArray = [
     // 1.Clock
@@ -62,6 +67,10 @@ const CreateFolder = ({navigation, route}: Props) => {
   const CrossButton = results.CrossButton;
   const styles = styling(Colors);
   const {themeValue} = useTheme();
+  const [
+    openDisabledPermissionBottomsheet,
+    setOpenDisabledPermissionBottomsheet,
+  ] = useState(false);
 
   return (
     <>
@@ -128,6 +137,15 @@ const CreateFolder = ({navigation, route}: Props) => {
                 showDissapearingMessagesOption={false}
                 permissions={permissions}
                 setPermissions={setPermissions}
+                setOpenDisabledPermissionBottomsheet={
+                  setOpenDisabledPermissionBottomsheet
+                }
+              />
+              <FavouriteFolderSettingsCard
+                permissions={permissions}
+                heading="Favourite folder"
+                setOpenFolderBottomsheet={setOpenFolderBottomsheet}
+                setPermissions={setPermissions}
               />
             </View>
           </ScrollView>
@@ -178,6 +196,14 @@ const CreateFolder = ({navigation, route}: Props) => {
                 }}
               />
             )}
+            <FavouriteFolderBottomsheet
+              visible={openFolderBottomsheet}
+              onClose={() => setOpenFolderBottomsheet(p => !p)}
+            />
+            <DisabledPermissionBottomSheet
+              visible={openDisabledPermissionBottomsheet}
+              onClose={() => setOpenDisabledPermissionBottomsheet(p => !p)}
+            />
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>

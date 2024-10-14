@@ -28,12 +28,6 @@ export async function getAllFolders(): Promise<dbCalls.FolderInfo[]> {
   return await dbCalls.getAllFolders();
 }
 
-export interface FolderInfoWithUnread extends dbCalls.FolderInfo {
-  unread: number;
-  superportCount: number;
-  connectionsCount: number;
-}
-
 /**
  * Get number of superports for a folder
  * @param folderId
@@ -99,4 +93,8 @@ export async function deleteFolder(folderId: string) {
     throw new Error('Default folder delete forbidden');
   }
   await dbCalls.deleteFolder(folderId);
+}
+
+export async function getFavouriteFoldersWithUnreadCount() {
+  return await dbCalls.getFavoriteFoldersWithUnreadCount();
 }

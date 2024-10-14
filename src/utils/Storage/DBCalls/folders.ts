@@ -144,3 +144,113 @@ export async function deleteFolder(folderId: string) {
     (tx, results) => {},
   );
 }
+
+export async function getFavouriteFolders() {
+  let matches: FolderInfo[] = [];
+  await runSimpleQuery(
+    `
+    SELECT *
+      FROM
+        folders JOIN permissions
+        ON folders.permissionsId = permissions.permissionsId
+      WHERE favourite = TRUE
+    ;
+    `,
+    [],
+    (tx, results) => {
+      const len = results.rows.length;
+      for (let i = 0; i < len; i++) {
+        matches.push(results.rows.item(i));
+      }
+    },
+  );
+  return matches;
+}
+
+export interface FolderInfoWithUnread extends FolderInfo {
+  unread: number;
+}
+export async function getFavoriteFoldersWithUnreadCount(): Promise<
+  FolderInfoWithUnread[]
+> {
+  const matches: FolderInfoWithUnread[] = [];
+  await runSimpleQuery(
+    `
+    SELECT 
+      favouriteFolders.folderId,
+      favouriteFolders.name,
+      favouriteFolders.permissionsId,
+      count(nonFocusConnectionsWithUnreadCount.cid) as unread
+    FROM 
+
+    (SELECT folder.folderId, connection.routingId as cid
+    FROM 
+      connections connection
+    LEFT JOIN
+      lines
+      ON connection.routingId = lines.lineId
+    LEFT JOIN
+      groups
+      ON connection.routingId = groups.groupId
+    LEFT JOIN
+      folders folder
+      ON connection.folderId = folder.folderId
+    LEFT JOIN permissions ON COALESCE(lines.permissionsId, groups.permissionsId) = permissions.permissionsId
+    WHERE permissions.focus = false AND connection.newMessageCount > 0) nonFocusConnectionsWithUnreadCount
+    
+    JOIN
+
+    (SELECT 
+      folders.name as name,
+      folders.folderId as folderId,
+      folderPermissions.permissionsId as permissionsId
+    FROM 
+      folders JOIN permissions folderPermissions
+      ON folders.permissionsId = folderPermissions.permissionsId
+    WHERE folderPermissions.favourite = TRUE
+    ) favouriteFolders
+    ON favouriteFolders.folderId = nonFocusConnectionsWithUnreadCount.folderId
+    ;
+    `,
+    [],
+    (_, results) => {
+      const len = results.rows.length;
+      for (let i = 0; i < len; i++) {
+        matches.push(results.rows.item(i));
+      }
+    },
+  );
+  return matches;
+}
+
+/*
+    `
+    SELECT
+      favouriteFolders.name as name
+      favouriteFolders.folderId as folderId
+      count(nonHomeChats.chatId) as unread
+
+    FROM
+      (SELECT
+        folders.name as name,
+        folders.folderId as folderId,
+        folderPermissions.permissionsId as permissionsId
+      FROM
+        folders JOIN permissions folderPermissions
+        ON folders.permissionsId = folderPermissions.permissionsId
+      WHERE folderPermissions.favourite = TRUE
+      ) favouriteFolders
+
+      JOIN
+
+      (SELECT
+        connections.routingId as chatId
+        connections.folderId as folderId
+      FROM
+        connections JOIN permissions
+        ON connections.permissionsId = permissions.permissionsId
+      WHERE permissions.focus = FALSE
+      ) nonHomeChats
+      ON folderId ;
+    `,
+    */

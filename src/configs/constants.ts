@@ -76,6 +76,7 @@ export const defaultPermissions: PermissionsStrict = {
   contactSharing: true,
   readReceipts: true,
   disappearingMessages: 0,
+  favourite: true,
 };
 
 export const defaultPermissionsId: string = '00000000000000000000000000000000';

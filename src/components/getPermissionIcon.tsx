@@ -7,6 +7,7 @@ import ShareContactGreen from '@assets/icons/ShareContactGreen.svg';
 import CheckCircleOrange from '@assets/icons/CheckCircleOrange.svg';
 import DisappearingMessageBlue from '@assets/icons/DisappearingMessageBlue.svg';
 import ProfileTeal from '@assets/icons/ProfileTeal.svg';
+import FavouriteFolderOrange from '@assets/icons/FavouriteFolderOrange.svg';
 
 import BellDisabled from '@assets/light/icons/BellDisabled.svg';
 import DownloadDisabled from '@assets/light/icons/DownloadDisabled.svg';
@@ -15,6 +16,7 @@ import ShareContactDisabled from '@assets/light/icons/ShareContactDisabled.svg';
 import CheckCircleDisabled from '@assets/light/icons/CheckCircleDisabled.svg';
 import DisappearingMessageDisabled from '@assets/light/icons/DisappearingMessageDisabled.svg';
 import ProfileDisabled from '@assets/light/icons/ProfileDisabled.svg';
+import FavouriteFolderDisabled from '@assets/light/icons/FavouriteFolderDisabled.svg';
 
 import BellDisabledDark from '@assets/dark/icons/BellDisabled.svg';
 import DownloadDisabledDark from '@assets/dark/icons/DownloadDisabled.svg';
@@ -23,6 +25,7 @@ import ShareContactDisabledDark from '@assets/dark/icons/ShareContactDisabled.sv
 import CheckCircleDisabledDark from '@assets/dark/icons/CheckCircleDisabled.svg';
 import DisappearingMessageDisabledDark from '@assets/dark/icons/DisappearingMessageDisabled.svg';
 import ProfileDisabledDark from '@assets/dark/icons/ProfileDisabled.svg';
+import FavouriteFolderDisabledDark from '@assets/dark/icons/FavouriteFolderDisabled.svg';
 
 import DynamicColors from '@components/DynamicColors';
 import {SvgProps} from 'react-native-svg';
@@ -84,6 +87,12 @@ const permissionConfigMap: {[key: string]: PermissionConfig} = {
     enabledIcon: ProfileTeal,
     disabledIconLight: ProfileDisabled,
     disabledIconDark: ProfileDisabledDark,
+  },
+  favourite: {
+    bgColor: 'orange',
+    enabledIcon: FavouriteFolderOrange,
+    disabledIconLight: FavouriteFolderDisabled,
+    disabledIconDark: FavouriteFolderDisabledDark,
   },
 };
 

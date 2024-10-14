@@ -31,6 +31,7 @@ const ChatSettingsCard = ({
   setPermissions,
   showDissapearingMessagesOption = true,
   heading = 'Chat settings',
+  setOpenDisabledPermissionBottomsheet = () => {},
 }: {
   chatId?: string;
   permissionsId?: string;
@@ -38,6 +39,8 @@ const ChatSettingsCard = ({
   setPermissions: (permissions: PermissionsStrict) => void;
   showDissapearingMessagesOption?: boolean;
   heading?: string;
+
+  setOpenDisabledPermissionBottomsheet?: (x: boolean) => void;
 }) => {
   //controls dissapearing messages modal
   const [showDesappearingMessageModal, setShowDissappearingMessageModal] =
@@ -48,6 +51,9 @@ const ChatSettingsCard = ({
   const onUpdateBooleanPermission = async (
     permissionKey: keyof BooleanPermissions,
   ) => {
+    if (permissionKey === 'focus' && permissions.focus) {
+      setOpenDisabledPermissionBottomsheet(true);
+    }
     const updatedPermissions: PermissionsStrict = {
       ...permissions,
       [permissionKey]: !permissions[permissionKey],

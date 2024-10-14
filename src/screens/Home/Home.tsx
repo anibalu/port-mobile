@@ -47,6 +47,10 @@ import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactB
 import {cleanDeleteReadPort} from '@utils/Ports/direct';
 import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 
+import FavouriteFolders from './FavouriteFolders';
+import {getConnections} from '@utils/Storage/connections';
+import NoChatsInHomePlaceholder from './NoChatsInHomePlaceholder';
+
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
 const Home = ({navigation}: Props) => {
@@ -127,6 +131,8 @@ const Home = ({navigation}: Props) => {
     setSelectedProps,
     contactShareParams,
     setContactShareParams,
+    connectionsNotInFocus,
+    setConnectionsNotInFocus,
   } = useBottomNavContext();
 
   //loader that waits for home screen to finish loading.
@@ -153,6 +159,10 @@ const Home = ({navigation}: Props) => {
   useEffect(() => {
     (async () => {
       const output = await loadHomeScreenConnections();
+      const checkForConnections = await getConnections();
+      if (checkForConnections.length !== output.connections.length) {
+        setConnectionsNotInFocus(checkForConnections.length);
+      }
       setConnections(output.connections);
       setTotalUnreadCount(output.unread);
     })();
@@ -272,14 +282,17 @@ const Home = ({navigation}: Props) => {
                     scrollEnabled={viewableConnections.length > 0}
                     ListHeaderComponent={
                       connections && connections.length > 0 ? (
-                        <View style={styles.barWrapper}>
-                          <SearchBar
-                            style={styles.search}
-                            searchText={searchText}
-                            setSearchText={setSearchText}
-                            placeholder={'Search for chats'}
-                          />
-                        </View>
+                        <>
+                          <View style={styles.barWrapper}>
+                            <SearchBar
+                              style={styles.search}
+                              searchText={searchText}
+                              setSearchText={setSearchText}
+                              placeholder={'Search for chats'}
+                            />
+                          </View>
+                          <FavouriteFolders />
+                        </>
                       ) : null
                     }
                     ListFooterComponent={
@@ -311,6 +324,8 @@ const Home = ({navigation}: Props) => {
                       </View>
                     )}
                   />
+                ) : connectionsNotInFocus > 0 ? (
+                  <NoChatsInHomePlaceholder />
                 ) : (
                   <HomescreenPlaceholder />
                 )}
@@ -343,7 +358,7 @@ const Home = ({navigation}: Props) => {
   );
 };
 
-const styling = (colors: any, themeValue) =>
+const styling = (colors: any, themeValue: any) =>
   StyleSheet.create({
     chats: {
       flex: 1,

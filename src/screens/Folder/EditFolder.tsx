@@ -26,6 +26,9 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import EditableInputCardWithoutBorder from '@components/Reusable/Cards/EditableInputCardWithoutBorder';
 import {redrawOnFolderUpdate} from '@utils/TriggerTools/RedrawTrigger/redrawOnTrigger';
+import FavouriteFolderSettingsCard from '@components/Reusable/PermissionCards/FavouriteFolderSettingsCard';
+import FavouriteFolderBottomsheet from '@components/Reusable/BottomSheets/FavouriteFolderBottomsheet';
+import DisabledPermissionBottomSheet from '@components/Reusable/BottomSheets/DisabledPermissionBottomSheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'EditFolder'>;
 
@@ -39,7 +42,7 @@ const EditFolder = ({route, navigation}: Props) => {
   const [permissions, setPermissions] = useState<PermissionsStrict>({
     ...defaultPermissions,
   });
-
+  const [openFolderBottomsheet, setOpenFolderBottomsheet] = useState(false);
   //load up folder permissions
   useEffect(() => {
     (async () => {
@@ -47,7 +50,6 @@ const EditFolder = ({route, navigation}: Props) => {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   const onSaveFolderName = async () => {
     await updateFolderName(selectedFolder.folderId, folderName);
     setIsEditFolderNameModalOpen(false);
@@ -61,6 +63,11 @@ const EditFolder = ({route, navigation}: Props) => {
 
   const [openApplyToAllModal, setOpenApplyToAllModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+  const [
+    openDisabledPermissionBottomsheet,
+    setOpenDisabledPermissionBottomsheet,
+  ] = useState(false);
   const Colors = DynamicColors();
   const styles = styling(Colors);
   const svgArray = [
@@ -151,12 +158,23 @@ const EditFolder = ({route, navigation}: Props) => {
             </View>
             <View style={styles.chatSettingsContainer}>
               <ChatSettingsCard
+                setOpenDisabledPermissionBottomsheet={
+                  setOpenDisabledPermissionBottomsheet
+                }
                 showDissapearingMessagesOption={false}
                 permissionsId={selectedFolder.permissionsId}
                 permissions={permissions}
                 setPermissions={setPermissions}
               />
             </View>
+
+            <FavouriteFolderSettingsCard
+              permissions={permissions}
+              heading="Favourite folder"
+              setOpenFolderBottomsheet={setOpenFolderBottomsheet}
+              permissionsId={selectedFolder.permissionsId}
+              setPermissions={setPermissions}
+            />
             <View style={styles.buttonWrapper}>
               <PrimaryButton
                 isLoading={false}
@@ -211,6 +229,14 @@ const EditFolder = ({route, navigation}: Props) => {
             await deleteFolder(selectedFolder.folderId);
             navigation.navigate('Folders');
           }}
+        />
+        <FavouriteFolderBottomsheet
+          visible={openFolderBottomsheet}
+          onClose={() => setOpenFolderBottomsheet(p => !p)}
+        />
+        <DisabledPermissionBottomSheet
+          visible={openDisabledPermissionBottomsheet}
+          onClose={() => setOpenDisabledPermissionBottomsheet(p => !p)}
         />
       </SafeAreaView>
     </>

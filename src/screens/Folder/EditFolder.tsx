@@ -2,7 +2,7 @@ import {PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {SafeAreaView} from '@components/SafeAreaView';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, ScrollView} from 'react-native';
 import {
   FontSizeType,
@@ -53,13 +53,15 @@ const EditFolder = ({route, navigation}: Props) => {
   const onSaveFolderName = async () => {
     await updateFolderName(selectedFolder.folderId, folderName);
     setIsEditFolderNameModalOpen(false);
+    redrawOnFolderUpdate();
   };
 
-  useMemo(() => {
+  const handleFolderSave = () => {
     onSaveFolderName();
-    redrawOnFolderUpdate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folderName]);
+    navigation.navigate('HomeTab', {
+      selectedFolder: {...selectedFolder, name: folderName},
+    });
+  };
 
   const [openApplyToAllModal, setOpenApplyToAllModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -86,11 +88,7 @@ const EditFolder = ({route, navigation}: Props) => {
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
         <TopBarWithRightIcon
-          onIconRightPress={() => {
-            navigation.navigate('HomeTab', {
-              selectedFolder: {...selectedFolder, name: folderName},
-            });
-          }}
+          onIconRightPress={handleFolderSave}
           IconRight={CrossButton}
           heading={
             selectedFolder.folderId === defaultFolderId
@@ -116,6 +114,7 @@ const EditFolder = ({route, navigation}: Props) => {
               onClose={() => setIsEditFolderNameModalOpen(false)}
               title="Edit Folder Name"
               placeholderText="Folder name"
+              onSave={onSaveFolderName}
             />
           </View>
         )}

@@ -8,13 +8,7 @@ import ChatTile, {ChatTileProps} from '@components/ChatTile/ChatTile';
 import notifee, {AuthorizationStatus} from '@notifee/react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {debouncedPeriodicOperations} from '@utils/AppOperations';
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, {ReactElement, useEffect, useMemo, useState} from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -126,7 +120,6 @@ const Home = ({navigation}: Props) => {
     setTotalUnreadCount,
     connections,
     setConnections,
-    setSelectedFolderData,
     selectedProps,
     setSelectedProps,
     contactShareParams,
@@ -169,12 +162,6 @@ const Home = ({navigation}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ping]);
 
-  useFocusEffect(
-    useCallback(() => {
-      setSelectedFolderData(null);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
-  );
   //filter by search string
   const getFilteredConnectionsBySearch = (chats: ChatTileProps[]) => {
     const filteredSearch = chats.filter(connection =>

@@ -133,7 +133,9 @@ function NumberlessTabbar({
           <ChatActionsBar />
         ) : (
           <>
-            {isConnectionOptionsModalOpen && <ConnectionOptions />}
+            {isConnectionOptionsModalOpen && (
+              <ConnectionOptions selectedTab={state.routes[state.index].name} />
+            )}
             {state.routes.map((route: any, index: number) => {
               const {options} = descriptors[route.key];
               const label = options.tabBarLabel ?? options.title ?? route.name;

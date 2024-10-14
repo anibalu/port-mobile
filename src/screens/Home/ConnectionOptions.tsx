@@ -6,8 +6,13 @@ import TouchableOption from './TouchableOption';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {useNavigation} from '@react-navigation/native';
+import {defaultFolderInfo} from '@configs/constants';
 
-export default function ConnectionOptions() {
+export default function ConnectionOptions({
+  selectedTab,
+}: {
+  selectedTab?: string;
+}) {
   const {
     isConnectionOptionsModalOpen,
     setIsConnectionOptionsModalOpen,
@@ -19,7 +24,8 @@ export default function ConnectionOptions() {
   const openNewPortScreen = () => {
     setIsConnectionOptionsModalOpen(false);
     navigation.navigate('NewPortScreen', {
-      folder: selectedFolderData,
+      folder:
+        selectedTab === 'FolderStack' ? selectedFolderData : defaultFolderInfo,
     });
   };
 

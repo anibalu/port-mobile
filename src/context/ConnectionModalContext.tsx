@@ -53,41 +53,53 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
 
   //handles files shared into the app
   const handleFilesOps = (files: any) => {
-    const sharingMessageObjects = [];
-    let isText = false;
-
-    if (files) {
-      for (const file of files) {
-        const payloadFile: FileAttributes = {
-          // We decode the fileURI since iOS sharing is percent encoded in newer versions
-          fileUri: addFilePrefix(decodeURI(file.filePath)),
-          fileType: file.mimeType || '',
-          fileName: file.fileName || '',
-        };
-
-        //Text has been shared
-        if (payloadFile.fileUri === 'file://' || payloadFile.fileUri === null) {
-          const text = file.text ? file.text : file.weblink;
-          sharingMessageObjects.push(text);
-          isText = true;
-        } else {
-          const msg = {
-            contentType: imageRegex.test(file.mimeType)
-              ? ContentType.image
-              : videoRegex.test(file.mimeType)
-              ? ContentType.video
-              : ContentType.file,
-            data: {...payloadFile},
-          };
-          sharingMessageObjects.push(msg);
-        }
-      }
-
-      navigation.navigate('SelectShareContacts', {
-        shareMessages: sharingMessageObjects,
-        isText,
-      });
+    // TODO: consider redirecting immediately and processing the files in the
+    // SelectShareContacts screen itself to reduce latency that is apparent to
+    // the user.
+    if (!files) {
+      return;
     }
+    // Detect if we're sharing text or files.
+    // We do this by checking the first "file".
+    // If it doesn't contain a file, only share the first text chunk.
+    if (!files[0].filePath) {
+      // This means that it wasn't a file so it must be text.
+      const text = files[0].text || files[0].weblink;
+      navigation.navigate('SelectShareContacts', {
+        shareMessages: [text],
+        isText: true,
+      });
+      return;
+    }
+
+    // If we are here, we must be sharing files
+    const filesToShare: {contentType: ContentType; data: FileAttributes}[] = []; // Output buffer for adapted file data
+    // Adapt the files to a format that we can work conveniently with
+    for (const file of files) {
+      // Do file name, path and type wrangling shenanigans
+      const payloadFile: FileAttributes = {
+        // We decode the fileURI since iOS sharing is percent encoded in newer versions
+        fileUri: addFilePrefix(decodeURI(file.filePath)),
+        fileType: file.mimeType || '',
+        fileName: file.fileName || '',
+      };
+
+      // Prepare the message to be forwarded to the contact selection screen
+      const msg = {
+        contentType: imageRegex.test(file.mimeType)
+          ? ContentType.image
+          : videoRegex.test(file.mimeType)
+          ? ContentType.video
+          : ContentType.file,
+        data: {...payloadFile},
+      };
+      filesToShare.push(msg);
+    }
+
+    navigation.navigate('SelectShareContacts', {
+      shareMessages: filesToShare,
+      isText: false,
+    });
   };
 
   useEffect(() => {

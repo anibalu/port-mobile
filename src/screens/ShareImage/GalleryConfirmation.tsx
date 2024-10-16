@@ -516,7 +516,6 @@ const styling = (colors: any) =>
     },
     bottombar: {
       marginHorizontal: 10,
-      paddingVertical: 4,
       flexDirection: 'column',
       gap: 3,
       alignItems: 'center',
@@ -603,8 +602,8 @@ const styling = (colors: any) =>
       borderWidth: 4,
       overflow: 'hidden',
       borderRadius: 8,
-      width: 60,
-      height: 60,
+      width: 58,
+      height: 54,
     },
     buttonShadowContainer: {
       position: 'absolute',

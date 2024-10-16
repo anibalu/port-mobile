@@ -24,6 +24,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
+import {useTheme} from 'src/context/ThemeContext';
+import Plus from '@assets/dark/icons/WhitePlus.svg';
 
 const TextComponent = ({
   replyToMessage,
@@ -52,6 +54,7 @@ const TextComponent = ({
 }) => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
+  const {themeValue} = useTheme();
 
   // to focus on the text input
   const [isFocused, setIsFocused] = useState(false);
@@ -82,11 +85,6 @@ const TextComponent = ({
       light: require('@assets/light/icons/Emoji.svg').default,
       dark: require('@assets/dark/icons/Emoji.svg').default,
     },
-    {
-      assetName: 'Plus',
-      light: require('@assets/light/icons/GreyPlus.svg').default,
-      dark: require('@assets/dark/icons/WhitePlus.svg').default,
-    },
   ];
 
   const results = useDynamicSVG(svgArray);
@@ -94,7 +92,6 @@ const TextComponent = ({
   const MicrophoneIcon = results.MicrophoneIcon;
   const Emoji = results.Emoji;
   const SendIcon = results.SendIcon;
-  const Plus = results.Plus;
 
   const options = {
     enableVibrateFallback: true /* iOS Only */,
@@ -204,7 +201,10 @@ const TextComponent = ({
                   style={[
                     animatedStyleKeyboard,
                     {
-                      backgroundColor: Colors.primary.surface2,
+                      backgroundColor:
+                        themeValue === 'light'
+                          ? Colors.primary.accent
+                          : Colors.primary.surface2,
                       alignItems: 'center',
                       justifyContent: 'center',
                       padding: 6,
@@ -218,7 +218,10 @@ const TextComponent = ({
                   style={[
                     animatedStylePlus,
                     {
-                      backgroundColor: Colors.primary.surface2,
+                      backgroundColor:
+                        themeValue === 'light'
+                          ? Colors.primary.accent
+                          : Colors.primary.surface2,
                       alignItems: 'center',
                       justifyContent: 'center',
                       padding: 6,

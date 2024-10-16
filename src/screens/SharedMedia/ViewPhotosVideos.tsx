@@ -145,7 +145,6 @@ const ViewPhotosVideos = ({route}: Props) => {
         <>
           <View style={styles.container}>
             <FlatList
-              columnWrapperStyle={{justifyContent: 'space-between'}}
               data={media}
               renderItem={renderItem}
               keyExtractor={item => item.mediaId}

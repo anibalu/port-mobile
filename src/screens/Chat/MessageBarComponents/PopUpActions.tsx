@@ -71,9 +71,9 @@ const PopUpActions = ({
       dark: require('@assets/dark/icons/media/Contact.svg').default,
     },
     {
-      assetName: 'Copy',
-      light: require('@assets/light/icons/Copy.svg').default,
-      dark: require('@assets/dark/icons/Copy.svg').default,
+      assetName: 'Templates',
+      light: require('@assets/light/icons/Templates.svg').default,
+      dark: require('@assets/dark/icons/Templates.svg').default,
     },
   ];
 
@@ -83,7 +83,7 @@ const PopUpActions = ({
   const FileIcon = results.FileIcon;
   const ImageIcon = results.ImageIcon;
   const ContactIcon = results.ContactIcon;
-  const Copy = results.Copy;
+  const Templates = results.Templates;
 
   // to go to gallery confirmation screen
   const goToConfirmation = (lst: any[]) => {
@@ -250,7 +250,7 @@ const PopUpActions = ({
       </View>
       <View style={styles.optionContainer}>
         <Pressable style={styles.optionBox} onPress={onTemplatePressed}>
-          <Copy height={30} width={30} />
+          <Templates height={30} width={30} />
         </Pressable>
         <NumberlessText
           fontSizeType={FontSizeType.s}

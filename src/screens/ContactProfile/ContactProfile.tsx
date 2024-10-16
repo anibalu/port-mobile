@@ -236,7 +236,7 @@ const ContactProfile = ({route, navigation}: Props) => {
                     are used to connect with any contact over Port. This means
                     that you never have to worry about your contact being shared
                     without your permission, being spammed incessantly, or
-                    having people circuvent being blocked by using another app.
+                    having people circumvent being blocked by using another app.
                   </NumberlessText>
                 </View>
               </View>

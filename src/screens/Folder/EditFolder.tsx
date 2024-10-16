@@ -83,6 +83,12 @@ const EditFolder = ({route, navigation}: Props) => {
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
   const {showToast} = useToast();
+
+  const onDelete = async () => {
+    await deleteFolder(selectedFolder.folderId);
+    navigation.navigate('Folders');
+    redrawOnFolderUpdate();
+  };
   return (
     <>
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
@@ -224,10 +230,7 @@ const EditFolder = ({route, navigation}: Props) => {
           description="When you delete the folder, all your contacts will move to the Primary folder and inherit its contact settings."
           buttonColor="r"
           buttonText="Delete folder"
-          onConfirm={async () => {
-            await deleteFolder(selectedFolder.folderId);
-            navigation.navigate('Folders');
-          }}
+          onConfirm={onDelete}
         />
         <FavouriteFolderBottomsheet
           visible={openFolderBottomsheet}

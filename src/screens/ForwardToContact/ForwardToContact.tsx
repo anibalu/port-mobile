@@ -97,6 +97,7 @@ const ForwardToContact = ({route, navigation}: Props) => {
       console.error('Error forwarding', error);
     }
     setLoading(false);
+
     navigation.goBack();
   };
 

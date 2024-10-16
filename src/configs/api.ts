@@ -75,7 +75,7 @@ export const LINE_SUPERPORT_BULK_UPDATE = `${SUPERPORT_BASE}/bulk-update`;
 /**
  * Contact Sharing Endpoints
  */
-const CONTACT_BASE = `${MGMT_BASE}/contact-sharing`;
+export const CONTACT_BASE = `${MGMT_BASE}/contact-sharing`;
 export const CONTACT_SHARING_TICKET_MANAGEMENT = `${CONTACT_BASE}/ticket`;
 export const CONTACT_SHARING_PAUSE = `${CONTACT_BASE}/pause`;
 export const CONTACT_SHARING_RESUME = `${CONTACT_BASE}/resume`;

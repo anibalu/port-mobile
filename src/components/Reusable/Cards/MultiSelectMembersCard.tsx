@@ -121,7 +121,6 @@ const MultiSelectMembersCard = ({
         setFilteredMembers(members); // Set back to all members if no folder is selected
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFolder, members]);
 
   const svgArray = [

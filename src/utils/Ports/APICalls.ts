@@ -1,6 +1,6 @@
 import {
   BUNDLE_MANAGEMENT_RESOURCE,
-  CONTACT_SHARING_MANAGEMENT_RESOURCE,
+  CONTACT_BASE,
   CONTACT_SHARING_PAUSE,
   CONTACT_SHARING_RESUME,
   CONTACT_SHARING_TICKET_MANAGEMENT,
@@ -294,7 +294,7 @@ export async function getNewContactPort(
 ): Promise<string> {
   const token = await getToken();
   const response = await axios.post(
-    CONTACT_SHARING_MANAGEMENT_RESOURCE,
+    CONTACT_BASE,
     {
       lineId: lineId,
       active: active,

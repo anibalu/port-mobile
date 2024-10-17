@@ -101,8 +101,8 @@ android {
         applicationId "tech.numberless.port"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 20
-        versionName "1.10.0"
+        versionCode 23
+        versionName "1.11.0"
     }
    packagingOptions {
       pickFirst 'lib/x86/libc++_shared.so'

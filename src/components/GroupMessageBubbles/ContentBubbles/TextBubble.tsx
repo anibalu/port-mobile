@@ -28,7 +28,7 @@ export const TextBubble = ({
     : TIME_STAMP_TEXT_PADDING_RECEIVER;
   const initialText = (message.data as TextParams).text || '';
   const text = initialText + paddingText;
-
+  const edited = message.data?.messageIdToEdit ? true : false;
   const Colors = DynamicColors();
   const {themeValue} = useTheme();
 
@@ -72,7 +72,7 @@ export const TextBubble = ({
           right: 4,
           bottom: 4,
         }}>
-        <RenderTimeStamp message={message} />
+        <RenderTimeStamp edited={edited} message={message} />
       </View>
     </View>
   );

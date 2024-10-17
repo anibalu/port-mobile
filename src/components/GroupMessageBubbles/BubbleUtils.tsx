@@ -156,10 +156,12 @@ export const RenderTimeStamp = ({
   message,
   stampColor = 'rg',
   showReadReceipts = true,
+  edited = false,
 }: {
   message: LoadedGroupMessage;
   stampColor?: 'rg' | 'w'; // regular or white
   showReadReceipts?: boolean;
+  edited?: boolean;
 }): ReactNode => {
   const Colors = DynamicColors();
 
@@ -213,6 +215,17 @@ export const RenderTimeStamp = ({
     return (
       <View style={styles.timestampContainer}>
         <Animated.View style={animatedStyle}>
+          {edited && (
+            <NumberlessText
+              style={{
+                paddingRight: 2,
+              }}
+              textColor={Colors.text.subtitle}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              Edited
+            </NumberlessText>
+          )}
           <NumberlessText
             fontSizeType={FontSizeType.s}
             fontType={FontType.rg}

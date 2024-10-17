@@ -12,6 +12,7 @@ import {
   ReportMessageContentTypes,
   UnCopyableMessageContentTypes,
   UnForwardableMessageContentTypes,
+  editableContentTypes,
 } from '@utils/Messaging/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import DynamicColors from '@components/DynamicColors';
@@ -28,6 +29,7 @@ const BubbleFocusOptions = () => {
     onCopy,
     selectedMessage,
     setSelectedMessage,
+    onEditMessage,
   } = useChatContext();
 
   const allowReport =
@@ -48,6 +50,10 @@ const BubbleFocusOptions = () => {
           selectedMessage.message.contentType,
         )
       : true;
+  const allowEdit =
+    selectedMessage && selectedMessage.message
+      ? editableContentTypes.includes(selectedMessage.message.contentType)
+      : false;
 
   const isDeleted =
     selectedMessage?.message.contentType === ContentType.deleted;
@@ -100,6 +106,11 @@ const BubbleFocusOptions = () => {
       light: require('@assets/light/icons/Delete.svg').default,
       dark: require('@assets/dark/icons/Delete.svg').default,
     },
+    {
+      assetName: 'EditIcon',
+      light: require('@assets/light/icons/EditIcon.svg').default,
+      dark: require('@assets/dark/icons/EditIcon.svg').default,
+    },
   ];
   const results = useDynamicSVG(svgArray);
   const ReplyIcon = results.ReplyIcon;
@@ -108,6 +119,7 @@ const BubbleFocusOptions = () => {
   const CopyIcon = results.CopyIcon;
   const CautionIcon = results.CautionIcon;
   const DeleteIcon = results.DeleteIcon;
+  const EditIcon = results.EditIcon;
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -148,6 +160,7 @@ const BubbleFocusOptions = () => {
           </View>
         </TouchableHighlight>
       )}
+
       {!isDeleted && allowForward && (
         <TouchableHighlight
           underlayColor={Colors.primary.background}
@@ -162,6 +175,23 @@ const BubbleFocusOptions = () => {
               Forward
             </NumberlessText>
             <ForwardIcon width={20} height={20} />
+          </View>
+        </TouchableHighlight>
+      )}
+      {isConnected && !isDeleted && isSender && allowEdit && (
+        <TouchableHighlight
+          underlayColor={Colors.primary.background}
+          activeOpacity={1}
+          onPress={onEditMessage}
+          style={dynamicOptionWrapperStyle}>
+          <View style={styles.optionButton}>
+            <NumberlessText
+              textColor={Colors.text.primary}
+              fontSizeType={FontSizeType.l}
+              fontType={FontType.rg}>
+              Edit
+            </NumberlessText>
+            <EditIcon width={20} height={20} />
           </View>
         </TouchableHighlight>
       )}

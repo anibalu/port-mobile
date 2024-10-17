@@ -32,6 +32,10 @@ import {
   contactPortBundleContentTypes,
   SendContactPortBundleDirectMessage,
 } from './senders/ContactPortBundleSender';
+import {
+  SendEditedMessage,
+  editedMessageTypes,
+} from './senders/EditMessageSender';
 
 function assignSenderClass(contentType: ContentType) {
   let SenderClass = null;
@@ -61,6 +65,9 @@ function assignSenderClass(contentType: ContentType) {
   }
   if (contactPortBundleContentTypes.includes(contentType)) {
     SenderClass = SendContactPortBundleDirectMessage;
+  }
+  if (editedMessageTypes.includes(contentType)) {
+    SenderClass = SendEditedMessage;
   }
   return SenderClass;
 }

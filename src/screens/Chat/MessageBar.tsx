@@ -37,11 +37,17 @@ const MessageBar = ({
 }: {
   ifTemplateExists?: TemplateParams; //if template is selected from templates screen
 }): ReactNode => {
-  const {chatId, isGroupChat, replyToMessage, clearEverything} =
-    useChatContext();
+  const {
+    chatId,
+    isGroupChat,
+    replyToMessage,
+    clearEverything,
+    messageToEdit,
+    setMessageToEdit,
+    text,
+    setText,
+  } = useChatContext();
   const {MessageDataTooBigError} = useErrorModal();
-
-  const [text, setText] = useState('');
 
   // this runs if a template exists.
   // If a template has been selected, we want to populate message bar
@@ -50,6 +56,7 @@ const MessageBar = ({
     if (ifTemplateExists) {
       setText(ifTemplateExists.template);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ifTemplateExists]);
 
   const [openGraphData, setOpenGraphData] = useState(null);
@@ -175,6 +182,26 @@ const MessageBar = ({
     }
   }, [hasLink, url, openGraphData, fetchData, replyToMessage]);
 
+  const onSendEditedMessagee = async () => {
+    const processedText = text.trim();
+    if (processedText !== '') {
+      setText('');
+      //send text message
+      clearEverything();
+      const sender = new SendMessage(chatId, ContentType.editedMessage, {
+        editedText: processedText,
+        messageIdToEdit: messageToEdit?.message.messageId,
+      });
+      try {
+        await sender.send();
+        setMessageToEdit(null);
+        setText('');
+      } catch (error) {
+        MessageDataTooBigError();
+      }
+    }
+  };
+
   const onPressSend = () => {
     // if link is present in text
     if (
@@ -187,8 +214,14 @@ const MessageBar = ({
     ) {
       sendLinkText();
     } else {
-      // if its a normal text
-      sendText();
+      // if its an edited message
+      if (messageToEdit?.message) {
+        onSendEditedMessagee();
+      } else {
+        // if its a normal text
+
+        sendText();
+      }
     }
   };
 
@@ -228,9 +261,11 @@ const MessageBar = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [microphoneClicked]);
+
   const [emojiSelected, setEmojiSelected] = useState('');
   // to render emojis in text input correctly
   const [counter, setCounter] = useState(0);
+
   useMemo(() => {
     // if emoji is selected,
     // add it to text
@@ -276,14 +311,15 @@ const MessageBar = ({
           </View>
         )}
 
-        {microphoneClicked ? (
+        {microphoneClicked && !messageToEdit && (
           <Animated.View style={[styles.voiceRecorderContainer, slideInStyle]}>
             <VoiceRecorder
               chatId={chatId}
               setMicrophoneClicked={setMicrophoneClicked}
             />
           </Animated.View>
-        ) : (
+        )}
+        {!microphoneClicked && (
           <TextComponent
             chatId={chatId}
             isGroupChat={isGroupChat}

@@ -1,11 +1,12 @@
 import {
   Animated,
+  KeyboardAvoidingView,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {
   SelectedMessageType,
@@ -21,9 +22,17 @@ import {
 import {MessageBubble} from '@components/GroupMessageBubbles/MessageBubble';
 import {RenderReactionBar} from '@components/GroupMessageBubbles/Reactions';
 import BubbleFocusOptions from '@components/GroupMessageBubbles/BubbleFocusOptions';
+import MessageBar from '@components/GroupChatComponents/MessageBar';
 
 const GroupBlurViewModal = () => {
-  const {onCleanCloseFocus, selectedMessage, isConnected} = useChatContext();
+  const {
+    onCleanCloseFocus,
+    selectedMessage,
+    isConnected,
+    setMessageToEdit,
+    setText,
+    messageToEdit,
+  } = useChatContext();
   const messageObj = selectedMessage as SelectedMessageType;
   const isDeleted = messageObj.message.contentType === ContentType.deleted;
   const STATUSBAR_HEIGHT = StatusBar.currentHeight || 0;
@@ -57,6 +66,12 @@ const GroupBlurViewModal = () => {
   };
   const [showOptions, setShowOptions] = useState(false);
   const insets = useSafeAreaInsets();
+
+  useMemo(() => {
+    if (messageToEdit) {
+      setShowOptions(false);
+    }
+  }, [messageToEdit]);
 
   useEffect(() => {
     let newPositionY = 0;
@@ -99,22 +114,81 @@ const GroupBlurViewModal = () => {
   return (
     <TouchableOpacity
       activeOpacity={1}
-      onPress={onCleanCloseFocus}
+      onPress={() => {
+        onCleanCloseFocus();
+        setMessageToEdit(null);
+        setText('');
+      }}
       style={{
         ...styles.mainContainer,
         width: screen.width,
         height: isIOS ? screen.height : screen.height + insets.top,
       }}>
       {!isIOS && <CustomStatusBar backgroundColor="#00000000" />}
-      <Animated.View style={initialStyle}>
-        <View style={{marginLeft: PortSpacing.secondary.left}}>
-          <MessageBubble
-            message={message}
-            handleLongPress={() => {}}
-            swipeable={false}
-          />
+      {messageToEdit && (
+        <View
+          style={{
+            flex: 1,
+            marginBottom: PortSpacing.secondary.bottom,
+          }}>
+          {isIOS ? (
+            <KeyboardAvoidingView
+              style={styles.main}
+              behavior={isIOS ? 'padding' : 'height'}
+              keyboardVerticalOffset={isIOS ? PortSpacing.secondary.bottom : 0}>
+              <View
+                style={{
+                  marginLeft: PortSpacing.secondary.left,
+                }}>
+                <MessageBubble
+                  message={message}
+                  handleLongPress={() => {}}
+                  swipeable={false}
+                />
+
+                <View
+                  style={{
+                    width: screen.width,
+                    marginLeft: -PortSpacing.secondary.left,
+                  }}>
+                  <MessageBar />
+                </View>
+              </View>
+            </KeyboardAvoidingView>
+          ) : (
+            <View style={styles.main}>
+              <View
+                style={{
+                  marginLeft: PortSpacing.secondary.left,
+                }}>
+                <MessageBubble
+                  message={message}
+                  handleLongPress={() => {}}
+                  swipeable={false}
+                />
+
+                <View
+                  style={{
+                    width: screen.width,
+                    marginLeft: -PortSpacing.secondary.left,
+                  }}>
+                  <MessageBar />
+                </View>
+              </View>
+            </View>
+          )}
         </View>
-        {showOptions && (
+      )}
+      {!messageToEdit && showOptions && (
+        <Animated.View style={initialStyle}>
+          <View style={{marginLeft: PortSpacing.secondary.left}}>
+            <MessageBubble
+              message={message}
+              handleLongPress={() => {}}
+              swipeable={false}
+            />
+          </View>
+
           <View style={{position: 'absolute', width: '100%'}}>
             <View
               style={{
@@ -145,8 +219,8 @@ const GroupBlurViewModal = () => {
               <BubbleFocusOptions />
             </View>
           </View>
-        )}
-      </Animated.View>
+        </Animated.View>
+      )}
     </TouchableOpacity>
   );
 };
@@ -157,6 +231,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
     backgroundColor: '#000000BF',
+  },
+  main: {
+    flex: 1,
+    width: screen.width,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
   },
 });
 

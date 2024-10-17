@@ -1,6 +1,11 @@
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useMemo, useState} from 'react';
 import {
@@ -24,9 +29,10 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
-import {useTheme} from 'src/context/ThemeContext';
+import DisabledSend from '@assets/dark/icons/DisabledSend.svg';
 import Plus from '@assets/dark/icons/WhitePlus.svg';
 
+// this component is reponsible for textinput for message bar in direct chat
 const TextComponent = ({
   replyToMessage,
   text,
@@ -53,8 +59,6 @@ const TextComponent = ({
   setCounter: (e: any) => void;
 }) => {
   const Colors = DynamicColors();
-  const styles = styling(Colors);
-  const {themeValue} = useTheme();
 
   // to focus on the text input
   const [isFocused, setIsFocused] = useState(false);
@@ -63,7 +67,12 @@ const TextComponent = ({
     isPopUpVisible,
     isEmojiSelectorVisible,
     setIsEmojiSelectorVisible,
+    setMessageToEdit,
+    messageToEdit,
+    onCleanCloseFocus,
   } = useChatContext();
+
+  const styles = styling(Colors, messageToEdit);
 
   const onChangeText = (newText: string): void => {
     setText(newText);
@@ -85,6 +94,16 @@ const TextComponent = ({
       light: require('@assets/light/icons/Emoji.svg').default,
       dark: require('@assets/dark/icons/Emoji.svg').default,
     },
+    {
+      assetName: 'Cross',
+      light: require('@assets/light/icons/CrossWhite.svg').default,
+      dark: require('@assets/icons/GreyCrossLight.svg').default,
+    },
+    {
+      assetName: 'EditIcon',
+      light: require('@assets/light/icons/EditLight.svg').default,
+      dark: require('@assets/dark/icons/EditIcon.svg').default,
+    },
   ];
 
   const results = useDynamicSVG(svgArray);
@@ -92,6 +111,8 @@ const TextComponent = ({
   const MicrophoneIcon = results.MicrophoneIcon;
   const Emoji = results.Emoji;
   const SendIcon = results.SendIcon;
+  const Cross = results.Cross;
+  const EditIcon = results.EditIcon;
 
   const options = {
     enableVibrateFallback: true /* iOS Only */,
@@ -115,6 +136,8 @@ const TextComponent = ({
     if (isEmojiSelectorVisible) {
       setIsEmojiSelectorVisible(p => !p);
     }
+    setMessageToEdit(null);
+    setText('');
     // close keyboard and open popup actions
     if (!isPopUpVisible) {
       Keyboard.dismiss();
@@ -195,43 +218,55 @@ const TextComponent = ({
       <View style={styles.mainContainer}>
         {!replyToMessage && !showPreview && (
           <View style={styles.plus}>
-            <TouchableOpacity hitSlop={32} onPress={onPressPurpleActionButton}>
-              {isPopUpVisible ? (
-                <Animated.View
-                  style={[
-                    animatedStyleKeyboard,
-                    {
-                      backgroundColor:
-                        themeValue === 'light'
-                          ? Colors.primary.accent
-                          : Colors.primary.surface2,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: 6,
-                      borderRadius: 100,
-                    },
-                  ]}>
-                  <KeyboardIcon height={24} width={24} />
-                </Animated.View>
-              ) : (
-                <Animated.View
-                  style={[
-                    animatedStylePlus,
-                    {
-                      backgroundColor:
-                        themeValue === 'light'
-                          ? Colors.primary.accent
-                          : Colors.primary.surface2,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: 6,
-                      borderRadius: 100,
-                    },
-                  ]}>
-                  <Plus height={24} width={24} />
-                </Animated.View>
-              )}
-            </TouchableOpacity>
+            {messageToEdit ? (
+              <TouchableOpacity
+                hitSlop={32}
+                onPress={() => {
+                  setMessageToEdit(null);
+                  setText('');
+                  onCleanCloseFocus();
+                }}>
+                <Cross />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                hitSlop={32}
+                onPress={onPressPurpleActionButton}>
+                {isPopUpVisible ? (
+                  <Animated.View
+                    style={[
+                      animatedStyleKeyboard,
+                      {
+                        backgroundColor: Colors.primary.surface2,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 6,
+                        borderRadius: 100,
+                      },
+                    ]}>
+                    <KeyboardIcon height={24} width={24} />
+                  </Animated.View>
+                ) : (
+                  <Animated.View
+                    style={[
+                      animatedStylePlus,
+                      {
+                        backgroundColor: Colors.primary.surface2,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 6,
+                        borderRadius: 100,
+                      },
+                    ]}>
+                    {messageToEdit ? (
+                      <Cross height={24} width={24} />
+                    ) : (
+                      <Plus height={24} width={24} />
+                    )}
+                  </Animated.View>
+                )}
+              </TouchableOpacity>
+            )}
           </View>
         )}
 
@@ -241,39 +276,74 @@ const TextComponent = ({
               ? styles.replyInputBox
               : styles.inputBox
           }>
-          <TextInput
-            style={styles.inputText}
-            ref={inputRef}
-            textAlign="left"
-            multiline
-            placeholder={isFocused ? '' : 'Message'}
-            placeholderTextColor={Colors.primary.mediumgrey}
-            onChangeText={onChangeText}
-            value={text}
-            onFocus={onInputFocus}
-            onBlur={() => setIsFocused(false)}
-          />
-          {replyToMessage || showPreview ? (
-            <Pressable onPress={onPlusPressed} hitSlop={24}>
-              <Plus />
-            </Pressable>
-          ) : (
-            <Pressable onPress={onEmojiKeyboardPressed} hitSlop={24}>
-              <Emoji height={24} width={24} />
-            </Pressable>
-          )}
+          <View style={{flex: 1}}>
+            {messageToEdit && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  paddingLeft: PortSpacing.secondary.left,
+                  paddingTop: PortSpacing.tertiary.top,
+                  paddingBottom: 4,
+                }}>
+                <EditIcon height={16} width={16} />
+                <NumberlessText
+                  style={{marginLeft: 4}}
+                  textColor={Colors.text.subtitle}
+                  fontType={FontType.rg}
+                  fontSizeType={FontSizeType.m}>
+                  Edit message
+                </NumberlessText>
+              </View>
+            )}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <TextInput
+                style={styles.inputText}
+                ref={inputRef}
+                textAlign="left"
+                multiline
+                placeholder={isFocused ? '' : 'Message'}
+                placeholderTextColor={Colors.primary.mediumgrey}
+                onChangeText={onChangeText}
+                value={text}
+                onFocus={onInputFocus}
+                onBlur={() => setIsFocused(false)}
+              />
+              {replyToMessage || showPreview ? (
+                <Pressable onPress={onPlusPressed} hitSlop={24}>
+                  <Plus />
+                </Pressable>
+              ) : (
+                <Pressable onPress={onEmojiKeyboardPressed} hitSlop={24}>
+                  <Emoji height={24} width={24} />
+                </Pressable>
+              )}
+            </View>
+          </View>
         </View>
 
         <View style={styles.send}>
-          <TouchableOpacity hitSlop={40} onPress={onHandleClick}>
-            {text.length > 0 || replyToMessage ? (
-              <SendIcon />
-            ) : (
+          {text.length > 0 || replyToMessage || messageToEdit ? (
+            <TouchableOpacity
+              disabled={messageToEdit && text.length === 0}
+              hitSlop={40}
+              onPress={onHandleClick}>
+              {messageToEdit && text.length === 0 ? (
+                <DisabledSend />
+              ) : (
+                <SendIcon />
+              )}
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity hitSlop={40} onPress={onHandleClick}>
               <View style={styles.microphone}>
                 <MicrophoneIcon />
               </View>
-            )}
-          </TouchableOpacity>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -293,7 +363,7 @@ const TextComponent = ({
     </>
   );
 };
-const styling = (colors: any) =>
+const styling = (colors: any, messageToEdit: any) =>
   StyleSheet.create({
     mainContainer: {
       flexDirection: 'row',
@@ -340,11 +410,12 @@ const styling = (colors: any) =>
       overflow: 'hidden',
       alignSelf: 'stretch',
       paddingRight: 5,
+      width: screen.width - 142,
       justifyContent: 'center',
       fontFamily: FontType.rg,
       fontSize: FontSizeType.l,
       fontWeight: getWeight(FontType.rg),
-      ...(isIOS && {paddingTop: 10}),
+      ...(isIOS && !messageToEdit && {paddingTop: 10}),
       paddingBottom: 8,
     },
     microphone: {

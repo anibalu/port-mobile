@@ -57,6 +57,7 @@ export enum ContentType {
   groupName = 31,
   groupDescription = 32,
   groupInitialMemberInfo = 33,
+  editedMessage = 34,
 }
 
 /**
@@ -77,6 +78,11 @@ export const InfoContentTypes = [
   ContentType.disappearingMessages,
 ];
 
+export const editableContentTypes = [
+  ContentType.text,
+  ContentType.image,
+  ContentType.video,
+];
 export const DisplayableContentTypes = [
   ContentType.info,
   ContentType.text,
@@ -222,6 +228,7 @@ export type DataType =
   | ContactPortTicketParams
   | ContactPortRequestParams
   | ContactPortPermissionRequestParams
+  | EditedMessageParams
   | GroupAvatarParams
   | GroupPictureParams
   | GroupNameParams
@@ -238,6 +245,7 @@ export interface LinkParams extends TextParams {
 }
 export interface TextParams {
   text: string;
+  messageIdToEdit?: string;
 }
 export interface DeletedParams {} // There is nothing in a deleted message
 export interface NameParams {
@@ -271,8 +279,12 @@ export interface LargeDataParamsStrict extends LargeDataParams {
   fileUri: string;
 }
 export interface FileParams extends LargeDataParams {}
-export interface ImageParams extends LargeDataParams {}
-export interface VideoParams extends LargeDataParams {}
+export interface ImageParams extends LargeDataParams {
+  messageIdToEdit?: string;
+}
+export interface VideoParams extends LargeDataParams {
+  messageIdToEdit?: string;
+}
 export interface DisplayImageParams extends LargeDataParams {}
 export interface AudioRecordingParams extends LargeDataParams {
   duration?: string;
@@ -327,6 +339,10 @@ export interface ReactionParams {
   tombstone?: boolean;
 }
 
+export interface EditedMessageParams {
+  messageIdToEdit: string;
+  editedText: string;
+}
 export interface GroupPictureParams {
   groupPictureKey: string;
 }
@@ -402,6 +418,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? ContactPortRequestParams
     : T extends ContentType.contactPortPermissionRequest
     ? ContactPortPermissionRequestParams
+    : T extends ContentType.editedMessage
+    ? EditedMessageParams
     : T extends ContentType.groupPicture
     ? GroupPictureParams
     : T extends ContentType.groupAvatar

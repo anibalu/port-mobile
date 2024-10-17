@@ -5,7 +5,7 @@ import {
   LinkParams,
   TextParams,
 } from '@utils/Messaging/interfaces';
-import React, {createContext, useState, useContext} from 'react';
+import React, {createContext, useState, useContext, useMemo} from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
@@ -64,6 +64,9 @@ type ChatContextType = {
   setName: (x: string) => void;
   messagesLoaded: boolean;
   setMessagesLoaded: (x: boolean) => void;
+  text: string;
+  setText: (x: string) => void;
+
   //access slider attributes
   hasStarted: SharedValue<boolean>;
   isScreenClickable: SharedValue<boolean>;
@@ -98,6 +101,10 @@ type ChatContextType = {
   replyToMessage: LineMessageData | null;
   setReplyToMessage: (x: LineMessageData | null) => void;
 
+  // message to be edited
+  setMessageToEdit: (x: SelectedMessageType | null) => void;
+  messageToEdit: SelectedMessageType | null;
+
   //selected messages
   selectedMessages: string[];
   setSelectedMessages: (x: string[]) => void;
@@ -122,6 +129,7 @@ type ChatContextType = {
   onForward: () => void;
   clearSelection: () => void;
   clearEverything: () => void;
+  onEditMessage: () => void;
 
   //controls the visibility of a focused message bubble
   onCloseFocus: () => void;
@@ -196,6 +204,11 @@ export const ChatContextProvider = ({
   //if delete for everyone should be available
   const [showDeleteForEveryone, setShowDeleteForEveryone] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  // sets text in text input
+  const [text, setText] = useState('');
+
+  const [messageToEdit, setMessageToEdit] =
+    useState<SelectedMessageType | null>(null);
 
   //access slider attributes
   const hasStarted = useSharedValue(false);
@@ -467,6 +480,10 @@ export const ChatContextProvider = ({
     });
   };
 
+  const onEditMessage = () => {
+    setMessageToEdit(selectedMessage);
+  };
+
   const clearSelection = () => {
     setSelectedMessages([]);
     setSelectedMessage(null);
@@ -518,6 +535,7 @@ export const ChatContextProvider = ({
   };
 
   const onReply = async (): Promise<void> => {
+    setMessageToEdit(null);
     if (selectedMessages.length > 0) {
       const reply = await getMessage(chatId, selectedMessages[0]);
       if (reply) {
@@ -545,6 +563,12 @@ export const ChatContextProvider = ({
     setMessages(newMessages);
     setSelectedMessages([]);
   };
+
+  useMemo(() => {
+    if (messageToEdit) {
+      setText(messageToEdit.message.data.text);
+    }
+  }, [messageToEdit]);
 
   return (
     <ChatContext.Provider
@@ -621,6 +645,11 @@ export const ChatContextProvider = ({
         isPopUpVisible,
         isEmojiSelectorVisible,
         setIsEmojiSelectorVisible,
+        onEditMessage,
+        messageToEdit,
+        setMessageToEdit,
+        text,
+        setText,
       }}>
       {children}
     </ChatContext.Provider>

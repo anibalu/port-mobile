@@ -12,6 +12,10 @@ import {
   deleteContentTypes,
   SendDeleteGroupMessage,
 } from './senders/DeletionSender';
+import {
+  SendEditedMessage,
+  editedMessageTypes,
+} from './senders/EditedMessageSender';
 
 function assignSenderClass(contentType: ContentType) {
   let SenderClass = null;
@@ -26,6 +30,9 @@ function assignSenderClass(contentType: ContentType) {
   }
   if (deleteContentTypes.includes(contentType)) {
     SenderClass = SendDeleteGroupMessage;
+  }
+  if (editedMessageTypes.includes(contentType)) {
+    SenderClass = SendEditedMessage;
   }
   return SenderClass;
 }
@@ -66,7 +73,6 @@ export async function retryGroup(
   singleRecipient: string | null | undefined,
   _onSuccess?: (success: boolean) => void,
 ) {
-  console.log('data', data);
   let SenderClass = assignSenderClass(contentType);
   if (SenderClass) {
     let sender = new SenderClass(

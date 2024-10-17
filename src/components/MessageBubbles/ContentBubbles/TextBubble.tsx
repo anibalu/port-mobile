@@ -27,6 +27,8 @@ export const TextBubble = ({message}: {message: LoadedMessage}): ReactNode => {
 
   const Colors = DynamicColors();
   const {themeValue} = useTheme();
+  const edited = message.data?.messageIdToEdit ? true : false;
+  const styles = styling(edited);
 
   return (
     <View
@@ -62,20 +64,23 @@ export const TextBubble = ({message}: {message: LoadedMessage}): ReactNode => {
         style={{
           position: 'absolute',
           right: 4,
-          bottom: 4,
+          bottom: 5,
+          flexDirection: 'row',
         }}>
-        <RenderTimeStamp message={message} />
+        <RenderTimeStamp edited={edited} message={message} />
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  textContainerRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    paddingHorizontal: 4,
-    paddingVertical: 4,
-  },
-});
+const styling = (edited: boolean) =>
+  StyleSheet.create({
+    textContainerRow: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-end',
+      paddingHorizontal: 4,
+      paddingVertical: 4,
+      paddingRight: edited ? 24 : 4,
+    },
+  });

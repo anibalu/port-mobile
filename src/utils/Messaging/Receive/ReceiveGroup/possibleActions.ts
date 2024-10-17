@@ -23,6 +23,7 @@ import AdminDemotion from './ActionClasses/AdminDemotion';
 import DemoteMember from './ActionClasses/DemoteMember';
 import PromoteMember from './ActionClasses/PromoteMember';
 import ReceiveInitialGroupMemberInfo from './ActionClasses/ReceiveInitialGroupMemberInfo';
+import ReceiveEditedMessage from './ActionClasses/ReceiveEditedMessage';
 
 const SupportedReceieveDecryptedContentTypes = [
   ContentType.name,
@@ -41,6 +42,7 @@ const SupportedReceieveDecryptedContentTypes = [
   ContentType.groupDescription,
   ContentType.deleted,
   ContentType.groupInitialMemberInfo,
+  ContentType.editedMessage,
 ];
 const AssignDecryptedContentReceiver: Record<
   number,
@@ -62,6 +64,7 @@ const AssignDecryptedContentReceiver: Record<
   [ContentType.groupDescription]: ReceiveGroupDescription,
   [ContentType.deleted]: ReceiveMessageDeletion,
   [ContentType.groupInitialMemberInfo]: ReceiveInitialGroupMemberInfo,
+  [ContentType.editedMessage]: ReceiveEditedMessage,
 };
 
 export async function groupReceiveActionPicker(

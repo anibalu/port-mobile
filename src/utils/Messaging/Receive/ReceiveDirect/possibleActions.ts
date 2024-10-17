@@ -24,6 +24,7 @@ import ReceiveContactPortBundle from './ActionClasses/ReceiveContactPortBundle';
 import ReceiveContactPortTicket from './ActionClasses/ReceiveContactPortTicket';
 import ReceiveContactPortRequest from './ActionClasses/ReceiveContactPortRequest';
 import NewChatOverContactPort from './ActionClasses/NewChatOverContactPort';
+import ReceiveEditedMessage from './ActionClasses/ReceiveEditedMessage';
 
 const SupportedReceieveDecryptedContentTypes = [
   ContentType.name,
@@ -49,6 +50,7 @@ const SupportedReceieveDecryptedContentTypes = [
   ContentType.contactPortTicket,
   ContentType.contactPortRequest,
   ContentType.contactPortPermissionRequest,
+  ContentType.editedMessage,
 ];
 
 const AssignDecryptedContentReceiver: Record<
@@ -76,6 +78,7 @@ const AssignDecryptedContentReceiver: Record<
   [ContentType.contactPortTicket]: ReceiveContactPortTicket,
   [ContentType.contactPortRequest]: ReceiveContactPortRequest,
   [ContentType.contactPortPermissionRequest]: ReceiveContactPortRequest,
+  [ContentType.editedMessage]: ReceiveEditedMessage,
 };
 
 export async function pickDirectReceiveAction(

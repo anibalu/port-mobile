@@ -159,10 +159,12 @@ export const RenderTimeStamp = ({
   message,
   stampColor = 'rg',
   showReadReceipts = true,
+  edited = false,
 }: {
   message: LoadedMessage;
   stampColor?: 'rg' | 'w'; // regular or white
   showReadReceipts?: boolean;
+  edited?: boolean;
 }): ReactNode => {
   const svgArray = [
     {
@@ -180,6 +182,7 @@ export const RenderTimeStamp = ({
     return {
       flexDirection: 'row',
       alignItems: 'center',
+      marginLeft: -13,
       transform: [
         {
           translateX: withTiming(
@@ -229,6 +232,17 @@ export const RenderTimeStamp = ({
     return (
       <View style={styles.timestampContainer}>
         <Animated.View style={animatedStyle}>
+          {edited && (
+            <NumberlessText
+              style={{
+                paddingRight: 2,
+              }}
+              textColor={Colors.text.subtitle}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              Edited
+            </NumberlessText>
+          )}
           <NumberlessText
             fontSizeType={FontSizeType.s}
             fontType={FontType.rg}
@@ -278,7 +292,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingLeft: PortSpacing.tertiary.left,
   },
   transparentblock: {
     height: 12,

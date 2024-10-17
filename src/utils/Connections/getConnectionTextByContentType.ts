@@ -43,6 +43,9 @@ const contentTypeMap: {[key: number]: ContentTypeEmojiAndText} = {
     emoji: '🔊',
     defaultText: 'audio',
   },
+  [ContentType.editedMessage]: {
+    defaultText: '',
+  },
   [ContentType.text]: {
     defaultText: '',
   },

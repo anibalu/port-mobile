@@ -1,11 +1,12 @@
 import {
   Animated,
+  KeyboardAvoidingView,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {
   SelectedMessageType,
@@ -21,9 +22,17 @@ import {
   ContentType,
   UnReactableMessageContentTypes,
 } from '@utils/Messaging/interfaces';
+import MessageBar from '@screens/Chat/MessageBar';
 
 const BlurViewModal = () => {
-  const {onCleanCloseFocus, selectedMessage, isConnected} = useChatContext();
+  const {
+    onCleanCloseFocus,
+    selectedMessage,
+    isConnected,
+    messageToEdit,
+    setMessageToEdit,
+    setText,
+  } = useChatContext();
   const messageObj = selectedMessage as SelectedMessageType;
   const isDeleted = messageObj.message.contentType === ContentType.deleted;
   const STATUSBAR_HEIGHT = StatusBar.currentHeight || 0;
@@ -48,7 +57,6 @@ const BlurViewModal = () => {
 
   const message = messageObj.message;
   const isSender = message.sender;
-  //initial value is same as current location
   const INITIAL_VALUE = messageObj.pageY;
   const positionY = useRef(new Animated.Value(INITIAL_VALUE)).current;
 
@@ -58,12 +66,17 @@ const BlurViewModal = () => {
   const [showOptions, setShowOptions] = useState(false);
   const insets = useSafeAreaInsets();
 
+  useMemo(() => {
+    if (messageToEdit) {
+      setShowOptions(false);
+    }
+  }, [messageToEdit]);
+
   useEffect(() => {
     let newPositionY = 0;
     if (INITIAL_VALUE < TOP_OFFSET) {
       newPositionY = TOP_OFFSET;
     } else {
-      //pageY is now a value between top offset and screen height.
       if (AVAILABLE_HEIGHT > REQUIRED_HEIGHT) {
         if (
           INITIAL_VALUE <
@@ -72,11 +85,9 @@ const BlurViewModal = () => {
             OPTION_BUBBLE_HEIGHT -
             messageObj.height
         ) {
-          //dont move
           newPositionY = INITIAL_VALUE;
           setShowOptions(true);
         } else {
-          //move to new position
           newPositionY =
             screen.height +
             STATUSBAR_HEIGHT -
@@ -87,6 +98,7 @@ const BlurViewModal = () => {
         newPositionY = TOP_OFFSET;
       }
     }
+
     Animated.timing(positionY, {
       toValue: newPositionY,
       duration: 200,
@@ -99,22 +111,84 @@ const BlurViewModal = () => {
   return (
     <TouchableOpacity
       activeOpacity={1}
-      onPress={onCleanCloseFocus}
+      onPress={() => {
+        onCleanCloseFocus();
+        setMessageToEdit(null);
+        setText('');
+      }}
       style={{
         ...styles.mainContainer,
         width: screen.width,
         height: isIOS ? screen.height : screen.height + insets.top,
       }}>
       {!isIOS && <CustomStatusBar backgroundColor="#00000000" />}
-      <Animated.View style={initialStyle}>
-        <View style={{marginLeft: PortSpacing.secondary.left}}>
-          <MessageBubble
-            message={message}
-            handleLongPress={() => {}}
-            swipeable={false}
-          />
+      {messageToEdit && (
+        <View
+          style={{
+            flex: 1,
+            marginBottom: PortSpacing.secondary.bottom,
+          }}>
+          {isIOS ? (
+            <KeyboardAvoidingView
+              style={styles.main}
+              behavior={isIOS ? 'padding' : 'height'}
+              keyboardVerticalOffset={isIOS ? PortSpacing.secondary.bottom : 0}>
+              <View
+                style={{
+                  marginLeft: PortSpacing.secondary.left,
+                }}>
+                <MessageBubble
+                  message={message}
+                  handleLongPress={() => {}}
+                  swipeable={false}
+                />
+
+                <View
+                  style={{
+                    width: screen.width,
+                    marginLeft: -PortSpacing.secondary.left,
+                  }}>
+                  <MessageBar />
+                </View>
+              </View>
+            </KeyboardAvoidingView>
+          ) : (
+            <View style={styles.main}>
+              <View
+                style={{
+                  marginLeft: PortSpacing.secondary.left,
+                }}>
+                <MessageBubble
+                  message={message}
+                  handleLongPress={() => {}}
+                  swipeable={false}
+                />
+
+                <View
+                  style={{
+                    width: screen.width,
+                    marginLeft: -PortSpacing.secondary.left,
+                  }}>
+                  <MessageBar />
+                </View>
+              </View>
+            </View>
+          )}
         </View>
-        {showOptions && (
+      )}
+
+      {!messageToEdit && showOptions && (
+        <Animated.View style={initialStyle}>
+          <View
+            style={{
+              marginLeft: PortSpacing.secondary.left,
+            }}>
+            <MessageBubble
+              message={message}
+              handleLongPress={() => {}}
+              swipeable={false}
+            />
+          </View>
           <View style={{position: 'absolute', width: '100%'}}>
             <View
               style={{
@@ -145,8 +219,8 @@ const BlurViewModal = () => {
               <BubbleFocusOptions />
             </View>
           </View>
-        )}
-      </Animated.View>
+        </Animated.View>
+      )}
     </TouchableOpacity>
   );
 };
@@ -158,6 +232,11 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: '#000000BF',
   },
+  main: {
+    flex: 1,
+    width: screen.width,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+  },
 });
-
 export default BlurViewModal;

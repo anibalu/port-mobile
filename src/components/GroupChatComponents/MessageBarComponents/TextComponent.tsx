@@ -1,6 +1,11 @@
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useMemo, useState} from 'react';
@@ -24,6 +29,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import DisabledSend from '@assets/dark/icons/DisabledSend.svg';
 
 const TextComponent = ({
   replyToMessage,
@@ -51,16 +57,19 @@ const TextComponent = ({
   setCounter: (e: any) => void;
 }) => {
   const Colors = DynamicColors();
-  const styles = styling(Colors);
-
-  // to focus on the text input
-  const [isFocused, setIsFocused] = useState(false);
   const {
     togglePopUp,
     isPopUpVisible,
     isEmojiSelectorVisible,
     setIsEmojiSelectorVisible,
+    setMessageToEdit,
+    onCleanCloseFocus,
+    messageToEdit,
   } = useChatContext();
+  const styles = styling(Colors, messageToEdit);
+
+  // to focus on the text input
+  const [isFocused, setIsFocused] = useState(false);
 
   const onChangeText = (newText: string): void => {
     setText(newText);
@@ -87,6 +96,16 @@ const TextComponent = ({
       light: require('@assets/light/icons/GreyPlus.svg').default,
       dark: require('@assets/dark/icons/WhitePlus.svg').default,
     },
+    {
+      assetName: 'Cross',
+      light: require('@assets/light/icons/CrossWhite.svg').default,
+      dark: require('@assets/icons/GreyCrossLight.svg').default,
+    },
+    {
+      assetName: 'EditIcon',
+      light: require('@assets/light/icons/EditLight.svg').default,
+      dark: require('@assets/dark/icons/EditIcon.svg').default,
+    },
   ];
 
   const results = useDynamicSVG(svgArray);
@@ -95,6 +114,8 @@ const TextComponent = ({
   const Emoji = results.Emoji;
   const SendIcon = results.SendIcon;
   const Plus = results.Plus;
+  const Cross = results.Cross;
+  const EditIcon = results.EditIcon;
 
   const options = {
     enableVibrateFallback: true /* iOS Only */,
@@ -118,6 +139,8 @@ const TextComponent = ({
     if (isEmojiSelectorVisible) {
       setIsEmojiSelectorVisible(p => !p);
     }
+    setMessageToEdit(null);
+    setText('');
     // close keyboard and open popup actions
     if (!isPopUpVisible) {
       Keyboard.dismiss();
@@ -198,37 +221,51 @@ const TextComponent = ({
       <View style={styles.mainContainer}>
         {!replyToMessage && !showPreview && (
           <View style={styles.plus}>
-            <TouchableOpacity hitSlop={32} onPress={onPressPurpleActionButton}>
-              {isPopUpVisible ? (
-                <Animated.View
-                  style={[
-                    animatedStyleKeyboard,
-                    {
-                      backgroundColor: Colors.primary.surface2,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: 6,
-                      borderRadius: 100,
-                    },
-                  ]}>
-                  <KeyboardIcon height={24} width={24} />
-                </Animated.View>
-              ) : (
-                <Animated.View
-                  style={[
-                    animatedStylePlus,
-                    {
-                      backgroundColor: Colors.primary.surface2,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: 6,
-                      borderRadius: 100,
-                    },
-                  ]}>
-                  <Plus height={24} width={24} />
-                </Animated.View>
-              )}
-            </TouchableOpacity>
+            {messageToEdit ? (
+              <TouchableOpacity
+                hitSlop={32}
+                onPress={() => {
+                  setMessageToEdit(null);
+                  setText('');
+                  onCleanCloseFocus();
+                }}>
+                <Cross />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                hitSlop={32}
+                onPress={onPressPurpleActionButton}>
+                {isPopUpVisible ? (
+                  <Animated.View
+                    style={[
+                      animatedStyleKeyboard,
+                      {
+                        backgroundColor: Colors.primary.surface2,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 6,
+                        borderRadius: 100,
+                      },
+                    ]}>
+                    <KeyboardIcon height={24} width={24} />
+                  </Animated.View>
+                ) : (
+                  <Animated.View
+                    style={[
+                      animatedStylePlus,
+                      {
+                        backgroundColor: Colors.primary.surface2,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 6,
+                        borderRadius: 100,
+                      },
+                    ]}>
+                    <Plus height={24} width={24} />
+                  </Animated.View>
+                )}
+              </TouchableOpacity>
+            )}
           </View>
         )}
 
@@ -238,39 +275,74 @@ const TextComponent = ({
               ? styles.replyInputBox
               : styles.inputBox
           }>
-          <TextInput
-            style={styles.inputText}
-            ref={inputRef}
-            textAlign="left"
-            multiline
-            placeholder={isFocused ? '' : 'Message'}
-            placeholderTextColor={Colors.primary.mediumgrey}
-            onChangeText={onChangeText}
-            value={text}
-            onFocus={onInputFocus}
-            onBlur={() => setIsFocused(false)}
-          />
-          {replyToMessage || showPreview ? (
-            <Pressable onPress={onPlusPressed} hitSlop={24}>
-              <Plus />
-            </Pressable>
-          ) : (
-            <Pressable onPress={onEmojiKeyboardPressed} hitSlop={24}>
-              <Emoji height={24} width={24} />
-            </Pressable>
-          )}
+          <View style={{flex: 1}}>
+            {messageToEdit && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  paddingLeft: PortSpacing.secondary.left,
+                  paddingTop: PortSpacing.tertiary.top,
+                  paddingBottom: 4,
+                }}>
+                <EditIcon height={16} width={16} />
+                <NumberlessText
+                  style={{marginLeft: 4}}
+                  textColor={Colors.text.subtitle}
+                  fontType={FontType.rg}
+                  fontSizeType={FontSizeType.m}>
+                  Edit message
+                </NumberlessText>
+              </View>
+            )}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <TextInput
+                style={styles.inputText}
+                ref={inputRef}
+                textAlign="left"
+                multiline
+                placeholder={isFocused ? '' : 'Message'}
+                placeholderTextColor={Colors.primary.mediumgrey}
+                onChangeText={onChangeText}
+                value={text}
+                onFocus={onInputFocus}
+                onBlur={() => setIsFocused(false)}
+              />
+              {replyToMessage || showPreview ? (
+                <Pressable onPress={onPlusPressed} hitSlop={24}>
+                  <Plus />
+                </Pressable>
+              ) : (
+                <Pressable onPress={onEmojiKeyboardPressed} hitSlop={24}>
+                  <Emoji height={24} width={24} />
+                </Pressable>
+              )}
+            </View>
+          </View>
         </View>
 
         <View style={styles.send}>
-          <TouchableOpacity hitSlop={24} onPress={onHandleClick}>
-            {text.length > 0 || replyToMessage ? (
-              <SendIcon />
-            ) : (
+          {text.length > 0 || replyToMessage || messageToEdit ? (
+            <TouchableOpacity
+              disabled={messageToEdit && text.length === 0}
+              hitSlop={40}
+              onPress={onHandleClick}>
+              {messageToEdit && text.length === 0 ? (
+                <DisabledSend />
+              ) : (
+                <SendIcon />
+              )}
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity hitSlop={40} onPress={onHandleClick}>
               <View style={styles.microphone}>
                 <MicrophoneIcon />
               </View>
-            )}
-          </TouchableOpacity>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -290,7 +362,7 @@ const TextComponent = ({
     </>
   );
 };
-const styling = (colors: any) =>
+const styling = (colors: any, messageToEdit: any) =>
   StyleSheet.create({
     mainContainer: {
       flexDirection: 'row',
@@ -341,7 +413,7 @@ const styling = (colors: any) =>
       fontFamily: FontType.rg,
       fontSize: FontSizeType.l,
       fontWeight: getWeight(FontType.rg),
-      ...(isIOS && {paddingTop: 10}),
+      ...(isIOS && !messageToEdit && {paddingTop: 10}),
       paddingBottom: 8,
     },
     microphone: {

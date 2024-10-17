@@ -13,14 +13,13 @@ import {
 } from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp, getDateStamp} from '@utils/Time';
 import React, {ReactNode, useEffect, useRef} from 'react';
-import {Animated, Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import {MessageBubble} from './MessageBubble';
 import {InfoBubble} from './InfoBubble';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DynamicColors from '@components/DynamicColors';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
-import {useTheme} from 'src/context/ThemeContext';
 
 //Currently only sends read receipts for DMs
 const sendReadReceipt = async (chatId: string, message: LoadedMessage) => {
@@ -83,7 +82,7 @@ export const MessageBubbleParent = ({
   message: LoadedMessage;
   isDateBoundary: boolean;
   hasExtraPadding: boolean;
-}) => {
+}): ReactNode => {
   const {
     chatId,
     selectedMessages,
@@ -94,10 +93,6 @@ export const MessageBubbleParent = ({
   } = useChatContext();
 
   const bubbleRef = useRef(null);
-  const backgroundColorAnim = useRef(new Animated.Value(0)).current;
-  const Colors = DynamicColors();
-
-  const {themeValue} = useTheme();
 
   //haptic feedback options
   const options = {
@@ -126,57 +121,6 @@ export const MessageBubbleParent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Animation effect for background color to highlight message bubble
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
-
-    const fadeIn = () => {
-      Animated.timing(backgroundColorAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
-        // Set the timeout to fade out after 1.5 seconds
-        timeoutId = setTimeout(() => {
-          fadeOut();
-        }, 2000);
-      });
-    };
-
-    const fadeOut = () => {
-      Animated.timing(backgroundColorAnim, {
-        toValue: 0,
-        duration: 2500,
-        useNativeDriver: true,
-      }).start();
-    };
-
-    if (message.isHighlighted) {
-      fadeIn(); // Trigger the fade-in effect
-    }
-
-    return () => {
-      // Clear the timeout if it exists
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      // If the message is being un-highlighted, ensure to fade out immediately
-      fadeOut();
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [message.isHighlighted]);
-
-  const highlightBgcolor =
-    themeValue === 'light'
-      ? Colors.primary.accentOverlay
-      : 'rgba(106, 53, 255, 0.4)'; //slight darker version of accentOverlay, only used here
-
-  const backgroundColor = backgroundColorAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['transparent', highlightBgcolor],
-  });
-
   return (
     <View>
       <MessagePrecursor
@@ -184,7 +128,7 @@ export const MessageBubbleParent = ({
         isDateBoundary={isDateBoundary}
         hasExtraPadding={hasExtraPadding}
       />
-      <Animated.View style={[styles.container, {backgroundColor}]}>
+      <View style={styles.container}>
         {InfoContentTypes.includes(message.contentType) ? (
           <View style={styles.infoBubbleContainer}>
             <InfoBubble message={message} />
@@ -212,7 +156,7 @@ export const MessageBubbleParent = ({
             />
           </Pressable>
         )}
-      </Animated.View>
+      </View>
     </View>
   );
 };

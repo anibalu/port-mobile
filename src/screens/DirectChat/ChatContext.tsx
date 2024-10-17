@@ -5,14 +5,10 @@ import {
   LinkParams,
   TextParams,
 } from '@utils/Messaging/interfaces';
-import React, {createContext, useState, useContext, useRef} from 'react';
+import React, {createContext, useState, useContext} from 'react';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {
-  cleanDeleteMessage,
-  getMessage,
-  getMessagesAroundTimestamp,
-} from '@utils/Storage/messages';
+import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
 import {getRichReactions} from '@utils/Storage/reactions';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {useNavigation} from '@react-navigation/native';
@@ -23,10 +19,6 @@ import {
 import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {screen} from '@components/ComponentUtils';
 import {SharedValue, useSharedValue, withTiming} from 'react-native-reanimated';
-import {
-  exitWindowModeAndScrollDown,
-  scrollToMessage,
-} from '@utils/MessageNavigation';
 
 /**
  * Access slider constants
@@ -90,17 +82,12 @@ type ChatContextType = {
   setOpenDeleteMessageModal: (x: boolean) => void;
   showDeleteForEveryone: boolean;
   setShowDeleteForEveryone: (x: boolean) => void;
-  resetViewAndScroll: () => void;
   reportedMessages: string[] | null;
   setReportedMessages: (x: any) => void;
-  listWindowMode: boolean;
-  setListWindowMode: (x: boolean) => void;
   determineDeleteModalDisplay: () => void;
   //reactions context
   currentReactionMessage: string[];
   setCurrentReactionMessage: (x: string[]) => void;
-  unseenMessagesCount: number;
-  setUnseenMessagesCount: (x: number) => void;
   showRichReaction: boolean;
   setShowRichReaction: (x: boolean) => void;
   setReaction: (messageId: string) => void;
@@ -150,17 +137,9 @@ type ChatContextType = {
   updateAfterDeletion: (messageId: string[]) => void;
   updateAfterGlobalDeletion: (messageId: string[]) => void;
   isPopUpVisible: boolean;
-  flatlistRef: any;
   togglePopUp: () => void;
-  onTargetPress: (targetId: string | null, timestamp: string | null) => void;
   setIsEmojiSelectorVisible: (p: boolean) => void;
   isEmojiSelectorVisible: boolean;
-  scrollToLoadedItem: boolean;
-  setScrollToLoadedItem: (p: boolean) => void;
-  scrollToLatestMessage: boolean;
-  setScrollToLatestMessage: (p: boolean) => void;
-  scrollToBottomClicked: boolean;
-  setScrollToBottomClicked: (p: boolean) => void;
 };
 
 export const ChatContext = createContext<ChatContextType | undefined>(
@@ -270,59 +249,6 @@ export const ChatContextProvider = ({
     permissionIconHeight.value = withTiming(0, {duration: 300});
   };
 
-  // if latest messages does not contain target message, theen we fetch new set and list window mode turns on (on click on a reply to navigate/search)
-  const [listWindowMode, setListWindowMode] = useState<boolean>(false);
-
-  // flatlist ref being used at chatList
-  const flatlistRef = useRef<any>(null);
-
-  const resetViewAndScroll = () => {
-    exitWindowModeAndScrollDown(flatlistRef, setListWindowMode);
-  };
-
-  // runs when you click on a target/reply bubble
-  const onTargetPress = async (
-    targetId: string | null,
-    timestamp: string | null,
-  ) => {
-    const filteredItem = messages.find(msg => msg.messageId === targetId);
-    if (filteredItem) {
-      // Add the isHighlighted attribute to the filtered item
-      const updatedMessages = messages.map(msg =>
-        msg.messageId === filteredItem.messageId
-          ? {...msg, isHighlighted: true} // Add the isHighlighted attribute to the target message
-          : msg,
-      );
-
-      setMessages(updatedMessages);
-
-      // Scroll to the highlighted message
-      scrollToMessage(filteredItem, flatlistRef, updatedMessages);
-    } else {
-      // if item is not present in the current list then fetch
-      const resp =
-        timestamp && (await getMessagesAroundTimestamp(chatId, timestamp));
-
-      if (resp) {
-        setMessages(resp);
-        const filteredResp = resp.find(msg => msg.messageId === targetId);
-        if (filteredResp) {
-          setListWindowMode(true);
-          setScrollToLoadedItem(true);
-        }
-      }
-    }
-  };
-
-  // this triggers scroll only when list is updated in window mode
-  const [scrollToLoadedItem, setScrollToLoadedItem] = useState<boolean>(false);
-
-  const [scrollToLatestMessage, setScrollToLatestMessage] =
-    useState<boolean>(false);
-
-  const [scrollToBottomClicked, setScrollToBottomClicked] =
-    useState<boolean>(false);
-
   // for toggling emoji keyboard
   const [isEmojiSelectorVisible, setIsEmojiSelectorVisible] =
     useState<boolean>(false);
@@ -350,8 +276,6 @@ export const ChatContextProvider = ({
     setOpenDeleteMessageModal(true);
     return senderExists; // Return whether to show delete for everyone or not
   };
-
-  const [unseenMessagesCount, setUnseenMessagesCount] = useState<number>(0);
   const [currentReactionMessage, setCurrentReactionMessage] = useState<
     string[]
   >([]);
@@ -653,8 +577,6 @@ export const ChatContextProvider = ({
         moveSliderCompleteOpen,
         currentReactionMessage,
         setCurrentReactionMessage,
-        unseenMessagesCount,
-        setUnseenMessagesCount,
         showRichReaction,
         setShowRichReaction,
         setReaction,
@@ -681,21 +603,12 @@ export const ChatContextProvider = ({
         onCloseFocus,
         onCleanCloseFocus,
         showDeleteForEveryone,
-        resetViewAndScroll,
         setShowDeleteForEveryone,
         reportedMessages,
         setReportedMessages,
-        scrollToBottomClicked,
-        setScrollToBottomClicked,
-        listWindowMode,
-        setListWindowMode,
         determineDeleteModalDisplay,
         onSelect,
         onDelete,
-        scrollToLoadedItem,
-        setScrollToLoadedItem,
-        scrollToLatestMessage,
-        setScrollToLatestMessage,
         onReport,
         showReportModal,
         setShowReportModal,
@@ -705,8 +618,6 @@ export const ChatContextProvider = ({
         updateAfterDeletion,
         updateAfterGlobalDeletion,
         togglePopUp,
-        onTargetPress,
-        flatlistRef,
         isPopUpVisible,
         isEmojiSelectorVisible,
         setIsEmojiSelectorVisible,

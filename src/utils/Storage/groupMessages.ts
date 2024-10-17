@@ -245,58 +245,6 @@ export async function getLatestGroupMessages(
 }
 
 /**
- * Get messages around (before and after) a specific timestamp in a chat
- * @param chatId
- * @param timestamp The message ID around which to fetch messages
- * @returns Messages around the specified <timestamp> in <chatId>
- */
-export async function getGroupMessagesAroundTimestamp(
-  chatId: string,
-  timestamp: string,
-): Promise<groupDBCalls.LoadedGroupMessage[]> {
-  return await groupDBCalls.getGroupMessagesAroundTimestamp(chatId, timestamp);
-}
-
-/**
- * Get messages after a specific messageId in a chat
- * @param chatId
- * @param messageId The message ID after which to fetch messages
- * @param limit The maximum number of messages to return after <messageId>
- * @returns Messages after the specified <messageId> in <chatId>
- */
-
-export async function getGroupMessagesAfterMessageId(
-  chatId: string,
-  messageId: string,
-  limit: number = 50,
-): Promise<groupDBCalls.LoadedGroupMessage[]> {
-  return await groupDBCalls.getGroupMessagesAfterMessageId(
-    chatId,
-    messageId,
-    limit,
-  );
-}
-
-/**
- * Get messages before a specific messageId in a chat
- * @param chatId
- * @param targetId The message ID before which to fetch messages
- * @param limit The maximum number of messages to return before <targetId>
- * @returns Messages before the specified <targetId> in <chatId>
- */
-export async function getGroupMessagesBeforeMessageId(
-  chatId: string,
-  targetId: string,
-  limit: number = 50,
-): Promise<groupDBCalls.LoadedGroupMessage[]> {
-  return await groupDBCalls.getGroupMessagesBeforeMessageId(
-    chatId,
-    targetId,
-    limit,
-  );
-}
-
-/**
  * Set that a message contains reactions.
  * @param chatId
  * @param messageId

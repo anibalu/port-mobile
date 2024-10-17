@@ -7,7 +7,6 @@ import {
 import {checkDateBoundary, checkMessageTimeGap} from '@utils/Time';
 import React, {ReactNode, useRef, useState} from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -22,13 +21,6 @@ import DynamicColors from '@components/DynamicColors';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 import {useChatContext} from './ChatContext';
 import {useTheme} from 'src/context/ThemeContext';
-import {debounce} from 'lodash';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
-import {scrollToMessage} from '@utils/MessageNavigation';
 
 const MESSAGE_TIME_GAP_FOR_PADDING = 60 * 60 * 1000;
 
@@ -48,8 +40,7 @@ const MemoizedMessageBubbleParent = React.memo(
   (prevProps, nextProps) => {
     return (
       prevProps.message.mtime === nextProps.message.mtime &&
-      prevProps.message.contentType === nextProps.message.contentType &&
-      prevProps.message.isHighlighted === nextProps.message.isHighlighted
+      prevProps.message.contentType === nextProps.message.contentType
     );
   },
 );
@@ -109,24 +100,15 @@ function ChatList({
     togglePopUp,
     isEmojiSelectorVisible,
     setIsEmojiSelectorVisible,
-    flatlistRef,
-    resetViewAndScroll,
-    setScrollToBottomClicked,
-    listWindowMode,
-    unseenMessagesCount,
-    scrollToLoadedItem,
-    setScrollToLoadedItem,
-    scrollToLatestMessage,
-    setScrollToLatestMessage,
   } = useChatContext();
 
   const handleMomentumEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (e.nativeEvent.contentOffset.y === 0) {
       onEndReached();
-      setShowScrollToEnd(false);
     }
-    setShowIndicatorLoading(false);
   };
+
+  const flatlistRef = useRef<any>(null);
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (e.nativeEvent.contentOffset.y > 100) {
@@ -141,65 +123,26 @@ function ChatList({
         setIsEmojiSelectorVisible(p => !p);
       }
       setShowScrollToEnd(true);
+    } else {
+      setShowScrollToEnd(false);
     }
   };
 
-  const onScrollToBottomPress = () => {
-    setScrollToBottomClicked(true);
-    setShowIndicatorLoading(true);
+  const onHandlePress = () => {
     if (flatlistRef.current) {
-      resetViewAndScroll();
+      flatlistRef.current.scrollToOffset({animated: true, offset: 0});
     }
   };
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [showIndicatorLoading, setShowIndicatorLoading] =
-    useState<boolean>(false);
   const Colors = DynamicColors();
   const {themeValue} = useTheme();
   const styles = styling(Colors, themeValue);
-
-  const onContentSizeUpdate = () => {
-    if (scrollToLoadedItem) {
-      const highlightedMessage = messages.find(msg => msg.isHighlighted);
-      highlightedMessage && debounceScrollToMessage(highlightedMessage);
-    }
-    if (scrollToLatestMessage) {
-      debounceScrollToLatestMessage();
-    }
-  };
-
-  // Create a ref to store the debounce function
-  const debounceScrollToLatestMessage = useRef(
-    debounce(() => {
-      resetViewAndScroll();
-      setScrollToLatestMessage(false);
-    }, 100),
-  ).current;
-
-  // Create a ref to store the debounce function
-  const debounceScrollToMessage = useRef(
-    debounce(
-      (targetMessage: LoadedMessage) => {
-        if (targetMessage) {
-          scrollToMessage(targetMessage, flatlistRef, messages);
-          setScrollToLoadedItem(false);
-        }
-      },
-      100,
-      {leading: true, trailing: false},
-    ),
-  ).current;
 
   return (
     <>
       <FlatList
         ref={flatlistRef}
-        maintainVisibleContentPosition={{
-          minIndexForVisible: listWindowMode ? 0 : 1,
-        }}
-        onContentSizeChange={onContentSizeUpdate}
         data={messages}
-        initialNumToRender={messages.length}
         renderItem={renderMessage}
         inverted
         keyExtractor={message => message.messageId}
@@ -218,40 +161,9 @@ function ChatList({
           setRefreshing(false);
         }}
       />
-      {(listWindowMode || showScrollToEnd) && (
-        <Pressable style={styles.handleStyle} onPress={onScrollToBottomPress}>
-          {unseenMessagesCount > 0 && (
-            <View
-              style={{
-                position: 'absolute',
-                top: -10,
-                left: 0,
-                backgroundColor: Colors.primary.accentLight,
-                borderRadius: 50,
-                height: 20,
-                width: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <NumberlessText
-                textColor={Colors.primary.white}
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                {unseenMessagesCount}
-              </NumberlessText>
-            </View>
-          )}
-          {showIndicatorLoading ? (
-            <ActivityIndicator
-              color={
-                themeValue === 'light'
-                  ? Colors.primary.background
-                  : Colors.primary.white
-              }
-            />
-          ) : (
-            <DownArrow width={20} height={20} />
-          )}
+      {showScrollToEnd && (
+        <Pressable style={styles.handleStyle} onPress={onHandlePress}>
+          <DownArrow width={20} height={20} />
         </Pressable>
       )}
     </>

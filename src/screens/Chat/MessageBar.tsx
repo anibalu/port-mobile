@@ -37,13 +37,8 @@ const MessageBar = ({
 }: {
   ifTemplateExists?: TemplateParams; //if template is selected from templates screen
 }): ReactNode => {
-  const {
-    chatId,
-    isGroupChat,
-    replyToMessage,
-    clearEverything,
-    setScrollToLatestMessage,
-  } = useChatContext();
+  const {chatId, isGroupChat, replyToMessage, clearEverything} =
+    useChatContext();
   const {MessageDataTooBigError} = useErrorModal();
 
   const [text, setText] = useState('');
@@ -92,7 +87,6 @@ const MessageBar = ({
       );
       try {
         await sender.send();
-        setScrollToLatestMessage(true);
       } catch (error) {
         MessageDataTooBigError();
       }
@@ -129,7 +123,6 @@ const MessageBar = ({
       replyToMessage ? replyToMessage.messageId : null,
     );
     await sender.send();
-    setScrollToLatestMessage(true);
   };
 
   const hasLink: string | null = extractLink(text.toLocaleLowerCase());

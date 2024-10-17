@@ -32,8 +32,6 @@ export interface GroupReplyContent {
   memberId: string | null;
   name: string | null;
   displayPic: string | null;
-  messageId: string | null;
-  timestamp: string | null;
 }
 
 export interface LoadedGroupMessage {
@@ -54,7 +52,6 @@ export interface LoadedGroupMessage {
   filePath: string | null;
   name: string | null;
   displayPic: string | null;
-  isHighlighted?: boolean | null;
 }
 
 export async function addMessage(message: GroupMessageData) {
@@ -214,7 +211,7 @@ export async function getLoadedMessage(
 }
 
 /**
- *  Get the latest messages in a chat, including the timestamp of any reply
+ * Get the latest messages in a chat
  * @param chatId
  * @param limit The maximum number of latest messages to return
  * @returns Up to the <limit> latest messages in <chatId>
@@ -227,7 +224,7 @@ export async function getLatestMessages(
   /**
    * We begin by getting the first <limit> most recent messages and alias
    * that to the table messages.
-   * Next we left join that with the groupMessages table aliased to reply.
+   * Next we left join that with the lineMessages table aliased to reply.
    * With this, messages that have a reply have been joined to their reply.
    * With this, messages that have media have media params joined.
    * We finally project this onto the fields that we want, renaming columns as needed.
@@ -258,9 +255,8 @@ export async function getLatestMessages(
       reply.contentType as reply_contentType,
       reply.data as reply_data,
       reply.sender as reply_sender,
-      reply.messageId as reply_messageId,
-      reply.timestamp as reply_timestamp,
       reply.memberId as reply_memberId,
+      reply.chatId as reply_chatId,
       contactReply.name as reply_name,
       contactReply.displayPic as reply_displayPic
     FROM
@@ -294,365 +290,23 @@ export async function getLatestMessages(
       let entry;
       for (let i = 0; i < len; i++) {
         entry = results.rows.item(i);
-        // Convert some columns into correct destination types
+        // We convert some columns into correct destination types
         entry.data = JSON.parse(entry.data);
         entry.sender = toBool(entry.sender);
         entry.hasReaction = toBool(entry.hasReaction);
-
-        entry.reply = {
-          contentType: entry.reply_contentType,
-          data: JSON.parse(entry.reply_data),
-          sender: toBool(entry.reply_sender),
-          messageId: entry.reply_messageId,
-          memberId: entry.reply_memberId,
-          timestamp: entry.reply_timestamp,
-          chatId: entry.reply_chatId,
-          name: entry.reply_name,
-          displayPic: entry.reply_displayPic,
-        };
-
-        // Push the processed entry to the message list
+        // We convert the reply columns into a more typescript friendly format
+        entry.reply = {};
+        entry.reply.contentType = entry.reply_contentType;
+        entry.reply.data = JSON.parse(entry.reply_data);
+        entry.reply.sender = toBool(entry.reply_sender);
+        entry.reply.memberId = entry.reply_memberId;
+        entry.reply.chatId = entry.reply_chatId;
+        entry.reply.name = entry.reply_name;
+        entry.reply.displayPic = entry.reply_displayPic;
         messageList.push(entry);
       }
     },
   );
-  return messageList;
-}
-
-/**
- * Fetch messages after the given messageId with a specified limit
- * @param chatId The chat to search in
- * @param messageId The messageId to search after
- * @param limit The number of messages to fetch (default 25)
- * @returns An array of LoadedGroupMessage fetched after the given messageId
- */
-export async function getGroupMessagesAfterMessageId(
-  chatId: string,
-  messageId: string,
-  limit: number = 25,
-): Promise<LoadedGroupMessage[]> {
-  let messageList: LoadedGroupMessage[] = [];
-
-  await runSimpleQuery(
-    `
-    SELECT * FROM (
-      SELECT
-      message.chatId as chatId,
-      message.messageId as messageId,
-      message.contentType as contentType,
-      message.data as data,
-      message.timestamp as timestamp,
-      message.sender as sender,
-      message.messageStatus as messageStatus,
-      message.expiresOn as expiresOn,
-      message.hasReaction as hasReaction,
-      message.mtime as mtime,
-      message.memberId as memberId,
-      message.singleRecepient as singleRecepient,
-      message.mediaId as mediaId,
-      media.filePath as filePath,
-      contact.name as name,
-      contact.displayPic as displayPic,
-      reply.contentType as reply_contentType,
-      reply.data as reply_data,
-      reply.sender as reply_sender,
-      reply.memberId as reply_memberId,
-      reply.messageId as reply_messageId,
-      reply.timestamp as reply_timestamp,
-      contactReply.name as reply_name,
-      contactReply.displayPic as reply_displayPic
-    FROM
-      groupMessages message
-    LEFT JOIN 
-      groupMessages reply
-      ON message.replyId = reply.messageId
-    LEFT JOIN
-      media
-      ON message.mediaId = media.mediaId
-    LEFT JOIN
-      groupMembers groupMember
-      ON message.memberId = groupMember.memberId
-    LEFT JOIN
-      contacts contact
-      ON groupMember.pairHash = contact.pairHash
-    LEFT JOIN
-      groupMembers groupMemberReply
-      ON reply.memberId = groupMemberReply.memberId
-    LEFT JOIN
-      contacts contactReply
-      ON groupMemberReply.pairHash = contactReply.pairHash
-    WHERE message.chatId = ?
-      AND message.timestamp >= (
-        SELECT timestamp FROM groupMessages WHERE messageId = ? AND chatId = ?
-      )
-      ORDER BY message.timestamp ASC
-      LIMIT ? + 1
-    )
-    ORDER BY timestamp DESC
-    `,
-    [chatId, messageId, chatId, limit],
-    (tx, results) => {
-      const len = results.rows.length;
-      for (let i = 0; i < len; i++) {
-        let entry = results.rows.item(i);
-        entry.data = JSON.parse(entry.data);
-        entry.sender = toBool(entry.sender);
-        entry.hasReaction = toBool(entry.hasReaction);
-        entry.reply = {
-          contentType: entry.reply_contentType,
-          data: JSON.parse(entry.reply_data),
-          sender: toBool(entry.reply_sender),
-          chatId: entry.reply_chatId,
-          messageId: entry.reply_messageId,
-          timestamp: entry.reply_timestamp,
-          memberId: entry.reply_memberId,
-          name: entry.reply_name,
-          displayPic: entry.reply_displayPic,
-        };
-        messageList.push(entry);
-      }
-    },
-  );
-
-  return messageList;
-}
-
-/**
- * Fetch messages before the given messageId with a specified limit
- * @param chatId The chat to search in
- * @param messageId The messageId to search before
- * @param limit The number of messages to fetch (default 25)
- * @returns An array of LoadedGroupMessage fetched before the given messageId
- */
-export async function getGroupMessagesBeforeMessageId(
-  chatId: string,
-  messageId: string,
-  limit: number = 25,
-): Promise<LoadedGroupMessage[]> {
-  let messageList: LoadedGroupMessage[] = [];
-
-  await runSimpleQuery(
-    `
-    SELECT
-      message.chatId as chatId,
-      message.messageId as messageId,
-      message.contentType as contentType,
-      message.data as data,
-      message.timestamp as timestamp,
-      message.sender as sender,
-      message.messageStatus as messageStatus,
-      message.expiresOn as expiresOn,
-      message.hasReaction as hasReaction,
-      message.mtime as mtime,
-      message.memberId as memberId,
-      message.singleRecepient as singleRecepient,
-      message.mediaId as mediaId,
-      media.filePath as filePath,
-      contact.name as name,
-      contact.displayPic as displayPic,
-      reply.contentType as reply_contentType,
-      reply.data as reply_data,
-      reply.sender as reply_sender,
-      reply.messageId as reply_messageId,
-      reply.timestamp as reply_timestamp,
-      reply.memberId as reply_memberId,
-      contactReply.name as reply_name,
-      contactReply.displayPic as reply_displayPic
-    FROM
-      groupMessages message
-    LEFT JOIN 
-      groupMessages reply
-      ON message.replyId = reply.messageId
-    LEFT JOIN
-      media
-      ON message.mediaId = media.mediaId
-    LEFT JOIN
-      groupMembers groupMember
-      ON message.memberId = groupMember.memberId
-    LEFT JOIN
-      contacts contact
-      ON groupMember.pairHash = contact.pairHash
-    LEFT JOIN
-      groupMembers groupMemberReply
-      ON reply.memberId = groupMemberReply.memberId
-    LEFT JOIN
-      contacts contactReply
-      ON groupMemberReply.pairHash = contactReply.pairHash
-    WHERE message.chatId = ?
-    AND message.timestamp <= (
-      SELECT timestamp FROM groupMessages WHERE messageId = ? AND chatId = ?
-    )
-    ORDER BY message.timestamp DESC
-    LIMIT ? + 1
-    `,
-    [chatId, messageId, chatId, limit],
-    (tx, results) => {
-      const len = results.rows.length;
-      for (let i = 0; i < len; i++) {
-        let entry = results.rows.item(i);
-        entry.data = JSON.parse(entry.data);
-        entry.sender = toBool(entry.sender);
-        entry.hasReaction = toBool(entry.hasReaction);
-        entry.reply = {
-          contentType: entry.reply_contentType,
-          data: JSON.parse(entry.reply_data),
-          sender: toBool(entry.reply_sender),
-          chatId: entry.reply_chatId,
-          messageId: entry.reply_messageId,
-          timestamp: entry.reply_timestamp,
-          memberId: entry.reply_memberId,
-          name: entry.reply_name,
-          displayPic: entry.reply_displayPic,
-        };
-        messageList.push(entry);
-      }
-    },
-  );
-
-  return messageList;
-}
-
-/**
- * Get 25 messages around (before and after) a specific timestamp in a chat and UNION them.
- * Add an `isHighlighted` attribute to the target message.
- * @param chatId
- * @param timestamp The ISO string timestamp of the item we want to load around
- * @returns An array of LoadedMessages around the specified <timestamp> (51 total including target message)
- */
-export async function getGroupMessagesAroundTimestamp(
-  chatId: string,
-  timestamp: string,
-): Promise<LoadedGroupMessage[]> {
-  let messageList: LoadedGroupMessage[] = [];
-
-  await runSimpleQuery(
-    `
-    SELECT * FROM (
-      SELECT
-      message.chatId as chatId,
-      message.messageId as messageId,
-      message.contentType as contentType,
-      message.data as data,
-      message.timestamp as timestamp,
-      message.sender as sender,
-      message.messageStatus as messageStatus,
-      message.expiresOn as expiresOn,
-      message.hasReaction as hasReaction,
-      message.mtime as mtime,
-      message.memberId as memberId,
-      message.singleRecepient as singleRecepient,
-      message.mediaId as mediaId,
-      media.filePath as filePath,
-      contact.name as name,
-      contact.displayPic as displayPic,
-      reply.contentType as reply_contentType,
-      reply.data as reply_data,
-      reply.sender as reply_sender,
-      reply.messageId as reply_messageId,
-      reply.timestamp as reply_timestamp,
-      reply.memberId as reply_memberId,
-      contactReply.name as reply_name,
-      contactReply.displayPic as reply_displayPic,
-      CASE WHEN message.timestamp = ? THEN 1 ELSE 0 END as isHighlighted
-      FROM
-        groupMessages message
-      LEFT JOIN 
-        groupMessages reply ON message.replyId = reply.messageId
-      LEFT JOIN
-        media ON message.mediaId = media.mediaId
-      LEFT JOIN
-        groupMembers groupMember ON message.memberId = groupMember.memberId
-      LEFT JOIN
-        contacts contact ON groupMember.pairHash = contact.pairHash
-      LEFT JOIN
-        groupMembers groupMemberReply ON reply.memberId = groupMemberReply.memberId
-      LEFT JOIN
-        contacts contactReply ON groupMemberReply.pairHash = contactReply.pairHash
-      WHERE message.chatId = ?
-      AND message.timestamp > ?
-      ORDER BY message.timestamp ASC
-      LIMIT 25
-    )
-    UNION ALL
-    SELECT * FROM (
-      SELECT 
-      message.chatId as chatId,
-      message.messageId as messageId,
-      message.contentType as contentType,
-      message.data as data,
-      message.timestamp as timestamp,
-      message.sender as sender,
-      message.messageStatus as messageStatus,
-      message.expiresOn as expiresOn,
-      message.hasReaction as hasReaction,
-      message.mtime as mtime,
-      message.memberId as memberId,
-      message.singleRecepient as singleRecepient,
-      message.mediaId as mediaId,
-      media.filePath as filePath,
-      contact.name as name,
-      contact.displayPic as displayPic,
-      reply.contentType as reply_contentType,
-      reply.data as reply_data,
-      reply.sender as reply_sender,
-      reply.messageId as reply_messageId,
-      reply.timestamp as reply_timestamp,
-      reply.memberId as reply_memberId,
-      contactReply.name as reply_name,
-      contactReply.displayPic as reply_displayPic,
-      CASE WHEN message.timestamp = ? THEN 1 ELSE 0 END as isHighlighted
-      FROM
-        groupMessages message
-      LEFT JOIN 
-        groupMessages reply
-        ON message.replyId = reply.messageId
-      LEFT JOIN
-        media
-        ON message.mediaId = media.mediaId
-      LEFT JOIN
-        groupMembers groupMember
-        ON message.memberId = groupMember.memberId
-      LEFT JOIN
-        contacts contact
-        ON groupMember.pairHash = contact.pairHash
-      LEFT JOIN
-        groupMembers groupMemberReply
-        ON reply.memberId = groupMemberReply.memberId
-      LEFT JOIN
-        contacts contactReply
-        ON groupMemberReply.pairHash = contactReply.pairHash
-      WHERE message.chatId = ?
-      AND message.timestamp <= ?
-      ORDER BY message.timestamp DESC
-      LIMIT 25
-    )
-    ORDER BY timestamp DESC
-    `,
-    [timestamp, chatId, timestamp, timestamp, chatId, timestamp],
-    (tx, results) => {
-      const len = results.rows.length;
-      let entry;
-      for (let i = 0; i < len; i++) {
-        entry = results.rows.item(i);
-        entry.data = JSON.parse(entry.data);
-        entry.sender = toBool(entry.sender);
-        entry.hasReaction = toBool(entry.hasReaction);
-        entry.reply = {
-          contentType: entry.reply_contentType,
-          data: JSON.parse(entry.reply_data),
-          sender: toBool(entry.reply_sender),
-          chatId: entry.reply_chatId,
-          messageId: entry.reply_messageId,
-          timestamp: entry.reply_timestamp,
-          memberId: entry.reply_memberId,
-          name: entry.reply_name,
-          displayPic: entry.reply_displayPic,
-        };
-        messageList.push(entry);
-      }
-    },
-  );
-
   return messageList;
 }
 

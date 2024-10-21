@@ -34,7 +34,7 @@ export function GestureSafeAreaView({
     paddingBottom:
       isIOS && !removeOffset && hasIosBottomNotch
         ? PortSpacing.secondary.bottom
-        : insets.bottom,
+        : 0,
   };
 
   return (

@@ -328,7 +328,6 @@ const TextComponent = ({
           {text.length > 0 || replyToMessage || messageToEdit ? (
             <TouchableOpacity
               disabled={messageToEdit && text.length === 0}
-              hitSlop={40}
               onPress={onHandleClick}>
               {messageToEdit && text.length === 0 ? (
                 <DisabledSend />
@@ -337,7 +336,7 @@ const TextComponent = ({
               )}
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity hitSlop={40} onPress={onHandleClick}>
+            <TouchableOpacity onPress={onHandleClick}>
               <View style={styles.microphone}>
                 <MicrophoneIcon />
               </View>

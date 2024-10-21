@@ -584,6 +584,8 @@ export const ChatContextProvider = ({
         setMessagesLoaded,
         hasStarted,
         isScreenClickable,
+        setMessageToEdit,
+        messageToEdit,
         movingDown,
         sliderHeight,
         sliderHeightInitiaValue,

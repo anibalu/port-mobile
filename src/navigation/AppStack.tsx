@@ -18,7 +18,7 @@ import {AppStackParamList} from './AppStackTypes';
 import CaptureMedia from '@screens/ShareImage/CaptureMedia';
 import Isolation from '@screens/Isolations/Isolation';
 import NewPortScreen from '@screens/NewPort/NewPort';
-import SuperportScreen from '@screens/Superport/SuperportScreen';
+import SuperportSetupScreen from '@screens/Superport/SuperportSetupScreen';
 import CreateFolder from '@screens/Folder/CreateFolder';
 import EditFolder from '@screens/Folder/EditFolder';
 import MoveToFolder from '@screens/Folder/MoveToFolder';
@@ -41,6 +41,7 @@ import AllMembers from '@screens/GroupsV2/AllMembers';
 import InviteFriends from '@screens/Home/InviteFriends';
 import {useSelector} from 'react-redux';
 import GroupTemplates from '@screens/Templates/GroupTemplates';
+import SuperportQRScreen from '@screens/Superport/SuperportQRScreen';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -74,7 +75,15 @@ function AppStack() {
             name="GalleryConfirmation"
             component={GalleryConfirmation}
           />
-          <Stack.Screen name="SuperportScreen" component={SuperportScreen} />
+          <Stack.Screen
+            name="SuperportSetupScreen"
+            component={SuperportSetupScreen}
+          />
+
+          <Stack.Screen
+            name="SuperportQRScreen"
+            component={SuperportQRScreen}
+          />
           <Stack.Screen name="PendingRequests" component={PendingRequests} />
           <Stack.Screen name="CaptureMedia" component={CaptureMedia} />
           <Stack.Screen name="SharedMedia" component={SharedMedia} />

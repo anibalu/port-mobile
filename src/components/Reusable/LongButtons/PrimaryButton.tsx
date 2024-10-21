@@ -39,15 +39,17 @@ const PrimaryButton = ({
   isLoading,
   disabled,
   onClick = () => {},
+  untrimmedText = false,
 }: {
   buttonText: string;
-  primaryButtonColor: 'b' | 'r' | 'w' | 'p' | 'black';
+  primaryButtonColor: 'b' | 'r' | 'w' | 'p' | 'black' | 'secondaryAccent';
   Icon?: FC<SvgProps>;
   iconSize?: 's' | 'm';
   textStyle?: TextStyle;
   isLoading: boolean;
   disabled: boolean;
   onClick: () => void;
+  untrimmedText?: boolean;
 }) => {
   function primaryButtonStylePicker(primaryButtonColor?: string): ViewStyle {
     if (primaryButtonColor === 'r') {
@@ -58,6 +60,8 @@ const PrimaryButton = ({
       return styles.purpleButton;
     } else if (primaryButtonColor === 'black') {
       return styles.blackButton;
+    } else if (primaryButtonColor === 'secondaryAccent') {
+      return styles.secondaryAccent;
     } else {
       return styles.blueButton;
     }
@@ -97,7 +101,7 @@ const PrimaryButton = ({
             )}
             numberOfLines={1}
             ellipsizeMode={'tail'}>
-            {buttonText.substring(0, 24)}
+            {untrimmedText ? buttonText : buttonText.substring(0, 24)}
           </Text>
         </>
       )}
@@ -125,6 +129,9 @@ const styling = (colors: any) =>
     blueButton: {backgroundColor: colors.button.black},
     purpleButton: {
       backgroundColor: colors.primary.accent,
+    },
+    secondaryAccent: {
+      backgroundColor: colors.primary.secondaryAccentColor,
     },
     button: {
       width: '100%',

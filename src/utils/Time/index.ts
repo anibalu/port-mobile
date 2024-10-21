@@ -369,7 +369,9 @@ export function checkTimeout(
       console.log('NoTimestampToCheckTimeout: return expired');
       return false;
     }
+
     const timeStamp: Date = new Date(timestamp);
+
     const now: Date = new Date();
     const timeDiff = now.getTime() - timeStamp.getTime();
     if (timeDiff <= acceptedDuration) {

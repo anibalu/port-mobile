@@ -126,6 +126,7 @@ export async function updateGeneratedSuperportLabel(
   portId: string,
   label: string,
 ) {
+  await getSuperportDataAndValidatePortId(portId);
   await storageSuperports.updateSuperportData(portId, {label: label});
 }
 
@@ -139,11 +140,23 @@ export async function updateGeneratedSuperportLimit(
   newLimit: number,
   uses: number,
 ) {
+  await getSuperportDataAndValidatePortId(portId);
   await API.modifyDirectSuperportLimits(portId, newLimit, uses);
   await storageSuperports.updateSuperportData(portId, {
     connectionsLimit: newLimit,
     connectionsMade: uses,
   });
+}
+
+/**
+ * Fetches superport data and validates portId
+ * @param portId
+ */
+export async function getSuperportDataAndValidatePortId(portId: string) {
+  const portData = await storageSuperports.getSuperportData(portId);
+  if (!portData) {
+    throw new Error('InvalidPortId');
+  }
 }
 
 /**
@@ -155,6 +168,7 @@ export async function updateGeneratedSuperportFolder(
   portId: string,
   folderId: string,
 ) {
+  await getSuperportDataAndValidatePortId(portId);
   await storageSuperports.updateSuperportData(portId, {folderId: folderId});
 }
 

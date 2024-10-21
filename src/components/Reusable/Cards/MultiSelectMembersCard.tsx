@@ -20,7 +20,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import DynamicColors from '@components/DynamicColors';
-import FilterByFolderBottomSheet from '@screens/Superport/FilterByFolderBottomSheet';
+import FilterByFolderBottomSheet from '@components/Reusable/BottomSheets/FilterByFolderBottomSheet';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {useFocusEffect} from '@react-navigation/native';
 import {getAllFolders} from '@utils/Storage/folders';

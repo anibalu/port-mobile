@@ -63,6 +63,8 @@ export const MAX_PERMISSION_PRESETS = 5;
 export const SHARED_FILE_SIZE_LIMIT_IN_BYTES = 32 * 1024 * 1024; //32MB limit
 export const FILE_ENCRYPTION_KEY_LENGTH = 160;
 
+export const RECENT_CREATED_SUPERPORT_TIME_LIMIT = 15 * 60 * 1000; //time limit in miliseconds (15 minutes)
+
 //CryptoIDs used for identifying reactors in reactions.
 export const REACTION_SENDER_ID = '01';
 export const REACTION_RECEIVER_ID = '02';

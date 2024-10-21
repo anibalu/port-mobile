@@ -1,16 +1,25 @@
 /**
  * This component is responsible for allowing a user to change their name.
- * It takes the following props:
- * 1. name: - initial user name
- * 2. setName - set user name function
- * 3. title - bottomsheet title
- * 4. onSave - on save function to save new profile pic attributes
- * 5. onClose - on close function for bottom sheet
- * 6. visible - to determine if bottom sheet should be visible
+ * It renders a bottom sheet with an input field for the name and a save button.
+ *
+ * Props:
+ * 1. name: string - the initial user name.
+ * 2. setName: (name: string) => void - function to update the user name state.
+ * 3. title?: string - the title displayed at the top of the bottom sheet.
+ * 4. description?: string - additional text description displayed above the input field.
+ * 5. onSave?: (name?: string) => void - function to handle saving the new name.
+ * 6. onClose?: () => void - function to handle closing the bottom sheet.
+ * 7. visible: boolean - determines whether the bottom sheet is visible.
+ * 8. loading?: boolean - optional prop to show loading state in the save button (default: false).
+ * 9. placeholderText?: string - placeholder for the input field (default: 'Name').
+ * 10. keyboardType?: KeyboardTypeOptions - defines the keyboard type for the input field (default: 'ascii-capable').
+ *
+ * Usage:
+ * The `EditName` component is typically used in scenarios where a user needs to update any label be it their profile name or superport name.
  */
 
 import React, {useMemo, useState} from 'react';
-import {Keyboard, StyleSheet, View} from 'react-native';
+import {Keyboard, KeyboardTypeOptions, StyleSheet, View} from 'react-native';
 import SimpleInput from '../Inputs/SimpleInput';
 import PrimaryButton from '../LongButtons/PrimaryButton';
 import {
@@ -25,6 +34,7 @@ import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 
 const EditName = ({
+  loading = false,
   visible,
   onClose,
   onSave = () => {},
@@ -33,24 +43,28 @@ const EditName = ({
   title,
   description,
   placeholderText = 'Name',
+  keyboardType = 'ascii-capable',
 }: {
+  loading?: boolean;
   visible: boolean;
   onClose?: () => void;
   onSave?: (name?: string) => void;
   name: string;
-  setName: (name: string) => void;
+  setName?: (name: string) => void;
   title?: string;
   description?: string;
   placeholderText?: string;
+  keyboardType?: KeyboardTypeOptions;
 }) => {
   const [newName, setNewName] = useState<string>(name);
   useMemo(() => {
     setNewName(name);
-  }, [name]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, visible]);
 
   const onSavePress = () => {
     const trimmedName = newName.trim();
-    setName(trimmedName);
+    setName && setName(trimmedName);
     onSave && onSave(trimmedName);
     Keyboard.dismiss();
     onClose && onClose();
@@ -80,6 +94,7 @@ const EditName = ({
         )}
         <View style={{marginBottom: PortSpacing.secondary.bottom}}>
           <SimpleInput
+            keyboardType={keyboardType}
             placeholderText={placeholderText}
             maxLength={NAME_LENGTH_LIMIT}
             text={newName}
@@ -90,9 +105,11 @@ const EditName = ({
         <PrimaryButton
           buttonText={'Save'}
           primaryButtonColor={'b'}
-          isLoading={false}
+          isLoading={loading}
           disabled={
-            name !== newName && newName.trim().length >= MIN_NAME_LENGTH
+            name !== newName &&
+            newName &&
+            newName.trim().length >= MIN_NAME_LENGTH
               ? false
               : true
           }

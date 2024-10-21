@@ -11,16 +11,17 @@ const EditableInputCard = ({
   setOpenModal,
   placeholder = 'Enter a name',
 }: {
-  text: string;
+  text: string | number | null;
   setOpenModal: (openModal: boolean) => void;
   placeholder?: string;
 }) => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
+
   return (
     <SimpleCard style={styles.mainContainer}>
       <Pressable style={styles.cardWrapper} onPress={() => setOpenModal(true)}>
-        {text === '' ? (
+        {!text || text === '' ? (
           <Text
             style={{
               fontFamily: FontType.rg,

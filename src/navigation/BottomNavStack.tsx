@@ -18,6 +18,7 @@ import Folders from '@screens/Folders/Folders';
 import {
   BottomNavStackParamList,
   FolderNavStackParamList,
+  SuperportsNavStackParamList,
 } from './BottomNavStackTypes';
 import ConnectionOptions from '@screens/Home/ConnectionOptions';
 import DynamicColors from '@components/DynamicColors';
@@ -32,10 +33,13 @@ import {ChatActionsBar} from '@screens/Home/ChatActionsBar';
 import FolderChats from '@screens/Folders/FolderChats';
 import NoConnectionsScreen from '@screens/NoConnectionsScreen/NoConnectionsScreen';
 import {useInsetChecks} from '@components/DeviceUtils';
+import SuperportsEducationScreen from '@screens/Superport/SuperportsEducationScreen';
 
 const Tab = createBottomTabNavigator<BottomNavStackParamList>();
 
 const FolderStack = createNativeStackNavigator<FolderNavStackParamList>();
+const SuperportsStack =
+  createNativeStackNavigator<SuperportsNavStackParamList>();
 
 //component for bottom tab bar with all navigation tabs visible in UI
 function NumberlessTabbar({
@@ -215,6 +219,22 @@ function NumberlessTabbar({
   );
 }
 
+function SuperportsStackScreens() {
+  return (
+    <SuperportsStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+      initialRouteName={'Superports'}>
+      <SuperportsStack.Screen name="Superports" component={Superports} />
+      <SuperportsStack.Screen
+        name="SuperportsEducationScreen"
+        component={SuperportsEducationScreen}
+      />
+    </SuperportsStack.Navigator>
+  );
+}
+
 function FolderStackScreens() {
   return (
     <FolderStack.Navigator
@@ -271,9 +291,9 @@ function BottomNavStackTabs() {
         })}
       />
       <Tab.Screen
-        name="Superports"
+        name="SuperportsStack"
         options={{title: 'Superports'}}
-        component={Superports}
+        component={SuperportsStackScreens}
       />
       <Tab.Screen
         name="MyProfile"

@@ -4,6 +4,7 @@ const DynamicColors = () => {
   const {themeValue} = useTheme();
   const common = {
     red: '#EF4D41',
+    secondaryAccentColor: '#B56BFF',
     darkgrey: '#667085',
     mediumgrey: '#98A2B3',
     lightgrey: '#98A2B340',

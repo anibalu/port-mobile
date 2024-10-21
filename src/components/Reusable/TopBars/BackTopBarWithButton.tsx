@@ -6,7 +6,7 @@
 
 import {PortSpacing, screen} from '@components/ComponentUtils';
 import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
+import {Pressable, StyleProp, StyleSheet, ViewStyle} from 'react-native';
 import {View} from 'react-native';
 import {
   FontSizeType,
@@ -24,13 +24,21 @@ const BackTopbarWithButton = ({
   Icon,
   buttonName = '',
   onButtonPress,
+  SecondaryIcon,
+  onSecondaryButtonPress,
+  buttonStyle,
+  iconSize = 20,
 }: {
   onButtonPress: () => void;
   onBackPress?: () => void;
   bgColor?: 'w' | 'g';
   title?: string;
   Icon?: any;
-  buttonName: string;
+  buttonName?: string;
+  SecondaryIcon?: any;
+  onSecondaryButtonPress?: () => void;
+  buttonStyle?: StyleProp<ViewStyle>;
+  iconSize?: number;
 }) => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -73,15 +81,37 @@ const BackTopbarWithButton = ({
           </NumberlessText>
         )}
       </View>
-      <Pressable style={styles.button} onPress={onButtonPress}>
-        {Icon && <Icon style={{marginRight: 5}} height={20} width={20} />}
-        <NumberlessText
-          textColor={Colors.text.primary}
-          fontType={FontType.md}
-          fontSizeType={FontSizeType.m}>
-          {buttonName}
-        </NumberlessText>
-      </Pressable>
+      <View
+        style={{
+          gap: PortSpacing.medium.uniform,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        {SecondaryIcon && onSecondaryButtonPress && (
+          <Pressable
+            style={styles.secondaryButton}
+            onPress={onSecondaryButtonPress}>
+            <SecondaryIcon height={20} width={20} />
+          </Pressable>
+        )}
+
+        <Pressable
+          style={StyleSheet.compose(styles.button, buttonStyle)}
+          onPress={onButtonPress}>
+          {Icon && (
+            <Icon style={{marginRight: 5}} height={iconSize} width={iconSize} />
+          )}
+          {buttonName && (
+            <NumberlessText
+              textColor={Colors.text.primary}
+              fontType={FontType.md}
+              fontSizeType={FontSizeType.m}>
+              {buttonName}
+            </NumberlessText>
+          )}
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -104,10 +134,19 @@ const styling = (Color: any) =>
       borderWidth: 1,
       borderColor: Color.primary.mainelements,
       height: 35,
-      justifyContent: 'center',
       paddingHorizontal: PortSpacing.tertiary.uniform,
+      justifyContent: 'center',
       flexDirection: 'row',
       alignItems: 'center',
+    },
+    secondaryButton: {
+      height: 35,
+      paddingHorizontal: PortSpacing.tertiary.uniform,
+      justifyContent: 'center',
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: Color.primary.surface2,
+      borderRadius: 50,
     },
   });
 

@@ -70,7 +70,7 @@ const FolderPlaceholderQuickActions = ({
             IconLeft={Superport}
             heading="Create a new Superport"
             onClick={() =>
-              navigation.navigate('SuperportScreen', {
+              navigation.navigate('SuperportSetupScreen', {
                 name: name,
                 avatar: avatar,
                 selectedFolder: {...selectedFolder},

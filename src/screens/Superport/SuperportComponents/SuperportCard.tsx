@@ -8,12 +8,16 @@ import {
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import {SuperportData} from '@utils/Storage/DBCalls/ports/superPorts';
-import {defaultFolderInfo} from '@configs/constants';
+import {
+  RECENT_CREATED_SUPERPORT_TIME_LIMIT,
+  defaultFolderInfo,
+} from '@configs/constants';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import {formatTimeAgo} from '@utils/Time';
+import {checkTimeout, formatTimeAgo} from '@utils/Time';
 import {SvgXml} from 'react-native-svg';
 import DynamicColors from '@components/DynamicColors';
 import {folderIdToHex} from '@utils/Folders/folderIdToHex';
+import {useTheme} from 'src/context/ThemeContext';
 
 const SuperportCard = ({
   superportData,
@@ -34,9 +38,15 @@ const SuperportCard = ({
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
+  const {themeValue} = useTheme();
   const folderColor =
     selectedFolder &&
     folderIdToHex(selectedFolder?.folderId, Colors.boldAccentColors);
+
+  const isSuperportCreatedRcently = checkTimeout(
+    superportData.createdOnTimestamp,
+    RECENT_CREATED_SUPERPORT_TIME_LIMIT,
+  );
 
   return (
     <TouchableOpacity
@@ -63,12 +73,18 @@ const SuperportCard = ({
           </View>
           <NumberlessText
             style={{
-              color: Colors.text.subtitle,
+              color: isSuperportCreatedRcently
+                ? themeValue === 'light'
+                  ? Colors.primary.accent
+                  : Colors.primary.accentLight
+                : Colors.text.subtitle,
               marginLeft: PortSpacing.tertiary.left,
             }}
             fontSizeType={FontSizeType.s}
             fontType={FontType.rg}>
-            {formatTimeAgo(superportData.usedOnTimestamp)}
+            {isSuperportCreatedRcently
+              ? 'Created Now'
+              : formatTimeAgo(superportData.usedOnTimestamp)}
           </NumberlessText>
         </View>
         <View style={styles.titleWrapper}>
@@ -84,30 +100,47 @@ const SuperportCard = ({
           </NumberlessText>
         </View>
         <View style={styles.footerContainer}>
-          <NumberlessText
-            style={{
-              color: true ? Colors.text.subtitle : Colors.primary.red,
-              paddingTop: PortSpacing.tertiary.uniform,
-            }}
-            fontSizeType={FontSizeType.s}
-            fontType={FontType.rg}>
-            {`Connections: ${superportData.connectionsMade}/${superportData.connectionsLimit}   •   `}
-          </NumberlessText>
-          <NumberlessText
-            style={{
-              color: superportData.paused
-                ? Colors.primary.red
-                : Colors.text.subtitle,
-              paddingTop: PortSpacing.tertiary.uniform,
-            }}
-            fontSizeType={FontSizeType.s}
-            fontType={FontType.rg}>
-            {!superportData.paused
-              ? `${
-                  superportData.connectionsLimit - superportData.connectionsMade
-                } left until paused`
-              : 'Paused'}
-          </NumberlessText>
+          <View style={{flexDirection: 'row'}}>
+            <NumberlessText
+              textColor={Colors.text.subtitle}
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              {`Connections: ${superportData.connectionsMade}/${superportData.connectionsLimit}   •   `}
+            </NumberlessText>
+            <NumberlessText
+              textColor={
+                superportData.paused ? Colors.primary.red : Colors.text.subtitle
+              }
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}>
+              {!superportData.paused
+                ? `${
+                    superportData.connectionsLimit -
+                    superportData.connectionsMade
+                  } left until paused`
+                : 'Paused'}
+            </NumberlessText>
+          </View>
+          {isSuperportCreatedRcently && (
+            <View
+              style={{
+                borderRadius: 15,
+                backgroundColor: Colors.primary.accent,
+                paddingVertical: 4,
+                paddingHorizontal: PortSpacing.tertiary.uniform,
+              }}>
+              <NumberlessText
+                textColor={
+                  themeValue === 'light'
+                    ? Colors.primary.surface
+                    : Colors.primary.white
+                }
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}>
+                New
+              </NumberlessText>
+            </View>
+          )}
         </View>
       </SimpleCard>
     </TouchableOpacity>
@@ -118,9 +151,11 @@ const styling = (colors: any) =>
   StyleSheet.create({
     footerContainer: {
       flexDirection: 'row',
+      justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: PortSpacing.secondary.uniform,
       flexWrap: 'wrap',
+      paddingTop: 6,
     },
     titleWrapper: {
       color: PortColors.title,

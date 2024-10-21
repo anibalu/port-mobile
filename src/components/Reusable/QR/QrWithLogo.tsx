@@ -76,7 +76,7 @@ const QrWithLogo = ({
             size={styles.qrBox.width - 10}
           />
           <View style={styles.logoBox}>
-            <AvatarBox avatarSize="s" profileUri={profileUri} />
+            <AvatarBox avatarSize="s++" profileUri={profileUri} />
             {tobeEdited && (
               <Pressable
                 onPress={onClickAvatar}
@@ -88,7 +88,7 @@ const QrWithLogo = ({
         </>
       ) : (
         <View style={styles.logoBox}>
-          <AvatarBox avatarSize="s" profileUri={profileUri} />
+          <AvatarBox avatarSize="s++" profileUri={profileUri} />
         </View>
       )}
     </View>

@@ -21,7 +21,7 @@ export function AvatarBox({
   isHomeContact = false,
 }: {
   profileUri?: string | null;
-  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 'xl' | 's+';
+  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 'xl' | 's+' | 's++';
   onPress?: () => void;
   fromPreview?: boolean;
   isHomeContact?: boolean;
@@ -92,6 +92,8 @@ function avatarContainerSizeStylePicker(
     return containerStyles.small;
   } else if (avatarSize === 's+') {
     return containerStyles.smallMedium;
+  } else if (avatarSize === 's++') {
+    return containerStyles.mediumSmall;
   } else if (avatarSize === 'm') {
     if (isHomeContact) {
       return containerStyles.mediumHome;
@@ -117,6 +119,8 @@ function avatarSizeStylePicker(avatarSize?: string, isHomeContact?: boolean) {
     return avatarStyles.small;
   } else if (avatarSize === 's+') {
     return avatarStyles.smallMedium;
+  } else if (avatarSize === 's++') {
+    return avatarStyles.mediumSmall;
   } else if (avatarSize === 'm') {
     if (isHomeContact) {
       return avatarStyles.mediumHome;
@@ -174,7 +178,7 @@ function DisplayFromMediaId({
   isHomeContact = false,
 }: {
   mediaUri: string;
-  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+' | 'xl';
+  avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+' | 'xl' | 's++';
   fromPreview: boolean;
   isHomeContact?: boolean;
 }) {
@@ -232,6 +236,11 @@ const containerStyles = StyleSheet.create({
     width: 58,
     borderRadius: 150,
   },
+  mediumSmall: {
+    height: 48,
+    width: 48,
+    borderRadius: 150,
+  },
   large: {
     height: 170,
     width: 170,
@@ -277,6 +286,11 @@ const avatarStyles = StyleSheet.create({
     height: 58,
     width: 58,
     borderRadius: 150,
+  },
+  mediumSmall: {
+    height: 48,
+    width: 48,
+    borderRadius: 120,
   },
   large: {
     height: 170,

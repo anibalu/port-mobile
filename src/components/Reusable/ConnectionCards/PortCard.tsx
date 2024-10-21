@@ -13,7 +13,7 @@
  */
 
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import SimpleCard from '../Cards/SimpleCard';
 import QrWithLogo from '../QR/QrWithLogo';
 import {AVATAR_ARRAY} from '@configs/constants';
@@ -25,6 +25,7 @@ import {
 } from '@components/NumberlessText';
 import SecondaryButton from '../LongButtons/SecondaryButton';
 import RetryIcon from '@assets/icons/Retry.svg';
+import EyeIcon from '@assets/icons/WhiteEyeIcon.svg';
 import AlternateSecondaryButton from '../LongButtons/AlternateSecondaryButton';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -35,6 +36,7 @@ import {
 } from '@utils/Ports/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useTheme} from 'src/context/ThemeContext';
+import PrimaryButton from '../LongButtons/PrimaryButton';
 
 const PortCard = ({
   isLoading,
@@ -42,6 +44,8 @@ const PortCard = ({
   hasFailed,
   isSuperport,
   profileUri = AVATAR_ARRAY[0],
+  isCopyLinkLoading,
+  onCopyLink,
   title,
   qrData,
   onShareLinkClicked,
@@ -56,6 +60,8 @@ const PortCard = ({
   isSuperport: boolean;
   profileUri?: string;
   title: string;
+  isCopyLinkLoading: boolean;
+  onCopyLink: () => void;
   qrData:
     | PortBundle
     | GroupBundle
@@ -75,14 +81,22 @@ const PortCard = ({
       dark: require('@assets/dark/icons/ShareAccent.svg').default,
     },
     {
-      assetName: 'Eye',
-      light: require('@assets/icons/BlueEye.svg').default,
-      dark: require('@assets/dark/icons/BlueEye.svg').default,
+      assetName: 'LinkIcon',
+      light: require('@assets/light/icons/LinkGrey.svg').default,
+      dark: require('@assets/dark/icons/LinkGrey.svg').default,
+    },
+    {
+      assetName: 'ShareIcon',
+      light: require('@assets/light/icons/ShareGrey.svg').default,
+      dark: require('@assets/dark/icons/ShareGrey.svg').default,
     },
   ];
   const results = useDynamicSVG(svgArray);
+  const ShareIcon = results.ShareIcon;
+  const LinkIcon = results.LinkIcon;
+
   const Share = results.ShareAccent;
-  const Eye = results.Eye;
+
   const {themeValue} = useTheme();
   const styles = styling(Colors);
 
@@ -202,10 +216,93 @@ const PortCard = ({
       {!hasFailed && isSuperport && (
         <View style={styles.shareBox}>
           <View style={styles.card}>
-            <AlternateSecondaryButton
-              buttonText={'Preview shareable image'}
+            <View
+              style={{
+                flexDirection: 'row',
+                gap: PortSpacing.medium.uniform,
+              }}>
+              <Pressable
+                disabled={isCopyLinkLoading}
+                onPress={onCopyLink}
+                style={{
+                  flexDirection: 'row',
+                  flex: 1,
+                  height: 50,
+                  gap: PortSpacing.tertiary.left,
+                  borderRadius: PortSpacing.medium.uniform,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: Colors.primary.surface2,
+                }}>
+                {isCopyLinkLoading ? (
+                  <ActivityIndicator
+                    color={
+                      themeValue === 'light'
+                        ? Colors.primary.darkgrey
+                        : Colors.text.primary
+                    }
+                  />
+                ) : (
+                  <LinkIcon height={20} width={20} />
+                )}
+                <NumberlessText
+                  style={{
+                    textAlign: 'center',
+                    color:
+                      themeValue === 'light'
+                        ? Colors.primary.darkgrey
+                        : Colors.text.primary,
+                  }}
+                  fontType={FontType.sb}
+                  fontSizeType={FontSizeType.l}>
+                  Copy Link
+                </NumberlessText>
+              </Pressable>
+              <Pressable
+                disabled={isLinkLoading}
+                onPress={onShareLinkClicked}
+                style={{
+                  flexDirection: 'row',
+                  flex: 1,
+                  height: 50,
+                  gap: PortSpacing.tertiary.left,
+                  borderRadius: PortSpacing.medium.uniform,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: Colors.primary.surface2,
+                }}>
+                {isLinkLoading ? (
+                  <ActivityIndicator
+                    color={
+                      themeValue === 'light'
+                        ? Colors.primary.darkgrey
+                        : Colors.text.primary
+                    }
+                  />
+                ) : (
+                  <ShareIcon height={20} width={20} />
+                )}
+                <NumberlessText
+                  style={{
+                    textAlign: 'center',
+                    color:
+                      themeValue === 'light'
+                        ? Colors.primary.darkgrey
+                        : Colors.text.primary,
+                  }}
+                  fontType={FontType.sb}
+                  fontSizeType={FontSizeType.l}>
+                  Share Link
+                </NumberlessText>
+              </Pressable>
+            </View>
+            <PrimaryButton
+              disabled={false}
+              untrimmedText={true}
+              buttonText={' Preview shareable image'}
               onClick={onPreviewImageClicked}
-              Icon={Eye}
+              Icon={EyeIcon}
+              primaryButtonColor={'secondaryAccent'}
               isLoading={
                 isPreviewLoading === undefined
                   ? isLinkLoading
@@ -213,14 +310,14 @@ const PortCard = ({
               }
             />
           </View>
-          <View style={styles.card}>
+          {/* <View style={styles.card}>
             <AlternateSecondaryButton
               buttonText={'Share multi-use link'}
               onClick={onShareLinkClicked}
               Icon={Share}
               isLoading={isLinkLoading}
             />
-          </View>
+          </View> */}
         </View>
       )}
       {!hasFailed && !isLoading && !isSuperport && (
@@ -271,8 +368,7 @@ const styling = (color: any) =>
     card: {
       width: '100%',
       borderRadius: 12,
-      borderColor: color.primary.stroke,
-      borderWidth: 0.5,
+      gap: PortSpacing.medium.uniform,
     },
   });
 

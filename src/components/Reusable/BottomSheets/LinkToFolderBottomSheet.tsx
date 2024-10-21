@@ -10,10 +10,12 @@ import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio'
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import React, {useEffect, useRef} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import {updateGeneratedSuperportFolder} from '@utils/Ports';
 import {safeModalCloseDuration} from '@configs/constants';
+import {ToastType, useToast} from 'src/context/ToastContext';
+import AddCircle from '@assets/icons/bluePlusWithCircle.svg';
 
 /**
  * LinkToFolderBottomSheet
@@ -41,22 +43,36 @@ const LinkToFolderBottomSheet = ({
   portId,
   title,
   subtitle,
+  createfolder = false,
+  onCreateFolder,
 }: {
   portId?: any;
   foldersArray: FolderInfo[];
-  setSelectedFolderData: (folder: FolderInfo) => void;
+  setSelectedFolderData?: (folder: FolderInfo) => void;
   visible: boolean;
   onClose: () => void;
   currentFolder: FolderInfo;
   title: string;
   subtitle?: string;
+  createfolder?: boolean;
+  onCreateFolder?: () => void;
 }) => {
   const Colors = DynamicColors();
+  const {showToast} = useToast();
 
   const onRadioClick = async (item: FolderInfo) => {
-    setSelectedFolderData(item);
     if (portId) {
-      await updateGeneratedSuperportFolder(portId, item.folderId);
+      try {
+        await updateGeneratedSuperportFolder(portId, item.folderId);
+        setSelectedFolderData && setSelectedFolderData(item);
+      } catch {
+        showToast(
+          'Error updating chosen folder. Please check your internet connection and try again!',
+          ToastType.error,
+        );
+      }
+    } else {
+      setSelectedFolderData && setSelectedFolderData(item);
     }
     onClose();
   };
@@ -141,16 +157,41 @@ const LinkToFolderBottomSheet = ({
           persistentScrollbar={true}
           horizontal={false}
           keyExtractor={(item: any) => item.folderId}
-          renderItem={item => {
+          renderItem={({item, index}) => {
             return (
               <>
+                {index === 0 && createfolder && (
+                  <>
+                    <TouchableOpacity
+                      onPress={onCreateFolder}
+                      accessibilityIgnoresInvertColors
+                      activeOpacity={0.6}>
+                      <View
+                        style={[
+                          styles.optionWrapper,
+                          {paddingHorizontal: PortSpacing.secondary.uniform},
+                        ]}>
+                        <View style={styles.textContainer}>
+                          <NumberlessText
+                            textColor={Colors.text.primary}
+                            fontSizeType={FontSizeType.m}
+                            fontType={FontType.rg}>
+                            Create a new folder
+                          </NumberlessText>
+                        </View>
+                        <AddCircle width={20} height={20} />
+                      </View>
+                    </TouchableOpacity>
+                    <LineSeparator />
+                  </>
+                )}
                 <OptionWithRadio
-                  onClick={async () => await onRadioClick(item.item)}
+                  onClick={async () => await onRadioClick(item)}
                   selectedOption={currentFolder?.folderId}
-                  selectedOptionComparision={item.item.folderId}
-                  title={item.item.name}
+                  selectedOptionComparision={item.folderId}
+                  title={item.name}
                 />
-                {!(item.index === foldersArray.length - 1) && <LineSeparator />}
+                {!(index === foldersArray.length - 1) && <LineSeparator />}
               </>
             );
           }}

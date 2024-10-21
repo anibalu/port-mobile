@@ -79,7 +79,11 @@ const CreateFolder = ({navigation, route}: Props) => {
         <TopBarWithRightIcon
           onIconRightPress={() => navigation.goBack()}
           IconRight={CrossButton}
-          heading={saveDetails ? ' Edit Folder Settings' : 'Create new folder'}
+          heading={
+            saveDetails && !onSaveDetails
+              ? 'Edit Folder Settings'
+              : 'Create new folder'
+          }
         />
         <View
           style={{
@@ -175,7 +179,9 @@ const CreateFolder = ({navigation, route}: Props) => {
                   }
                   setIsLoading(false);
                   if (portId) {
-                    navigation.navigate('SuperportScreen', {portId: portId});
+                    navigation.navigate('SuperportSetupScreen', {
+                      portId: portId,
+                    });
                   } else {
                     navigation.goBack();
                   }

@@ -14,7 +14,11 @@ export type AppStackParamList = {
   HomeTab: undefined;
   PortContactList: undefined;
   PhoneContactList: undefined;
-  SuperportScreen: {
+  SuperportQRScreen: {
+    superportId: string;
+    selectedFolder: FolderInfo;
+  };
+  SuperportSetupScreen: {
     portId?: string;
     selectedFolder?: FolderInfo;
   };

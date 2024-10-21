@@ -26,7 +26,9 @@ const TopBarWithRightIcon = ({
   heading,
   onIconRightPress,
   bgColor,
+  alignLeft = false,
 }: {
+  alignLeft?: boolean;
   bgColor?: 'b' | 'g';
   onIconRightPress: () => void;
   IconRight?: FC<SvgProps>;
@@ -37,6 +39,7 @@ const TopBarWithRightIcon = ({
   return (
     <View
       style={StyleSheet.compose(styles.topbarAcontainer, {
+        justifyContent: alignLeft ? 'space-between' : 'center',
         borderBottomColor: Colors.primary.stroke,
         backgroundColor: bgColor
           ? bgColor === 'b'
@@ -74,7 +77,6 @@ const styling = (Color: any) =>
       borderBottomWidth: 0.5,
       borderBottomColor: Color.primary.stroke,
       height: TOPBAR_HEIGHT,
-      justifyContent: 'center',
       width: '100%',
     },
   });

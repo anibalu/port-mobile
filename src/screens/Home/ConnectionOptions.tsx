@@ -36,7 +36,7 @@ export default function ConnectionOptions({
 
   const handleOpenSuperport = () => {
     setIsConnectionOptionsModalOpen(false);
-    navigation.navigate('SuperportScreen', {});
+    navigation.navigate('SuperportSetupScreen', {});
   };
 
   const handleOpenScan = () => {

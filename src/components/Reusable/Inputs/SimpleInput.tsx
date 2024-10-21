@@ -32,8 +32,14 @@ const SimpleInput = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const onTextChange = (newText: string) => {
-    setText(newText);
+    if (keyboardType === 'numeric') {
+      const numericText = newText.replace(/[^0-9]/g, '');
+      setText(numericText);
+    } else {
+      setText(newText);
+    }
   };
+
   const Colors = DynamicColors();
 
   const {themeValue} = useTheme();

@@ -5,7 +5,7 @@ import {
   FlatList,
   Pressable,
   KeyboardAvoidingView,
-  ActivityIndicator, // Use ActivityIndicator for better performance
+  ActivityIndicator,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {
@@ -13,7 +13,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import SuperportCard from './SuperportCard';
+import SuperportCard from './SuperportComponents/SuperportCard';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
@@ -23,14 +23,14 @@ import {getAllFolders} from '@utils/Storage/folders';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import SuperportsInfo from './SuperportsInfo';
-import SuperportsTopbar from './SuperportsTopbar';
+import SuperportsTopbar from './SuperportComponents/SuperportsTopbar';
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {
   DEFAULT_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
+  RECENT_CREATED_SUPERPORT_TIME_LIMIT,
   TOPBAR_HEIGHT,
 } from '@configs/constants';
 import {SuperportData} from '@utils/Storage/DBCalls/ports/superPorts';
@@ -41,14 +41,15 @@ import {BottomNavStackParamList} from '@navigation/BottomNavStackTypes';
 import {useSelector} from 'react-redux';
 import {SvgXml} from 'react-native-svg';
 import {folderIdToHex} from '@utils/Folders/folderIdToHex';
-import FilterByFolderBottomSheet from './FilterByFolderBottomSheet';
+import FilterByFolderBottomSheet from '@components/Reusable/BottomSheets/FilterByFolderBottomSheet';
+import {checkTimeout} from '@utils/Time';
+import SuperportsEducation from './SuperportComponents/SuperportsEducation';
 
-// Define the type of the route parameters
 type RouteParams = {
   selectedFolderFilter?: FolderInfo;
 };
 
-type Props = NativeStackScreenProps<BottomNavStackParamList, 'Superports'>;
+type Props = NativeStackScreenProps<BottomNavStackParamList, 'SuperportsStack'>;
 
 const Superports = ({route, navigation}: Props) => {
   const params: RouteParams = useMemo(() => route.params || {}, [route.params]);
@@ -60,8 +61,6 @@ const Superports = ({route, navigation}: Props) => {
     };
   }, [profile]);
 
-  const [profilePicAttr] = useState(avatar);
-  const [displayName] = useState<string>(name);
   const [showSortby, setShowSortby] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('Last used');
@@ -73,7 +72,7 @@ const Superports = ({route, navigation}: Props) => {
   const [filteredSuperportsData, setFilteredSuperportsData] = useState<
     SuperportData[]
   >([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Default to true
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -154,6 +153,11 @@ const Superports = ({route, navigation}: Props) => {
       dark: require('@assets/dark/icons/Plus.svg').default,
     },
     {
+      assetName: 'InfoGrey',
+      light: require('@assets/light/icons/InfoGrey.svg').default,
+      dark: require('@assets/dark/icons/InfoGrey.svg').default,
+    },
+    {
       assetName: 'SortFilterIcon',
       light: require('@assets/light/icons/Filter.svg').default,
       dark: require('@assets/dark/icons/Filter.svg').default,
@@ -173,6 +177,7 @@ const Superports = ({route, navigation}: Props) => {
   const results = useDynamicSVG(svgArray);
   const PlusIcon = results.PlusIcon;
   const FilterFunnelIcon = results.FilterFunnelIcon;
+  const InfoGrey = results.InfoGrey;
 
   const getSvgXml = (color: string) => {
     return `
@@ -186,6 +191,31 @@ const Superports = ({route, navigation}: Props) => {
   const folderColor =
     selectedFolder &&
     folderIdToHex(selectedFolder.folderId, Colors.boldAccentColors);
+
+  const updatedSuperportsData = useMemo(() => {
+    return [...filteredSuperportsData].sort((a, b) => {
+      const aTimeAgo = checkTimeout(
+        a.createdOnTimestamp,
+        RECENT_CREATED_SUPERPORT_TIME_LIMIT,
+      );
+      const bTimeAgo = checkTimeout(
+        b.createdOnTimestamp,
+        RECENT_CREATED_SUPERPORT_TIME_LIMIT,
+      );
+
+      if (aTimeAgo) {
+        return -1;
+      }
+      if (bTimeAgo) {
+        return 1;
+      }
+
+      // Maintain original order for other items
+      return (
+        filteredSuperportsData.indexOf(a) - filteredSuperportsData.indexOf(b)
+      );
+    });
+  }, [filteredSuperportsData]);
 
   return (
     <>
@@ -208,8 +238,15 @@ const Superports = ({route, navigation}: Props) => {
             {superportsData.length > 0 ? (
               <>
                 <BackTopbarWithButton
+                  onSecondaryButtonPress={() =>
+                    navigation.navigate('SuperportsEducationScreen', {
+                      name: name,
+                      avatar: avatar,
+                    })
+                  }
+                  SecondaryIcon={InfoGrey}
                   onButtonPress={() =>
-                    navigation.navigate('SuperportScreen', {
+                    navigation.navigate('SuperportSetupScreen', {
                       selectedFolder: selectedFolder
                         ? {...selectedFolder}
                         : undefined,
@@ -324,10 +361,12 @@ const Superports = ({route, navigation}: Props) => {
                         </NumberlessText>
                       </View>
                     }
-                    style={{paddingHorizontal: PortSpacing.secondary.uniform}}
+                    style={{
+                      paddingHorizontal: PortSpacing.secondary.uniform,
+                    }}
                     horizontal={false}
                     showsVerticalScrollIndicator={false}
-                    data={filteredSuperportsData}
+                    data={updatedSuperportsData} // Use sorted data
                     keyExtractor={item => item.portId}
                     renderItem={({item}) => {
                       return (
@@ -337,8 +376,8 @@ const Superports = ({route, navigation}: Props) => {
                           )}
                           superportData={item}
                           onClick={() =>
-                            navigation.navigate('SuperportScreen', {
-                              portId: item.portId,
+                            navigation.navigate('SuperportQRScreen', {
+                              superportId: item.portId,
                               selectedFolder: foldersArray.find(
                                 folder => folder.folderId === item.folderId,
                               ),
@@ -379,7 +418,17 @@ const Superports = ({route, navigation}: Props) => {
                 </PrimaryBottomSheet>
               </>
             ) : (
-              <SuperportsInfo name={displayName} avatar={profilePicAttr} />
+              <>
+                <BackTopbarWithButton
+                  buttonStyle={{
+                    borderWidth: 0,
+                  }}
+                  onButtonPress={() => navigation.goBack()}
+                  title={'Superports Info'}
+                  bgColor="w"
+                />
+                <SuperportsEducation />
+              </>
             )}
           </>
         )}

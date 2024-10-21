@@ -262,7 +262,8 @@ const FolderChats = ({route}: Props) => {
                               }`}
                               Icon={LinkSuperport}
                               onPress={() => {
-                                navigation.navigate('Superports', {
+                                navigation.navigate('SuperportsStack', {
+                                  screen: 'Superports',
                                   selectedFolderFilter: {...folder},
                                 });
                               }}
@@ -276,7 +277,7 @@ const FolderChats = ({route}: Props) => {
                                 }
                                 Icon={LinkSuperport}
                                 onPress={() => {
-                                  navigation.navigate('SuperportScreen', {
+                                  navigation.navigate('SuperportSetupScreen', {
                                     selectedFolder: {...folder},
                                   });
                                 }}
@@ -359,7 +360,7 @@ const FolderChats = ({route}: Props) => {
                         text={'Tap here to link a Superport with this folder'}
                         Icon={LinkSuperport}
                         onPress={() => {
-                          navigation.navigate('SuperportScreen', {
+                          navigation.navigate('SuperportSetupScreen', {
                             selectedFolder: {...folder},
                           });
                         }}

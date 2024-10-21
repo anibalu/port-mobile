@@ -22,6 +22,7 @@ class ReceiveText extends GroupReceiveAction {
 
   async performAction(): Promise<void> {
     this.decryptedMessageContent = this.decryptedMessageContentNotNullRule();
+    await this.doubleProcessingGuard();
     //save message to storage
     await this.saveMessage();
     //update connection

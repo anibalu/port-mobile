@@ -9,7 +9,7 @@ import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {GenericButton} from '@components/GenericButton';
 import {
-  DEFAULT_PROFILE_AVATAR_INFO,
+  DEFAULT_GROUP_PROFILE_AVATAR_INFO,
   safeModalCloseDuration,
 } from '@configs/constants';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
@@ -29,7 +29,7 @@ const CreateNewGroup = () => {
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
   const [imageAttr, setImageAttr] = useState<FileAttributes>(
-    DEFAULT_PROFILE_AVATAR_INFO,
+    DEFAULT_GROUP_PROFILE_AVATAR_INFO,
   );
   //controls error bottom sheet
   const [errorVisible, setErrorVisible] = useState(false);

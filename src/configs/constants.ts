@@ -59,6 +59,12 @@ export const DEFAULT_PROFILE_AVATAR_INFO: FileAttributes = {
   fileName: '1',
   fileType: 'avatar',
 };
+
+export const DEFAULT_GROUP_PROFILE_AVATAR_INFO: FileAttributes = {
+  fileUri: 'avatar://52',
+  fileName: '52',
+  fileType: 'avatar',
+};
 export const MAX_PERMISSION_PRESETS = 5;
 export const SHARED_FILE_SIZE_LIMIT_IN_BYTES = 32 * 1024 * 1024; //32MB limit
 export const FILE_ENCRYPTION_KEY_LENGTH = 160;

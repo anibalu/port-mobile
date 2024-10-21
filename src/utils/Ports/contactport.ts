@@ -24,11 +24,13 @@ import {
 import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
+  ContactBundleParams,
   ContactPortTicketParams,
   ContentType,
   PayloadMessageParams,
 } from '@utils/Messaging/interfaces';
 import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
+import {getMessage, updateMessageData} from '@utils/Storage/messages';
 
 /**
  * Fetch a contact port bundle. If no contact port exists, create one.
@@ -328,6 +330,35 @@ export async function acceptAuthorizedContactBundle(
 }
 
 /**
+ * Resolve the mismatch between the server and client's state for a particular
+ * ContactPort
+ * @param anomalousContactPort The ContactPort exhibiting anomalous behaviour
+ * @returns Whether the correct activation state for the ContactPort
+ */
+async function resolveContactPortSettingMismatch(
+  anomalousContactPort: ContactPortData,
+): Promise<Boolean> {
+  try {
+    const authorizedCreatedChat = new DirectChat(
+      await getChatIdFromPairHash(anomalousContactPort.pairHash),
+    );
+    const chatContactSharingPermission = (
+      await authorizedCreatedChat.getPermissions()
+    ).contactSharing;
+    if (chatContactSharingPermission) {
+      await resumeContactPortForPairHash(anomalousContactPort.pairHash);
+      return true;
+    } else {
+      await pauseContactPortForPairHash(anomalousContactPort.pairHash);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error resolving contact port setting mismatch: ', error);
+    return false;
+  }
+}
+
+/**
  * Accept a contact port ticket if such a contact port exits and the user is authorized to create a ticket.
  * @param contactPortId
  * @param ticketId
@@ -340,8 +371,16 @@ export async function checkAndAcceptContactPortTicket(
   try {
     const connection = await getConnection(chatId);
     const contactPort = await getCreatedContactPortData(contactPortId);
+    if (
+      contactPort.paused &&
+      !(await resolveContactPortSettingMismatch(contactPort))
+    ) {
+      // There's a mismatch between the client and the server.
+      // Resolution has been completed, and the connection should not be attempted
+      return;
+    }
     //if pairHashes match and the contact port is not paused, accept the ticket.
-    if (connection.pairHash === contactPort.pairHash && !contactPort.paused) {
+    if (connection.pairHash === contactPort.pairHash) {
       console.log(
         'Checking and accepting ticket: ',
         contactPortId,
@@ -403,9 +442,13 @@ export async function newChatOverCreatedContactPortBundle(
   const chat = new DirectChat();
   const contactPortCryptoDriver = new CryptoDriver(contactPortCryptoId);
   //check if contact port is already paused locally. If it is, we use this opportunity to try the API call.
-  if (createdContactPort.paused) {
-    console.log('Contact port is paused locally');
-    pauseContactPortForPairHash(pairHash);
+  if (
+    createdContactPort.paused &&
+    !(await resolveContactPortSettingMismatch(createdContactPort))
+  ) {
+    // There's a mismatch between the client and the server.
+    // Resolution has been completed, and the connection should not be attempted
+    return;
   }
   //create crypto duplicated entry
   const cryptoDriver = new CryptoDriver();
@@ -486,6 +529,19 @@ export async function newChatOverReadContactPortBundle(
       false,
       readPortBundle.ticket,
     );
+    if (readPortBundle.channel) {
+      const channel = readPortBundle.channel;
+      if (channel.substring(0, 9) === 'shared://') {
+        const fromChatId = channel.substring(9, 9 + 32);
+        const messsageId = channel.substring(9 + 32 + 3, 9 + 32 + 3 + 32);
+        const message = await getMessage(fromChatId, messsageId);
+        if (message) {
+          const update = message.data as ContactBundleParams;
+          (update.accepted = true), (update.createdChatId = chat.getChatId());
+          await updateMessageData(fromChatId, messsageId, update);
+        }
+      }
+    }
     await storageReadPorts.deleteReadPortData(readPortBundle.portId);
     const chatId = chat.getChatId();
     await readerInitialInfoSend(chatId);

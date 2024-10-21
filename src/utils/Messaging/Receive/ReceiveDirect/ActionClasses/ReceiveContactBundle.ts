@@ -32,7 +32,7 @@ class ReceiveContactBundle extends DirectReceiveAction {
         latestMessageId: this.decryptedMessageContent.messageId,
         timestamp: this.receiveTime,
       },
-      NewMessageCountAction.unchanged,
+      NewMessageCountAction.increment,
     );
     //notify user if notifications are ON
     const permissions = await getChatPermissions(this.chatId, ChatType.direct);

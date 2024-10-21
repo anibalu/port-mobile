@@ -7,75 +7,73 @@ import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {ContactBundleParams} from '@utils/Messaging/interfaces';
-import {getReadPort, processReadBundles, readBundle} from '@utils/Ports';
-import {PortBundle} from '@utils/Ports/interfaces';
-import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
 import React, {useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {MAX_WIDTH_CONTENT, RenderTimeStamp} from '../BubbleUtils';
+import {
+  attemptConnect,
+  MAX_WIDTH_CONTENT,
+  RenderTimeStamp,
+} from '../BubbleUtils';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import DynamicColors from '@components/DynamicColors';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 const ContactBubble = ({message}: {message: LoadedMessage}) => {
   const navigation = useNavigation<any>();
-  const [disconnected, setDisconnected] = useState(false);
+  const {showToast} = useToast();
   const [chatName, setChatName] = useState<string>(
-    (message.data as ContactBundleParams).bundle?.name || DEFAULT_NAME,
+    (message.data as ContactBundleParams).bundle.name || DEFAULT_NAME,
   );
-  const [authenticated, setAuthenticated] = useState(false);
-  const [bundle, setBundle] = useState<ReadPortData | null>(null);
+  const [connecting, setConnecting] = useState<boolean>(false);
+  //this is toggled to true if created chat Id is that of a deleted chat.
+  const [deletedChat, setDeletedChat] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
-      const getBundle = await getReadPort(
-        (message.data as ContactBundleParams).bundle.portId,
-      );
-      setBundle(getBundle);
-      if ((message.data as ContactBundleParams).createdChatId) {
-        const chat = new DirectChat(
-          (message.data as ContactBundleParams).createdChatId,
-        );
-        try {
+      try {
+        if (message?.data?.createdChatId) {
+          const chat = new DirectChat(message?.data?.createdChatId);
           const chatData = await chat.getChatData();
-          setChatName(chatData.name);
-          setAuthenticated(chatData.authenticated);
-          setDisconnected(chatData.disconnected);
-        } catch (error) {
-          console.error('Created chat id not available: ', error);
+          setChatName(chatData.name || DEFAULT_NAME);
         }
+      } catch (error) {
+        setDeletedChat(true);
+        console.log('Error running contact bubble initial effect: ', error);
       }
     })();
-  }, [message]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleConnect = async () => {
     try {
-      if (authenticated) {
-        navigation.push('DirectChat', {
-          chatId: (message.data as ContactBundleParams).createdChatId,
-          isGroupChat: false,
-          isConnected: !disconnected,
-          isAuthenticated: authenticated,
-        });
-      } else {
-        const bundle: PortBundle = (message.data as ContactBundleParams).bundle;
-        const channel =
-          'shared://' + message.chatId + '://' + message.messageId;
+      if (!message?.data?.accepted && !message?.data?.createdChatId) {
+        setConnecting(true);
+        const bundle = (message.data as ContactBundleParams).bundle;
         if (bundle) {
-          await readBundle(bundle, channel);
-          //try to use read bundles
-          await processReadBundles();
-
-          //navigate to home screen
-          navigation.navigate('HomeTab');
+          await attemptConnect(bundle, message);
         } else {
           throw new Error('No Bundle');
         }
+      } else if (message?.data?.createdChatId) {
+        const chatHandler = new DirectChat(message.data.createdChatId);
+        const chatData = await chatHandler.getChatData();
+        navigation.push('DirectChat', {
+          chatId: message.data.createdChatId,
+          isConnected: !chatData.disconnected,
+          isAuthenticated: chatData.authenticated,
+          name: chatData.name,
+          profileUri: chatData.displayPic,
+        });
+      } else {
+        console.log('Clicked on contact bundle in unusable state.');
       }
     } catch (error) {
       console.log('Error connecting over shared contact', error);
+      showToast('Shared contact port has expired', ToastType.error);
     }
+    setConnecting(false);
   };
 
   const Colors = DynamicColors();
@@ -94,7 +92,6 @@ const ContactBubble = ({message}: {message: LoadedMessage}) => {
             gap: 5,
           }}>
           <AvatarBox profileUri={DEFAULT_AVATAR} avatarSize="s" />
-
           <View style={{justifyContent: 'center', marginLeft: 5}}>
             <NumberlessText
               textColor={Colors.text.primary}
@@ -124,103 +121,32 @@ const ContactBubble = ({message}: {message: LoadedMessage}) => {
 
       {!message.sender && (
         <>
-          <GetButton
-            clickHandle={handleConnect}
-            bundle={bundle}
-            createdChatId={message?.data?.createdChatId}
-            accepted={message?.data?.accepted}
-            authenticated={authenticated}
-          />
+          <LineSeparator fromContactBubble={true} />
+          <Pressable
+            onPress={handleConnect}
+            style={styles.receiveMessageStyle}
+            disabled={connecting}>
+            <NumberlessText
+              fontSizeType={FontSizeType.m}
+              fontType={FontType.md}
+              textColor={Colors.primary.white}>
+              {connecting
+                ? 'Connecting...'
+                : !message?.data?.accepted && !message?.data?.createdChatId
+                ? 'Connect'
+                : message?.data?.createdChatId && !deletedChat
+                ? 'Message'
+                : message?.data?.accepted && !deletedChat
+                ? 'Connecting...'
+                : 'Expired'}
+            </NumberlessText>
+          </Pressable>
         </>
       )}
     </View>
   );
 };
 
-function GetButton({
-  clickHandle,
-  bundle,
-  accepted,
-  createdChatId,
-  authenticated,
-}: {
-  bundle: ReadPortData | null;
-  accepted: boolean;
-  createdChatId: string;
-  clickHandle: () => void;
-  authenticated: boolean;
-}) {
-  const Colors = DynamicColors();
-  const styles = styling(Colors);
-  if (!accepted && !createdChatId) {
-    return (
-      <>
-        <LineSeparator fromContactBubble={true} />
-
-        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
-            textColor={Colors.primary.white}>
-            Connect
-          </NumberlessText>
-        </Pressable>
-      </>
-    );
-  } else if (createdChatId) {
-    if (authenticated) {
-      return (
-        <>
-          <LineSeparator fromContactBubble={true} />
-          <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-            <NumberlessText
-              fontSizeType={FontSizeType.m}
-              fontType={FontType.md}
-              textColor={Colors.primary.white}>
-              Message
-            </NumberlessText>
-          </Pressable>
-        </>
-      );
-    } else {
-      <>
-        <LineSeparator fromContactBubble={true} />
-        <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-          <NumberlessText
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
-            textColor={Colors.primary.white}>
-            Connecting...
-          </NumberlessText>
-        </Pressable>
-      </>;
-    }
-  } else if (bundle && accepted) {
-    <>
-      <LineSeparator fromContactBubble={true} />
-      <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-        <NumberlessText
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.md}
-          textColor={Colors.primary.white}>
-          Connecting...
-        </NumberlessText>
-      </Pressable>
-    </>;
-  } else {
-    <>
-      <LineSeparator fromContactBubble={true} />
-      <Pressable onPress={clickHandle} style={styles.receiveMessageStyle}>
-        <NumberlessText
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.md}
-          textColor={Colors.primary.white}>
-          Expired
-        </NumberlessText>
-      </Pressable>
-    </>;
-  }
-}
 const styling = (Colors: any) =>
   StyleSheet.create({
     timeStampContainer: {

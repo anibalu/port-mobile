@@ -29,6 +29,9 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
+import {DirectContactPortBundle, PortBundle} from '@utils/Ports/interfaces';
+import {processReadBundles, readBundle} from '@utils/Ports';
+import {updateMessageData} from '@utils/Storage/messages';
 
 //max width of message bubble
 export const MAX_WIDTH = screen.width - 2 * PortSpacing.secondary.uniform - 64;
@@ -113,6 +116,29 @@ export const handleDownload = async (
     console.error('Error downloading media: ', error);
     onFailure();
   }
+};
+
+/**
+ * Attempts to form a chat using a port bundle or contact port bundle
+ * @param bundle
+ * @param message
+ */
+export const attemptConnect = async (
+  bundle: PortBundle | DirectContactPortBundle,
+  message: LoadedMessage,
+) => {
+  const channel = 'shared://' + message.chatId + '://' + message.messageId;
+  await readBundle(bundle, channel);
+  await updateMessageData(message.chatId, message.messageId, {
+    ...message.data,
+    accepted: true,
+  });
+  //try to use read bundles
+  await processReadBundles();
+  store.dispatch({
+    type: 'PING',
+    payload: 'PONG',
+  });
 };
 
 /**

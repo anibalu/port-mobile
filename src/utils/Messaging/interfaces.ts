@@ -302,7 +302,7 @@ export interface InfoParams {
 export interface ContactBundleParams {
   accepted?: boolean;
   createdChatId?: string;
-  bundle: PortBundle;
+  bundle: PortBundle | DirectContactPortBundle;
 }
 export interface ContactPortBundleParams {
   bundle?: DirectContactPortBundle | null;

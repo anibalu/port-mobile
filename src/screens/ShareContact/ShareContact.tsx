@@ -13,7 +13,10 @@ import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {getDirectChats} from '@utils/DirectChats';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {requestContactBundleToShare} from '@utils/ContactSharing';
+import {
+  requestContactBundleToShare,
+  shareContactPort,
+} from '@utils/ContactSharing';
 import SearchBar from '@components/SearchBar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ShareContact'>;
@@ -51,11 +54,18 @@ const ShareContact = ({route, navigation}: Props) => {
   const onShare = async () => {
     setLoading(true);
     for (const mbr of selectedMembers) {
-      requestContactBundleToShare({
-        approved: false,
-        destinationChatId: chatId,
-        source: mbr.chatId,
-      });
+      try {
+        await shareContactPort(mbr.chatId, chatId);
+        console.info('Could use contact port, not falling back to legacy');
+      } catch (e) {
+        console.error('Could not share contact Port: ', e);
+        console.info('Falling back to legacy contact sharing');
+        requestContactBundleToShare({
+          approved: false,
+          destinationChatId: chatId,
+          source: mbr.chatId,
+        });
+      }
     }
     setLoading(false);
     navigation.goBack();

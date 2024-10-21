@@ -17,6 +17,7 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import * as messageStorage from '@utils/Storage/messages';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
 
 export interface ContactShareRequest {
   source: string; //chat id of contact from whom a port is being requested
@@ -28,6 +29,26 @@ export interface GenerateContactBundle {
   approvedMessageId: string;
   requester: string;
   destinationName: string;
+}
+
+/**
+ * Attempt to share a ContactPort
+ * @param contactToShare The chatId of the contact to share
+ * @param contactRecipient The intended recipient of the ContactPort
+ */
+export async function shareContactPort(
+  contactChatIdToShare: string,
+  contactRecipient: string,
+) {
+  const chatToShare = new DirectChat(contactChatIdToShare);
+  const pairHashToShare = (await chatToShare.getChatData()).pairHash;
+  const contactPortBundle = await convertAuthorizedContactPortToShareablePort(
+    pairHashToShare,
+  );
+  const sender = new SendMessage(contactRecipient, ContentType.contactBundle, {
+    bundle: contactPortBundle,
+  });
+  await sender.send();
 }
 
 /**

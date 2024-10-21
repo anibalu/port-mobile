@@ -16,6 +16,8 @@ export type BundleType<T extends BundleTarget> = T extends BundleTarget.direct
   ? DirectSuperportBundle
   : T extends BundleTarget.superportGroup
   ? GroupSuperportBundle
+  : T extends BundleTarget.contactPort
+  ? DirectContactPortBundle
   : never;
 
 /**

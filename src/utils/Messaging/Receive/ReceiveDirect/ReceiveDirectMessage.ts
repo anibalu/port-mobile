@@ -93,6 +93,8 @@ class ReceiveDirectMessage {
     if (this.receiveClass) {
       await this.receiveClass.validate();
       await this.receiveClass.performAction();
+    } else {
+      console.error('Could not assign a receiver for this message');
     }
   }
 }

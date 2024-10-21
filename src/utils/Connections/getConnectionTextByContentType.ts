@@ -65,7 +65,7 @@ const contentTypeMap: {[key: number]: ContentTypeEmojiAndText} = {
     emoji: '👤',
     defaultText: '',
     getText: latestMessageData =>
-      `shared you contact with ${latestMessageData?.bundle?.name}`,
+      `shared your contact with ${latestMessageData?.bundle?.name}`,
   },
   [ContentType.disappearingMessages]: {
     defaultText: '',

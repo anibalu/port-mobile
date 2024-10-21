@@ -30,7 +30,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
 import DisabledSend from '@assets/dark/icons/DisabledSend.svg';
-import Plus from '@assets/dark/icons/WhitePlus.svg';
+import {useTheme} from 'src/context/ThemeContext';
+import WhitePlus from '@assets/dark/icons/WhitePlus.svg';
 
 // this component is reponsible for textinput for message bar in direct chat
 const TextComponent = ({
@@ -73,6 +74,7 @@ const TextComponent = ({
   } = useChatContext();
 
   const styles = styling(Colors, messageToEdit);
+  const {themeValue} = useTheme();
 
   const onChangeText = (newText: string): void => {
     setText(newText);
@@ -104,6 +106,11 @@ const TextComponent = ({
       light: require('@assets/light/icons/EditLight.svg').default,
       dark: require('@assets/dark/icons/EditIcon.svg').default,
     },
+    {
+      assetName: 'Plus',
+      light: require('@assets/light/icons/GreyPlus.svg').default,
+      dark: require('@assets/dark/icons/WhitePlus.svg').default,
+    },
   ];
 
   const results = useDynamicSVG(svgArray);
@@ -113,6 +120,7 @@ const TextComponent = ({
   const SendIcon = results.SendIcon;
   const Cross = results.Cross;
   const EditIcon = results.EditIcon;
+  const Plus = results.Plus;
 
   const options = {
     enableVibrateFallback: true /* iOS Only */,
@@ -237,7 +245,10 @@ const TextComponent = ({
                     style={[
                       animatedStyleKeyboard,
                       {
-                        backgroundColor: Colors.primary.surface2,
+                        backgroundColor:
+                          themeValue === 'light'
+                            ? Colors.primary.accent
+                            : Colors.primary.surface2,
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: 6,
@@ -251,7 +262,10 @@ const TextComponent = ({
                     style={[
                       animatedStylePlus,
                       {
-                        backgroundColor: Colors.primary.surface2,
+                        backgroundColor:
+                          themeValue === 'light'
+                            ? Colors.primary.accent
+                            : Colors.primary.surface2,
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: 6,
@@ -261,7 +275,7 @@ const TextComponent = ({
                     {messageToEdit ? (
                       <Cross height={24} width={24} />
                     ) : (
-                      <Plus height={24} width={24} />
+                      <WhitePlus height={24} width={24} />
                     )}
                   </Animated.View>
                 )}

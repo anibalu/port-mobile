@@ -23,6 +23,7 @@ import EmojiKeyboard from './EmojiKeyboard';
 import {useChatContext} from '@screens/GroupChat/ChatContext';
 import {wait} from '@utils/Time';
 import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import WhitePlus from '@assets/dark/icons/WhitePlus.svg';
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -30,6 +31,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import DisabledSend from '@assets/dark/icons/DisabledSend.svg';
+import {useTheme} from 'src/context/ThemeContext';
 
 const TextComponent = ({
   replyToMessage,
@@ -109,6 +111,7 @@ const TextComponent = ({
   ];
 
   const results = useDynamicSVG(svgArray);
+  const {themeValue} = useTheme();
 
   const MicrophoneIcon = results.MicrophoneIcon;
   const Emoji = results.Emoji;
@@ -240,7 +243,10 @@ const TextComponent = ({
                     style={[
                       animatedStyleKeyboard,
                       {
-                        backgroundColor: Colors.primary.surface2,
+                        backgroundColor:
+                          themeValue === 'light'
+                            ? Colors.primary.accent
+                            : Colors.primary.surface2,
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: 6,
@@ -254,14 +260,17 @@ const TextComponent = ({
                     style={[
                       animatedStylePlus,
                       {
-                        backgroundColor: Colors.primary.surface2,
+                        backgroundColor:
+                          themeValue === 'light'
+                            ? Colors.primary.accent
+                            : Colors.primary.surface2,
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: 6,
                         borderRadius: 100,
                       },
                     ]}>
-                    <Plus height={24} width={24} />
+                    <WhitePlus height={24} width={24} />
                   </Animated.View>
                 )}
               </TouchableOpacity>

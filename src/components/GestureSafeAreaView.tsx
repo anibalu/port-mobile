@@ -21,6 +21,7 @@ export function GestureSafeAreaView({
   ...rest
 }: GestureSafeAreaViewProps) {
   const insets = useSafeAreaInsets();
+  console.log('INSETS: ', insets);
   const Colors = DynamicColors();
   const {hasIosBottomNotch} = useInsetChecks();
 

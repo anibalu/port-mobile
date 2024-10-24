@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# Directory that I ran the program from
+start_dir=$(pwd)
+
+{
+  echo "STAGE: yarn install"    &&
+  yarn install                  &&
+
+  echo "STAGE: bundle install"  &&
+  cd ios                        &&
+  bundle install                &&
+
+  echo "STAGE: pod install"     &&
+  bundle exec pod install       &&
+
+  echo "STAGE: start app"       &&
+  cd ..                         &&
+  yarn start
+} || {
+  echo "FAILED. See logs above"
+  cd $start_dir # Return to where we started
+  exit 1
+}

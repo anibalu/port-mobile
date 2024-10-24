@@ -277,7 +277,9 @@ const SuperportsEducation = (): ReactNode => {
                   textColor={Colors.text.subtitle}
                   fontSizeType={FontSizeType.m}
                   fontType={FontType.rg}>
-                  {`A “Superport” is a multi-use QR or link that is shared to form new connections (unlike “Ports” which are single use). \n \nYou can configure how many times a Superport can be used.`}
+                  {
+                    'A “Superport” is a multi-use QR or link that is shared to form new connections (unlike “Ports” which are single use). \n \nYou can configure how many times a Superport can be used.'
+                  }
                 </NumberlessText>
               )}
             </>

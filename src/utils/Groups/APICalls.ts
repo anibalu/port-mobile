@@ -1,7 +1,7 @@
 import {
   GROUP_ADMIN_MANAGEMENT_RESOURCE,
   GROUP_EXIT_RESOURCE,
-  GROUP_MANAGEMENT_RESOURCE,
+  GROUP_BASE,
   GROUP_MEMBER_REMOVE_RESOURCE,
   GROUP_MEMBER_RESOURCE,
 } from '@configs/api';
@@ -16,7 +16,7 @@ import axios from 'axios';
 export async function createGroup(pubKey: string): Promise<string> {
   const token = await getToken();
   const response = await axios.post(
-    GROUP_MANAGEMENT_RESOURCE,
+    GROUP_BASE,
     {
       pubkey: pubKey,
     },

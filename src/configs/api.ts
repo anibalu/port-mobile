@@ -46,7 +46,7 @@ export const BUNDLE_ID_PREPEND_LINK = 'https://porting.me/?bundleId=';
 /**
  * Group Management Endpoints
  */
-const GROUP_BASE = `${MGMT_BASE}/group`;
+export const GROUP_BASE = `${MGMT_BASE}/group`;
 export const GROUP_ADMIN_MANAGEMENT_RESOURCE = `${GROUP_BASE}/admins`;
 export const GROUP_MEMBER_REMOVE_RESOURCE = `${GROUP_BASE}/remove`;
 export const GROUP_EXIT_RESOURCE = `${GROUP_BASE}/leave`;

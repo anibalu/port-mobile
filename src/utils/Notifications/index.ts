@@ -19,18 +19,29 @@ import {ChatType} from '@utils/Storage/DBCalls/connections';
 import axios from 'axios';
 import {AppState, Platform, Settings} from 'react-native';
 
-//Handles notification routing on tapping notification
+/**
+ * Routes the user to the appropriate chat screen when a notification is pressed
+ * @param type - The type of notification event (e.g. press, dismiss)
+ * @param detail - Contains notification data like chatId and source
+ * @param navigation - Navigation object to handle screen transitions
+ */
 export const performNotificationRouting = async (
   type: EventType,
   detail: EventDetail,
   navigation: any,
 ) => {
+  // Only handle notification press events that contain data
   if (type === EventType.PRESS && detail.notification?.data) {
-    const {chatId} = detail.notification.data;
-    if (chatId) {
+    const {chatId, source} = detail.notification.data;
+    // Use chatId if available, otherwise fallback to source
+    const finalChatId = chatId || source;
+
+    if (finalChatId) {
       try {
-        const chatIdAsString = chatId as string;
+        const chatIdAsString = finalChatId as string;
         const connection = await getConnection(chatIdAsString);
+
+        // Route to appropriate chat screen based on connection type
         if (connection.connectionType === ChatType.group) {
           navigation.navigate('GroupChat', {
             chatId: connection.chatId,

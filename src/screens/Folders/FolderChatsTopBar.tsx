@@ -15,6 +15,7 @@ import {GenericButton} from '@components/GenericButton';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
+import {BackButton} from '@components/BackButton';
 
 export function FolderChatsTopBar({
   showEdit = true,
@@ -59,19 +60,11 @@ export function FolderChatsTopBar({
       light: require('@assets/light/icons/Settings.svg').default,
       dark: require('@assets/dark/icons/Settings.svg').default,
     },
-    {
-      assetName: 'DynamicBackIcon',
-      light: require('@assets/light/icons/navigation/BlackArrowLeftThin.svg')
-        .default,
-      dark: require('@assets/dark/icons/navigation/BlackArrowLeftThin.svg')
-        .default,
-    },
   ];
 
   const results = useDynamicSVG(svgArray);
   const CloseIcon = results.CloseIcon;
   const SettingsIcon = results.SettingsIcon;
-  const DynamicBackIcon = results.DynamicBackIcon;
 
   return (
     <>
@@ -99,15 +92,19 @@ export function FolderChatsTopBar({
         </View>
       ) : (
         <View style={styles.bar}>
-          <Pressable
+          <BackButton
             onPress={() => {
               setFolderConnections(null);
               setTotalFolderUnreadCount(0);
               navigation.navigate('Folders');
             }}
-            style={{paddingRight: 8}}>
-            <DynamicBackIcon width={24} height={24} />
-          </Pressable>
+            style={{
+              marginRight: PortSpacing.tertiary.right,
+              width: 24,
+              alignItems: 'center',
+              paddingTop: 13,
+            }}
+          />
           <View style={styles.menuLeft}>
             <NumberlessText
               numberOfLines={1}

@@ -6,7 +6,7 @@
 
 import {PortSpacing} from '@components/ComponentUtils';
 import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {View} from 'react-native';
 import {
   FontSizeType,
@@ -14,8 +14,8 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {TOPBAR_HEIGHT} from '@configs/constants';
+import {BackButton} from '@components/BackButton';
 
 const BackTopbar = ({
   onBackPress,
@@ -29,19 +29,6 @@ const BackTopbar = ({
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
-  const svgArray = [
-    // 1.NotificationOutline
-    {
-      assetName: 'DynamicBackIcon',
-      light: require('@assets/light/icons/navigation/BlackArrowLeftThin.svg')
-        .default,
-      dark: require('@assets/dark/icons/navigation/BlackArrowLeftThin.svg')
-        .default,
-    },
-  ];
-  const results = useDynamicSVG(svgArray);
-
-  const DynamicBackIcon = results.DynamicBackIcon;
   return (
     <View
       style={StyleSheet.compose(styles.topbarAcontainer, {
@@ -62,9 +49,7 @@ const BackTopbar = ({
           {title}
         </NumberlessText>
       )}
-      <Pressable style={styles.backButton} onPress={onBackPress}>
-        <DynamicBackIcon width={24} height={24} />
-      </Pressable>
+      <BackButton onPress={onBackPress} style={styles.backButton} />
     </View>
   );
 };
@@ -82,6 +67,9 @@ const styling = (Color: any) =>
       borderBottomColor: Color.primary.stroke,
     },
     backButton: {
+      width: 24,
+      alignItems: 'center',
+      paddingTop: 13,
       position: 'absolute',
       left: 16,
     },

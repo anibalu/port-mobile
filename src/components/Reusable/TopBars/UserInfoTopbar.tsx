@@ -23,8 +23,8 @@ import {SvgProps} from 'react-native-svg';
 import {useNavigation} from '@react-navigation/native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {TOPBAR_HEIGHT} from '@configs/constants';
+import {BackButton} from '@components/BackButton';
 
 const UserInfoTopbar = ({
   IconRight,
@@ -46,18 +46,7 @@ const UserInfoTopbar = ({
   const navigation = useNavigation();
   const Colors = DynamicColors();
   const styles = styling(Colors, showUserInfo);
-  const svgArray = [
-    {
-      assetName: 'DynamicBackIcon',
-      light: require('@assets/light/icons/navigation/BlackArrowLeftThin.svg')
-        .default,
-      dark: require('@assets/dark/icons/navigation/BlackArrowLeftThin.svg')
-        .default,
-    },
-  ];
-  const results = useDynamicSVG(svgArray);
 
-  const DynamicBackIcon = results.DynamicBackIcon;
   return (
     <View
       style={StyleSheet.compose(styles.topbarContainer, {
@@ -66,11 +55,15 @@ const UserInfoTopbar = ({
             ? Colors.primary.background
             : Colors.primary.surface,
       })}>
-      <Pressable
+      <BackButton
         onPress={() => navigation.goBack()}
-        style={{marginRight: PortSpacing.tertiary.right}}>
-        <DynamicBackIcon width={24} height={24} />
-      </Pressable>
+        style={{
+          marginRight: PortSpacing.tertiary.right,
+          width: 24,
+          alignItems: 'center',
+          paddingTop: 13,
+        }}
+      />
       {showUserInfo ? (
         <View
           style={{

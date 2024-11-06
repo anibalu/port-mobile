@@ -8,6 +8,7 @@
  * 5. onIconRightPress
  */
 
+import {BackButton} from '@components/BackButton';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
@@ -37,9 +38,15 @@ const SimpleTopbar = ({
   const styles = styling(Colors);
   return (
     <View style={styles.topbarAcontainer}>
-      <Pressable onPress={onIconLeftPress}>
-        <IconLeft width={24} height={24} />
-      </Pressable>
+      <BackButton
+        Icon={IconLeft}
+        onPress={onIconLeftPress}
+        style={{
+          width: 24,
+          alignItems: 'center',
+          paddingTop: 13,
+        }}
+      />
       <NumberlessText
         style={{
           textAlign: 'center',

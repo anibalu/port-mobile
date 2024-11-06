@@ -1,16 +1,22 @@
 /**
  * Styled back button
  */
-import React from 'react';
+import React, {FC} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
   TouchableOpacityProps,
 } from 'react-native';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {SvgProps} from 'react-native-svg';
 
-export const BackButton: React.FC<TouchableOpacityProps> = ({
+interface BackButtonProps extends TouchableOpacityProps {
+  Icon?: FC<SvgProps>;
+}
+
+export const BackButton: React.FC<BackButtonProps> = ({
   onPress,
+  Icon,
   style,
   ...rest
 }) => {
@@ -23,7 +29,7 @@ export const BackButton: React.FC<TouchableOpacityProps> = ({
   ];
 
   const results = useDynamicSVG(svgArray);
-  const BackIcon = results.BackIcon;
+  const BackIcon = Icon ? Icon : results.BackIcon;
 
   return (
     <TouchableOpacity

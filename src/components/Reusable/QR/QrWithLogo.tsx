@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import DefaultLoader from '../Loaders/DefaultLoader';
 import QRCode from 'react-native-qrcode-svg';
@@ -20,7 +20,6 @@ import {
   PortBundle,
 } from '@utils/Ports/interfaces';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import DynamicColors from '@components/DynamicColors';
 
 const QrWithLogo = ({
@@ -28,8 +27,6 @@ const QrWithLogo = ({
   hasFailed,
   qrData,
   profileUri,
-  tobeEdited,
-  onClickAvatar,
 }: {
   profileUri?: string | null;
   isLoading: boolean;
@@ -40,20 +37,7 @@ const QrWithLogo = ({
     | DirectSuperportBundle
     | GroupSuperportBundle
     | null;
-  tobeEdited?: boolean;
-  onClickAvatar?: () => void;
 }) => {
-  const svgArray = [
-    // 1.NotificationOutline
-    {
-      assetName: 'EditCameraIcon',
-      light: require('@assets/light/icons/EditCamera.svg').default,
-      dark: require('@assets/dark/icons/EditCamera.svg').default,
-    },
-  ];
-  const results = useDynamicSVG(svgArray);
-
-  const EditCameraIcon = results.EditCameraIcon;
   const Colors = DynamicColors();
   const styles = styling(Colors);
   return (
@@ -77,13 +61,6 @@ const QrWithLogo = ({
           />
           <View style={styles.logoBox}>
             <AvatarBox avatarSize="s++" profileUri={profileUri} />
-            {tobeEdited && (
-              <Pressable
-                onPress={onClickAvatar}
-                style={styles.cameraIconWrapper}>
-                <EditCameraIcon height={12} width={12} />
-              </Pressable>
-            )}
           </View>
         </>
       ) : (

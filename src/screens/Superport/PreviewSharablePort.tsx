@@ -9,7 +9,6 @@ import {
   View,
 } from 'react-native';
 import CloseWhite from '@assets/icons/closeWhite.svg';
-import Edit from '@assets/icons/Edit.svg';
 import GreenTick from '@assets/icons/GreenTick.svg';
 import Upload from '@assets/icons/WhiteUpload.svg';
 import Download from '@assets/icons/WhiteDownload.svg';
@@ -105,29 +104,17 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
                   toBeEdited={toBeEdited}
                   title={title}
                   qrData={qrData}
+                  setToBeEdited={setToBeEdited}
                   profilePicAttr={profilePicAttr}
                 />
               </ViewShot>
             </View>
-            {toBeEdited ? (
-              <GreenTick
-                onPress={() => setToBeEdited(p => !p)}
-                width={48}
-                height={48}
-                style={{alignSelf: 'center'}}
-              />
-            ) : (
-              <Edit
-                onPress={() => setToBeEdited(p => !p)}
-                style={{alignSelf: 'center'}}
-              />
-            )}
 
             <View style={styles.buttons}>
               <View style={{width: '50%', paddingRight: 4}}>
                 <PrimaryButton
                   Icon={Upload}
-                  primaryButtonColor="p"
+                  primaryButtonColor="w"
                   onClick={handleShare}
                   buttonText="Share QR"
                   disabled={false}
@@ -137,7 +124,7 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
               <View style={{width: '50%', paddingLeft: 4}}>
                 <PrimaryButton
                   Icon={Download}
-                  primaryButtonColor="p"
+                  primaryButtonColor="w"
                   onClick={
                     toBeEdited ? () => {} : async () => await savePicture()
                   }

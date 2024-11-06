@@ -23,6 +23,7 @@ const DynamicColors = () => {
     tealBlue: '#4A94B0',
     brightRed: '#E20036',
     blue: '#4E75FF',
+    lavenderOverlay: '#6A35FF3D',
   };
 
   const light = {

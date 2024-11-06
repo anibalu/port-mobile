@@ -10,16 +10,13 @@
  * 9. onTryAgainClicked - what to do when try again is clicked
  */
 
-import React, {useMemo, useState} from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, TextInput, View} from 'react-native';
 import SimpleCard from '../Cards/SimpleCard';
 import QrWithLogo from '../QR/QrWithLogo';
-import {
-  DEFAULT_PROFILE_AVATAR_INFO,
-  NAME_LENGTH_LIMIT,
-} from '@configs/constants';
+import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import Logo from '@assets/icons/Portlogo.svg';
-import MultiuseQr from '@assets/icons/MultiuseQr.svg';
+import Greentick from '@assets/icons/notes/Tick.svg';
 
 import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
@@ -28,15 +25,22 @@ import {
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
-import EditAvatar from '../BottomSheets/EditAvatar';
+import EditIcon from '@assets/icons/GreyPencilFilled.svg';
+
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import {FontSizeType, FontType} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import DynamicColors from '@components/DynamicColors';
 
 const ShareablePortCard = ({
   profilePicAttr = DEFAULT_PROFILE_AVATAR_INFO,
   title,
   qrData,
   toBeEdited,
+  setToBeEdited,
 }: {
   profilePicAttr?: FileAttributes;
   title: string;
@@ -47,71 +51,79 @@ const ShareablePortCard = ({
     | GroupSuperportBundle
     | null;
   toBeEdited: boolean;
+  setToBeEdited: (x: boolean) => void;
 }) => {
-  const [profilePictureAttributes, setProfilePcitureAttributes] =
-    useState<FileAttributes>(profilePicAttr);
-  const [newName, setNewName] = useState(title);
+  const Colors = DynamicColors();
+  const styles = styling(Colors);
+
   const [description, setDescription] = useState(
     'Scan this code with your Port camera to add me as a contact.',
   );
+  const [primaryDescription, setPrimaryDescription] = useState("I'm hiring!");
 
-  const [newQrData, setNewQrData] = useState(qrData);
-  const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
-  const onChangeText = (text: string) => {
-    setNewName(text);
-  };
   const onChangeDescription = (description: string) => {
     setDescription(description);
   };
 
-  useMemo(() => {
-    if (newName) {
-      setNewQrData({...qrData, name: newName});
-    }
-  }, [newName, qrData]);
+  const onChangePrimaryDescription = (primaryDesc: string) => {
+    setPrimaryDescription(primaryDesc);
+  };
 
   return (
     <SimpleCard style={styles.cardWrapper}>
-      <Logo
-        style={{
-          alignSelf: 'center',
-          marginTop: PortSpacing.intermediate.top,
-          marginBottom: PortSpacing.tertiary.bottom,
-        }}
-      />
-      <MultiuseQr
-        style={{
-          alignSelf: 'center',
-          marginBottom: PortSpacing.tertiary.top,
-        }}
-      />
-
-      <QrWithLogo
-        onClickAvatar={() => setOpenEditAvatarModal(true)}
-        tobeEdited={toBeEdited}
-        profileUri={profilePictureAttributes.fileUri}
-        qrData={newQrData}
-        isLoading={false}
-        hasFailed={false}
-      />
-
-      <View style={styles.contentBox}>
-        <TextInput
-          style={StyleSheet.compose(
-            [
-              toBeEdited
-                ? {textDecorationLine: 'underline'}
-                : {
-                    textDecorationLine: 'none',
-                  },
-            ],
-            styles.name,
-          )}
-          maxLength={NAME_LENGTH_LIMIT}
-          onChangeText={onChangeText}
-          value={newName}
-          editable={toBeEdited}
+      <View style={styles.purpleWrapper}>
+        <Logo
+          style={{
+            alignSelf: 'center',
+            marginTop: PortSpacing.intermediate.top,
+            marginBottom: PortSpacing.tertiary.bottom,
+          }}
         />
+        <View style={styles.whiteWrapper}>
+          <QrWithLogo
+            profileUri={profilePicAttr.fileUri}
+            qrData={qrData}
+            isLoading={false}
+            hasFailed={false}
+          />
+          <NumberlessText
+            style={{paddingVertical: 4}}
+            fontSizeType={FontSizeType.l}
+            textColor={'#5B7DA7'}
+            fontType={FontType.md}>
+            {title}
+          </NumberlessText>
+        </View>
+      </View>
+      <View style={styles.contentBox}>
+        <View style={styles.row}>
+          <TextInput
+            style={StyleSheet.compose(
+              [
+                toBeEdited
+                  ? {textDecorationLine: 'underline'}
+                  : {
+                      textDecorationLine: 'none',
+                    },
+              ],
+              styles.primaryDesc,
+            )}
+            maxLength={200}
+            onChangeText={onChangePrimaryDescription}
+            value={primaryDescription}
+            editable={toBeEdited}
+          />
+          {toBeEdited ? (
+            <Greentick
+              width={32}
+              height={32}
+              onPress={() => setToBeEdited(p => !p)}
+            />
+          ) : (
+            <EditIcon onPress={() => setToBeEdited(p => !p)} />
+          )}
+        </View>
+
         <TextInput
           multiline
           style={StyleSheet.compose(
@@ -130,62 +142,79 @@ const ShareablePortCard = ({
           editable={toBeEdited}
         />
       </View>
-      <EditAvatar
-        localImageAttr={profilePictureAttributes}
-        setLocalImageAttr={setProfilePcitureAttributes}
-        visible={openEditAvatarModal}
-        onSave={() => {}}
-        onClose={() => {
-          setOpenEditAvatarModal(false);
-        }}
-      />
     </SimpleCard>
   );
 };
 
-const styles = StyleSheet.create({
-  cardWrapper: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingVertical: 0, //overrides simple card default padding
-    width: '100%',
-    backgroundColor: 'white',
-  },
-  avatarArea: {
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 60,
-    width: 60,
-    borderRadius: 12,
-    backgroundColor: PortColors.primary.white,
-    marginTop: -30,
-  },
-  contentBox: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  name: {
-    color: 'black',
-    fontFamily: FontType.md,
-    fontSize: FontSizeType.xl,
-  },
-  description: {
-    color: '#667085',
-    fontFamily: FontType.rg,
-    fontSize: FontSizeType.m,
-    textAlign: 'center',
-    marginBottom: PortSpacing.secondary.uniform,
-    marginTop: isIOS ? 0 : -PortSpacing.secondary.top,
-    paddingHorizontal: PortSpacing.intermediate.uniform,
-  },
-  edit: {
-    position: 'absolute',
-    right: -3,
-    bottom: -3,
-  },
-});
+const styling = (Colors: any) =>
+  StyleSheet.create({
+    cardWrapper: {
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      paddingVertical: 0, //overrides simple card default padding
+      width: '100%',
+      backgroundColor: 'white',
+    },
+    avatarArea: {
+      position: 'absolute',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: 60,
+      width: 60,
+      borderRadius: 12,
+      backgroundColor: PortColors.primary.white,
+      marginTop: -30,
+    },
+    contentBox: {
+      width: '100%',
+      marginTop: PortSpacing.primary.top,
+    },
+    name: {
+      color: 'black',
+      fontFamily: FontType.md,
+      fontSize: FontSizeType.xl,
+    },
+    description: {
+      color: Colors.primary.genericblack,
+      fontFamily: FontType.rg,
+      fontSize: FontSizeType.m,
+      marginBottom: PortSpacing.secondary.uniform,
+      paddingHorizontal: PortSpacing.secondary.uniform,
+    },
+    primaryDesc: {
+      color: Colors.primary.genericblack,
+      fontFamily: FontType.md,
+      fontSize: 28,
+      marginTop: isIOS ? 0 : -PortSpacing.secondary.top,
+    },
+    edit: {
+      position: 'absolute',
+      right: -3,
+      bottom: -3,
+    },
+    purpleWrapper: {
+      backgroundColor: Colors.primary.lavenderOverlay,
+      width: '100%',
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      alignItems: 'center',
+      paddingBottom: PortSpacing.primary.bottom,
+    },
+    whiteWrapper: {
+      backgroundColor: Colors.primary.white,
+      padding: PortSpacing.tertiary.uniform,
+      borderRadius: 12,
+      alignItems: 'center',
+      marginTop: PortSpacing.secondary.top,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginHorizontal: PortSpacing.secondary.right,
+      borderBottomColor: Colors.primary.genericblack,
+      borderBottomWidth: 0.5,
+    },
+  });
 
 export default ShareablePortCard;

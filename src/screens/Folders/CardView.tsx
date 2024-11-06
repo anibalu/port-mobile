@@ -1,8 +1,9 @@
 import {PortSpacing} from '@components/ComponentUtils';
-import React, {useMemo} from 'react';
+import React, {useMemo, useState, useEffect} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import CardTile from './CardTile';
 import {FolderInfoWithUnread} from '@utils/Storage/folders';
+import FolderCardSkeletonTile from './FolderCardSkeletonTile';
 
 const CardView = ({
   folders,
@@ -11,6 +12,8 @@ const CardView = ({
   folders: FolderInfoWithUnread[];
   toggleOn: boolean;
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
+
   const renderFolderTile = (item: FolderInfoWithUnread) => {
     return <CardTile toggleOn={toggleOn} folder={item} />;
   };
@@ -31,18 +34,36 @@ const CardView = ({
     return nonDefaultFolders;
   }, [folders]);
 
+  useEffect(() => {
+    if (folders.length > 0) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
+    }
+  }, [folders]);
+
   return (
     <View style={styles.screen}>
       <FlatList
         key={listKey}
-        data={sortedFolders}
+        data={isLoading ? [] : sortedFolders} // Show folder skeleton state if loading
         contentContainerStyle={{
           flexDirection: 'column',
         }}
+        showsVerticalScrollIndicator={sortedFolders.length > 0}
         showsHorizontalScrollIndicator={false}
-        scrollEnabled={true}
+        scrollEnabled={sortedFolders.length > 0}
         numColumns={numColumns}
         keyExtractor={folder => folder.folderId}
+        ListEmptyComponent={
+          isLoading ? (
+            <View style={styles.placeholderWrapper}>
+              {Array.from({length: 6}).map((_, index) => (
+                <FolderCardSkeletonTile key={index} toggleOn={toggleOn} />
+              ))}
+            </View>
+          ) : null
+        }
         renderItem={item => renderFolderTile(item.item)}
       />
     </View>
@@ -55,6 +76,11 @@ const styles = StyleSheet.create({
     width: '100%',
     alignContent: 'center',
     marginTop: PortSpacing.tertiary.uniform,
+  },
+  placeholderWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
 });
 

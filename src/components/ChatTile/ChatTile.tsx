@@ -307,7 +307,9 @@ function ChatTile({
                         }}
                         fontSizeType={FontSizeType.m}
                         textColor={Colors.button.accent}>
-                        Adding new contact...
+                        {props.connectionType === ChatType.group
+                          ? 'Adding new group...'
+                          : 'Adding new contact...'}
                       </NumberlessText>
                     )
                   }
@@ -416,7 +418,9 @@ function ChatTile({
                         }}
                         fontSizeType={FontSizeType.m}
                         textColor={Colors.button.accent}>
-                        {'New connection'}
+                        {props.connectionType === ChatType.group
+                          ? 'New group'
+                          : 'New connection'}
                       </NumberlessText>
                     ) : (
                       <>

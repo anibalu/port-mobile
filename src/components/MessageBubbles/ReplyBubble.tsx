@@ -20,6 +20,7 @@ import {
   ReplyContent,
 } from '@utils/Storage/DBCalls/lineMessage';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
+import DynamicColors from '@components/DynamicColors';
 
 export const ReplyBubble = ({reply}: {reply: ReplyContent}): ReactNode => {
   const {name} = useChatContext();
@@ -67,6 +68,8 @@ const ReplyExistsBubble = ({
   reply: ReplyContent;
   memberName: string;
 }): ReactNode => {
+  const Colors = DynamicColors();
+
   switch (reply.contentType) {
     case ContentType.text:
       return <TextReplyBubble reply={reply} memberName={memberName} />;
@@ -84,7 +87,10 @@ const ReplyExistsBubble = ({
       return <AudioReplyBubble reply={reply} memberName={memberName} />;
     default:
       return (
-        <View style={styles.childContainer}>
+        <View
+          style={StyleSheet.compose(styles.childContainer, {
+            backgroundColor: Colors.primary.surface,
+          })}>
           <NumberlessText
             style={{color: PortColors.primary.body}}
             fontSizeType={FontSizeType.m}
@@ -102,10 +108,11 @@ const styles = StyleSheet.create({
     minHeight: REPLY_MEDIA_HEIGHT,
     minWidth: MIN_WIDTH_REPLY,
     overflow: 'hidden',
-    borderRadius: 16,
+    borderRadius: 12,
   },
   childContainer: {
     width: '100%',
     padding: PortSpacing.tertiary.uniform,
+    minHeight: REPLY_MEDIA_HEIGHT,
   },
 });

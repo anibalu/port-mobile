@@ -19,6 +19,7 @@ import {
   LoadedGroupMessage,
 } from '@utils/Storage/DBCalls/groupMessage';
 import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
+import DynamicColors from '@components/DynamicColors';
 
 export const ReplyBubble = ({reply}: {reply: GroupReplyContent}): ReactNode => {
   return (
@@ -68,6 +69,7 @@ const ReplyExistsBubble = ({
   reply: GroupReplyContent;
   memberName: string;
 }): ReactNode => {
+  const Colors = DynamicColors();
   switch (reply.contentType) {
     case ContentType.text:
       return <TextReplyBubble reply={reply} memberName={memberName} />;
@@ -83,7 +85,10 @@ const ReplyExistsBubble = ({
       return <AudioReplyBubble reply={reply} memberName={memberName} />;
     default:
       return (
-        <View style={styles.childContainer}>
+        <View
+          style={StyleSheet.compose(styles.childContainer, {
+            backgroundColor: Colors.primary.surface,
+          })}>
           <NumberlessText
             style={{color: PortColors.primary.body}}
             fontSizeType={FontSizeType.m}
@@ -106,5 +111,6 @@ const styles = StyleSheet.create({
   childContainer: {
     width: '100%',
     padding: PortSpacing.tertiary.uniform,
+    minHeight: REPLY_MEDIA_HEIGHT,
   },
 });

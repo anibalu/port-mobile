@@ -43,26 +43,48 @@ export const PhotoComponent = ({
             </View>
           );
         })}
-        {connectionsCount > 4 && (
-          <View
-            style={{
-              borderWidth: 1.5,
-              borderRadius: 50,
-              borderColor: 'white',
-              backgroundColor: Colors.primary.surface2,
-              height: 27,
-              width: 27,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <NumberlessText
-              fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}
-              textColor={Colors.text.subtitle}>
-              +{connectionsCount - 4}
-            </NumberlessText>
-          </View>
-        )}
+        {connectionsCount > 4 &&
+          (connectionsCount - 4 > 99 ? (
+            <View
+              style={{
+                borderWidth: 1.5,
+                borderRadius: 50,
+                borderColor: 'white',
+                backgroundColor: Colors.primary.surface2,
+                height: 27,
+                width: 45,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <NumberlessText
+                ellipsizeMode="tail"
+                numberOfLines={1}
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}
+                textColor={Colors.text.subtitle}>
+                +{connectionsCount - 4}
+              </NumberlessText>
+            </View>
+          ) : (
+            <View
+              style={{
+                borderWidth: 1.5,
+                borderRadius: 50,
+                borderColor: 'white',
+                backgroundColor: Colors.primary.surface2,
+                height: 27,
+                width: 27,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <NumberlessText
+                fontSizeType={FontSizeType.s}
+                fontType={FontType.rg}
+                textColor={Colors.text.subtitle}>
+                +{connectionsCount - 4}
+              </NumberlessText>
+            </View>
+          ))}
       </View>
     </View>
   );

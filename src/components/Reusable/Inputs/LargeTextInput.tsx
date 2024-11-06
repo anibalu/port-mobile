@@ -50,15 +50,17 @@ const LargeTextInput = ({
   return (
     <View
       style={{
-        borderWidth: 1,
+        borderWidth: isEditable ? 1 : 0,
         borderRadius: 12,
         overflow: 'hidden',
-        paddingTop: PortSpacing.tertiary.top,
+        paddingTop: isEditable ? PortSpacing.tertiary.top : 0,
         paddingBottom: PortSpacing.intermediate.bottom,
         ...{
-          borderColor: isFocused
-            ? Colors.primary.accent
-            : Colors.primary.stroke,
+          borderColor: isEditable
+            ? isFocused
+              ? Colors.primary.accent
+              : Colors.primary.stroke
+            : null,
           backgroundColor:
             bgColor && bgColor === 'g'
               ? Colors.primary.mediumgrey
@@ -66,7 +68,10 @@ const LargeTextInput = ({
         },
       }}>
       <TextInput
-        style={styles.inputText}
+        style={StyleSheet.compose(styles.inputText, {
+          paddingHorizontal: isEditable ? PortSpacing.secondary.uniform : 2,
+          paddingTop: isEditable ? 0 : -PortSpacing.secondary.uniform,
+        })}
         onFocus={async () => {
           setIsFocused(true);
           await scrollToFocus();
@@ -105,7 +110,6 @@ const styling = (colors: any) =>
       maxHeight: 100,
       height: undefined,
       minHeight: 100,
-      paddingHorizontal: 16,
     },
     inputCounterStyle: {
       position: 'absolute',

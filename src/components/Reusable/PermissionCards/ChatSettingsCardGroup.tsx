@@ -30,7 +30,7 @@ const ChatSettingsCardGroup = ({
   permissions,
   setPermissions,
   showDissapearingMessagesOption = true,
-  heading = 'Chat settings',
+  heading = 'Other chat settings',
 }: {
   chatId?: string;
   permissionsId?: string;

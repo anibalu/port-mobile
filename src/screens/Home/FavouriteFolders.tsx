@@ -13,6 +13,7 @@ import {
 import React, {useCallback, useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {useSelector} from 'react-redux';
+import {useBottomNavContext} from 'src/context/BottomNavContext';
 
 const FavouriteFolders = () => {
   const Colors = DynamicColors();
@@ -20,6 +21,7 @@ const FavouriteFolders = () => {
   const [favoriteFolders, setFavoriteFolders] = useState<
     FolderInfoWithUnread[]
   >([]);
+  const {setSelectedFolderData} = useBottomNavContext();
   const updateFavoriteFolderData = async () => {
     console.log('Updating favorite folder data');
     setFavoriteFolders(await getFavouriteFoldersWithUnreadCount());
@@ -50,7 +52,9 @@ const FavouriteFolders = () => {
       {foldersToDisplay.map((item, index) => {
         return (
           <Pressable
+            key={index}
             onPress={() => {
+              setSelectedFolderData(item);
               navigation.navigate('FolderStack', {
                 screen: 'FolderChats',
                 params: {
@@ -105,12 +109,11 @@ const styling = (colors: any) =>
     },
     unread: {
       height: 16,
-      // width: 16,
       paddingLeft: 5,
       paddingRight: 5,
       borderRadius: 100,
       alignItems: 'center',
-      backgroundColor: colors.primary.red,
+      backgroundColor: colors.primary.accent,
     },
   });
 

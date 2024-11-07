@@ -28,6 +28,7 @@ const OptionWithToggle = ({
   toggleActiveState = false,
   heading,
   _description,
+  boldTitle = false,
 }: {
   IconLeftView?: JSX.Element | null;
   onToggle: () => void;
@@ -35,6 +36,7 @@ const OptionWithToggle = ({
   toggleActiveState: boolean;
   heading: string;
   _description?: string;
+  boldTitle?: boolean;
 }) => {
   const Colors = DynamicColors();
   return (
@@ -46,7 +48,7 @@ const OptionWithToggle = ({
           textColor={Colors.text.primary}
           numberOfLines={1}
           fontSizeType={FontSizeType.m}
-          fontType={FontType.rg}
+          fontType={boldTitle ? FontType.sb : FontType.rg}
           style={styles.heading}>
           {heading}
         </NumberlessText>

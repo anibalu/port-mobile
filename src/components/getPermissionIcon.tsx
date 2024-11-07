@@ -89,7 +89,7 @@ const permissionConfigMap: {[key: string]: PermissionConfig} = {
     disabledIconDark: ProfileDisabledDark,
   },
   favourite: {
-    bgColor: 'orange',
+    bgColor: 'grey',
     enabledIcon: FavouriteFolderOrange,
     disabledIconLight: FavouriteFolderDisabled,
     disabledIconDark: FavouriteFolderDisabledDark,

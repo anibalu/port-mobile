@@ -29,6 +29,7 @@ import {redrawOnFolderUpdate} from '@utils/TriggerTools/RedrawTrigger/redrawOnTr
 import FavouriteFolderSettingsCard from '@components/Reusable/PermissionCards/FavouriteFolderSettingsCard';
 import FavouriteFolderBottomsheet from '@components/Reusable/BottomSheets/FavouriteFolderBottomsheet';
 import DisabledPermissionBottomSheet from '@components/Reusable/BottomSheets/DisabledPermissionBottomSheet';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'EditFolder'>;
 
@@ -137,49 +138,59 @@ const EditFolder = ({route, navigation}: Props) => {
               }}>
               <NumberlessText
                 style={{
-                  color: Colors.text.primary,
+                  color: Colors.text.subtitle,
                   marginBottom: PortSpacing.tertiary.bottom,
                 }}
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.md}>
-                Customize chats in this folder
+                Folder Preferences
+              </NumberlessText>
+              <FavouriteFolderSettingsCard
+                permissions={permissions}
+                setOpenFolderBottomsheet={setOpenFolderBottomsheet}
+                permissionsId={selectedFolder.permissionsId}
+                setPermissions={setPermissions}
+              />
+              <NumberlessText
+                style={{
+                  color: Colors.text.subtitle,
+                  marginBottom: PortSpacing.tertiary.bottom,
+                  marginTop: PortSpacing.secondary.right,
+                }}
+                fontSizeType={FontSizeType.l}
+                fontType={FontType.md}>
+                Folder Permissions
               </NumberlessText>
               <NumberlessText
                 style={{color: Colors.text.subtitle}}
                 fontSizeType={FontSizeType.m}
                 fontType={FontType.rg}>
-                Changes to these settings will apply to all new chats added to
-                this folder. If you change settings for a specific chat later,
-                those changes will take precedence for that chat.
+                These permissions will apply to all new chats added to this
+                folder. If you change permissions for a specific chat later,
+                those permissions will take precedence.
               </NumberlessText>
             </View>
-            <View>
+            <SimpleCard>
               <AdvanceSettingsCard
                 permissionsId={selectedFolder.permissionsId}
                 permissions={permissions}
                 setPermissions={setPermissions}
-                heading={'Allow contacts in this folder to'}
+                heading={'Enable a contact to'}
               />
-            </View>
-            <View style={styles.chatSettingsContainer}>
-              <ChatSettingsCard
-                setOpenDisabledPermissionBottomsheet={
-                  setOpenDisabledPermissionBottomsheet
-                }
-                showDissapearingMessagesOption={false}
-                permissionsId={selectedFolder.permissionsId}
-                permissions={permissions}
-                setPermissions={setPermissions}
-              />
-            </View>
+              <View style={styles.chatSettingsContainer}>
+                <ChatSettingsCard
+                  isDefaultFolder={selectedFolder.folderId === defaultFolderId}
+                  setOpenDisabledPermissionBottomsheet={
+                    setOpenDisabledPermissionBottomsheet
+                  }
+                  showDissapearingMessagesOption={false}
+                  permissionsId={selectedFolder.permissionsId}
+                  permissions={permissions}
+                  setPermissions={setPermissions}
+                />
+              </View>
+            </SimpleCard>
 
-            <FavouriteFolderSettingsCard
-              permissions={permissions}
-              heading="Favourite folder"
-              setOpenFolderBottomsheet={setOpenFolderBottomsheet}
-              permissionsId={selectedFolder.permissionsId}
-              setPermissions={setPermissions}
-            />
             <View style={styles.buttonWrapper}>
               <PrimaryButton
                 isLoading={false}

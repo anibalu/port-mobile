@@ -16,15 +16,14 @@ import {
 } from '@utils/Storage/DBCalls/permissions/interfaces';
 import {useTheme} from 'src/context/ThemeContext';
 import {updatePermissions} from '@utils/Storage/permissions';
+import AccentArrow from '@assets/icons/AccentArrow.svg';
 
 const FavouriteFolderSettingsCard = ({
-  heading,
   permissions,
   setOpenFolderBottomsheet,
   permissionsId,
   setPermissions,
 }: {
-  heading: string;
   permissions: PermissionsStrict;
   setOpenFolderBottomsheet: (p: boolean) => void;
   permissionsId?: string;
@@ -46,22 +45,6 @@ const FavouriteFolderSettingsCard = ({
   };
   return (
     <SimpleCard style={styles.card}>
-      <View style={styles.item}>
-        <NumberlessText
-          textColor={Colors.labels.text}
-          fontType={FontType.md}
-          fontSizeType={FontSizeType.l}>
-          {heading}
-        </NumberlessText>
-        <NumberlessText
-          onPress={() => setOpenFolderBottomsheet(p => !p)}
-          style={{textDecorationLine: 'underline'}}
-          textColor={Colors.text.subtitle}
-          fontType={FontType.rg}
-          fontSizeType={FontSizeType.s}>
-          What's this?
-        </NumberlessText>
-      </View>
       <View style={{width: '100%'}}>
         <OptionWithToggle
           IconLeftView={getPermissionIcon([
@@ -69,10 +52,31 @@ const FavouriteFolderSettingsCard = ({
             permissions.favourite,
             themeValue,
           ])}
+          boldTitle={true}
           toggleActiveState={permissions.favourite}
-          heading="Show in Home"
+          heading="Mark as important"
           onToggle={onUpdateBooleanPermission}
         />
+      </View>
+      <NumberlessText
+        style={{
+          color: Colors.text.subtitle,
+          paddingHorizontal: PortSpacing.intermediate.uniform,
+        }}
+        fontSizeType={FontSizeType.m}
+        fontType={FontType.rg}>
+        Get a summary of unread messages from this folder in your home screen.
+      </NumberlessText>
+      <View style={styles.item}>
+        <NumberlessText
+          style={{paddingBottom: 2}}
+          onPress={() => setOpenFolderBottomsheet(p => !p)}
+          textColor={'#7A98FF'}
+          fontType={FontType.rg}
+          fontSizeType={FontSizeType.m}>
+          See how
+        </NumberlessText>
+        <AccentArrow />
       </View>
     </SimpleCard>
   );
@@ -81,14 +85,13 @@ const FavouriteFolderSettingsCard = ({
 const styles = StyleSheet.create({
   item: {
     width: '100%',
-    height: 36,
+    marginBottom: PortSpacing.secondary.uniform,
     paddingHorizontal: PortSpacing.intermediate.uniform,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     flexDirection: 'row',
     alignItems: 'center',
   },
   card: {
-    backgroundColor: 'transparent',
     paddingVertical: 0,
   },
 });

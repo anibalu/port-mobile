@@ -29,6 +29,7 @@ import InputWithoutBorder from '@components/Reusable/Inputs/InputWithoutBorder';
 import FavouriteFolderBottomsheet from '@components/Reusable/BottomSheets/FavouriteFolderBottomsheet';
 import DisabledPermissionBottomSheet from '@components/Reusable/BottomSheets/DisabledPermissionBottomSheet';
 import FavouriteFolderSettingsCard from '@components/Reusable/PermissionCards/FavouriteFolderSettingsCard';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CreateFolder'>;
 
@@ -115,43 +116,59 @@ const CreateFolder = ({navigation, route}: Props) => {
               }}>
               <NumberlessText
                 style={{
-                  color: Colors.text.primary,
+                  color: Colors.text.subtitle,
                   marginBottom: PortSpacing.tertiary.bottom,
                 }}
                 fontSizeType={FontSizeType.l}
-                fontType={FontType.rg}>
-                Customize chats in this folder
+                fontType={FontType.md}>
+                Folder Preferences
               </NumberlessText>
-              <NumberlessText
-                style={{color: Colors.text.subtitle}}
-                fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
-                Changes to these settings will apply to all new chats added to
-                this folder. If you change settings for a specific chat later,
-                those changes will take precedence for that chat.
-              </NumberlessText>
-            </View>
-            <View style={styles.chatSettingsContainer}>
-              <AdvanceSettingsCard
-                permissions={permissions}
-                setPermissions={setPermissions}
-                heading={'Allow contacts in this folder to'}
-              />
-              <ChatSettingsCard
-                showDissapearingMessagesOption={false}
-                permissions={permissions}
-                setPermissions={setPermissions}
-                setOpenDisabledPermissionBottomsheet={
-                  setOpenDisabledPermissionBottomsheet
-                }
-              />
               <FavouriteFolderSettingsCard
                 permissions={permissions}
-                heading="Favourite folder"
                 setOpenFolderBottomsheet={setOpenFolderBottomsheet}
                 setPermissions={setPermissions}
               />
+              <NumberlessText
+                style={{
+                  color: Colors.text.subtitle,
+                  marginBottom: PortSpacing.tertiary.bottom,
+                  marginTop: PortSpacing.secondary.right,
+                }}
+                fontSizeType={FontSizeType.l}
+                fontType={FontType.md}>
+                Folder Permissions
+              </NumberlessText>
+              <NumberlessText
+                style={{color: Colors.text.subtitle}}
+                fontSizeType={FontSizeType.m}
+                fontType={FontType.rg}>
+                These permissions will apply to all new chats added to this
+                folder. If you change permissions for a specific chat later,
+                those permissions will take precedence.
+              </NumberlessText>
             </View>
+            <SimpleCard>
+              <View style={styles.chatSettingsContainer}>
+                <AdvanceSettingsCard
+                  permissions={permissions}
+                  setPermissions={setPermissions}
+                  heading={'Enable a contact to'}
+                />
+                <ChatSettingsCard
+                  showDissapearingMessagesOption={false}
+                  permissions={permissions}
+                  setPermissions={setPermissions}
+                  setOpenDisabledPermissionBottomsheet={
+                    setOpenDisabledPermissionBottomsheet
+                  }
+                />
+                <FavouriteFolderSettingsCard
+                  permissions={permissions}
+                  setOpenFolderBottomsheet={setOpenFolderBottomsheet}
+                  setPermissions={setPermissions}
+                />
+              </View>
+            </SimpleCard>
           </ScrollView>
           <View style={styles.buttonWrapper}>
             {!saveDetails ? (

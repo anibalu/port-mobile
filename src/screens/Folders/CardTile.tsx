@@ -120,7 +120,7 @@ const CardTile = ({
           height: toggleOn ? 127 : 180,
           width: toggleOn
             ? screen.width - PortSpacing.primary.uniform
-            : screen.width / 2 - 20,
+            : screen.width / 2 - PortSpacing.intermediate.uniform,
         })}>
         <View
           style={StyleSheet.compose(

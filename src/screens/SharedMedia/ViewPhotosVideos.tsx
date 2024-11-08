@@ -201,7 +201,6 @@ const styling = (color: any) =>
     container: {
       paddingTop: 10,
       flexDirection: 'row',
-      flexWrap: 'wrap', // Wrap the items to the next line
     },
     row: {
       flexDirection: 'row',

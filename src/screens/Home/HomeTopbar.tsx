@@ -17,6 +17,7 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import ContactBook from '@assets/icons/ContactBook.svg';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {useTheme} from 'src/context/ThemeContext';
+import Scanner from '@assets/icons/ScannerDarkGreen.svg';
 
 function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
   const title = useMemo(() => {
@@ -102,7 +103,18 @@ function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
               {title}
             </NumberlessText>
           </View>
-          <View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: PortSpacing.tertiary.uniform,
+            }}>
+            <Pressable
+              style={styles.scanIconWrapper}
+              onPress={() => navigation.navigate('Scan')}>
+              <Scanner width={20} height={20} />
+            </Pressable>
             <Pressable
               style={styles.iconWrapper}
               onPress={() => navigation.navigate('PortContactList')}>
@@ -189,13 +201,22 @@ const styling = (colors: any, themeValue: any) =>
       position: 'absolute',
       resizeMode: 'cover',
     },
+    scanIconWrapper: {
+      height: 36,
+      paddingHorizontal: PortSpacing.tertiary.uniform,
+      borderRadius: 100,
+      flexDirection: 'row',
+      backgroundColor: colors.primary.surface2,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     iconWrapper: {
       height: 36,
       paddingHorizontal: 11,
-      borderRadius: PortSpacing.tertiary.uniform,
+      borderRadius: PortSpacing.intermediate.uniform,
       flexDirection: 'row',
       gap: 6,
-      backgroundColor: colors.primary.tealBlue,
+      backgroundColor: colors.primary.blue,
       alignItems: 'center',
       justifyContent: 'center',
     },

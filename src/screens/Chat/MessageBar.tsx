@@ -78,26 +78,29 @@ const MessageBar = ({
   }, [replyToMessage]);
 
   const sendText = async (): Promise<void> => {
-    setShowPreview(false);
-    setOpenGraphData(null);
     const processedText = text.trim();
-    if (processedText !== '') {
-      setText('');
-      //send text message
-      clearEverything();
-      const sender = new SendMessage(
-        chatId,
-        ContentType.text,
-        {text: processedText},
-
-        replyToMessage ? replyToMessage.messageId : null,
-      );
-      try {
-        await sender.send();
-      } catch (error) {
-        MessageDataTooBigError();
-      }
+    // If the text is empty after trimming whitespace,
+    // wait for a valid message with displayable content
+    if (processedText == '') {
+      return;
     }
+    // Clear the text to provide immediate feedback
+    setText('');
+    // Send the text message
+    const sender = new SendMessage(
+      chatId,
+      ContentType.text,
+      {text: processedText},
+
+      replyToMessage ? replyToMessage.messageId : null,
+    );
+    try {
+      await sender.send();
+    } catch (error) {
+      MessageDataTooBigError();
+    }
+    // Clear any remnants in the message bar, if any
+    clearEverything();
   };
 
   const sendLinkText = async (): Promise<void> => {

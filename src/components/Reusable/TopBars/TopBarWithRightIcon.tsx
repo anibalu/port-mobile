@@ -6,9 +6,11 @@
  * 3. Heading
  * 4. onIconLeftPress
  * 5. onIconRightPress
+ * 6. onHeadingPress
+ * 7. HeadingIcon
  */
 
-import {PortSpacing} from '@components/ComponentUtils';
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
@@ -23,6 +25,8 @@ import {SvgProps} from 'react-native-svg';
 
 const TopBarWithRightIcon = ({
   IconRight,
+  HeadingIcon,
+  onHeadingPress,
   heading,
   onIconRightPress,
   bgColor,
@@ -31,6 +35,8 @@ const TopBarWithRightIcon = ({
   alignLeft?: boolean;
   bgColor?: 'b' | 'g';
   onIconRightPress: () => void;
+  onHeadingPress?: () => void;
+  HeadingIcon?: FC<SvgProps>;
   IconRight?: FC<SvgProps>;
   heading: string;
 }) => {
@@ -47,15 +53,27 @@ const TopBarWithRightIcon = ({
             : Colors.primary.surface
           : Colors.primary.surface,
       })}>
-      <NumberlessText
-        style={{textAlign: 'center'}}
-        numberOfLines={1}
-        textColor={Colors.text.primary}
-        ellipsizeMode="tail"
-        fontType={FontType.md}
-        fontSizeType={FontSizeType.xl}>
-        {heading}
-      </NumberlessText>
+      <Pressable onPress={onHeadingPress} style={{alignItems: 'center'}}>
+        <NumberlessText
+          style={{textAlign: 'center'}}
+          numberOfLines={1}
+          textColor={Colors.text.primary}
+          ellipsizeMode="tail"
+          fontType={FontType.md}
+          fontSizeType={FontSizeType.xl}>
+          {heading}
+        </NumberlessText>
+        {HeadingIcon && (
+          <View
+            style={{
+              position: 'absolute',
+              right: -28,
+              top: isIOS ? 2 : 4,
+            }}>
+            <HeadingIcon width={20} height={20} />
+          </View>
+        )}
+      </Pressable>
       {IconRight && (
         <Pressable
           style={{position: 'absolute', right: 16}}

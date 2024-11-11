@@ -15,6 +15,7 @@ interface PortInfoProps {
   onClose: () => void;
   onClick: () => void;
   visible: boolean;
+  buttonText: string;
 }
 
 const PortInfoBottomsheet = (props: PortInfoProps) => {
@@ -28,6 +29,7 @@ const PortInfoBottomsheet = (props: PortInfoProps) => {
     },
   ];
   const results = useDynamicSVG(svgArray);
+
   const PortInfoBanner = results.PortInfoBanner;
 
   return (
@@ -71,7 +73,7 @@ const PortInfoBottomsheet = (props: PortInfoProps) => {
           isLoading={false}
           disabled={false}
           primaryButtonColor="b"
-          buttonText="Create a new Port"
+          buttonText={props.buttonText}
           onClick={props.onClick}
         />
       </View>

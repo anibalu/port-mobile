@@ -31,6 +31,7 @@ const SecondaryButton = ({
   iconSize,
   onClick,
   buttonHeight = 50,
+  untrimmedText = false,
 }: {
   isLoading?: boolean;
   buttonText: string;
@@ -39,6 +40,7 @@ const SecondaryButton = ({
   iconSize?: 's' | 'm';
   onClick: () => void;
   buttonHeight?: number;
+  untrimmedText?: boolean;
 }) => {
   function secondaryButtonBorderColorPicker(
     secondaryButtonColor?: string,
@@ -104,7 +106,7 @@ const SecondaryButton = ({
             )}
             numberOfLines={1}
             ellipsizeMode={'tail'}>
-            {buttonText.substring(0, 22)}
+            {untrimmedText ? buttonText : buttonText.substring(0, 24)}
           </Text>
         </>
       )}

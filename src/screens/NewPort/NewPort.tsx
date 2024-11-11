@@ -10,6 +10,7 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+import QuestionMark from '@assets/icons/QuestionMarkAccent.svg';
 import {
   DEFAULT_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
@@ -25,7 +26,6 @@ import {PortBundle} from '@utils/Ports/interfaces';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
-import SharePortLink from '@components/Reusable/BottomSheets/SharePortLink';
 import {wait} from '@utils/Time';
 import {useSelector} from 'react-redux';
 import Share from 'react-native-share';
@@ -39,6 +39,10 @@ import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {getPermissions} from '@utils/Storage/permissions';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {getAllFolders} from '@utils/Storage/folders';
+import PortInfoBottomsheet from '@screens/Home/PortInfoBottomsheet';
+import {ToastType, useToast} from 'src/context/ToastContext';
+import Clipboard from '@react-native-clipboard/clipboard';
+import ShareLinkRouteBottomsheet from '@components/Reusable/BottomSheets/ShareLinkRouteBottomsheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 
@@ -76,10 +80,14 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
   const [openShareModal, setOpenShareModal] = useState(false);
   //whether is error bottom sheet should open
   const [openErrorModal, setOpenErrorModal] = useState(false);
+  //weather link to copy is being fetched
+  const [isCopyLinkLoading, setIsCopyLinkLoading] = useState(false);
   //whether we should ask the user if the port needs to be kept.
   const [openShouldKeepPortModal, setOpenShouldKeepPortModal] = useState(false);
-
-  const [shareContactName, setShareContactName] = useState('');
+  //to show port info bottomsheet
+  const [showPortInfo, setShowPortInfo] = useState<boolean>(false);
+  const [isLinkCopied, setIsLinkCopied] = useState<boolean>(false);
+  const [isLinkShared, setIsLinkShared] = useState<boolean>(false);
   const [permissions, setPermissions] = useState<PermissionsStrict>(
     getDefaultPermissions(ChatType.direct),
   );
@@ -96,6 +104,10 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     } catch (error) {
       console.log('Failed to fetch folders');
     }
+  };
+
+  const onSharelinkClicked = () => {
+    setOpenShareModal(true);
   };
 
   //fetches a port and its associated permissions
@@ -129,6 +141,40 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     }
   };
 
+  const {showToast} = useToast();
+
+  //converts qr bundle into link and copies
+  const onFetchAndCopyLink = async () => {
+    //If error sheet is opened when this function is called, wait for the error sheet to close.
+    if (openErrorModal) {
+      setOpenErrorModal(false);
+      await wait(safeModalCloseDuration);
+    }
+    try {
+      setIsCopyLinkLoading(true);
+      if (qrData && qrData.portId) {
+        const link = await getBundleClickableLink(
+          BundleTarget.direct,
+          qrData.portId,
+          JSON.stringify(qrData),
+        );
+        setIsCopyLinkLoading(false);
+        Clipboard.setString(link);
+      }
+      setIsCopyLinkLoading(false);
+      setIsLinkCopied(true);
+      showToast('Link copied to clipboard!', ToastType.success);
+    } catch (error) {
+      console.log('Link not shared', error);
+      showToast(
+        'Could not copy link. Please check you internet and try again.',
+        ToastType.error,
+      );
+      setIsCopyLinkLoading(false);
+    }
+    return;
+  };
+
   //converts qr bundle into link.
   const fetchLinkData = async () => {
     //If error sheet is opened when this function is called, wait for the error sheet to close.
@@ -149,24 +195,21 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
         );
         setLinkData(link);
         setIsLoadingLink(false);
-        if (
-          generatedPort.label &&
-          generatedPort.label !== '' &&
-          generatedPort.label !== DEFAULT_NAME
-        ) {
+        setIsLinkShared(true);
+        if (generatedPort.label && generatedPort.label !== '' && link) {
           try {
             const shareContent = {
               title: `Share a one-time use link with ${generatedPort.label}`,
               message:
                 `Click the link to connect with ${displayName} on Port.\n` +
-                linkData,
+                link,
             };
             await Share.open(shareContent);
+            setOpenShareModal(false);
           } catch (error) {
+            setOpenShareModal(false);
             console.log('Link not shared', error);
           }
-        } else {
-          setOpenShareModal(true);
         }
         return;
       }
@@ -175,6 +218,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
       console.log('Failed to fetch port link: ', error);
       setIsLoadingLink(false);
       setLinkData(null);
+      setOpenShareModal(false);
       setOpenErrorModal(true);
     }
   };
@@ -207,7 +251,9 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
   }, [latestNewConnection]);
 
   const closeAction = async () => {
-    if (linkData && qrData) {
+    if (isLinkCopied || isLinkShared) {
+      navigation.goBack();
+    } else if (linkData && qrData) {
       const generatedPort: PortData = await getGeneratedPortData(qrData.portId);
       if (
         generatedPort.label &&
@@ -229,30 +275,30 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
 
   const Colors = DynamicColors();
   const svgArray = [
-    // 1.CrossButton
     {
       assetName: 'CrossButton',
       light: require('@assets/light/icons/Cross.svg').default,
       dark: require('@assets/dark/icons/Cross.svg').default,
     },
-    {
-      assetName: 'ScanIcon',
-      light: require('@assets/icons/scanBlue.svg').default,
-      dark: require('@assets/dark/icons/scanBlue.svg').default,
-    },
   ];
   const results = useDynamicSVG(svgArray);
   const CrossButton = results.CrossButton;
-  // const ScanIcon = results.ScanIcon;
+
+  const onClosePortInfoBottomsheet = async () => {
+    setShowPortInfo(false);
+    await wait(safeModalCloseDuration);
+  };
 
   return (
     <>
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
       <SafeAreaView style={styles.screen}>
         <TopBarWithRightIcon
+          onHeadingPress={() => setShowPortInfo(true)}
           onIconRightPress={closeAction}
           IconRight={CrossButton}
-          heading={'New Port'}
+          heading="New Port"
+          HeadingIcon={QuestionMark}
         />
         <ScrollView
           style={{
@@ -261,15 +307,17 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
           }}>
           <View style={styles.qrArea}>
             <RotatingPortCard
+              onCopyLink={onFetchAndCopyLink}
+              isCopyLinkLoading={isCopyLinkLoading}
               isLoading={isLoading}
-              isLinkLoading={isLoadingLink}
               hasFailed={hasFailed}
               title={displayName}
+              isLoadingLink={isLoadingLink}
               profileUri={
                 permissions.displayPicture ? profilePicAttr.fileUri : null
               }
               qrData={qrData}
-              onShareLinkClicked={fetchLinkData}
+              onShareLinkClicked={onSharelinkClicked}
               onTryAgainClicked={fetchPort}
               chosenFolder={taggedFolder}
               permissionsArray={permissions}
@@ -291,25 +339,22 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
           onClose={() => setOpenErrorModal(false)}
           onTryAgain={fetchLinkData}
         />
-        <SharePortLink
+        <ShareLinkRouteBottomsheet
+          isLoadingLink={isLoadingLink}
+          onShareLinkClicked={fetchLinkData}
           visible={openShareModal}
           onClose={() => setOpenShareModal(false)}
-          title={'Share one-time use link'}
-          description={
-            'Enter the name of the contact to whom you are sending the Port.'
-          }
-          contactName={shareContactName}
-          setContactName={setShareContactName}
-          userName={displayName}
-          linkData={linkData}
-          qrData={qrData}
         />
         <SavePortBottomsheet
           visible={openShouldKeepPortModal}
           onClose={() => setOpenShouldKeepPortModal(false)}
-          contactName={shareContactName}
-          setContactName={setShareContactName}
           qrData={qrData}
+        />
+        <PortInfoBottomsheet
+          buttonText="Okay, got it!"
+          onClick={onClosePortInfoBottomsheet}
+          visible={showPortInfo}
+          onClose={() => setShowPortInfo(false)}
         />
       </SafeAreaView>
     </>

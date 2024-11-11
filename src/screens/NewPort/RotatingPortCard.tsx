@@ -1,5 +1,11 @@
 import React, {useMemo, useState} from 'react';
-import {Pressable, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {AVATAR_ARRAY} from '@configs/constants';
 import {PortSpacing} from '@components/ComponentUtils';
 import {
@@ -15,7 +21,6 @@ import {useTheme} from 'src/context/ThemeContext';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import QrWithLogo from '@components/Reusable/QR/QrWithLogo';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
-import AlternateSecondaryButton from '@components/Reusable/LongButtons/AlternateSecondaryButton';
 import Flipper from '@components/FlippingComponents/Flipper';
 import FolderAndAccessCard from './FolderAndAccessCard';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
@@ -33,9 +38,10 @@ import LinkToFolderBottomSheet from '@components/Reusable/BottomSheets/LinkToFol
 
 const RotatingPortCard = ({
   isLoading,
-  isLinkLoading,
+  onCopyLink,
   hasFailed,
   profileUri = AVATAR_ARRAY[0],
+  isCopyLinkLoading,
   title,
   qrData,
   onShareLinkClicked,
@@ -43,19 +49,22 @@ const RotatingPortCard = ({
   chosenFolder,
   permissionsArray,
   setPermissionsArray,
+  isLoadingLink,
   permissionsId,
   portId,
   folder,
   setFolder,
   foldersArray,
 }: {
+  isLoadingLink: boolean;
+  isCopyLinkLoading: boolean;
+  onCopyLink: () => Promise<void>;
   isLoading: boolean;
-  isLinkLoading: boolean;
   hasFailed: boolean;
   profileUri?: string | null;
   title: string;
   qrData: PortBundle | null;
-  onShareLinkClicked: () => Promise<void>;
+  onShareLinkClicked: () => void;
   onTryAgainClicked: () => Promise<void>;
   chosenFolder: FolderInfo;
   permissionsArray: PermissionsStrict;
@@ -71,9 +80,11 @@ const RotatingPortCard = ({
       FrontElement={props => (
         <DisplayPortCard
           isLoading={isLoading}
-          isLinkLoading={isLinkLoading}
+          isLoadingLink={isLoadingLink}
+          isCopyLinkLoading={isCopyLinkLoading}
           hasFailed={hasFailed}
           title={title}
+          onCopyLink={onCopyLink}
           profileUri={profileUri}
           qrData={qrData}
           onShareLinkClicked={onShareLinkClicked}
@@ -101,19 +112,23 @@ const RotatingPortCard = ({
 
 const DisplayPortCard = ({
   isLoading,
-  isLinkLoading,
+  isCopyLinkLoading,
   hasFailed,
+  onCopyLink,
   profileUri = AVATAR_ARRAY[0],
   title,
   qrData,
   onShareLinkClicked,
+  isLoadingLink,
   onTryAgainClicked,
   flipCard,
   chosenFolder,
   permissionsArray,
 }: {
+  isLoadingLink: boolean;
+  isCopyLinkLoading: boolean;
+  onCopyLink: () => Promise<void>;
   isLoading: boolean;
-  isLinkLoading: boolean;
   hasFailed: boolean;
   profileUri?: string | null;
   title: string;
@@ -128,18 +143,24 @@ const DisplayPortCard = ({
 
   const svgArray = [
     {
-      assetName: 'ShareAccent',
-      light: require('@assets/icons/ShareAccent.svg').default,
-      dark: require('@assets/dark/icons/ShareAccent.svg').default,
-    },
-    {
       assetName: 'Eye',
       light: require('@assets/icons/BlueEye.svg').default,
       dark: require('@assets/dark/icons/BlueEye.svg').default,
     },
+    {
+      assetName: 'LinkIcon',
+      light: require('@assets/light/icons/LinkGrey.svg').default,
+      dark: require('@assets/dark/icons/LinkGrey.svg').default,
+    },
+    {
+      assetName: 'ShareIcon',
+      light: require('@assets/light/icons/ShareGrey.svg').default,
+      dark: require('@assets/dark/icons/ShareGrey.svg').default,
+    },
   ];
   const results = useDynamicSVG(svgArray);
-  const Share = results.ShareAccent;
+  const ShareIcon = results.ShareIcon;
+  const LinkIcon = results.LinkIcon;
   const {themeValue} = useTheme();
   const styles = styling(Colors);
 
@@ -216,15 +237,91 @@ const DisplayPortCard = ({
             fontType={FontType.rg}
             textColor={Colors.text.subtitle}
             fontSizeType={FontSizeType.s}>
-            Show this Port or share it as a one-time use link to form a new
-            chat.
+            Show this Port or share it as a one-time {`\n`}use link to form a
+            new chat.
           </NumberlessText>
-          <AlternateSecondaryButton
-            buttonText={'Create one-time use link'}
-            onClick={onShareLinkClicked}
-            Icon={Share}
-            isLoading={isLinkLoading}
-          />
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: PortSpacing.medium.uniform,
+              marginBottom: PortSpacing.secondary.bottom,
+            }}>
+            <Pressable
+              disabled={isCopyLinkLoading}
+              onPress={onCopyLink}
+              style={{
+                flexDirection: 'row',
+                flex: 1,
+                height: 50,
+                gap: PortSpacing.tertiary.left,
+                borderRadius: PortSpacing.medium.uniform,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: Colors.primary.surface2,
+              }}>
+              {isCopyLinkLoading ? (
+                <ActivityIndicator
+                  color={
+                    themeValue === 'light'
+                      ? Colors.primary.darkgrey
+                      : Colors.text.primary
+                  }
+                />
+              ) : (
+                <LinkIcon height={20} width={20} />
+              )}
+              <NumberlessText
+                style={{
+                  textAlign: 'center',
+                  color:
+                    themeValue === 'light'
+                      ? Colors.primary.darkgrey
+                      : Colors.text.primary,
+                }}
+                fontType={FontType.sb}
+                fontSizeType={FontSizeType.l}>
+                Copy Link
+              </NumberlessText>
+            </Pressable>
+            <Pressable
+              disabled={isLoadingLink}
+              onPress={onShareLinkClicked}
+              style={{
+                flexDirection: 'row',
+                flex: 1,
+                height: 50,
+                gap: PortSpacing.tertiary.left,
+                borderRadius: PortSpacing.medium.uniform,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: Colors.primary.surface2,
+              }}>
+              {isLoadingLink ? (
+                <ActivityIndicator
+                  color={
+                    themeValue === 'light'
+                      ? Colors.primary.darkgrey
+                      : Colors.text.primary
+                  }
+                />
+              ) : (
+                <ShareIcon height={20} width={20} />
+              )}
+
+              <NumberlessText
+                style={{
+                  textAlign: 'center',
+                  color:
+                    themeValue === 'light'
+                      ? Colors.primary.darkgrey
+                      : Colors.text.primary,
+                }}
+                fontType={FontType.sb}
+                fontSizeType={FontSizeType.l}>
+                Share Link
+              </NumberlessText>
+            </Pressable>
+          </View>
           <FolderAndAccessCard
             chosenFolder={chosenFolder}
             permissionsArray={permissionsArray}

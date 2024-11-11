@@ -163,24 +163,26 @@ const FolderAndAccessCard = ({
                 flexWrap: 'wrap',
                 marginTop: PortSpacing.medium.top,
               }}>
-              {Object.entries(permissionsArray).map(permission => {
-                const PermissionIcon = getPermissionIcon([
-                  permission[0],
-                  permission[1],
-                  themeValue,
-                ]);
-                return (
-                  <View
-                    key={permission[0]}
-                    style={{
-                      flexDirection: 'row',
-                      gap: PortSpacing.tertiary.uniform,
-                      alignItems: 'center',
-                    }}>
-                    <View>{PermissionIcon}</View>
-                  </View>
-                );
-              })}
+              {Object.entries(permissionsArray)
+                .filter(([key]) => key !== 'favourite') // Exclude 'favourite'
+                .map(permission => {
+                  const PermissionIcon = getPermissionIcon([
+                    permission[0],
+                    permission[1],
+                    themeValue,
+                  ]);
+                  return (
+                    <View
+                      key={permission[0]}
+                      style={{
+                        flexDirection: 'row',
+                        gap: PortSpacing.tertiary.uniform,
+                        alignItems: 'center',
+                      }}>
+                      <View>{PermissionIcon}</View>
+                    </View>
+                  );
+                })}
             </View>
           </View>
         </>

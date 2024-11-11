@@ -506,7 +506,11 @@ const SuperportQRScreen = ({route, navigation}: Props) => {
         }}>
         <BackTopbar
           bgColor="w"
-          onBackPress={() => navigation.navigate('Superports', {})}
+          onBackPress={() =>
+            navigation.navigate('SuperportsStack', {
+              screen: 'Superports',
+            })
+          }
           title={'Superport'}
         />
 

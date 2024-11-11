@@ -31,7 +31,9 @@ const TopBarWithRightIcon = ({
   onIconRightPress,
   bgColor,
   alignLeft = false,
+  borderBottom = true,
 }: {
+  borderBottom?: boolean;
   alignLeft?: boolean;
   bgColor?: 'b' | 'g';
   onIconRightPress: () => void;
@@ -41,7 +43,7 @@ const TopBarWithRightIcon = ({
   heading: string;
 }) => {
   const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const styles = styling(Colors, borderBottom);
   return (
     <View
       style={StyleSheet.compose(styles.topbarAcontainer, {
@@ -86,13 +88,13 @@ const TopBarWithRightIcon = ({
   );
 };
 
-const styling = (Color: any) =>
+const styling = (Color: any, borderBottom: boolean) =>
   StyleSheet.create({
     topbarAcontainer: {
       flexDirection: 'row',
       paddingHorizontal: PortSpacing.secondary.uniform,
       alignItems: 'center',
-      borderBottomWidth: 0.5,
+      borderBottomWidth: borderBottom ? 0.5 : 0,
       borderBottomColor: Color.primary.stroke,
       height: TOPBAR_HEIGHT,
       width: '100%',

@@ -93,7 +93,6 @@ const Home = ({navigation}: Props) => {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        // Attempt to get notification permissions from the user, if needed
         try {
           console.log({isNotifPermissionGranted});
           await setupNotificationChannels();
@@ -101,15 +100,15 @@ const Home = ({navigation}: Props) => {
         } catch (error) {
           console.log('Error occurred during setup:', error);
         }
-        // Run basic periodic operations
+
         debouncedPeriodicOperations();
-        // Set superport length to allow
-        // Reset app badge information on iOS
         resetAppBadge();
       })();
+
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
+
   const colors = DynamicColors();
   const {themeValue} = useTheme();
   const styles = styling(colors, themeValue);
@@ -143,6 +142,7 @@ const Home = ({navigation}: Props) => {
   >(connections || []);
 
   const [refreshing, setRefreshing] = useState<boolean>(false);
+
   //connections displayed on home screen (depending on what the search string is).
   //If search string is empty, all connections are displayed
 

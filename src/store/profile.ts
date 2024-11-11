@@ -22,7 +22,7 @@ export default function profile(state = initialState, action: any) {
       return {
         ...state,
         onboardingComplete: action.payload,
-        showInviteScreen: true,
+        showInviteScreen: false,
         showOnboardingInfo: true,
       };
     case 'HIDE_ONBOARDING_INFO':

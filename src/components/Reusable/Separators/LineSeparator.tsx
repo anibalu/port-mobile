@@ -10,11 +10,13 @@ import {View} from 'react-native';
 
 const LineSeparator = ({
   fromContactBubble = false,
+  borderColor,
 }: {
   fromContactBubble?: boolean;
+  borderColor?: string;
 }) => {
   const Colors = DynamicColors();
-  const styles = styling(Colors, fromContactBubble);
+  const styles = styling(Colors, fromContactBubble, borderColor);
 
   return (
     <View
@@ -28,13 +30,17 @@ const LineSeparator = ({
   );
 };
 
-const styling = (colors: any, fromContactBubble: boolean) =>
+const styling = (
+  colors: any,
+  fromContactBubble: boolean,
+  borderColor: string = colors.primary.stroke,
+) =>
   StyleSheet.create({
     lineWrapper: {
       marginHorizontal: fromContactBubble ? 0 : 16,
       alignSelf: 'stretch',
       height: 0.5,
-      backgroundColor: colors.primary.stroke,
+      backgroundColor: borderColor,
     },
   });
 

@@ -12,7 +12,7 @@ import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
 export type AppStackParamList = {
   HomeTab: undefined;
-  PortContactList: undefined;
+  PortContactList: {fromOnboardingStack?: boolean};
   PhoneContactList: undefined;
   SuperportQRScreen: {
     superportId: string;

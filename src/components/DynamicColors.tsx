@@ -1,6 +1,6 @@
 import {useTheme} from 'src/context/ThemeContext';
 
-const DynamicColors = () => {
+const DynamicColors = (theme?: string | null) => {
   const {themeValue} = useTheme();
   const common = {
     red: '#EF4D41',
@@ -156,7 +156,7 @@ const DynamicColors = () => {
       accent: '#9E82ED',
     },
   };
-  return themeValue === 'light' ? light : dark;
+  return (theme ? theme : themeValue) === 'light' ? light : dark;
 };
 
 export default DynamicColors;

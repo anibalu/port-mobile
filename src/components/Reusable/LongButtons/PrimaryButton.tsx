@@ -40,6 +40,7 @@ const PrimaryButton = ({
   disabled,
   onClick = () => {},
   untrimmedText = false,
+  buttonHeight = 50,
 }: {
   buttonText: string;
   primaryButtonColor: 'b' | 'r' | 'w' | 'p' | 'black' | 'secondaryAccent';
@@ -50,6 +51,7 @@ const PrimaryButton = ({
   disabled: boolean;
   onClick: () => void;
   untrimmedText?: boolean;
+  buttonHeight?: number;
 }) => {
   function primaryButtonStylePicker(primaryButtonColor?: string): ViewStyle {
     if (primaryButtonColor === 'r') {
@@ -68,7 +70,7 @@ const PrimaryButton = ({
   }
 
   const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const styles = styling(Colors, buttonHeight);
   return (
     <TouchableOpacity
       disabled={isLoading ? true : disabled}
@@ -109,12 +111,12 @@ const PrimaryButton = ({
   );
 };
 
-const styling = (colors: any) =>
+const styling = (colors: any, buttonHeight: number) =>
   StyleSheet.create({
     disabledButton: {
       width: '100%',
       alignItems: 'center',
-      height: 50,
+      height: buttonHeight,
       flexDirection: 'row',
       justifyContent: 'center',
       borderRadius: 12,
@@ -136,7 +138,7 @@ const styling = (colors: any) =>
     button: {
       width: '100%',
       alignItems: 'center',
-      height: 50,
+      height: buttonHeight,
       flexDirection: 'row',
       justifyContent: 'center',
       borderRadius: 12,

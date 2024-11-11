@@ -33,7 +33,7 @@ interface ContactInfo {
   contactNumber: Contacts.PhoneNumber[];
 }
 
-const PhoneContactList = ({navigation}: Props) => {
+const PhoneContactList = ({route, navigation}: Props) => {
   const Colors = DynamicColors();
   const {themeValue} = useTheme();
 
@@ -192,7 +192,9 @@ const PhoneContactList = ({navigation}: Props) => {
   }, [filteredContacts]);
 
   const onClose = () => {
-    navigation.navigate('HomeTab');
+    route?.params?.fromOnboardingStack
+      ? navigation.navigate('OnboardingSetupScreen')
+      : navigation.navigate('HomeTab');
   };
 
   const onInviteContactClick = (contact: ContactInfo) => {
@@ -286,6 +288,7 @@ const PhoneContactList = ({navigation}: Props) => {
         {/* We need to conditionally mount and unmount the modal for better state cleanup */}
         {selectedContacInfo && (
           <InviteContactBottomsheet
+            onLinkShare={route?.params?.onLinkShare || null}
             visible={selectedContacInfo ? true : false}
             onClose={() => {
               setSelectedContactInfo(null);

@@ -46,7 +46,9 @@ const InviteContactBottomsheet = ({
   email,
   visible,
   onClose,
+  onLinkShare,
 }: {
+  onLinkShare?: () => void;
   name: string;
   phoneNumber: Contacts.PhoneNumber[];
   email: Contacts.EmailAddress[];
@@ -154,6 +156,13 @@ const InviteContactBottomsheet = ({
   const WhatsAppLogo = results.WhatsAppLogo;
   const Message = results.Message;
 
+  const onShareLink = () => {
+    if (onLinkShare) {
+      onClose();
+      onLinkShare();
+    }
+  };
+
   const {themeValue} = useTheme();
 
   return (
@@ -196,6 +205,7 @@ const InviteContactBottomsheet = ({
                               text + '\n' + link
                             }`,
                           );
+                          onShareLink();
                         }}>
                         <NumberlessText
                           textColor={Colors.text.primary}
@@ -229,6 +239,7 @@ const InviteContactBottomsheet = ({
                           Linking.openURL(
                             `sms:${item.number}?&body=${text + '\n' + link}`,
                           );
+                          onShareLink();
                         }}>
                         <NumberlessText
                           textColor={Colors.text.primary}
@@ -264,6 +275,7 @@ const InviteContactBottomsheet = ({
                               item.number
                             }/?&text=${encodeURIComponent(text + '\n' + link)}`,
                           );
+                          onShareLink();
                         }}>
                         <NumberlessText
                           textColor={Colors.text.primary}
@@ -304,6 +316,7 @@ const InviteContactBottomsheet = ({
                       } else {
                         setOnEmailClicked(true);
                       }
+                      onShareLink();
                     }}
                   />
                 )}
@@ -327,6 +340,7 @@ const InviteContactBottomsheet = ({
                         } else {
                           setOnMessageClicked(true);
                         }
+                        onShareLink();
                       }}
                     />
                     <SecondaryButton
@@ -346,6 +360,7 @@ const InviteContactBottomsheet = ({
                         } else {
                           setOnWhatsappClicked(true);
                         }
+                        onShareLink();
                       }}
                     />
                   </View>
@@ -371,6 +386,7 @@ const InviteContactBottomsheet = ({
                       }).catch(error => {
                         console.log('Error sharing port: ', error);
                       });
+                      onShareLink();
                     } catch (error) {
                       console.log('Error sharing port', error);
                     }

@@ -39,6 +39,7 @@ import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {getPermissions} from '@utils/Storage/permissions';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {getAllFolders} from '@utils/Storage/folders';
+import useGoBackHandler from '@utils/Hooks/useGoBack';
 import PortInfoBottomsheet from '@screens/Home/PortInfoBottomsheet';
 import {ToastType, useToast} from 'src/context/ToastContext';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -289,6 +290,16 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
     await wait(safeModalCloseDuration);
   };
 
+  const [preventGoingBack, setPreventGoingBack] = useState<boolean>(true);
+
+  const onBackPress = () => {
+    setPreventGoingBack(true);
+    closeAction();
+  };
+
+  //opens confirmation bottomsheet on back navigation
+  useGoBackHandler(preventGoingBack, onBackPress);
+
   return (
     <>
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
@@ -347,7 +358,14 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
         />
         <SavePortBottomsheet
           visible={openShouldKeepPortModal}
-          onClose={() => setOpenShouldKeepPortModal(false)}
+          onClose={() => {
+            setOpenShouldKeepPortModal(false);
+            setPreventGoingBack(true);
+          }}
+          onButtonPress={() => {
+            setOpenShouldKeepPortModal(false);
+            setPreventGoingBack(false);
+          }}
           qrData={qrData}
         />
         <PortInfoBottomsheet

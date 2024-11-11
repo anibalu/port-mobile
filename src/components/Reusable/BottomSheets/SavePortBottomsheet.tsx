@@ -30,8 +30,10 @@ const SavePortBottomsheet = ({
   visible,
   onClose,
   qrData,
+  onButtonPress,
 }: {
   visible: boolean;
+  onButtonPress: () => void;
   onClose: () => void;
   qrData:
     | PortBundle
@@ -51,7 +53,7 @@ const SavePortBottomsheet = ({
         await cleanDeletePort(qrData.portId, PortTable.generated);
       }
       setIsDeleting(false);
-      onClose();
+      onButtonPress();
       navigation.goBack();
     } catch (error) {
       console.error('ERROR DELETING PORT: ', error);
@@ -61,8 +63,8 @@ const SavePortBottomsheet = ({
     }
   };
 
-  const onKeepPortOpenAndGoBack = () => {
-    onClose();
+  const onKeepPortOpenAndGoBack = async () => {
+    await onButtonPress();
     wait(safeModalCloseDuration);
     navigation.goBack();
   };

@@ -193,7 +193,6 @@ const UserSetupOnboardingChat = ({
       }
     }
   };
-
   const onSetupUser = () => {
     //Stops you from going back
     setSettingUpUser(true);
@@ -523,7 +522,7 @@ const UserSetupOnboardingChat = ({
               typingAnimationDelay={3000}
               typingAnimationStartDelay={2000}
               qrData={qrData}
-              userName={inputText}
+              userName={newUserName}
               qrLoading={qrLoading}
               userAvatar={processedAvatar}
               hasFailed={hasFailed}

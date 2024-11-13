@@ -504,7 +504,7 @@ class NotificationService: UNNotificationServiceExtension {
     if let bestAttemptContent = bestAttemptContent {
       // Modify the notification content here...
       do {
-        try bestAttemptContent.title = "\(getChatName(providedSource))"
+        try bestAttemptContent.title = getChatName(providedSource)
       } catch {
         // Revert to server title
       }

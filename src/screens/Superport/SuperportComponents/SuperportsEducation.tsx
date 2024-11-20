@@ -425,7 +425,7 @@ const styling = (colors: any) =>
       backgroundColor: colors.primary.surface,
     },
     infoPointIconWrapper: {
-      backgroundColor: colors.lowAccentColors.blue,
+      backgroundColor: colors.primary.surface2,
       alignItems: 'center',
       justifyContent: 'center',
       height: 32,

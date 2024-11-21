@@ -325,47 +325,85 @@ const FolderChats = ({route}: Props) => {
                     style={{
                       flex: 1,
                       justifyContent: 'center',
-                      marginHorizontal: PortSpacing.secondary.uniform,
                     }}>
-                    <SimpleCard
+                    {folder.superportCount > 0 && (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: 2,
+                          width: '100%',
+                        }}>
+                        <FolderOptionWithChevron
+                          bgColor={colors.primary.surface}
+                          subtitle="Tap here to view linked Supeports"
+                          text={`This folder is linked to ${
+                            folder.superportCount
+                          } ${
+                            folder.superportCount > 1
+                              ? 'Superports'
+                              : 'Superport'
+                          }`}
+                          Icon={LinkSuperport}
+                          onPress={() => {
+                            navigation.navigate('SuperportsStack', {
+                              screen: 'Superports',
+                              selectedFolderFilter: {...folder},
+                            });
+                          }}
+                        />
+                      </View>
+                    )}
+
+                    <View
                       style={{
-                        paddingVertical: PortSpacing.secondary.uniform,
+                        flex: 1,
+                        justifyContent: 'center',
+                        marginHorizontal: PortSpacing.secondary.uniform,
                       }}>
-                      <NumberlessText
+                      <SimpleCard
                         style={{
-                          paddingHorizontal: PortSpacing.secondary.uniform,
-                        }}
-                        textColor={colors.text.primary}
-                        fontSizeType={FontSizeType.xl}
-                        fontType={FontType.sb}>
-                        Looks like you haven’t added any chats yet
-                      </NumberlessText>
-                      <NumberlessText
-                        style={{
-                          paddingHorizontal: PortSpacing.secondary.uniform,
-                        }}
-                        textColor={colors.text.primary}
-                        fontSizeType={FontSizeType.l}
-                        fontType={FontType.rg}>
-                        Choose an option below to add chats to this folder
-                      </NumberlessText>
-                      <FolderOptionWithChevron
-                        text={`Move chats to ${folder.name}`}
-                        subtitle="Tap here to move chats to this folder"
-                        onPress={onClickAddChats}
-                        Icon={Movechats}
-                      />
-                      <FolderOptionWithChevron
-                        subtitle="This folder is not linked to any Superports"
-                        text={'Tap here to link a Superport with this folder'}
-                        Icon={LinkSuperport}
-                        onPress={() => {
-                          navigation.navigate('SuperportSetupScreen', {
-                            selectedFolder: {...folder},
-                          });
-                        }}
-                      />
-                    </SimpleCard>
+                          paddingVertical: PortSpacing.secondary.uniform,
+                        }}>
+                        <NumberlessText
+                          style={{
+                            paddingHorizontal: PortSpacing.secondary.uniform,
+                          }}
+                          textColor={colors.text.primary}
+                          fontSizeType={FontSizeType.xl}
+                          fontType={FontType.sb}>
+                          Looks like you haven’t added any chats yet
+                        </NumberlessText>
+                        <NumberlessText
+                          style={{
+                            paddingHorizontal: PortSpacing.secondary.uniform,
+                          }}
+                          textColor={colors.text.primary}
+                          fontSizeType={FontSizeType.l}
+                          fontType={FontType.rg}>
+                          Choose an option below to add chats to this folder
+                        </NumberlessText>
+                        <FolderOptionWithChevron
+                          text={`Move chats to ${folder.name}`}
+                          subtitle="Tap here to move chats to this folder"
+                          onPress={onClickAddChats}
+                          Icon={Movechats}
+                        />
+                        {folder.superportCount === 0 && (
+                          <FolderOptionWithChevron
+                            subtitle="This folder is not linked to any Superports"
+                            text={
+                              'Tap here to link a Superport with this folder'
+                            }
+                            Icon={LinkSuperport}
+                            onPress={() => {
+                              navigation.navigate('SuperportSetupScreen', {
+                                selectedFolder: {...folder},
+                              });
+                            }}
+                          />
+                        )}
+                      </SimpleCard>
+                    </View>
                   </View>
                 )}
               </>

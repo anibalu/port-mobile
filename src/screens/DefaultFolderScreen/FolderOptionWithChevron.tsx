@@ -10,11 +10,13 @@ import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
 const FolderOptionWithChevron = ({
+  bgColor,
   Icon,
   text,
   subtitle,
   onPress,
 }: {
+  bgColor?: string;
   Icon: any;
   text: string;
   subtitle: string;
@@ -34,7 +36,11 @@ const FolderOptionWithChevron = ({
   const BlackAngleRight = results.AngleRight;
 
   return (
-    <Pressable style={styles.mainContainer} onPress={onPress}>
+    <Pressable
+      style={StyleSheet.compose(styles.mainContainer, {
+        backgroundColor: bgColor ? bgColor : 'transparent',
+      })}
+      onPress={onPress}>
       <Icon />
       <View style={{flex: 1}}>
         <NumberlessText

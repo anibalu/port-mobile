@@ -46,13 +46,14 @@ import {checkTimeout} from '@utils/Time';
 import SuperportsEducation from './SuperportComponents/SuperportsEducation';
 
 type RouteParams = {
-  selectedFolderFilter?: FolderInfo;
+  selectedFolderInfo?: FolderInfo;
 };
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'SuperportsStack'>;
 
 const Superports = ({route, navigation}: Props) => {
   const params: RouteParams = useMemo(() => route.params || {}, [route.params]);
+  const selectedFolderFilter = params.selectedFolderInfo || null;
   const profile = useSelector(state => state.profile.profile);
   const {name, avatar} = useMemo(() => {
     return {
@@ -133,10 +134,10 @@ const Superports = ({route, navigation}: Props) => {
   }, [selectedFolder, searchText, selectedFilter, superportsData]);
 
   useMemo(() => {
-    if (params && params.selectedFolderFilter) {
-      setSelectedFolder(params.selectedFolderFilter);
+    if (selectedFolderFilter) {
+      setSelectedFolder(selectedFolderFilter);
     }
-  }, [params]);
+  }, [selectedFolderFilter]);
 
   const onRadioClick = async (item: string) => {
     setSelectedFilter(item);

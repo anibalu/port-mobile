@@ -219,14 +219,19 @@ function NumberlessTabbar({
   );
 }
 
-function SuperportsStackScreens() {
+function SuperportsStackScreens({route}: any) {
+  const selectedFolderInfo = route?.params?.selectedFolderFilter || null;
   return (
     <SuperportsStack.Navigator
       screenOptions={{
         headerShown: false,
       }}
       initialRouteName={'Superports'}>
-      <SuperportsStack.Screen name="Superports" component={Superports} />
+      <SuperportsStack.Screen
+        initialParams={{selectedFolderInfo: selectedFolderInfo}}
+        name="Superports"
+        component={Superports}
+      />
       <SuperportsStack.Screen
         name="SuperportsEducationScreen"
         component={SuperportsEducationScreen}

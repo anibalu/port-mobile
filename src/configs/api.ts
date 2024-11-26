@@ -1,5 +1,5 @@
 const useSSL = process.env.USE_SSL ? process.env.USE_SSL === 'true' : true;
-const DOMAIN = process.env.DOMAIN || 'dev.numberless.tech';
+const DOMAIN = process.env.DOMAIN || 'staging.numberless.tech';
 
 /**
  * Base Endpoints

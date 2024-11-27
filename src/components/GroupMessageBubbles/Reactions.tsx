@@ -11,6 +11,7 @@ import {getRichReactions} from '@utils/Storage/reactions';
 import EmojiSelector from '@components/Reusable/BottomSheets/EmojiSelector';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {PortSpacing} from '@components/ComponentUtils';
 
 export const RenderReactionBar = () => {
   const [richReactions, setRichReactions] = useState<any>([]);
@@ -177,7 +178,8 @@ export function RenderReactions({
               fontSizeType={FontSizeType.m}
               fontType={FontType.rg}
               textColor={Colors.text.subtitle}>
-              {item[0]} {item[1] > 1 && item[1]}
+              {item[0]}
+              {item[1] > 1 && item[1]}
             </NumberlessText>
           );
         }
@@ -191,7 +193,7 @@ const styling = (colors: any) =>
     reactionSelection: {
       overflow: 'hidden',
       backgroundColor: colors.primary.surface,
-      borderRadius: 24,
+      borderRadius: PortSpacing.secondary.uniform,
       height: 53,
       borderWidth: 0.5,
       borderColor: colors.primary.stroke,

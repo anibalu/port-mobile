@@ -94,8 +94,8 @@ const BubbleFocusOptions = () => {
     },
     {
       assetName: 'CopyIcon',
-      light: require('@assets/light/icons/Copy.svg').default,
-      dark: require('@assets/dark/icons/Copy.svg').default,
+      light: require('@assets/light/icons/CopyOutline.svg').default,
+      dark: require('@assets/dark/icons/CopyOutline.svg').default,
     },
     {
       assetName: 'CautionIcon',
@@ -285,9 +285,9 @@ const styling = (colors: any) =>
     optionsContainer: {
       marginTop: 4,
       backgroundColor: colors.primary.surface2,
-      borderRadius: 12,
+      borderRadius: PortSpacing.secondary.uniform,
       overflow: 'hidden',
-      width: 200,
+      width: 250,
       flexDirection: 'column',
       alignItems: 'flex-start',
       justifyContent: 'space-between',

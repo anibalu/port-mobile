@@ -193,7 +193,7 @@ const BlurViewModal = () => {
             <View
               style={{
                 marginHorizontal: PortSpacing.secondary.uniform,
-                marginTop: -TOPBAR_HEIGHT,
+                marginTop: -TOPBAR_HEIGHT + 6,
                 minHeight: TOPBAR_HEIGHT,
                 alignSelf: isSender ? 'flex-end' : 'flex-start',
               }}>

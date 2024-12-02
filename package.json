@@ -48,6 +48,7 @@
     "react-native-create-thumbnail": "^1.6.4",
     "react-native-device-info": "^13.1.0",
     "react-native-document-picker": "^9.0.1",
+    "react-native-dotenv": "^3.4.11",
     "react-native-drawer-layout": "^3.2.2",
     "react-native-encrypted-storage": "^4.0.3",
     "react-native-file-viewer": "^2.1.5",

@@ -51,3 +51,26 @@ The basic philosophy is that writing cleaner and descriptive code makes it redun
 - `index.ts` under `AppPermissions` for functions.
 - `Chat` under `Screens` for an end-to-end flow of all.
 
+### Configuration:
+
+We use [react-native-dotenv](https://www.npmjs.com/package/react-native-dotenv) for loading environment variables that are used in the configuration of the application. 
+
+We use only 3, at the time of writing. They are as follows:
+```bash
+DOMAIN=(your Numberless server URL)
+USE_SSL=(true or false, on if you want to use SSL with the server)
+DEMO_MODE=(true or false, will hide all ReactNative errors in your emulator)
+# Note about demo mode - while the banner that appears on the app is not shown 
+# in demo mode, showstopping errors that prevent the app from functioning will 
+# still appear and interrupt app operation.
+```
+
+Add your configuration to a file named `.env` at the top level of the repo to use this configuration. If not specified, the default configuration is as follows:
+```bash
+DOMAIN=staging.numberless.tech
+USE_SSL=true
+DEMO_MODE=false
+```
+Notes:
+- As a limitation of `react-native-dotenv`, these environment variables are available only to the JavaScript layer, not native modules. Should we wish to bridge that gap, we need to migrate to `react-native-config`.
+- Modifying these environment variables _will not trigger a live reload_. You will have to restart Metro.

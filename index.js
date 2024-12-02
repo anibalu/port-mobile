@@ -8,6 +8,12 @@ import {name as appName} from './app.json';
 import {registerBackgroundMessaging} from '@utils/Messaging/FCM/fcm';
 import {Text, TextInput} from 'react-native';
 import {initBackgroundFetch} from '@utils/BackgroundOperations/backgroundFetch';
+import {LogBox} from 'react-native';
+import {DEMO_MODE} from '@env';
+
+if (DEMO_MODE === 'true') {
+  LogBox.ignoreAllLogs();
+}
 
 initBackgroundFetch();
 

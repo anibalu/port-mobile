@@ -1,11 +1,13 @@
-const useSSL = process.env.USE_SSL ? process.env.USE_SSL === 'true' : true;
-const DOMAIN = process.env.DOMAIN || 'staging.numberless.tech';
+import {DOMAIN, USE_SSL} from '@env';
+
+const useSSL = USE_SSL ? USE_SSL === 'true' : true;
+const URL = DOMAIN ? DOMAIN : 'staging.numberless.tech';
 
 /**
  * Base Endpoints
  */
-const BASE_URL = `${useSSL ? 'https' : 'http'}://${DOMAIN}`;
-const WS_BASE = `${useSSL ? 'wss' : 'ws'}://${DOMAIN}`;
+const BASE_URL = `${useSSL ? 'https' : 'http'}://${URL}`;
+const WS_BASE = `${useSSL ? 'wss' : 'ws'}://${URL}`;
 
 /**
  * WebSocket and Call Endpoints

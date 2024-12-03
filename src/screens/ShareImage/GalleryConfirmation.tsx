@@ -92,41 +92,53 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
    */
   const preprocessMedia = async () => {
     setLoading(true);
-    const newList = [];
-    for (let item of dataList) {
-      if (item.contentType === ContentType.video) {
-        const compressedUri = await compressVideo(item.data.fileUri);
-        if (!compressedUri) {
-          compressionError();
+    const newList = await Promise.all(
+      dataList.map(async item => {
+        const updatedItem = {...item}; // shallow copy, as the original is immutable
+        if (updatedItem.contentType === ContentType.video) {
+          let compressedUri;
+          compressedUri = await compressVideo(updatedItem.data.fileUri);
+          if (!compressedUri) {
+            compressionError();
+          }
+          updatedItem.data = {
+            ...updatedItem.data,
+            fileUri:
+              compressedUri || (await moveToTmp(updatedItem.data.fileUri)),
+          };
+          const thumbnailUri = await createPreview(ContentType.video, {
+            url: updatedItem.data.fileUri,
+          });
+          updatedItem.thumbnailUri = thumbnailUri;
+          updatedItem.data.previewUri = thumbnailUri;
         }
-        item.data.fileUri = compressedUri
-          ? compressedUri
-          : await moveToTmp(item.data.fileUri);
-        item.thumbnailUri = await createPreview(ContentType.video, {
-          url: item.data.fileUri,
-        });
-        item.data.previewUri = item.thumbnailUri;
-      }
-      if (item.contentType === ContentType.image) {
-        const compressedUri = await compressImage(item.data.fileUri);
-        if (!compressedUri) {
-          compressionError();
+        if (updatedItem.contentType === ContentType.image) {
+          let compressedUri;
+          compressedUri = await compressImage(updatedItem.data.fileUri);
+          if (!compressedUri) {
+            compressionError();
+          }
+          updatedItem.data = {
+            ...updatedItem.data,
+            fileUri:
+              compressedUri || (await moveToTmp(updatedItem.data.fileUri)),
+          };
+          const thumbnailUri = await createPreview(ContentType.image, {
+            url: updatedItem.data.fileUri,
+          });
+          updatedItem.thumbnailUri = thumbnailUri;
+          updatedItem.data.previewUri = thumbnailUri;
         }
-        item.data.fileUri = compressedUri
-          ? compressedUri
-          : await moveToTmp(item.data.fileUri);
-        item.thumbnailUri = await createPreview(ContentType.image, {
-          url: item.data.fileUri,
-        });
-        item.data.previewUri = item.thumbnailUri;
-      }
-      if (item.contentType === ContentType.file) {
-        const movedUri = await moveToTmp(item.data.fileUri);
-        item.data.fileUri = movedUri ? movedUri : item.data.fileUri;
-      }
-      //at the end of this process, media fileUri points to a file in the tmp directory.
-      newList.push(item);
-    }
+        if (updatedItem.contentType === ContentType.file) {
+          const movedUri = await moveToTmp(updatedItem.data.fileUri);
+          updatedItem.data = {
+            ...updatedItem.data,
+            fileUri: movedUri || updatedItem.data.fileUri,
+          };
+        }
+        return updatedItem;
+      }),
+    );
     setDataList(newList);
     setLoading(false);
   };

@@ -128,10 +128,9 @@ const SuperportsEducation = (): ReactNode => {
   const videoRef = useRef(null);
 
   const [activeTabIndex, setActiveTabIndex] = useState<number>(1);
-  const navigation = useNavigation();
-
+  const navigation = useNavigation<any>();
   const onCreateSuperport = () => {
-    navigation.navigate('SuperportSetupScreen', {});
+    navigation.push('SuperportSetupScreen', {});
   };
 
   //slide tab headings

@@ -1,5 +1,6 @@
 /**
  * This screen allows a user to add a name and select a profile picture.
+ * Currently not being used
  */
 import {PortSpacing, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
@@ -27,6 +28,7 @@ type Props = NativeStackScreenProps<AppStackParamList, 'InviteFriends'>;
 function InviteFriends({navigation}: Props) {
   const {showToast} = useToast();
   const onInviteClick = async () => {
+    console.log('Sup');
     const granted = await checkAndAskContactPermission();
     if (granted) {
       store.dispatch({

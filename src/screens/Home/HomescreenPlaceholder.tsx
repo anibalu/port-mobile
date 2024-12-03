@@ -44,7 +44,7 @@ function HomescreenPlaceholder(): ReactNode {
   const onCreateNewPort = async () => {
     setShowPortInfo(false);
     await wait(safeModalCloseDuration);
-    navigation.navigate('NewPortScreen', {});
+    navigation.push('NewPortScreen', {});
   };
 
   return (
@@ -96,7 +96,7 @@ function HomescreenPlaceholder(): ReactNode {
               buttonText="Create a new Port"
               disabled={false}
               isLoading={false}
-              onClick={() => navigation.navigate('NewPortScreen', {})}
+              onClick={() => navigation.push('NewPortScreen', {})}
               primaryButtonColor="p"
             />
             <TouchableOpacity

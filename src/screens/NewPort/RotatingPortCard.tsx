@@ -237,7 +237,7 @@ const DisplayPortCard = ({
             fontType={FontType.rg}
             textColor={Colors.text.subtitle}
             fontSizeType={FontSizeType.s}>
-            Show this Port or share it as a one-time {`\n`}use link to form a
+            Show this Port or share it as a one-time {'\n'}use link to form a
             new chat.
           </NumberlessText>
           <View

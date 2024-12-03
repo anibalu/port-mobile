@@ -59,9 +59,7 @@ const EditFolder = ({route, navigation}: Props) => {
 
   const handleFolderSave = () => {
     onSaveFolderName();
-    navigation.navigate('HomeTab', {
-      selectedFolder: {...selectedFolder, name: folderName},
-    });
+    navigation.pop(1);
   };
 
   const [openApplyToAllModal, setOpenApplyToAllModal] = useState(false);
@@ -87,7 +85,13 @@ const EditFolder = ({route, navigation}: Props) => {
 
   const onDelete = async () => {
     await deleteFolder(selectedFolder.folderId);
-    navigation.navigate('Folders');
+    navigation.popToTop();
+    navigation.replace('HomeTab', {
+      screen: 'FolderStack',
+      params: {
+        screen: 'Folders',
+      },
+    });
     redrawOnFolderUpdate();
   };
   return (

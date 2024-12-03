@@ -54,6 +54,15 @@ const FolderChats = ({route}: Props) => {
   const ping: any = useSelector(state => state.ping.ping);
   const folderChangedTrigger = useListenForTrigger(TRIGGER_TYPES.FOLDER_UPDATE);
 
+  useMemo(() => {
+    if (route.params) {
+      console.log(route.params);
+      // const {initialChatType, chatData} = route.params;
+      // if (ChatType.direct === initialChatType) {
+      //   navigation.push('DirectChat', chatData);
+      // }
+    }
+  }, [route.params]);
   const {
     setTotalFolderUnreadCount,
     folderConnections,
@@ -130,7 +139,7 @@ const FolderChats = ({route}: Props) => {
   //rendered chat tile of a connection
   function renderChatTile(connection: ChatTileProps): ReactElement {
     try {
-      return <ChatTile props={connection} />;
+      return <ChatTile initialProps={connection} />;
     } catch (error) {
       return <></>;
     }
@@ -188,11 +197,11 @@ const FolderChats = ({route}: Props) => {
   const onClickAddChats = () => {
     if (connectionsCount === 0) {
       setSelectedFolderData(folder);
-      navigation.navigate('FolderStack', {
+      navigation.push('FolderStack', {
         screen: 'NoConnectionsScreen',
       });
     } else {
-      navigation.navigate('MoveToFolder', {
+      navigation.push('MoveToFolder', {
         selectedFolder: folder,
       });
     }
@@ -262,9 +271,14 @@ const FolderChats = ({route}: Props) => {
                               }`}
                               Icon={LinkSuperport}
                               onPress={() => {
-                                navigation.navigate('SuperportsStack', {
-                                  screen: 'Superports',
-                                  selectedFolderFilter: {...folder},
+                                // Navigate to the Superport screen to allow the FolderStack to remain
+                                // untouched. This is a personal choice
+                                navigation.navigate('HomeTab', {
+                                  screen: 'SuperportsStack',
+                                  params: {
+                                    screen: 'Superports',
+                                    selectedFolderFilter: {...folder},
+                                  },
                                 });
                               }}
                             />
@@ -277,7 +291,7 @@ const FolderChats = ({route}: Props) => {
                                 }
                                 Icon={LinkSuperport}
                                 onPress={() => {
-                                  navigation.navigate('SuperportSetupScreen', {
+                                  navigation.push('SuperportSetupScreen', {
                                     selectedFolder: {...folder},
                                   });
                                 }}
@@ -345,7 +359,7 @@ const FolderChats = ({route}: Props) => {
                           }`}
                           Icon={LinkSuperport}
                           onPress={() => {
-                            navigation.navigate('SuperportsStack', {
+                            navigation.push('SuperportsStack', {
                               screen: 'Superports',
                               selectedFolderFilter: {...folder},
                             });
@@ -396,7 +410,7 @@ const FolderChats = ({route}: Props) => {
                             }
                             Icon={LinkSuperport}
                             onPress={() => {
-                              navigation.navigate('SuperportSetupScreen', {
+                              navigation.push('SuperportSetupScreen', {
                                 selectedFolder: {...folder},
                               });
                             }}

@@ -51,13 +51,13 @@ function NameScreen({navigation}: Props): ReactNode {
     const permissionsResult = await checkPermissions();
     if (permissionsResult) {
       //permissions are provided, setup user profile
-      navigation.navigate('SetupUser', {
+      navigation.push('SetupUser', {
         name: processName(name),
         avatar: imageAttr,
       });
     } else {
       //permissions are not provided, ask again
-      navigation.navigate('PermissionsScreen', {
+      navigation.push('PermissionsScreen', {
         name: processName(name),
         avatar: imageAttr,
       });
@@ -218,7 +218,7 @@ function NameScreen({navigation}: Props): ReactNode {
                     Have a backup?
                   </NumberlessText>
                   <NumberlessText
-                    onPress={() => navigation.navigate('RestoreAccount')}
+                    onPress={() => navigation.push('RestoreAccount')}
                     fontType={FontType.rg}
                     fontSizeType={FontSizeType.m}
                     style={{

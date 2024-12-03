@@ -33,7 +33,7 @@ const NoConnectionsScreen = () => {
   const onInviteContactClick = async () => {
     const granted = await checkAndAskContactPermission();
     if (granted) {
-      navigation.navigate('PhoneContactList');
+      navigation.push('PhoneContactList');
     }
   };
   return (

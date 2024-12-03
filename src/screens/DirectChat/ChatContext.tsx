@@ -474,7 +474,7 @@ export const ChatContextProvider = ({
   const onForward = () => {
     const msgs = [...selectedMessages];
     clearSelection();
-    navigation.navigate('ForwardToContact', {
+    navigation.push('ForwardToContact', {
       chatId: chatId,
       messages: msgs,
     });

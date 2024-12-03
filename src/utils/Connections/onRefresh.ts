@@ -15,6 +15,7 @@ import {
  */
 export async function loadHomeScreenConnections() {
   try {
+    console.log('Loading home screen connections');
     // fetch all connections
     const fetchedConnections = await getAllConnectionsInFocus();
     // fetch all read ports

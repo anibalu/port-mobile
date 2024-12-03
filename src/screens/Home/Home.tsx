@@ -44,10 +44,22 @@ import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/Contact
 import FavouriteFolders from './FavouriteFolders';
 import {getConnections} from '@utils/Storage/connections';
 import NoChatsInHomePlaceholder from './NoChatsInHomePlaceholder';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
-const Home = ({navigation}: Props) => {
+const Home = ({navigation, route}: Props) => {
+  useMemo(() => {
+    if (route.params) {
+      console.log(route.params);
+      const {initialChatType, chatData} = route.params;
+      if (ChatType.direct === initialChatType) {
+        navigation.push('DirectChat', chatData);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route.params]);
+
   //Sets up handlers to route notifications
   useEffect(() => {
     const foregroundHandler = notifee.onForegroundEvent(({type, detail}) => {
@@ -187,7 +199,7 @@ const Home = ({navigation}: Props) => {
   //rendered chat tile of a connection
   function renderChatTile(connection: ChatTileProps): ReactElement {
     try {
-      return <ChatTile props={connection} />;
+      return <ChatTile initialProps={connection} />;
     } catch (error) {
       return <></>;
     }

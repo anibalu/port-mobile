@@ -28,6 +28,7 @@ const NoChatsInHomePlaceholder = () => {
 
   const navigation = useNavigation();
   const Colors = DynamicColors();
+
   return (
     <SafeAreaView style={{backgroundColor: Colors.primary.background, flex: 1}}>
       <SimpleCard
@@ -58,9 +59,9 @@ const NoChatsInHomePlaceholder = () => {
           <PrimaryButton
             disabled={false}
             isLoading={false}
-            onClick={() =>
-              navigation.navigate('FolderStack', {screen: 'Folders'})
-            }
+            onClick={() => {
+              navigation.navigate('FolderStack', {screen: 'Folders'});
+            }}
             buttonText="Go to folders"
             primaryButtonColor={'b'}
           />

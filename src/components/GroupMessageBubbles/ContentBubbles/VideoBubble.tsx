@@ -80,7 +80,8 @@ export const VideoBubble = ({
       if (fileUri === null) {
         triggerDownload();
       } else {
-        navigation.navigate('MediaViewer', {
+        // Push the MediaViewer onto the screen so that the back navigation works as expected
+        navigation.push('MediaViewer', {
           isGroup: true,
           message: message,
         });

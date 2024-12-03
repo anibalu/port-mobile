@@ -434,7 +434,8 @@ const ChatProfile = ({route, navigation}: Props) => {
             try {
               const chatHandler = new DirectChat(chatId);
               await chatHandler.delete();
-              navigation.navigate('HomeTab');
+              navigation.popToTop();
+              navigation.replace('HomeTab', {screen: 'Home'});
             } catch (error) {
               await wait(safeModalCloseDuration);
               showToast('Error in deleting this chat.', ToastType.error);

@@ -141,13 +141,6 @@ const SuperportQRScreen = ({route, navigation}: Props) => {
   //for superport connections made limit
   const [connectionsMade, setConnectionsMade] = useState<number | null>(null);
 
-  //user create folder permissions from linked folder bottomsheet
-  const [createdFolderPermissions, setCreatedFolderPermissions] =
-    useState<PermissionsStrict>({...defaultPermissions});
-
-  //user create folder from linked folder bottomsheet
-  const [createdFolderName, setCreatedFolderName] = useState<string>('');
-
   //see if superport is paused
   const [isSuperportPaused, setIsSuperportPaused] = useState<boolean>(false);
 
@@ -173,28 +166,6 @@ const SuperportQRScreen = ({route, navigation}: Props) => {
   //loading state for deleting superport
   const [deleteSuperportLoading, setDeleteSuperportLoading] =
     useState<boolean>(false);
-
-  const onCreateFolder = () => {
-    setOpenLinkToFolderModal(false);
-    setLinkedFolder(undefined);
-    navigation.navigate('CreateFolder', {
-      setSelectedFolder: setLinkedFolder,
-      superportLabel: superportName,
-      saveDetails: true,
-      onSaveDetails: onSaveFolderDetails,
-      savedFolderPermissions: createdFolderPermissions,
-    });
-  };
-
-  const onSaveFolderDetails = (
-    newFolderPermissions: PermissionsStrict,
-    folderName: string,
-  ) => {
-    setCreatedFolderName(folderName);
-    setCreatedFolderPermissions(newFolderPermissions);
-    setLinkedFolder(undefined);
-    navigation.goBack();
-  };
 
   const onSuperportLimitChange = async (newNumber: string) => {
     setSavingNewSuperportName(true);
@@ -289,7 +260,7 @@ const SuperportQRScreen = ({route, navigation}: Props) => {
           JSON.stringify(superportData?.bundle),
         );
         setIsPreviewLoading(false);
-        navigation.navigate('PreviewShareablePort', {
+        navigation.push('PreviewShareablePort', {
           qrData: superportData.bundle as any,
           linkData: link,
           title: displayName,
@@ -487,16 +458,6 @@ const SuperportQRScreen = ({route, navigation}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestNewConnection]);
 
-  useMemo(() => {
-    if (portId && linkedFolder) {
-      (async () => {
-        setCreatedFolderPermissions(
-          await getFolderPermissions(linkedFolder.folderId),
-        );
-      })();
-    }
-  }, [portId, linkedFolder]);
-
   return (
     <>
       <CustomStatusBar backgroundColor={Colors.primary.surface} />
@@ -506,11 +467,7 @@ const SuperportQRScreen = ({route, navigation}: Props) => {
         }}>
         <BackTopbar
           bgColor="w"
-          onBackPress={() =>
-            navigation.navigate('SuperportsStack', {
-              screen: 'Superports',
-            })
-          }
+          onBackPress={() => navigation.goBack()}
           title={'Superport'}
         />
 
@@ -582,7 +539,7 @@ const SuperportQRScreen = ({route, navigation}: Props) => {
               subtitle={
                 'All new connections formed using this Superport is automatically moved to the linked folder. These connections inherit the folder’s permissions.'
               }
-              label={linkedFolder?.name || createdFolderName}
+              label={linkedFolder?.name}
               setOpenModal={setOpenLinkToFolderModal}
             />
 
@@ -622,7 +579,6 @@ const SuperportQRScreen = ({route, navigation}: Props) => {
               onClose={() => setOpenLinkToFolderModal(false)}
               setSelectedFolderData={setLinkedFolder}
               visible={openLinkToFolderModal}
-              onCreateFolder={onCreateFolder}
             />
             <ConfirmationBottomSheet
               visible={isPauseConfirmOpen}

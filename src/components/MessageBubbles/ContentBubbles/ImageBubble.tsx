@@ -67,7 +67,8 @@ export const ImageBubble = ({
       if (!imageUri) {
         triggerDownload();
       } else {
-        navigation.navigate('MediaViewer', {
+        // Push the media viewer onto the stack so that the user can consistently navigate back
+        navigation.push('MediaViewer', {
           message: message,
         });
       }

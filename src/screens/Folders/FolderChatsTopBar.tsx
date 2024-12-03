@@ -96,7 +96,7 @@ export function FolderChatsTopBar({
             onPress={() => {
               setFolderConnections(null);
               setTotalFolderUnreadCount(0);
-              navigation.navigate('Folders');
+              navigation.popToTop();
             }}
             style={{
               marginRight: PortSpacing.tertiary.right,
@@ -121,7 +121,7 @@ export function FolderChatsTopBar({
                 <Pressable
                   style={styles.iconWrapper}
                   onPress={() => {
-                    navigation.navigate('EditFolder', {
+                    navigation.push('EditFolder', {
                       selectedFolder: selectedFolderData,
                     });
                   }}>

@@ -95,7 +95,8 @@ function ReportMessageBottomSheet({
       setSelectedMessage(null);
       await wait(safeModalCloseDuration);
       ReportSubmittedSuccess();
-      navigation.navigate('HomeTab');
+      navigation.popToTop();
+      navigation.replace('HomeTab');
     } catch (error) {
       console.error('Error submitting report and disconnecting', error);
       setTopButtonLoading(false);

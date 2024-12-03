@@ -25,6 +25,7 @@ import DirectChat, {LineDataCombined} from '@utils/DirectChats/DirectChat';
 import SmallLoader from '../Loaders/SmallLoader';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
 import {getContact} from '@utils/Storage/contacts';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 interface GroupMemberUseableData extends GroupMemberLoadedData {
   directChatId?: string | null;
@@ -130,13 +131,21 @@ const GroupMemberInfoBottomsheet = ({
         const directChatData = await directChat.getChatData();
         onClose();
         await wait(safeModalCloseDuration);
-        navigation.navigate('DirectChat', {
-          chatId: directChatId,
-          isConnected: !directChatData.disconnected,
-          profileUri: directChatData.displayPic,
-          name: directChatData.name,
-          isAuthenticated: directChatData.authenticated,
+        navigation.popToTop();
+        navigation.replace('HomeTab', {
+          screen: 'Home',
+          params: {
+            initialChatType: ChatType.direct,
+            chatData: {
+              chatId: directChatId,
+              isConnected: !directChatData.disconnected,
+              profileUri: directChatData.displayPic,
+              name: directChatData.name,
+              isAuthenticated: directChatData.authenticated,
+            },
+          },
         });
+        // navigation.push('DirectChat', );
       } catch (error) {
         console.error('Error navigating to direct chat: ', error);
       }
@@ -164,7 +173,7 @@ const GroupMemberInfoBottomsheet = ({
     }
 
     onClose();
-    navigation.navigate('ContactProfile', {
+    navigation.push('ContactProfile', {
       chatId,
       chatData: chatData,
       contactInfo: contact,

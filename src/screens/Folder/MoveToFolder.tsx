@@ -107,9 +107,7 @@ const MoveToFolder = ({route, navigation}: Props) => {
                 );
                 setIsLoading(false);
                 redrawOnFolderUpdate();
-                navigation.navigate('HomeTab', {
-                  selectedFolder: selectedFolder,
-                });
+                navigation.pop(1);
               }}
             />
           </View>

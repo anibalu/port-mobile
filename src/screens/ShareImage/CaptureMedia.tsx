@@ -41,6 +41,7 @@ import {imageRegex} from 'src/context/ConnectionModalContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CaptureMedia'>;
 
+// this screen is not being used.
 const CaptureMedia = ({navigation, route}: Props) => {
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
     useState(false);
@@ -181,7 +182,7 @@ const CaptureMedia = ({navigation, route}: Props) => {
 
   const goToConfirmation = () => {
     if (mediaList.length > 0) {
-      navigation.navigate('GalleryConfirmation', {
+      navigation.push('GalleryConfirmation', {
         selectedMembers: [{chatId: route.params.chatId}],
         shareMessages: mediaList,
         isChat: true,

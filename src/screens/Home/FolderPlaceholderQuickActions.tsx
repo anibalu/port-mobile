@@ -58,7 +58,7 @@ const FolderPlaceholderQuickActions = ({
             IconLeft={Files}
             heading="Move contacts to a chat folder"
             onClick={() =>
-              navigation.navigate('MoveToFolder', {
+              navigation.push('MoveToFolder', {
                 selectedFolder: {...selectedFolder},
               })
             }
@@ -70,7 +70,7 @@ const FolderPlaceholderQuickActions = ({
             IconLeft={Superport}
             heading="Create a new Superport"
             onClick={() =>
-              navigation.navigate('SuperportSetupScreen', {
+              navigation.push('SuperportSetupScreen', {
                 name: name,
                 avatar: avatar,
                 selectedFolder: {...selectedFolder},

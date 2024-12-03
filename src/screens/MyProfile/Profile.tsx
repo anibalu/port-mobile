@@ -164,8 +164,7 @@ const MyProfile = ({navigation}: Props): ReactNode => {
             <PrimaryButton
               disabled={false}
               isLoading={false}
-              onClick={() => navigation.navigate('GiveUsFeedbackScreen')}
-              // onClick={() => setReportBugModalOpen(p => !p)}
+              onClick={() => navigation.push('GiveUsFeedbackScreen')}
               buttonText="Give us feedback"
               primaryButtonColor={'b'}
             />

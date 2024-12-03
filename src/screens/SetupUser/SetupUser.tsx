@@ -96,7 +96,7 @@ function SetupUser({route, navigation}: Props) {
           ToastType.error,
         ); //delete whatever profile is setup so it can begin again cleanly.
         deleteProfile().then(() => {
-          navigation.navigate('OnboardingStack', {screen: 'NameScreen'});
+          navigation.push('OnboardingStack', {screen: 'NameScreen'});
         });
       } else {
         // ts-ignore

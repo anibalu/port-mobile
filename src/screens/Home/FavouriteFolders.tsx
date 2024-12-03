@@ -55,10 +55,13 @@ const FavouriteFolders = () => {
             key={index}
             onPress={() => {
               setSelectedFolderData(item);
-              navigation.navigate('FolderStack', {
-                screen: 'FolderChats',
+              navigation.replace('HomeTab', {
+                screen: 'FolderStack',
                 params: {
-                  folder: item,
+                  screen: 'FolderChats',
+                  params: {
+                    folder: item,
+                  },
                 },
               });
             }}>

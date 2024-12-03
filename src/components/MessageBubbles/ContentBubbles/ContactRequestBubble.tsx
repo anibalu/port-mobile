@@ -43,7 +43,7 @@ const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
     try {
       const dataHandler = new DirectChat(chatId);
       const chatData = await dataHandler.getChatData();
-      navigation.navigate('ChatProfile', {
+      navigation.push('ChatProfile', {
         chatId: chatId,
         chatData: chatData,
       });

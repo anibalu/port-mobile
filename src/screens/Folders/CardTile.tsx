@@ -101,11 +101,11 @@ const CardTile = ({
   const onClickAddChats = () => {
     if (connectionsCount === 0) {
       setSelectedFolderData(folder);
-      navigation.navigate('FolderStack', {
+      navigation.push('FolderStack', {
         screen: 'NoConnectionsScreen',
       });
     } else {
-      navigation.navigate('MoveToFolder', {
+      navigation.push('MoveToFolder', {
         selectedFolder: folder,
       });
     }
@@ -113,7 +113,7 @@ const CardTile = ({
   return (
     <Pressable
       onPress={() => {
-        navigation.navigate('FolderChats', {folder: folder});
+        navigation.push('FolderChats', {folder: folder});
       }}>
       <SimpleCard
         style={StyleSheet.compose(styles.tile, {

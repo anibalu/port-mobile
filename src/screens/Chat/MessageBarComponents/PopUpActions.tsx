@@ -88,7 +88,7 @@ const PopUpActions = ({
   // to go to gallery confirmation screen
   const goToConfirmation = (lst: any[]) => {
     if (lst.length > 0) {
-      navigation.navigate('GalleryConfirmation', {
+      navigation.push('GalleryConfirmation', {
         selectedMembers: [{chatId: chatId}],
         shareMessages: lst,
         isChat: true,
@@ -208,6 +208,7 @@ const PopUpActions = ({
   };
 
   const onTemplatePressed = async (): Promise<void> => {
+    // TODO: nuke
     navigation.navigate('Templates', {chatId: chatId});
   };
   const Colors = DynamicColors();
@@ -265,7 +266,7 @@ const PopUpActions = ({
             style={styles.optionBox}
             onPress={() => {
               togglePopUp();
-              navigation.navigate('ShareContact', {chatId: chatId});
+              navigation.push('ShareContact', {chatId: chatId});
             }}>
             <ContactIcon />
           </Pressable>

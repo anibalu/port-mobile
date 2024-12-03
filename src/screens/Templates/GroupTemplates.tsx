@@ -80,7 +80,7 @@ const GroupTemplates = ({route}) => {
   };
 
   const onSendMessage = (template: TemplateParams) => {
-    navigation.navigate('GroupChat', {
+    navigation.push('GroupChat', {
       chatId,
       isConnected: !disconnected,
       profileUri: groupPhoto || DEFAULT_AVATAR,

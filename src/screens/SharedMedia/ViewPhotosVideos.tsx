@@ -64,7 +64,7 @@ const ViewPhotosVideos = ({route}: Props) => {
       ? await getGroupMessage(chatId, mediaItem.messageId)
       : await getMessage(chatId, mediaItem.messageId);
     if (media) {
-      navigation.navigate('MediaViewer', {
+      navigation.push('MediaViewer', {
         isGroup: isGroup,
         message: media,
       });

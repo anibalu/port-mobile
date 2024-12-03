@@ -64,7 +64,7 @@ const PortInfoBottomsheet = (props: PortInfoProps) => {
           fontType={FontType.rg}
           fontSizeType={FontSizeType.m}>
           A Port is a one-time use QR or link that is shared to form a new
-          connection. {`\n\n`}A Port - unlike contact info - is not a unique
+          connection. {'\n\n'}A Port - unlike contact info - is not a unique
           identifier for you. Once a connection forms, the Port and the
           information it contains is unusable.
         </NumberlessText>

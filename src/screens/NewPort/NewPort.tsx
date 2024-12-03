@@ -238,7 +238,7 @@ function NewPortScreen({route, navigation}: Props): ReactNode {
         if (qrData && !linkData) {
           if (qrData.portId === latestUsedConnectionLinkId) {
             //todo - test that this leads to the correct folder tab
-            navigation.navigate('HomeTab', {
+            navigation.push('HomeTab', {
               selectedFolder: {...taggedFolder},
             });
             return;

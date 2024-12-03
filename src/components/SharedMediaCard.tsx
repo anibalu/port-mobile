@@ -46,7 +46,8 @@ const SharedMediaCard = ({
         ? await getGroupMessage(item.chatId, item.messageId)
         : await getMessage(item.chatId, item.messageId);
       if (media) {
-        navigation.navigate('MediaViewer', {
+        // On navigating back, we want to return to this screen, so push the media viewer onto the stack
+        navigation.push('MediaViewer', {
           isGroup: isGroup,
           message: media,
         });
@@ -96,7 +97,10 @@ const SharedMediaCard = ({
           Shared media
         </NumberlessText>
         <Pressable
-          onPress={() => navigation.navigate('SharedMedia', {chatId: chatId})}
+          /**
+           * On navigating back, we want to return o the settings page, so push this onto the stack
+           */
+          onPress={() => navigation.push('SharedMedia', {chatId: chatId})}
           style={{
             flexDirection: 'row',
             alignItems: 'center',

@@ -65,10 +65,12 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
     if (!files[0].filePath) {
       // This means that it wasn't a file so it must be text.
       const text = files[0].text || files[0].weblink;
-      navigation.navigate('SelectShareContacts', {
+      // navigation.navigate('HomeTab');
+      navigation.push('SelectShareContacts', {
         shareMessages: [text],
         isText: true,
       });
+
       return;
     }
 
@@ -96,7 +98,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       filesToShare.push(msg);
     }
 
-    navigation.navigate('SelectShareContacts', {
+    navigation.push('SelectShareContacts', {
       shareMessages: filesToShare,
       isText: false,
     });
@@ -131,7 +133,12 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       if (url.startsWith('PortShare')) {
         return;
       }
-      navigation.navigate('HomeTab');
+      // navigation.popToTop();
+      navigation.replace('AppStack', {
+        screen: 'HomeTab',
+        params: {screen: 'Home'},
+      });
+      // navigation.get;
 
       // Double connection prevention logic
       await linkMutex.acquire();

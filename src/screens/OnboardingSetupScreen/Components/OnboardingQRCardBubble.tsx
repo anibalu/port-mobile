@@ -78,7 +78,7 @@ const OnboardingQRCardBubble: React.FC<OnboardingQRCardBubbleProps> = ({
   const ShareIcon = results.ShareIcon;
   const CopyIcon = results.CopyIcon;
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   // Animation references for slide and fade-in
   const translateX = useRef(new Animated.Value(-100)).current;
@@ -181,10 +181,9 @@ const OnboardingQRCardBubble: React.FC<OnboardingQRCardBubbleProps> = ({
           const granted = await checkAndAskContactPermission();
           if (granted) {
             navigation.navigate('PhoneContactList', {
-              fromOnboardingStack: true,
               onLinkShare: () => {
                 setIsLinkShared(true);
-                navigation.navigate('OnboardingSetupScreen');
+                navigation.pop(1);
               },
             });
             setScreenIndex(6);
@@ -221,7 +220,9 @@ const OnboardingQRCardBubble: React.FC<OnboardingQRCardBubbleProps> = ({
           JSON.stringify(qrData),
         );
         setIsLinkLoading(false);
-        Clipboard.setString(link);
+        Clipboard.setString(
+          `Let's talk in a space where spam is impossible. Click the link to connect with me on Port.\n${link}`,
+        );
       }
       showToast('Link Copied!', ToastType.success);
       setIsCopyLinkLoading(false);
@@ -337,7 +338,7 @@ const OnboardingQRCardBubble: React.FC<OnboardingQRCardBubbleProps> = ({
                   }}
                   fontType={FontType.rg}
                   fontSizeType={FontSizeType.l}>
-                  Copy Port link
+                  Copy Port
                 </NumberlessText>
               </Pressable>
 
@@ -374,7 +375,7 @@ const OnboardingQRCardBubble: React.FC<OnboardingQRCardBubbleProps> = ({
                   }}
                   fontType={FontType.rg}
                   fontSizeType={FontSizeType.l}>
-                  Share your Port
+                  Invite a friend
                 </NumberlessText>
               </Pressable>
             </View>

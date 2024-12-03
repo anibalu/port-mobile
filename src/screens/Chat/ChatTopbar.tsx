@@ -9,7 +9,6 @@ import {
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {useNavigation} from '@react-navigation/native';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
-import {toggleRead} from '@utils/Storage/connections';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
@@ -77,7 +76,7 @@ function ChatTopbar(): ReactNode {
     try {
       const dataHandler = new DirectChat(chatId);
       const chatData = await dataHandler.getChatData();
-      navigation.navigate('ChatProfile', {
+      navigation.push('ChatProfile', {
         chatId: chatId,
         chatData: chatData,
       });
@@ -87,8 +86,7 @@ function ChatTopbar(): ReactNode {
   };
 
   const onBackPress = async (): Promise<void> => {
-    await toggleRead(chatId);
-    navigation.navigate('HomeTab');
+    navigation.goBack();
   };
 
   const onCancelPressed = () => {

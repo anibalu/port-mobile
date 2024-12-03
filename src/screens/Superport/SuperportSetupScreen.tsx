@@ -166,7 +166,8 @@ const SuperportSetupScreen = ({route, navigation}: Props) => {
   const onCreateFolder = () => {
     setOpenLinkToFolderModal(false);
     setLinkedFolder(undefined);
-    navigation.navigate('CreateFolder', {
+    // todo:navigation sending functions in params is bad practise
+    navigation.push('CreateFolder', {
       setSelectedFolder: setLinkedFolder,
       superportLabel: superportName,
       saveDetails: true,
@@ -199,7 +200,7 @@ const SuperportSetupScreen = ({route, navigation}: Props) => {
         folder ? folder?.folderId : linkedFolder?.folderId,
       );
       setCreatingSuperport(false);
-      navigation.navigate('SuperportQRScreen', {
+      navigation.replace('SuperportQRScreen', {
         superportId: newSuperport.bundle.portId,
         selectedFolder: folder ? folder : linkedFolder,
       });

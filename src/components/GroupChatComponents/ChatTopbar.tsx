@@ -79,7 +79,7 @@ function ChatTopbar(): ReactNode {
       const chatData = await dataHandler.getData();
       const members = await dataHandler.getMembers();
       if (chatData) {
-        navigation.navigate('GroupProfile', {
+        navigation.push('GroupProfile', {
           chatId: chatId,
           chatData: chatData,
           members: members,
@@ -92,7 +92,8 @@ function ChatTopbar(): ReactNode {
 
   const onBackPress = async (): Promise<void> => {
     await toggleRead(chatId);
-    navigation.navigate('HomeTab');
+    // Go back to whatever the previous screen was when you go back
+    navigation.pop();
   };
 
   const onCancelPressed = () => {

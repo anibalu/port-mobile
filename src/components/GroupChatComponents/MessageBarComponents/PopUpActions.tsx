@@ -24,7 +24,6 @@ import Animated, {
 
 const PopUpActions = ({
   togglePopUp,
-  isGroupChat,
   chatId,
 }: {
   togglePopUp: () => void;
@@ -66,11 +65,6 @@ const PopUpActions = ({
       dark: require('@assets/dark/icons/media/Gallery.svg').default,
     },
     {
-      assetName: 'ContactIcon',
-      light: require('@assets/light/icons/media/Contact.svg').default,
-      dark: require('@assets/dark/icons/media/Contact.svg').default,
-    },
-    {
       assetName: 'Copy',
       light: require('@assets/light/icons/Copy.svg').default,
       dark: require('@assets/dark/icons/Copy.svg').default,
@@ -82,13 +76,13 @@ const PopUpActions = ({
   const VideoIcon = results.VideoIcon;
   const FileIcon = results.FileIcon;
   const ImageIcon = results.ImageIcon;
-  const ContactIcon = results.ContactIcon;
   const Copy = results.Copy;
 
   // to go to gallery confirmation screen
   const goToConfirmation = (lst: any[]) => {
     if (lst.length > 0) {
-      navigation.navigate('GalleryConfirmation', {
+      // Pusht the gallery confirmation screen onto the stack to allow cancelling by going back
+      navigation.push('GalleryConfirmation', {
         selectedMembers: [{chatId: chatId}],
         shareMessages: lst,
         isChat: true,
@@ -208,6 +202,7 @@ const PopUpActions = ({
   };
 
   const onTemplatePressed = async (): Promise<void> => {
+    // TODO: nuke templates
     navigation.navigate('GroupTemplates', {chatId: chatId});
   };
   const Colors = DynamicColors();
@@ -259,25 +254,6 @@ const PopUpActions = ({
           Templates
         </NumberlessText>
       </View>
-      {!isGroupChat && (
-        <View style={styles.optionContainer}>
-          <Pressable
-            style={styles.optionBox}
-            onPress={() => {
-              togglePopUp();
-              navigation.navigate('ShareContact', {chatId: chatId});
-            }}>
-            <ContactIcon />
-          </Pressable>
-          <NumberlessText
-            fontSizeType={FontSizeType.s}
-            textColor={Colors.text.primary}
-            style={{textAlign: 'center'}}
-            fontType={FontType.rg}>
-            Contact
-          </NumberlessText>
-        </View>
-      )}
     </Animated.View>
   );
 };

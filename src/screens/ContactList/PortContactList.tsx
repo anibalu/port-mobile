@@ -144,7 +144,7 @@ const PortContactList = ({navigation}: Props) => {
             const chat = new DirectChat(chatId);
             chatData = await chat.getChatData();
           }
-          navigation.navigate('ContactProfile', {
+          navigation.push('ContactProfile', {
             chatId,
             chatData: chatData,
             contactInfo: item as ContactEntry, // DEBT: highlights need for better typing on this page
@@ -189,7 +189,7 @@ const PortContactList = ({navigation}: Props) => {
   const onInviteContactClick = async () => {
     const granted = await checkAndAskContactPermission();
     if (granted) {
-      navigation.navigate('PhoneContactList');
+      navigation.push('PhoneContactList');
     } else {
       showToast(
         'Please allow access to your contacts in order to continue. This can be changed in your Settings.',

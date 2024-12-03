@@ -36,6 +36,7 @@ function NumberlessTopTabBar({
 }) {
   const Colors = DynamicColors();
   const styles = styling(Colors);
+
   return (
     <View style={styles.tabbarContainerStyle}>
       {state.routes.map(
@@ -58,6 +59,7 @@ function NumberlessTopTabBar({
             });
 
             if (!isFocused && !event.defaultPrevented) {
+              // todo:navigation - this should be left as is
               navigation.navigate(route.name, route.params);
             }
           };

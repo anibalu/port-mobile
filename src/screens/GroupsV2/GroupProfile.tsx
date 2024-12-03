@@ -478,7 +478,10 @@ const GroupProfile = ({route, navigation}: Props) => {
               //delete chat
               const chatHandler = new Group(chatId);
               await chatHandler.deleteGroup();
-              navigation.navigate('HomeTab');
+              navigation.popToTop();
+              navigation.replace('HomeTab', {
+                screen: 'Home',
+              });
             } catch (error) {
               wait(safeModalCloseDuration).then(() => {
                 showToast('Error in deleting this chat.', ToastType.error);

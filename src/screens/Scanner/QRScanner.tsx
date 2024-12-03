@@ -151,7 +151,7 @@ export default function QRScanner() {
           await processReadBundles();
           setIsLoading(false);
           //navigate to home screen
-          navigation.navigate('HomeTab');
+          navigation.push('HomeTab');
         } catch (error) {
           console.log('error scanning qr', error);
           setIsLoading(false);
@@ -202,7 +202,7 @@ export default function QRScanner() {
             )}
             <View style={styles.mainBlock}>
               <Pressable
-                onPress={() => navigation.navigate('HomeTab')}
+                onPress={() => navigation.goBack()}
                 style={styles.closeButtonWrapper}>
                 <CloseWhite width={24} height={24} />
               </Pressable>

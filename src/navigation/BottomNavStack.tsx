@@ -154,7 +154,10 @@ function NumberlessTabbar({
                 });
 
                 if (!isFocused && !event.defaultPrevented) {
-                  navigation.navigate(route.name, route.params);
+                  navigation.navigate('HomeTab', {
+                    screen: route.name,
+                    params: route.params,
+                  });
                 }
               };
 

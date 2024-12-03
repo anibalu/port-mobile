@@ -134,7 +134,7 @@ const AllMembers = ({route, navigation}: Props) => {
               const directChatId = await getChatIdFromPairHash(item.pairHash);
               setSelectedMember({...item, directChatId});
             } else if (item.memberId && item.memberId === 'self') {
-              navigation.navigate('MyProfile');
+              navigation.push('MyProfile');
             }
           }}
           style={StyleSheet.compose(styles.row, {

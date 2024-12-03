@@ -43,6 +43,7 @@ import {getBundleFromLink} from '@utils/DeepLinking';
 import OnboardingMessageBubble from './OnboardingMessageBubble';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import AnimatedProgressBar from './AnimatedProgressBar';
+import useKeyboardVisibility from '@utils/Hooks/useKeyboardVisibility';
 
 const stepOnePoint = [
   {
@@ -69,13 +70,13 @@ const stepOnePoint = [
     icon: '📊',
   },
   {
-    text: `Curious how Port works without using any contact info? We’d love to show you!`,
+    text: 'Curious how Port works without using any contact info? We’d love to show you!',
   },
 ];
 
 const stepTwoPortUrlPoints = [
   {
-    text: `Your name is private—only visible to you and your contacts. We don’t see or store it. You can always edit your name later.`,
+    text: 'Your name is private—only visible to you and your contacts. We don’t see or store it. You can always edit your name later.',
   },
   {
     text: 'Enter your name below ⬇️',
@@ -95,10 +96,10 @@ const stepTwoPoints = [
 ];
 const stepThreePoints = [
   {
-    text: 'Instead of contact info, we use Ports, one-time use QR codes or links that form a new connection.',
+    text: "Instead of contact info, we use 'Ports'.These are one-time use QR codes or links that are used to form a new connection.",
   },
   {
-    text: "Let's create one for you now 🪄",
+    text: "Let's create a Port for you now and use that to invite a friend 🪄",
     bold: true,
   },
 ];
@@ -228,12 +229,9 @@ const UserSetupOnboardingChat = ({
 
   useEffect(() => {
     if (screenIndex === 1) {
-      const timeoutId = setTimeout(
-        () => {
-          setScreenIndex(2);
-        },
-        portUrl ? 2000 : 4000,
-      );
+      const timeoutId = setTimeout(() => {
+        setScreenIndex(2);
+      }, 2500);
 
       // Cleanup function to clear the timeout
       return () => {
@@ -372,6 +370,8 @@ const UserSetupOnboardingChat = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newUserName]);
 
+  const isKeyboardVisible = useKeyboardVisibility();
+
   useEffect(() => {
     if (screenIndex >= 4 && !portUrl) {
       fetchPort();
@@ -380,14 +380,15 @@ const UserSetupOnboardingChat = ({
       if (scrollViewRef && scrollViewRef.current) {
         scrollViewRef.current.scrollToEnd({animated: true});
       }
-    }, 200);
+    }, 100);
     return () => {
       clearTimeout(timeoutId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputText, screenIndex]);
+  }, [isKeyboardVisible, newUserName, screenIndex]);
 
   const onBackPress = () => {
+    //todo:navigation - i dont understand what this is
     if (screenIndex < 3) {
       if (portUrl) {
         navigation.navigate('Welcome');
@@ -474,8 +475,8 @@ const UserSetupOnboardingChat = ({
           {screenIndex >= 1 && (
             <OnboardingMessageBubble
               showTyping={true}
-              typingAnimationDelay={portUrl ? 2000 : 4000}
-              typingAnimationStartDelay={portUrl ? 1500 : 2000}
+              typingAnimationDelay={2500}
+              typingAnimationStartDelay={1000}
               title="Get started by adding your name"
               points={portUrl ? stepTwoPortUrlPoints : stepTwoPoints}
             />

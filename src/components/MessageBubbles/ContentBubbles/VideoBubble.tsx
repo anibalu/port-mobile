@@ -80,7 +80,7 @@ export const VideoBubble = ({
       if (fileUri === null) {
         triggerDownload();
       } else {
-        navigation.navigate('MediaViewer', {
+        navigation.push('MediaViewer', {
           message: message,
         });
       }

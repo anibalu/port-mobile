@@ -116,7 +116,7 @@ const SelectShareContacts = ({route, navigation}: Props) => {
                   setLoading(false);
                   navigation.popToTop();
                 } else {
-                  navigation.navigate('GalleryConfirmation', {
+                  navigation.push('GalleryConfirmation', {
                     selectedMembers,
                     shareMessages,
                     fromShare: true,

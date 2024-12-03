@@ -23,7 +23,7 @@ export default function ConnectionOptions({
 
   const openNewPortScreen = () => {
     setIsConnectionOptionsModalOpen(false);
-    navigation.navigate('NewPortScreen', {
+    navigation.push('NewPortScreen', {
       folder:
         selectedTab === 'FolderStack' ? selectedFolderData : defaultFolderInfo,
     });
@@ -31,17 +31,17 @@ export default function ConnectionOptions({
 
   const handleOpenNewGroup = () => {
     setIsConnectionOptionsModalOpen(false);
-    navigation.navigate('CreateNewGroup');
+    navigation.push('CreateNewGroup');
   };
 
   const handleOpenSuperport = () => {
     setIsConnectionOptionsModalOpen(false);
-    navigation.navigate('SuperportSetupScreen', {});
+    navigation.push('SuperportSetupScreen', {});
   };
 
   const handleOpenScan = () => {
     setIsConnectionOptionsModalOpen(false);
-    navigation.navigate('Scan');
+    navigation.push('Scan');
   };
 
   const svgArray = [

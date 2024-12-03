@@ -1,7 +1,13 @@
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {FolderInfoWithUnread} from '@utils/Storage/folders';
 
 export type BottomNavStackParamList = {
-  Home: undefined;
+  Home:
+    | undefined
+    | {
+        initialChatType: ChatType;
+        chatData: any;
+      };
   MyProfile: undefined;
   New: undefined;
   FolderStack: undefined;
@@ -12,7 +18,7 @@ export type FolderNavStackParamList = {
   FolderChats: {
     folder: FolderInfoWithUnread;
   };
-  Folders: undefined;
+  Folders: {initialFolder?: FolderInfoWithUnread};
 };
 
 export type SuperportsNavStackParamList = {

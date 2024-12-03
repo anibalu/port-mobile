@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import SearchBar from '@components/SearchBar';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import {
   FolderInfoWithUnread,
   getAllFoldersWithUnreadCount,
@@ -31,8 +31,20 @@ import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 import {useSelector} from 'react-redux';
 import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
 import {TRIGGER_TYPES} from '@store/triggerRedraw';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {FolderNavStackParamList} from '@navigation/BottomNavStackTypes';
 
-const Folders = () => {
+type Props = NativeStackScreenProps<FolderNavStackParamList, 'Folders'>;
+const Folders = ({route, navigation}: Props) => {
+  // If an initial folder is provided, navigate to it.
+  const initialFolder = route.params?.initialFolder;
+  useMemo(() => {
+    if (initialFolder) {
+      navigation.push('FolderChats', {folder: initialFolder});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFolder?.folderId]);
+
   const {folders, setFolders, setSelectedFolderData} = useBottomNavContext();
   const [viewableFolders, setViewableFolders] = useState<
     FolderInfoWithUnread[]
@@ -104,8 +116,6 @@ const Folders = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
-  const navigation = useNavigation();
-
   useFocusEffect(
     useCallback(() => {
       setSelectedFolderData(null);
@@ -119,7 +129,7 @@ const Folders = () => {
       <SafeAreaView removeOffset={true}>
         <View style={styles.topRegion}>
           <BackTopbarWithButton
-            onButtonPress={() => navigation.navigate('CreateFolder', {})}
+            onButtonPress={() => navigation.push('CreateFolder', {})}
             title="Folders"
             bgColor="w"
             buttonName={'Create'}

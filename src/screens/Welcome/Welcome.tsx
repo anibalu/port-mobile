@@ -59,7 +59,7 @@ function Welcome({navigation}: Props) {
   const onPressStandardOnboarding = async () => {
     const profileExists = await profileCheck();
     if (!profileExists) {
-      navigation.navigate('OnboardingSetupScreen');
+      navigation.push('OnboardingSetupScreen');
     }
   };
 
@@ -67,7 +67,7 @@ function Welcome({navigation}: Props) {
   const onPressCustomOnboardingWithLink = async () => {
     const profileExists = await profileCheck();
     if (!profileExists) {
-      navigation.navigate('CreateConnection', {type: 'link'});
+      navigation.push('CreateConnection', {type: 'link'});
     }
   };
 
@@ -75,12 +75,12 @@ function Welcome({navigation}: Props) {
   const onPressCustomOnboardingWithQR = async () => {
     const profileExists = await profileCheck();
     if (!profileExists) {
-      navigation.navigate('CreateConnection', {type: 'QR'});
+      navigation.push('CreateConnection', {type: 'QR'});
     }
   };
 
   const onBackupPress = () => {
-    navigation.navigate('RestoreAccount');
+    navigation.push('RestoreAccount');
   };
   const Colors = DynamicColors();
   const DarkColors = DynamicColors('dark');

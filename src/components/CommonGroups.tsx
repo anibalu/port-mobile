@@ -8,6 +8,7 @@ import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import {PortSpacing} from './ComponentUtils';
 import {useNavigation} from '@react-navigation/native';
 import {getChatIdFromRoutingId} from '@utils/Storage/connections';
+import {DEFAULT_GROUP_PROFILE_AVATAR_INFO} from '@configs/constants';
 
 export function CommonGroups({pairHash}: {pairHash: string}): ReactNode {
   const [groupsInCommon, setGroupsInCommon] = useState<BasicGroupInfo[]>([]);
@@ -80,10 +81,18 @@ function BasicGroupCard({itemToRender, listLength, index}: any): ReactNode {
         if (!chatId) {
           return;
         }
-        navigation.navigate('GroupChat', {
+        /**
+         * Reset the stack so that we're on the HomeTab before navigating to the group chat
+         * so that way, on navigating back, we're in a logical place, without allowing the stack to get too big
+         */
+        navigation.popToTop();
+        navigation.replace('HomeTab');
+        navigation.push('GroupChat', {
           chatId,
           isConnected: !groupInfo.disconnected,
-          profileUri: groupInfo.groupPictureURI || DEFAULT_AVATAR,
+          profileUri:
+            groupInfo.groupPictureURI ||
+            DEFAULT_GROUP_PROFILE_AVATAR_INFO.fileUri,
           name: groupInfo.name,
         });
       }}

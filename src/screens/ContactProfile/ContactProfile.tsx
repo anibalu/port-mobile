@@ -36,6 +36,7 @@ import {ToastType, useToast} from 'src/context/ToastContext';
 import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 import {updateContact} from '@utils/Storage/contacts';
 import {CommonGroups} from '@components/CommonGroups';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 
@@ -209,12 +210,19 @@ const ContactProfile = ({route, navigation}: Props) => {
                   isLoading={false}
                   disabled={false}
                   onClick={async () => {
-                    navigation.navigate('DirectChat', {
-                      chatId,
-                      isConnected: true,
-                      profileUri: contactInfo.displayPic,
-                      name: contactInfo.name,
-                      isAuthenticated: true, // We know this because of of the order of contact creation and authentication in the chat creation process
+                    navigation.popToTop();
+                    navigation.replace('HomeTab', {
+                      screen: 'Home',
+                      params: {
+                        initialChatType: ChatType.direct,
+                        chatData: {
+                          chatId,
+                          isConnected: true,
+                          profileUri: contactInfo.displayPic,
+                          name: contactInfo.name,
+                          isAuthenticated: true, // We know this because of of the order of contact creation and authentication in the chat creation process
+                        },
+                      },
                     });
                   }}
                 />

@@ -16,7 +16,7 @@ import {useNavigation} from '@react-navigation/native';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {ContentType} from '@utils/Messaging/interfaces';
-import React, {ReactNode, useEffect, useRef, useState} from 'react';
+import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Animated,
   Easing,
@@ -31,6 +31,7 @@ import RenderTimestamp from './RenderTimestamp';
 import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {Swipeable} from 'react-native-gesture-handler';
 import {useTheme} from 'src/context/ThemeContext';
+import {toggleRead} from '@utils/Storage/connections';
 
 export interface ChatTileProps extends ConnectionInfo {
   expired?: boolean;
@@ -40,10 +41,10 @@ export interface ChatTileProps extends ConnectionInfo {
 const CHECKBOX_WIDTH = 40;
 
 function ChatTile({
-  props,
+  initialProps,
 }: {
   //controls display
-  props: ChatTileProps;
+  initialProps: ChatTileProps;
 }): ReactNode {
   const {
     setSelectedProps,
@@ -55,6 +56,12 @@ function ChatTile({
     setIsChatActionBarVisible,
     setContactShareParams,
   } = useBottomNavContext();
+  console.log('rerendering chat tile');
+  const [props, setProps] = useState(initialProps);
+  useMemo(() => {
+    setProps(initialProps);
+  }, [initialProps]);
+
   const isSelected = selectedConnections.some(x => x.chatId === props.chatId);
   const navigation = useNavigation<any>();
   //handles navigation to a chat screen and toggles chat to read.
@@ -69,15 +76,18 @@ function ChatTile({
       } else if (selectionMode) {
         select();
       } else {
+        toggleRead(props.chatId);
+        setProps({...props, newMessageCount: 0});
         if (props.connectionType === ChatType.group) {
-          navigation.navigate('GroupChat', {
+          // Push the right screen onto the stack so we can navigate back here when we go back
+          navigation.push('GroupChat', {
             chatId: props.chatId,
             isConnected: !props.disconnected,
             profileUri: props.pathToDisplayPic || DEFAULT_AVATAR,
             name: props.name,
           });
         } else {
-          navigation.navigate('DirectChat', {
+          navigation.push('DirectChat', {
             chatId: props.chatId,
             isConnected: !props.disconnected,
             profileUri: props.pathToDisplayPic || DEFAULT_AVATAR,

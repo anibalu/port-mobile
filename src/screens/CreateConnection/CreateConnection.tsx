@@ -50,6 +50,7 @@ const CreateConnection = ({route, navigation}: Props) => {
     const match = inputValue.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
     const hostname = match ? match[1] : null;
 
+    // TODO: understand these shenanigans
     if (hostname && hostname.endsWith(numberlessDomain)) {
       navigation.navigate('OnboardingSetupScreen', {
         portUrl: inputValue,

@@ -77,7 +77,7 @@ const Templates = ({route}) => {
   };
 
   const onSendMessage = (template: TemplateParams) => {
-    navigation.navigate('DirectChat', {
+    navigation.push('DirectChat', {
       chatId: chatId,
       isGroupChat: false,
       isConnected: !disconnected,

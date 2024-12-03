@@ -7,10 +7,11 @@ import {useNavigation} from '@react-navigation/native';
 import DynamicColors from './DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
+// TODO: why is the legal card called the "help card?"
 const HelpCard = () => {
   const navigation = useNavigation();
   const onPress = () => {
-    navigation.navigate('HelpScreen');
+    navigation.push('HelpScreen');
   };
 
   const Colors = DynamicColors();

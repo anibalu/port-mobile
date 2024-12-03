@@ -81,7 +81,7 @@ const DefaultFolderScreen = () => {
             text="Create your first folder"
             subtitle="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
             onPress={() =>
-              navigation.navigate('CreateFolder', {
+              navigation.push('CreateFolder', {
                 setSelectedFolder: setSelectedFolderData,
               })
             }

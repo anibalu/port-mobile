@@ -84,7 +84,16 @@ const AddMembersCard = ({
   ]);
 
   const onCreateGroupPort = () => {
-    navigation.navigate('NewGroupPort', {
+    /**
+     * Our stack currently is
+     *
+     * GroupProfile
+     * ...
+     *
+     * So we simply push the new screen, so that on navigating back, we end up on the GroupProfile
+     * screen even if there is an instance of group settings further back, which is theoretically possible
+     */
+    navigation.push('NewGroupPort', {
       chatId: chatId,
       chatData: chatData,
     });
@@ -93,7 +102,17 @@ const AddMembersCard = ({
   const onPressMember = async (member: GroupMemberLoadedData) => {
     try {
       if (member.pairHash === 'self') {
-        navigation.navigate('MyProfile');
+        /**
+         * The stack can currently be of any height, but it is not on the profile tab.
+         * To make the stach logical, we must move the user onto the MyProfile screen, and not
+         * have any back action.
+         * Upon clicking on either the home tab or folder tab, they start from scratch, making
+         * sure that the stack doesn't end up having any cycles or weird behaviour
+         */
+        navigation.replace('AppStack', {
+          screen: 'HomeTab',
+          params: {screen: 'MyProfile'},
+        });
       } else {
         const directChatId = await getChatIdFromPairHash(member.pairHash);
         setSelectedMember({...member, directChatId});
@@ -164,29 +183,6 @@ const AddMembersCard = ({
       </View>
       {chatData.amAdmin && (
         <>
-          {/* <Pressable
-            onPress={() => {
-              navigation.navigate('AddNewContacts', {
-                chatId: chatId,
-              });
-            }}
-            style={StyleSheet.compose(
-              {
-                borderBottomWidth: 0.5,
-                borderBottomColor: Colors.primary.stroke,
-              },
-              styles.heading,
-            )}>
-            <Plus height={24} width={24} />
-            <NumberlessText
-              style={styles.text}
-              fontType={FontType.rg}
-              fontSizeType={FontSizeType.m}
-              numberOfLines={1}
-              ellipsizeMode="tail">
-              Add new members from contacts
-            </NumberlessText>
-          </Pressable> */}
           <Pressable onPress={onCreateGroupPort} style={styles.heading}>
             <Link height={24} width={24} />
             <NumberlessText
@@ -245,7 +241,11 @@ const AddMembersCard = ({
         })}
         <Pressable
           onPress={() => {
-            navigation.navigate('AllMembers', {
+            /**
+             * We push the AllMembers screen onto the stack so on navigating back, we ensure to return to
+             * the group settings page
+             */
+            navigation.push('AllMembers', {
               chatId: chatId,
               members: members,
               chatData: chatData,

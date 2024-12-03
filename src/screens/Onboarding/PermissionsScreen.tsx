@@ -68,7 +68,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
   //If all permissions are granted, automatically go to next screen where your profile gets setup.
   useEffect(() => {
     if (isNotifPermissionGranted) {
-      navigation.navigate('SetupUser', {
+      navigation.push('SetupUser', {
         name: processName(route.params.name),
         avatar: route.params.avatar,
       });
@@ -165,7 +165,7 @@ function PermissionsScreen({route, navigation}: Props): ReactNode {
               buttonText={'Next'}
               primaryButtonColor={'b'}
               onClick={() => {
-                navigation.navigate('SetupUser', {
+                navigation.push('SetupUser', {
                   name: processName(route.params.name),
                   avatar: route.params.avatar,
                 });

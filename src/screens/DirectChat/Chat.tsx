@@ -201,7 +201,6 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
 
   useEffect(() => {
     const backAction = async () => {
-      await toggleRead(chatId);
       navigation.goBack();
       return true;
     };

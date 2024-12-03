@@ -43,6 +43,7 @@ export const performNotificationRouting = async (
 
         // Route to appropriate chat screen based on connection type
         if (connection.connectionType === ChatType.group) {
+          // todo:navigation see whats going on
           navigation.navigate('GroupChat', {
             chatId: connection.chatId,
             isConnected: !connection.disconnected,
@@ -50,6 +51,7 @@ export const performNotificationRouting = async (
             name: connection.name,
           });
         } else {
+          // todo:navigation see whats going on
           navigation.navigate('DirectChat', {
             chatId: connection.chatId,
             isConnected: !connection.disconnected,

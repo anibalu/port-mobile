@@ -240,14 +240,14 @@ const Superports = ({route, navigation}: Props) => {
               <>
                 <BackTopbarWithButton
                   onSecondaryButtonPress={() =>
-                    navigation.navigate('SuperportsEducationScreen', {
+                    navigation.push('SuperportsEducationScreen', {
                       name: name,
                       avatar: avatar,
                     })
                   }
                   SecondaryIcon={InfoGrey}
                   onButtonPress={() =>
-                    navigation.navigate('SuperportSetupScreen', {
+                    navigation.push('SuperportSetupScreen', {
                       selectedFolder: selectedFolder
                         ? {...selectedFolder}
                         : undefined,
@@ -377,7 +377,7 @@ const Superports = ({route, navigation}: Props) => {
                           )}
                           superportData={item}
                           onClick={() =>
-                            navigation.navigate('SuperportQRScreen', {
+                            navigation.push('SuperportQRScreen', {
                               superportId: item.portId,
                               selectedFolder: foldersArray.find(
                                 folder => folder.folderId === item.folderId,

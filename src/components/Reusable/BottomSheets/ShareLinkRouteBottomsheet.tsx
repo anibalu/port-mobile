@@ -51,7 +51,8 @@ const ShareLinkRouteBottomsheet = ({
     if (granted) {
       onClose();
       wait(safeModalCloseDuration);
-      navigation.navigate('PhoneContactList');
+      // TODO: Potentially nuke this
+      navigation.push('PhoneContactList');
     } else {
       onClose();
       showToast(

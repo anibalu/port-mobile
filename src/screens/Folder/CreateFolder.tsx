@@ -14,13 +14,9 @@ import ChatSettingsCard from '@components/Reusable/PermissionCards/ChatSettingsC
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {defaultPermissions} from '@configs/constants';
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {
-  addNewFolder,
-  moveConnectionToNewFolderWithoutPermissionChange,
-} from '@utils/ChatFolders';
+import {addNewFolder} from '@utils/ChatFolders';
 import {AppStackParamList} from '@navigation/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {updateGeneratedSuperportFolder} from '@utils/Ports';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {useTheme} from 'src/context/ThemeContext';
@@ -37,8 +33,6 @@ const CreateFolder = ({navigation, route}: Props) => {
   const {
     onSaveDetails,
     setSelectedFolder = () => {},
-    portId,
-    chatId,
     superportLabel,
     saveDetails,
     savedFolderPermissions,
@@ -180,28 +174,9 @@ const CreateFolder = ({navigation, route}: Props) => {
                 onClick={async () => {
                   setIsLoading(true);
                   const folder = await addNewFolder(folderName, permissions);
-                  if (portId) {
-                    await updateGeneratedSuperportFolder(
-                      portId,
-                      folder.folderId,
-                    );
-                  } else if (chatId) {
-                    await moveConnectionToNewFolderWithoutPermissionChange(
-                      chatId,
-                      folder.folderId,
-                    );
-                    setSelectedFolder(folder);
-                  } else {
-                    setSelectedFolder(folder);
-                  }
+                  setSelectedFolder(folder);
                   setIsLoading(false);
-                  if (portId) {
-                    navigation.navigate('SuperportSetupScreen', {
-                      portId: portId,
-                    });
-                  } else {
-                    navigation.goBack();
-                  }
+                  navigation.goBack();
                   store.dispatch({
                     type: 'PING',
                     payload: 'PONG',

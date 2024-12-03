@@ -70,10 +70,16 @@ const SuperportLinkedFolderCard = ({
 
   const redirectToFolder = () => {
     if (allowFolderRedirection && showFolderRedirectionIcon) {
-      navigation.navigate('FolderStack', {
-        screen: 'FolderChats',
+      // Clear the stack so that when we get to the folder tab, there's no screen to go back to
+      navigation.popToTop();
+      // Replace the current screen with the Folders screen on the home tab navigator
+      navigation.replace('HomeTab', {
+        screen: 'FolderStack',
         params: {
-          folder: selectedFolder,
+          screen: 'Folders',
+          params: {
+            initialFolder: selectedFolder,
+          },
         },
       });
     }

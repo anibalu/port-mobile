@@ -112,12 +112,12 @@ function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
             }}>
             <Pressable
               style={styles.scanIconWrapper}
-              onPress={() => navigation.navigate('Scan')}>
+              onPress={() => navigation.push('Scan')}>
               <Scanner width={20} height={20} />
             </Pressable>
             <Pressable
               style={styles.iconWrapper}
-              onPress={() => navigation.navigate('PortContactList')}>
+              onPress={() => navigation.push('PortContactList')}>
               <ContactBook width={24} height={24} />
               <NumberlessText
                 numberOfLines={1}

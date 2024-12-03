@@ -32,7 +32,7 @@ const OptionWithChevron = ({
   description,
   IconLeftView,
 }: {
-  IconLeftView: JSX.Element | null;
+  IconLeftView?: JSX.Element | null;
   onClick: () => void;
   IconLeft?: FC<SvgProps>;
   labelText?: string;

@@ -15,6 +15,7 @@ import {
 } from '@components/NumberlessText';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
+// TODO: Why is the legal screen labeled HelpScreen
 const HelpScreen = () => {
   const navigation = useNavigation();
 

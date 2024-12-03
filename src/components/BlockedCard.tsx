@@ -10,7 +10,11 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 const BlockedCard = ({listLength}: {listLength: number}) => {
   const navigation = useNavigation();
   const onForwardPress = () => {
-    navigation.navigate('BlockedContacts');
+    /**
+     * On clicking, we want to ensure that navigating back brings you back to the profile
+     * screen, so we push onto the stack
+     */
+    navigation.push('BlockedContacts');
   };
 
   const Colors = DynamicColors();

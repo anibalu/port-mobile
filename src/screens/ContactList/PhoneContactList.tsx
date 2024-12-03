@@ -192,9 +192,8 @@ const PhoneContactList = ({route, navigation}: Props) => {
   }, [filteredContacts]);
 
   const onClose = () => {
-    route?.params?.fromOnboardingStack
-      ? navigation.navigate('OnboardingSetupScreen')
-      : navigation.navigate('HomeTab');
+    // TODO: fix this flow from a UI perspective because this is symptomatic of sketchy design
+    navigation.pop(1);
   };
 
   const onInviteContactClick = (contact: ContactInfo) => {

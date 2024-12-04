@@ -35,6 +35,7 @@ const DynamicColors = (theme?: string | null) => {
       stroke: '#E8E6EC',
       overlay: '#000000',
       black: '#000000',
+      backgroundGrey: '#F3F3F5',
       ...common,
     },
     boldAccentColors: {
@@ -54,7 +55,6 @@ const DynamicColors = (theme?: string | null) => {
       tealBlue: '#4A94B01A',
       brightRed: '#E200361A',
       blue: '#4E75FF1A',
-      grey: '#F3F3F5',
     },
     search: {
       black: '#FFF',
@@ -100,6 +100,7 @@ const DynamicColors = (theme?: string | null) => {
       stroke: '#61616B',
       overlay: '#52525b',
       black: '#FFFFFF',
+      backgroundGrey: '#27272B',
       ...common,
     },
     boldAccentColors: {
@@ -119,7 +120,6 @@ const DynamicColors = (theme?: string | null) => {
       tealBlue: '#4A94B033',
       brightRed: '#E2003633',
       blue: '#4E75FF33',
-      grey: '#27272B',
     },
     search: {
       black: '#1D232E',

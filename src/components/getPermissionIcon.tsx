@@ -89,7 +89,7 @@ const permissionConfigMap: {[key: string]: PermissionConfig} = {
     disabledIconDark: ProfileDisabledDark,
   },
   favourite: {
-    bgColor: 'grey',
+    bgColor: 'backgroundGrey',
     enabledIcon: FavouriteFolderOrange,
     disabledIconLight: FavouriteFolderDisabled,
     disabledIconDark: FavouriteFolderDisabledDark,
@@ -114,9 +114,11 @@ const getPermissionIcon = ([permissionName, isEnabled, themeValue]: [
     : config.disabledIconDark;
 
   const backgroundColor =
-    Colors.lowAccentColors[
-      config.bgColor as keyof typeof Colors.lowAccentColors
-    ];
+    permissionName === 'favourite'
+      ? Colors.primary[config.bgColor as keyof typeof Colors.primary]
+      : Colors.lowAccentColors[
+          config.bgColor as keyof typeof Colors.lowAccentColors
+        ];
 
   return (
     <View

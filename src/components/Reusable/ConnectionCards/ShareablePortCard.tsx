@@ -108,7 +108,7 @@ const ShareablePortCard = ({
               ],
               styles.primaryDesc,
             )}
-            maxLength={200}
+            maxLength={30}
             onChangeText={onChangePrimaryDescription}
             value={primaryDescription}
             editable={toBeEdited}
@@ -136,7 +136,7 @@ const ShareablePortCard = ({
             ],
             styles.description,
           )}
-          maxLength={200}
+          maxLength={150}
           onChangeText={onChangeDescription}
           value={description}
           editable={toBeEdited}
@@ -187,6 +187,7 @@ const styling = (Colors: any) =>
       fontFamily: FontType.md,
       fontSize: 28,
       marginTop: isIOS ? 0 : -PortSpacing.secondary.top,
+      flex: 1,
     },
     edit: {
       position: 'absolute',
@@ -214,6 +215,7 @@ const styling = (Colors: any) =>
       marginHorizontal: PortSpacing.secondary.right,
       borderBottomColor: Colors.primary.genericblack,
       borderBottomWidth: 0.5,
+      flex: 1,
     },
   });
 

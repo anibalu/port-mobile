@@ -109,31 +109,33 @@ const PreviewShareablePort = ({route, navigation}: Props) => {
                 />
               </ViewShot>
             </View>
+            {!toBeEdited && (
+              <View style={styles.buttons}>
+                <View style={{width: '50%', paddingRight: 4}}>
+                  <PrimaryButton
+                    Icon={Upload}
+                    primaryButtonColor="w"
+                    onClick={handleShare}
+                    buttonText="Share QR"
+                    disabled={false}
+                    isLoading={false}
+                  />
+                </View>
+                <View style={{width: '50%', paddingLeft: 4}}>
+                  <PrimaryButton
+                    Icon={Download}
+                    primaryButtonColor="w"
+                    onClick={
+                      toBeEdited ? () => {} : async () => await savePicture()
+                    }
+                    buttonText="Download QR"
+                    disabled={false}
+                    isLoading={false}
+                  />
+                </View>
+              </View>
+            )}
 
-            <View style={styles.buttons}>
-              <View style={{width: '50%', paddingRight: 4}}>
-                <PrimaryButton
-                  Icon={Upload}
-                  primaryButtonColor="w"
-                  onClick={handleShare}
-                  buttonText="Share QR"
-                  disabled={false}
-                  isLoading={false}
-                />
-              </View>
-              <View style={{width: '50%', paddingLeft: 4}}>
-                <PrimaryButton
-                  Icon={Download}
-                  primaryButtonColor="w"
-                  onClick={
-                    toBeEdited ? () => {} : async () => await savePicture()
-                  }
-                  buttonText="Download QR"
-                  disabled={false}
-                  isLoading={false}
-                />
-              </View>
-            </View>
             {showSuccessDownloaded && (
               <View style={styles.successDownload}>
                 <GreenTick style={{marginRight: 12}} />

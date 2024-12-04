@@ -156,11 +156,6 @@ const CreateFolder = ({navigation, route}: Props) => {
                     setOpenDisabledPermissionBottomsheet
                   }
                 />
-                <FavouriteFolderSettingsCard
-                  permissions={permissions}
-                  setOpenFolderBottomsheet={setOpenFolderBottomsheet}
-                  setPermissions={setPermissions}
-                />
               </View>
             </SimpleCard>
           </ScrollView>

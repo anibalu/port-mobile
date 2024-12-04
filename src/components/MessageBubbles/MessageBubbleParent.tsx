@@ -16,10 +16,12 @@ import React, {ReactNode, useEffect, useRef} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {MessageBubble} from './MessageBubble';
 import {InfoBubble} from './InfoBubble';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DynamicColors from '@components/DynamicColors';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
+import {
+  MessageSelectionMode,
+  useSelectionContext,
+} from '@screens/DirectChat/ChatContexts/SelectedMessages';
 
 //Currently only sends read receipts for DMs
 const sendReadReceipt = async (chatId: string, message: LoadedMessage) => {
@@ -83,36 +85,37 @@ export const MessageBubbleParent = ({
   isDateBoundary: boolean;
   hasExtraPadding: boolean;
 }): ReactNode => {
-  const {
-    chatId,
-    selectedMessages,
-    handlePress,
-    handleLongPress,
-    onCleanCloseFocus,
-    setSelectedMessage,
-  } = useChatContext();
+  const chatId = message.chatId;
+  console.log(chatId);
+
+  const {selectionMode, selectedMessages, toggleSelected} =
+    useSelectionContext();
 
   const bubbleRef = useRef(null);
 
-  //haptic feedback options
-  const options = {
-    enableVibrateFallback: true /* iOS Only */,
-    ignoreAndroidSystemSettings: true /* Android Only */,
+  const toggleSelectedWithMeasuredLayout = () => {
+    bubbleRef.current.measure((_x, _y, _width, height, _pageX, pageY) => {
+      toggleSelected(message, {
+        height,
+        y: pageY,
+      });
+    });
   };
-  //understands where to focus the message bubble.
-  const handleMessageBubbleLongPress = (messageId: any) => {
-    if (selectedMessages.length <= 1 && bubbleRef.current) {
-      try {
-        bubbleRef.current.measure((x, y, width, height, pageX, pageY) => {
-          setSelectedMessage({message, pageY, height});
-          ReactNativeHapticFeedback.trigger('impactMedium', options);
-          handleLongPress(messageId);
-        });
-      } catch (error) {
-        console.log('Unable to measure: ', error);
-        onCleanCloseFocus();
-      }
+
+  const handleMessageBubbleLongPress = () => {
+    // Only do something if we're in single message selection mode
+    if (MessageSelectionMode.Single === selectionMode) {
+      toggleSelectedWithMeasuredLayout();
     }
+  };
+
+  const handlePress = () => {
+    // Only add or remove this message from the list of selected messages when clicked if
+    // in multi select mode
+    if (MessageSelectionMode.Multiple !== selectionMode) {
+      return;
+    }
+    toggleSelectedWithMeasuredLayout();
   };
 
   //responsible for sending read receipts
@@ -144,14 +147,15 @@ export const MessageBubbleParent = ({
                   }
                 : styles.messageBubbleContainer
             }
-            onPress={() => handlePress(message.messageId, message.contentType)}
-            onLongPress={() => handleMessageBubbleLongPress(message.messageId)}
+            onPress={handlePress}
+            onLongPress={handleMessageBubbleLongPress}
             delayLongPress={300}>
             <MessageBubble
               message={message}
-              handleLongPress={() =>
-                handleMessageBubbleLongPress(message.messageId)
-              }
+              handleLongPress={handleMessageBubbleLongPress}
+              selected={selectedMessages.some(
+                m => m.messageId === message.messageId,
+              )}
               swipeable={true}
             />
           </Pressable>

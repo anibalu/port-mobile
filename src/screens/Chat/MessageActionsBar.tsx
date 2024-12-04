@@ -9,7 +9,12 @@ import {
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {getMessage} from '@utils/Storage/messages';
+import {
+  MessageSelectionMode,
+  useSelectionContext,
+} from '@screens/DirectChat/ChatContexts/SelectedMessages';
+import Clipboard from '@react-native-clipboard/clipboard';
+import {useNavigation} from '@react-navigation/native';
 
 /**
  * Renders action bar based on messages that are selected
@@ -17,23 +22,37 @@ import {getMessage} from '@utils/Storage/messages';
  * @returns {ReactNode} action bar that sits above the message bar
  */
 export function MessageActionsBar(): ReactNode {
-  const {
-    determineDeleteModalDisplay,
-    clearSelection,
-    setReplyToMessage,
-    onForward,
-    onCopy,
-    chatId,
-    isConnected,
-    selectedMessages,
-  } = useChatContext();
+  const {determineDeleteModalDisplay, setReplyToMessage, chatId, isConnected} =
+    useChatContext();
+  const navigation = useNavigation();
+
+  const {selectedMessages, setSelectedMessages, setSelectionMode} =
+    useSelectionContext();
+
   const performReply = async (): Promise<void> => {
-    const reply = await getMessage(chatId, selectedMessages[0]);
-    if (reply) {
-      setReplyToMessage(reply);
-    }
+    // setReplyToMessage(reply);
+    setReplyToMessage(selectedMessages[0]);
     clearSelection();
   };
+
+  function clearSelection() {
+    setSelectedMessages([]);
+    setSelectionMode(MessageSelectionMode.Single);
+  }
+  function copyTexts() {
+    const messageTexts = selectedMessages.map(m => m.data?.text || '');
+    Clipboard.setStrings(messageTexts);
+    clearSelection();
+  }
+
+  function forwardMessages() {
+    const messageIds = selectedMessages.map(x => x.messageId);
+    clearSelection();
+    navigation.push('ForwardToContact', {
+      chatId,
+      messages: messageIds,
+    });
+  }
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -83,7 +102,58 @@ export function MessageActionsBar(): ReactNode {
               paddingHorizontal: !isConnected ? 45 : 10,
             }
       }>
-      {selectedMessages.length > 1 ? (
+      {selectedMessages.length < 2 && (
+        <View style={styles.optionContainer}>
+          <Pressable style={styles.optionBox} onPress={performReply}>
+            <ReplyIcon height={20} width={20} />
+            <NumberlessText
+              fontSizeType={FontSizeType.s}
+              fontType={FontType.rg}
+              textColor={Colors.text.primary}>
+              Reply
+            </NumberlessText>
+          </Pressable>
+        </View>
+      )}
+      <View style={styles.optionContainer}>
+        <Pressable style={styles.optionBox} onPress={forwardMessages}>
+          <ForwardIcon height={20} width={20} />
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.rg}
+            textColor={Colors.text.primary}>
+            Forward
+          </NumberlessText>
+        </Pressable>
+      </View>
+
+      <View style={styles.optionContainer}>
+        <Pressable style={styles.optionBox} onPress={copyTexts}>
+          <CopyIcon height={20} width={20} />
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.rg}
+            textColor={Colors.text.primary}>
+            Copy
+          </NumberlessText>
+        </Pressable>
+      </View>
+
+      <View style={styles.optionContainer}>
+        <Pressable
+          style={styles.optionBox}
+          onPress={determineDeleteModalDisplay}>
+          <DeleteIcon height={20} width={20} />
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            fontType={FontType.rg}
+            textColor={PortColors.primary.red.error}>
+            Delete
+          </NumberlessText>
+        </Pressable>
+      </View>
+
+      {/* {selectedMessages.length > 1 ? (
         <View style={styles.multiSelectedContainer}>
           <View style={styles.optionContainer}>
             <Pressable style={styles.optionBox} onPress={onForward}>
@@ -179,7 +249,7 @@ export function MessageActionsBar(): ReactNode {
             </View>
           )}
         </View>
-      )}
+      )} */}
     </View>
   );
 }

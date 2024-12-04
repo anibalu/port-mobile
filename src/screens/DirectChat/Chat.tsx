@@ -1,6 +1,6 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   AppState,
   BackHandler,
@@ -36,10 +36,21 @@ import DynamicColors from '@components/DynamicColors';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
 import {useTheme} from 'src/context/ThemeContext';
-import {runOnJS, useAnimatedReaction} from 'react-native-reanimated';
+import {
+  runOnJS,
+  useAnimatedReaction,
+  useSharedValue,
+} from 'react-native-reanimated';
 import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
 import {TRIGGER_TYPES} from '@store/triggerRedraw';
 import {useSelector} from 'react-redux';
+import {
+  MessageSelectionMode,
+  SelectionContextProvider,
+  useSelectionContext,
+} from './ChatContexts/SelectedMessages';
+import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {MessageBarActionsContextProvider} from './ChatContexts/MessageBarActions';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 
@@ -57,15 +68,19 @@ function Chat({route}: Props) {
     ifTemplateExists = undefined, // if template is selected from templates screen
   } = route.params;
   return (
-    <ChatContextProvider
-      chatId={chatId}
-      connected={isConnected}
-      avatar={profileUri}
-      displayName={name}
-      isGroupChat={false}
-      authenticated={isAuthenticated}>
-      <ChatScreen ifTemplateExists={ifTemplateExists} />
-    </ChatContextProvider>
+    <MessageBarActionsContextProvider>
+      <SelectionContextProvider>
+        <ChatContextProvider
+          chatId={chatId}
+          connected={isConnected}
+          avatar={profileUri}
+          displayName={name}
+          isGroupChat={false}
+          authenticated={isAuthenticated}>
+          <ChatScreen ifTemplateExists={ifTemplateExists} />
+        </ChatContextProvider>
+      </SelectionContextProvider>
+    </MessageBarActionsContextProvider>
   );
 }
 
@@ -78,11 +93,6 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     name,
     setName,
     setMessagesLoaded,
-    currentReactionMessage,
-    showRichReaction,
-    unsetRichReaction,
-    selectionMode,
-    selectedMessage,
     messages,
     setMessages,
     showDeleteForEveryone,
@@ -97,20 +107,50 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     togglePopUp,
     isEmojiSelectorVisible,
     setIsEmojiSelectorVisible,
-    setPermissions,
-    setPermissionsId,
-    isScreenClickable,
-    moveSliderIntermediateOpen,
     setIsConnected,
   } = useChatContext();
 
+  const {
+    selectedMessages,
+    selectionMode,
+    setSelectedMessages,
+    setSelectionMode,
+    richReactionMessage,
+    setRichReactionMessage,
+  } = useSelectionContext();
+
+  const [permissionsId, setPermissionsId] = useState<string | null | undefined>(
+    null,
+  );
+  const [permissions, setPermissions] = useState<
+    DirectPermissions | null | undefined
+  >(null);
+  //state for whether slider is open
+  const [sliderOpen, setSliderOpen] = useState<boolean>(true);
+
+  //ref for chat top bar
+  const chatTopBarRef = useRef<{moveSliderIntermediateOpen: () => void}>(null);
+  //function to move slider intermediate open
+  const moveSliderIntermediateOpen = () => {
+    if (chatTopBarRef.current) {
+      chatTopBarRef.current.moveSliderIntermediateOpen(); // Call the function via ref
+    }
+  };
+
+  //shared value for whether screen is clickable
+  const isScreenClickable = useSharedValue(true);
+
+  //pointer events for screen based on whether access slider is open or closed.
   const [pointerEvents, setPointerEvents] = useState<
     'auto' | 'none' | 'box-none' | 'box-only'
   >('auto');
+
+  //react to changes in isScreenClickable
   useAnimatedReaction(
     () => isScreenClickable.value,
     value => {
       runOnJS(setPointerEvents)(value ? 'auto' : 'box-only');
+      runOnJS(setSliderOpen)(value ? false : true);
     },
   );
 
@@ -277,7 +317,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
             }}>
             {isConnected ? (
               <>
-                {selectionMode ? (
+                {selectionMode === MessageSelectionMode.Multiple ? (
                   <MessageActionsBar />
                 ) : (
                   <MessageBar ifTemplateExists={ifTemplateExists} />
@@ -292,7 +332,14 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
             )}
           </Pressable>
         </KeyboardAvoidingView>
-        <ChatTopbar />
+        <ChatTopbar
+          chatTopBarRef={chatTopBarRef}
+          isScreenClickable={isScreenClickable}
+          sliderOpen={sliderOpen}
+          permissionsId={permissionsId}
+          permissions={permissions}
+          setPermissions={setPermissions}
+        />
         <ReportMessageBottomSheet
           description="If you report this message, an unencrypted copy of this message is sent to our servers."
           openModal={showReportModal}
@@ -310,22 +357,37 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
             showDeleteForEveryone ? 'Delete for everyone' : 'Delete for me'
           }
           topButtonFunction={
-            showDeleteForEveryone ? performGlobalDelete : performDelete
+            showDeleteForEveryone
+              ? () => {
+                  performGlobalDelete(selectedMessages.map(m => m.messageId));
+                  setSelectedMessages([]);
+                  setSelectionMode(MessageSelectionMode.Single);
+                }
+              : () => {
+                  performDelete(selectedMessages.map(m => m.messageId));
+                  setSelectedMessages([]);
+                  setSelectionMode(MessageSelectionMode.Single);
+                }
           }
           middleButton="Delete for me"
-          middleButtonFunction={performDelete}
+          middleButtonFunction={() => {
+            performDelete(selectedMessages.map(m => m.messageId));
+            setSelectedMessages([]);
+            setSelectionMode(MessageSelectionMode.Single);
+          }}
           onClose={() => {
             setOpenDeleteMessageModal(false);
           }}
         />
         <RichReactionsBottomsheet
           chatId={chatId}
-          currentReactionMessage={currentReactionMessage}
-          onClose={unsetRichReaction}
-          visible={showRichReaction}
+          messageId={richReactionMessage}
+          onClose={() => setRichReactionMessage(null)}
+          visible={richReactionMessage !== null}
         />
       </GestureSafeAreaView>
-      {selectedMessage && <BlurViewModal />}
+      {selectionMode === MessageSelectionMode.Single &&
+        selectedMessages.length === 1 && <BlurViewModal />}
     </AudioPlayerProvider>
   );
 }

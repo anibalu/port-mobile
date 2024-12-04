@@ -33,12 +33,13 @@ const RichReactionsBottomsheet = ({
   visible,
   onClose,
   chatId,
-  currentReactionMessage,
+  messageId,
 }: {
   visible: boolean;
   onClose: () => void;
   chatId: string;
   currentReactionMessage: string[];
+  messageId: string;
 }) => {
   const [reactions, setReactions] = useState<RichReaction[]>([]);
   const [senderAvatarUri, setSenderAvatarUri] = useState<string>('');
@@ -46,10 +47,7 @@ const RichReactionsBottomsheet = ({
 
   useEffect(() => {
     const fetchReactions = async () => {
-      const fetchedReactions = await getRichReactions(
-        chatId,
-        currentReactionMessage[1],
-      );
+      const fetchedReactions = await getRichReactions(chatId, messageId);
       setReactions(fetchedReactions);
     };
     fetchReactions();

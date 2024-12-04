@@ -11,6 +11,7 @@ import {getRichReactions} from '@utils/Storage/reactions';
 import EmojiSelector from '@components/Reusable/BottomSheets/EmojiSelector';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {useSelectionContext} from '@screens/DirectChat/ChatContexts/SelectedMessages';
 import {PortSpacing} from '@components/ComponentUtils';
 
 export const RenderReactionBar = () => {
@@ -18,9 +19,10 @@ export const RenderReactionBar = () => {
   const [isEmojiSelectorVisible, setIsEmojiSelectorVisible] =
     useState<boolean>(false);
 
-  const {onReaction, chatId, selectedMessage} = useChatContext();
-  const message = selectedMessage?.message;
-  const messageId = selectedMessage?.message.messageId;
+  const {onReaction, chatId} = useChatContext();
+  const {selectedMessages, setSelectedMessages} = useSelectionContext();
+  const message = selectedMessages[0];
+  const messageId = message.messageId;
   const selfReactionObj = richReactions.find(
     (reaction: {senderId: string}) => reaction.senderId === 'SELF',
   );
@@ -65,7 +67,9 @@ export const RenderReactionBar = () => {
   }, [messageId]);
 
   const onReactionPress = (item: any) => {
-    message && onReaction(message, item);
+    console.log('Trying to react');
+    onReaction(message, item);
+    setSelectedMessages([]);
   };
 
   const svgArray = [

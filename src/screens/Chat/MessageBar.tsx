@@ -31,6 +31,10 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import {
+  MessageBarActionType,
+  useMessageBarActionsContext,
+} from '@screens/DirectChat/ChatContexts/MessageBarActions';
 
 const MessageBar = ({
   ifTemplateExists,
@@ -41,6 +45,7 @@ const MessageBar = ({
     chatId,
     isGroupChat,
     replyToMessage,
+    setReplyToMessage,
     clearEverything,
     messageToEdit,
     setMessageToEdit,
@@ -48,6 +53,15 @@ const MessageBar = ({
     setText,
   } = useChatContext();
   const {MessageDataTooBigError} = useErrorModal();
+
+  const {messageBarAction} = useMessageBarActionsContext();
+  useEffect(() => {
+    if (MessageBarActionType.None === messageBarAction.action) {
+      return;
+    }
+    setReplyToMessage(messageBarAction.message);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageBarAction]);
 
   // this runs if a template exists.
   // If a template has been selected, we want to populate message bar

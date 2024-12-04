@@ -16,29 +16,6 @@ import {
   LineMessageData,
   LoadedMessage,
 } from '@utils/Storage/DBCalls/lineMessage';
-import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {screen} from '@components/ComponentUtils';
-import {SharedValue, useSharedValue, withTiming} from 'react-native-reanimated';
-
-/**
- * Access slider constants
- */
-export const TOP_BAR_HEIGHT = 56; //height of chat screen top bar
-export const PERMISSION_BAR_HEIGHT =
-  Math.floor((screen.width - 32) / (20 + 12)) > 7 ? 52 : 88; //height of perission icons bar
-export const SLIDER_HEIGHT = 32; //height of slider drag sliver
-export const SLIDER_EXCESS_HEIGHT = 20; //height of slider minus height of notch
-export const PERMISSIONS_OPEN_HEIGHT = 504; //height of permission cards
-export const THRESHOLD_OPEN = 10; //distance to move to initiate full open motion
-export const THRESHOLD_CLOSE = 10; //distance to move to initiate full close motion
-export const SLIDER_CLOSED_HEIGHT = SLIDER_HEIGHT + TOP_BAR_HEIGHT; //height of slider when it is fully closed.
-export const ICON_DISPLAY_HEIGHT =
-  PERMISSION_BAR_HEIGHT + SLIDER_HEIGHT + TOP_BAR_HEIGHT; //height of slider when permission icons are displayed
-export const MAX_SLIDER_HEIGHT =
-  PERMISSIONS_OPEN_HEIGHT +
-  SLIDER_HEIGHT +
-  TOP_BAR_HEIGHT -
-  SLIDER_EXCESS_HEIGHT; //height of slider when permission cards are displayed
 
 export interface SelectedMessageType {
   pageY: number;
@@ -56,10 +33,6 @@ type ChatContextType = {
   setIsAuthenticated: (x: boolean) => void;
   profileUri: string | undefined | null;
   setProfileUri: (x: string | undefined | null) => void;
-  permissions: DirectPermissions | null | undefined;
-  setPermissions: (x: DirectPermissions | null | undefined) => void;
-  permissionsId: string | null | undefined;
-  setPermissionsId: (x: string | null | undefined) => void;
   name: string;
   setName: (x: string) => void;
   messagesLoaded: boolean;
@@ -67,20 +40,8 @@ type ChatContextType = {
   text: string;
   setText: (x: string) => void;
 
-  //access slider attributes
-  hasStarted: SharedValue<boolean>;
-  isScreenClickable: SharedValue<boolean>;
-  movingDown: SharedValue<boolean>;
-  sliderHeightInitiaValue: SharedValue<number>;
-  sliderHeight: SharedValue<number>;
-  permissionCardHeight: SharedValue<number>;
-  permissionIconHeight: SharedValue<number>;
-  moveSliderCompleteClosed: () => void;
-  moveSliderIntermediateOpen: () => void;
-  moveSliderCompleteOpen: () => void;
-
-  performGlobalDelete: () => void;
-  performDelete: () => void;
+  performGlobalDelete: (messageIds: string[]) => void;
+  performDelete: (messageIds: string[]) => void;
   openDeleteMessageModal: boolean;
   setOpenDeleteMessageModal: (x: boolean) => void;
   showDeleteForEveryone: boolean;
@@ -187,12 +148,6 @@ export const ChatContextProvider = ({
   const [reportedMessages, setReportedMessages] = useState<string[] | null>(
     null,
   );
-  const [permissions, setPermissions] = useState<
-    DirectPermissions | null | undefined
-  >(null);
-  const [permissionsId, setPermissionsId] = useState<string | null | undefined>(
-    null,
-  );
   const [isAuthenticated, setIsAuthenticated] = useState(authenticated);
 
   const [profileUri, setProfileUri] = useState(avatar);
@@ -209,58 +164,6 @@ export const ChatContextProvider = ({
 
   const [messageToEdit, setMessageToEdit] =
     useState<SelectedMessageType | null>(null);
-
-  //access slider attributes
-  const hasStarted = useSharedValue(false);
-  const isScreenClickable = useSharedValue(true);
-  const sliderHeightInitiaValue = useSharedValue(
-    TOP_BAR_HEIGHT + SLIDER_HEIGHT - SLIDER_EXCESS_HEIGHT,
-  );
-  const sliderHeight = useSharedValue(
-    TOP_BAR_HEIGHT + SLIDER_HEIGHT - SLIDER_EXCESS_HEIGHT,
-  );
-  const permissionCardHeight = useSharedValue(0);
-  const permissionIconHeight = useSharedValue(0);
-  const movingDown = useSharedValue(false);
-  //close slider completely
-  const moveSliderCompleteClosed = () => {
-    'worklet';
-    isScreenClickable.value = true;
-    sliderHeight.value = withTiming(SLIDER_CLOSED_HEIGHT, {
-      duration: 500,
-    });
-    sliderHeightInitiaValue.value = SLIDER_CLOSED_HEIGHT;
-    permissionIconHeight.value = withTiming(-SLIDER_EXCESS_HEIGHT, {
-      duration: 300,
-    });
-    permissionCardHeight.value = withTiming(0, {duration: 500});
-  };
-  //open slider till permission icons visible
-  const moveSliderIntermediateOpen = () => {
-    'worklet';
-    isScreenClickable.value = true;
-    sliderHeight.value = withTiming(
-      ICON_DISPLAY_HEIGHT - SLIDER_EXCESS_HEIGHT,
-      {duration: 500},
-    );
-    sliderHeightInitiaValue.value = ICON_DISPLAY_HEIGHT - SLIDER_EXCESS_HEIGHT;
-    permissionCardHeight.value = withTiming(0, {duration: 500});
-    permissionIconHeight.value = withTiming(0, {duration: 300});
-  };
-  //open slider completely
-  const moveSliderCompleteOpen = () => {
-    'worklet';
-    isScreenClickable.value = false;
-    sliderHeight.value = withTiming(MAX_SLIDER_HEIGHT, {duration: 500});
-    sliderHeightInitiaValue.value = MAX_SLIDER_HEIGHT;
-    permissionCardHeight.value = withTiming(
-      PERMISSION_BAR_HEIGHT + SLIDER_EXCESS_HEIGHT,
-      {
-        duration: 500,
-      },
-    );
-    permissionIconHeight.value = withTiming(0, {duration: 300});
-  };
 
   // for toggling emoji keyboard
   const [isEmojiSelectorVisible, setIsEmojiSelectorVisible] =
@@ -341,12 +244,11 @@ export const ChatContextProvider = ({
     clearSelection();
   };
 
-  const performDelete = async (): Promise<void> => {
-    for (const msg of selectedMessages) {
+  const performDelete = async (messageIds: string[]): Promise<void> => {
+    for (const msg of messageIds) {
       await cleanDeleteMessage(chatId, msg, false);
     }
-    updateAfterDeletion(selectedMessages);
-    clearSelection();
+    updateAfterDeletion(messageIds);
     setOpenDeleteMessageModal(false);
 
     if (selectedMessage) {
@@ -354,15 +256,14 @@ export const ChatContextProvider = ({
     }
   };
 
-  const performGlobalDelete = async (): Promise<void> => {
-    for (const msg of selectedMessages) {
+  const performGlobalDelete = async (messageIds: string[]): Promise<void> => {
+    for (const msg of messageIds) {
       const sender = new SendMessage(chatId, ContentType.deleted, {
         messageIdToDelete: msg,
       });
       await sender.send();
     }
-    updateAfterGlobalDeletion(selectedMessages);
-    clearSelection();
+    updateAfterGlobalDeletion(messageIds);
     setOpenDeleteMessageModal(false);
     if (selectedMessage) {
       onCleanCloseFocus();
@@ -581,24 +482,10 @@ export const ChatContextProvider = ({
         setIsAuthenticated,
         profileUri,
         setProfileUri,
-        permissions,
-        setPermissions,
-        permissionsId,
-        setPermissionsId,
         name,
         setName,
         messagesLoaded,
         setMessagesLoaded,
-        hasStarted,
-        isScreenClickable,
-        movingDown,
-        sliderHeight,
-        sliderHeightInitiaValue,
-        permissionCardHeight,
-        permissionIconHeight,
-        moveSliderCompleteClosed,
-        moveSliderIntermediateOpen,
-        moveSliderCompleteOpen,
         currentReactionMessage,
         setCurrentReactionMessage,
         showRichReaction,

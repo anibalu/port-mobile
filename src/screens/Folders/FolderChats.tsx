@@ -258,46 +258,6 @@ const FolderChats = ({route}: Props) => {
                               placeholder={'Search for chats in this folder'}
                             />
                           </View>
-
-                          {folder.superportCount > 0 ? (
-                            <FolderOptionWithChevron
-                              subtitle="Tap here to view linked Supeports"
-                              text={`This folder is linked to ${
-                                folder.superportCount
-                              } ${
-                                folder.superportCount > 1
-                                  ? 'Superports'
-                                  : 'Superport'
-                              }`}
-                              Icon={LinkSuperport}
-                              onPress={() => {
-                                // Navigate to the Superport screen to allow the FolderStack to remain
-                                // untouched. This is a personal choice
-                                navigation.navigate('HomeTab', {
-                                  screen: 'SuperportsStack',
-                                  params: {
-                                    screen: 'Superports',
-                                    selectedFolderFilter: {...folder},
-                                  },
-                                });
-                              }}
-                            />
-                          ) : (
-                            <View style={styles.folderOptionContainer}>
-                              <FolderOptionWithChevron
-                                subtitle="This folder is not linked to any Superports"
-                                text={
-                                  'Tap here to link a Superport with this folder'
-                                }
-                                Icon={LinkSuperport}
-                                onPress={() => {
-                                  navigation.push('SuperportSetupScreen', {
-                                    selectedFolder: {...folder},
-                                  });
-                                }}
-                              />
-                            </View>
-                          )}
                         </View>
                       ) : null
                     }

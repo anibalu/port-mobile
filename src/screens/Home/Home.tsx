@@ -154,6 +154,7 @@ const Home = ({navigation, route}: Props) => {
   >(connections || []);
 
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [allConnections, setAllConnections] = useState<ChatTileProps[]>([]);
 
   //connections displayed on home screen (depending on what the search string is).
   //If search string is empty, all connections are displayed
@@ -165,6 +166,7 @@ const Home = ({navigation, route}: Props) => {
     (async () => {
       const output = await loadHomeScreenConnections();
       const checkForConnections = await getConnections();
+      setAllConnections(checkForConnections);
       if (checkForConnections.length !== output.connections.length) {
         setConnectionsNotInFocus(checkForConnections.length);
       }
@@ -189,7 +191,9 @@ const Home = ({navigation, route}: Props) => {
         if (searchText === '') {
           setViewableConnections(connections);
         } else {
-          setViewableConnections(getFilteredConnectionsBySearch(connections));
+          setViewableConnections(
+            getFilteredConnectionsBySearch(allConnections),
+          );
         }
       }
     })();

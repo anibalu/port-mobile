@@ -56,7 +56,6 @@ function ChatTile({
     setIsChatActionBarVisible,
     setContactShareParams,
   } = useBottomNavContext();
-  console.log('rerendering chat tile');
   const [props, setProps] = useState(initialProps);
   useMemo(() => {
     setProps(initialProps);

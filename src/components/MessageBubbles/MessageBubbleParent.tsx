@@ -119,9 +119,10 @@ export const MessageBubbleParent = ({
     // Only add or remove this message from the list of selected messages when clicked if
     // in multi select mode
     if (MessageSelectionMode.Multiple !== selectionMode) {
-      return;
+      return false;
     }
     toggleSelectedWithMeasuredLayout();
+    return true;
   };
 
   //responsible for sending read receipts
@@ -163,6 +164,7 @@ export const MessageBubbleParent = ({
                 m => m.messageId === message.messageId,
               )}
               swipeable={true}
+              handlePress={handlePress}
             />
           </Pressable>
         )}

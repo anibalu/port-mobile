@@ -37,7 +37,7 @@ const MessageBubbleContent = ({
   swipeable = true,
 }: {
   handleLongPress: any;
-  handlePress?: Function;
+  handlePress: Function;
   message: LoadedMessage;
   swipeable?: boolean;
 }): ReactNode => {
@@ -160,7 +160,7 @@ export const MessageBubble = ({
   swipeable = true,
 }: {
   handleLongPress: any;
-  handlePress?: Function;
+  handlePress: Function;
   message: LoadedMessage;
   selected: boolean;
   swipeable?: boolean;
@@ -299,7 +299,7 @@ export const MessageBubble = ({
         </View>
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedMessages, message.mtime],
+    [selectedMessages, selectionMode, message.mtime],
   );
   // } else {
   //   // TODO: figure out how anything falls into this block

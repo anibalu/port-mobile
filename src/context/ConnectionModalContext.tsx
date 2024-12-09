@@ -127,18 +127,24 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
    * @param param0
    * @returns
    */
-  const connectOverURL = async ({url}: {url: string}) => {
+  const connectOverURL = async ({
+    url,
+    navigate = true,
+  }: {
+    url: string;
+    navigate?: boolean;
+  }) => {
     try {
       // Guard against using links managed for sharing media into the app
       if (url.startsWith('PortShare')) {
         return;
       }
-      // navigation.popToTop();
-      navigation.replace('AppStack', {
-        screen: 'HomeTab',
-        params: {screen: 'Home'},
-      });
-      // navigation.get;
+      if (navigate) {
+        navigation.navigate('AppStack', {
+          screen: 'HomeTab',
+          params: {screen: 'Home'},
+        });
+      }
 
       // Double connection prevention logic
       await linkMutex.acquire();
@@ -200,7 +206,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       return;
     }
     if (initialURL) {
-      connectOverURL({url: initialURL});
+      connectOverURL({url: initialURL, navigate: false});
     }
   };
   // Handle any potential deeplinks while foregrounded/backgrounded

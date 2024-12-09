@@ -22,6 +22,7 @@ import {
   MessageSelectionMode,
   useSelectionContext,
 } from '@screens/DirectChat/ChatContexts/SelectedMessages';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 //Currently only sends read receipts for DMs
 const sendReadReceipt = async (chatId: string, message: LoadedMessage) => {
@@ -105,6 +106,11 @@ export const MessageBubbleParent = ({
   const handleMessageBubbleLongPress = () => {
     // Only do something if we're in single message selection mode
     if (MessageSelectionMode.Single === selectionMode) {
+      const hapticsOptions = {
+        enableVibrateFallback: true /* iOS Only */,
+        ignoreAndroidSystemSettings: true /* Android Only */,
+      };
+      ReactNativeHapticFeedback.trigger('impactMedium', hapticsOptions);
       toggleSelectedWithMeasuredLayout();
     }
   };

@@ -54,12 +54,25 @@ const MessageBar = ({
   } = useChatContext();
   const {MessageDataTooBigError} = useErrorModal();
 
-  const {messageBarAction} = useMessageBarActionsContext();
+  const {messageBarAction, dispatchMessageBarAction} =
+    useMessageBarActionsContext();
   useEffect(() => {
     if (MessageBarActionType.None === messageBarAction.action) {
       return;
     }
-    setReplyToMessage(messageBarAction.message);
+    if (MessageBarActionType.Reply === messageBarAction.action) {
+      setReplyToMessage(messageBarAction.message);
+    }
+    if (MessageBarActionType.Edit === messageBarAction.action) {
+      // TODO: remove this dependence on pageY and height when it definitely doesn't need it
+      setMessageToEdit({
+        message: messageBarAction.message,
+        pageY: 0,
+        height: 0,
+      });
+    }
+    // Reset the message action since it has been consumed
+    dispatchMessageBarAction({action: MessageBarActionType.None});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageBarAction]);
 

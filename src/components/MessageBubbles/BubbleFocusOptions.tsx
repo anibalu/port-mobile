@@ -23,21 +23,28 @@ import {
 } from '@screens/DirectChat/ChatContexts/SelectedMessages';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {useNavigation} from '@react-navigation/native';
+import {
+  MessageBarActionType,
+  useMessageBarActionsContext,
+} from '@screens/DirectChat/ChatContexts/MessageBarActions';
 
 const BubbleFocusOptions = () => {
-  const {
-    isConnected,
-    onDelete,
-    onReport,
-    chatId,
-    onEditMessage,
-    setReplyToMessage,
-  } = useChatContext();
+  const {isConnected, onDelete, onReport, chatId, setReplyToMessage} =
+    useChatContext();
   const navigation = useNavigation();
 
   const {selectedMessages, setSelectedMessages, setSelectionMode} =
     useSelectionContext();
 
+  const {dispatchMessageBarAction} = useMessageBarActionsContext();
+  const onEditMessage = () => {
+    const messageToEdit = selectedMessages[0];
+    setSelectedMessages([]);
+    dispatchMessageBarAction({
+      action: MessageBarActionType.Edit,
+      message: messageToEdit,
+    });
+  };
   const allowReport =
     !selectedMessages[0].sender &&
     ReportMessageContentTypes.includes(selectedMessages[0].contentType);

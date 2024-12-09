@@ -9,6 +9,7 @@ import React, {createContext, useContext, useReducer} from 'react';
 export enum MessageBarActionType {
   None = 0,
   Reply,
+  Edit,
 }
 
 type MessageBarAction =
@@ -16,7 +17,7 @@ type MessageBarAction =
       action: MessageBarActionType.None;
     }
   | {
-      action: MessageBarActionType.Reply;
+      action: MessageBarActionType.Reply | MessageBarActionType.Edit;
       message: LoadedMessage;
     };
 

@@ -4,8 +4,8 @@ import {SafeAreaView} from '@components/SafeAreaView';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
-import UserSetupOnboardingChat from './Components/UserSetupOnboardingChat';
 import {useTheme} from 'src/context/ThemeContext';
+import LightUserSetupOnboardingChat from './Components/LightUserSetupOnboardingChat';
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
   'OnboardingSetupScreen'
@@ -33,7 +33,7 @@ const OnboardingSetupScreen = ({route}: Props) => {
               ? Colors.primary.background
               : Colors.primary.white,
         }}>
-        <UserSetupOnboardingChat
+        <LightUserSetupOnboardingChat
           portUrl={portUrl}
           screenIndex={screenIndex}
           setScreenIndex={setScreenIndex}

@@ -73,7 +73,7 @@ function HomescreenPlaceholder(): ReactNode {
                 textColor={Colors.primary.mainelements}
                 fontSizeType={FontSizeType.l}
                 fontType={FontType.md}>
-                Create a new connection
+                Start a new connection
               </NumberlessText>
               <NumberlessText
                 numberOfLines={2}

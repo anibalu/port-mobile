@@ -146,9 +146,8 @@ export default function OnboardingQRScanner() {
             return;
           }
           setQrData(JSON.stringify(jsonUrlObj));
-          //navigate to onboarding flow
-          // TODO: what are these shenanigans
-          navigation.navigate('OnboardingSetupScreen', {
+          //replace screen with onboarding flow
+          navigation.replace('OnboardingSetupScreen', {
             portUrl: jsonUrlObj,
           });
           setIsLoading(false);

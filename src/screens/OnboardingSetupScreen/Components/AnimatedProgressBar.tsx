@@ -3,18 +3,15 @@ import {Animated, View, StyleSheet} from 'react-native';
 import WhiteCheck from '@assets/icons/tick.svg';
 import PortInitialLogo from '@assets/miscellaneous/PortInitialLogo.svg';
 import UserCircle from '@assets/dark/icons/UserCircle.svg';
-import AddUserWhite from '@assets/icons/AddUserWhite.svg';
 import DynamicColors from '@components/DynamicColors';
 import {PortSpacing} from '@components/ComponentUtils';
 
 const AnimatedProgressBar = ({
   screenIndex,
   maxScreenIndex,
-  portUrl,
 }: {
   screenIndex: number;
   maxScreenIndex: number;
-  portUrl: string | null;
 }) => {
   const animatedWidth = useRef(new Animated.Value(0)).current;
 
@@ -46,8 +43,6 @@ const AnimatedProgressBar = ({
         ]}>
         {screenIndex === 1 ? (
           <PortInitialLogo height={20} width={20} />
-        ) : screenIndex === 4 && !portUrl ? (
-          <AddUserWhite height={20} width={20} />
         ) : screenIndex === maxScreenIndex ? (
           <WhiteCheck height={20} width={20} />
         ) : (

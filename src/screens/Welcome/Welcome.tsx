@@ -59,7 +59,7 @@ function Welcome({navigation}: Props) {
   const onPressStandardOnboarding = async () => {
     const profileExists = await profileCheck();
     if (!profileExists) {
-      navigation.push('OnboardingSetupScreen');
+      navigation.push('OnboardingSetupScreen', {});
     }
   };
 
@@ -144,7 +144,7 @@ function Welcome({navigation}: Props) {
               IconRight={RightChevron}
               IconLeft={ScannerGreen}
               title={'Received a Port QR code?'}
-              subtitle={'Scan it to form a connection'}
+              subtitle={'Scan it to form a chat'}
               onClick={onPressCustomOnboardingWithQR}
             />
             <LineSeparator
@@ -157,7 +157,7 @@ function Welcome({navigation}: Props) {
               IconRight={RightChevron}
               IconLeft={LinkSafron}
               title={'Received a Port link?'}
-              subtitle={'Click it again or paste it here to form a connection'}
+              subtitle={'Click it again or paste it here to form a chat'}
               onClick={onPressCustomOnboardingWithLink}
             />
           </View>

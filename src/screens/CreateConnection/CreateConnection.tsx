@@ -52,7 +52,7 @@ const CreateConnection = ({route, navigation}: Props) => {
 
     // TODO: understand these shenanigans
     if (hostname && hostname.endsWith(numberlessDomain)) {
-      navigation.navigate('OnboardingSetupScreen', {
+      navigation.replace('OnboardingSetupScreen', {
         portUrl: inputValue,
       });
     } else {

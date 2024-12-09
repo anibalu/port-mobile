@@ -2,8 +2,8 @@
  * Responsible for allowing the user to save a port.
  */
 
-import React, {useState} from 'react';
-import {Keyboard, StyleSheet, View} from 'react-native';
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
 import PrimaryButton from '../LongButtons/PrimaryButton';
 import {
   FontSizeType,
@@ -20,8 +20,8 @@ import {
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
-import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
-import {cleanDeletePort} from '@utils/Ports';
+// import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
+// import {cleanDeletePort} from '@utils/Ports';
 import {useNavigation} from '@react-navigation/native';
 import DynamicColors from '@components/DynamicColors';
 import {wait} from '@utils/Time';
@@ -42,27 +42,27 @@ const SavePortBottomsheet = ({
     | GroupSuperportBundle
     | null;
 }) => {
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  // const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const navigation = useNavigation();
-  const onDeletePort = async () => {
-    try {
-      setIsDeleting(true);
-      Keyboard.dismiss();
-      if (qrData) {
-        await cleanDeletePort(qrData.portId, PortTable.generated);
-      }
-      setIsDeleting(false);
-      onButtonPress();
-      navigation.goBack();
-    } catch (error) {
-      console.error('ERROR DELETING PORT: ', error);
-    } finally {
-      setIsDeleting(false);
-      onClose();
-    }
-  };
-
+  // const onDeletePort = async () => {
+  //   try {
+  //     setIsDeleting(true);
+  //     Keyboard.dismiss();
+  //     if (qrData) {
+  //       await cleanDeletePort(qrData.portId, PortTable.generated);
+  //     }
+  //     setIsDeleting(false);
+  //     onButtonPress();
+  //     navigation.goBack();
+  //   } catch (error) {
+  //     console.error('ERROR DELETING PORT: ', error);
+  //   } finally {
+  //     setIsDeleting(false);
+  //     onClose();
+  //   }
+  // };
+  console.log('qr data: ', qrData);
   const onKeepPortOpenAndGoBack = async () => {
     await onButtonPress();
     wait(safeModalCloseDuration);
@@ -75,7 +75,9 @@ const SavePortBottomsheet = ({
     <PrimaryBottomSheet
       showClose={true}
       visible={visible}
-      title={'QR code scan not detected'}
+      title={
+        'The connection is formed once your contact scans or clicks on this Port'
+      }
       titleStyle={styles.title}
       onClose={onClose}>
       <View style={styles.mainWrapper}>
@@ -87,24 +89,23 @@ const SavePortBottomsheet = ({
             }}
             fontSizeType={FontSizeType.m}
             fontType={FontType.rg}>
-            This might occur if either you or the individual you're attempting
-            to connect with is offline. You can keep the port open to form the
-            connection once internet connection is available.
+            A new connection will be formed on your Home screen after your
+            contact successfully scans or clicks on this Port.
           </NumberlessText>
           <PrimaryButton
-            buttonText={'Keep Port Open'}
+            buttonText={'Got it'}
             primaryButtonColor={'b'}
             isLoading={false}
             disabled={false}
             onClick={onKeepPortOpenAndGoBack}
           />
-          <PrimaryButton
+          {/* <PrimaryButton
             buttonText={'Delete Port'}
             primaryButtonColor={'r'}
             isLoading={isDeleting}
             disabled={false}
             onClick={onDeletePort}
-          />
+          /> */}
         </View>
       </View>
     </PrimaryBottomSheet>

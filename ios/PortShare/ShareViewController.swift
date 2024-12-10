@@ -2,9 +2,9 @@
 //  ShareViewController.swift
 //  PortShare
 //
-//  Created by Irfan Syed on 12/12/23.
 //  Handles data payloads received by the app in order to share.
 //  Number of items that can be shared at once are controlled inside Info.plist of the PortShare module, modify the integer values inside. Currently set to 10.
+// This extension launches the app with any shared media, allowing the react-native-receive-sharing-intent to take over
 //
 
 
@@ -13,6 +13,7 @@ import Social
 import MobileCoreServices
 import Photos
 
+@available(iOSApplicationExtension, unavailable)
 class ShareViewController: SLComposeServiceViewController {
  let hostAppBundleIdentifier = "tech.numberless.port"
  let shareProtocol = "PortShare" //share url protocol (must be unique to your app, suggest using your apple bundle id, ie: `hostAppBundleIdentifier`)
@@ -23,7 +24,7 @@ class ShareViewController: SLComposeServiceViewController {
  let videoContentType = kUTTypeMovie as String
  let textContentType = kUTTypeText as String
  let urlContentType = kUTTypeURL as String
-  let fileURLType = kUTTypeFileURL as String;
+ let fileURLType = kUTTypeFileURL as String;
  
  override func isContentValid() -> Bool {
    return true
@@ -108,18 +109,13 @@ class ShareViewController: SLComposeServiceViewController {
  
   private func handleImages (content: NSExtensionItem, attachment: NSItemProvider, index: Int) {
 
-
      attachment.loadItem(forTypeIdentifier: imageContentType, options: nil) { [weak self] data, error in
-       
        if error == nil, let this = self {
-
-   
          var url: URL? = nil
 
 
          if let dataURL = data as? URL { url = dataURL }
          else if let imageData = data as? UIImage { url = this.saveScreenshot(imageData) }
-
          let fileExtension = this.getExtension(from: url!, type: .image)
          let newName = UUID().uuidString
          let newPath = FileManager.default
@@ -240,18 +236,17 @@ class ShareViewController: SLComposeServiceViewController {
  }
  
  private func redirectToHostApp(type: RedirectType) {
-   let url = URL(string: "\(shareProtocol)://dataUrl=\(sharedKey)#\(type)")
-   var responder = self as UIResponder?
-   let selectorOpenURL = sel_registerName("openURL:")
-   
-   while (responder != nil) {
-     if (responder?.responds(to: selectorOpenURL))! {
-       let _ = responder?.perform(selectorOpenURL, with: url)
-     }
-     responder = responder!.next
+   guard let url = URL(string: "\(shareProtocol)://dataUrl=\(sharedKey)#\(type)") else {
+     dismissWithError()
+     return
    }
+   UIApplication.shared.open(url, options: [:], completionHandler: completeRequest)
+ }
+  
+ func completeRequest(success: Bool) {
    extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
  }
+
  
  enum RedirectType {
    case media

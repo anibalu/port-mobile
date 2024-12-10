@@ -66,9 +66,12 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       // This means that it wasn't a file so it must be text.
       const text = files[0].text || files[0].weblink;
       // navigation.navigate('HomeTab');
-      navigation.push('SelectShareContacts', {
-        shareMessages: [text],
-        isText: true,
+      navigation.navigate('AppStack', {
+        screen: 'SelectShareContacts',
+        params: {
+          shareMessages: [text],
+          isText: true,
+        },
       });
 
       return;
@@ -98,9 +101,12 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       filesToShare.push(msg);
     }
 
-    navigation.push('SelectShareContacts', {
-      shareMessages: filesToShare,
-      isText: false,
+    navigation.navigate('AppStack', {
+      screen: 'SelectShareContacts',
+      params: {
+        shareMessages: filesToShare,
+        isText: false,
+      },
     });
   };
 

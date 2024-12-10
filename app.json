@@ -8,12 +8,12 @@
         "projectId": "85473827-abd6-4052-a170-51a515f4a4c5"
       }
     },
-    "version": "1.12.1",
+    "version": "1.12.2",
     "ios": {
-      "buildNumber": "37"
+      "buildNumber": "38"
     },
     "android": {
-      "versionCode": 30
+      "versionCode": 38
     }
   }
 }

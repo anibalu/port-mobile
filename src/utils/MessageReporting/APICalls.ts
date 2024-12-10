@@ -5,6 +5,7 @@ import {
 import {uploadRawMedia} from '@utils/Messaging/LargeData';
 import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+import DirectChat from '@utils/DirectChats/DirectChat';
 import {LineIllegalReport, GroupIllegalReport, attachedFiles} from './index';
 
 export async function sendMessageReport({
@@ -13,7 +14,7 @@ export async function sendMessageReport({
   description,
   attachedFiles,
 }: {
-  lineId: string;
+  chatId: string;
   message: string;
   description: string;
   attachedFiles?: string[];
@@ -21,6 +22,8 @@ export async function sendMessageReport({
   try {
     const token = await getToken();
 
+    const chat = new DirectChat(lineId);
+    lineId = (await chat.getChatData()).lineId;
     const response = await axios.post(
       LINE_MESSAGE_REPORTING_RESOURCE,
       {

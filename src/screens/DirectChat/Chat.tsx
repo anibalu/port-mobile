@@ -44,6 +44,7 @@ import {
 import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
 import {TRIGGER_TYPES} from '@store/triggerRedraw';
 import {useSelector} from 'react-redux';
+import {messageReportCategories} from '@configs/reportingCategories';
 import {
   MessageSelectionMode,
   SelectionContextProvider,
@@ -54,6 +55,10 @@ import {MessageBarActionsContextProvider} from './ChatContexts/MessageBarActions
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 
+interface ReportingTypes {
+  index: number;
+  title: string;
+}
 /**
  * Renders a chat screen. The chatlist that is rendered is INVERTED, which means that any `top` function is a `bottom` function and vice versa.
  * @returns Component for rendered chat window
@@ -163,6 +168,10 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   //pings need to be deprecated in favor of new trigger system.
   const ping: any = useSelector(state => (state as any).ping.ping);
 
+  const [onReportSubmitted, setReportSubmitted] = useState(false);
+  const [selectedReportOption, setSelectedReportOption] =
+    useState<ReportingTypes>(messageReportCategories[0]);
+  const [otherReport, setOtherReport] = useState('');
   //effect runs when screen is focused
   //retrieves name of connection
   //reads intial messages from messages storage.
@@ -341,14 +350,20 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
           setPermissions={setPermissions}
         />
         <ReportMessageBottomSheet
-          description="If you report this message, an unencrypted copy of this message is sent to our servers."
+          description="Your report is anonymous. The reported user will not be notified of the report."
           openModal={showReportModal}
-          topButton={'Report and Disconnect'}
-          middleButton={'Report'}
+          topButton={'Report'}
+          setReportSubmitted={setReportSubmitted}
+          setSelectedReportOption={setSelectedReportOption}
+          selectedReportOption={selectedReportOption}
+          otherReport={otherReport}
+          setOtherReport={setOtherReport}
           onClose={() => {
             setShowReportModal(false);
           }}
+          onReportSubmitted={onReportSubmitted}
         />
+
         <DualActionBottomSheet
           showMore={showDeleteForEveryone}
           openModal={openDeleteMessageModal}

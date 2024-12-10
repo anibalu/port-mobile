@@ -41,9 +41,15 @@ import Disconnected from '@components/GroupChatComponents/Disconnected';
 import ChatTopbar from '@components/GroupChatComponents/ChatTopbar';
 import GroupBlurViewModal from '@components/Reusable/BlurView/GroupBlurView';
 import DualActionBottomSheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
+import {messageReportCategories} from '@configs/reportingCategories';
+import GroupReportMessageBottomSheet from '@components/Reusable/BottomSheets/GroupReportMessageBottomSheet';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GroupChat'>;
 
+interface ReportingTypes {
+  index: number;
+  title: string;
+}
 /**
  * Renders a chat screen. The chatlist that is rendered is INVERTED, which means that any `top` function is a `bottom` function and vice versa.
  * @returns Component for rendered chat window
@@ -85,8 +91,8 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     messages,
     setMessages,
     showDeleteForEveryone,
-    // showReportModal,
-    // setShowReportModal,
+    showReportModal,
+    setShowReportModal,
     openDeleteMessageModal,
     setOpenDeleteMessageModal,
     performDelete,
@@ -113,6 +119,10 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     },
   );
 
+  const [onReportSubmitted, setReportSubmitted] = useState(false);
+  const [selectedReportOption, setSelectedReportOption] =
+    useState<ReportingTypes>(messageReportCategories[0]);
+  const [otherReport, setOtherReport] = useState('');
   //cursor for number of messages on screen
   const [cursor, setCursor] = useState(50);
   const navigation = useNavigation();
@@ -300,15 +310,21 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
           </Pressable>
         </KeyboardAvoidingView>
         <ChatTopbar />
-        {/* <ReportMessageBottomSheet
-          description="If you report this message, an unencrypted copy of this message is sent to our servers."
+        <GroupReportMessageBottomSheet
+          description="Your report is anonymous. The reported user will not be notified of the report."
           openModal={showReportModal}
-          topButton={'Report and Disconnect'}
-          middleButton={'Report'}
+          topButton={'Report'}
+          setReportSubmitted={setReportSubmitted}
+          setSelectedReportOption={setSelectedReportOption}
+          selectedReportOption={selectedReportOption}
+          otherReport={otherReport}
+          setOtherReport={setOtherReport}
           onClose={() => {
             setShowReportModal(false);
           }}
-        />*/}
+          onReportSubmitted={onReportSubmitted}
+        />
+
         <DualActionBottomSheet
           showMore={showDeleteForEveryone}
           openModal={openDeleteMessageModal}

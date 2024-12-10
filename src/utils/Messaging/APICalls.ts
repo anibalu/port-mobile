@@ -5,6 +5,7 @@ import axios from 'axios';
 
 export async function getMessages(): Promise<Array<any>> {
   const token: ServerAuthToken = await getToken();
+
   const response = await axios.get(QUEUE_GET_URL, {
     headers: {Authorization: `${token}`},
   });

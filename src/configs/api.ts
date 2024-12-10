@@ -19,6 +19,7 @@ export const CALL_URL = `${WS_BASE}/call`;
  * Reporting Endpoints
  */
 const REPORT_BASE = `${BASE_URL}/report`;
+export const MESSAGE_REPORTING_RESOURCE = `${REPORT_BASE}/illegal`;
 export const LINE_MESSAGE_REPORTING_RESOURCE = `${REPORT_BASE}/line`;
 export const GROUP_MESSAGE_REPORTING_RESOURCE = `${REPORT_BASE}/group`;
 export const BUG_REPORTING_ENDPOINT = `${BASE_URL}/bugs`;

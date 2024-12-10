@@ -19,6 +19,7 @@ export async function sendObject(
   silent: boolean = false,
 ): Promise<void> {
   const token: ServerAuthToken = await getToken();
+
   const connection = await getBasicConnectionInfo(chatId);
   if (!connection) {
     throw new Error('No such connection');

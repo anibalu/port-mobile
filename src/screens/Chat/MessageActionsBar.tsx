@@ -86,7 +86,6 @@ export function MessageActionsBar(): ReactNode {
   const ForwardIcon = results.ForwardIcon;
   const CopyIcon = results.CopyIcon;
   const DeleteIcon = results.DeleteIcon;
-
   return (
     <View
       style={

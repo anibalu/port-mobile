@@ -7,8 +7,8 @@ import {
 import {StyleSheet, View, Keyboard} from 'react-native';
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import * as storage from '@utils/Storage/blockUsers';
+import {useChatContext} from '@screens/GroupChat/ChatContext';
+
 import PrimaryButton from '../LongButtons/PrimaryButton';
 import {useErrorModal} from 'src/context/ErrorModalContext';
 import {wait} from '@utils/Time';
@@ -21,14 +21,13 @@ import OptionWithRadio from '../OptionButtons/OptionWithRadio';
 import LineSeparator from '../Separators/LineSeparator';
 import {messageReportCategories} from '@configs/reportingCategories';
 import SimpleInput from '../Inputs/SimpleInput';
-import {REPORT_TYPES, createLineMessageReport} from '@utils/MessageReporting';
-import {useSelectionContext} from '@screens/DirectChat/ChatContexts/SelectedMessages';
+import {REPORT_TYPES, createGroupMessageReport} from '@utils/MessageReporting';
 import {useNavigation} from '@react-navigation/native';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import SecondaryButton from '../LongButtons/SecondaryButton';
+import {ToastType, useToast} from 'src/context/ToastContext';
+import Group from '@utils/Groups/Group';
 import LargeTextInput from '../Inputs/LargeTextInput';
 
-function ReportMessageBottomSheet({
+function GroupReportMessageBottomSheet({
   openModal,
   topButton,
   onClose,
@@ -51,46 +50,49 @@ function ReportMessageBottomSheet({
   otherReport: string;
   onReportSubmitted: boolean;
 }) {
-  const {name, reportedMessages, setReportedMessages, isConnected, chatId} =
-    useChatContext();
-  const {selectedMessages, setSelectedMessages} = useSelectionContext();
-
-  const [disconnectLoading, setDisconnectLoading] = useState<boolean>(false);
-  const [bottomButtonLoading, setBottomButtonLoading] =
-    useState<boolean>(false);
-
-  const Colors = DynamicColors();
-  const styles = styling(Colors);
-
+  const {
+    name,
+    setSelectedMessage,
+    selectedMessage,
+    reportedMessages,
+    setReportedMessages,
+    isConnected,
+    chatId,
+  } = useChatContext();
   //this is incorrectly name "ReportSubmittedError". It is infact a success notification.
   const {ReportSubmittedError} = useErrorModal();
   const [topButtonLoading, setTopButtonLoading] = useState<boolean>(false);
   const [text, setText] = useState<string>('');
+
   const reportMessage = async () => {
-    if (selectedMessages && selectedMessages[0] && selectedMessages[0].data) {
+    if (
+      selectedMessage &&
+      selectedMessage.message &&
+      selectedMessage.message.data
+    ) {
       if (selectedReportOption.index === 1) {
-        await createLineMessageReport(
+        await createGroupMessageReport(
           chatId,
-          selectedMessages[0].messageId,
+          selectedMessage.message.messageId,
           REPORT_TYPES.MOLESTATION,
         );
       } else {
         await sendMessageReport({
           lineId: chatId,
-          message: selectedMessages[0].data.text || '',
+          message: selectedMessage.message.data.text || '',
           description: text,
-          attachedFiles: selectedMessages[0].data.fileUri
-            ? [getSafeAbsoluteURI(selectedMessages[0].data.fileUri, 'doc')]
+          attachedFiles: selectedMessage.message.data.fileUri
+            ? [getSafeAbsoluteURI(selectedMessage.message.data.fileUri, 'doc')]
             : [],
         });
       }
 
       if (reportedMessages?.length === 0 || reportedMessages === null) {
-        setReportedMessages([selectedMessages[0].messageId]);
+        setReportedMessages([selectedMessage.message.messageId]);
       } else {
         setReportedMessages((prev: string[]) => [
           ...prev,
-          selectedMessages[0].messageId,
+          selectedMessage.message.messageId,
         ]);
       }
     }
@@ -101,76 +103,59 @@ function ReportMessageBottomSheet({
       setTopButtonLoading(true);
       await reportMessage();
       setTopButtonLoading(false);
-      setSelectedMessages([]);
+      setSelectedMessage(null);
       await wait(safeModalCloseDuration);
       setReportSubmitted(true);
     } catch (error) {
       console.error('Error submitting report', error);
       setTopButtonLoading(false);
-      setSelectedMessages([]);
+      setSelectedMessage(null);
       await wait(safeModalCloseDuration);
       ReportSubmittedError();
     }
   };
 
   const onCloseClick = () => {
-    setText('');
     setReportSubmitted(false);
+    setText('');
     Keyboard.dismiss();
     onClose();
   };
 
-  const disconnect = async () => {
-    try {
-      const chatHandler = new DirectChat(chatId);
-      await chatHandler.disconnect();
-    } catch (error) {
-      console.error('Error disconnecting chat', error);
-    }
-  };
+  const Colors = DynamicColors();
 
-  const blockUser = async () => {
+  const {showToast} = useToast();
+
+  const [exitGroupButtonLoading, setExitGroupButtonLoading] =
+    useState<boolean>(false);
+
+  const styles = styling(Colors);
+
+  const navigation = useNavigation();
+  const handleChatDisconnect = async (chatIdString: string) => {
     try {
-      const chatHandler = new DirectChat(chatId);
-      const chatData = await chatHandler.getChatData();
-      await storage.blockUser({
-        name: chatData.name || '',
-        pairHash: chatData.pairHash,
-        blockTimestamp: new Date().toISOString(),
+      const chatHandler = new Group(chatIdString);
+      await chatHandler.leaveGroup();
+    } catch (error) {
+      wait(safeModalCloseDuration).then(() => {
+        showToast(
+          'Error in disconnecting this chat. Please check you network connection',
+          ToastType.error,
+        );
       });
-    } catch {
-      console.log('Error in blocking user');
     }
   };
-  const navigation = useNavigation();
-  const onDisconnectClick = async () => {
+  const onExitGroup = async () => {
     try {
-      setDisconnectLoading(true);
-      await disconnect();
-      setDisconnectLoading(false);
+      setExitGroupButtonLoading(true);
+      await handleChatDisconnect(chatId);
+      setExitGroupButtonLoading(false);
       onCloseClick();
       await wait(safeModalCloseDuration);
       navigation.navigate('HomeTab');
     } catch (err) {
       console.error('Error disconnecting', err);
-      setDisconnectLoading(false);
-      onCloseClick();
-      await wait(safeModalCloseDuration);
-    }
-  };
-
-  const onDisconnectAndBlockClick = async () => {
-    try {
-      setBottomButtonLoading(true);
-      await disconnect();
-      await blockUser();
-      setBottomButtonLoading(false);
-      onCloseClick();
-      await wait(safeModalCloseDuration);
-      navigation.navigate('HomeTab');
-    } catch (err) {
-      console.error('Error disconnecting and blocking', err);
-      setBottomButtonLoading(false);
+      setExitGroupButtonLoading(false);
       onCloseClick();
       await wait(safeModalCloseDuration);
     }
@@ -224,17 +209,11 @@ function ReportMessageBottomSheet({
             <View style={styles.buttonWrapper}>
               {isConnected && (
                 <>
-                  <SecondaryButton
-                    isLoading={disconnectLoading}
-                    buttonText={'Disconnect chat'}
-                    onClick={onDisconnectClick}
-                    secondaryButtonColor="r"
-                  />
                   <PrimaryButton
                     disabled={false}
-                    buttonText={'Disconnect and block'}
-                    isLoading={bottomButtonLoading}
-                    onClick={onDisconnectAndBlockClick}
+                    buttonText={'Exit group'}
+                    isLoading={exitGroupButtonLoading}
+                    onClick={onExitGroup}
                     primaryButtonColor="r"
                   />
                 </>
@@ -261,7 +240,6 @@ function ReportMessageBottomSheet({
                       selectedOptionComparision={item.index}
                       title={item.title}
                     />
-
                     {!isLast && <LineSeparator />}
                   </View>
                 );
@@ -339,4 +317,4 @@ const styling = (Colors: any) =>
     },
   });
 
-export default ReportMessageBottomSheet;
+export default GroupReportMessageBottomSheet;

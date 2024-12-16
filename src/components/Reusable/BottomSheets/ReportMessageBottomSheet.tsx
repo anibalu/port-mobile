@@ -75,14 +75,14 @@ function ReportMessageBottomSheet({
           REPORT_TYPES.MOLESTATION,
         );
       } else {
-        await sendMessageReport({
-          lineId: chatId,
-          message: selectedMessages[0].data.text || '',
-          description: text,
-          attachedFiles: selectedMessages[0].data.fileUri
+        await sendMessageReport(
+          chatId,
+          selectedMessages[0].data.text || '',
+          text,
+          selectedMessages[0].data.fileUri
             ? [getSafeAbsoluteURI(selectedMessages[0].data.fileUri, 'doc')]
             : [],
-        });
+        );
       }
 
       if (reportedMessages?.length === 0 || reportedMessages === null) {

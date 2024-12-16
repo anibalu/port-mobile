@@ -8,29 +8,24 @@ import axios from 'axios';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {LineIllegalReport, GroupIllegalReport, attachedFiles} from './index';
 
-export async function sendMessageReport({
-  lineId,
-  message,
-  description,
-  attachedFiles,
-}: {
-  chatId: string;
-  message: string;
-  description: string;
-  attachedFiles?: string[];
-}) {
+export async function sendMessageReport(
+  chatId: string,
+  message: string,
+  description: string,
+  files: string[],
+) {
   try {
     const token = await getToken();
 
-    const chat = new DirectChat(lineId);
-    lineId = (await chat.getChatData()).lineId;
+    const chat = new DirectChat(chatId);
+    const lineId = (await chat.getChatData()).lineId;
     const response = await axios.post(
       LINE_MESSAGE_REPORTING_RESOURCE,
       {
         lineId: lineId,
         message: message,
         description: description,
-        attachedFiles: attachedFiles,
+        attachedFiles: files,
       },
       {headers: {Authorization: `${token}`}},
     );
@@ -38,8 +33,8 @@ export async function sendMessageReport({
 
     media_urls?.map((url: any, i: number) => {
       return (async () => {
-        if (attachedFiles) {
-          return await uploadRawMedia(attachedFiles[i], url);
+        if (files) {
+          return await uploadRawMedia(files[i], url);
         }
       })();
     });

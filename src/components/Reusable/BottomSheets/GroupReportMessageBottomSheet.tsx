@@ -77,14 +77,14 @@ function GroupReportMessageBottomSheet({
           REPORT_TYPES.MOLESTATION,
         );
       } else {
-        await sendMessageReport({
-          lineId: chatId,
-          message: selectedMessage.message.data.text || '',
-          description: text,
-          attachedFiles: selectedMessage.message.data.fileUri
+        await sendMessageReport(
+          chatId,
+          selectedMessage.message.data.text || '',
+          text,
+          selectedMessage.message.data.fileUri
             ? [getSafeAbsoluteURI(selectedMessage.message.data.fileUri, 'doc')]
             : [],
-        });
+        );
       }
 
       if (reportedMessages?.length === 0 || reportedMessages === null) {

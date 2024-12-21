@@ -48,6 +48,7 @@ import {getCountOfBlockedUsers} from '@utils/Storage/blockUsers';
 import HelpCard from '@components/HelpCard';
 import {BottomNavStackParamList} from '@navigation/BottomNavStackTypes';
 import {useSelector} from 'react-redux';
+import AccountCard from './AccountCard';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'MyProfile'>;
 
@@ -158,6 +159,7 @@ const MyProfile = ({navigation}: Props): ReactNode => {
               <BlockedCard listLength={blockedContactsLength} />
               <BackupCard />
               <HelpCard />
+              <AccountCard />
             </View>
           </View>
           <View style={styles.bottomContainer}>

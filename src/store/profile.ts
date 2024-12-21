@@ -40,6 +40,15 @@ export default function profile(state = initialState, action: any) {
         ...state,
         showInviteScreen: action.payload,
       };
+    case 'DELETE_ACCOUNT':
+      return {
+        ...state,
+        profile: {},
+        onboardingComplete: action.payload,
+        showInviteScreen: false,
+        showOnboardingInfo: false,
+        activeChat: undefined,
+      };
     default:
       return state;
   }

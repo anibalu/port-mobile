@@ -3,6 +3,7 @@ SQLite.enablePromise(true);
 import {isIOS} from '@components/ComponentUtils';
 import {APP_GROUP_IDENTIFIER} from '@configs/constants';
 import RNFS from 'react-native-fs';
+import runMigrations from '../Migrations';
 
 async function iOSMoveDBFromLegacyLocation() {
   if (!isIOS) {
@@ -104,6 +105,18 @@ export async function runSimpleQuery(
       console.log('Error in running query: ', error);
     }
   }
+}
+
+export function resetDatabase() {
+  dbSingletonHelper.pop();
+  SQLite.deleteDatabase(
+    {
+      name: 'numberless.db',
+      location: 'Shared',
+    },
+    runMigrations,
+    (err: any) => console.log('Failed to delete database:', err),
+  );
 }
 
 /**

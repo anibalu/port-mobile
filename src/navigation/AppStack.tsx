@@ -42,6 +42,8 @@ import InviteFriends from '@screens/Home/InviteFriends';
 import {useSelector} from 'react-redux';
 import GroupTemplates from '@screens/Templates/GroupTemplates';
 import SuperportQRScreen from '@screens/Superport/SuperportQRScreen';
+import AccountSettings from '@screens/MyAccount';
+import DeleteAccount from '@screens/DeleteAccount';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -67,6 +69,8 @@ function AppStack() {
           <Stack.Screen name="GroupProfile" component={GroupProfile} />
           <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
           <Stack.Screen name="ShareContact" component={ShareContact} />
+          <Stack.Screen name="AccountSettings" component={AccountSettings} />
+          <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
           <Stack.Screen
             name="SelectShareContacts"
             component={SelectShareContacts}

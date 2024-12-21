@@ -11,6 +11,8 @@ import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
 export type AppStackParamList = {
+  DeleteAccount: undefined;
+  AccountSettings: undefined;
   HomeTab: undefined;
   PortContactList: undefined;
   PhoneContactList: undefined;

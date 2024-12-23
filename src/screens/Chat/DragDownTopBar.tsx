@@ -141,11 +141,9 @@ export const ChatTopBarWithAccessControls = forwardRef(
 
     //react to changes in permissions
     useMemo(() => {
-      if (permissions) {
-        moveSliderIntermediateOpen();
-      }
+      moveSliderIntermediateOpen();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [permissions]);
+    }, []);
 
     //gesture handler for slider
     const pan = Gesture.Pan()

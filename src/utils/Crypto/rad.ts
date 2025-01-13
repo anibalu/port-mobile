@@ -5,14 +5,21 @@ import {rad, rad16} from '@numberless/react-native-numberless-crypto';
  * @param length length of rad bytes requried
  * @returns hex encoded rad of length = 2*length
  */
-
 export async function generateRad(length: number) {
-  return await rad(length);
+  const generatedRad = await rad(length);
+  if (generatedRad === 'error') {
+    throw new Error('Error in generating RAD');
+  }
+  return generatedRad;
 }
+
 /**
  * @returns 32 character hex encoded random string
  */
-
 export async function generateRad16() {
-  return await rad16();
+  const generatedRad = await rad16();
+  if (generatedRad === 'error') {
+    throw new Error('Error in generating RAD16');
+  }
+  return generatedRad;
 }

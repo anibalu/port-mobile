@@ -24,7 +24,14 @@ export async function deriveSharedSecret(
   privateKey: string,
   peerPublicKey: string,
 ): Promise<string> {
-  return await deriveX25519SharedSecret(privateKey, peerPublicKey);
+  const sharedSecret = await deriveX25519SharedSecret(
+    privateKey,
+    peerPublicKey,
+  );
+  if (sharedSecret === 'error') {
+    throw new Error('Error generating shared secret');
+  }
+  return sharedSecret;
 }
 
 /**
@@ -37,7 +44,14 @@ export async function encrypt(
   plaintext: string,
   sharedSecret: string,
 ): Promise<string> {
-  return await encryptWithX25519SharedSecret(plaintext, sharedSecret);
+  const ciphertext = await encryptWithX25519SharedSecret(
+    plaintext,
+    sharedSecret,
+  );
+  if (ciphertext === 'error') {
+    throw new Error('Error encrypting plaintext');
+  }
+  return ciphertext;
 }
 
 /**
@@ -50,5 +64,12 @@ export async function decrypt(
   ciphertext: string,
   sharedSecret: string,
 ): Promise<string> {
-  return await decryptWithX25519SharedSecret(ciphertext, sharedSecret);
+  const plaintext = await decryptWithX25519SharedSecret(
+    ciphertext,
+    sharedSecret,
+  );
+  if (plaintext === 'error') {
+    throw new Error('Error decrypting ciphertext');
+  }
+  return plaintext;
 }

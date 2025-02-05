@@ -8,10 +8,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import {
-  SelectedMessageType,
-  useChatContext,
-} from '@screens/GroupChat/ChatContext';
+import {useChatContext} from '@screens/GroupChat/ChatContext';
 import {wait} from '@utils/Time';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {CustomStatusBar} from '@components/CustomStatusBar';
@@ -23,18 +20,20 @@ import {MessageBubble} from '@components/GroupMessageBubbles/MessageBubble';
 import {RenderReactionBar} from '@components/GroupMessageBubbles/Reactions';
 import BubbleFocusOptions from '@components/GroupMessageBubbles/BubbleFocusOptions';
 import MessageBar from '@components/GroupChatComponents/MessageBar';
+import {useSelectionContext} from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
 
 const GroupBlurViewModal = () => {
   const {
     onCleanCloseFocus,
-    selectedMessage,
     isConnected,
     setMessageToEdit,
     setText,
     messageToEdit,
   } = useChatContext();
-  const messageObj = selectedMessage as SelectedMessageType;
-  const isDeleted = messageObj.message.contentType === ContentType.deleted;
+  const {selectedMessages, selectedMessageLayout, setSelectedMessages} =
+    useSelectionContext();
+  const messageObj = selectedMessages[0];
+  const isDeleted = messageObj.contentType === ContentType.deleted;
   const STATUSBAR_HEIGHT = StatusBar.currentHeight || 0;
   const TOPBAR_HEIGHT = 68;
   const REACTIONBAR_HEIGHT = isDeleted ? 0 : TOPBAR_HEIGHT;
@@ -42,8 +41,8 @@ const GroupBlurViewModal = () => {
     STATUSBAR_HEIGHT + TOPBAR_HEIGHT + REACTIONBAR_HEIGHT;
   const TOP_OFFSET = isIOS ? TOP_OFFSET_INITIAL + 50 : TOP_OFFSET_INITIAL;
 
-  const AVAILABLE_HEIGHT_FOR_OPTIONS =
-    screen.height - TOP_OFFSET - messageObj.height;
+  const height = selectedMessageLayout.height;
+  const yOffset = selectedMessageLayout.y;
   const OPTION_BUBBLE_HEIGHT = isIOS
     ? isDeleted
       ? 130
@@ -52,13 +51,12 @@ const GroupBlurViewModal = () => {
     ? 140
     : 375;
   const AVAILABLE_HEIGHT = screen.height - TOPBAR_HEIGHT;
-  const REQUIRED_HEIGHT =
-    REACTIONBAR_HEIGHT + OPTION_BUBBLE_HEIGHT + messageObj.height;
 
-  const message = messageObj.message;
+  const REQUIRED_HEIGHT = REACTIONBAR_HEIGHT + OPTION_BUBBLE_HEIGHT + height;
+  const message = messageObj;
   const isSender = message.sender;
   //initial value is same as current location
-  const INITIAL_VALUE = messageObj.pageY;
+  const INITIAL_VALUE = yOffset;
   const positionY = useRef(new Animated.Value(INITIAL_VALUE)).current;
 
   const initialStyle = {
@@ -82,10 +80,7 @@ const GroupBlurViewModal = () => {
       if (AVAILABLE_HEIGHT > REQUIRED_HEIGHT) {
         if (
           INITIAL_VALUE <
-          screen.height +
-            STATUSBAR_HEIGHT -
-            OPTION_BUBBLE_HEIGHT -
-            messageObj.height
+          screen.height + STATUSBAR_HEIGHT - OPTION_BUBBLE_HEIGHT - height
         ) {
           //dont move
           newPositionY = INITIAL_VALUE;
@@ -93,10 +88,7 @@ const GroupBlurViewModal = () => {
         } else {
           //move to new position
           newPositionY =
-            screen.height +
-            STATUSBAR_HEIGHT -
-            OPTION_BUBBLE_HEIGHT -
-            messageObj.height;
+            screen.height + STATUSBAR_HEIGHT - OPTION_BUBBLE_HEIGHT - height;
         }
       } else {
         newPositionY = TOP_OFFSET;
@@ -118,6 +110,7 @@ const GroupBlurViewModal = () => {
         onCleanCloseFocus();
         setMessageToEdit(null);
         setText('');
+        setSelectedMessages([]);
       }}
       style={{
         ...styles.mainContainer,
@@ -144,6 +137,7 @@ const GroupBlurViewModal = () => {
                   message={message}
                   handleLongPress={() => {}}
                   swipeable={false}
+                  selected={false}
                 />
 
                 <View
@@ -165,6 +159,7 @@ const GroupBlurViewModal = () => {
                   message={message}
                   handleLongPress={() => {}}
                   swipeable={false}
+                  selected={false}
                 />
 
                 <View
@@ -186,6 +181,7 @@ const GroupBlurViewModal = () => {
               message={message}
               handleLongPress={() => {}}
               swipeable={false}
+              selected={false}
             />
           </View>
 
@@ -193,7 +189,7 @@ const GroupBlurViewModal = () => {
             <View
               style={{
                 marginHorizontal: PortSpacing.secondary.uniform,
-                marginTop: -TOPBAR_HEIGHT,
+                marginTop: -TOPBAR_HEIGHT + 6,
                 minHeight: TOPBAR_HEIGHT,
                 alignSelf: isSender ? 'flex-end' : 'flex-start',
               }}>
@@ -205,14 +201,7 @@ const GroupBlurViewModal = () => {
             </View>
             <View
               style={{
-                marginTop:
-                  AVAILABLE_HEIGHT_FOR_OPTIONS > OPTION_BUBBLE_HEIGHT
-                    ? messageObj.height
-                    : screen.height -
-                      STATUSBAR_HEIGHT -
-                      TOPBAR_HEIGHT -
-                      REACTIONBAR_HEIGHT -
-                      OPTION_BUBBLE_HEIGHT,
+                marginTop: height,
                 paddingHorizontal: PortSpacing.secondary.uniform,
                 alignSelf: isSender ? 'flex-end' : 'flex-start',
               }}>

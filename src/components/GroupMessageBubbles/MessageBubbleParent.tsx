@@ -10,10 +10,12 @@ import React, {ReactNode, useRef} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {MessageBubble} from './MessageBubble';
 import {InfoBubble} from './InfoBubble';
-import {useChatContext} from '@screens/GroupChat/ChatContext';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DynamicColors from '@components/DynamicColors';
 import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
+import {
+  GroupMessageSelectionMode,
+  useSelectionContext,
+} from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
 
 //Decides if a date stamp should appear before a message bubble.
 //If date stamp shouldn't appear, decides if additional padding needs to be added.
@@ -55,35 +57,35 @@ export const MessageBubbleParent = ({
   isDateBoundary: boolean;
   hasExtraPadding: boolean;
 }): ReactNode => {
-  const {
-    selectedMessages,
-    handlePress,
-    handleLongPress,
-    onCleanCloseFocus,
-    setSelectedMessage,
-  } = useChatContext();
+  const {selectionMode, selectedMessages, toggleSelected} =
+    useSelectionContext();
 
   const bubbleRef = useRef(null);
 
-  //haptic feedback options
-  const options = {
-    enableVibrateFallback: true /* iOS Only */,
-    ignoreAndroidSystemSettings: true /* Android Only */,
+  const toggleSelectedWithMeasuredLayout = () => {
+    bubbleRef.current.measure((_x, _y, _width, height, _pageX, pageY) => {
+      toggleSelected(message, {
+        height,
+        y: pageY,
+      });
+    });
   };
-  //understands where to focus the message bubble.
-  const handleMessageBubbleLongPress = (messageId: any) => {
-    if (selectedMessages.length <= 1 && bubbleRef.current) {
-      try {
-        bubbleRef.current.measure((x, y, width, height, pageX, pageY) => {
-          setSelectedMessage({message, pageY, height});
-          ReactNativeHapticFeedback.trigger('impactMedium', options);
-          handleLongPress(messageId);
-        });
-      } catch (error) {
-        console.log('Unable to measure: ', error);
-        onCleanCloseFocus();
-      }
+
+  const handleMessageBubbleLongPress = () => {
+    // Only do something if we're in single message selection mode
+    if (GroupMessageSelectionMode.Single === selectionMode) {
+      toggleSelectedWithMeasuredLayout();
     }
+  };
+
+  const handlePress = () => {
+    // Only add or remove this message from the list of selected messages when clicked if
+    // in multi select mode
+    if (GroupMessageSelectionMode.Multiple !== selectionMode) {
+      return false;
+    }
+    toggleSelectedWithMeasuredLayout();
+    return true;
   };
 
   return (
@@ -109,15 +111,17 @@ export const MessageBubbleParent = ({
                   }
                 : styles.messageBubbleContainer
             }
-            onPress={() => handlePress(message.messageId, message.contentType)}
-            onLongPress={() => handleMessageBubbleLongPress(message.messageId)}
+            onPress={handlePress}
+            onLongPress={handleMessageBubbleLongPress}
             delayLongPress={300}>
             <MessageBubble
               message={message}
-              handleLongPress={() =>
-                handleMessageBubbleLongPress(message.messageId)
-              }
+              handleLongPress={handleMessageBubbleLongPress}
+              selected={selectedMessages.some(
+                m => m.messageId === message.messageId,
+              )}
               swipeable={true}
+              handlePress={handlePress}
             />
           </Pressable>
         )}

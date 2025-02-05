@@ -17,46 +17,49 @@ import {
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import DynamicColors from '@components/DynamicColors';
 import {useTheme} from 'src/context/ThemeContext';
+import {
+  GroupMessageSelectionMode,
+  useSelectionContext,
+} from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
+import {useNavigation} from '@react-navigation/native';
+import Clipboard from '@react-native-clipboard/clipboard';
+import {
+  GroupMessageBarActionsType,
+  useMessageBarActionsContext,
+} from '@screens/GroupChat/ChatContexts/GroupMessageBarActions';
 
 const BubbleFocusOptions = () => {
-  const {
-    isConnected,
-    onReply,
-    onSelect,
-    onDelete,
-    onReport,
-    onForward,
-    onCopy,
-    selectedMessage,
-    setSelectedMessage,
-    onEditMessage,
-  } = useChatContext();
+  const {isConnected, onDelete, onReport, setReplyToMessage, chatId} =
+    useChatContext();
 
+  const navigation = useNavigation();
+
+  const {selectedMessages, setSelectedMessages, setSelectionMode} =
+    useSelectionContext();
   const allowReport =
-    selectedMessage && selectedMessage.message
-      ? ReportMessageContentTypes.includes(selectedMessage.message.contentType)
-      : false;
-  const allowForward =
-    selectedMessage && selectedMessage.message
-      ? !UnForwardableMessageContentTypes.includes(
-          selectedMessage.message.contentType,
-          selectedMessage.message.contentType,
-        )
-      : true;
+    !selectedMessages[0].sender &&
+    ReportMessageContentTypes.includes(selectedMessages[0].contentType);
+  const allowForward = !UnForwardableMessageContentTypes.includes(
+    selectedMessages[0].contentType,
+  );
 
-  const allowCopy =
-    selectedMessage && selectedMessage.message
-      ? !UnCopyableMessageContentTypes.includes(
-          selectedMessage.message.contentType,
-        )
-      : true;
+  const {dispatchMessageBarAction} = useMessageBarActionsContext();
+  const onEditMessage = () => {
+    const messageToEdit = selectedMessages[0];
+    setSelectedMessages([]);
+    dispatchMessageBarAction({
+      action: GroupMessageBarActionsType.Edit,
+      message: messageToEdit,
+    });
+  };
 
-  const isDeleted =
-    selectedMessage?.message.contentType === ContentType.deleted;
-  const allowEdit =
-    selectedMessage && selectedMessage.message
-      ? editableContentTypes.includes(selectedMessage.message.contentType)
-      : false;
+  const allowCopy = !UnCopyableMessageContentTypes.includes(
+    selectedMessages[0].contentType,
+  );
+  const allowEdit = editableContentTypes.includes(
+    selectedMessages[0].contentType,
+  );
+  const isDeleted = ContentType.deleted === selectedMessages[0].contentType;
 
   const barWidth = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -69,11 +72,28 @@ const BubbleFocusOptions = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isSender = selectedMessage?.message.sender;
+  const isSender = selectedMessages[0].sender;
 
   const onCopyClicked = () => {
-    onCopy();
-    setSelectedMessage(null);
+    Clipboard.setString(selectedMessages[0].data?.text);
+    setSelectedMessages([]);
+  };
+  const onMultiSelect = () => {
+    setSelectionMode(GroupMessageSelectionMode.Multiple);
+  };
+
+  const onForward = () => {
+    const message = selectedMessages[0];
+    setSelectedMessages([]);
+    navigation.push('ForwardToContact', {
+      chatId,
+      messages: [message.messageId],
+    });
+  };
+
+  const onReply = () => {
+    setReplyToMessage(selectedMessages[0]);
+    setSelectedMessages([]);
   };
 
   const svgArray = [
@@ -217,7 +237,7 @@ const BubbleFocusOptions = () => {
         <TouchableHighlight
           underlayColor={Colors.primary.background}
           activeOpacity={1}
-          onPress={onSelect}
+          onPress={onMultiSelect}
           style={dynamicOptionWrapperStyle}>
           <View style={styles.optionButton}>
             <NumberlessText

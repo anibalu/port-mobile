@@ -34,12 +34,13 @@ const RichGroupReactionsBottomsheet = ({
   visible,
   onClose,
   chatId,
-  currentReactionMessage,
+  messageId,
 }: {
   visible: boolean;
   onClose: () => void;
   chatId: string;
   currentReactionMessage: string[];
+  messageId: string;
 }) => {
   const [reactions, setReactions] = useState<RichReaction[]>([]);
   const [reactionCounts, setReactionCounts] = useState<
@@ -50,11 +51,7 @@ const RichGroupReactionsBottomsheet = ({
 
   useEffect(() => {
     const fetchReactions = async () => {
-      const fetchedReactions = await getRichReactions(
-        chatId,
-        currentReactionMessage[1],
-        false,
-      );
+      const fetchedReactions = await getRichReactions(chatId, messageId);
       setReactions(fetchedReactions);
       const calculatedReactionCounts: Record<string, number> = {};
       fetchedReactions.forEach(item => {

@@ -19,12 +19,28 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme} from 'src/context/ThemeContext';
 import {TOPBAR_HEIGHT} from '@configs/constants';
 import Group from '@utils/Groups/Group';
+import {SharedValue} from 'react-native-reanimated';
+import {GroupPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
 
 /**
  * Handles top bar for chat
  * @returns {ReactNode} topbar for chat
  */
-function ChatTopbar(): ReactNode {
+function ChatTopbar({
+  chatTopBarRef,
+  isScreenClickable,
+  sliderOpen,
+  permissionsId,
+  permissions,
+  setPermissions,
+}: {
+  chatTopBarRef: React.RefObject<{moveSliderIntermediateOpen: () => void}>;
+  isScreenClickable: SharedValue<boolean>;
+  sliderOpen: boolean;
+  permissionsId: string | null | undefined;
+  permissions: GroupPermissions | null | undefined;
+  setPermissions: (x: GroupPermissions | null | undefined) => void;
+}): ReactNode {
   //setup navigation
   const navigation = useNavigation();
   //chat screen context
@@ -117,7 +133,17 @@ function ChatTopbar(): ReactNode {
 
   return (
     <View style={{...styles.bar, marginTop: isIOS ? 0 : insets.top}}>
-      {!selectionMode && <ChatTopBarWithAccessControls />}
+      {!selectionMode && (
+        <ChatTopBarWithAccessControls
+          ref={chatTopBarRef}
+          chatId={chatId}
+          isScreenClickable={isScreenClickable}
+          sliderOpen={sliderOpen}
+          permissionsId={permissionsId}
+          permissions={permissions}
+          setPermissions={setPermissions}
+        />
+      )}
       <Pressable
         style={StyleSheet.compose(styles.profileBar, {
           height: selectionMode ? TOPBAR_HEIGHT : 56,

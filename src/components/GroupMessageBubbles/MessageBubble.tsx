@@ -16,7 +16,6 @@ import Swipeable from './SwipeableCustom';
 import ReplyFilled from '@assets/icons/ReplyFilled.svg';
 import {RenderReactions} from './Reactions';
 import {getReactionCounts} from '@utils/Storage/reactions';
-import {useChatContext} from '@screens/GroupChat/ChatContext';
 import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
 import DynamicColors from '@components/DynamicColors';
 import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
@@ -28,20 +27,28 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
+import {
+  GroupMessageSelectionMode,
+  useSelectionContext,
+} from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
+import {
+  GroupMessageBarActionsType,
+  useMessageBarActionsContext,
+} from '@screens/GroupChat/ChatContexts/GroupMessageBarActions';
 
 const MessageBubbleContent = ({
   handleLongPress,
+  handlePress,
   message,
   swipeable = true,
 }: {
   handleLongPress: any;
   message: LoadedGroupMessage;
   swipeable?: boolean;
+  handlePress?: Function;
 }): ReactNode => {
-  const {handlePress, setReaction} = useChatContext();
-
+  const {setRichReactionMessage} = useSelectionContext();
   const Colors = DynamicColors();
-
   const [reactions, setReactions] = useState<any[]>([]);
 
   const updateMedia = async () => {
@@ -69,7 +76,7 @@ const MessageBubbleContent = ({
 
   //opens reactions bottom sheet
   const showReactionRibbon = () => {
-    setReaction(message.messageId);
+    setRichReactionMessage(message.messageId);
   };
 
   useEffect(() => {
@@ -161,15 +168,19 @@ export const MessageBubble = ({
   handleLongPress,
   message,
   swipeable = true,
+  handlePress,
+  selected,
 }: {
   handleLongPress: any;
   message: LoadedGroupMessage;
   swipeable?: boolean;
+  handlePress?: Function;
+  selected: boolean;
 }): ReactNode => {
-  const {setReplyToMessage, selectionMode, selectedMessages} = useChatContext();
-
+  const {selectionMode, selectedMessages} = useSelectionContext();
   const moveAnim = useRef(new Animated.Value(0)).current; // Starts from position 0
   // Function to trigger the movement
+
   const moveRight = () => {
     // Animated.timing is used to animate the value over time
     Animated.timing(moveAnim, {
@@ -189,7 +200,7 @@ export const MessageBubble = ({
     }).start();
   };
   useMemo(() => {
-    if (selectionMode) {
+    if (selectionMode === GroupMessageSelectionMode.Multiple) {
       moveRight();
     } else {
       resetPosition();
@@ -202,11 +213,15 @@ export const MessageBubble = ({
     ignoreAndroidSystemSettings: true /* Android Only */,
   };
 
+  const {dispatchMessageBarAction} = useMessageBarActionsContext();
   function handleSwipe() {
     // Trigger haptic feedback
     ReactNativeHapticFeedback.trigger('impactMedium', options);
     if (!UnReplyableMessageContentTypes.includes(message.contentType)) {
-      setReplyToMessage(message);
+      dispatchMessageBarAction({
+        action: GroupMessageBarActionsType.Reply,
+        message,
+      });
     }
   }
 
@@ -237,64 +252,67 @@ export const MessageBubble = ({
       </View>
     );
   };
-
-  if (swipeable) {
-    return (
-      <>
-        <Animated.View
-          style={[
-            {position: 'absolute', left: -40, alignSelf: 'center'},
-            {transform: [{translateX: moveAnim}]},
-          ]}>
-          {!UnSelectableMessageContentTypes.includes(message.contentType) && (
-            <CheckBox
-              value={
-                selectionMode && selectedMessages.includes(message.messageId)
-              }
-            />
-          )}
-        </Animated.View>
-        <Swipeable
-          enabled={!selectionMode}
-          friction={2}
-          leftThreshold={1000}
-          leftTrigger={64}
-          onSwipeableLeftTrigger={() => handleSwipe()}
-          renderLeftActions={renderLeftActions}>
+  return React.useMemo(
+    () =>
+      swipeable ? (
+        <>
           <Animated.View
-            style={
-              message.sender
-                ? {...styles.container, justifyContent: 'flex-end'}
-                : [
-                    {...styles.container, justifyContent: 'flex-start'},
-                    {transform: [{translateX: moveAnim}]},
-                  ]
-            }>
-            <MessageBubbleContent
-              handleLongPress={handleLongPress}
-              message={message}
-              swipeable={swipeable}
-            />
+            style={[
+              {position: 'absolute', left: -40, alignSelf: 'center'},
+              {transform: [{translateX: moveAnim}]},
+            ]}>
+            {!UnSelectableMessageContentTypes.includes(message.contentType) && (
+              <CheckBox
+                value={
+                  selectionMode === GroupMessageSelectionMode.Multiple &&
+                  selected
+                }
+              />
+            )}
           </Animated.View>
-        </Swipeable>
-      </>
-    );
-  } else {
-    return (
-      <View
-        style={
-          message.sender
-            ? {...styles.container, justifyContent: 'flex-end'}
-            : {...styles.container, justifyContent: 'flex-start'}
-        }>
-        <MessageBubbleContent
-          handleLongPress={handleLongPress}
-          message={message}
-          swipeable={swipeable}
-        />
-      </View>
-    );
-  }
+          <Swipeable
+            enabled={!selectionMode}
+            friction={2}
+            leftThreshold={1000}
+            leftTrigger={64}
+            onSwipeableLeftTrigger={() => handleSwipe()}
+            renderLeftActions={renderLeftActions}>
+            <Animated.View
+              style={
+                message.sender
+                  ? {...styles.container, justifyContent: 'flex-end'}
+                  : [
+                      {...styles.container, justifyContent: 'flex-start'},
+                      {transform: [{translateX: moveAnim}]},
+                    ]
+              }>
+              <MessageBubbleContent
+                handleLongPress={handleLongPress}
+                message={message}
+                swipeable={swipeable}
+                handlePress={handlePress}
+              />
+            </Animated.View>
+          </Swipeable>
+        </>
+      ) : (
+        <View
+          style={
+            message.sender
+              ? {...styles.container, justifyContent: 'flex-end'}
+              : {...styles.container, justifyContent: 'flex-start'}
+          }>
+          <MessageBubbleContent
+            handleLongPress={handleLongPress}
+            handlePress={handlePress}
+            message={message}
+            swipeable={swipeable}
+          />
+        </View>
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedMessages, selectionMode, message.mtime],
+  );
 };
 
 const styles = StyleSheet.create({

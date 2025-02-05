@@ -31,6 +31,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import {extractLink} from '@components/GroupMessageBubbles/BubbleUtils';
 import {ReplyBubbleMessageBar} from '@components/GroupMessageBubbles/ReplyBubble';
+import {
+  GroupMessageBarActionsType,
+  useMessageBarActionsContext,
+} from '@screens/GroupChat/ChatContexts/GroupMessageBarActions';
 
 const MessageBar = ({
   ifTemplateExists,
@@ -41,6 +45,7 @@ const MessageBar = ({
     chatId,
     isGroupChat,
     replyToMessage,
+    setReplyToMessage,
     clearEverything,
     text,
     setText,
@@ -48,6 +53,29 @@ const MessageBar = ({
     messageToEdit,
   } = useChatContext();
   const {MessageDataTooBigError} = useErrorModal();
+
+  const {messageBarAction, dispatchMessageBarAction} =
+    useMessageBarActionsContext();
+
+  useEffect(() => {
+    if (GroupMessageBarActionsType.None === messageBarAction.action) {
+      return;
+    }
+    if (GroupMessageBarActionsType.Reply === messageBarAction.action) {
+      setReplyToMessage(messageBarAction.message);
+    }
+    if (GroupMessageBarActionsType.Edit === messageBarAction.action) {
+      // TODO: remove this dependence on pageY and height when it definitely doesn't need it
+      setMessageToEdit({
+        message: messageBarAction.message,
+        pageY: 0,
+        height: 0,
+      });
+    }
+    // Reset the message action since it has been consumed
+    dispatchMessageBarAction({action: GroupMessageBarActionsType.None});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageBarAction]);
 
   // this runs if a template exists.
   // If a template has been selected, we want to populate message bar

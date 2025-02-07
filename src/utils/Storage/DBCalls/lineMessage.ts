@@ -123,6 +123,38 @@ export async function getMessage(
 }
 
 /**
+ * Get the most recent message of a specific content type in a chat
+ * @param chatId The chat id to search in
+ * @param contentType The content type to search for
+ * @returns The most recent message matching the content type, or null if none exists
+ */
+export async function getLastMessageOfType(
+  chatId: string,
+  contentType: ContentType,
+): Promise<LineMessageData | null> {
+  let entry = null;
+  await runSimpleQuery(
+    `
+    SELECT * FROM lineMessages 
+    WHERE chatId = ? AND contentType = ?
+    ORDER BY timestamp DESC
+    LIMIT 1;
+    `,
+    [chatId, contentType],
+    (tx, results) => {
+      if (results.rows.length) {
+        entry = results.rows.item(0);
+        entry.data = JSON.parse(entry.data);
+        entry.sender = toBool(entry.sender);
+        entry.hasReaction = toBool(entry.hasReaction);
+        entry.shouldAck = toBool(entry.shouldAck);
+      }
+    },
+  );
+  return entry;
+}
+
+/**
  * Get the latest messages in a chat
  * @param chatId
  * @param limit The maximum number of latest messages to return

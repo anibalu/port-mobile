@@ -429,3 +429,23 @@ export function getLabelByTimeDiff(
 
   return 'Off'; // If no matching label is found
 }
+
+/**
+ * Function to get the elapsed time since a start time.
+ * @param startTime - start time
+ * @returns - time elapsed string in desired format.
+ */
+export function getElapsedTime(startTime: number): string {
+  const currentTime = Date.now();
+
+  // Calculate the time difference in milliseconds
+  const timeElapsedMs = currentTime - startTime;
+
+  // Convert milliseconds to seconds, minutes, and hours
+  const seconds = Math.floor((timeElapsedMs / 1000) % 60);
+  const minutes = Math.floor((timeElapsedMs / (1000 * 60)) % 60);
+  const hours = Math.floor(timeElapsedMs / (1000 * 60 * 60));
+
+  // Format the time as HH:MM:SS
+  return `${hours}h:${minutes}m:${seconds}s`;
+}

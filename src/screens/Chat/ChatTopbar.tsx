@@ -1,5 +1,5 @@
 import {BackButton} from '@components/BackButton';
-import {isIOS, PortSpacing} from '@components/ComponentUtils';
+import {isIOS, PortSpacing, screen} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
@@ -11,7 +11,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import React, {ReactNode} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {PermissionsAndroid, Pressable, StyleSheet, View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {ChatTopBarWithAccessControls} from './DragDownTopBar';
@@ -20,6 +20,9 @@ import {useTheme} from 'src/context/ThemeContext';
 import {TOPBAR_HEIGHT} from '@configs/constants';
 import {SharedValue} from 'react-native-reanimated';
 import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {createCallId} from '@utils/Calls/CallOSBridge';
+import {useCallContext} from '@screens/Calls/CallContext';
+import {useMicrophonePermission} from 'react-native-vision-camera';
 
 /**
  * Handles top bar for chat
@@ -52,10 +55,13 @@ function ChatTopbar({
     selectedMessages,
     setSelectedMessages,
   } = useChatContext();
+  const {dispatchCallAction} = useCallContext();
 
   const insets = useSafeAreaInsets();
   const Colors = DynamicColors();
   const styles = styling(Colors);
+
+  const {hasPermission, requestPermission} = useMicrophonePermission();
   const svgArray = [
     {
       assetName: 'CloseIcon',
@@ -63,30 +69,21 @@ function ChatTopbar({
       dark: require('@assets/dark/icons/Close.svg').default,
     },
     {
-      assetName: 'SettingsIcon',
-      light: require('@assets/light/icons/Settings.svg').default,
-      dark: require('@assets/dark/icons/Settings.svg').default,
+      assetName: 'AudioCallIcon',
+      light: require('@assets/light/icons/AudioCall.svg').default,
+      dark: require('@assets/dark/icons/AudioCall.svg').default,
     },
     {
-      assetName: 'ClockIcon',
-      light: require('@assets/light/icons/ClockIcon.svg').default,
-      dark: require('@assets/dark/icons/ClockIcon.svg').default,
-    },
-    {
-      assetName: 'ContactShareIcon',
-      dark: require('@assets/light/icons/ContactShareIcon.svg').default,
-      light: require('@assets/dark/icons/ContactShareIcon.svg').default,
-    },
-    {
-      assetName: 'AngleRight',
-      light: require('@assets/light/icons/navigation/AngleRight.svg').default,
-      dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
+      assetName: 'VideoCallIcon',
+      light: require('@assets/light/icons/VideoCall.svg').default,
+      dark: require('@assets/dark/icons/VideoCall.svg').default,
     },
   ];
 
   const results = useDynamicSVG(svgArray);
   const CloseIcon = results.CloseIcon;
-  const AngleRight = results.AngleRight;
+  // const AudioCallIcon = results.AudioCallIcon;
+  const VideoCallIcon = results.VideoCallIcon;
 
   const onSettingsPressed = async () => {
     try {
@@ -122,6 +119,32 @@ function ChatTopbar({
     onCancelPressed();
   };
 
+  const onVideoCallPressed = async () => {
+    console.log('Video call pressed');
+    // requests audio and video permission
+    if (!hasPermission) {
+      await requestPermission();
+    }
+    if (
+      !isIOS &&
+      (await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_PHONE_NUMBERS,
+      )) !== 'granted'
+    ) {
+      return;
+    }
+    if (hasPermission) {
+      try {
+        const callId = createCallId();
+        dispatchCallAction({type: 'outgoing_call', callId, chatId});
+      } catch (error) {
+        console.error('Error navigating to call screen: ', error);
+      }
+    }
+  };
+
+  // const onAudioCallPressed = onVideoCallPressed;
+
   const {themeValue} = useTheme();
 
   return (
@@ -138,7 +161,7 @@ function ChatTopbar({
         />
       )}
       <Pressable
-        style={StyleSheet.compose(styles.profileBar, {
+        style={StyleSheet.compose(styles.mainBar, {
           height: selectionMode ? TOPBAR_HEIGHT : 56,
 
           backgroundColor:
@@ -147,24 +170,9 @@ function ChatTopbar({
               : Colors.primary.surface2,
         })}
         onPress={handlePress}>
-        {!selectionMode && (
-          <BackButton style={styles.backIcon} onPress={onBackPress} />
-        )}
         <View style={styles.titleBar}>
-          {!selectionMode && (
-            <View style={styles.profile}>
-              <AvatarBox
-                avatarSize="s"
-                onPress={handlePress}
-                profileUri={profileUri}
-              />
-            </View>
-          )}
           {selectionMode ? (
-            <View
-              style={
-                selectionMode ? styles.nameBarInSelection : styles.nameBar
-              }>
+            <View style={styles.nameBarInSelection}>
               <NumberlessText
                 fontSizeType={FontSizeType.xl}
                 fontType={FontType.sb}
@@ -173,31 +181,43 @@ function ChatTopbar({
                 numberOfLines={1}>
                 {'Selected (' + selectedMessages.length.toString() + ')'}
               </NumberlessText>
+              <GenericButton
+                buttonStyle={styles.crossBox}
+                IconLeft={CloseIcon}
+                onPress={handleCancellation}
+              />
             </View>
           ) : (
-            <View
-              style={
-                selectionMode ? styles.nameBarInSelection : styles.nameBar
-              }>
-              <NumberlessText
-                fontSizeType={FontSizeType.l}
-                fontType={FontType.md}
-                ellipsizeMode="tail"
-                style={selectionMode ? styles.selected : styles.title}
-                numberOfLines={1}>
-                {name}
-              </NumberlessText>
-              <AngleRight height={20} width={20} />
+            <View style={styles.profileBar}>
+              <View style={styles.profileBarLeft}>
+                <BackButton style={styles.backIcon} onPress={onBackPress} />
+                <View style={styles.profile}>
+                  <AvatarBox
+                    avatarSize="s"
+                    onPress={handlePress}
+                    profileUri={profileUri}
+                  />
+                </View>
+                <View style={styles.nameBar}>
+                  <NumberlessText
+                    fontSizeType={FontSizeType.l}
+                    fontType={FontType.md}
+                    ellipsizeMode="tail"
+                    style={selectionMode ? styles.selected : styles.title}
+                    numberOfLines={1}>
+                    {name}
+                  </NumberlessText>
+                </View>
+              </View>
+              <View style={styles.callIcons}>
+                <Pressable hitSlop={40} onPress={onVideoCallPressed}>
+                  <VideoCallIcon />
+                </Pressable>
+                {/* <Pressable hitSlop={40} onPress={onAudioCallPressed}>
+                  <AudioCallIcon />
+                </Pressable> */}
+              </View>
             </View>
-          )}
-        </View>
-        <View style={{flexDirection: 'row'}}>
-          {selectionMode && (
-            <GenericButton
-              buttonStyle={styles.crossBox}
-              IconLeft={CloseIcon}
-              onPress={handleCancellation}
-            />
           )}
         </View>
       </Pressable>
@@ -208,32 +228,41 @@ function ChatTopbar({
 const styling = (colors: any) =>
   StyleSheet.create({
     bar: {
-      width: '100%',
+      width: screen.width,
       flexDirection: 'column',
       justifyContent: 'flex-start',
       alignItems: 'center',
       position: 'absolute',
     },
-    profileBar: {
-      width: '100%',
+    mainBar: {
+      width: screen.width,
       flexDirection: 'row',
       flex: 1,
+      position: 'absolute',
+    },
+    profileBar: {
+      width: screen.width,
+      flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 8,
       position: 'absolute',
+    },
+    profileBarLeft: {
+      flex: screen.width - 90,
+      flexDirection: 'row',
+      alignItems: 'center',
     },
     titleBar: {
       flex: 1,
-      maxWidth: '90%',
+      width: screen.width,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      gap: PortSpacing.tertiary.uniform,
     },
     nameBar: {
       flexDirection: 'row',
       alignItems: 'center',
+      width: screen.width - 90 - 48 - 50,
     },
     nameBarInSelection: {
       flex: 1,
@@ -245,7 +274,7 @@ const styling = (colors: any) =>
     },
     title: {
       color: colors.text.primary,
-      overflow: 'hidden',
+      flex: 1,
     },
     selected: {
       color: colors.text.primary,
@@ -254,10 +283,11 @@ const styling = (colors: any) =>
       paddingLeft: 8,
     },
     backIcon: {
-      alignItems: 'center',
+      alignItems: 'flex-end',
       height: 51,
-      width: 40,
+      width: 48,
       paddingTop: 13,
+      paddingRight: 8,
     },
     settingsBox: {
       backgroundColor: colors.primary.surface2,
@@ -285,7 +315,6 @@ const styling = (colors: any) =>
       height: 50,
       width: 50,
       borderRadius: 20,
-      display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
@@ -299,6 +328,14 @@ const styling = (colors: any) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: 8,
+    },
+    callIcons: {
+      width: 90,
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      paddingRight: 32,
+      paddingLeft: 8,
     },
   });
 

@@ -8,6 +8,7 @@ import ping from './ping';
 import triggerUpdateStatusRefetch from './triggerUpdateStatusRefetch';
 import triggerRedraw from './triggerRedraw';
 import forceCloseModal from './triggerAllModalsClose';
+import latestCallReducer from './call';
 
 const rootReducer = combineReducers({
   triggerUpdateStatusRefetch,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   ping,
   triggerRedraw,
   forceCloseModal,
+  latestCallReducer,
 });
 
 const store = configureStore({

@@ -10,3 +10,5 @@
 # Add any project specific keep options here:
 # [react-native-background-fetch]
 -keep class com.transistorsoft.rnbackgroundfetch.HeadlessTask { *; }
+-keep class com.oney.WebRTCModule.** { *; }
+-keep class org.webrtc.** { *; }

@@ -21,7 +21,6 @@ import {
 import PortBrand from '@assets/icons/PortBrandPurple.svg';
 import {useSelector} from 'react-redux';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-
 import PortInfoBottomsheet from './PortInfoBottomsheet';
 import {wait} from '@utils/Time';
 

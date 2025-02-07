@@ -14,6 +14,7 @@ const WS_BASE = `${useSSL ? 'wss' : 'ws'}://${URL}`;
  */
 export const WEBSOCKET_URL = `${WS_BASE}/ws`;
 export const CALL_URL = `${WS_BASE}/call`;
+export const TURN_SERVER_URL = `${BASE_URL}/call/turns`;
 
 /**
  * Reporting Endpoints

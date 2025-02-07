@@ -6,7 +6,7 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "ready-all": "./ready_all",
-    "lint": "eslint .",
+    "lint": "eslint . --quiet",
     "start": "react-native start",
     "test": "jest",
     "postinstall": "patch-package"
@@ -42,6 +42,7 @@
     "react-native-background-fetch": "^4.2.1",
     "react-native-blob-util": "^0.19.6",
     "react-native-bootsplash": "^5.2.0",
+    "react-native-callkeep": "^4.3.16",
     "react-native-camera-kit": "^13.0.0",
     "react-native-compressor": "^1.8.23",
     "react-native-contacts": "^7.0.8",
@@ -82,6 +83,7 @@
     "react-native-video-player": "^0.14.0",
     "react-native-view-shot": "^3.8.0",
     "react-native-vision-camera": "^3.8.2",
+    "react-native-webrtc": "^124.0.5",
     "react-redux": "^8.1.0",
     "rn-qr-generator": "^1.4.0",
     "toggle-switch-react-native": "^3.3.0"

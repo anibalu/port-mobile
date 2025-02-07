@@ -38,6 +38,19 @@ export async function getMessage(
 }
 
 /**
+ * Get the most recent message of a specific content type in a chat
+ * @param chatId The chat id to search in
+ * @param contentType The content type to search for
+ * @returns The most recent message matching the content type, or null if none exists
+ */
+export async function getLastMessageOfType(
+  chatId: string,
+  contentType: ContentType,
+): Promise<null | lineDBCalls.LineMessageData> {
+  return await lineDBCalls.getLastMessageOfType(chatId, contentType);
+}
+
+/**
  * Update just the data field of an existing message in storage
  * @param chatId the chatId of a message in storage
  * @param messageId the messageId of a message in storage

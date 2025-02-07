@@ -11,6 +11,8 @@ import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
 export type AppStackParamList = {
+  OngoingCall: {chatId: string; callId: string; isVideoCall: boolean};
+  IncomingCall: {chatId: string; callId: string};
   DeleteAccount: undefined;
   AccountSettings: undefined;
   HomeTab: undefined;
@@ -107,7 +109,6 @@ export type AppStackParamList = {
   };
   CaptureMedia: {chatId: string; isGroupChat?: boolean};
   PendingRequests: undefined;
-  Isolation: undefined;
   NewPortScreen: {folder?: FolderInfo};
   PreviewShareablePort: {
     qrData: string | null;
@@ -124,4 +125,5 @@ export type AppStackParamList = {
   Templates: undefined;
   GroupTemplates: undefined;
   InviteFriends: undefined;
+  // Isolation: undefined;
 };

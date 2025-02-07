@@ -13,6 +13,8 @@ const DynamicColors = (theme?: string | null) => {
     accent: '#6A35FF', //purple
     white: '#FFFFFF',
     genericblack: '#000000',
+    genericDark: '#17181C',
+    genericGrey: '#27272B',
     accentLight: '#9E82ED',
     accentOverlay: 'rgba(106, 53, 255, 0.24)',
     defaultdark: '#05070b',
@@ -24,6 +26,7 @@ const DynamicColors = (theme?: string | null) => {
     brightRed: '#E20036',
     blue: '#4E75FF',
     lavenderOverlay: '#6A35FF3D',
+    darkOverlay: '#52525b',
   };
 
   const light = {
@@ -55,6 +58,7 @@ const DynamicColors = (theme?: string | null) => {
       tealBlue: '#4A94B01A',
       brightRed: '#E200361A',
       blue: '#4E75FF1A',
+      grey: '#F3F3F5',
     },
     search: {
       black: '#FFF',
@@ -120,6 +124,7 @@ const DynamicColors = (theme?: string | null) => {
       tealBlue: '#4A94B033',
       brightRed: '#E2003633',
       blue: '#4E75FF33',
+      grey: '#27272B',
     },
     search: {
       black: '#1D232E',

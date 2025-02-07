@@ -301,7 +301,7 @@ func getChatName(_ chatId: String) throws -> String {
   // Pointer to the statement to execute
   var statement: OpaquePointer?
   // Prepare a statement to get the chat's name
-  if sqlite3_prepare_v2(db, "SELECT COALESCE(contacts.name, groups.name) AS name FROM (connections LEFT JOIN lines on connections.routingId = lines.lineId) LEFT JOIN contacts on contacts.pairHash = connections.pairHash LEFT JOIN groups on groups.groupId = connections.routingId WHERE COALESCE(lines.lineId, groups.groupId) = ?  ;", -1, &statement, nil) != SQLITE_OK {
+  if sqlite3_prepare_v2(db, "SELECT contacts.name AS name FROM (connections LEFT JOIN lines on connections.routingId = lines.lineId) LEFT JOIN contacts on contacts.pairHash = connections.pairHash LEFT JOIN group ON groups.groupId = connections.routingId WHERE lines.lineId = ? ;", -1, &statement, nil) != SQLITE_OK {
     let errmsg = String(cString: sqlite3_errmsg(db)!)
     print("error preparing insert: \(errmsg)")
     return ""

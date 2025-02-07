@@ -3,13 +3,24 @@ import {showDefaultNotification} from '@utils/Notifications';
 import pullBacklog from '../pullBacklog';
 import * as API from './APICalls';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {isIOS} from '@components/ComponentUtils';
 
 export type FCMToken = string;
+export type APNSToken = string;
 
 const FCM_KEY = 'fcmToken';
+const APNS_KEY = 'apnsToken';
 
 export const getFCMToken = async () => {
   const token = await messaging().getToken();
+  return token;
+};
+
+export const getAPNSToken = async () => {
+  if (!isIOS) {
+    throw new Error('not an iOS device');
+  }
+  const token = await messaging().getAPNSToken();
   return token;
 };
 
@@ -64,11 +75,33 @@ async function readCachedFCMToken(): Promise<FCMToken | undefined> {
 }
 
 /**
+ * Reads APNS info from AsyncStorage
+ * @returns {APNSToken|undefined} - APNS info read from AsyncStorage. Returns undefined if the storage doesn't exist
+ */
+async function readCachedAPNSToken(): Promise<FCMToken | undefined> {
+  try {
+    const APNSToken: any = await AsyncStorage.getItem(APNS_KEY);
+    return APNSToken;
+  } catch (error) {
+    console.log('Error reading token from AsyncStorage: ', error);
+    return undefined;
+  }
+}
+
+/**
  * Writes FCMToken in AsyncStorage with new info
  * @param {FCMToken} FCMToken - the token information to overwrite with
  */
 async function cacheFCMToken(FCMToken: FCMToken): Promise<void> {
   await AsyncStorage.setItem(FCM_KEY, FCMToken);
+}
+
+/**
+ * Writes APNSToken in AsyncStorage with new info
+ * @param {APNSToken} APNSToken - the token information to overwrite with
+ */
+async function cacheAPNSToken(APNSToken: APNSToken): Promise<void> {
+  await AsyncStorage.setItem(APNS_KEY, APNSToken);
 }
 
 /**
@@ -79,8 +112,25 @@ export async function initialiseFCM(): Promise<boolean> {
   const currentFCMToken = await getFCMToken();
   const cachedFCMToken = await readCachedFCMToken();
   try {
+    if (isIOS) {
+      const currentAPNStoken = await getAPNSToken();
+      const cachedAPNSToken = await readCachedAPNSToken();
+      if (
+        currentAPNStoken &&
+        cachedAPNSToken !== currentAPNStoken &&
+        cachedFCMToken !== currentFCMToken
+      ) {
+        await API.patchTokens(currentFCMToken, currentAPNStoken);
+        await cacheAPNSToken(currentAPNStoken);
+        await cacheFCMToken(currentFCMToken);
+      } else if (currentAPNStoken && cachedAPNSToken !== currentAPNStoken) {
+        await API.patchToken('apnstoken', currentAPNStoken);
+        await cacheAPNSToken(currentAPNStoken);
+      }
+    }
     if (cachedFCMToken !== currentFCMToken) {
       await API.patchFCMToken(currentFCMToken);
+      // await API.patchToken('fcmtoken', currentFCMToken);
       await cacheFCMToken(currentFCMToken);
     }
     return true;

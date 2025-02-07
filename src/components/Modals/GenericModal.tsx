@@ -13,6 +13,7 @@ const GenericModal = ({
   avoidKeyboard = true,
   position = 'flex-end',
   shouldAutoClose = true, //responsible for closing the modal when app is backgrounded.
+  backdropColor,
 }: {
   onClose: any;
   visible: boolean;
@@ -20,6 +21,7 @@ const GenericModal = ({
   avoidKeyboard?: boolean;
   position?: 'flex-end' | 'center';
   shouldAutoClose?: boolean;
+  backdropColor?: string;
 }) => {
   const forceClose: boolean = useSelector(
     state => state.forceCloseModal.forceClose,
@@ -59,7 +61,7 @@ const GenericModal = ({
 
   return (
     <Modal
-      backdropColor={Colors.primary.overlay}
+      backdropColor={backdropColor ? backdropColor : Colors.primary.overlay}
       backdropOpacity={0.5}
       avoidKeyboard={avoidKeyboard}
       propagateSwipe={true}

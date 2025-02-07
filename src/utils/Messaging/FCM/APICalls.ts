@@ -12,3 +12,29 @@ export const patchFCMToken = async (tokenFCM: string) => {
     {headers: {Authorization: `${token}`}},
   );
 };
+
+export const patchTokens = async (tokenFCM: string, APNStoken: string) => {
+  const token = await getToken();
+  await axios.patch(
+    INITIAL_POST_MANAGEMENT_RESOURCE,
+    {
+      fcmtoken: tokenFCM,
+      apnstoken: APNStoken,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
+};
+
+export const patchToken = async (
+  tokenType: 'APNSToken' | 'FCMToken',
+  tokenVal: string,
+) => {
+  const token = await getToken();
+  await axios.patch(
+    INITIAL_POST_MANAGEMENT_RESOURCE,
+    {
+      [tokenType]: tokenVal,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
+};

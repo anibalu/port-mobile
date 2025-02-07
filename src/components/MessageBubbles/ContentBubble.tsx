@@ -18,6 +18,7 @@ import {VideoBubble} from './ContentBubbles/VideoBubble';
 import ContactInfoBubble from './ContentBubbles/ContactInfoBubble';
 import ContactRequestBubble from './ContentBubbles/ContactRequestBubble';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
+import {CallBubble} from './ContentBubbles/CallBubble';
 /**
  * Extend supported content types to support more types of content bubbles.
  */
@@ -81,6 +82,8 @@ export const ContentBubble = ({
           handleLongPress={handleLongPress}
         />
       );
+    case ContentType.call:
+      return <CallBubble message={message} />;
     default:
       return (
         <View style={styles.container}>

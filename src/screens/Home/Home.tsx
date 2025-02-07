@@ -45,10 +45,12 @@ import FavouriteFolders from './FavouriteFolders';
 import {getConnections} from '@utils/Storage/connections';
 import NoChatsInHomePlaceholder from './NoChatsInHomePlaceholder';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {useCallContext} from '@screens/Calls/CallContext';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
 const Home = ({navigation, route}: Props) => {
+  const {initialiseCallKeep} = useCallContext();
   useMemo(() => {
     if (route.params) {
       console.log(route.params);
@@ -102,9 +104,12 @@ const Home = ({navigation, route}: Props) => {
     }
   }
 
+  // This useFocusEffect asks for permissions that are absolutely necessary in
+  // A very annoying manner
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
+        // Notification permissions
         try {
           console.log({isNotifPermissionGranted});
           await setupNotificationChannels();
@@ -112,6 +117,8 @@ const Home = ({navigation, route}: Props) => {
         } catch (error) {
           console.log('Error occurred during setup:', error);
         }
+        // Call permissions to set up callkeep
+        await initialiseCallKeep();
 
         debouncedPeriodicOperations();
         resetAppBadge();

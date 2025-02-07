@@ -24,11 +24,9 @@ import Animated, {
 
 const PopUpActions = ({
   togglePopUp,
-  isGroupChat,
   chatId,
 }: {
   togglePopUp: () => void;
-  isGroupChat: boolean;
   chatId: string;
 }) => {
   const navigation = useNavigation();
@@ -211,56 +209,57 @@ const PopUpActions = ({
     // TODO: nuke
     navigation.navigate('Templates', {chatId: chatId});
   };
+
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
   return (
-    <Animated.View style={[styles.popUpContainer, animatedStyle]}>
-      <View style={styles.optionContainer}>
-        <Pressable style={styles.optionBox} onPress={onImagePressed}>
-          <ImageIcon />
-        </Pressable>
-        <NumberlessText
-          fontSizeType={FontSizeType.s}
-          textColor={Colors.text.primary}
-          fontType={FontType.rg}>
-          Images
-        </NumberlessText>
-      </View>
-      <View style={styles.optionContainer}>
-        <Pressable style={styles.optionBox} onPress={onVideoPressed}>
-          <VideoIcon />
-        </Pressable>
-        <NumberlessText
-          fontSizeType={FontSizeType.s}
-          textColor={Colors.text.primary}
-          fontType={FontType.rg}>
-          Videos
-        </NumberlessText>
-      </View>
-      <View style={styles.optionContainer}>
-        <Pressable style={styles.optionBox} onPress={onFilePressed}>
-          <FileIcon />
-        </Pressable>
-        <NumberlessText
-          fontSizeType={FontSizeType.s}
-          textColor={Colors.text.primary}
-          fontType={FontType.rg}>
-          Files
-        </NumberlessText>
-      </View>
-      <View style={styles.optionContainer}>
-        <Pressable style={styles.optionBox} onPress={onTemplatePressed}>
-          <Templates height={30} width={30} />
-        </Pressable>
-        <NumberlessText
-          fontSizeType={FontSizeType.s}
-          textColor={Colors.text.primary}
-          fontType={FontType.rg}>
-          Templates
-        </NumberlessText>
-      </View>
-      {!isGroupChat && (
+    <Animated.View style={[styles.mainContainer, animatedStyle]}>
+      <View style={styles.popUpContainer}>
+        <View style={styles.optionContainer}>
+          <Pressable style={styles.optionBox} onPress={onImagePressed}>
+            <ImageIcon />
+          </Pressable>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            textColor={Colors.text.primary}
+            fontType={FontType.rg}>
+            Images
+          </NumberlessText>
+        </View>
+        <View style={styles.optionContainer}>
+          <Pressable style={styles.optionBox} onPress={onVideoPressed}>
+            <VideoIcon />
+          </Pressable>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            textColor={Colors.text.primary}
+            fontType={FontType.rg}>
+            Videos
+          </NumberlessText>
+        </View>
+        <View style={styles.optionContainer}>
+          <Pressable style={styles.optionBox} onPress={onFilePressed}>
+            <FileIcon />
+          </Pressable>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            textColor={Colors.text.primary}
+            fontType={FontType.rg}>
+            Files
+          </NumberlessText>
+        </View>
+        <View style={styles.optionContainer}>
+          <Pressable style={styles.optionBox} onPress={onTemplatePressed}>
+            <Templates height={30} width={30} />
+          </Pressable>
+          <NumberlessText
+            fontSizeType={FontSizeType.s}
+            textColor={Colors.text.primary}
+            fontType={FontType.rg}>
+            Templates
+          </NumberlessText>
+        </View>
         <View style={styles.optionContainer}>
           <Pressable
             style={styles.optionBox}
@@ -278,25 +277,26 @@ const PopUpActions = ({
             Contact
           </NumberlessText>
         </View>
-      )}
+      </View>
     </Animated.View>
   );
 };
 
 const styling = (colors: any) =>
   StyleSheet.create({
+    mainContainer: {
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+    },
     popUpContainer: {
       flexDirection: 'row',
       paddingTop: 20,
       flexWrap: 'wrap',
-      paddingLeft: 24,
-      paddingRight: 24,
       borderRadius: 16,
       backgroundColor: colors.primary.surface,
-      justifyContent: 'space-between',
-      marginHorizontal: 10,
+      width: 280,
     },
-
     optionContainer: {
       flexDirection: 'column',
       justifyContent: 'flex-start',
@@ -314,4 +314,5 @@ const styling = (colors: any) =>
       backgroundColor: colors.primary.surface2,
     },
   });
+
 export default PopUpActions;

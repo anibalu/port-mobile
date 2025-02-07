@@ -16,7 +16,7 @@ import React from 'react';
 import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
 import {AppStackParamList} from './AppStackTypes';
 import CaptureMedia from '@screens/ShareImage/CaptureMedia';
-import Isolation from '@screens/Isolations/Isolation';
+// import Isolation from '@screens/Isolations/Isolation';
 import NewPortScreen from '@screens/NewPort/NewPort';
 import SuperportSetupScreen from '@screens/Superport/SuperportSetupScreen';
 import CreateFolder from '@screens/Folder/CreateFolder';
@@ -42,6 +42,9 @@ import InviteFriends from '@screens/Home/InviteFriends';
 import {useSelector} from 'react-redux';
 import GroupTemplates from '@screens/Templates/GroupTemplates';
 import SuperportQRScreen from '@screens/Superport/SuperportQRScreen';
+import IncomingCall from '@screens/Calls/IncomingCall';
+import {CallContextProvider} from '@screens/Calls/CallContext';
+import OngoingCall from '@screens/Calls/OngoingCall';
 import AccountSettings from '@screens/MyAccount';
 import DeleteAccount from '@screens/DeleteAccount';
 
@@ -52,67 +55,79 @@ function AppStack() {
   return (
     <>
       <ConnectionModalProvider>
-        <Stack.Navigator
-          initialRouteName={showInviteScreen ? 'InviteFriends' : 'HomeTab'}
-          screenOptions={{headerShown: false, orientation: 'portrait'}}>
-          <Stack.Screen name="InviteFriends" component={InviteFriends} />
-          <Stack.Screen name="PortContactList" component={PortContactList} />
-          <Stack.Screen name="PhoneContactList" component={PhoneContactList} />
-          <Stack.Screen name="HomeTab" component={BottomNavStack} />
-          <Stack.Screen name="CreateFolder" component={CreateFolder} />
-          <Stack.Screen name="EditFolder" component={EditFolder} />
-          <Stack.Screen name="MoveToFolder" component={MoveToFolder} />
-          <Stack.Screen name="DirectChat" component={DirectChat} />
-          <Stack.Screen name="ChatProfile" component={ChatProfile} />
-          <Stack.Screen name="ContactProfile" component={ContactProfile} />
-          <Stack.Screen name="GroupChat" component={GroupChat} />
-          <Stack.Screen name="GroupProfile" component={GroupProfile} />
-          <Stack.Screen name="ForwardToContact" component={ForwardToContact} />
-          <Stack.Screen name="ShareContact" component={ShareContact} />
-          <Stack.Screen name="AccountSettings" component={AccountSettings} />
-          <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
-          <Stack.Screen
-            name="SelectShareContacts"
-            component={SelectShareContacts}
-          />
-          <Stack.Screen
-            name="GalleryConfirmation"
-            component={GalleryConfirmation}
-          />
-          <Stack.Screen
-            name="SuperportSetupScreen"
-            component={SuperportSetupScreen}
-          />
+        {/* The call context provider helps screens related to calling communicate with
+        one another */}
+        <CallContextProvider>
+          <Stack.Navigator
+            initialRouteName={showInviteScreen ? 'InviteFriends' : 'HomeTab'}
+            screenOptions={{headerShown: false, orientation: 'portrait'}}>
+            <Stack.Screen name="InviteFriends" component={InviteFriends} />
+            <Stack.Screen name="PortContactList" component={PortContactList} />
+            <Stack.Screen
+              name="PhoneContactList"
+              component={PhoneContactList}
+            />
+            <Stack.Screen name="HomeTab" component={BottomNavStack} />
+            <Stack.Screen name="CreateFolder" component={CreateFolder} />
+            <Stack.Screen name="EditFolder" component={EditFolder} />
+            <Stack.Screen name="MoveToFolder" component={MoveToFolder} />
+            <Stack.Screen name="DirectChat" component={DirectChat} />
+            <Stack.Screen name="ChatProfile" component={ChatProfile} />
+            <Stack.Screen name="ContactProfile" component={ContactProfile} />
+            <Stack.Screen name="GroupChat" component={GroupChat} />
+            <Stack.Screen name="GroupProfile" component={GroupProfile} />
+            <Stack.Screen name="AccountSettings" component={AccountSettings} />
+            <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
+            <Stack.Screen
+              name="ForwardToContact"
+              component={ForwardToContact}
+            />
+            <Stack.Screen name="ShareContact" component={ShareContact} />
+            <Stack.Screen
+              name="SelectShareContacts"
+              component={SelectShareContacts}
+            />
+            <Stack.Screen
+              name="GalleryConfirmation"
+              component={GalleryConfirmation}
+            />
+            <Stack.Screen
+              name="SuperportSetupScreen"
+              component={SuperportSetupScreen}
+            />
 
-          <Stack.Screen
-            name="SuperportQRScreen"
-            component={SuperportQRScreen}
-          />
-          <Stack.Screen name="PendingRequests" component={PendingRequests} />
-          <Stack.Screen name="CaptureMedia" component={CaptureMedia} />
-          <Stack.Screen name="SharedMedia" component={SharedMedia} />
-          <Stack.Screen name="Isolation" component={Isolation} />
-          <Stack.Screen name="NewPortScreen" component={NewPortScreen} />
+            <Stack.Screen
+              name="SuperportQRScreen"
+              component={SuperportQRScreen}
+            />
+            <Stack.Screen name="PendingRequests" component={PendingRequests} />
+            <Stack.Screen name="CaptureMedia" component={CaptureMedia} />
+            <Stack.Screen name="SharedMedia" component={SharedMedia} />
+            {/* <Stack.Screen name="Isolation" component={Isolation} /> */}
+            <Stack.Screen name="NewPortScreen" component={NewPortScreen} />
 
-          <Stack.Screen name="CreateNewGroup" component={CreateNewGroup} />
-          <Stack.Screen name="NewGroupPort" component={NewGroupPort} />
-          <Stack.Screen
-            name="GiveUsFeedbackScreen"
-            component={GiveUsFeedbackScreen}
-          />
-          <Stack.Screen name="MediaViewer" component={MediaViewer} />
-          <Stack.Screen name="Scan" component={QRScanner} />
-          <Stack.Screen name="BlockedContacts" component={BlockedContacts} />
-          <Stack.Screen name="HelpScreen" component={HelpScreen} />
-          <Stack.Screen name="Templates" component={Templates} />
-          <Stack.Screen
-            name="PreviewShareablePort"
-            component={PreviewShareablePort}
-          />
-          <Stack.Screen name="AddNewContacts" component={AddNewContacts} />
-          <Stack.Screen name="AllMembers" component={AllMembers} />
-          <Stack.Screen name="GroupTemplates" component={GroupTemplates} />
-        </Stack.Navigator>
+            <Stack.Screen name="CreateNewGroup" component={CreateNewGroup} />
+            <Stack.Screen name="NewGroupPort" component={NewGroupPort} />
+            <Stack.Screen
+              name="GiveUsFeedbackScreen"
+              component={GiveUsFeedbackScreen}
+            />
+            <Stack.Screen name="MediaViewer" component={MediaViewer} />
+            <Stack.Screen name="Scan" component={QRScanner} />
+            <Stack.Screen name="BlockedContacts" component={BlockedContacts} />
+            <Stack.Screen name="HelpScreen" component={HelpScreen} />
+            <Stack.Screen name="Templates" component={Templates} />
+            <Stack.Screen
+              name="PreviewShareablePort"
+              component={PreviewShareablePort}
+            />
+            <Stack.Screen name="AddNewContacts" component={AddNewContacts} />
+            <Stack.Screen name="AllMembers" component={AllMembers} />
+            <Stack.Screen name="GroupTemplates" component={GroupTemplates} />
+            <Stack.Screen name="IncomingCall" component={IncomingCall} />
+            <Stack.Screen name="OngoingCall" component={OngoingCall} />
+          </Stack.Navigator>
+        </CallContextProvider>
       </ConnectionModalProvider>
     </>
   );

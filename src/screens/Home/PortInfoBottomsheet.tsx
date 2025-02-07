@@ -29,7 +29,6 @@ const PortInfoBottomsheet = (props: PortInfoProps) => {
     },
   ];
   const results = useDynamicSVG(svgArray);
-
   const PortInfoBanner = results.PortInfoBanner;
 
   return (

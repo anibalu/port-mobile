@@ -25,6 +25,7 @@ import ReceiveContactPortTicket from './ActionClasses/ReceiveContactPortTicket';
 import ReceiveContactPortRequest from './ActionClasses/ReceiveContactPortRequest';
 import NewChatOverContactPort from './ActionClasses/NewChatOverContactPort';
 import ReceiveEditedMessage from './ActionClasses/ReceiveEditedMessage';
+import ReceiveCall from './ActionClasses/ReceiveCall';
 
 const SupportedReceieveDecryptedContentTypes = [
   ContentType.name,
@@ -119,6 +120,15 @@ export async function pickDirectReceiveAction(
   }
   if (message.deletion) {
     return new Deletion(
+      chatId,
+      lineId,
+      message,
+      receiveTime,
+      decryptedMessageContent,
+    );
+  }
+  if (message.callType && message.callType === 'line') {
+    return new ReceiveCall(
       chatId,
       lineId,
       message,

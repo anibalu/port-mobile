@@ -58,6 +58,7 @@ export enum ContentType {
   groupDescription = 32,
   groupInitialMemberInfo = 33,
   editedMessage = 34,
+  call = 35,
 }
 
 /**
@@ -97,6 +98,7 @@ export const DisplayableContentTypes = [
   ContentType.contactBundleRequestInfo,
   ContentType.contactBundleShareRequest,
   ContentType.contactBundleRequest,
+  ContentType.call,
 ];
 
 export const LargeDataMessageContentTypes = [
@@ -126,6 +128,7 @@ export const DisappearMessageExemptContentTypes = [
 export const UnSelectableMessageContentTypes = [
   ContentType.deleted,
   ContentType.contactBundle,
+  ContentType.call,
 ];
 
 export const UnForwardableMessageContentTypes = [
@@ -133,6 +136,7 @@ export const UnForwardableMessageContentTypes = [
   ContentType.contactBundle,
   ContentType.contactBundleRequest,
   ContentType.contactBundleRequestInfo,
+  ContentType.call,
 ];
 
 export const UnCopyableMessageContentTypes = [
@@ -140,12 +144,14 @@ export const UnCopyableMessageContentTypes = [
   ContentType.contactBundle,
   ContentType.contactBundleRequest,
   ContentType.contactBundleRequestInfo,
+  ContentType.call,
 ];
 
 export const UnReplyableMessageContentTypes = [
   ContentType.deleted,
   ContentType.contactBundleRequest,
   ContentType.contactBundleRequestInfo,
+  ContentType.call,
 ];
 
 /**
@@ -169,6 +175,7 @@ export const UnReactableMessageContentTypes = [
   ContentType.contactBundleDenialResponse,
   ContentType.contactBundleRequestInfo,
   ContentType.contactBundleShareRequest,
+  ContentType.call,
 ];
 
 export const connectionUpdateExemptTypes = [
@@ -229,6 +236,7 @@ export type DataType =
   | ContactPortRequestParams
   | ContactPortPermissionRequestParams
   | EditedMessageParams
+  | CallParams
   | GroupAvatarParams
   | GroupPictureParams
   | GroupNameParams
@@ -356,6 +364,13 @@ export interface GroupDescriptionParams {
   groupDescription: string;
 }
 
+export interface CallParams {
+  receiver: boolean;
+  startTime: string;
+  endTime?: string | null;
+  callId?: string | null;
+}
+
 export interface InitialInfoRequestParams {}
 export interface ContactPortRequestParams {}
 export interface ContactPortPermissionRequestParams {}
@@ -430,6 +445,8 @@ export type MessageDataTypeBasedOnContentType<T extends ContentType> =
     ? GroupDescriptionParams
     : T extends ContentType.groupInitialMemberInfo
     ? GroupInitialMemberInfoParams
+    : T extends ContentType.call
+    ? CallParams
     : never;
 
 export enum ReactionSender {

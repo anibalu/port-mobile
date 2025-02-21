@@ -5,7 +5,7 @@
 import {AppRegistry} from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
-import {registerBackgroundMessaging} from '@utils/Messaging/FCM/fcm';
+import {registerBackgroundMessaging} from './src/utils/Messaging/PushNotifications/fcm';
 import {Text, TextInput} from 'react-native';
 import {initBackgroundFetch} from '@utils/BackgroundOperations/backgroundFetch';
 import {LogBox} from 'react-native';

@@ -37,7 +37,7 @@ import {PortBundle} from '@utils/Ports/interfaces';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import store from '@store/appStore';
 import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
-import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
+import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
 import {useSelector} from 'react-redux';
 import {getBundleFromLink} from '@utils/DeepLinking';
 import OnboardingMessageBubble from './OnboardingMessageBubble';

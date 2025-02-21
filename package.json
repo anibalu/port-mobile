@@ -83,6 +83,7 @@
     "react-native-video-player": "^0.14.0",
     "react-native-view-shot": "^3.8.0",
     "react-native-vision-camera": "^3.8.2",
+    "react-native-voip-push-notification": "^3.3.2",
     "react-native-webrtc": "^124.0.5",
     "react-redux": "^8.1.0",
     "rn-qr-generator": "^1.4.0",

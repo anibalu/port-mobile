@@ -605,6 +605,8 @@ PODS:
   - RNVectorIcons (10.1.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
+  - RNVoipPushNotification (3.3.2):
+    - React-Core
   - SocketRocket (0.6.1)
   - VisionCamera (3.9.1):
     - React
@@ -701,6 +703,7 @@ DEPENDENCIES:
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
+  - RNVoipPushNotification (from `../node_modules/react-native-voip-push-notification`)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -886,6 +889,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
+  RNVoipPushNotification:
+    :path: "../node_modules/react-native-voip-push-notification"
   VisionCamera:
     :path: "../node_modules/react-native-vision-camera"
   Yoga:
@@ -987,6 +992,7 @@ SPEC CHECKSUMS:
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
   RNVectorIcons: bfb663f3f7b37340cd90120151b720641523dc84
+  RNVoipPushNotification: 543e18f83089134a35e7f1d2eba4c8b1f7776b08
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   VisionCamera: 52f98e7628f9deea3e311c3b6d4870bb44445e05
   Yoga: d0003f849d2b5224c072cef6568b540d8bb15cd3

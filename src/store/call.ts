@@ -15,7 +15,8 @@ export default function latestCallReducer(state = {initialState}, action: any) {
         ...state,
         latestCall: {
           time: generateISOTimeStamp(),
-          chat: action.payload,
+          chat: action.payload.chatId,
+          callId: action.payload.callId,
         },
       };
     default:

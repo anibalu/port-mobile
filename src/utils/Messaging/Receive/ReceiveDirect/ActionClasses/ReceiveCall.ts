@@ -33,20 +33,6 @@ class ReceiveCall extends DirectReceiveAction {
       messageStatus: MessageStatus.delivered,
     };
     await storage.saveMessage(savedMessage);
-
-    const receivedTime = new Date(this.receiveTime);
-    const currentTime = new Date();
-
-    if ((currentTime - receivedTime) / 1000 > 15) {
-      // if time between received time and current time is
-      // more than 15 seconds, return early
-      return;
-    }
-    console.log('DISPATCHING TRAP REQUEST TO INCOMING CALL SCREEN');
-    store.dispatch({
-      type: 'NEW_CALL',
-      payload: this.chatId,
-    });
   }
 
   /**
@@ -67,6 +53,20 @@ class ReceiveCall extends DirectReceiveAction {
     } catch (error) {
       console.log('Error in displaying call notification: ', error);
     }
+
+    const receivedTime = new Date(this.receiveTime);
+    const currentTime = new Date();
+
+    if ((currentTime - receivedTime) / 1000 > 15) {
+      // if time between received time and current time is
+      // more than 15 seconds, return early
+      return;
+    }
+    console.log('DISPATCHING TRAP REQUEST TO INCOMING CALL SCREEN');
+    store.dispatch({
+      type: 'NEW_CALL',
+      payload: {chatId: this.chatId, callId: this.message.call_id},
+    });
   }
 }
 

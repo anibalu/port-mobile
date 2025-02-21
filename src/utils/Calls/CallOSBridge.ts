@@ -92,28 +92,16 @@ export async function displayIncomingCallOSUI(chatId: string, callId: string) {
   // Fetch information to display
   const chat = new DirectChat(chatId);
   const {name} = await chat.getChatData();
-  RNCallKeep.displayIncomingCall(
-    callId,
-    name || 'New Contact',
-    name || 'New Contact',
-    'generic',
-    true,
-    {
-      ios: {
-        supportsHolding: false,
-        supportsDTMF: false,
-        supportsGrouping: false,
-        supportsUngrouping: false,
-      },
-      android: {}, // Doesn't do anything
-    },
-  );
   if (!isIOS) {
     // This throws up a call style notification on Android.
     // The notification times out based on a value set in the native module
     CallHelperModule.displayCallUI(name || 'New contact', chatId, () =>
       console.log('Displayed calling UI!!!'),
     );
+  } else {
+    // iOS specific
+    // APNS should have already displayed UI, we should just piggyback off of that
+    RNCallKeep.updateDisplay(callId, name!, chatId);
   }
 }
 
@@ -178,4 +166,32 @@ export function endCallOSUI(callId: string, reason: CallEndReason): void {
  */
 export function rejectCallOSUI(callId: string) {
   RNCallKeep.rejectCall(callId);
+}
+
+/**
+ * Get a list of events that occured before the JS bridge to native
+ * threads were set up for communication, including that of calls
+ * @returns A list of events that occured before the JS bridge was set up
+ */
+export async function getPreLaunchEvents() {
+  if (!isIOS) {
+    return [];
+  }
+  return await RNCallKeep.getInitialEvents();
+}
+
+export async function isCallCurrentlyActive(callId: string): Promise<boolean> {
+  if (!isIOS) {
+    return false;
+  }
+  const currentCalls = await RNCallKeep.getCalls();
+  if (!currentCalls) {
+    return false;
+  }
+  currentCalls.forEach(call => {
+    if (call.callUUID === callId && call.hasConnected) {
+      return true;
+    }
+  });
+  return false;
 }

@@ -87,6 +87,12 @@ const VideoView = ({
 }) => {
   const myVideoDimensions = getMyVideoDimensions(myVideoSize);
   const colors = DynamicColors();
+  // Decide if my view should be mirrored or not. When facing me, yes, Otherwise no.
+  let mirrored = true;
+  try {
+    mirrored =
+      myMediaStream.getVideoTracks()[0].getConstraints().facingMode === 'user';
+  } catch {}
   return (
     <View
       style={
@@ -108,7 +114,7 @@ const VideoView = ({
         }>
         <RTCView
           streamURL={myMediaStream.toURL()}
-          mirror={true}
+          mirror={mirrored}
           style={{
             ...myVideoDimensions,
             position: 'absolute',

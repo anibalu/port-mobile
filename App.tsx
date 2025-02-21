@@ -16,7 +16,7 @@ import store from './src/store/appStore';
 import {
   initialiseFCM,
   foregroundMessageHandler,
-} from '@utils/Messaging/FCM/fcm';
+} from '@utils/Messaging/PushNotifications/fcm';
 
 import ErrorModal from '@components/Modals/ErrorModal';
 import LoginStack from '@navigation/LoginStack';

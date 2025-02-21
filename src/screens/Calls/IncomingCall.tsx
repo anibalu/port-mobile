@@ -23,6 +23,10 @@ import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT} from '@configs/constants';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {useCallContext} from './CallContext';
+import {
+  getPreLaunchEvents,
+  isCallCurrentlyActive,
+} from '@utils/Calls/CallOSBridge';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'IncomingCall'>;
 
@@ -69,14 +73,53 @@ function IncomingCall({route, navigation}: Props) {
   const EndCall = results.EndCall;
   const AcceptCall = results.AcceptCall;
 
+  /**
+   * Get pre launch events and process things based on them
+   * @returns Whether an action was taken
+   */
+  const processPreLaunchEvents = async (): Promise<boolean> => {
+    const preLaunchEvents = await getPreLaunchEvents();
+    for (let i = 0; i < preLaunchEvents.length; i++) {
+      const {data, name} = preLaunchEvents[i];
+      switch (name) {
+        case 'RNCallKeepPerformAnswerCallAction':
+          if (data.callUUID === callId) {
+            dispatchCallAction({type: 'answer_call'});
+            return true;
+          }
+          break;
+        case 'RNCallKeepPerformEndCallAction':
+          if (data.callUUID === callId) {
+            dispatchCallAction({type: 'decline_call'});
+            return true;
+          }
+      }
+    }
+    return false;
+  };
+
   // Set up the incoming call
   useEffect(() => {
-    // Set up the UI to represent the caller
     (async () => {
+      // Set up the UI to represent the caller
       const chatHandler = new DirectChat(chatId);
       const chatData = await chatHandler.getChatData();
       setProfileName(chatData.name || DEFAULT_NAME);
       setProfilePicture(chatData.displayPic || DEFAULT_AVATAR);
+      // Check if the call has already been answered. Important on the iOS
+      // Backgrounded state
+      if (await isCallCurrentlyActive(callId)) {
+        console.log(
+          'Call was answered from the host UI before this screen was even rendered',
+        );
+        dispatchCallAction({type: 'answer_call'});
+        return;
+      }
+      // Process pre-launch events, important on iOS killed state
+      if (await processPreLaunchEvents()) {
+        // An action was taken, so quit the rest of the processing
+        return;
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -5,7 +5,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {
   CallEndReason,
-  createCallId,
   displayIncomingCallOSUI,
   endCallOSUI,
   notifyOSOfCallAcceptance,
@@ -16,6 +15,7 @@ import {
 import React, {createContext, useContext, useEffect, useReducer} from 'react';
 import {useSelector} from 'react-redux';
 import store from '@store/appStore';
+import {registerForVoIPPushNotifications} from '@utils/Messaging/PushNotifications/VoIPAPNS';
 
 // bodgy fix since we need to be able to map callIds to chatIds
 type Call = {
@@ -148,8 +148,8 @@ export const CallContextProvider = ({children}: {children: any}) => {
       return;
     }
     console.warn('[NEW CALL] ', newCall);
+    const callId = newCall.callId;
     // Start tracking this call in the global call manager
-    const callId = createCallId();
     callTracker.set(callId, {
       chatId: newCall.chat,
       initTimestamp: newCall.time,
@@ -171,6 +171,16 @@ export const CallContextProvider = ({children}: {children: any}) => {
   // Asynchronously set up callkeep to allow Incoming calls. Odds are, this will execute before we need it.
   // It is sketchy though, so watch out
   async function initialiseCallKeep() {
+    // We first register the device for voip Push notifications if on iOS
+    try {
+      await registerForVoIPPushNotifications();
+    } catch (e) {
+      console.error(
+        'Something went wrong registering for VoIP push notifications',
+        e,
+      );
+    }
+
     await setUpCallKeep(
       (_callId: string) => dispatchCallAction({type: 'answer_call'}),
       (_callId: string) =>

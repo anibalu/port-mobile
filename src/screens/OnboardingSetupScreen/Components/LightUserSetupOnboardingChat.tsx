@@ -34,7 +34,7 @@ import {ToastType, useToast} from 'src/context/ToastContext';
 import {fetchNewPorts, readBundle} from '@utils/Ports';
 import store from '@store/appStore';
 import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
-import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
+import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
 import {getBundleFromLink} from '@utils/DeepLinking';
 import OnboardingMessageBubble from './OnboardingMessageBubble';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';

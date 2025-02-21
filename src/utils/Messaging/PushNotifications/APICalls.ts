@@ -26,15 +26,20 @@ export const patchTokens = async (tokenFCM: string, APNStoken: string) => {
 };
 
 export const patchToken = async (
-  tokenType: 'APNSToken' | 'FCMToken',
+  tokenType: 'apnstoken' | 'fcmtoken',
   tokenVal: string,
 ) => {
   const token = await getToken();
-  await axios.patch(
-    INITIAL_POST_MANAGEMENT_RESOURCE,
-    {
-      [tokenType]: tokenVal,
-    },
-    {headers: {Authorization: `${token}`}},
-  );
+  try {
+    await axios.patch(
+      INITIAL_POST_MANAGEMENT_RESOURCE,
+      {
+        [tokenType]: tokenVal,
+      },
+      {headers: {Authorization: `${token}`}},
+    );
+  } catch (e) {
+    console.warn('Error patching API call for apns: ', e);
+    throw e;
+  }
 };

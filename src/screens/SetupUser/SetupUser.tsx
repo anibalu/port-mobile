@@ -15,7 +15,7 @@ import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import store from '@store/appStore';
-import {initialiseFCM} from '@utils/Messaging/FCM/fcm';
+import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
 import {fetchNewPorts} from '@utils/Ports';
 import {deleteProfile, setupProfile} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';

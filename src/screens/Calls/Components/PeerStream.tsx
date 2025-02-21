@@ -110,6 +110,15 @@ const VideoView = ({
           }}
           objectFit={'cover'}
           zOrder={onTop ? 1 : 0}
+          iosPIP={{
+            enabled: true,
+            startAutomatically: true,
+            stopAutomatically: true,
+            preferredSize: {
+              width: 120,
+              height: 200,
+            },
+          }}
         />
       </View>
     </View>

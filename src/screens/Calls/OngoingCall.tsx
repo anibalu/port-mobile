@@ -466,7 +466,7 @@ function OngoingCall({route, navigation}: Props) {
     RNCallKeep.addEventListener(
       'didPerformSetMutedCallAction',
       ({muted, callUUID}) => {
-        console.log('Muted action: ', mute);
+        console.log('Muted action: ', muted);
         if (callId !== callUUID) {
           // WE're muting a call that isn't on this screen...
           return;

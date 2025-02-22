@@ -67,6 +67,7 @@ static void ClearKeychainIfNecessary() {
     @"maximumCallGroups": @1,
     @"maximumCallsPerCallGroup": @1,
     @"supportsVideo": @YES,
+    @"imageName": @"app_icon",
   }];
   
   return [super application:application didFinishLaunchingWithOptions:launchOptions];

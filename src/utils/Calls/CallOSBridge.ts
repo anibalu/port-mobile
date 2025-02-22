@@ -17,6 +17,7 @@ const callkeepOptions = {
     supportsHolding: false,
     supportsGrouping: false,
     supportsUngrouping: false,
+    imageName: 'app_icon',
   },
   android: {
     // Little pop up to enable the calling notification.

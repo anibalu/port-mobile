@@ -23,6 +23,7 @@
 		A93A07E0EA5048BEA126661E /* Rubik-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4BB7053FA53F48C69AB69699 /* Rubik-ExtraBold.ttf */; };
 		AD0DC8A32BD3415A00A57768 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0DC8A22BD3415A00A57768 /* NotificationService.swift */; };
 		AD0DC8A72BD3415A00A57768 /* portnse.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AD0DC8A02BD3415A00A57768 /* portnse.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AD3DEE512D690F1500AAF4B7 /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = AD3DEE502D690F1500AAF4B7 /* app_icon.png */; };
 		AD71C80B2D3EEB1F00597A2C /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD71C80A2D3EEB1F00597A2C /* CallKit.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		AD71C80D2D3EEB3700597A2C /* Intents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD71C80C2D3EEB3700597A2C /* Intents.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		ADF5513596814CF58BAB083D /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9BB0D4F5CB1E419FB64571BA /* Rubik-SemiBoldItalic.ttf */; };
@@ -107,6 +108,7 @@
 		AD0DC8A42BD3415A00A57768 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AD0DC8AB2BD3A96A00A57768 /* portnse.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = portnse.entitlements; sourceTree = "<group>"; };
 		AD1CF344CFCB406EB5AE1240 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
+		AD3DEE502D690F1500AAF4B7 /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
 		AD4DD5992C4136C800671503 /* ExampleNotification.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = ExampleNotification.apns; sourceTree = "<group>"; };
 		AD71C80A2D3EEB1F00597A2C /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = System/Library/Frameworks/CallKit.framework; sourceTree = SDKROOT; };
 		AD71C80C2D3EEB3700597A2C /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
@@ -224,6 +226,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
 				9A33DF65F0274D1EA57D1416 /* Resources */,
+				AD3DEE502D690F1500AAF4B7 /* app_icon.png */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -442,6 +445,7 @@
 				DAAA7AC2256F4089B12F63EF /* Rubik-BlackItalic.ttf in Resources */,
 				CADD983D617E48E7BD04523D /* Rubik-Bold.ttf in Resources */,
 				0A5A5887D9E448CEB79A9DEC /* Rubik-BoldItalic.ttf in Resources */,
+				AD3DEE512D690F1500AAF4B7 /* app_icon.png in Resources */,
 				A93A07E0EA5048BEA126661E /* Rubik-ExtraBold.ttf in Resources */,
 				20D413B01ED14B91B117D4F6 /* Rubik-ExtraBoldItalic.ttf in Resources */,
 				CBF2008ED9D44389A20E9A10 /* Rubik-Italic.ttf in Resources */,

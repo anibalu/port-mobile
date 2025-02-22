@@ -1,6 +1,6 @@
 import DirectReceiveAction from '../DirectReceiveAction';
 import {DEFAULT_NAME, MAX_CALL_ANSWER_WINDOW_SECONDS} from '@configs/constants';
-import {displaySimpleNotification} from '@utils/Notifications';
+import {displayCallNotification, displaySimpleNotification} from '@utils/Notifications';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import * as storage from '@utils/Storage/messages';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
@@ -44,11 +44,9 @@ class ReceiveCall extends DirectReceiveAction {
     try {
       const chat = new DirectChat(this.chatId);
       const chatData = await chat.getChatData();
-      displaySimpleNotification(
-        'Incoming call...',
-        chatData.name || DEFAULT_NAME + ' is trying to call you.',
-        true,
-        this.chatId,
+      displayCallNotification(
+        chatData.name || DEFAULT_NAME,
+        MAX_CALL_ANSWER_WINDOW_SECONDS,
       );
     } catch (error) {
       console.log('Error in displaying call notification: ', error);

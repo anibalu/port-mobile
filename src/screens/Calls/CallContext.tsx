@@ -16,6 +16,7 @@ import React, {createContext, useContext, useEffect, useReducer} from 'react';
 import {useSelector} from 'react-redux';
 import store from '@store/appStore';
 import {registerForVoIPPushNotifications} from '@utils/Messaging/PushNotifications/VoIPAPNS';
+import notifee, { EventDetail, EventType } from '@notifee/react-native';
 
 // bodgy fix since we need to be able to map callIds to chatIds
 type Call = {
@@ -197,6 +198,46 @@ export const CallContextProvider = ({children}: {children: any}) => {
         }),
     );
   }
+
+  const performCallNotificationRouting = async (
+    type: EventType,
+    detail: EventDetail,
+  ) => {
+    console.log('performCallNotificationRouting', type, detail);
+    if (type === EventType.ACTION_PRESS) {
+      if (detail.pressAction?.id === 'answer') {
+        onAnswer();
+      } else if (detail.pressAction?.id === 'decline') {
+        onDecline();
+      }
+    }
+  };
+
+  const onAnswer = () => {
+    console.log('onAnswer');
+    dispatchCallAction({type: 'answer_call'});
+  };
+
+  const onDecline = () => {
+    console.log('onDecline');
+    dispatchCallAction({type: 'decline_call'});
+  };
+
+  //Sets up handlers to route call notifications
+  useEffect(() => {
+    const foregroundHandler = notifee.onForegroundEvent(({ type, detail }) => {
+      performCallNotificationRouting(type, detail);
+    });
+
+    notifee.onBackgroundEvent(async ({ type, detail }) => {
+      performCallNotificationRouting(type, detail);
+    });
+
+    return () => {
+      foregroundHandler();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (callState?.callState === 'unanswered') {

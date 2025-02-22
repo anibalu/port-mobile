@@ -2,8 +2,10 @@ import {isIOS} from '@components/ComponentUtils';
 import {PERMISSION_MANAGEMENT_URL} from '@configs/api';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import notifee, {
+  AndroidCategory,
   AndroidColor,
   AndroidGroupAlertBehavior,
+  AndroidImportance,
   AndroidMessagingStyle,
   AndroidPerson,
   AndroidStyle,
@@ -66,6 +68,41 @@ export const performNotificationRouting = async (
     }
   }
 };
+
+export async function displayCallNotification(
+  chatName: string,
+  answerWindowDuration: number,
+) {
+  /*
+   * Guard to remove client-generated notifications on iOS until
+   * we receive NSE Entitlement
+   */
+  if (Platform.OS === 'ios') {
+    return;
+  }
+  const channelId = await setupCallChannel();
+  console.info('call channelId: ', channelId);
+  await notifee.displayNotification({
+    title: 'Incoming Call...',
+    android: {
+      channelId,
+      category: AndroidCategory.CALL,
+      fullScreenAction: {
+        id: 'default', // triggers full-screen intent if needed
+      },
+      actions: [
+        {
+          title: 'Answer',
+          pressAction: { id: 'answer' },
+        },
+        {
+          title: 'Decline',
+          pressAction: { id: 'decline' },
+        },
+      ],
+    },
+  });
+}
 
 /**
  * Displays all notifications for the app.
@@ -216,6 +253,22 @@ const setupNotifee = async (): Promise<string> => {
   return await notifee.createChannel({
     id: 'default',
     name: 'Messaging Notifications',
+  });
+};
+
+/**
+ * Sets up the call channel for Android.
+ * @returns {Promise<string>} which has the channelID (for Android)
+ */
+const setupCallChannel = async (): Promise<string> => {
+  // Used for Android only.
+  return await notifee.createChannel({
+    id: 'call',
+    name: 'Call Notifications',
+    importance: AndroidImportance.HIGH,
+    vibration: true,
+    vibrationPattern: [0, 200, 200, 200],
+    sound: 'default',
   });
 };
 

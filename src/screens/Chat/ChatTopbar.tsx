@@ -61,7 +61,6 @@ function ChatTopbar({
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
-  const {hasPermission, requestPermission} = useMicrophonePermission();
   const svgArray = [
     {
       assetName: 'CloseIcon',
@@ -121,25 +120,20 @@ function ChatTopbar({
 
   const onVideoCallPressed = async () => {
     console.log('Video call pressed');
-    // requests audio and video permission
-    if (!hasPermission) {
-      await requestPermission();
-    }
     if (
       !isIOS &&
       (await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.READ_PHONE_NUMBERS,
       )) !== 'granted'
     ) {
+      // TODO: Add a toast and request manage call permissions.
       return;
     }
-    if (hasPermission) {
-      try {
-        const callId = createCallId();
-        dispatchCallAction({type: 'outgoing_call', callId, chatId});
-      } catch (error) {
-        console.error('Error navigating to call screen: ', error);
-      }
+    try {
+      const callId = createCallId();
+      dispatchCallAction({ type: 'outgoing_call', callId, chatId });
+    } catch (error) {
+      console.error('Error navigating to call screen: ', error);
     }
   };
 

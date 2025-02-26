@@ -40,6 +40,7 @@ type CallAction =
       type: 'incoming_call';
       chatId: string;
       callId: string;
+      callRingTimeSeconds: number;
       onUnanswer: () => void;
     }
   | {type: 'outgoing_call'; chatId: string; callId: string}
@@ -78,6 +79,11 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
       }
       displayIncomingCallOSUI(action.chatId, action.callId); // Asynchronously display calling UI
       const abortController = new AbortController();
+      console.log(
+        'Call will ring in app for: ',
+        action.callRingTimeSeconds,
+        ' seconds',
+      );
       setTimeout(() => {
         if (abortController.signal.aborted) {
           // No need to do the body of this function since we've been aborted
@@ -85,7 +91,7 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
         }
         endCallOSUI(action.callId, CallEndReason.UNANSWERED);
         action.onUnanswer();
-      }, 25 * 1000);
+      }, action.callRingTimeSeconds * 1000);
       return {
         callId: action.callId,
         chatId: action.chatId,
@@ -159,6 +165,7 @@ export const CallContextProvider = ({children}: {children: any}) => {
       type: 'incoming_call',
       callId,
       chatId: newCall.chat,
+      callRingTimeSeconds: newCall.answerWindow || 25,
       onUnanswer: () => dispatchCallAction({type: 'decline_call'}),
     });
     // Clear lastCall so that we don't worry about the same call being re-displayed

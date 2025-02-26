@@ -1,5 +1,5 @@
 import DirectReceiveAction from '../DirectReceiveAction';
-import {DEFAULT_NAME} from '@configs/constants';
+import {DEFAULT_NAME, MAX_CALL_ANSWER_WINDOW_SECONDS} from '@configs/constants';
 import {displaySimpleNotification} from '@utils/Notifications';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import * as storage from '@utils/Storage/messages';
@@ -57,15 +57,22 @@ class ReceiveCall extends DirectReceiveAction {
     const receivedTime = new Date(this.receiveTime);
     const currentTime = new Date();
 
-    if ((currentTime - receivedTime) / 1000 > 15) {
-      // if time between received time and current time is
-      // more than 15 seconds, return early
+    const remainingTime =
+      MAX_CALL_ANSWER_WINDOW_SECONDS -
+      (currentTime.getTime() - receivedTime.getTime()) / 1000 -
+      2; // deduct 2 seconds for good measure
+
+    if (remainingTime < 1) {
       return;
     }
     console.log('DISPATCHING TRAP REQUEST TO INCOMING CALL SCREEN');
     store.dispatch({
       type: 'NEW_CALL',
-      payload: {chatId: this.chatId, callId: this.message.call_id},
+      payload: {
+        chatId: this.chatId,
+        callId: this.message.call_id,
+        answerWindowDuration: remainingTime,
+      },
     });
   }
 }

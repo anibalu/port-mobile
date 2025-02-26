@@ -199,46 +199,6 @@ export const CallContextProvider = ({children}: {children: any}) => {
     );
   }
 
-  const performCallNotificationRouting = async (
-    type: EventType,
-    detail: EventDetail,
-  ) => {
-    console.log('performCallNotificationRouting', type, detail);
-    if (type === EventType.ACTION_PRESS) {
-      if (detail.pressAction?.id === 'answer') {
-        onAnswer();
-      } else if (detail.pressAction?.id === 'decline') {
-        onDecline();
-      }
-    }
-  };
-
-  const onAnswer = () => {
-    console.log('onAnswer');
-    dispatchCallAction({type: 'answer_call'});
-  };
-
-  const onDecline = () => {
-    console.log('onDecline');
-    dispatchCallAction({type: 'decline_call'});
-  };
-
-  //Sets up handlers to route call notifications
-  useEffect(() => {
-    const foregroundHandler = notifee.onForegroundEvent(({ type, detail }) => {
-      performCallNotificationRouting(type, detail);
-    });
-
-    notifee.onBackgroundEvent(async ({ type, detail }) => {
-      performCallNotificationRouting(type, detail);
-    });
-
-    return () => {
-      foregroundHandler();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   useEffect(() => {
     if (callState?.callState === 'unanswered') {
       // We must have a new unanswered call

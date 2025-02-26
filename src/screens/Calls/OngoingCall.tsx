@@ -192,57 +192,58 @@ function OngoingCall({route, navigation}: Props) {
   // Whether the peer video is primary or secondary
   const [isPeerVideoPrimary, setIsPeerVideoPrimary] = useState<boolean>(true);
 
+  const setupCall = async () => {
+    try {
+      RNCallKeep.setAudioRoute(callId, 'Speaker').then(() => {
+        RNCallKeep.getAudioRoutes().then(routes => {
+          setAudioChannels(routes as unknown as AudioRoute[]);
+        });
+      });
+    } catch (error) {
+      console.error('Error setting audio route: ', error);
+    }
+    try {
+      // Get the chat data
+      const chatData = await new DirectChat(chatId).getChatData();
+      const lineId = chatData.lineId;
+      setPeerName(chatData.name || '');
+      setPeerAvatar(chatData.displayPic || DEFAULT_AVATAR);
+
+      // Initialise signalling
+      const s = new Signaller(lineId, dispatchWorkItem);
+      setSignaller(s);
+
+      // Initialise media stream manager for my media stream
+      const msm = new MediaStreamManager(isVideoCall);
+      setMediaStreamManager(msm);
+      await msm.init();
+      const myMediaStream = msm.getMediaStream();
+      if (!myMediaStream) {
+        throw new Error('Failed to get my media stream');
+      }
+
+      // Set my media stream so that the self view can be rendered
+      setMyStream(myMediaStream);
+      if (isVideoCall) {
+        dispatchCallUIState({type: CallUIEvents.my_video_on});
+      }
+      dispatchCallUIState({type: CallUIEvents.my_mic_on});
+
+      // Initialise peer connection manager for the peer's media stream
+      const pc = new PeerConnectionManager(dispatchWorkItem);
+      setPeerConnectionManager(pc);
+      pc.init(myMediaStream);
+    } catch (error) {
+      console.error('Ending call due to error initializing call: ', error);
+      endCall(CallEndReason.SELF_ENDED);
+    }
+  };
+
   /**
    * First time call initialization.
    */
   useEffect(() => {
-    (async () => {
-      try {
-        RNCallKeep.setAudioRoute(callId, 'Speaker').then(() => {
-          RNCallKeep.getAudioRoutes().then(routes => {
-            setAudioChannels(routes as unknown as AudioRoute[]);
-          });
-        });
-      } catch (error) {
-        console.error('Error setting audio route: ', error);
-      }
-      try {
-        // Get the chat data
-        const chatData = await new DirectChat(chatId).getChatData();
-        const lineId = chatData.lineId;
-        setPeerName(chatData.name || '');
-        setPeerAvatar(chatData.displayPic || DEFAULT_AVATAR);
-
-        // Initialise signalling
-        const s = new Signaller(lineId, dispatchWorkItem);
-        setSignaller(s);
-
-        // Initialise media stream manager for my media stream
-        const msm = new MediaStreamManager(isVideoCall);
-        setMediaStreamManager(msm);
-        await msm.init();
-        const myMediaStream = msm.getMediaStream();
-        if (!myMediaStream) {
-          throw new Error('Failed to get my media stream');
-        }
-
-        // Set my media stream so that the self view can be rendered
-        setMyStream(myMediaStream);
-        if (isVideoCall) {
-          dispatchCallUIState({type: CallUIEvents.my_video_on});
-        }
-        dispatchCallUIState({type: CallUIEvents.my_mic_on});
-
-        // Initialise peer connection manager for the peer's media stream
-        const pc = new PeerConnectionManager(dispatchWorkItem);
-        setPeerConnectionManager(pc);
-        pc.init(myMediaStream);
-      } catch (error) {
-        console.error('Ending call due to error initializing call: ', error);
-        endCall(CallEndReason.SELF_ENDED);
-      }
-    })();
-
+    setupCall();
     //add the listener for the muted call action
     RNCallKeep.addEventListener(
       'didPerformSetMutedCallAction',

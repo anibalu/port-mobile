@@ -14,7 +14,7 @@ import {
   SignallingPayload,
   SignallingWorkItem,
 } from './CallWorkQueue';
-import {getPeerRtcConfig} from '@utils/Calls/APICalls';
+import { getPeerRtcConfig } from '@utils/Calls/APICalls';
 import RTCDataChannel from 'react-native-webrtc/lib/typescript/RTCDataChannel';
 
 export enum CallEvents {
@@ -60,7 +60,7 @@ function createNegotiationNeededListener(
         message: offerDescription,
       },
     };
-    dispatchWorkItem({target: 'signaller', item: msg});
+    dispatchWorkItem({ target: 'signaller', item: msg });
   };
 }
 
@@ -100,7 +100,7 @@ function createTrackListener(
 ) {
   return (event: any) => {
     peerMediaStream.addTrack(event.track);
-    dispatchWorkItem({target: 'coordinator', item: 'peer_stream_track_update'});
+    dispatchWorkItem({ target: 'coordinator', item: 'peer_stream_track_update' });
   };
 }
 
@@ -118,14 +118,14 @@ function createIceConnectionStateChangeListener(
     switch (peerConnection.iceConnectionState) {
       case 'connected':
         console.log('Peer connection established');
-        dispatchWorkItem({target: 'coordinator', item: 'peer_connected'});
+        dispatchWorkItem({ target: 'coordinator', item: 'peer_connected' });
         break;
       case 'completed':
         console.log(
           'Completed peer connection with the most suitible candidate',
         );
         // Close the signaller since we're done
-        dispatchWorkItem({target: 'coordinator', item: 'closed_signaller'});
+        dispatchWorkItem({ target: 'coordinator', item: 'closed_signaller' });
         break;
       case 'disconnected':
       case 'closed':
@@ -149,17 +149,17 @@ function createIceConnectionStateChangeListener(
  * @param dispatchWorkItem - dispatcher function.
  */
 function createCallEventListener(dispatchWorkItem: DispatchWorkItem) {
-  return (event: {data: CallEvents}) => {
+  return (event: { data: CallEvents }) => {
     console.log('Received call event: ', event);
     switch (event.data) {
       case CallEvents.micOn:
-        dispatchWorkItem({target: 'coordinator', item: 'peer_mic_turned_on'});
+        dispatchWorkItem({ target: 'coordinator', item: 'peer_mic_turned_on' });
         break;
       case CallEvents.micOff:
-        dispatchWorkItem({target: 'coordinator', item: 'peer_mic_turned_off'});
+        dispatchWorkItem({ target: 'coordinator', item: 'peer_mic_turned_off' });
         break;
       case CallEvents.videoOn:
-        dispatchWorkItem({target: 'coordinator', item: 'peer_video_turned_on'});
+        dispatchWorkItem({ target: 'coordinator', item: 'peer_video_turned_on' });
         break;
       case CallEvents.videoOff:
         dispatchWorkItem({
@@ -321,7 +321,7 @@ export class PeerConnectionManager {
         // peer can see/hear us
         try {
           this.addMyMediaStreamsToPeer();
-        } catch (e) {}
+        } catch (e) { }
 
         // Accept the offer, if possible
         const offerDescription = new RTCSessionDescription(workItem.info);
@@ -339,7 +339,7 @@ export class PeerConnectionManager {
             message: answerDescription,
           },
         };
-        this.dispatchWorkItem({target: 'signaller', item: acceptanceMessage});
+        this.dispatchWorkItem({ target: 'signaller', item: acceptanceMessage });
         break;
       case 'data_channel':
         this.dataChannel = workItem.info;
@@ -363,26 +363,34 @@ export class PeerConnectionManager {
    * This helps prevent memory leaks and gradually decresing performance.
    */
   private removeSDPListeners() {
-    this.peerConnection?.removeEventListener(
-      'negotiationneeded',
-      this.negotiationNeededListener,
-    );
-    this.negotiationNeededListener = undefined;
+    if (this.negotiationNeededListener) {
+      this.peerConnection?.removeEventListener(
+        'negotiationneeded',
+        this.negotiationNeededListener,
+      );
+      this.negotiationNeededListener = undefined;
+    }
 
-    this.peerConnection?.removeEventListener(
-      'icecandidate',
-      this.iceCandidateListener,
-    );
-    this.iceCandidateListener = undefined;
+    if (this.iceCandidateListener) {
+      this.peerConnection?.removeEventListener(
+        'icecandidate',
+        this.iceCandidateListener,
+      );
+      this.iceCandidateListener = undefined;
+    }
 
-    this.peerConnection?.removeEventListener('track', this.trackListener);
-    this.trackListener = undefined;
+    if (this.trackListener) {
+      this.peerConnection?.removeEventListener('track', this.trackListener);
+      this.trackListener = undefined;
+    }
 
-    this.peerConnection?.removeEventListener(
-      'iceconnectionstatechange',
-      this.iceConnectionStateChangeListener,
-    );
-    this.iceConnectionStateChangeListener = undefined;
+    if (this.iceConnectionStateChangeListener) {
+      this.peerConnection?.removeEventListener(
+        'iceconnectionstatechange',
+        this.iceConnectionStateChangeListener,
+      );
+      this.iceConnectionStateChangeListener = undefined;
+    }
   }
 
   /**

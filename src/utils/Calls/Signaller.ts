@@ -12,6 +12,7 @@ import {
 
 function createOnOpen(socket: WebSocket) {
   return async () => {
+    console.log('Socket opened');
     try {
       const token = await getToken();
       socket.send(token);
@@ -20,9 +21,10 @@ function createOnOpen(socket: WebSocket) {
     }
   };
 }
+
 function createOnClose(dispatchWorkItem: DispatchWorkItem) {
-  return event => {
-    console.log('Closed: ', event);
+  return (e: WebSocketMessageEvent) => {
+    console.log('Socket closed', e);
     dispatchWorkItem({target: 'coordinator', item: 'closed_signaller'});
   };
 }

@@ -1,7 +1,5 @@
 import DirectReceiveAction from '../DirectReceiveAction';
-import {DEFAULT_NAME, MAX_CALL_ANSWER_WINDOW_SECONDS} from '@configs/constants';
-import {displayCallNotification, displaySimpleNotification} from '@utils/Notifications';
-import DirectChat from '@utils/DirectChats/DirectChat';
+import {MAX_CALL_ANSWER_WINDOW_SECONDS} from '@configs/constants';
 import * as storage from '@utils/Storage/messages';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
@@ -41,17 +39,6 @@ class ReceiveCall extends DirectReceiveAction {
    * @returns void
    */
   async notify() {
-    try {
-      const chat = new DirectChat(this.chatId);
-      const chatData = await chat.getChatData();
-      displayCallNotification(
-        chatData.name || DEFAULT_NAME,
-        MAX_CALL_ANSWER_WINDOW_SECONDS,
-      );
-    } catch (error) {
-      console.log('Error in displaying call notification: ', error);
-    }
-
     const receivedTime = new Date(this.receiveTime);
     const currentTime = new Date();
 
@@ -63,7 +50,6 @@ class ReceiveCall extends DirectReceiveAction {
     if (remainingTime < 1) {
       return;
     }
-    console.log('DISPATCHING TRAP REQUEST TO INCOMING CALL SCREEN');
     store.dispatch({
       type: 'NEW_CALL',
       payload: {

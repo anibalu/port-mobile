@@ -153,12 +153,17 @@ export enum CallEndReason {
  * @returns void
  */
 export function endCallOSUI(callId: string, reason: CallEndReason): void {
-  if (CallEndReason.SELF_ENDED === reason) {
-    RNCallKeep.endAllCalls(); // Super coarse due to laziness, will have to change
-    // With improved multi-call capabilities
-    return;
+  console.log('Ending call OSUI: ', callId, reason);
+  try {
+    if (CallEndReason.SELF_ENDED === reason) {
+      RNCallKeep.endAllCalls(); // Super coarse due to laziness, will have to change
+      // With improved multi-call capabilities
+      return;
+    }
+    RNCallKeep.reportEndCallWithUUID(callId, reason);
+  } catch (error) {
+    console.error('Error ending call: ', error);
   }
-  RNCallKeep.reportEndCallWithUUID(callId, reason);
 }
 
 /**

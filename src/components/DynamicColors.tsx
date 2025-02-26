@@ -49,6 +49,7 @@ const DynamicColors = (theme?: string | null) => {
       tealBlue: '#4A94B0',
       brightRed: '#E20036',
       blue: '#4E75FF',
+      purple: '#9E82ED',
     },
     lowAccentColors: {
       violet: '#730BDC1A',
@@ -58,6 +59,7 @@ const DynamicColors = (theme?: string | null) => {
       tealBlue: '#4A94B01A',
       brightRed: '#E200361A',
       blue: '#4E75FF1A',
+      purple: '#9E82ED1A',
       grey: '#F3F3F5',
     },
     search: {

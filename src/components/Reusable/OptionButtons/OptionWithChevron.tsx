@@ -115,7 +115,7 @@ const styling = (colors: any) =>
       alignItems: 'flex-start',
       paddingHorizontal: PortSpacing.intermediate.uniform,
       width: '100%',
-      height: 56,
+      height: 48,
     },
     labelContainer: {
       flexDirection: 'row',

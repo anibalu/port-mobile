@@ -82,7 +82,7 @@ function ChatTopbar({
 
   const results = useDynamicSVG(svgArray);
   const CloseIcon = results.CloseIcon;
-  // const AudioCallIcon = results.AudioCallIcon;
+  const AudioCallIcon = results.AudioCallIcon;
   const VideoCallIcon = results.VideoCallIcon;
 
   const onSettingsPressed = async () => {
@@ -143,7 +143,7 @@ function ChatTopbar({
     }
   };
 
-  // const onAudioCallPressed = onVideoCallPressed;
+  const onAudioCallPressed = onVideoCallPressed;
 
   const {themeValue} = useTheme();
 
@@ -152,6 +152,7 @@ function ChatTopbar({
       {!selectionMode && (
         <ChatTopBarWithAccessControls
           ref={chatTopBarRef}
+          chatName={name}
           chatId={chatId}
           isScreenClickable={isScreenClickable}
           sliderOpen={sliderOpen}
@@ -213,9 +214,9 @@ function ChatTopbar({
                 <Pressable hitSlop={40} onPress={onVideoCallPressed}>
                   <VideoCallIcon />
                 </Pressable>
-                {/* <Pressable hitSlop={40} onPress={onAudioCallPressed}>
+                <Pressable hitSlop={40} onPress={onAudioCallPressed}>
                   <AudioCallIcon />
-                </Pressable> */}
+                </Pressable>
               </View>
             </View>
           )}
@@ -248,7 +249,7 @@ const styling = (colors: any) =>
       position: 'absolute',
     },
     profileBarLeft: {
-      flex: screen.width - 90,
+      flex: screen.width - 98,
       flexDirection: 'row',
       alignItems: 'center',
     },
@@ -262,7 +263,7 @@ const styling = (colors: any) =>
     nameBar: {
       flexDirection: 'row',
       alignItems: 'center',
-      width: screen.width - 90 - 48 - 50,
+      width: screen.width - 98 - 48 - 50,
     },
     nameBarInSelection: {
       flex: 1,
@@ -330,12 +331,13 @@ const styling = (colors: any) =>
       gap: 8,
     },
     callIcons: {
-      width: 90,
+      width: 98,
       flexDirection: 'row',
       justifyContent: 'flex-end',
       alignItems: 'center',
-      paddingRight: 32,
+      paddingRight: 20,
       paddingLeft: 8,
+      gap: 20,
     },
   });
 

@@ -2,7 +2,7 @@
  * This screen displays information about an incoming call and allows the user to choose
  * Whether to answer or decline it.
  */
-import {screen} from '@components/ComponentUtils';
+import { isIOS, screen } from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 
 import {
@@ -10,39 +10,40 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useInsetChecks} from '@components/DeviceUtils';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React, { useEffect, useState } from 'react';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { CustomStatusBar } from '@components/CustomStatusBar';
+import { SafeAreaView } from '@components/SafeAreaView';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useInsetChecks } from '@components/DeviceUtils';
+import { AppStackParamList } from '@navigation/AppStackTypes';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT} from '@configs/constants';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {useCallContext} from './CallContext';
+import { DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT } from '@configs/constants';
+import { AvatarBox } from '@components/Reusable/AvatarBox/AvatarBox';
+import { useCallContext } from './CallContext';
 import {
   getPreLaunchEvents,
   isCallCurrentlyActive,
+  getAndroidCallAnswerInfo,
 } from '@utils/Calls/CallOSBridge';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'IncomingCall'>;
 
-function IncomingCall({route, navigation}: Props) {
-  const {chatId, callId} = route.params;
+function IncomingCall({ route, navigation }: Props) {
+  const { chatId, callId } = route.params;
   const Colors = DynamicColors();
   const DarkColors = DynamicColors('dark');
 
   const styles = styling(Colors);
   const inset = useSafeAreaInsets();
-  const {hasIosBottomNotch} = useInsetChecks();
+  const { hasIosBottomNotch } = useInsetChecks();
   // State variables for a user-digestable representation of a caller
   const [profileName, setProfileName] = useState<string>(DEFAULT_NAME);
   const [profilePicture, setProfilePicture] = useState<string>(DEFAULT_AVATAR);
 
-  const {dispatchCallAction, callState} = useCallContext();
+  const { dispatchCallAction, callState } = useCallContext();
 
   /** Styling */
   const svgArray = [
@@ -77,22 +78,36 @@ function IncomingCall({route, navigation}: Props) {
    * Get pre launch events and process things based on them
    * @returns Whether an action was taken
    */
-  const processPreLaunchEvents = async (): Promise<boolean> => {
+  const processIOSPreLaunchEvents = async (): Promise<boolean> => {
     const preLaunchEvents = await getPreLaunchEvents();
     for (let i = 0; i < preLaunchEvents.length; i++) {
-      const {data, name} = preLaunchEvents[i];
+      const { data, name } = preLaunchEvents[i];
       switch (name) {
         case 'RNCallKeepPerformAnswerCallAction':
           if (data.callUUID === callId) {
-            dispatchCallAction({type: 'answer_call'});
+            dispatchCallAction({ type: 'answer_call' });
             return true;
           }
           break;
         case 'RNCallKeepPerformEndCallAction':
           if (data.callUUID === callId) {
-            dispatchCallAction({type: 'decline_call'});
+            dispatchCallAction({ type: 'decline_call' });
             return true;
           }
+      }
+    }
+    return false;
+  };
+
+  const processAndroidPreLaunchEvents = async (): Promise<boolean> => {
+    const callAnswerInfo = await getAndroidCallAnswerInfo();
+    if (callAnswerInfo?.callId === callId) {
+      if (callAnswerInfo?.intentResult === 'answered') {
+        dispatchCallAction({ type: 'answer_call' });
+        return true;
+      } else if (callAnswerInfo?.intentResult === 'declined') {
+        dispatchCallAction({ type: 'decline_call' });
+        return true;
       }
     }
     return false;
@@ -106,19 +121,27 @@ function IncomingCall({route, navigation}: Props) {
       const chatData = await chatHandler.getChatData();
       setProfileName(chatData.name || DEFAULT_NAME);
       setProfilePicture(chatData.displayPic || DEFAULT_AVATAR);
-      // Check if the call has already been answered. Important on the iOS
-      // Backgrounded state
-      if (await isCallCurrentlyActive(callId)) {
-        console.log(
-          'Call was answered from the host UI before this screen was even rendered',
-        );
-        dispatchCallAction({type: 'answer_call'});
-        return;
-      }
-      // Process pre-launch events, important on iOS killed state
-      if (await processPreLaunchEvents()) {
-        // An action was taken, so quit the rest of the processing
-        return;
+      if (!isIOS) {
+        // Process pre-launch events, important on android
+        if (await processAndroidPreLaunchEvents()) {
+          // An action was taken, so quit the rest of the processing
+          return;
+        }
+      } else {
+        // Check if the call has already been answered. Important on the iOS
+        // Backgrounded state
+        if (await isCallCurrentlyActive(callId)) {
+          console.log(
+            'Call was answered from the host UI before this screen was even rendered',
+          );
+          dispatchCallAction({ type: 'answer_call' });
+          return;
+        }
+        // Process pre-launch events, important on iOS killed state
+        if (await processIOSPreLaunchEvents()) {
+          // An action was taken, so quit the rest of the processing
+          return;
+        }
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -133,7 +156,7 @@ function IncomingCall({route, navigation}: Props) {
     }
     if (callState.callState === 'answered') {
       // We're on the wrong screen, navigate to the ongoing call screen with appropriate props
-      navigation.replace('OngoingCall', {callId, chatId, isVideoCall: true});
+      navigation.replace('OngoingCall', { callId, chatId, isVideoCall: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callState]);
@@ -171,7 +194,7 @@ function IncomingCall({route, navigation}: Props) {
         <View style={styles.container}>
           <TouchableOpacity
             onPress={() => {
-              dispatchCallAction({type: 'decline_call'});
+              dispatchCallAction({ type: 'decline_call' });
             }}
             style={{
               flexDirection: 'column',
@@ -180,7 +203,7 @@ function IncomingCall({route, navigation}: Props) {
             }}>
             <EndCall />
             <NumberlessText
-              style={{color: Colors.primary.red, marginTop: 8}}
+              style={{ color: Colors.primary.red, marginTop: 8 }}
               fontType={FontType.md}
               fontSizeType={FontSizeType.l}>
               Decline
@@ -189,7 +212,7 @@ function IncomingCall({route, navigation}: Props) {
           {/* Answer the call */}
           <TouchableOpacity
             onPress={() => {
-              dispatchCallAction({type: 'answer_call'});
+              dispatchCallAction({ type: 'answer_call' });
             }}
             style={{
               flexDirection: 'column',
@@ -198,7 +221,7 @@ function IncomingCall({route, navigation}: Props) {
             }}>
             <AcceptCall />
             <NumberlessText
-              style={{color: Colors.primary.green, marginTop: 8}}
+              style={{ color: Colors.primary.green, marginTop: 8 }}
               fontType={FontType.md}
               fontSizeType={FontSizeType.l}>
               Accept

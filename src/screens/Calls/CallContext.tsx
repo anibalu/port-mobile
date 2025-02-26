@@ -16,7 +16,6 @@ import React, {createContext, useContext, useEffect, useReducer} from 'react';
 import {useSelector} from 'react-redux';
 import store from '@store/appStore';
 import {registerForVoIPPushNotifications} from '@utils/Messaging/PushNotifications/VoIPAPNS';
-import notifee, { EventDetail, EventType } from '@notifee/react-native';
 
 // bodgy fix since we need to be able to map callIds to chatIds
 type Call = {
@@ -78,7 +77,7 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
         // We're already handling an incoming/ongoing call
         return state;
       }
-      displayIncomingCallOSUI(action.chatId, action.callId); // Asynchronously display calling UI
+      displayIncomingCallOSUI(action.chatId, action.callId, action.callRingTimeSeconds); // Asynchronously display calling UI
       const abortController = new AbortController();
       console.log(
         'Call will ring in app for: ',

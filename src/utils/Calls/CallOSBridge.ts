@@ -89,14 +89,14 @@ export async function setUpCallKeep(
  * Ask the OS to display calling UI
  * @param chatId
  */
-export async function displayIncomingCallOSUI(chatId: string, callId: string) {
+export async function displayIncomingCallOSUI(chatId: string, callId: string, callRingTimeSeconds: number) {
   // Fetch information to display
   const chat = new DirectChat(chatId);
   const {name} = await chat.getChatData();
   if (!isIOS) {
     // This throws up a call style notification on Android.
     // The notification times out based on a value set in the native module
-    CallHelperModule.displayCallUI(name || 'New contact', chatId, () =>
+    CallHelperModule.displayCallUI(name || 'New contact', chatId, callRingTimeSeconds, () =>
       console.log('Displayed calling UI!!!'),
     );
   } else {
@@ -184,6 +184,29 @@ export async function getPreLaunchEvents() {
     return [];
   }
   return await RNCallKeep.getInitialEvents();
+}
+
+/**
+ * Get information about an incoming call from the Android intent
+ * @returns A promise that resolves to the incoming call info
+ */
+export async function getAndroidCallAnswerInfo() {
+  if (isIOS) {
+    return null;
+  } else {
+    try {
+      const incomingCallInfo = await CallHelperModule.getCallAnswerInfo();
+      console.log('Incoming call info: ', incomingCallInfo);
+      if (incomingCallInfo.callId && incomingCallInfo.intentResult) {
+        return incomingCallInfo;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Error getting call answer info: ', error);
+      return null;
+    }
+  }
 }
 
 export async function isCallCurrentlyActive(callId: string): Promise<boolean> {

@@ -11,8 +11,8 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useState } from 'react';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { AppState, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CustomStatusBar } from '@components/CustomStatusBar';
 import { SafeAreaView } from '@components/SafeAreaView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -101,17 +101,41 @@ function IncomingCall({ route, navigation }: Props) {
 
   const processAndroidPreLaunchEvents = async (): Promise<boolean> => {
     const callAnswerInfo = await getAndroidCallAnswerInfo();
+    console.log('[ANDROID PRE LAUNCH EVENTS]', callAnswerInfo, callId);
     if (callAnswerInfo?.callId === callId) {
-      if (callAnswerInfo?.intentResult === 'answered') {
+      if (callAnswerInfo?.intentResult === 'Answer') {
         dispatchCallAction({ type: 'answer_call' });
         return true;
-      } else if (callAnswerInfo?.intentResult === 'declined') {
+      } else if (callAnswerInfo?.intentResult === 'Decline') {
         dispatchCallAction({ type: 'decline_call' });
         return true;
       }
     }
     return false;
   };
+
+  const appState = useRef(AppState.currentState);
+
+  /**
+   * Setup background or foreground operations according to app state.
+   */
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      //If app has come to the foreground.
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        //run android pre launch events
+        processAndroidPreLaunchEvents();
+      }
+
+      appState.current = nextAppState;
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   // Set up the incoming call
   useEffect(() => {

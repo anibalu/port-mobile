@@ -5,6 +5,7 @@ import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import store from '@store/appStore';
+import {displayIncomingCallOSUI} from '@utils/Calls/CallOSBridge';
 
 class ReceiveCall extends DirectReceiveAction {
   generatePreviewText(): string {
@@ -50,6 +51,8 @@ class ReceiveCall extends DirectReceiveAction {
     if (remainingTime < 1) {
       return;
     }
+    // Display the incoming call OS UI
+    displayIncomingCallOSUI(this.chatId, this.message.callId, remainingTime); // Asynchronously display calling UI
     store.dispatch({
       type: 'NEW_CALL',
       payload: {

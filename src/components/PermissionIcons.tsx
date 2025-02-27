@@ -7,7 +7,8 @@ import ShareContactGreen from '@assets/icons/ShareContactGreen.svg';
 import CheckCircleOrange from '@assets/icons/CheckCircleOrange.svg';
 import DisappearingMessageBlue from '@assets/icons/DisappearingMessageBlue.svg';
 import ProfileTeal from '@assets/icons/ProfileTeal.svg';
-
+import CallEnabled from '@assets/icons/CallEnabled.svg';
+import CallDisabled from '@assets/light/icons/CallDisabled.svg';
 import BellDisabled from '@assets/light/icons/BellDisabled.svg';
 import DownloadDisabled from '@assets/light/icons/DownloadDisabled.svg';
 import HomeDisabled from '@assets/light/icons/HomeDisabled.svg';
@@ -23,10 +24,10 @@ import ShareContactDisabledDark from '@assets/dark/icons/ShareContactDisabled.sv
 import CheckCircleDisabledDark from '@assets/dark/icons/CheckCircleDisabled.svg';
 import DisappearingMessageDisabledDark from '@assets/dark/icons/DisappearingMessageDisabled.svg';
 import ProfileDisabledDark from '@assets/dark/icons/ProfileDisabled.svg';
+import CallDisabledDark from '@assets/dark/icons/CallDisabled.svg';
 
 import DynamicColors from '@components/DynamicColors';
 import {SvgProps} from 'react-native-svg';
-import {PortSpacing} from '@components/ComponentUtils';
 import {useTheme} from 'src/context/ThemeContext';
 import {
   BooleanPermissions,
@@ -43,6 +44,7 @@ import {
   pauseContactPortForDirectChat,
   resumeContactPortForDirectChat,
 } from '@utils/Ports/contactport';
+import {modifyCallPermission} from '@utils/Calls/APICalls';
 
 /**
  * Returns a JSX element representing an icon with a background color based on the provided permission state.
@@ -66,6 +68,7 @@ interface PermissionConfigMap {
   disappearingMessages: PermissionConfig;
   readReceipts: PermissionConfig;
   displayPicture: PermissionConfig;
+  calling: PermissionConfig;
 }
 
 const permissionConfigMap: PermissionConfigMap = {
@@ -110,6 +113,12 @@ const permissionConfigMap: PermissionConfigMap = {
     enabledIcon: ProfileTeal,
     disabledIconLight: ProfileDisabled,
     disabledIconDark: ProfileDisabledDark,
+  },
+  calling: {
+    bgColor: 'purple',
+    enabledIcon: CallEnabled,
+    disabledIconLight: CallDisabled,
+    disabledIconDark: CallDisabledDark,
   },
 };
 
@@ -162,6 +171,39 @@ const PermissionIcons = ({
       });
     }
   };
+
+  const onUpdateCallPermission = async () => {
+    const newCallPermissionState = !permissions.calling;
+    // Toggle the notification switch immediately to give the user immediate feedback
+    setPermissions({
+      ...permissions,
+      ['calling']: newCallPermissionState,
+    });
+    if (chatId) {
+      const directChat = new DirectChat(chatId);
+      const lineId = (await directChat.getChatData()).lineId;
+      // We have a specific chat to update
+      // API call to udpate a single chatId on the backend
+      try {
+        await modifyCallPermission(lineId, newCallPermissionState);
+      } catch (e) {
+        console.error('[CALL PERMISSION] Could not update permissions', e);
+        // If the API call fails, toggle back to old setting
+        setPermissions({
+          ...permissions,
+          ['calling']: !newCallPermissionState,
+        });
+        return;
+      }
+    }
+    // Update the notification state
+    if (permissionsId) {
+      await updatePermissions(permissionsId, {
+        calling: newCallPermissionState,
+      });
+    }
+  };
+
   const onUpdateBooleanPermission = async (
     permissionKey: keyof BooleanPermissions,
   ) => {
@@ -249,6 +291,11 @@ const PermissionIcons = ({
         onToggle={onUpdateNotificationPermission}
       />
       <PermissionIcon
+        permission={'calling'}
+        isEnabled={permissions.calling}
+        onToggle={onUpdateCallPermission}
+      />
+      <PermissionIcon
         permission={'focus'}
         isEnabled={permissions.focus}
         onToggle={async () => await onUpdateBooleanPermission('focus')}
@@ -317,11 +364,11 @@ const PermissionIcon = ({
         borderColor: isEnabled ? 'transparent' : Colors.primary.darkgrey,
       })}>
       {isEnabled ? (
-        <config.enabledIcon width={20} height={20} />
+        <config.enabledIcon width={16} height={16} />
       ) : themeValue === 'light' ? (
-        <config.disabledIconLight width={20} height={20} />
+        <config.disabledIconLight width={16} height={16} />
       ) : (
-        <config.disabledIconDark width={20} height={20} />
+        <config.disabledIconDark width={16} height={16} />
       )}
     </Pressable>
   );
@@ -330,7 +377,7 @@ const PermissionIcon = ({
 const styles = StyleSheet.create({
   container: {
     borderRadius: 100,
-    padding: PortSpacing.tertiary.uniform,
+    padding: 6,
   },
   wrapContainer: {
     width: '100%',
@@ -338,7 +385,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
 });
 

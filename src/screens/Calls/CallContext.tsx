@@ -5,7 +5,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {
   CallEndReason,
-  displayIncomingCallOSUI,
   endCallOSUI,
   notifyOSOfCallAcceptance,
   placeOutgoingCallOSUI,
@@ -77,7 +76,6 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
         // We're already handling an incoming/ongoing call
         return state;
       }
-      displayIncomingCallOSUI(action.chatId, action.callId); // Asynchronously display calling UI
       const abortController = new AbortController();
       console.log(
         'Call will ring in app for: ',

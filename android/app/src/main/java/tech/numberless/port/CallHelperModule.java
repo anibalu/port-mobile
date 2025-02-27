@@ -19,7 +19,10 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.Arguments;
 
 import java.util.Random;
 
@@ -40,13 +43,27 @@ public class CallHelperModule extends ReactContextBaseJavaModule {
     private final String CHANNEL_ID = "call_channel";
 
     @ReactMethod
-    public void getCallAnswerInfo(Callback answerCallback) {
+    public void getCallAnswerInfo(Promise promise) {
+        if (getCurrentActivity() == null) { // This should never happen
+            Log.e("CallAnswerInfo", "Activity is null, cannot get Intent.");
+            promise.reject("No activity", "No activity");
+            return;
+        }
         Intent answerIntent = getCurrentActivity().getIntent();
+        if (answerIntent == null) { // This will happen when app is foregrounded.
+
+            promise.reject("No intent", "No intent");
+            return;
+        }
         if (answerIntent.hasExtra("callNotificationResult")) {
-            String result = answerIntent.getStringExtra("callNotificationResult");
-            Log.d("CallAnswerInfo", result);
-            // If a call was answered, we call callback with metadata about the call
-            answerCallback.invoke(answerIntent.getStringExtra("callId"));
+            WritableMap callData = Arguments.createMap();
+            // If a call was answered, we resolve the promise with metadata about the call
+            callData.putString("intentResult", answerIntent.getStringExtra("callNotificationResult"));
+            callData.putString("callId", answerIntent.getStringExtra("callId"));
+            Log.d("CallAnswerInfo", callData.toString());
+            promise.resolve(callData);
+        } else {
+            promise.reject("No intent result", "No intent result");
         }
     }
 
@@ -68,7 +85,7 @@ public class CallHelperModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void displayCallUI(String caller, String callId, Callback onSuccess) {
+    public void displayCallUI(String caller, String callId, int callRingTimeSeconds, Callback onSuccess) {
         createNotificationChannel();
         Log.d("CALL", caller);
         Person callerPerson = null;
@@ -133,7 +150,7 @@ public class CallHelperModule extends ReactContextBaseJavaModule {
                     .setFullScreenIntent(pendingDecline, true)
                     .setPriority(Notification.PRIORITY_HIGH)
                     .setSmallIcon(R.drawable.ic_small_icon)
-                    .setTimeoutAfter(25 * 1000);    // Set a 25 second timeout
+                    .setTimeoutAfter(callRingTimeSeconds * 1000);    // Set a ring timeout
         }
 
         int notificationId = new Random().nextInt();

@@ -10,8 +10,6 @@ import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {useTheme} from 'src/context/ThemeContext';
-import ChatSettingsCard from '@components/Reusable/PermissionCards/ChatSettingsCard';
-import AdvanceSettingsCard from '@components/Reusable/PermissionCards/AdvanceSettingsCard';
 import {
   FontSizeType,
   FontType,
@@ -19,21 +17,23 @@ import {
 } from '@components/NumberlessText';
 import PermissionIcons from '@components/PermissionIcons';
 import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
+import ContactSettingsCard from '@components/Reusable/PermissionCards/ContactSettingsCard';
+import NewChatSettingsCard from '@components/Reusable/PermissionCards/NewChatSettingsCard';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 /**
  * Access slider constants
  */
 const TOP_BAR_HEIGHT = 56; //height of chat screen top bar
-const PERMISSION_BAR_HEIGHT =
-  Math.floor((screen.width - 32) / (20 + 12)) > 7 ? 52 : 88; //height of perission icons bar
+const PERMISSION_BAR_HEIGHT = 40; //height of perission icons bar
 const SLIDER_HEIGHT = 32; //height of slider drag sliver
-const SLIDER_EXCESS_HEIGHT = 20; //height of slider minus height of notch
-const PERMISSIONS_OPEN_HEIGHT = 504; //height of permission cards
+const SLIDER_EXCESS_HEIGHT = 0; //height of slider minus height of notch
+const PERMISSIONS_OPEN_HEIGHT = 480; //height of permission cards
 const THRESHOLD_OPEN = 10; //distance to move to initiate full open motion
 const THRESHOLD_CLOSE = 10; //distance to move to initiate full close motion
 const SLIDER_CLOSED_HEIGHT = SLIDER_HEIGHT + TOP_BAR_HEIGHT; //height of slider when it is fully closed.
 const ICON_DISPLAY_HEIGHT =
-  PERMISSION_BAR_HEIGHT + SLIDER_HEIGHT + TOP_BAR_HEIGHT; //height of slider when permission icons are displayed
+  PERMISSION_BAR_HEIGHT + SLIDER_HEIGHT + TOP_BAR_HEIGHT - 4; //height of slider when permission icons are displayed
 const MAX_SLIDER_HEIGHT =
   PERMISSIONS_OPEN_HEIGHT +
   SLIDER_HEIGHT +
@@ -44,6 +44,7 @@ export const ChatTopBarWithAccessControls = forwardRef(
   (
     {
       chatId,
+      chatName,
       isScreenClickable,
       sliderOpen,
       permissionsId,
@@ -51,6 +52,7 @@ export const ChatTopBarWithAccessControls = forwardRef(
       setPermissions,
     }: {
       chatId: string;
+      chatName: string;
       isScreenClickable: SharedValue<boolean>;
       sliderOpen: boolean;
       permissionsId: string | null | undefined;
@@ -62,6 +64,17 @@ export const ChatTopBarWithAccessControls = forwardRef(
     const {themeValue} = useTheme();
     const Colors = DynamicColors();
     const styles = styling(Colors);
+
+    const svgArray = [
+      {
+        assetName: 'NotchDown',
+        light: require('@assets/light/icons/NotchDown.svg').default,
+        dark: require('@assets/dark/icons/NotchDown.svg').default,
+      },
+    ];
+
+    const results = useDynamicSVG(svgArray);
+    const NotchDown = results.NotchDown;
 
     // Access slider attributes
     const hasStarted = useSharedValue(false);
@@ -216,17 +229,26 @@ export const ChatTopBarWithAccessControls = forwardRef(
                   ? Colors.primary.surface
                   : Colors.primary.surface2,
             })}>
-            {!sliderOpen && (
+            {sliderOpen ? (
               <NumberlessText
                 textColor={Colors.text.subtitle}
-                fontSizeType={FontSizeType.s}
+                fontSizeType={FontSizeType.xs}
                 fontType={FontType.rg}
                 allowFontScaling={false}
                 style={{marginBottom: 4}}>
-                Drag this slider down to edit permissions
+                To close this toolbar, drag the slider up
+              </NumberlessText>
+            ) : (
+              <NumberlessText
+                textColor={Colors.text.subtitle}
+                fontSizeType={FontSizeType.xs}
+                fontType={FontType.rg}
+                allowFontScaling={false}
+                style={{marginBottom: 4}}>
+                Drag this slider down to customize permissions
               </NumberlessText>
             )}
-            <View style={styles.notch} />
+            <NotchDown />
           </View>
           {permissions && permissionsId && (
             <View style={styles.permissionsParent}>
@@ -259,19 +281,19 @@ export const ChatTopBarWithAccessControls = forwardRef(
                         : Colors.primary.surface2,
                   },
                 ]}>
-                <ChatSettingsCard
+                <ContactSettingsCard
+                  chatId={chatId}
+                  chatName={chatName}
+                  permissions={permissions}
+                  permissionsId={permissionsId}
+                  setPermissions={setPermissions}
+                />
+                <NewChatSettingsCard
                   chatId={chatId}
                   permissions={permissions}
                   permissionsId={permissionsId}
                   setPermissions={setPermissions}
                   showDissapearingMessagesOption={true}
-                />
-                <AdvanceSettingsCard
-                  chatId={chatId}
-                  permissions={permissions}
-                  permissionsId={permissionsId}
-                  setPermissions={setPermissions}
-                  heading={'Allow this contact to'}
                 />
               </Animated.View>
             </View>

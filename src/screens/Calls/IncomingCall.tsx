@@ -2,7 +2,7 @@
  * This screen displays information about an incoming call and allows the user to choose
  * Whether to answer or decline it.
  */
-import {screen} from '@components/ComponentUtils';
+import {isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 
 import {
@@ -11,8 +11,8 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {AppState, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -26,6 +26,7 @@ import {useCallContext} from './CallContext';
 import {
   getPreLaunchEvents,
   isCallCurrentlyActive,
+  getAndroidCallAnswerInfo,
 } from '@utils/Calls/CallOSBridge';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'IncomingCall'>;
@@ -77,7 +78,7 @@ function IncomingCall({route, navigation}: Props) {
    * Get pre launch events and process things based on them
    * @returns Whether an action was taken
    */
-  const processPreLaunchEvents = async (): Promise<boolean> => {
+  const processIOSPreLaunchEvents = async (): Promise<boolean> => {
     const preLaunchEvents = await getPreLaunchEvents();
     for (let i = 0; i < preLaunchEvents.length; i++) {
       const {data, name} = preLaunchEvents[i];
@@ -98,6 +99,45 @@ function IncomingCall({route, navigation}: Props) {
     return false;
   };
 
+  const processAndroidPreLaunchEvents = async (): Promise<boolean> => {
+    const callAnswerInfo = await getAndroidCallAnswerInfo();
+    console.log('[ANDROID PRE LAUNCH EVENTS]', callAnswerInfo, callId);
+    if (callAnswerInfo?.callId === callId) {
+      if (callAnswerInfo?.intentResult === 'Answer') {
+        dispatchCallAction({type: 'answer_call'});
+        return true;
+      } else if (callAnswerInfo?.intentResult === 'Decline') {
+        dispatchCallAction({type: 'decline_call'});
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const appState = useRef(AppState.currentState);
+
+  /**
+   * Setup background or foreground operations according to app state.
+   */
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      //If app has come to the foreground.
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        //run android pre launch events
+        processAndroidPreLaunchEvents();
+      }
+
+      appState.current = nextAppState;
+    });
+    return () => {
+      subscription.remove();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Set up the incoming call
   useEffect(() => {
     (async () => {
@@ -106,19 +146,27 @@ function IncomingCall({route, navigation}: Props) {
       const chatData = await chatHandler.getChatData();
       setProfileName(chatData.name || DEFAULT_NAME);
       setProfilePicture(chatData.displayPic || DEFAULT_AVATAR);
-      // Check if the call has already been answered. Important on the iOS
-      // Backgrounded state
-      if (await isCallCurrentlyActive(callId)) {
-        console.log(
-          'Call was answered from the host UI before this screen was even rendered',
-        );
-        dispatchCallAction({type: 'answer_call'});
-        return;
-      }
-      // Process pre-launch events, important on iOS killed state
-      if (await processPreLaunchEvents()) {
-        // An action was taken, so quit the rest of the processing
-        return;
+      if (!isIOS) {
+        // Process pre-launch events, important on android
+        if (await processAndroidPreLaunchEvents()) {
+          // An action was taken, so quit the rest of the processing
+          return;
+        }
+      } else {
+        // Check if the call has already been answered. Important on the iOS
+        // Backgrounded state
+        if (await isCallCurrentlyActive(callId)) {
+          console.log(
+            'Call was answered from the host UI before this screen was even rendered',
+          );
+          dispatchCallAction({type: 'answer_call'});
+          return;
+        }
+        // Process pre-launch events, important on iOS killed state
+        if (await processIOSPreLaunchEvents()) {
+          // An action was taken, so quit the rest of the processing
+          return;
+        }
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

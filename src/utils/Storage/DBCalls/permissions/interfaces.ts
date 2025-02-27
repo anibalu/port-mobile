@@ -9,6 +9,7 @@ export interface BooleanPermissions {
   readReceipts?: boolean | null;
   focus?: boolean | null;
   favourite?: boolean | null;
+  calling?: boolean | null;
 }
 export const booleanKeysOfPermissions: (keyof BooleanPermissions)[] = [
   'notifications',
@@ -18,6 +19,7 @@ export const booleanKeysOfPermissions: (keyof BooleanPermissions)[] = [
   'readReceipts',
   'focus',
   'favourite',
+  'calling',
 ];
 
 /**
@@ -45,6 +47,7 @@ export interface PermissionsStrict extends Permissions {
   displayPicture: boolean;
   contactSharing: boolean;
   readReceipts: boolean;
+  calling: boolean;
   disappearingMessages: number;
   focus: boolean;
   favourite: boolean;
@@ -67,4 +70,8 @@ interface GroupPermissionsInit extends Permissions {
   focus: boolean;
   favourite: boolean;
 }
-export type GroupPermissions = Omit<GroupPermissionsInit, 'contactSharing'>;
+
+export type GroupPermissions = Omit<
+  GroupPermissionsInit,
+  'contactSharing' | 'calling'
+>;

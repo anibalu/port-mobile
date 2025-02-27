@@ -363,26 +363,34 @@ export class PeerConnectionManager {
    * This helps prevent memory leaks and gradually decresing performance.
    */
   private removeSDPListeners() {
-    this.peerConnection?.removeEventListener(
-      'negotiationneeded',
-      this.negotiationNeededListener,
-    );
-    this.negotiationNeededListener = undefined;
+    if (this.negotiationNeededListener) {
+      this.peerConnection?.removeEventListener(
+        'negotiationneeded',
+        this.negotiationNeededListener,
+      );
+      this.negotiationNeededListener = undefined;
+    }
 
-    this.peerConnection?.removeEventListener(
-      'icecandidate',
-      this.iceCandidateListener,
-    );
-    this.iceCandidateListener = undefined;
+    if (this.iceCandidateListener) {
+      this.peerConnection?.removeEventListener(
+        'icecandidate',
+        this.iceCandidateListener,
+      );
+      this.iceCandidateListener = undefined;
+    }
 
-    this.peerConnection?.removeEventListener('track', this.trackListener);
-    this.trackListener = undefined;
+    if (this.trackListener) {
+      this.peerConnection?.removeEventListener('track', this.trackListener);
+      this.trackListener = undefined;
+    }
 
-    this.peerConnection?.removeEventListener(
-      'iceconnectionstatechange',
-      this.iceConnectionStateChangeListener,
-    );
-    this.iceConnectionStateChangeListener = undefined;
+    if (this.iceConnectionStateChangeListener) {
+      this.peerConnection?.removeEventListener(
+        'iceconnectionstatechange',
+        this.iceConnectionStateChangeListener,
+      );
+      this.iceConnectionStateChangeListener = undefined;
+    }
   }
 
   /**

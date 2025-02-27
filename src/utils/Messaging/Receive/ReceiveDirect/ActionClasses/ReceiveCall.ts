@@ -1,12 +1,11 @@
 import DirectReceiveAction from '../DirectReceiveAction';
-import {DEFAULT_NAME, MAX_CALL_ANSWER_WINDOW_SECONDS} from '@configs/constants';
-import {displaySimpleNotification} from '@utils/Notifications';
-import DirectChat from '@utils/DirectChats/DirectChat';
+import {MAX_CALL_ANSWER_WINDOW_SECONDS} from '@configs/constants';
 import * as storage from '@utils/Storage/messages';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import store from '@store/appStore';
+import {displayIncomingCallOSUI} from '@utils/Calls/CallOSBridge';
 
 class ReceiveCall extends DirectReceiveAction {
   generatePreviewText(): string {
@@ -41,19 +40,6 @@ class ReceiveCall extends DirectReceiveAction {
    * @returns void
    */
   async notify() {
-    try {
-      const chat = new DirectChat(this.chatId);
-      const chatData = await chat.getChatData();
-      displaySimpleNotification(
-        'Incoming call...',
-        chatData.name || DEFAULT_NAME + ' is trying to call you.',
-        true,
-        this.chatId,
-      );
-    } catch (error) {
-      console.log('Error in displaying call notification: ', error);
-    }
-
     const receivedTime = new Date(this.receiveTime);
     const currentTime = new Date();
 
@@ -65,7 +51,8 @@ class ReceiveCall extends DirectReceiveAction {
     if (remainingTime < 1) {
       return;
     }
-    console.log('DISPATCHING TRAP REQUEST TO INCOMING CALL SCREEN');
+    // Display the incoming call OS UI
+    displayIncomingCallOSUI(this.chatId, this.message.call_id, remainingTime); // Asynchronously display calling UI
     store.dispatch({
       type: 'NEW_CALL',
       payload: {

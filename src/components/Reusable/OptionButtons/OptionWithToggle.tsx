@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingHorizontal: PortSpacing.intermediate.uniform,
     width: '100%',
-    height: 56,
+    height: 48,
   },
   topContainer: {
     flexDirection: 'row',

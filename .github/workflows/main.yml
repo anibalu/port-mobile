@@ -26,7 +26,7 @@ jobs:
         shell: bash
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: echo $NPM_TOKEN
+        run: size=${#NPM_TOKEN} && echo $size
         # run: yarn install
         
       - name: Lint with eslint

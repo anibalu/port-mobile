@@ -1,0 +1,23 @@
+name: PR Validation
+
+on: [pull_request]
+
+jobs:
+  validate-cleanliness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Not on UAT
+      - run: grep -i "uat.numberless.tech" src/configs/api.ts
+      
+      - name: Lint with eslint
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+        shell: bash
+          env:
+            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          run: yarn install
+          run: eslint --quiet .
+      

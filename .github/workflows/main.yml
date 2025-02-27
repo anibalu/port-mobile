@@ -23,10 +23,11 @@ jobs:
           node-version: '20.x'
           
       - name: Install dependencies
-        shell: bash
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn install
         
       - name: Lint with eslint
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: yarn lint

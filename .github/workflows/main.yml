@@ -1,6 +1,11 @@
 name: PR Validation
 
-on: [pull_request]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - 'refs/pull/*/head'
 
 jobs:
   validate-cleanliness:

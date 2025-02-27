@@ -14,7 +14,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Not on UAT
-        run: grep -i "uat.numberless.tech" src/configs/api.ts
+        run: |
+          ! grep -i "uat.numberless.tech" src/configs/api.ts
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

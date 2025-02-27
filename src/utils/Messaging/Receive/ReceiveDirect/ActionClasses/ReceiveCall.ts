@@ -52,7 +52,7 @@ class ReceiveCall extends DirectReceiveAction {
       return;
     }
     // Display the incoming call OS UI
-    displayIncomingCallOSUI(this.chatId, this.message.callId, remainingTime); // Asynchronously display calling UI
+    displayIncomingCallOSUI(this.chatId, this.message.call_id, remainingTime); // Asynchronously display calling UI
     store.dispatch({
       type: 'NEW_CALL',
       payload: {

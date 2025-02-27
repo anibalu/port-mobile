@@ -67,6 +67,7 @@ static void ClearKeychainIfNecessary() {
     @"maximumCallGroups": @1,
     @"maximumCallsPerCallGroup": @1,
     @"supportsVideo": @YES,
+    @"includesCallsInRecents": @NO,
     @"imageName": @"app_icon",
   }];
   

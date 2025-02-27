@@ -17,6 +17,7 @@ const callkeepOptions = {
     supportsHolding: false,
     supportsGrouping: false,
     supportsUngrouping: false,
+    includesCallsInRecents: false,
     imageName: 'app_icon',
   },
   android: {

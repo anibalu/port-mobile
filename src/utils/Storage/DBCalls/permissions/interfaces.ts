@@ -71,4 +71,7 @@ interface GroupPermissionsInit extends Permissions {
   favourite: boolean;
 }
 
-export type GroupPermissions = Omit<GroupPermissionsInit, 'contactSharing' | 'calling'>;
+export type GroupPermissions = Omit<
+  GroupPermissionsInit,
+  'contactSharing' | 'calling'
+>;

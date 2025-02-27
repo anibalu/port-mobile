@@ -1,10 +1,10 @@
-import { isIOS } from '@components/ComponentUtils';
+import {isIOS} from '@components/ComponentUtils';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import { NativeModules, PermissionsAndroid } from 'react-native';
+import {NativeModules, PermissionsAndroid} from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
 import uuid from 'react-native-uuid';
 
-const { CallHelperModule } = NativeModules;
+const {CallHelperModule} = NativeModules;
 
 export function createCallId() {
   return uuid.v4().toString();
@@ -79,10 +79,10 @@ export async function setUpCallKeep(
     RNCallKeep.setSettings(callkeepOptions);
   }
 
-  RNCallKeep.addEventListener('answerCall', ({ callUUID }) => {
+  RNCallKeep.addEventListener('answerCall', ({callUUID}) => {
     acceptanceCallback(callUUID); // Should navigate to OngoingCall
   });
-  RNCallKeep.addEventListener('endCall', ({ callUUID }) => endCallback(callUUID));
+  RNCallKeep.addEventListener('endCall', ({callUUID}) => endCallback(callUUID));
   RNCallKeep.setAvailable(true);
 }
 
@@ -92,15 +92,22 @@ export async function setUpCallKeep(
  * @param callId
  * @param callRingTimeSeconds
  */
-export async function displayIncomingCallOSUI(chatId: string, callId: string, callRingTimeSeconds: number) {
+export async function displayIncomingCallOSUI(
+  chatId: string,
+  callId: string,
+  callRingTimeSeconds: number,
+) {
   // Fetch information to display
   const chat = new DirectChat(chatId);
-  const { name } = await chat.getChatData();
+  const {name} = await chat.getChatData();
   if (!isIOS) {
     // This throws up a call style notification on Android.
     // The notification times out based on a value set in the native module
-    CallHelperModule.displayCallUI(name || 'New contact', callId, callRingTimeSeconds, () =>
-      console.log('Displayed calling UI!!!'),
+    CallHelperModule.displayCallUI(
+      name || 'New contact',
+      callId,
+      callRingTimeSeconds,
+      () => console.log('Displayed calling UI!!!'),
     );
   } else {
     // iOS specific
@@ -124,7 +131,7 @@ export function notifyOSOfCallAcceptance(callId: string) {
  */
 export async function placeOutgoingCallOSUI(chatId: string, callId: string) {
   const chat = new DirectChat(chatId);
-  const { name } = await chat.getChatData();
+  const {name} = await chat.getChatData();
   // Additional values are expected on iOS, which is why separate blocks are necessary
   if (isIOS) {
     RNCallKeep.startCall(

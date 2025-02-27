@@ -39,7 +39,10 @@ export async function getPeerRtcConfig(): Promise<RTCConfiguration> {
 /**
  * Modify the call permissions for the given chatId.
  */
-export async function modifyCallPermission(lineId: string, permission: boolean) {
+export async function modifyCallPermission(
+  lineId: string,
+  permission: boolean,
+) {
   const token = await getToken();
   await axios.patch(
     CALL_PERMISSIONS_MANAGEMENT,
@@ -52,6 +55,6 @@ export async function modifyCallPermission(lineId: string, permission: boolean) 
         },
       ],
     },
-    { headers: { Authorization: token } },
+    {headers: {Authorization: token}},
   );
 }

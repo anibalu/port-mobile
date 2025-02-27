@@ -22,7 +22,6 @@ import {SharedValue} from 'react-native-reanimated';
 import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {createCallId} from '@utils/Calls/CallOSBridge';
 import {useCallContext} from '@screens/Calls/CallContext';
-import {useMicrophonePermission} from 'react-native-vision-camera';
 
 /**
  * Handles top bar for chat
@@ -131,7 +130,7 @@ function ChatTopbar({
     }
     try {
       const callId = createCallId();
-      dispatchCallAction({ type: 'outgoing_call', callId, chatId });
+      dispatchCallAction({type: 'outgoing_call', callId, chatId});
     } catch (error) {
       console.error('Error navigating to call screen: ', error);
     }

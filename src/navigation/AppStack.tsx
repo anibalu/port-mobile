@@ -125,9 +125,13 @@ function AppStack() {
             <Stack.Screen name="AllMembers" component={AllMembers} />
             <Stack.Screen name="GroupTemplates" component={GroupTemplates} />
             <Stack.Screen name="IncomingCall" component={IncomingCall} />
-            <Stack.Screen name="OngoingCall" component={OngoingCall} options={{
-              gestureEnabled: false,
-            }}/>
+            <Stack.Screen
+              name="OngoingCall"
+              component={OngoingCall}
+              options={{
+                gestureEnabled: false,
+              }}
+            />
           </Stack.Navigator>
         </CallContextProvider>
       </ConnectionModalProvider>

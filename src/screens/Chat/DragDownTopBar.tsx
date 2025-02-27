@@ -1,22 +1,22 @@
-import React, { useMemo, forwardRef, useImperativeHandle } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, {useMemo, forwardRef, useImperativeHandle} from 'react';
+import {View, StyleSheet} from 'react-native';
 import Animated, {
   SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { screen } from '@components/ComponentUtils';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
+import {screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import { useTheme } from 'src/context/ThemeContext';
+import {useTheme} from 'src/context/ThemeContext';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import PermissionIcons from '@components/PermissionIcons';
-import { DirectPermissions } from '@utils/Storage/DBCalls/permissions/interfaces';
+import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
 import ContactSettingsCard from '@components/Reusable/PermissionCards/ContactSettingsCard';
 import NewChatSettingsCard from '@components/Reusable/PermissionCards/NewChatSettingsCard';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
@@ -61,7 +61,7 @@ export const ChatTopBarWithAccessControls = forwardRef(
     },
     ref,
   ) => {
-    const { themeValue } = useTheme();
+    const {themeValue} = useTheme();
     const Colors = DynamicColors();
     const styles = styling(Colors);
 
@@ -99,7 +99,7 @@ export const ChatTopBarWithAccessControls = forwardRef(
       permissionIconHeight.value = withTiming(-SLIDER_EXCESS_HEIGHT, {
         duration: 300,
       });
-      permissionCardHeight.value = withTiming(0, { duration: 500 });
+      permissionCardHeight.value = withTiming(0, {duration: 500});
     };
 
     //open slider till permission icons visible
@@ -108,19 +108,19 @@ export const ChatTopBarWithAccessControls = forwardRef(
       isScreenClickable.value = true;
       sliderHeight.value = withTiming(
         ICON_DISPLAY_HEIGHT - SLIDER_EXCESS_HEIGHT,
-        { duration: 500 },
+        {duration: 500},
       );
       sliderHeightInitiaValue.value =
         ICON_DISPLAY_HEIGHT - SLIDER_EXCESS_HEIGHT;
-      permissionCardHeight.value = withTiming(0, { duration: 500 });
-      permissionIconHeight.value = withTiming(0, { duration: 300 });
+      permissionCardHeight.value = withTiming(0, {duration: 500});
+      permissionIconHeight.value = withTiming(0, {duration: 300});
     };
 
     //open slider completely
     const moveSliderCompleteOpen = () => {
       'worklet';
       isScreenClickable.value = false;
-      sliderHeight.value = withTiming(MAX_SLIDER_HEIGHT, { duration: 500 });
+      sliderHeight.value = withTiming(MAX_SLIDER_HEIGHT, {duration: 500});
       sliderHeightInitiaValue.value = MAX_SLIDER_HEIGHT;
       permissionCardHeight.value = withTiming(
         PERMISSION_BAR_HEIGHT + SLIDER_EXCESS_HEIGHT,
@@ -128,7 +128,7 @@ export const ChatTopBarWithAccessControls = forwardRef(
           duration: 500,
         },
       );
-      permissionIconHeight.value = withTiming(0, { duration: 300 });
+      permissionIconHeight.value = withTiming(0, {duration: 300});
     };
 
     //animated styles for slider height and permission card height
@@ -141,14 +141,14 @@ export const ChatTopBarWithAccessControls = forwardRef(
     //animated style for permission card height
     const animatedStyle = useAnimatedStyle(() => {
       return {
-        transform: [{ translateY: permissionCardHeight.value }],
+        transform: [{translateY: permissionCardHeight.value}],
       };
     });
 
     //animated style for permission icons height
     const animatedStylePermissionIcons = useAnimatedStyle(() => {
       return {
-        transform: [{ translateY: permissionIconHeight.value }],
+        transform: [{translateY: permissionIconHeight.value}],
       };
     });
 
@@ -235,7 +235,7 @@ export const ChatTopBarWithAccessControls = forwardRef(
                 fontSizeType={FontSizeType.xs}
                 fontType={FontType.rg}
                 allowFontScaling={false}
-                style={{ marginBottom: 4 }}>
+                style={{marginBottom: 4}}>
                 To close this toolbar, drag the slider up
               </NumberlessText>
             ) : (
@@ -244,7 +244,7 @@ export const ChatTopBarWithAccessControls = forwardRef(
                 fontSizeType={FontSizeType.xs}
                 fontType={FontType.rg}
                 allowFontScaling={false}
-                style={{ marginBottom: 4 }}>
+                style={{marginBottom: 4}}>
                 Drag this slider down to customize permissions
               </NumberlessText>
             )}

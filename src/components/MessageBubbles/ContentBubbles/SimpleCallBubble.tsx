@@ -12,7 +12,6 @@ import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 export const CallBubble = ({message}: {message: LoadedMessage}): ReactNode => {
-
   const Colors = DynamicColors();
   const styles = styling(Colors);
 

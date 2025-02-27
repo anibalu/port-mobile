@@ -5,7 +5,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {
   CallEndReason,
-  displayIncomingCallOSUI,
   endCallOSUI,
   notifyOSOfCallAcceptance,
   placeOutgoingCallOSUI,

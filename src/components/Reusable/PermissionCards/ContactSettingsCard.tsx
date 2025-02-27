@@ -1,4 +1,4 @@
-import { PortSpacing } from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -7,22 +7,22 @@ import {
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
 import React from 'react';
-import { View } from 'react-native';
-import { updatePermissions } from '@utils/Storage/permissions';
+import {View} from 'react-native';
+import {updatePermissions} from '@utils/Storage/permissions';
 import {
   BooleanPermissions,
   PermissionsStrict,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
 import DynamicColors from '@components/DynamicColors';
 import getPermissionIcon from '@components/getPermissionIcon';
-import { useTheme } from 'src/context/ThemeContext';
+import {useTheme} from 'src/context/ThemeContext';
 import {
   pauseContactPortForDirectChat,
   resumeContactPortForDirectChat,
 } from '@utils/Ports/contactport';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import { modifyCallPermission } from '@utils/Calls/APICalls';
-import { setRemoteNotificationPermissionsForChats } from '@utils/Notifications';
+import {modifyCallPermission} from '@utils/Calls/APICalls';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 
 const ContactSettingsCard = ({
   permissionsId,
@@ -56,7 +56,7 @@ const ContactSettingsCard = ({
       try {
         await setRemoteNotificationPermissionsForChats(
           newNotificationPermissionState,
-          [{ id: lineId, type: 'line' }],
+          [{id: lineId, type: 'line'}],
         );
       } catch (e) {
         console.error(
@@ -95,10 +95,7 @@ const ContactSettingsCard = ({
       try {
         await modifyCallPermission(lineId, newCallPermissionState);
       } catch (e) {
-        console.error(
-          '[CALL PERMISSION] Could not update permissions',
-          e,
-        );
+        console.error('[CALL PERMISSION] Could not update permissions', e);
         // If the API call fails, toggle back to old setting
         setPermissions({
           ...permissions,
@@ -113,7 +110,7 @@ const ContactSettingsCard = ({
         calling: newCallPermissionState,
       });
     }
-  }
+  };
   const onUpdateBooleanPermission = async (
     permissionKey: keyof BooleanPermissions,
   ) => {
@@ -166,9 +163,9 @@ const ContactSettingsCard = ({
     }
   }
 
-  const { themeValue } = useTheme();
+  const {themeValue} = useTheme();
   return (
-    <SimpleCard style={{ backgroundColor: 'transparent', paddingVertical: 0 }}>
+    <SimpleCard style={{backgroundColor: 'transparent', paddingVertical: 0}}>
       <View
         style={{
           width: '100%',
@@ -183,7 +180,7 @@ const ContactSettingsCard = ({
           {heading ? heading : `Enable ${chatName} to`}
         </NumberlessText>
       </View>
-      <View style={{ width: '100%' }}>
+      <View style={{width: '100%'}}>
         <OptionWithToggle
           IconLeftView={getPermissionIcon([
             'notifications',

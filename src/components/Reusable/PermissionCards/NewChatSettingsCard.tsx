@@ -1,4 +1,4 @@
-import { PortSpacing } from '@components/ComponentUtils';
+import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
@@ -7,20 +7,20 @@ import {
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
 import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
-import { getLabelByTimeDiff } from '@utils/Time';
+import {getLabelByTimeDiff} from '@utils/Time';
 import {
   BooleanPermissions,
   PermissionsStrict,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import { ContentType } from '@utils/Messaging/interfaces';
-import { updatePermissions } from '@utils/Storage/permissions';
-import React, { useState } from 'react';
-import { View } from 'react-native';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {updatePermissions} from '@utils/Storage/permissions';
+import React, {useState} from 'react';
+import {View} from 'react-native';
 import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
 import DynamicColors from '@components/DynamicColors';
 import getPermissionIcon from '@components/getPermissionIcon';
-import { useTheme } from 'src/context/ThemeContext';
+import {useTheme} from 'src/context/ThemeContext';
 
 const NewChatSettingsCard = ({
   chatId,
@@ -29,7 +29,7 @@ const NewChatSettingsCard = ({
   setPermissions,
   showDissapearingMessagesOption = true,
   heading = 'Other chat settings',
-  setOpenDisabledPermissionBottomsheet = () => { },
+  setOpenDisabledPermissionBottomsheet = () => {},
   isDefaultFolder = false,
 }: {
   chatId?: string;
@@ -90,10 +90,10 @@ const NewChatSettingsCard = ({
     }
   };
 
-  const { themeValue } = useTheme();
+  const {themeValue} = useTheme();
 
   return (
-    <SimpleCard style={{ backgroundColor: 'transparent', paddingVertical: 0 }}>
+    <SimpleCard style={{backgroundColor: 'transparent', paddingVertical: 0}}>
       <View
         style={{
           width: '100%',
@@ -108,7 +108,7 @@ const NewChatSettingsCard = ({
           {heading}
         </NumberlessText>
       </View>
-      <View style={{ width: '100%' }}>
+      <View style={{width: '100%'}}>
         <OptionWithToggle
           IconLeftView={getPermissionIcon([
             'focus',

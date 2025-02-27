@@ -1,5 +1,5 @@
-import React, { FC, useState } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import React, {FC, useState} from 'react';
+import {View, StyleSheet, Pressable} from 'react-native';
 import BellRed from '@assets/icons/BellRed.svg';
 import DownloadTeal from '@assets/icons/DownloadTeal.svg';
 import HomeSafron from '@assets/icons/HomeSafron.svg';
@@ -27,24 +27,24 @@ import ProfileDisabledDark from '@assets/dark/icons/ProfileDisabled.svg';
 import CallDisabledDark from '@assets/dark/icons/CallDisabled.svg';
 
 import DynamicColors from '@components/DynamicColors';
-import { SvgProps } from 'react-native-svg';
-import { useTheme } from 'src/context/ThemeContext';
+import {SvgProps} from 'react-native-svg';
+import {useTheme} from 'src/context/ThemeContext';
 import {
   BooleanPermissions,
   PermissionsStrict,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import { setRemoteNotificationPermissionsForChats } from '@utils/Notifications';
-import { updatePermissions } from '@utils/Storage/permissions';
-import { getLabelByTimeDiff } from '@utils/Time';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
+import {updatePermissions} from '@utils/Storage/permissions';
+import {getLabelByTimeDiff} from '@utils/Time';
 import DissapearingMessagesBottomsheet from './Reusable/BottomSheets/DissapearingMessagesBottomSheet';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import { ContentType } from '@utils/Messaging/interfaces';
+import {ContentType} from '@utils/Messaging/interfaces';
 import {
   pauseContactPortForDirectChat,
   resumeContactPortForDirectChat,
 } from '@utils/Ports/contactport';
-import { modifyCallPermission } from '@utils/Calls/APICalls';
+import {modifyCallPermission} from '@utils/Calls/APICalls';
 
 /**
  * Returns a JSX element representing an icon with a background color based on the provided permission state.
@@ -148,7 +148,7 @@ const PermissionIcons = ({
       try {
         await setRemoteNotificationPermissionsForChats(
           newNotificationPermissionState,
-          [{ id: lineId, type: 'line' }],
+          [{id: lineId, type: 'line'}],
         );
       } catch (e) {
         console.error(
@@ -187,10 +187,7 @@ const PermissionIcons = ({
       try {
         await modifyCallPermission(lineId, newCallPermissionState);
       } catch (e) {
-        console.error(
-          '[CALL PERMISSION] Could not update permissions',
-          e,
-        );
+        console.error('[CALL PERMISSION] Could not update permissions', e);
         // If the API call fails, toggle back to old setting
         setPermissions({
           ...permissions,
@@ -205,7 +202,7 @@ const PermissionIcons = ({
         calling: newCallPermissionState,
       });
     }
-  }
+  };
 
   const onUpdateBooleanPermission = async (
     permissionKey: keyof BooleanPermissions,
@@ -352,7 +349,7 @@ const PermissionIcon = ({
   permission: keyof PermissionConfigMap;
 }) => {
   const Colors = DynamicColors();
-  const { themeValue } = useTheme();
+  const {themeValue} = useTheme();
   const config = permissionConfigMap[permission];
   return (
     <Pressable
@@ -360,8 +357,8 @@ const PermissionIcon = ({
       style={StyleSheet.compose(styles.container, {
         backgroundColor: isEnabled
           ? Colors.lowAccentColors[
-          config.bgColor as keyof typeof Colors.lowAccentColors
-          ]
+              config.bgColor as keyof typeof Colors.lowAccentColors
+            ]
           : 'transparent',
         borderWidth: 0.5,
         borderColor: isEnabled ? 'transparent' : Colors.primary.darkgrey,

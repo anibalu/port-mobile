@@ -1,31 +1,38 @@
 /**
  * This screen manages an ongoing call.
  */
-import { PortSpacing, screen } from '@components/ComponentUtils';
+import {PortSpacing, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useMemo, useReducer, useState } from 'react';
-import { BackHandler, PermissionsAndroid, Platform, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CustomStatusBar } from '@components/CustomStatusBar';
-import { SafeAreaView } from '@components/SafeAreaView';
-import { AppStackParamList } from '@navigation/AppStackTypes';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import React, {useEffect, useMemo, useReducer, useState} from 'react';
+import {
+  BackHandler,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {AppStackParamList} from '@navigation/AppStackTypes';
 import WorkQueue from '@utils/WorkQueue';
-import { generateISOTimeStamp } from '@utils/Time';
+import {generateISOTimeStamp} from '@utils/Time';
 import Signaller from '@utils/Calls/Signaller';
-import { CallWorkItem, CoordinatorWorkItem } from '@utils/Calls/CallWorkQueue';
+import {CallWorkItem, CoordinatorWorkItem} from '@utils/Calls/CallWorkQueue';
 import {
   CallEvents,
   PeerConnectionManager,
 } from '@utils/Calls/PeerConnectionManager';
-import { MediaStreamManager } from '@utils/Calls/MediaStreamManager';
+import {MediaStreamManager} from '@utils/Calls/MediaStreamManager';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import { MediaStream } from 'react-native-webrtc';
-import { DEFAULT_AVATAR, DEFAULT_PROFILE_AVATAR_INFO } from '@configs/constants';
-import { CallEndReason } from '@utils/Calls/CallOSBridge';
+import {MediaStream} from 'react-native-webrtc';
+import {DEFAULT_AVATAR, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+import {CallEndReason} from '@utils/Calls/CallOSBridge';
 import CallingTopBar from './Components/CallingTopBar';
 import OutputOptionsModal from './Components/OutputOptionsModal';
-import { useSelector } from 'react-redux';
-import { SvgProps } from 'react-native-svg';
+import {useSelector} from 'react-redux';
+import {SvgProps} from 'react-native-svg';
 import MicrophoneOff from '@assets/dark/icons/MicOff.svg';
 import MicrophoneOn from '@assets/dark/icons/MicOn.svg';
 import SpeakerOn from '@assets/dark/icons/SpeakerOn.svg';
@@ -35,15 +42,15 @@ import VideoOn from '@assets/dark/icons/VideoOn.svg';
 import VideoOff from '@assets/dark/icons/VideoOff.svg';
 import ViewSwitch from '@assets/dark/icons/ViewSwitch.svg';
 import EndCall from '@assets/dark/icons/EndCall.svg';
-import { PeerStream, PeerVideoSize } from './Components/PeerStream';
-import { MyStream, MyVideoSize } from './Components/MyStream';
-import RNCallKeep, { AudioRoute } from 'react-native-callkeep';
-import { useCallContext } from './CallContext';
-import { FontSizeType } from '@components/NumberlessText';
-import { FontType } from '@components/NumberlessText';
+import {PeerStream, PeerVideoSize} from './Components/PeerStream';
+import {MyStream, MyVideoSize} from './Components/MyStream';
+import RNCallKeep, {AudioRoute} from 'react-native-callkeep';
+import {useCallContext} from './CallContext';
+import {FontSizeType} from '@components/NumberlessText';
+import {FontType} from '@components/NumberlessText';
 import CloseWhite from '@assets/icons/closeWhite.svg';
-import { NumberlessText } from '@components/NumberlessText';
-import { check, PERMISSIONS, PermissionStatus } from 'react-native-permissions';
+import {NumberlessText} from '@components/NumberlessText';
+import {check, PERMISSIONS} from 'react-native-permissions';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'OngoingCall'>;
 
@@ -56,14 +63,16 @@ function callWorkDispatcher(_state: string) {
 
 async function checkPermissions() {
   const cameraStatus = await check(
-    Platform.OS === 'ios' ? PERMISSIONS.IOS.CAMERA : PERMISSIONS.ANDROID.CAMERA
+    Platform.OS === 'ios' ? PERMISSIONS.IOS.CAMERA : PERMISSIONS.ANDROID.CAMERA,
   );
 
   const micStatus = await check(
-    Platform.OS === 'ios' ? PERMISSIONS.IOS.MICROPHONE : PERMISSIONS.ANDROID.RECORD_AUDIO
+    Platform.OS === 'ios'
+      ? PERMISSIONS.IOS.MICROPHONE
+      : PERMISSIONS.ANDROID.RECORD_AUDIO,
   );
 
-  return (cameraStatus === 'granted') && (micStatus === 'granted');
+  return cameraStatus === 'granted' && micStatus === 'granted';
 }
 
 /**
@@ -106,31 +115,31 @@ export enum CallUIEvents {
 }
 
 //call UI state reducer
-function callUIStateReducer(state: CallUIState, action: { type: CallUIEvents }) {
+function callUIStateReducer(state: CallUIState, action: {type: CallUIEvents}) {
   switch (action.type) {
     case CallUIEvents.peer_mic_on:
-      return { ...state, peerMic: true };
+      return {...state, peerMic: true};
     case CallUIEvents.peer_mic_off:
-      return { ...state, peerMic: false };
+      return {...state, peerMic: false};
     case CallUIEvents.peer_video_on:
-      return { ...state, peerVideo: true };
+      return {...state, peerVideo: true};
     case CallUIEvents.peer_video_off:
-      return { ...state, peerVideo: false };
+      return {...state, peerVideo: false};
     case CallUIEvents.my_mic_on:
-      return { ...state, myMic: true };
+      return {...state, myMic: true};
     case CallUIEvents.my_mic_off:
-      return { ...state, myMic: false };
+      return {...state, myMic: false};
     case CallUIEvents.my_video_on:
-      return { ...state, myVideo: true };
+      return {...state, myVideo: true};
     case CallUIEvents.my_video_off:
-      return { ...state, myVideo: false };
+      return {...state, myVideo: false};
   }
 }
 
-function OngoingCall({ route, navigation }: Props) {
+function OngoingCall({route, navigation}: Props) {
   // Get the chatId and callId from the route params
-  const { chatId, callId, isVideoCall } = route.params;
-  const { callState, dispatchCallAction } = useCallContext();
+  const {chatId, callId, isVideoCall} = route.params;
+  const {callState, dispatchCallAction} = useCallContext();
   const [allPermissionsGranted, setAllPermissionsGranted] = useState(true);
 
   //styling variables
@@ -183,7 +192,7 @@ function OngoingCall({ route, navigation }: Props) {
   const profile = useSelector(state => state.profile.profile);
 
   // The profile name and display picture of the user.
-  const { myProfilePicInfo } = useMemo(() => {
+  const {myProfilePicInfo} = useMemo(() => {
     return {
       myProfilePicInfo: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
     };
@@ -218,12 +227,11 @@ function OngoingCall({ route, navigation }: Props) {
 
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
-      backAction
+      backAction,
     );
 
     return () => backHandler.remove(); // Cleanup on unmount
   }, []);
-
 
   const getMyMediaStream = async () => {
     // Initialise media stream manager for my media stream
@@ -244,7 +252,7 @@ function OngoingCall({ route, navigation }: Props) {
       console.error('Error getting my media stream: ', error);
       return undefined;
     }
-  }
+  };
 
   const setupCall = async (msm: MediaStreamManager) => {
     try {
@@ -275,9 +283,9 @@ function OngoingCall({ route, navigation }: Props) {
       setMediaStreamManager(msm);
       setMyStream(myMediaStream);
       if (isVideoCall) {
-        dispatchCallUIState({ type: CallUIEvents.my_video_on });
+        dispatchCallUIState({type: CallUIEvents.my_video_on});
       }
-      dispatchCallUIState({ type: CallUIEvents.my_mic_on });
+      dispatchCallUIState({type: CallUIEvents.my_mic_on});
 
       // Initialise peer connection manager for the peer's media stream
       const pc = new PeerConnectionManager(dispatchWorkItem);
@@ -297,14 +305,16 @@ function OngoingCall({ route, navigation }: Props) {
       if (msm) {
         setupCall(msm);
       } else {
-        console.log('Failed to get my media stream. defaulting to requesting permissions screen.');
+        console.log(
+          'Failed to get my media stream. defaulting to requesting permissions screen.',
+        );
         setAllPermissionsGranted(false);
       }
     });
     //add the listener for the muted call action
     RNCallKeep.addEventListener(
       'didPerformSetMutedCallAction',
-      ({ muted, callUUID }) => {
+      ({muted, callUUID}) => {
         console.log('Muted action: ', muted);
         if (callId !== callUUID) {
           // WE're muting a call that isn't on this screen...
@@ -319,7 +329,7 @@ function OngoingCall({ route, navigation }: Props) {
     );
 
     //add the listener for audio route change
-    RNCallKeep.addEventListener('didChangeAudioRoute', ({ output }) => {
+    RNCallKeep.addEventListener('didChangeAudioRoute', ({output}) => {
       console.log('Audio route changed: ', output);
       RNCallKeep.getAudioRoutes().then(routes => {
         setAudioChannels(routes as unknown as AudioRoute[]);
@@ -360,11 +370,11 @@ function OngoingCall({ route, navigation }: Props) {
           setPeerStream(peerMediaStream);
           const videoTrack = peerMediaStream.getVideoTracks()[0];
           if (videoTrack.enabled) {
-            dispatchCallUIState({ type: CallUIEvents.peer_video_on });
+            dispatchCallUIState({type: CallUIEvents.peer_video_on});
           }
           const audioTrack = peerMediaStream.getAudioTracks()[0];
           if (audioTrack.enabled) {
-            dispatchCallUIState({ type: CallUIEvents.peer_mic_on });
+            dispatchCallUIState({type: CallUIEvents.peer_mic_on});
           }
         }
         break;
@@ -378,16 +388,16 @@ function OngoingCall({ route, navigation }: Props) {
         endCall(CallEndReason.PEER_ENDED);
         break;
       case 'peer_mic_turned_on':
-        dispatchCallUIState({ type: CallUIEvents.peer_mic_on });
+        dispatchCallUIState({type: CallUIEvents.peer_mic_on});
         break;
       case 'peer_mic_turned_off':
-        dispatchCallUIState({ type: CallUIEvents.peer_mic_off });
+        dispatchCallUIState({type: CallUIEvents.peer_mic_off});
         break;
       case 'peer_video_turned_on':
-        dispatchCallUIState({ type: CallUIEvents.peer_video_on });
+        dispatchCallUIState({type: CallUIEvents.peer_video_on});
         break;
       case 'peer_video_turned_off':
-        dispatchCallUIState({ type: CallUIEvents.peer_video_off });
+        dispatchCallUIState({type: CallUIEvents.peer_video_off});
         break;
     }
   }
@@ -401,7 +411,7 @@ function OngoingCall({ route, navigation }: Props) {
     signaller?.cleanup(); // Cleanup the signaller
     mediaStreamManager?.stopStreaming(); // Turn off my camera and microphone
     peerConnectionManager?.cleanup(); // Terminate the peer connection
-    dispatchCallAction({ type: 'end_call', reason });
+    dispatchCallAction({type: 'end_call', reason});
   }
 
   /**
@@ -410,7 +420,7 @@ function OngoingCall({ route, navigation }: Props) {
   const micOn = () => {
     if (mediaStreamManager) {
       mediaStreamManager.setAudioStream(true);
-      dispatchCallUIState({ type: CallUIEvents.my_mic_on });
+      dispatchCallUIState({type: CallUIEvents.my_mic_on});
       //emit call event over data channel
       peerConnectionManager?.sendEvent(CallEvents.micOn);
     }
@@ -422,7 +432,7 @@ function OngoingCall({ route, navigation }: Props) {
   const micOff = () => {
     if (mediaStreamManager) {
       mediaStreamManager.setAudioStream(false);
-      dispatchCallUIState({ type: CallUIEvents.my_mic_off });
+      dispatchCallUIState({type: CallUIEvents.my_mic_off});
       //emit call event over data channel
       peerConnectionManager?.sendEvent(CallEvents.micOff);
     }
@@ -434,7 +444,7 @@ function OngoingCall({ route, navigation }: Props) {
   const videoOn = () => {
     if (mediaStreamManager) {
       mediaStreamManager.setVideoStream(true);
-      dispatchCallUIState({ type: CallUIEvents.my_video_on });
+      dispatchCallUIState({type: CallUIEvents.my_video_on});
       //emit call event over data channel
       peerConnectionManager?.sendEvent(CallEvents.videoOn);
     }
@@ -446,7 +456,7 @@ function OngoingCall({ route, navigation }: Props) {
   const videoOff = () => {
     if (mediaStreamManager) {
       mediaStreamManager.setVideoStream(false);
-      dispatchCallUIState({ type: CallUIEvents.my_video_off });
+      dispatchCallUIState({type: CallUIEvents.my_video_off});
       //emit call event over data channel
       peerConnectionManager?.sendEvent(CallEvents.videoOff);
     }
@@ -523,7 +533,7 @@ function OngoingCall({ route, navigation }: Props) {
     RNCallKeep.addEventListener('endCall', onEndCall);
     RNCallKeep.addEventListener(
       'didPerformSetMutedCallAction',
-      ({ muted, callUUID }) => {
+      ({muted, callUUID}) => {
         console.log('Muted action: ', muted);
         if (callId !== callUUID) {
           // WE're muting a call that isn't on this screen...
@@ -584,9 +594,9 @@ function OngoingCall({ route, navigation }: Props) {
           backgroundColor: DarkColors.primary.background,
         }}>
         {allPermissionsGranted ? (
-          <View style={{ flex: 1 }}>
+          <View style={{flex: 1}}>
             {!isPeerVideoPrimary && myStream && callUIState.myVideo ? (
-              <View style={{ flex: 1 }}>
+              <View style={{flex: 1}}>
                 <MyStream
                   myStream={myStream}
                   myAvatar={myProfilePicInfo.uri}
@@ -611,7 +621,7 @@ function OngoingCall({ route, navigation }: Props) {
                 </View>
               </View>
             ) : (
-              <View style={{ flex: 1 }}>
+              <View style={{flex: 1}}>
                 <PeerStream
                   peerStream={peerStream}
                   peerAvatar={peerAvatar}
@@ -633,7 +643,7 @@ function OngoingCall({ route, navigation }: Props) {
             )}
             {myStream && callUIState.myVideo && (
               <>
-                <View style={{ flex: 1, position: 'absolute' }}>
+                <View style={{flex: 1, position: 'absolute'}}>
                   <Pressable
                     style={{
                       position: 'absolute',
@@ -648,8 +658,12 @@ function OngoingCall({ route, navigation }: Props) {
                 <TouchableOpacity
                   style={
                     isPeerVideoPrimary
-                      ? { ...styles.viewSwitch, right: 16 + 8, bottom: 90 + 16 + 8 }
-                      : { ...styles.viewSwitch, top: 90, right: 16 }
+                      ? {
+                          ...styles.viewSwitch,
+                          right: 16 + 8,
+                          bottom: 90 + 16 + 8,
+                        }
+                      : {...styles.viewSwitch, top: 90, right: 16}
                   }
                   hitSlop={20}
                   onPress={switchCamera}
@@ -705,9 +719,13 @@ function OngoingCall({ route, navigation }: Props) {
             />
           </View>
         ) : (
-          <View style={{
-            flex: 1, justifyContent: 'center', alignItems: 'center', padding: PortSpacing.secondary.uniform,
-          }}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: PortSpacing.secondary.uniform,
+            }}>
             <Pressable
               onPress={() => navigation.goBack()}
               style={styles.closeButtonWrapper}>
@@ -721,7 +739,6 @@ function OngoingCall({ route, navigation }: Props) {
             </NumberlessText>
           </View>
         )}
-
       </SafeAreaView>
     </>
   );
@@ -748,7 +765,7 @@ const BooleanControlButton = ({
   const styles = styling(Colors);
   return (
     <TouchableOpacity
-      style={{ ...styles.button, backgroundColor: isOn ? onColor : offColor }}
+      style={{...styles.button, backgroundColor: isOn ? onColor : offColor}}
       onPress={isOn ? onSwitchOff : onSwitchOn}>
       {isOn ? <OnIcon /> : <OffIcon />}
     </TouchableOpacity>

@@ -1,3 +1,712 @@
+diff --git a/node_modules/react-native-receive-sharing-intent/.idea/.gitignore b/node_modules/react-native-receive-sharing-intent/.idea/.gitignore
+new file mode 100644
+index 0000000..26d3352
+--- /dev/null
++++ b/node_modules/react-native-receive-sharing-intent/.idea/.gitignore
+@@ -0,0 +1,3 @@
++# Default ignored files
++/shelf/
++/workspace.xml
+diff --git a/node_modules/react-native-receive-sharing-intent/.idea/caches/deviceStreaming.xml b/node_modules/react-native-receive-sharing-intent/.idea/caches/deviceStreaming.xml
+new file mode 100644
+index 0000000..be40440
+--- /dev/null
++++ b/node_modules/react-native-receive-sharing-intent/.idea/caches/deviceStreaming.xml
+@@ -0,0 +1,546 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="DeviceStreaming">
++    <option name="deviceSelectionList">
++      <list>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="27" />
++          <option name="brand" value="DOCOMO" />
++          <option name="codename" value="F01L" />
++          <option name="id" value="F01L" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="FUJITSU" />
++          <option name="name" value="F-01L" />
++          <option name="screenDensity" value="360" />
++          <option name="screenX" value="720" />
++          <option name="screenY" value="1280" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="OPPO" />
++          <option name="codename" value="OP573DL1" />
++          <option name="id" value="OP573DL1" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="OPPO" />
++          <option name="name" value="CPH2557" />
++          <option name="screenDensity" value="480" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="28" />
++          <option name="brand" value="DOCOMO" />
++          <option name="codename" value="SH-01L" />
++          <option name="id" value="SH-01L" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="SHARP" />
++          <option name="name" value="AQUOS sense2 SH-01L" />
++          <option name="screenDensity" value="480" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2160" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="Lenovo" />
++          <option name="codename" value="TB370FU" />
++          <option name="formFactor" value="Tablet" />
++          <option name="id" value="TB370FU" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Lenovo" />
++          <option name="name" value="Tab P12" />
++          <option name="screenDensity" value="340" />
++          <option name="screenX" value="1840" />
++          <option name="screenY" value="2944" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="a15" />
++          <option name="id" value="a15" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="A15" />
++          <option name="screenDensity" value="450" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2340" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="a35x" />
++          <option name="id" value="a35x" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="A35" />
++          <option name="screenDensity" value="450" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2340" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="31" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="a51" />
++          <option name="id" value="a51" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy A51" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="google" />
++          <option name="codename" value="akita" />
++          <option name="id" value="akita" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 8a" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="motorola" />
++          <option name="codename" value="arcfox" />
++          <option name="id" value="arcfox" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Motorola" />
++          <option name="name" value="razr plus 2024" />
++          <option name="screenDensity" value="360" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="1272" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="33" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="b0q" />
++          <option name="id" value="b0q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy S22 Ultra" />
++          <option name="screenDensity" value="600" />
++          <option name="screenX" value="1440" />
++          <option name="screenY" value="3088" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="32" />
++          <option name="brand" value="google" />
++          <option name="codename" value="bluejay" />
++          <option name="id" value="bluejay" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 6a" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="google" />
++          <option name="codename" value="caiman" />
++          <option name="id" value="caiman" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 9 Pro" />
++          <option name="screenDensity" value="360" />
++          <option name="screenX" value="960" />
++          <option name="screenY" value="2142" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="google" />
++          <option name="codename" value="comet" />
++          <option name="default" value="true" />
++          <option name="id" value="comet" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 9 Pro Fold" />
++          <option name="screenDensity" value="390" />
++          <option name="screenX" value="2076" />
++          <option name="screenY" value="2152" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="29" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="crownqlteue" />
++          <option name="id" value="crownqlteue" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy Note9" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="2220" />
++          <option name="screenY" value="1080" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="dm2q" />
++          <option name="id" value="dm2q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="S23 Plus" />
++          <option name="screenDensity" value="450" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2340" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="dm3q" />
++          <option name="id" value="dm3q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy S23 Ultra" />
++          <option name="screenDensity" value="600" />
++          <option name="screenX" value="1440" />
++          <option name="screenY" value="3088" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="e1q" />
++          <option name="default" value="true" />
++          <option name="id" value="e1q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy S24" />
++          <option name="screenDensity" value="480" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2340" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="e3q" />
++          <option name="id" value="e3q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy S24 Ultra" />
++          <option name="screenDensity" value="450" />
++          <option name="screenX" value="1440" />
++          <option name="screenY" value="3120" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="33" />
++          <option name="brand" value="google" />
++          <option name="codename" value="eos" />
++          <option name="id" value="eos" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Eos" />
++          <option name="screenDensity" value="320" />
++          <option name="screenX" value="384" />
++          <option name="screenY" value="384" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="33" />
++          <option name="brand" value="google" />
++          <option name="codename" value="felix" />
++          <option name="id" value="felix" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel Fold" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="2208" />
++          <option name="screenY" value="1840" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="google" />
++          <option name="codename" value="felix" />
++          <option name="id" value="felix" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel Fold" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="2208" />
++          <option name="screenY" value="1840" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="33" />
++          <option name="brand" value="google" />
++          <option name="codename" value="felix_camera" />
++          <option name="id" value="felix_camera" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel Fold (Camera-enabled)" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="2208" />
++          <option name="screenY" value="1840" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="motorola" />
++          <option name="codename" value="fogona" />
++          <option name="id" value="fogona" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Motorola" />
++          <option name="name" value="moto g play - 2024" />
++          <option name="screenDensity" value="280" />
++          <option name="screenX" value="720" />
++          <option name="screenY" value="1600" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="g0q" />
++          <option name="id" value="g0q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="SM-S906U1" />
++          <option name="screenDensity" value="450" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2340" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="gts7xllite" />
++          <option name="id" value="gts7xllite" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="SM-T738U" />
++          <option name="screenDensity" value="340" />
++          <option name="screenX" value="1600" />
++          <option name="screenY" value="2560" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="33" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="gts8uwifi" />
++          <option name="formFactor" value="Tablet" />
++          <option name="id" value="gts8uwifi" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy Tab S8 Ultra" />
++          <option name="screenDensity" value="320" />
++          <option name="screenX" value="1848" />
++          <option name="screenY" value="2960" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="gts8wifi" />
++          <option name="formFactor" value="Tablet" />
++          <option name="id" value="gts8wifi" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy Tab S8" />
++          <option name="screenDensity" value="274" />
++          <option name="screenX" value="1600" />
++          <option name="screenY" value="2560" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="google" />
++          <option name="codename" value="husky" />
++          <option name="id" value="husky" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 8 Pro" />
++          <option name="screenDensity" value="390" />
++          <option name="screenX" value="1008" />
++          <option name="screenY" value="2244" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="30" />
++          <option name="brand" value="motorola" />
++          <option name="codename" value="java" />
++          <option name="id" value="java" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Motorola" />
++          <option name="name" value="G20" />
++          <option name="screenDensity" value="280" />
++          <option name="screenX" value="720" />
++          <option name="screenY" value="1600" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="google" />
++          <option name="codename" value="komodo" />
++          <option name="id" value="komodo" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 9 Pro XL" />
++          <option name="screenDensity" value="360" />
++          <option name="screenX" value="1008" />
++          <option name="screenY" value="2244" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="33" />
++          <option name="brand" value="google" />
++          <option name="codename" value="lynx" />
++          <option name="id" value="lynx" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 7a" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="33" />
++          <option name="brand" value="motorola" />
++          <option name="codename" value="maui" />
++          <option name="id" value="maui" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Motorola" />
++          <option name="name" value="moto g play - 2023" />
++          <option name="screenDensity" value="280" />
++          <option name="screenX" value="720" />
++          <option name="screenY" value="1600" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="o1q" />
++          <option name="id" value="o1q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy S21" />
++          <option name="screenDensity" value="421" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="31" />
++          <option name="brand" value="google" />
++          <option name="codename" value="oriole" />
++          <option name="id" value="oriole" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 6" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="33" />
++          <option name="brand" value="google" />
++          <option name="codename" value="panther" />
++          <option name="id" value="panther" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 7" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="q5q" />
++          <option name="id" value="q5q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy Z Fold5" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1812" />
++          <option name="screenY" value="2176" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="q6q" />
++          <option name="id" value="q6q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy Z Fold6" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1856" />
++          <option name="screenY" value="2160" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="30" />
++          <option name="brand" value="google" />
++          <option name="codename" value="r11" />
++          <option name="formFactor" value="Wear OS" />
++          <option name="id" value="r11" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel Watch" />
++          <option name="screenDensity" value="320" />
++          <option name="screenX" value="384" />
++          <option name="screenY" value="384" />
++          <option name="type" value="WEAR_OS" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="r11q" />
++          <option name="id" value="r11q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="SM-S711U" />
++          <option name="screenDensity" value="450" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2340" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="30" />
++          <option name="brand" value="google" />
++          <option name="codename" value="redfin" />
++          <option name="id" value="redfin" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 5" />
++          <option name="screenDensity" value="440" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2340" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="google" />
++          <option name="codename" value="shiba" />
++          <option name="id" value="shiba" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 8" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="samsung" />
++          <option name="codename" value="t2q" />
++          <option name="id" value="t2q" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Samsung" />
++          <option name="name" value="Galaxy S21 Plus" />
++          <option name="screenDensity" value="394" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2400" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="33" />
++          <option name="brand" value="google" />
++          <option name="codename" value="tangorpro" />
++          <option name="formFactor" value="Tablet" />
++          <option name="id" value="tangorpro" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel Tablet" />
++          <option name="screenDensity" value="320" />
++          <option name="screenX" value="1600" />
++          <option name="screenY" value="2560" />
++        </PersistentDeviceSelectionData>
++        <PersistentDeviceSelectionData>
++          <option name="api" value="34" />
++          <option name="brand" value="google" />
++          <option name="codename" value="tokay" />
++          <option name="default" value="true" />
++          <option name="id" value="tokay" />
++          <option name="labId" value="google" />
++          <option name="manufacturer" value="Google" />
++          <option name="name" value="Pixel 9" />
++          <option name="screenDensity" value="420" />
++          <option name="screenX" value="1080" />
++          <option name="screenY" value="2424" />
++        </PersistentDeviceSelectionData>
++      </list>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/node_modules/react-native-receive-sharing-intent/.idea/misc.xml b/node_modules/react-native-receive-sharing-intent/.idea/misc.xml
+new file mode 100644
+index 0000000..639900d
+--- /dev/null
++++ b/node_modules/react-native-receive-sharing-intent/.idea/misc.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectRootManager">
++    <output url="file://$PROJECT_DIR$/out" />
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/node_modules/react-native-receive-sharing-intent/.idea/modules.xml b/node_modules/react-native-receive-sharing-intent/.idea/modules.xml
+new file mode 100644
+index 0000000..0682c4f
+--- /dev/null
++++ b/node_modules/react-native-receive-sharing-intent/.idea/modules.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/react-native-receive-sharing-intent.iml" filepath="$PROJECT_DIR$/.idea/react-native-receive-sharing-intent.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/node_modules/react-native-receive-sharing-intent/.idea/react-native-receive-sharing-intent.iml b/node_modules/react-native-receive-sharing-intent/.idea/react-native-receive-sharing-intent.iml
+new file mode 100644
+index 0000000..d6ebd48
+--- /dev/null
++++ b/node_modules/react-native-receive-sharing-intent/.idea/react-native-receive-sharing-intent.iml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager" inherit-compiler-output="true">
++    <exclude-output />
++    <content url="file://$MODULE_DIR$" />
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+diff --git a/node_modules/react-native-receive-sharing-intent/.idea/workspace.xml b/node_modules/react-native-receive-sharing-intent/.idea/workspace.xml
+new file mode 100644
+index 0000000..c78ab88
+--- /dev/null
++++ b/node_modules/react-native-receive-sharing-intent/.idea/workspace.xml
+@@ -0,0 +1,47 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="NONE" />
++  </component>
++  <component name="ChangeListManager">
++    <list default="true" id="9c1b9bff-3bef-4314-86dd-d328fe2cf9f1" name="Changes" comment="" />
++    <option name="SHOW_DIALOG" value="false" />
++    <option name="HIGHLIGHT_CONFLICTS" value="true" />
++    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
++    <option name="LAST_RESOLUTION" value="IGNORE" />
++  </component>
++  <component name="ClangdSettings">
++    <option name="formatViaClangd" value="false" />
++  </component>
++  <component name="ProjectColorInfo"><![CDATA[{
++  "associatedIndex": 4
++}]]></component>
++  <component name="ProjectId" id="2tak8rLcF49yE6dT1HGlJU5AMVa" />
++  <component name="ProjectViewState">
++    <option name="hideEmptyMiddlePackages" value="true" />
++    <option name="showLibraryContents" value="true" />
++  </component>
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "RunOnceActivity.cidr.known.project.marker": "true",
++    "RunOnceActivity.readMode.enableVisualFormatting": "true",
++    "cf.first.check.clang-format": "false",
++    "cidr.known.project.marker": "true",
++    "kotlin-language-version-configured": "true",
++    "last_opened_file_path": "/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent",
++    "settings.editor.selected.configurable": "AndroidSdkUpdater"
++  }
++}]]></component>
++  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
++  <component name="TaskManager">
++    <task active="true" id="Default" summary="Default task">
++      <changelist id="9c1b9bff-3bef-4314-86dd-d328fe2cf9f1" name="Changes" comment="" />
++      <created>1740597416518</created>
++      <option name="number" value="Default" />
++      <option name="presentableId" value="Default" />
++      <updated>1740597416518</updated>
++    </task>
++    <servers />
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/node_modules/react-native-receive-sharing-intent/android/.classpath b/node_modules/react-native-receive-sharing-intent/android/.classpath
+new file mode 100644
+index 0000000..bbe97e5
+--- /dev/null
++++ b/node_modules/react-native-receive-sharing-intent/android/.classpath
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<classpath>
++	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17/"/>
++	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
++	<classpathentry kind="output" path="bin/default"/>
++</classpath>
+diff --git a/node_modules/react-native-receive-sharing-intent/android/.project b/node_modules/react-native-receive-sharing-intent/android/.project
+new file mode 100644
+index 0000000..882fe3e
+--- /dev/null
++++ b/node_modules/react-native-receive-sharing-intent/android/.project
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>react-native-receive-sharing-intent</name>
++	<comment>Project react-native-receive-sharing-intent created by Buildship.</comment>
++	<projects>
++	</projects>
++	<buildSpec>
++		<buildCommand>
++			<name>org.eclipse.jdt.core.javabuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++		<buildCommand>
++			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++	</buildSpec>
++	<natures>
++		<nature>org.eclipse.jdt.core.javanature</nature>
++		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
++	</natures>
++</projectDescription>
+diff --git a/node_modules/react-native-receive-sharing-intent/android/.settings/org.eclipse.buildship.core.prefs b/node_modules/react-native-receive-sharing-intent/android/.settings/org.eclipse.buildship.core.prefs
+new file mode 100644
+index 0000000..1675490
+--- /dev/null
++++ b/node_modules/react-native-receive-sharing-intent/android/.settings/org.eclipse.buildship.core.prefs
+@@ -0,0 +1,2 @@
++connection.project.dir=../../../android
++eclipse.preferences.version=1
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/.transforms/5efc58c4e0d30250026df80579d8291d/results.bin b/node_modules/react-native-receive-sharing-intent/android/build/.transforms/5efc58c4e0d30250026df80579d8291d/results.bin
 new file mode 100644
 index 0000000..0d259dd
@@ -7,8 +716,7 @@ index 0000000..0d259dd
 +o/classes
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/.transforms/5efc58c4e0d30250026df80579d8291d/transformed/classes/classes.dex b/node_modules/react-native-receive-sharing-intent/android/build/.transforms/5efc58c4e0d30250026df80579d8291d/transformed/classes/classes.dex
 new file mode 100644
-index 0000000..a7d74ff
-Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/.transforms/5efc58c4e0d30250026df80579d8291d/transformed/classes/classes.dex differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/.transforms/b3cbf7ecef6b33d226e85281f88db07b/results.bin b/node_modules/react-native-receive-sharing-intent/android/build/.transforms/b3cbf7ecef6b33d226e85281f88db07b/results.bin
 new file mode 100644
 index 0000000..0d259dd
@@ -53,17 +761,15 @@ index 0000000..eb04010
 +}
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
 new file mode 100644
-index 0000000..f6d2ca5
+index 0000000..16a30b1
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
-@@ -0,0 +1,9 @@
+@@ -0,0 +1,7 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 +    package="com.reactnativereceivesharingintent" >
 +
-+    <uses-sdk
-+        android:minSdkVersion="16"
-+        android:targetSdkVersion="33" />
++    <uses-sdk android:minSdkVersion="16" />
 +
 +</manifest>
 \ No newline at end of file
@@ -135,13 +841,14 @@ index 0000000..14bed07
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/aar_metadata/debug/aar-metadata.properties b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
 new file mode 100644
-index 0000000..8c9c699
+index 0000000..776557e
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
-@@ -0,0 +1,4 @@
+@@ -0,0 +1,5 @@
 +aarFormatVersion=1.0
 +aarMetadataVersion=1.0
 +minCompileSdk=1
++minCompileSdkExtension=0
 +minAndroidGradlePluginVersion=1.0.0
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/aar_metadata/release/aar-metadata.properties b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/aar_metadata/release/aar-metadata.properties
 new file mode 100644
@@ -171,24 +878,24 @@ index 0000000..9e26dfe
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_library_classes_jar/debug/classes.jar b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_library_classes_jar/debug/classes.jar
 new file mode 100644
-index 0000000..5428fbd
+index 0000000..d44e060
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_library_classes_jar/debug/classes.jar differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_library_classes_jar/release/classes.jar b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_library_classes_jar/release/classes.jar
 new file mode 100644
 index 0000000..e69de29
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_r_class_jar/debug/R.jar b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_r_class_jar/debug/R.jar
 new file mode 100644
-index 0000000..7e907e7
+index 0000000..5a5c2e8
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_r_class_jar/debug/R.jar differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_r_class_jar/release/R.jar b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_r_class_jar/release/R.jar
 new file mode 100644
 index 0000000..e69de29
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_symbol_list/debug/R.txt b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_symbol_list/debug/R.txt
 new file mode 100644
-index 0000000..7c9d30e
+index 0000000..5347f17
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/compile_symbol_list/debug/R.txt
-@@ -0,0 +1,1953 @@
+@@ -0,0 +1,1954 @@
 +int anim abc_fade_in 0x0
 +int anim abc_fade_out 0x0
 +int anim abc_grow_fade_in_from_bottom 0x0
@@ -909,6 +1616,7 @@ index 0000000..7c9d30e
 +int id accessibility_links 0x0
 +int id accessibility_role 0x0
 +int id accessibility_state 0x0
++int id accessibility_state_expanded 0x0
 +int id accessibility_value 0x0
 +int id action_bar 0x0
 +int id action_bar_activity_content 0x0
@@ -4103,37 +4811,37 @@ index 0000000..7c9d30e
 +int xml rn_dev_preferences 0x0
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
 new file mode 100644
-index 0000000..cddcfbb
+index 0000000..f2ba478
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
 @@ -0,0 +1 @@
-+#Wed Jan 10 15:18:32 IST 2024
++#Wed Feb 26 14:34:28 EST 2025
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
 new file mode 100644
-index 0000000..fe0c7b7
+index 0000000..83133ab
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/res"/><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/build/generated/res/rs/debug"/><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/res"/><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/build/generated/res/rs/debug"/><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"/><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"/><mergedItems/></merger>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/res"/><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/build/generated/res/rs/debug"/><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/res"/><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/build/generated/res/rs/debug"/><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"/><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"/><mergedItems/></merger>
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
 new file mode 100644
-index 0000000..5a6d945
+index 0000000..2ef36e8
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/jniLibs"/></dataSet></merger>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/jniLibs"/></dataSet></merger>
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
 new file mode 100644
-index 0000000..1c70f2a
+index 0000000..53afe13
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/shaders"/></dataSet></merger>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/shaders"/></dataSet></merger>
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml
 new file mode 100644
@@ -4155,12 +4863,12 @@ index 0000000..ad186a3
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/packageDebugAssets/merger.xml b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/packageDebugAssets/merger.xml
 new file mode 100644
-index 0000000..c72ed75
+index 0000000..fcc1c5c
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/packageDebugAssets/merger.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/assets"/><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/build/intermediates/shader_assets/debug/out"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/assets"/></dataSet></merger>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/assets"/><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/build/intermediates/shader_assets/debug/out"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/debug/assets"/></dataSet></merger>
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/packageReleaseAssets/merger.xml b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/incremental/packageReleaseAssets/merger.xml
 new file mode 100644
@@ -4189,15 +4897,15 @@ index 0000000..83c6d77
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/debug/classes/com/reactnativereceivesharingintent/BuildConfig.class b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/debug/classes/com/reactnativereceivesharingintent/BuildConfig.class
 new file mode 100644
-index 0000000..063aac4
+index 0000000..885879a
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/debug/classes/com/reactnativereceivesharingintent/BuildConfig.class differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/debug/classes/com/reactnativereceivesharingintent/ReceiveSharingIntentHelper.class b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/debug/classes/com/reactnativereceivesharingintent/ReceiveSharingIntentHelper.class
 new file mode 100644
-index 0000000..6ebdc06
+index 0000000..b74652b
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/debug/classes/com/reactnativereceivesharingintent/ReceiveSharingIntentHelper.class differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/debug/classes/com/reactnativereceivesharingintent/ReceiveSharingIntentModule.class b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/debug/classes/com/reactnativereceivesharingintent/ReceiveSharingIntentModule.class
 new file mode 100644
-index 0000000..0be227f
+index 0000000..b179181
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/debug/classes/com/reactnativereceivesharingintent/ReceiveSharingIntentModule.class differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/release/classes/com/reactnativereceivesharingintent/BuildConfig.class b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/javac/release/classes/com/reactnativereceivesharingintent/BuildConfig.class
 new file mode 100644
@@ -4210,7 +4918,7 @@ new file mode 100644
 index 0000000..e69de29
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/library_java_res/debug/res.jar b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/library_java_res/debug/res.jar
 new file mode 100644
-index 0000000..b622fa5
+index 0000000..1d154ab
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/library_java_res/debug/res.jar differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/library_java_res/release/res.jar b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/library_java_res/release/res.jar
 new file mode 100644
@@ -4233,21 +4941,18 @@ index 0000000..78ac5b8
 +local
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
 new file mode 100644
-index 0000000..150ae65
+index 0000000..43cfdca
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,8 @@
 +1<?xml version="1.0" encoding="utf-8"?>
 +2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 +3    package="com.reactnativereceivesharingintent" >
 +4
-+5    <uses-sdk
-+6        android:minSdkVersion="16"
-+6-->/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+7        android:targetSdkVersion="33" />
-+7-->/Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+8
-+9</manifest>
++5    <uses-sdk android:minSdkVersion="16" />
++5-->/Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++6
++7</manifest>
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt
 new file mode 100644
 index 0000000..150ae65
@@ -4267,17 +4972,15 @@ index 0000000..150ae65
 +9</manifest>
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
 new file mode 100644
-index 0000000..f6d2ca5
+index 0000000..16a30b1
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
-@@ -0,0 +1,9 @@
+@@ -0,0 +1,7 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 +    package="com.reactnativereceivesharingintent" >
 +
-+    <uses-sdk
-+        android:minSdkVersion="16"
-+        android:targetSdkVersion="33" />
++    <uses-sdk android:minSdkVersion="16" />
 +
 +</manifest>
 \ No newline at end of file
@@ -4365,17 +5068,17 @@ index 0000000..48c7cd0
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar
 new file mode 100644
-index 0000000..ba4e96a
+index 0000000..6c1cfbc
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/runtime_library_classes_jar/debug/classes.jar differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/runtime_library_classes_jar/release/classes.jar b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/runtime_library_classes_jar/release/classes.jar
 new file mode 100644
 index 0000000..e69de29
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
 new file mode 100644
-index 0000000..a37210a
+index 0000000..2dbc64b
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
-@@ -0,0 +1,1446 @@
+@@ -0,0 +1,1447 @@
 +com.reactnativereceivesharingintent
 +anim abc_fade_in
 +anim abc_fade_out
@@ -5097,6 +5800,7 @@ index 0000000..a37210a
 +id accessibility_links
 +id accessibility_role
 +id accessibility_state
++id accessibility_state_expanded
 +id accessibility_value
 +id action_bar
 +id action_bar_activity_content
@@ -7276,15 +7980,15 @@ index 0000000..a37210a
 +xml rn_dev_preferences
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
 new file mode 100644
-index 0000000..321fdc2
+index 0000000..ccb488f
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
 new file mode 100644
-index 0000000..259d9d4
+index 0000000..d90fde8
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
 new file mode 100644
-index 0000000..b740c76
+index 0000000..dfb6163
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
 new file mode 100644
@@ -7292,11 +7996,11 @@ index 0000000..01bdaa1
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
 new file mode 100644
-index 0000000..185ec98
+index 0000000..443f1cc
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
 new file mode 100644
-index 0000000..3cb3bb6
+index 0000000..ef0ae63
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
 new file mode 100644
@@ -7304,27 +8008,27 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
 new file mode 100644
-index 0000000..2c2b956
+index 0000000..e96e9bd
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
 new file mode 100644
-index 0000000..54cccbb
+index 0000000..ce85d10
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
 new file mode 100644
-index 0000000..cfeb6a8
+index 0000000..003bc0e
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
 new file mode 100644
-index 0000000..01bdaa1
+index 0000000..93a595b
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
 new file mode 100644
-index 0000000..fc0e221
+index 0000000..d89ba7a
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
 new file mode 100644
-index 0000000..dea487c
+index 0000000..7c3426a
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
 new file mode 100644
@@ -7332,27 +8036,27 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
 new file mode 100644
-index 0000000..139c09c
+index 0000000..8530db9
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
 new file mode 100644
-index 0000000..54cccbb
+index 0000000..ce85d10
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
 new file mode 100644
-index 0000000..cfeb6a8
+index 0000000..003bc0e
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
 new file mode 100644
-index 0000000..01bdaa1
+index 0000000..93a595b
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
 new file mode 100644
-index 0000000..1efb3cc
+index 0000000..1e5d4e5
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
 new file mode 100644
-index 0000000..dea487c
+index 0000000..7c3426a
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
 new file mode 100644
@@ -7360,7 +8064,7 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
 new file mode 100644
-index 0000000..139c09c
+index 0000000..82ec0ff
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
 new file mode 100644
@@ -7376,7 +8080,7 @@ index 0000000..01bdaa1
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
 new file mode 100644
-index 0000000..1efb3cc
+index 0000000..9bf1ccb
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
 new file mode 100644
@@ -7386,9 +8090,37 @@ diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotl
 new file mode 100644
 index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len differ
+diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab
+new file mode 100644
+index 0000000..e3d3476
+Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab differ
+diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream
+new file mode 100644
+index 0000000..0a1b745
+Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream differ
+diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream.len
+new file mode 100644
+index 0000000..812d25b
+Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream.len differ
+diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.len differ
+diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.values.at
+new file mode 100644
+index 0000000..d91fdca
+Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.values.at differ
+diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i
+new file mode 100644
+index 0000000..4a12e45
+Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i differ
+diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
 new file mode 100644
-index 0000000..631061a
+index 0000000..ad6175f
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
 new file mode 100644
@@ -7404,7 +8136,7 @@ index 0000000..a9f80ae
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
 new file mode 100644
-index 0000000..1b810e9
+index 0000000..b76b8f5
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
 new file mode 100644
@@ -7416,27 +8148,27 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
 new file mode 100644
-index 0000000..fab070e
+index 0000000..242e001
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
 new file mode 100644
-index 0000000..5ad2444
+index 0000000..d852ef6
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
 new file mode 100644
-index 0000000..b740c76
+index 0000000..04a2552
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
 new file mode 100644
-index 0000000..01bdaa1
+index 0000000..93a595b
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
 new file mode 100644
-index 0000000..c15602a
+index 0000000..fffb8eb
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
 new file mode 100644
-index 0000000..31fa559
+index 0000000..b5726de
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
 new file mode 100644
@@ -7444,27 +8176,27 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab
 new file mode 100644
-index 0000000..bdf584a
+index 0000000..c91ab66
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream
 new file mode 100644
-index 0000000..da72f9b
+index 0000000..4e4b0b6
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len
 new file mode 100644
-index 0000000..d263632
+index 0000000..1cf91b4
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len
 new file mode 100644
-index 0000000..2a17e6e
+index 0000000..01bdaa1
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at
 new file mode 100644
-index 0000000..7998725
+index 0000000..d237d23
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i
 new file mode 100644
-index 0000000..de9199e
+index 0000000..6177f16
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len
 new file mode 100644
@@ -7472,27 +8204,27 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab
 new file mode 100644
-index 0000000..bdf584a
+index 0000000..4cb73f9
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream
 new file mode 100644
-index 0000000..219c964
+index 0000000..bf5f384
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len
 new file mode 100644
-index 0000000..30b8abe
+index 0000000..1678b32
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len
 new file mode 100644
-index 0000000..2a17e6e
+index 0000000..01bdaa1
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at
 new file mode 100644
-index 0000000..10cd55f
+index 0000000..dcaaadc
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i
 new file mode 100644
-index 0000000..07dbf74
+index 0000000..1da9495
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len
 new file mode 100644
@@ -7500,24 +8232,24 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
 new file mode 100644
-index 0000000..2ceb12b
+index 0000000..c393a51
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
 @@ -0,0 +1,2 @@
-+2
++3
 +0
 \ No newline at end of file
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
 new file mode 100644
-index 0000000..ac60a29
+index 0000000..b657c75
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
 new file mode 100644
-index 0000000..5ad2444
+index 0000000..d90fde8
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
 new file mode 100644
-index 0000000..b740c76
+index 0000000..dfb6163
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
 new file mode 100644
@@ -7525,11 +8257,11 @@ index 0000000..01bdaa1
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
 new file mode 100644
-index 0000000..7d30a43
+index 0000000..9f383b5
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
 new file mode 100644
-index 0000000..ceea36e
+index 0000000..9625def
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
 new file mode 100644
@@ -7537,27 +8269,27 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
 new file mode 100644
-index 0000000..3374ed9
+index 0000000..e89eaa5
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
 new file mode 100644
-index 0000000..100d205
+index 0000000..636f34a
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
 new file mode 100644
-index 0000000..ccfcbf4
+index 0000000..29ce11c
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
 new file mode 100644
-index 0000000..01bdaa1
+index 0000000..a9f80ae
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
 new file mode 100644
-index 0000000..1efb3cc
+index 0000000..9bf1ccb
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
 new file mode 100644
-index 0000000..f768a77
+index 0000000..e9905b3
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
 new file mode 100644
@@ -7565,7 +8297,7 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
 new file mode 100644
-index 0000000..ad8aae5
+index 0000000..ddb513c
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
 new file mode 100644
@@ -7581,7 +8313,7 @@ index 0000000..3dd47a7
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
 new file mode 100644
-index 0000000..d5da9ea
+index 0000000..c4eff43
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
 new file mode 100644
@@ -7593,12 +8325,15 @@ index 0000000..131e265
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
 new file mode 100644
-index 0000000..d8ca189
+index 0000000..d2e3f97
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin differ
+diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+new file mode 100644
+index 0000000..5c4f66c
+Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/localstate/build-history.bin b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/localstate/build-history.bin
 new file mode 100644
-index 0000000..667aefd
-Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileDebugKotlin/localstate/build-history.bin differ
+index 0000000..e69de29
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab b/node_modules/react-native-receive-sharing-intent/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
 new file mode 100644
 index 0000000..e69de29
@@ -7847,35 +8582,35 @@ new file mode 100644
 index 0000000..e69de29
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/react-native-receive-sharing-intent/android/build/outputs/logs/manifest-merger-debug-report.txt
 new file mode 100644
-index 0000000..ce5c23b
+index 0000000..cc5606a
 --- /dev/null
 +++ b/node_modules/react-native-receive-sharing-intent/android/build/outputs/logs/manifest-merger-debug-report.txt
 @@ -0,0 +1,25 @@
 +-- Merging decision tree log ---
 +manifest
-+ADDED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:1:1-4:12
-+INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:1:1-4:12
-+INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:1:1-4:12
++ADDED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:1:1-4:12
++INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:1:1-4:12
++INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:1:1-4:12
 +	package
-+		ADDED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:2:11-56
-+		INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+		INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++		ADDED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:2:11-56
++		INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
 +	xmlns:android
-+		ADDED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:1:11-69
++		ADDED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml:1:11-69
 +uses-sdk
-+INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
-+INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
 +	android:targetSdkVersion
-+		INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+		ADDED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+		INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++		ADDED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
 +	android:minSdkVersion
-+		INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+		ADDED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
-+		INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++		ADDED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/abhinav/repositories/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/outputs/logs/manifest-merger-release-report.txt b/node_modules/react-native-receive-sharing-intent/android/build/outputs/logs/manifest-merger-release-report.txt
 new file mode 100644
 index 0000000..ce5c23b
@@ -7907,24 +8642,28 @@ index 0000000..ce5c23b
 +		INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
 +		ADDED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
 +		INJECTED from /Users/irfansyed/Desktop/client-app/node_modules/react-native-receive-sharing-intent/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/react-native-receive-sharing-intent/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ReceiveSharingIntentModule.class.uniqueId0 b/node_modules/react-native-receive-sharing-intent/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ReceiveSharingIntentModule.class.uniqueId0
+new file mode 100644
+index 0000000..60a8745
+Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/tmp/compileDebugJavaWithJavac/compileTransaction/stash-dir/ReceiveSharingIntentModule.class.uniqueId0 differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-receive-sharing-intent/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
 new file mode 100644
-index 0000000..eb5f80b
+index 0000000..ee6a67c
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/tmp/compileReleaseJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-receive-sharing-intent/android/build/tmp/compileReleaseJavaWithJavac/previous-compilation-data.bin
 new file mode 100644
 index 0000000..e69de29
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/debug/META-INF/react-native-receive-sharing-intent_debug.kotlin_module b/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/debug/META-INF/react-native-receive-sharing-intent_debug.kotlin_module
 new file mode 100644
-index 0000000..3a4e3bf
+index 0000000..8c840dd
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/debug/META-INF/react-native-receive-sharing-intent_debug.kotlin_module differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/debug/com/reactnativereceivesharingintent/FileDirectory.class b/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/debug/com/reactnativereceivesharingintent/FileDirectory.class
 new file mode 100644
-index 0000000..44c4047
+index 0000000..dd007c9
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/debug/com/reactnativereceivesharingintent/FileDirectory.class differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/debug/com/reactnativereceivesharingintent/ReceiveSharingIntentPackage.class b/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/debug/com/reactnativereceivesharingintent/ReceiveSharingIntentPackage.class
 new file mode 100644
-index 0000000..968abe6
+index 0000000..3e3271e
 Binary files /dev/null and b/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/debug/com/reactnativereceivesharingintent/ReceiveSharingIntentPackage.class differ
 diff --git a/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/release/META-INF/react-native-receive-sharing-intent_release.kotlin_module b/node_modules/react-native-receive-sharing-intent/android/build/tmp/kotlin-classes/release/META-INF/react-native-receive-sharing-intent_release.kotlin_module
 new file mode 100644
@@ -7946,17 +8685,87 @@ index 9303aa4..f2fed9e 100644
  ReceiveSharingIntent_buildToolsVersion=29.0.2
  ReceiveSharingIntent_targetSdkVersion=29
 diff --git a/node_modules/react-native-receive-sharing-intent/android/src/main/java/com/reactnativereceivesharingintent/ReceiveSharingIntentHelper.java b/node_modules/react-native-receive-sharing-intent/android/src/main/java/com/reactnativereceivesharingintent/ReceiveSharingIntentHelper.java
-index 69126eb..372d432 100644
+index 69126eb..ea5908e 100644
 --- a/node_modules/react-native-receive-sharing-intent/android/src/main/java/com/reactnativereceivesharingintent/ReceiveSharingIntentHelper.java
 +++ b/node_modules/react-native-receive-sharing-intent/android/src/main/java/com/reactnativereceivesharingintent/ReceiveSharingIntentHelper.java
-@@ -29,6 +29,7 @@ public class ReceiveSharingIntentHelper {
+@@ -27,15 +27,17 @@ public class ReceiveSharingIntentHelper {
+   }
+ 
    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-   public void sendFileNames(Context context, Intent intent, Promise promise){
+-  public void sendFileNames(Context context, Intent intent, Promise promise){
++  public boolean sendFileNames(Context context, Intent intent, Promise promise){
      try {
-+      if (intent == null) return;
++      if (intent == null) return false;
        String action = intent.getAction();
        String type = intent.getType();
-       if(type == null) { return; }
+-      if(type == null) { return; }
++      if(type == null) { return false; }
+       if(!type.startsWith("text") && (Objects.equals(action, Intent.ACTION_SEND) || Objects.equals(action, Intent.ACTION_SEND_MULTIPLE))){
+         WritableMap files = getMediaUris(intent,context);
+-        if(files == null) return;
++        if(files == null) return false;
+         promise.resolve(files);
++        return true;
+       }else if(type.startsWith("text") && Objects.equals(action, Intent.ACTION_SEND)){
+         String text = null;
+         String subject = null;
+@@ -45,8 +47,9 @@ public class ReceiveSharingIntentHelper {
+         }catch (Exception ignored){ }
+         if(text == null){
+           WritableMap files = getMediaUris(intent,context);
+-          if(files == null) return;
++          if(files == null) return false;
+           promise.resolve(files);
++          return true;
+         }else{
+           WritableMap files = new WritableNativeMap();
+           WritableMap file = new WritableNativeMap();
+@@ -64,6 +67,7 @@ public class ReceiveSharingIntentHelper {
+           file.putString("subject", subject);
+           files.putMap("0",file);
+           promise.resolve(files);
++          return true;
+         }
+ 
+       }else if(Objects.equals(action, Intent.ACTION_VIEW)){
+@@ -79,6 +83,7 @@ public class ReceiveSharingIntentHelper {
+         file.putString("extension", null);
+         files.putMap("0",file);
+         promise.resolve(files);
++        return true;
+       }
+       else if (Objects.equals(action, "android.intent.action.PROCESS_TEXT")) {
+         String text = null;
+@@ -96,11 +101,14 @@ public class ReceiveSharingIntentHelper {
+           file.putString("text", text);
+           files.putMap("0", file);
+           promise.resolve(files);
++          return true;
+       }else{
+         promise.reject("error","Invalid file type.");
++        return false;
+       }
+     }catch (Exception e){
+       promise.reject("error",e.toString());
++      return false;
+     }
+   };
+ 
+diff --git a/node_modules/react-native-receive-sharing-intent/android/src/main/java/com/reactnativereceivesharingintent/ReceiveSharingIntentModule.java b/node_modules/react-native-receive-sharing-intent/android/src/main/java/com/reactnativereceivesharingintent/ReceiveSharingIntentModule.java
+index f752144..449e4f8 100644
+--- a/node_modules/react-native-receive-sharing-intent/android/src/main/java/com/reactnativereceivesharingintent/ReceiveSharingIntentModule.java
++++ b/node_modules/react-native-receive-sharing-intent/android/src/main/java/com/reactnativereceivesharingintent/ReceiveSharingIntentModule.java
+@@ -39,8 +39,8 @@ public class ReceiveSharingIntentModule extends ReactContextBaseJavaModule {
+     Activity mActivity = getCurrentActivity();
+     if(mActivity == null) { return; }
+     Intent intent = mActivity.getIntent();
+-    receiveSharingIntentHelper.sendFileNames(reactContext, intent, promise);
+-    mActivity.setIntent(null);
++    if(receiveSharingIntentHelper.sendFileNames(reactContext, intent, promise))
++      mActivity.setIntent(null);
+   }
+ 
+   @ReactMethod
 diff --git a/node_modules/react-native-receive-sharing-intent/src/ReceiveSharingIntent.ts b/node_modules/react-native-receive-sharing-intent/src/ReceiveSharingIntent.ts
 index 735c191..ad5c846 100644
 --- a/node_modules/react-native-receive-sharing-intent/src/ReceiveSharingIntent.ts

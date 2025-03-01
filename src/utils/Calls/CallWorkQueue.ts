@@ -24,7 +24,8 @@ export type CoordinatorWorkItem =
   | 'peer_mic_turned_on'
   | 'peer_mic_turned_off'
   | 'peer_video_turned_on'
-  | 'peer_video_turned_off';
+  | 'peer_video_turned_off'
+  | 'turn_speaker_on';
 
 export type PeerConnectionWorkItem =
   | {type: 'user_joined'}
@@ -35,6 +36,10 @@ export type PeerConnectionWorkItem =
   | {
       type: 'data_channel';
       info: RTCDataChannel;
+    }
+  | {
+      type: 'send_initial_state';
+      info: {};
     };
 
 export type CallWorkItem =

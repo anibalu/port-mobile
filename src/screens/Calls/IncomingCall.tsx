@@ -32,7 +32,7 @@ import {
 type Props = NativeStackScreenProps<AppStackParamList, 'IncomingCall'>;
 
 function IncomingCall({route, navigation}: Props) {
-  const {chatId, callId} = route.params;
+  const {chatId, callId, isVideoCall} = route.params;
   const Colors = DynamicColors();
   const DarkColors = DynamicColors('dark');
 
@@ -85,7 +85,10 @@ function IncomingCall({route, navigation}: Props) {
       switch (name) {
         case 'RNCallKeepPerformAnswerCallAction':
           if (data.callUUID === callId) {
-            dispatchCallAction({type: 'answer_call'});
+            dispatchCallAction({
+              type: 'answer_call',
+              initiatedVideoCall: isVideoCall,
+            });
             return true;
           }
           break;
@@ -104,7 +107,10 @@ function IncomingCall({route, navigation}: Props) {
     console.log('[ANDROID PRE LAUNCH EVENTS]', callAnswerInfo, callId);
     if (callAnswerInfo?.callId === callId) {
       if (callAnswerInfo?.intentResult === 'Answer') {
-        dispatchCallAction({type: 'answer_call'});
+        dispatchCallAction({
+          type: 'answer_call',
+          initiatedVideoCall: isVideoCall,
+        });
         return true;
       } else if (callAnswerInfo?.intentResult === 'Decline') {
         dispatchCallAction({type: 'decline_call'});
@@ -159,7 +165,10 @@ function IncomingCall({route, navigation}: Props) {
           console.log(
             'Call was answered from the host UI before this screen was even rendered',
           );
-          dispatchCallAction({type: 'answer_call'});
+          dispatchCallAction({
+            type: 'answer_call',
+            initiatedVideoCall: isVideoCall,
+          });
           return;
         }
         // Process pre-launch events, important on iOS killed state
@@ -181,7 +190,11 @@ function IncomingCall({route, navigation}: Props) {
     }
     if (callState.callState === 'answered') {
       // We're on the wrong screen, navigate to the ongoing call screen with appropriate props
-      navigation.replace('OngoingCall', {callId, chatId, isVideoCall: true});
+      navigation.replace('OngoingCall', {
+        callId,
+        chatId,
+        isVideoCall: isVideoCall,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callState]);
@@ -237,7 +250,10 @@ function IncomingCall({route, navigation}: Props) {
           {/* Answer the call */}
           <TouchableOpacity
             onPress={() => {
-              dispatchCallAction({type: 'answer_call'});
+              dispatchCallAction({
+                type: 'answer_call',
+                initiatedVideoCall: isVideoCall,
+              });
             }}
             style={{
               flexDirection: 'column',

@@ -98,8 +98,8 @@ export interface CallUIState {
 const callUIInitialState: CallUIState = {
   peerMic: false,
   peerVideo: false,
-  myMic: true,
-  myVideo: true,
+  myMic: false,
+  myVideo: false,
 };
 
 //different call events that can be dispatched to the callUIStateReducer
@@ -236,6 +236,7 @@ function OngoingCall({route, navigation}: Props) {
   const getMyMediaStream = async () => {
     // Initialise media stream manager for my media stream
     try {
+      console.log('getting my media stream', isVideoCall);
       const msm = new MediaStreamManager(isVideoCall);
       await msm.init();
       const myMediaStream = msm.getMediaStream();
@@ -275,6 +276,9 @@ function OngoingCall({route, navigation}: Props) {
       setMyStream(myMediaStream);
       if (isVideoCall) {
         dispatchCallUIState({type: CallUIEvents.my_video_on});
+        changeAudioChannel('Speaker');
+      } else {
+        dispatchCallUIState({type: CallUIEvents.my_video_off});
       }
       dispatchCallUIState({type: CallUIEvents.my_mic_on});
 
@@ -390,6 +394,9 @@ function OngoingCall({route, navigation}: Props) {
       case 'peer_video_turned_off':
         dispatchCallUIState({type: CallUIEvents.peer_video_off});
         break;
+      case 'turn_speaker_on':
+        changeAudioChannel('Speaker');
+        break;
     }
   }
 
@@ -438,6 +445,8 @@ function OngoingCall({route, navigation}: Props) {
       dispatchCallUIState({type: CallUIEvents.my_video_on});
       //emit call event over data channel
       peerConnectionManager?.sendEvent(CallEvents.videoOn);
+      //turn on speaker
+      changeAudioChannel('Speaker');
     }
   };
 
@@ -467,8 +476,8 @@ function OngoingCall({route, navigation}: Props) {
    * @param newChannel The new audio channel
    */
   const changeAudioChannel = async (newChannel: string) => {
-    await RNCallKeep.setAudioRoute(callId, newChannel);
     try {
+      await RNCallKeep.setAudioRoute(callId, newChannel);
       const routes = await RNCallKeep.getAudioRoutes();
       setAudioChannels(routes as unknown as AudioRoute[]);
     } catch (error) {

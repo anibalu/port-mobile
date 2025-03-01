@@ -117,8 +117,7 @@ function ChatTopbar({
     onCancelPressed();
   };
 
-  const onVideoCallPressed = async () => {
-    console.log('Video call pressed');
+  const onCallPressed = async (initiatedVideoCall: boolean) => {
     if (
       !isIOS &&
       (await PermissionsAndroid.request(
@@ -130,13 +129,16 @@ function ChatTopbar({
     }
     try {
       const callId = createCallId();
-      dispatchCallAction({type: 'outgoing_call', callId, chatId});
+      dispatchCallAction({
+        type: 'outgoing_call',
+        callId,
+        chatId,
+        initiatedVideoCall,
+      });
     } catch (error) {
       console.error('Error navigating to call screen: ', error);
     }
   };
-
-  const onAudioCallPressed = onVideoCallPressed;
 
   const {themeValue} = useTheme();
 
@@ -204,10 +206,18 @@ function ChatTopbar({
                 </View>
               </View>
               <View style={styles.callIcons}>
-                <Pressable hitSlop={40} onPress={onVideoCallPressed}>
+                <Pressable
+                  onPress={async () => {
+                    console.log('video call pressed');
+                    await onCallPressed(true);
+                  }}>
                   <VideoCallIcon />
                 </Pressable>
-                <Pressable hitSlop={40} onPress={onAudioCallPressed}>
+                <Pressable
+                  onPress={async () => {
+                    console.log('audio call pressed');
+                    await onCallPressed(false);
+                  }}>
                   <AudioCallIcon />
                 </Pressable>
               </View>

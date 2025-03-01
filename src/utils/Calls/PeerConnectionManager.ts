@@ -24,6 +24,12 @@ export enum CallEvents {
   videoOff = 'video_off',
 }
 
+export interface CallRequestEvents {
+  requestState: boolean; //true if the peer is requesting the state of the call
+  micOn: boolean; //true if the peer has microphone enabled
+  videoOn: boolean; //true if the peer has video enabled
+}
+
 /**
  * We make incredibly heavy use of dependency injection to set up our listeners.
  * This way we can maintain references to assist in cleanup, without having them
@@ -149,28 +155,82 @@ function createIceConnectionStateChangeListener(
  * @param dispatchWorkItem - dispatcher function.
  */
 function createCallEventListener(dispatchWorkItem: DispatchWorkItem) {
-  return (event: {data: CallEvents}) => {
+  return (event: {data: string}) => {
     console.log('Received call event: ', event);
-    switch (event.data) {
-      case CallEvents.micOn:
-        dispatchWorkItem({target: 'coordinator', item: 'peer_mic_turned_on'});
-        break;
-      case CallEvents.micOff:
-        dispatchWorkItem({target: 'coordinator', item: 'peer_mic_turned_off'});
-        break;
-      case CallEvents.videoOn:
-        dispatchWorkItem({target: 'coordinator', item: 'peer_video_turned_on'});
-        break;
-      case CallEvents.videoOff:
-        dispatchWorkItem({
-          target: 'coordinator',
-          item: 'peer_video_turned_off',
-        });
-        break;
-      default:
-        console.warn('Unknown call event received', event);
+    try {
+      const callRequest = JSON.parse(event.data);
+      if (
+        typeof callRequest === 'object' &&
+        callRequest !== null &&
+        'requestState' in callRequest
+      ) {
+        console.log('Processing call request');
+        processCallRequest(callRequest, dispatchWorkItem);
+        return;
+      }
+      throw new Error('Invalid call request');
+    } catch (error) {
+      console.log('Error parsing call request. Defaulting call events');
+      processCallEvent(event.data as CallEvents, dispatchWorkItem);
     }
   };
+}
+
+/**
+ * Process a call request.
+ * @param callRequest - call request to process.
+ * @param dispatchWorkItem - dispatcher function.
+ */
+function processCallRequest(
+  callRequest: CallRequestEvents,
+  dispatchWorkItem: DispatchWorkItem,
+) {
+  if (callRequest.requestState) {
+    dispatchWorkItem({
+      target: 'peerConnection',
+      item: {type: 'send_initial_state', info: {}},
+    });
+  }
+  dispatchWorkItem({
+    target: 'coordinator',
+    item: callRequest?.micOn ? 'peer_mic_turned_on' : 'peer_mic_turned_off',
+  });
+  dispatchWorkItem({
+    target: 'coordinator',
+    item: callRequest?.videoOn
+      ? 'peer_video_turned_on'
+      : 'peer_video_turned_off',
+  });
+}
+
+/**
+ * Process a call event.
+ * @param callEvent - call event to process.
+ * @param dispatchWorkItem - dispatcher function.
+ */
+function processCallEvent(
+  callEvent: CallEvents,
+  dispatchWorkItem: DispatchWorkItem,
+) {
+  switch (callEvent) {
+    case CallEvents.micOn:
+      dispatchWorkItem({target: 'coordinator', item: 'peer_mic_turned_on'});
+      break;
+    case CallEvents.micOff:
+      dispatchWorkItem({target: 'coordinator', item: 'peer_mic_turned_off'});
+      break;
+    case CallEvents.videoOn:
+      dispatchWorkItem({target: 'coordinator', item: 'peer_video_turned_on'});
+      break;
+    case CallEvents.videoOff:
+      dispatchWorkItem({
+        target: 'coordinator',
+        item: 'peer_video_turned_off',
+      });
+      break;
+    default:
+      console.warn('Unknown call event received', callEvent);
+  }
 }
 
 export class PeerConnectionManager {
@@ -345,8 +405,28 @@ export class PeerConnectionManager {
         this.dataChannel = workItem.info;
         this.callEventListener = createCallEventListener(this.dispatchWorkItem);
         this.dataChannel.addEventListener('message', this.callEventListener);
-        console.log('Got a channe; created by a peer');
+        console.log('Got a channel; created by a peer');
+        //share and request audio and video state from peer
+        //switch on speaker if video is on
+        if (this.sendInitialState(true).videoOn) {
+          this.dispatchWorkItem({
+            target: 'coordinator',
+            item: 'turn_speaker_on',
+          });
+        }
         break;
+      case 'send_initial_state':
+        // send audio and video state to peer
+        // switch on speaker if video is on
+        if (this.sendInitialState(false).videoOn) {
+          this.dispatchWorkItem({
+            target: 'coordinator',
+            item: 'turn_speaker_on',
+          });
+        }
+        break;
+      default:
+        console.warn('Unknown peer connection work item received', workItem);
     }
   }
 
@@ -418,11 +498,11 @@ export class PeerConnectionManager {
       return;
     }
     this.dataChannel = this.peerConnection.createDataChannel('call_events');
-    this.dataChannel.addEventListener('open', _event =>
-      console.log('Data channel open'),
+    this.dataChannel.addEventListener('open', event =>
+      console.log('Data channel open', event),
     );
-    this.dataChannel.addEventListener('close', _event =>
-      console.log('Data channel closed'),
+    this.dataChannel.addEventListener('close', event =>
+      console.log('Data channel closed', event),
     );
     this.callEventListener = createCallEventListener(this.dispatchWorkItem);
     this.dataChannel.addEventListener('message', this.callEventListener);
@@ -447,6 +527,22 @@ export class PeerConnectionManager {
     this.dataChannel?.send(callEvent);
   }
 
+  /**
+   * Send a call request over the data channel.
+   * @param callRequest - call request to send.
+   */
+  sendInitialState(requestState: boolean): CallRequestEvents {
+    console.log('Sending data channel initial state event');
+    const videoTrack = this.myMediaStream?.getVideoTracks()[0];
+    const audioTrack = this.myMediaStream?.getAudioTracks()[0];
+    const request: CallRequestEvents = {
+      requestState,
+      videoOn: videoTrack?.enabled ? true : false,
+      micOn: audioTrack?.enabled ? true : false,
+    };
+    this.dataChannel?.send(JSON.stringify(request));
+    return request;
+  }
   /**
    * Once a call is ended call before letting this object be garbage collected
    */

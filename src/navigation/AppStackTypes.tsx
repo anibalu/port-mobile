@@ -12,7 +12,7 @@ import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 
 export type AppStackParamList = {
   OngoingCall: {chatId: string; callId: string; isVideoCall: boolean};
-  IncomingCall: {chatId: string; callId: string};
+  IncomingCall: {chatId: string; callId: string; isVideoCall: boolean};
   DeleteAccount: undefined;
   AccountSettings: undefined;
   HomeTab: undefined;

@@ -29,6 +29,7 @@ type CurrentCall =
   | {
       callId: string;
       chatId: string;
+      initiatedVideoCall?: boolean;
       callState: 'unanswered' | 'answered' | 'outgoing';
       abortController?: AbortController; // Controller to manage aborting the timeout
       // of the incoming call when answered/unanswered
@@ -42,8 +43,13 @@ type CallAction =
       callRingTimeSeconds: number;
       onUnanswer: () => void;
     }
-  | {type: 'outgoing_call'; chatId: string; callId: string}
-  | {type: 'answer_call'}
+  | {
+      type: 'outgoing_call';
+      chatId: string;
+      callId: string;
+      initiatedVideoCall?: boolean;
+    }
+  | {type: 'answer_call'; initiatedVideoCall?: boolean}
   | {type: 'decline_call'}
   | {type: 'end_call'; reason: CallEndReason};
 
@@ -69,6 +75,7 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
       return {
         callId: action.callId,
         chatId: action.chatId,
+        initiatedVideoCall: action.initiatedVideoCall,
         callState: 'outgoing',
       };
     case 'incoming_call':
@@ -104,7 +111,16 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
       // Abort the timeout to navigate to exit the incoming call screen if unanswered
       state.abortController?.abort(); // Abort the signal to cancel the incoming call
       notifyOSOfCallAcceptance(state.callId);
-      return {...state, callState: 'answered'};
+      console.log('answer call', {
+        ...state,
+        callState: 'answered',
+        initiatedVideoCall: action.initiatedVideoCall,
+      });
+      return {
+        ...state,
+        callState: 'answered',
+        initiatedVideoCall: action.initiatedVideoCall,
+      };
     case 'decline_call':
       if (state && state.callState === 'unanswered') {
         // TODO: CallKeep decline the call here and go home
@@ -187,7 +203,11 @@ export const CallContextProvider = ({children}: {children: any}) => {
     }
 
     await setUpCallKeep(
-      (_callId: string) => dispatchCallAction({type: 'answer_call'}),
+      (_callId: string) =>
+        dispatchCallAction({
+          type: 'answer_call',
+          initiatedVideoCall: callState?.initiatedVideoCall || false,
+        }),
       (_callId: string) =>
         dispatchCallAction({
           type: 'end_call',
@@ -199,11 +219,13 @@ export const CallContextProvider = ({children}: {children: any}) => {
   useEffect(() => {
     if (callState?.callState === 'unanswered') {
       // We must have a new unanswered call
+      console.log('incoming call', callState);
       navigation.navigate('AppStack', {
         screen: 'IncomingCall',
         params: {
           chatId: callState.chatId,
           callId: callState.callId,
+          isVideoCall: callState.initiatedVideoCall || false,
         },
       });
     }
@@ -214,6 +236,7 @@ export const CallContextProvider = ({children}: {children: any}) => {
         params: {
           chatId: callState.chatId,
           callId: callState.callId,
+          isVideoCall: callState.initiatedVideoCall || false,
         },
       });
     }

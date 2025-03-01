@@ -122,6 +122,9 @@ export async function displayIncomingCallOSUI(
  */
 export function notifyOSOfCallAcceptance(callId: string) {
   RNCallKeep.answerIncomingCall(callId);
+  if (!isIOS) {
+    CallHelperModule.cancelRingtone();
+  }
 }
 
 /**
@@ -182,6 +185,9 @@ export function endCallOSUI(callId: string, reason: CallEndReason): void {
  */
 export function rejectCallOSUI(callId: string) {
   RNCallKeep.rejectCall(callId);
+  if (!isIOS) {
+    CallHelperModule.cancelRingtone();
+  }
 }
 
 /**

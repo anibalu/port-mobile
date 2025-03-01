@@ -1,21 +1,19 @@
 package tech.numberless.port;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Person;
-import android.app.Service;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.ServiceCompat;
 
-import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
@@ -23,14 +21,18 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.Arguments;
+import android.media.RingtoneManager;
 
 import java.util.Random;
 
 /**
- * This file is a fucking monolith. At the very least, we should be able to move out the notification
+ * This file is a fucking monolith. At the very least, we should be able to move
+ * out the notification
  * generation stuff
  */
 public class CallHelperModule extends ReactContextBaseJavaModule {
+    private static MediaPlayer activeMediaPlayer;
+
     CallHelperModule(ReactApplicationContext context) {
         super(context);
     }
@@ -40,7 +42,7 @@ public class CallHelperModule extends ReactContextBaseJavaModule {
         return "CallHelperModule";
     }
 
-    private final String CHANNEL_ID = "call_channel";
+    private final String CHANNEL_ID = "call_channel_high_priority";
 
     @ReactMethod
     public void getCallAnswerInfo(Promise promise) {
@@ -73,9 +75,13 @@ public class CallHelperModule extends ReactContextBaseJavaModule {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Calls";
             String description = "Channel to receive Port call notifications";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
+            channel.enableVibration(true);
+            long[] vibrationPattern = { 0, 100, 250, 100, 100, 100, 200, 250, 250, 200, 200, 200, 200 };
+            channel.setVibrationPattern(vibrationPattern);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             // Register the channel with the system. You can't change the importance
             // or other notification behaviors after this.
             NotificationManager notificationManager = this.getReactApplicationContext()
@@ -96,62 +102,79 @@ public class CallHelperModule extends ReactContextBaseJavaModule {
                     .build();
         }
 
-        // When invoked, launch the app's main activity and let it know that the call was answered
+        // When invoked, launch the app's main activity and let it know that the call
+        // was answered
         Intent answerIntent = new Intent();
         answerIntent.setAction(Intent.ACTION_ANSWER);
         answerIntent.setPackage("tech.numberless.port");
         answerIntent.putExtra("callNotificationResult", "Answer");
         answerIntent.putExtra("callId", callId);
+        answerIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        PendingIntent pendingAnswer = PendingIntent.getActivity(
+                this.getReactApplicationContext(), // Context
+                1, // Request code (can be any int value, used to identify the PendingIntent)
+                answerIntent, // The Intent to be executed
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE// Flags to update the PendingIntent if
+                                                                                // it already exists
+        );
 
         // When invoked, launch the app
-        Intent clickIntent = new Intent();
-        clickIntent.setAction(Intent.ACTION_MAIN);
-        clickIntent.setPackage("tech.numberless.port");
-        clickIntent.putExtra("callNotificationResult", "Click");
-        clickIntent.putExtra("callId", callId);
+        // Intent fullScreenIntent = new Intent(getReactApplicationContext(),
+        // CallStyleActivity.class);
 
-        // When invoked, launch the app's main activity and let it know that the call was answered
+        // When invoked, launch the app's main activity and let it know that the call
+        // was answered
         Intent declineIntent = new Intent();
         declineIntent.setAction(Intent.ACTION_ANSWER);
         declineIntent.setPackage("tech.numberless.port");
         declineIntent.putExtra("callNotificationResult", "Decline");
         declineIntent.putExtra("callId", callId);
 
-        PendingIntent pendingAnswer = PendingIntent.getActivity(
-                this.getReactApplicationContext(),              // Context
-                1,         // Request code (can be any int value, used to identify the PendingIntent)
-                answerIntent,              // The Intent to be executed
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE// Flags to update the PendingIntent if it already exists
-        );
-
         PendingIntent pendingDecline = PendingIntent.getActivity(
-                this.getReactApplicationContext(),              // Context
-                2,         // Request code (can be any int value, used to identify the PendingIntent)
-                declineIntent,              // The Intent to be executed
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE// Flags to update the PendingIntent if it already exists
+                this.getReactApplicationContext(), // Context
+                2, // Request code (can be any int value, used to identify the PendingIntent)
+                declineIntent, // The Intent to be executed
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE// Flags to update the PendingIntent if
+                                                                                // it already exists
         );
 
-        PendingIntent pendingClick = PendingIntent.getActivity(
-                this.getReactApplicationContext(),              // Context
-                3,         // Request code (can be any int value, used to identify the PendingIntent)
-                clickIntent,              // The Intent to be executed
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE// Flags to update the PendingIntent if it already exists
-        );
+        Intent fullScreenIntent = new Intent(getReactApplicationContext(), CallStyleActivity.class);
+        fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fullScreenIntent.putExtra("callId", callId);
+        fullScreenIntent.putExtra("caller", caller);
+        fullScreenIntent.putExtra("DECLINE_INTENT", pendingDecline);
+        fullScreenIntent.putExtra("ANSWER_INTENT", pendingAnswer);
+        fullScreenIntent.putExtra("RING_DURATION", callRingTimeSeconds);
 
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(getReactApplicationContext(), 0,
+                fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        long[] vibrationPattern = { 0, 100, 250, 100, 100, 100, 200, 250, 250, 200, 200, 200, 200 };
 
         Notification.Builder notificationBuilder = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             notificationBuilder = new Notification.Builder(this.getReactApplicationContext(), CHANNEL_ID)
-                    .setContentIntent(pendingClick)
-                    .setCategory(NotificationCompat.CATEGORY_CALL)
+                    .setContentIntent(fullScreenPendingIntent)
+                    .setCategory(Notification.CATEGORY_CALL)
                     .setStyle(
                             Notification.CallStyle.forIncomingCall(callerPerson, pendingDecline, pendingAnswer))
                     .addPerson(callerPerson)
-                    .setFullScreenIntent(pendingDecline, true)
+                    .setFullScreenIntent(fullScreenPendingIntent, true)
                     .setPriority(Notification.PRIORITY_HIGH)
                     .setSmallIcon(R.drawable.ic_small_icon)
-                    .setTimeoutAfter(callRingTimeSeconds * 1000);    // Set a ring timeout
+                    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .setVibrate(vibrationPattern)
+                    .setOngoing(true)
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setTimeoutAfter(callRingTimeSeconds * 1000); // Set a ring timeout
         }
+
+        playRingtone(callRingTimeSeconds);
 
         int notificationId = new Random().nextInt();
         Log.d("CALL", "About to notify");
@@ -164,4 +187,37 @@ public class CallHelperModule extends ReactContextBaseJavaModule {
 
         onSuccess.invoke();
     }
+
+    private void playRingtone(int callRingTimeSeconds) {
+        MediaPlayer mediaPlayer;
+        if (null == CallHelperModule.activeMediaPlayer) {
+            mediaPlayer = MediaPlayer.create(
+                    getReactApplicationContext(),
+                    RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
+            // Configure to repeat
+            mediaPlayer.setLooping(true);
+            CallHelperModule.activeMediaPlayer = mediaPlayer;
+        } else {
+            mediaPlayer = CallHelperModule.activeMediaPlayer;
+        }
+
+        // Start playing
+        mediaPlayer.start();
+        // Loop the player until we're done with the timeout
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(this::cancelRingtone, callRingTimeSeconds * 1000);
+
+    }
+
+    @ReactMethod
+    public void cancelRingtone() {
+        Log.d("CALL", "Trying to cancel the thing");
+        if (CallHelperModule.activeMediaPlayer != null) {
+
+            CallHelperModule.activeMediaPlayer.stop();
+            CallHelperModule.activeMediaPlayer.release();
+            CallHelperModule.activeMediaPlayer = null;
+        }
+    }
+
 }

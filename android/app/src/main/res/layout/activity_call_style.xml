@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:theme="@style/ThemeOverlay.Port.FullscreenContainer"
+    tools:context=".CallStyleActivity">
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+
+        <!-- The branding text "port" -->
+        <ImageView
+            android:id="@+id/brandingImage"
+            android:layout_width="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="36dp"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/porttext" />
+
+        <!-- The avatar in the screen -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="128dp"
+            app:cardCornerRadius="64dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <ImageView
+                android:id="@+id/genericAvatar"
+                android:layout_width="128dp"
+                android:layout_height="128dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/generic_avatar" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- The caller name text -->
+        <TextView
+            android:id="@+id/fullscreen_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="260dp"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:keepScreenOn="true"
+            android:text="Incoming call"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="normal" />
+
+        <!-- The "Decline" button -->
+        <FrameLayout
+            android:layout_gravity="bottom|left"
+            android:layout_marginLeft="64dp"
+            android:layout_marginBottom="80dp"
+            android:layout_width="64dp"
+            android:layout_height="84dp"
+        >
+            <ImageButton
+                android:id="@+id/declineButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:tint="@null"
+                android:layout_gravity="top|center"
+                android:onClick="onDeclineCall"
+                app:srcCompat="@drawable/endcall" />
+
+            <TextView
+                android:id="@+id/declineText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#EE786B"
+                android:layout_gravity="bottom|center"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Decline" />
+        </FrameLayout>
+        <!-- The "Accept" button -->
+        <FrameLayout
+            android:layout_gravity="bottom|end"
+            android:layout_marginRight="64dp"
+            android:layout_marginBottom="80dp"
+            android:layout_width="64dp"
+            android:layout_height="84dp"
+        >
+            <ImageButton
+                android:id="@+id/answerButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:layout_gravity="top|center"
+                android:tint="@null"
+                android:onClick="onAcceptCall"
+                app:srcCompat="@drawable/acceptcall" />
+
+            <TextView
+                android:id="@+id/acceptText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:textColor="#45C07E"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Accept" />
+        </FrameLayout>
+    </FrameLayout>
+
+</FrameLayout>

@@ -256,15 +256,6 @@ function OngoingCall({route, navigation}: Props) {
 
   const setupCall = async (msm: MediaStreamManager) => {
     try {
-      RNCallKeep.setAudioRoute(callId, 'Speaker').then(() => {
-        RNCallKeep.getAudioRoutes().then(routes => {
-          setAudioChannels(routes as unknown as AudioRoute[]);
-        });
-      });
-    } catch (error) {
-      console.error('Error setting audio route: ', error);
-    }
-    try {
       // Get the chat data
       const chatData = await new DirectChat(chatId).getChatData();
       const lineId = chatData.lineId;

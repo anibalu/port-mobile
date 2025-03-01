@@ -64,7 +64,7 @@ const SavePortBottomsheet = ({
   // };
   console.log('qr data: ', qrData);
   const onKeepPortOpenAndGoBack = async () => {
-    await onButtonPress();
+    onButtonPress();
     wait(safeModalCloseDuration);
     navigation.goBack();
   };

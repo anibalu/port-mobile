@@ -104,7 +104,13 @@ function AppStack() {
             <Stack.Screen name="CaptureMedia" component={CaptureMedia} />
             <Stack.Screen name="SharedMedia" component={SharedMedia} />
             {/* <Stack.Screen name="Isolation" component={Isolation} /> */}
-            <Stack.Screen name="NewPortScreen" component={NewPortScreen} />
+            <Stack.Screen
+              name="NewPortScreen"
+              component={NewPortScreen}
+              options={{
+                gestureEnabled: false,
+              }}
+            />
 
             <Stack.Screen name="CreateNewGroup" component={CreateNewGroup} />
             <Stack.Screen name="NewGroupPort" component={NewGroupPort} />

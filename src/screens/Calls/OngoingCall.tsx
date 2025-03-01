@@ -608,8 +608,8 @@ function OngoingCall({route, navigation}: Props) {
                 <View
                   style={{
                     position: 'absolute',
-                    top: screen.height - 200 - 90 - 16,
-                    left: screen.width - 120 - 16,
+                    bottom: 200 + 90 + 16,
+                    right: 120 + 16,
                   }}>
                   <PeerStream
                     peerStream={peerStream}
@@ -630,8 +630,8 @@ function OngoingCall({route, navigation}: Props) {
                 <View
                   style={{
                     position: 'absolute',
-                    top: screen.height - 200 - 90 - 16,
-                    left: screen.width - 120 - 16,
+                    bottom: 200 + 90 + 16,
+                    right: 120 + 16,
                   }}>
                   <MyStream
                     myStream={myStream}
@@ -643,12 +643,15 @@ function OngoingCall({route, navigation}: Props) {
             )}
             {myStream && callUIState.myVideo && (
               <>
-                <View style={{flex: 1, position: 'absolute'}}>
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: 200 + 90 + 16,
+                    right: 120 + 16,
+                  }}>
                   <Pressable
                     style={{
                       position: 'absolute',
-                      top: screen.height - 200 - 90 - 16,
-                      left: screen.width - 120 - 16,
                       height: 200,
                       width: 120,
                     }}

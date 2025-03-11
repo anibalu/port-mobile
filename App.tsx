@@ -25,8 +25,8 @@ import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
 
 import {addEventListener} from '@react-native-community/netinfo';
 import {
-  debouncedPeriodicOperations,
-  performBackgroundToForegroundOperations,
+  backgroundToForegroundOperations,
+  performDebouncedCommonAppOperations,
 } from '@utils/AppOperations';
 import {AppState} from 'react-native';
 import BootSplash from 'react-native-bootsplash';
@@ -55,8 +55,6 @@ function App(): JSX.Element {
       // If profile has been created
       if (result === ProfileStatus.created) {
         setProfileExists(true);
-        //background operations are setup
-        debouncedPeriodicOperations();
       }
     } catch (error) {
       // If profile has not been created or not created properly
@@ -90,7 +88,7 @@ function App(): JSX.Element {
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
       ) {
-        performBackgroundToForegroundOperations();
+        backgroundToForegroundOperations();
       }
 
       appState.current = nextAppState;
@@ -99,7 +97,7 @@ function App(): JSX.Element {
     const unsubscribe = addEventListener(state => {
       //Performs operation if the app is connected to any valid network (might not have internet access though)
       if (state.isConnected) {
-        debouncedPeriodicOperations();
+        performDebouncedCommonAppOperations();
       }
     });
     return () => {

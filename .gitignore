@@ -3,6 +3,9 @@
 *.apk
 *.aab
 
+# Editors
+.vscode
+
 # OSX
 #
 .DS_Store

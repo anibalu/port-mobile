@@ -14,7 +14,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {debouncedPeriodicOperations} from '@utils/AppOperations';
+import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import DynamicColors from '@components/DynamicColors';
 import {useChatContext} from './ChatContext';
 import {MessageBubbleParent} from '@components/GroupMessageBubbles/MessageBubbleParent';
@@ -157,7 +157,7 @@ function ChatList({
         refreshing={refreshing}
         onRefresh={async () => {
           setRefreshing(true);
-          await debouncedPeriodicOperations();
+          await performDebouncedCommonAppOperations();
           setRefreshing(false);
         }}
       />

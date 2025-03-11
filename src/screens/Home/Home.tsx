@@ -7,7 +7,7 @@ import ChatTile, {ChatTileProps} from '@components/ChatTile/ChatTile';
 
 import notifee, {AuthorizationStatus} from '@notifee/react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import {debouncedPeriodicOperations} from '@utils/AppOperations';
+import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import React, {ReactElement, useEffect, useMemo, useState} from 'react';
 import {
   FlatList,
@@ -120,7 +120,7 @@ const Home = ({navigation, route}: Props) => {
         // Call permissions to set up callkeep
         await initialiseCallKeep();
 
-        debouncedPeriodicOperations();
+        performDebouncedCommonAppOperations();
         resetAppBadge();
       })();
 
@@ -311,7 +311,7 @@ const Home = ({navigation, route}: Props) => {
                     refreshing={refreshing}
                     onRefresh={async () => {
                       setRefreshing(true);
-                      await debouncedPeriodicOperations();
+                      await performDebouncedCommonAppOperations();
                       const output = await loadHomeScreenConnections();
                       setConnections(output.connections);
                       setTotalUnreadCount(output.unread);

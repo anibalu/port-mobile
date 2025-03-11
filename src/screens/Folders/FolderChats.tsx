@@ -31,7 +31,7 @@ import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 import {FolderNavStackParamList} from '@navigation/BottomNavStackTypes';
 import {useSelector} from 'react-redux';
 import {loadFolderScreenConnections} from '@utils/Connections/onRefresh';
-import {debouncedPeriodicOperations} from '@utils/AppOperations';
+import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import {useTheme} from 'src/context/ThemeContext';
 import {FolderChatsTopBar} from './FolderChatsTopBar';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -267,7 +267,7 @@ const FolderChats = ({route}: Props) => {
                     refreshing={refreshing}
                     onRefresh={async () => {
                       setRefreshing(true);
-                      await debouncedPeriodicOperations();
+                      await performDebouncedCommonAppOperations();
                       if (selectedFolderData) {
                         const output = await loadFolderScreenConnections(
                           selectedFolderData.folderId,

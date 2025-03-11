@@ -15,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import {MessageBubbleParent} from '@components/MessageBubbles/MessageBubbleParent';
-import {debouncedPeriodicOperations} from '@utils/AppOperations';
+import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import {AuthenticatedStateBubble} from '@components/MessageBubbles/AuthenticatedStateBubble';
 import DynamicColors from '@components/DynamicColors';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
@@ -157,7 +157,7 @@ function ChatList({
         refreshing={refreshing}
         onRefresh={async () => {
           setRefreshing(true);
-          await debouncedPeriodicOperations();
+          await performDebouncedCommonAppOperations();
           setRefreshing(false);
         }}
       />

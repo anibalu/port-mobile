@@ -15,7 +15,7 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 //import store from '@store/appStore';
 import {toggleRead} from '@utils/Storage/connections';
 import store from '@store/appStore';
-import {debouncedPeriodicOperations} from '@utils/AppOperations';
+import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {getLatestMessages} from '@utils/Storage/messages';
 import {isIOS, screen} from '@components/ComponentUtils';
@@ -197,7 +197,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         //Notifying that initial message load is complete.
         setMessagesLoaded(true);
         setPermissions(await dataHandler.getPermissions());
-        await debouncedPeriodicOperations();
+        await performDebouncedCommonAppOperations();
       })();
 
       return () => {

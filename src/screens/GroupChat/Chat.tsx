@@ -15,7 +15,6 @@ import {AppStackParamList} from '@navigation/AppStackTypes';
 //import store from '@store/appStore';
 import {toggleRead} from '@utils/Storage/connections';
 import store from '@store/appStore';
-import {debouncedPeriodicOperations} from '@utils/AppOperations';
 import {isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import RichGroupReactionsBottomsheet from '@components/Reusable/BottomSheets/RichGroupReactionsBottomsheet';
@@ -196,7 +195,6 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         setMessages(resp);
         //Notifying that initial message load is complete.
         setMessagesLoaded(true);
-        await debouncedPeriodicOperations();
       })();
 
       return () => {

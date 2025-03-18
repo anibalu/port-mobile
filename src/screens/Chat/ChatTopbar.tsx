@@ -11,7 +11,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import React, {ReactNode} from 'react';
-import {PermissionsAndroid, Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {ChatTopBarWithAccessControls} from './DragDownTopBar';
@@ -118,15 +118,6 @@ function ChatTopbar({
   };
 
   const onCallPressed = async (initiatedVideoCall: boolean) => {
-    if (
-      !isIOS &&
-      (await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_PHONE_NUMBERS,
-      )) !== 'granted'
-    ) {
-      // TODO: Add a toast and request manage call permissions.
-      return;
-    }
     try {
       const callId = createCallId();
       dispatchCallAction({

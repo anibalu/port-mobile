@@ -407,23 +407,11 @@ export class PeerConnectionManager {
         this.dataChannel.addEventListener('message', this.callEventListener);
         console.log('Got a channel; created by a peer');
         //share and request audio and video state from peer
-        //switch on speaker if video is on
-        if (this.sendInitialState(true).videoOn) {
-          this.dispatchWorkItem({
-            target: 'coordinator',
-            item: 'turn_speaker_on',
-          });
-        }
+        this.sendInitialState(true);
         break;
       case 'send_initial_state':
         // send audio and video state to peer
-        // switch on speaker if video is on
-        if (this.sendInitialState(false).videoOn) {
-          this.dispatchWorkItem({
-            target: 'coordinator',
-            item: 'turn_speaker_on',
-          });
-        }
+        this.sendInitialState(false);
         break;
       default:
         console.warn('Unknown peer connection work item received', workItem);

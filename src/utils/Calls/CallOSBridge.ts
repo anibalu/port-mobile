@@ -144,8 +144,6 @@ export async function placeOutgoingCallOSUI(chatId: string, callId: string) {
       'generic',
       true,
     );
-  } else {
-    RNCallKeep.startCall(callId, name || 'New contact', name || 'New contact');
   }
 }
 

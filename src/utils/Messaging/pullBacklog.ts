@@ -27,7 +27,11 @@ export default async function pullBacklog() {
   if (process.env.LEGACY === 'TRUE') {
     await _backlogPullWithREST();
   } else {
-    await backlogPullWithWS();
+    try {
+      await backlogPullWithWS();
+    } catch (e) {
+      console.error('[PULL BACKLOG]', e);
+    }
   }
   backlogLock.release();
 }

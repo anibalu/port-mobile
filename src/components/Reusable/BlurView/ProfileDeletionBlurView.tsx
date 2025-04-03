@@ -11,8 +11,8 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import PrimaryButton from '../LongButtons/PrimaryButton';
-import {useNavigation} from '@react-navigation/native';
 import store from '@store/appStore';
+import {rootNavigationRef} from '@navigation/rootNavigation';
 
 const ProfileDeletionBlurView = ({modalClose}: {modalClose: boolean}) => {
   const svgArray = [
@@ -32,7 +32,6 @@ const ProfileDeletionBlurView = ({modalClose}: {modalClose: boolean}) => {
   const Poster = results.Poster;
   const Colors = DynamicColors();
   const styles = styling(Colors);
-  const navigation = useNavigation();
 
   if (!modalClose) {
     return null;
@@ -72,15 +71,12 @@ const ProfileDeletionBlurView = ({modalClose}: {modalClose: boolean}) => {
             isLoading={false}
             onClick={() => {
               store.dispatch({
-                type: 'DELETE_ACCOUNT',
-                payload: false,
+                type: 'DELETE_PROFILE',
+                payload: {},
               });
-              navigation.navigate('LoginStack', {
-                screen: 'OnboardingStack',
-                params: {
-                  startOnboarding: false,
-                },
-              });
+              if (rootNavigationRef.isReady()) {
+                rootNavigationRef.navigate('OnboardingStack');
+              }
             }}
             primaryButtonColor={'p'}
           />

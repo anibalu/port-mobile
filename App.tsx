@@ -1,9 +1,8 @@
 /**
  * Numberless Inc's messaging client app Port.
  * This screen is responsible for:
- * 1. Setsup Login Stack to decide if the user needs to be navigated to Onboarding or Home (based on if profile is setup)
+ * 1. Sets up Root Stack to decide if the user needs to be navigated to Onboarding or Home (based on if profile is setup)
  * 2. Sets up background operations and periodic foreground operations
- * 3. Provides Error modal context for the entire app. This allows us to display errors in the app.
  */
 
 import {NavigationContainer} from '@react-navigation/native';
@@ -19,7 +18,7 @@ import {
 } from '@utils/Messaging/PushNotifications/fcm';
 
 import ErrorModal from '@components/Modals/ErrorModal';
-import LoginStack from '@navigation/LoginStack';
+import {RootStack} from '@navigation/RootStack';
 import {checkProfileCreated} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
 
@@ -29,7 +28,6 @@ import {
   performDebouncedCommonAppOperations,
 } from '@utils/AppOperations';
 import {AppState} from 'react-native';
-import BootSplash from 'react-native-bootsplash';
 import {ThemeProvider} from 'src/context/ThemeContext';
 import {ToastProvider} from 'src/context/ToastContext';
 import {ErrorModalProvider} from 'src/context/ErrorModalContext';
@@ -39,44 +37,55 @@ import HardUpdateInfoBlurView from '@components/Reusable/BlurView/HardUpdateInfo
 import {UpdateStatusProvider} from 'src/context/UpdateStatusContext';
 import {wait} from '@utils/Time';
 import runMigrations from '@utils/Storage/Migrations';
+import BootSplash from 'react-native-bootsplash';
+import {rootNavigationRef} from '@navigation/rootNavigation';
 
 function App(): JSX.Element {
   const appState = useRef(AppState.currentState);
 
-  //decides if app is in initial load state
-  const [initialLoad, setInitialLoad] = useState(true);
-  //decides if profile exists
-  const [profileExists, setProfileExists] = useState(false);
+  const [profileStatus, setProfileStatus] = useState<ProfileStatus>(
+    ProfileStatus.unknown,
+  );
 
   //checks if profile setup is done
-  const profileCheck = async () => {
+  const readinessChecks = async () => {
+    console.log('readinessChecks');
     try {
-      const result = await checkProfileCreated();
-      // If profile has been created
-      if (result === ProfileStatus.created) {
-        setProfileExists(true);
-      }
-    } catch (error) {
-      // If profile has not been created or not created properly
-      console.log('Error checking profile:', error);
-      console.log(
-        'Assuming profile does not exist and taking user to onboarding',
-      );
-    } finally {
-      setInitialLoad(false);
+      //need to run before anything else
       await runMigrations();
-      // Asynchronously attempt to re-upload FCM token if needed
+      //can be run asynchronously
       initialiseFCM();
-      await wait(300);
-      //hides splash screen
-      await BootSplash.hide({fade: false});
+      //checks if profile setup is done
+      setProfileStatus(await checkProfileCreated());
+    } catch (error) {
+      console.error('Error in readinessChecks', error);
     }
   };
+
   useEffect(() => {
-    profileCheck();
+    readinessChecks();
     // default way to handle new messages in the foreground
     foregroundMessageHandler();
   }, []);
+
+  useEffect(() => {
+    if (rootNavigationRef.isReady()) {
+      console.log('Navigation ref ready');
+      if (profileStatus !== ProfileStatus.unknown) {
+        if (profileStatus === ProfileStatus.created) {
+          rootNavigationRef.navigate('AppStack');
+        } else if (profileStatus === ProfileStatus.failed) {
+          rootNavigationRef.navigate('OnboardingStack');
+        }
+        wait(300).then(() => {
+          BootSplash.hide({fade: false});
+        });
+      }
+    } else {
+      console.log('Navigation ref not ready');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileStatus, rootNavigationRef.isReady()]);
 
   /**
    * Setup background or foreground operations according to app state.
@@ -106,27 +115,23 @@ function App(): JSX.Element {
     };
   }, []);
 
-  if (initialLoad) {
-    return <></>;
-  }
-
   return (
     <>
       <Provider store={store}>
         <ThemeProvider>
           <UpdateStatusProvider>
             <SafeAreaProvider>
-              <NavigationContainer>
-                <ErrorModalProvider>
-                  <ToastProvider>
-                    <LoginStack startOnboarding={profileExists} />
-                    <Toast />
-                    <ErrorModal />
-                    <SoftUpdateInfoBlurView />
-                    <HardUpdateInfoBlurView />
-                  </ToastProvider>
-                </ErrorModalProvider>
-              </NavigationContainer>
+              <ErrorModalProvider>
+                <ToastProvider>
+                  <NavigationContainer ref={rootNavigationRef}>
+                    <RootStack />
+                  </NavigationContainer>
+                  <Toast />
+                  <ErrorModal />
+                  <SoftUpdateInfoBlurView />
+                  <HardUpdateInfoBlurView />
+                </ToastProvider>
+              </ErrorModalProvider>
             </SafeAreaProvider>
           </UpdateStatusProvider>
         </ThemeProvider>

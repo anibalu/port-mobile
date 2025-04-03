@@ -28,6 +28,8 @@ import {ChatType} from '@utils/Storage/DBCalls/connections';
 import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
 import {Mutex} from 'async-mutex';
 import {deleteDirectSuperport} from './APICalls';
+import {Port} from './SingleUsePorts/Port';
+import {SuperPort} from './SuperPorts/SuperPort';
 
 /**
  * Mapping between different kinds of bundles and the kind of connections they lead to.
@@ -215,6 +217,7 @@ export function checkBundleValidity(
   | DirectContactPortBundle {
   const bundle =
     typeof rawString === 'string' ? JSON.parse(rawString) : rawString;
+
   if (bundle.org !== 'numberless.tech') {
     throw new Error('Organisation data incorrect');
   }
@@ -251,7 +254,7 @@ export async function readBundle(
   try {
     switch (bundle.target) {
       case BundleTarget.direct:
-        await direct.acceptPortBundle(bundle as PortBundle, channel, folderId);
+        await Port.reader.accept(bundle, folderId);
         break;
       case BundleTarget.group:
         await group.acceptGroupPortBundle(
@@ -261,11 +264,7 @@ export async function readBundle(
         );
         break;
       case BundleTarget.superportDirect:
-        await superport.acceptSuperportBundle(
-          bundle as DirectSuperportBundle,
-          channel,
-          folderId,
-        );
+        await SuperPort.reader.accept(bundle, folderId);
         break;
       case BundleTarget.contactPort:
         await contactPort.acceptContactBundle(
@@ -294,13 +293,13 @@ async function useReadBundle(readBundle: ReadPortData) {
   try {
     switch (readBundle.target) {
       case BundleTarget.direct:
-        await direct.newChatOverReadPortBundle(readBundle);
+        await Port.reader.load(readBundle).use();
         break;
       case BundleTarget.group:
         await group.newGroupChatOverReadPortBundle(readBundle);
         break;
       case BundleTarget.superportDirect:
-        await superport.newChatOverReadSuperportBundle(readBundle);
+        await SuperPort.reader.load(readBundle).use();
         break;
       case BundleTarget.contactPort:
         await contactPort.newChatOverReadContactPortBundle(readBundle);

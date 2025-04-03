@@ -2,7 +2,6 @@ import {combineReducers, configureStore} from '@reduxjs/toolkit';
 import latestNewConnection from './latestNewConnection';
 import connectionFsSyncMutex from './connectionFsSyncMutex';
 import profile from './profile';
-import authToken from './authToken';
 import triggerPendingRequestsReload from './triggerPendingRequestsReload';
 import ping from './ping';
 import triggerUpdateStatusRefetch from './triggerUpdateStatusRefetch';
@@ -15,7 +14,6 @@ const rootReducer = combineReducers({
   latestNewConnection,
   connectionFsSyncMutex,
   profile,
-  authToken,
   triggerPendingRequestsReload,
   ping,
   triggerRedraw,

@@ -4,15 +4,10 @@ import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomS
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import {themeOptions} from '@utils/Themes';
-import {ThemeType} from '@utils/Themes';
+import {themeOptions, ThemeType} from '@utils/Themes';
 import React from 'react';
 import {FlatList, View} from 'react-native';
 import {useTheme} from 'src/context/ThemeContext';
-export interface ThemeOptionTypes {
-  key: string;
-  value: ThemeType;
-}
 
 const ThemeBottomsheet = ({
   setShowThemeBottomsheet,

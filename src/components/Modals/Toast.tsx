@@ -1,10 +1,11 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {PortColors, PortSpacing, screen} from '../ComponentUtils';
-import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
+import {FontSizeType, FontWeight, NumberlessText} from '../NumberlessText';
 import Error from '@assets/icons/InfoRed.svg';
 import Success from '@assets/icons/SuccessTick.svg';
 import {ToastType, useToast} from 'src/context/ToastContext';
+import {Spacing, Width} from '@components/spacingGuide';
+import {PortColors} from '@components/ComponentUtils';
 
 function Toast() {
   const {isToastVisible, toastToShow} = useToast();
@@ -22,7 +23,7 @@ function Toast() {
           )}>
           {type === ToastType.success ? <Success /> : <Error />}
           <NumberlessText
-            fontType={FontType.rg}
+            fontWeight={FontWeight.rg}
             fontSizeType={FontSizeType.s}
             style={styles.modaltext}>
             {text}
@@ -38,13 +39,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    maxWidth: screen.width - 70,
+    maxWidth: Width.screen - 70,
     zIndex: 99,
     width: 'auto',
     bottom: 100,
     borderRadius: 10,
-    paddingVertical: PortSpacing.tertiary.uniform,
-    paddingHorizontal: PortSpacing.secondary.uniform,
+    paddingVertical: Spacing.s,
+    paddingHorizontal: Spacing.l,
     position: 'absolute',
     alignSelf: 'center',
     borderWidth: 1,

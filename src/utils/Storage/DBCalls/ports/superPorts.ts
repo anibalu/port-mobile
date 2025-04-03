@@ -5,12 +5,13 @@ export interface SuperportDataUpdate {
   label?: string | null;
   usedOnTimestamp?: string | null;
   createdOnTimestamp?: string | null;
-  channel?: string | null;
+  bundleId?: string | null; //bundleId to construct the port link
   cryptoId?: string | null;
   connectionsLimit?: number | null;
   connectionsMade?: number | null;
   folderId?: string | null;
   paused?: boolean | null;
+  permissionsId?: string | null; //reference to permissions data
 }
 
 export interface SuperportData extends SuperportDataUpdate {
@@ -23,6 +24,7 @@ export interface SuperportData extends SuperportDataUpdate {
   connectionsMade: number;
   folderId: string;
   paused: boolean;
+  permissionsId: string;
 }
 
 /**
@@ -55,25 +57,27 @@ export async function addSuperport(data: SuperportData) {
       label,
       usedOnTimestamp,
       createdOnTimestamp,
-      channel,
+      bundleId,
       cryptoId,
       connectionsLimit,
       connectionsMade,
       folderId,
-      paused
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?);`,
+      paused,
+      permissionsId
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);`,
     [
       data.portId,
       data.version,
       data.label,
       data.usedOnTimestamp,
       data.createdOnTimestamp,
-      data.channel,
+      data.bundleId,
       data.cryptoId,
       data.connectionsLimit,
       data.connectionsMade,
       data.folderId,
       data.paused,
+      data.permissionsId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, result) => {},
@@ -97,12 +101,13 @@ export async function updateSuperportData(
 		label = COALESCE(?, label),
 		usedOnTimestamp = COALESCE(?, usedOnTimestamp),
 		createdOnTimestamp = COALESCE(?, createdOnTimestamp),
-		channel = COALESCE(?, channel),
+		bundleId = COALESCE(?, bundleId),
 		cryptoId = COALESCE(?, cryptoId),
     connectionsLimit = COALESCE(?, connectionsLimit),
     connectionsMade = COALESCE(?, connectionsMade),
     folderId = COALESCE(?, folderId),
-    paused = COALESCE(?, paused)
+    paused = COALESCE(?, paused),
+    permissionsId = COALESCE(?, permissionsId)
 		WHERE portId = ? ;
 		`,
     [
@@ -110,12 +115,13 @@ export async function updateSuperportData(
       update.label,
       update.usedOnTimestamp,
       update.createdOnTimestamp,
-      update.channel,
+      update.bundleId,
       update.cryptoId,
       update.connectionsLimit,
       update.connectionsMade,
       update.folderId,
       update.paused,
+      update.permissionsId,
       portId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

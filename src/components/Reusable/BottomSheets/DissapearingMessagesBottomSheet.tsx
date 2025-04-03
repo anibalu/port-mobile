@@ -1,95 +1,100 @@
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
-import LineSeparator from '@components/Reusable/Separators/LineSeparator';
+import OptionWithRadio from '@components/Options/OptionWithRadio';
+import LineSeparator from '@components/Separators/LineSeparator';
 import React from 'react';
 import {disappearDuration, disappearOptions} from '@utils/Time/interfaces';
-import {FlatList, View} from 'react-native';
-import DynamicColors from '@components/DynamicColors';
+import {FlatList, StyleSheet, View} from 'react-native';
+import {useColors} from '@components/colorGuide';
+import {Spacing} from '@components/spacingGuide';
+import {Width} from '@components/spacingGuide';
 
 const DissapearingMessagesBottomsheet = ({
   setShowDissappearingMessageModal,
   showDesappearingMessageModal,
   permission,
-  onUpdateDisappearingMessagedPermission,
+  onUpdateDisappearingMessagesPermission,
+  forceTheme,
 }: {
   setShowDissappearingMessageModal: (show: boolean) => void;
   showDesappearingMessageModal: boolean;
   permission: number;
-  onUpdateDisappearingMessagedPermission: (value: number) => Promise<void>;
+  onUpdateDisappearingMessagesPermission: (value: number) => Promise<void>;
+  forceTheme?: 'light' | 'dark';
 }) => {
-  const Colors = DynamicColors();
+  const Colors = useColors(forceTheme);
 
   return (
     <PrimaryBottomSheet
-      bgColor="g"
       onClose={() => setShowDissappearingMessageModal(false)}
-      showClose={true}
-      visible={showDesappearingMessageModal}
-      title="Disappearing messages">
-      <NumberlessText
+      showClose={false}
+      showNotch={false}
+      visible={showDesappearingMessageModal}>
+      <View style={styles.connectionOptionsRegion}>
+        <View style={styles.mainContainer}>
+          <NumberlessText
+            textColor={Colors.text.title}
+            fontSizeType={FontSizeType.xl}
+            fontWeight={FontWeight.sb}>
+            Choose duration
+          </NumberlessText>
+          <LineSeparator style={{width: Width.screen}} />
+        </View>
+      </View>
+      <View
         style={{
-          width: '100%',
-          color: Colors.text.subtitle,
-          marginBottom: PortSpacing.intermediate.bottom,
-          marginTop: PortSpacing.secondary.top,
-        }}
-        fontSizeType={FontSizeType.m}
-        fontType={FontType.rg}>
-        For increased privacy and storage, all new messages in a chat will
-        vanish after the chosen duration, unless turned off.
-      </NumberlessText>
-      <SimpleCard
-        style={{
-          paddingVertical: PortSpacing.secondary.uniform,
-          width: '100%',
-          ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+          width: Width.screen,
         }}>
-        <NumberlessText
-          style={{
-            paddingHorizontal: PortSpacing.secondary.uniform,
-            marginBottom: PortSpacing.secondary.bottom,
-          }}
-          textColor={Colors.text.primary}
-          fontSizeType={FontSizeType.m}
-          fontType={FontType.md}>
-          Choose duration
-        </NumberlessText>
         <FlatList
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(_item, index) => index.toString()}
           data={disappearOptions}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
           scrollEnabled={false}
           horizontal={false}
           renderItem={({item}) => (
-            <View>
+            <View style={styles.optionWrapper}>
               <OptionWithRadio
+                separator={item !== 'Off'}
                 selectedOptionComparision={disappearDuration[item]}
                 selectedOption={permission}
                 title={item}
                 onClick={async () => {
-                  console.log('runnnig on click');
-                  console.log('setting ', disappearDuration[item]);
-                  setShowDissappearingMessageModal(false);
-                  await onUpdateDisappearingMessagedPermission(
+                  await onUpdateDisappearingMessagesPermission(
                     disappearDuration[item],
                   );
+                  setShowDissappearingMessageModal(false);
                 }}
               />
-              {item !== 'Off' && <LineSeparator />}
             </View>
           )}
         />
-      </SimpleCard>
+      </View>
     </PrimaryBottomSheet>
   );
 };
+
+const styles = StyleSheet.create({
+  connectionOptionsRegion: {
+    width: Width.screen,
+    paddingHorizontal: Spacing.l,
+  },
+  mainContainer: {
+    width: '100%',
+    paddingTop: Spacing.s,
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: Spacing.m,
+  },
+  optionWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+});
 
 export default DissapearingMessagesBottomsheet;

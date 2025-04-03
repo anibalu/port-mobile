@@ -1,6 +1,5 @@
 import {profileDir} from '@configs/paths';
 import RNFS from 'react-native-fs';
-import {connectionFsSync} from '../../Synchronization';
 import {FileAttributes} from './interfaces';
 import {getRelativeURI, getSafeAbsoluteURI} from './sharedFileHandlers';
 
@@ -37,16 +36,10 @@ export async function moveProfilePictureToProfileDirRNFS(
   };
 }
 
-export async function removeProfilePictureRNFS(
-  file: FileAttributes,
-  blocking: boolean = true,
-) {
-  const synced = async () => {
-    await RNFS.unlink(getSafeAbsoluteURI(file.fileUri, 'doc'));
-  };
-  if (blocking) {
-    await connectionFsSync(synced);
-  } else {
-    await synced();
-  }
+/**
+ * removes profile picture from storage
+ * @param {FileAttributes} file - file to remove from storage
+ */
+export async function removeProfilePictureRNFS(file: FileAttributes) {
+  await RNFS.unlink(getSafeAbsoluteURI(file.fileUri, 'doc'));
 }

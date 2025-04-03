@@ -1,4 +1,4 @@
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import React, {useCallback, useRef, useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {

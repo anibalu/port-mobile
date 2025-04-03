@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 import {DEFAULT_AVATAR} from '@configs/constants';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 //import store from '@store/appStore';
 import {toggleRead} from '@utils/Storage/connections';
 import store from '@store/appStore';

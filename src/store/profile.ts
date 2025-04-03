@@ -1,14 +1,13 @@
 /**
- * A reducer for the user's profile info.
+ * A reducer for the user's profile info needed by screens.
+ * These are:
+ * 1. name
+ * 2. profile picture
+ * 3. backup time
  */
 const initialState = {
   //profile info
   profile: {},
-  //whether onboarding is complete
-  onboardingComplete: false,
-  showInviteScreen: false,
-  showOnboardingInfo: false,
-  activeChat: undefined,
 };
 
 export default function profile(state = initialState, action: any) {
@@ -18,36 +17,10 @@ export default function profile(state = initialState, action: any) {
         ...state,
         profile: action.payload,
       };
-    case 'ONBOARDING_COMPLETE':
-      return {
-        ...state,
-        onboardingComplete: action.payload,
-        showInviteScreen: false,
-        showOnboardingInfo: true,
-      };
-    case 'HIDE_ONBOARDING_INFO':
-      return {
-        ...state,
-        showOnboardingInfo: false,
-      };
-    case 'ACTIVE_CHAT_CHANGED':
-      return {
-        ...state,
-        activeChat: action.payload,
-      };
-    case 'SHOW_INVITE_SCREEN':
-      return {
-        ...state,
-        showInviteScreen: action.payload,
-      };
-    case 'DELETE_ACCOUNT':
+    case 'DELETE_PROFILE':
       return {
         ...state,
         profile: {},
-        onboardingComplete: action.payload,
-        showInviteScreen: false,
-        showOnboardingInfo: false,
-        activeChat: undefined,
       };
     default:
       return state;

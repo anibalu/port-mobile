@@ -1,17 +1,3 @@
-/**
- * A simple bottom sheet. It is used throughout the app.
- * Takes the following props:
- * 1. visible state for bottomsheet
- * 2. onClose function (runs on right 'x' icon as well)
- * 3. showNotch - whether the notch should be seen
- * 4. title
- * 5. title text style (optional)
- * 6. avoid keyboard - whether the keyboard should push up the sheet
- * 7. left icon
- * 8. left icon on click functoin
- * 9. children
- */
-
 import React, {FC} from 'react';
 import {
   Keyboard,
@@ -23,20 +9,45 @@ import {
 } from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import GenericModal from '@components/Modals/GenericModal';
-import {
-  PortColors,
-  PortSpacing,
-  isIOS,
-  screen,
-} from '@components/ComponentUtils';
+import {isIOS, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import SmallLoader from '../Loaders/SmallLoader';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import useSVG from '@components/svgGuide';
+import {useColors} from '@components/colorGuide';
+import {Size, Spacing, Width} from '@components/spacingGuide';
+
+/**
+ * A reusable bottom sheet component that provides consistent behavior and styling.
+ * Features:
+ * - Optional notch indicator at top
+ * - Customizable header with title and left icon
+ * - Support for keyboard avoidance
+ * - Close button with custom handling
+ * - Loading state for left icon
+ * - Theme-aware styling with optional theme forcing
+ * - Configurable background color (white or grey)
+ * - Auto-close behavior when app goes to background (configurable)
+ *
+ * @param visible - Controls visibility of bottom sheet
+ * @param showNotch - Show notch indicator at top
+ * @param avoidKeyboard - Whether sheet adjusts for keyboard
+ * @param showClose - Show close button in header
+ * @param onClose - Function called when sheet closes
+ * @param title - Title text shown in header
+ * @param titleStyle - Custom styles for title text
+ * @param IconLeft - Custom icon component for left side
+ * @param IconLeftSize - Size of left icon ('s' or 'm')
+ * @param LeftIconOnClick - Click handler for left icon
+ * @param showLoaderIconLeft - Show loading indicator instead of left icon
+ * @param bgColor - Background color ('w' for white, 'g' for grey)
+ * @param shouldAutoClose - Auto-close when app backgrounds
+ * @param forceTheme - Override app theme
+ * @param children - Content of the bottom sheet
+ */
 
 const PrimaryBottomSheet = ({
   visible,
@@ -51,8 +62,9 @@ const PrimaryBottomSheet = ({
   IconLeft,
   children,
   showLoaderIconLeft,
-  bgColor,
+  bgColor = 'w',
   shouldAutoClose = true,
+  forceTheme,
 }: {
   visible: boolean;
   showNotch?: boolean;
@@ -63,18 +75,19 @@ const PrimaryBottomSheet = ({
   onClose?: () => void;
   title?: string;
   bgColor?: 'w' | 'g';
-  IconLeftSize?: 's' | 'gm';
+  IconLeftSize?: 's' | 'm';
   titleStyle?: TextStyle | StyleProp<TextStyle>;
   LeftIconOnClick?: () => void;
   IconLeft?: FC<SvgProps>;
   shouldAutoClose?: boolean;
   children: any;
+  forceTheme?: 'light' | 'dark';
 }) => {
   const neatClose = () => {
     Keyboard.dismiss();
     onClose();
   };
-  const Colors = DynamicColors();
+  const Colors = useColors(forceTheme);
 
   const svgArray = [
     {
@@ -84,24 +97,21 @@ const PrimaryBottomSheet = ({
     },
   ];
 
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray, forceTheme);
   const CloseIcon = results.CloseIcon;
+  const styles = styling(Colors);
 
   return (
     <GenericModal
       avoidKeyboard={avoidKeyboard}
       visible={visible}
       onClose={neatClose}
-      shouldAutoClose={shouldAutoClose}>
+      shouldAutoClose={shouldAutoClose}
+      forceTheme={forceTheme}>
       <View
         style={StyleSheet.compose(styles.mainContainerRegion, {
-          backgroundColor:
-            bgColor === 'g'
-              ? Colors.primary.background
-              : Colors.primary.surface,
-          paddingTop: showNotch
-            ? PortSpacing.tertiary.top
-            : PortSpacing.intermediate.top,
+          backgroundColor: bgColor === 'g' ? Colors.background : Colors.surface,
+          paddingTop: showNotch ? Spacing.s : Spacing.m,
         })}>
         {showNotch && <View style={styles.topnotch} />}
         <View style={styles.topRow}>
@@ -109,22 +119,22 @@ const PrimaryBottomSheet = ({
             {IconLeft && (
               <Pressable onPress={LeftIconOnClick}>
                 <IconLeft
-                  width={IconLeftSize === 's' ? 20 : 24}
-                  height={IconLeftSize === 's' ? 20 : 24}
+                  width={IconLeftSize === 's' ? Size.m : Size.l}
+                  height={IconLeftSize === 's' ? Size.m : Size.l}
                 />
               </Pressable>
             )}
             {showLoaderIconLeft && (
               <View>
-                <SmallLoader />
+                <SmallLoader theme={Colors.theme} />
               </View>
             )}
             {title && (
               <NumberlessText
                 style={StyleSheet.compose(styles.title, titleStyle)}
-                fontType={FontType.md}
+                fontWeight={FontWeight.md}
                 fontSizeType={FontSizeType.l}
-                textColor={Colors.text.primary}>
+                textColor={Colors.text.title}>
                 {title}
               </NumberlessText>
             )}
@@ -140,14 +150,14 @@ const PrimaryBottomSheet = ({
               <NumberlessText
                 numberOfLines={1}
                 style={StyleSheet.compose(styles.title, titleStyle)}
-                fontType={FontType.md}
+                fontWeight={FontWeight.md}
                 fontSizeType={FontSizeType.l}
-                textColor={Colors.text.primary}>
+                textColor={Colors.text.title}>
                 {' '}
               </NumberlessText>
               <CloseIcon
-                width={24}
-                height={24}
+                width={Size.l}
+                height={Size.l}
                 style={{position: 'absolute'}}
               />
             </Pressable>
@@ -159,51 +169,42 @@ const PrimaryBottomSheet = ({
   );
 };
 
-const styles = StyleSheet.create({
-  mainContainerRegion: {
-    flexDirection: 'column',
-    width: screen.width,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    borderTopRightRadius: PortSpacing.intermediate.right,
-    borderTopLeftRadius: PortSpacing.intermediate.left,
-    padding: PortSpacing.secondary.uniform,
-    ...(isIOS ? {paddingBottom: PortSpacing.secondary.bottom} : 0),
-  },
-  leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  topnotch: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: 4,
-    backgroundColor: PortColors.primary.body,
-  },
-  title: {
-    maxWidth: screen.width - 52,
-    height: '100%',
-    flex: 1,
-  },
-  backButton: {
-    padding: 3,
-    borderRadius: 24,
-    backgroundColor: 'none',
-  },
-  topRow: {
-    overflow: 'hidden',
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  closeButton: {
-    padding: 3,
-    borderRadius: 24,
-    backgroundColor: PortColors.primary.grey.medium,
-  },
-});
+const styling = (Colors: any) =>
+  StyleSheet.create({
+    mainContainerRegion: {
+      flexDirection: 'column',
+      width: screen.width,
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      borderTopRightRadius: Spacing.xl,
+      borderTopLeftRadius: Spacing.xl,
+      padding: Spacing.xl,
+      ...(isIOS ? {paddingBottom: Spacing.xl} : 0),
+    },
+    leftContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+    },
+    topnotch: {
+      alignSelf: 'center',
+      width: 40,
+      height: 4,
+      borderRadius: 4,
+      backgroundColor: Colors.notch,
+    },
+    title: {
+      maxWidth: Width.screen - 52,
+      height: '100%',
+      flex: 1,
+    },
+    topRow: {
+      overflow: 'hidden',
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+    },
+  });
 
 export default PrimaryBottomSheet;

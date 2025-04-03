@@ -1,7 +1,7 @@
 import {Dimensions, Platform} from 'react-native';
 
 /**
- * All app colors, use colors defined here only.
+ * @deprecated - use the colors defined in colorGuide.ts instead.
  */
 export const PortColors = {
   stroke: '#EAECF0',
@@ -84,6 +84,7 @@ export const PortColors = {
 };
 
 /**
+ * @deprecated - use the fonts defined in spacingGuide.ts instead.
  * All fonts used in the app. Always use this object to define font sizes, if you ever need to.
  */
 export const FontSizes = {
@@ -184,6 +185,9 @@ export const FontSizes = {
   },
 };
 
+/**
+ * @deprecated Use the Spacing in spacingGuide.ts file instead.
+ */
 export const PortSpacing = {
   primary: {
     uniform: 32,

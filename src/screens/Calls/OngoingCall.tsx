@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import WorkQueue from '@utils/WorkQueue';
 import {generateISOTimeStamp} from '@utils/Time';
 import Signaller from '@utils/Calls/Signaller';

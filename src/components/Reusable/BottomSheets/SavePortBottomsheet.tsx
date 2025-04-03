@@ -14,14 +14,6 @@ import {
 import {safeModalCloseDuration} from '@configs/constants';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
-import {
-  DirectSuperportBundle,
-  GroupBundle,
-  GroupSuperportBundle,
-  PortBundle,
-} from '@utils/Ports/interfaces';
-// import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
-// import {cleanDeletePort} from '@utils/Ports';
 import {useNavigation} from '@react-navigation/native';
 import DynamicColors from '@components/DynamicColors';
 import {wait} from '@utils/Time';
@@ -29,18 +21,11 @@ import {wait} from '@utils/Time';
 const SavePortBottomsheet = ({
   visible,
   onClose,
-  qrData,
   onButtonPress,
 }: {
   visible: boolean;
   onButtonPress: () => void;
   onClose: () => void;
-  qrData:
-    | PortBundle
-    | GroupBundle
-    | DirectSuperportBundle
-    | GroupSuperportBundle
-    | null;
 }) => {
   // const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
@@ -62,7 +47,7 @@ const SavePortBottomsheet = ({
   //     onClose();
   //   }
   // };
-  console.log('qr data: ', qrData);
+  // console.log('qr data: ', qrData);
   const onKeepPortOpenAndGoBack = async () => {
     onButtonPress();
     wait(safeModalCloseDuration);

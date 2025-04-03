@@ -7,6 +7,7 @@ import {
   RESULTS,
   Permission,
 } from 'react-native-permissions';
+import notifee, {AuthorizationStatus} from '@notifee/react-native';
 
 /**
  * Self explanatory
@@ -55,153 +56,60 @@ export const checkCameraPermission = async (
   return;
 };
 
-export const checkRecordingPermissions = async (): Promise<boolean> => {
-  const recordingPermission = Platform.select({
-    android: PERMISSIONS.ANDROID.RECORD_AUDIO,
-    ios: PERMISSIONS.IOS.MICROPHONE,
-  });
-  if (recordingPermission === undefined) {
-    console.log('This platform is not supported');
-    return false;
-  }
-  const recordingPermissionStatus = await check(recordingPermission);
-  switch (recordingPermissionStatus) {
-    case RESULTS.UNAVAILABLE:
-      console.log(
-        'This feature is not available (on this device / in this context)',
-      );
-      return false;
-    case RESULTS.DENIED:
-      console.log(
-        'The permission has not been requested / is denied but requestable',
-      );
-      return false;
-
-    case RESULTS.GRANTED:
-      console.log('The permission is granted');
-      return true;
-
-    case RESULTS.BLOCKED:
-      console.log('The permission is denied and not requestable anymore');
-      return false;
-  }
-  return false;
-};
-
-export const checkAndGrantRecordingPermission = async (
-  setIsRecordingPermissionGranted: Function,
-) => {
-  const requestRecordingPermission = async (
-    recordingPermission: Permission,
-  ) => {
-    if (isIOS) {
-      const recordingPermissionStatus = await request(recordingPermission);
-      if (recordingPermissionStatus === RESULTS.GRANTED) {
-        setIsRecordingPermissionGranted(true);
-      }
-    } else {
-      const grants = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      ]);
-
-      console.log('write external stroage', grants);
-
-      if (
-        grants['android.permission.WRITE_EXTERNAL_STORAGE'] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
-        grants['android.permission.READ_EXTERNAL_STORAGE'] ===
-          PermissionsAndroid.RESULTS.GRANTED &&
-        grants['android.permission.RECORD_AUDIO'] ===
-          PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        setIsRecordingPermissionGranted(true);
+/**
+ * Function to check camera roll save permissions. On Android, it additionally asks for permissions if not granted.
+ */
+export async function hasCameraRollSavePermission() {
+  if (isIOS) {
+    const result = await check(PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY);
+    return result === RESULTS.GRANTED;
+  } else {
+    const getCheckPermissionPromise = async () => {
+      if (typeof Platform.Version === 'number' && Platform.Version >= 33) {
+        const [hasReadMediaImagesPermission, hasReadMediaVideoPermission] =
+          await Promise.all([
+            PermissionsAndroid.check(
+              PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+            ),
+            PermissionsAndroid.check(
+              PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+            ),
+          ]);
+        return hasReadMediaImagesPermission && hasReadMediaVideoPermission;
       } else {
-        console.log('All required permissions not granted');
-        return;
+        return await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        );
       }
-    }
-    // const recordingPermissionStatus = await request(recordingPermission);
-    // if (recordingPermissionStatus === RESULTS.GRANTED) {
-    //   setIsRecordingPermissionGranted(true);
-    // }
-  };
+    };
 
-  const recordingPermission = Platform.select({
-    android: PERMISSIONS.ANDROID.RECORD_AUDIO,
-    ios: PERMISSIONS.IOS.MICROPHONE,
-  });
-  if (recordingPermission === undefined) {
-    console.log('This platform is not supported');
-    return;
-  }
-  const recordingPermissionStatus = await check(recordingPermission);
-  switch (recordingPermissionStatus) {
-    case RESULTS.UNAVAILABLE:
-      console.log(
-        'This feature is not available (on this device / in this context)',
-      );
-      break;
-    case RESULTS.DENIED:
-      console.log(
-        'The permission has not been requested / is denied but requestable',
-      );
-      await requestRecordingPermission(recordingPermission);
-      break;
-    case RESULTS.GRANTED:
-      console.log('The permission is granted');
-      setIsRecordingPermissionGranted(true);
-      break;
-    case RESULTS.BLOCKED:
-      console.log('The permission is denied and not requestable anymore');
-      break;
-  }
-  return;
-};
-
-export const checkSavingImagesPermission = async (
-  setIsSavingImagesPermissionGranted: Function,
-) => {
-  const requestSavingImagesPermission = async (
-    savingImagesPermission: Permission,
-  ) => {
-    const savingImagesStatus = await request(savingImagesPermission);
-    if (savingImagesStatus === RESULTS.GRANTED) {
-      setIsSavingImagesPermissionGranted(true);
+    const hasPermission = await getCheckPermissionPromise();
+    if (hasPermission) {
+      return true;
     }
-  };
-  const savingPermission = Platform.select({
-    android: PERMISSIONS.ANDROID.READ_MEDIA_IMAGES,
-    ios: PERMISSIONS.IOS.PHOTO_LIBRARY,
-  });
-  if (savingPermission === undefined) {
-    console.log('This platform is not supported');
-    return;
+    const getRequestPermissionPromise = async () => {
+      if (typeof Platform.Version === 'number' && Platform.Version >= 33) {
+        const statuses = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+          PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+        ]);
+        return (
+          statuses[PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES] ===
+            PermissionsAndroid.RESULTS.GRANTED &&
+          statuses[PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO] ===
+            PermissionsAndroid.RESULTS.GRANTED
+        );
+      } else {
+        const status = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        );
+        return status === PermissionsAndroid.RESULTS.GRANTED;
+      }
+    };
+
+    return await getRequestPermissionPromise();
   }
-  const savingImagesStatus = await check(savingPermission);
-  switch (savingImagesStatus) {
-    case RESULTS.UNAVAILABLE:
-      console.log(
-        'This feature is not available (on this device / in this context)',
-      );
-      break;
-    case RESULTS.DENIED:
-      console.log(
-        'The permission has not been requested / is denied but requestable',
-      );
-      await requestSavingImagesPermission(savingPermission);
-      break;
-    case RESULTS.GRANTED:
-      console.log('The permission is granted');
-      setIsSavingImagesPermissionGranted(true);
-      break;
-    case RESULTS.BLOCKED:
-      console.log('The permission is denied and not requestable anymore');
-      break;
-  }
-  return;
-};
+}
 
 /**
  * Function to check and request contact read permissions
@@ -256,4 +164,44 @@ export async function checkAndAskContactPermission(): Promise<boolean> {
     );
     return false;
   }
+}
+
+//setup notification channels for the app. this also requests permissions.
+const setupNotificationChannels = async () => {
+  try {
+    // Needed for iOS
+    await notifee.requestPermission();
+    // Needed for Android
+    await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+    });
+  } catch (error) {
+    console.error('Error setting up notification channels:', error);
+  }
+};
+
+//checks if notification permission is granted
+async function checkNotificationPermission() {
+  try {
+    const settings = await notifee.getNotificationSettings();
+    if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
+      return true;
+    } else if (settings.authorizationStatus === AuthorizationStatus.DENIED) {
+      return false;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error('Error checking notification permission:', error);
+    return false;
+  }
+}
+
+/**
+ * Function to check notification permission
+ */
+export async function checkAndAskNotificationPermission() {
+  await setupNotificationChannels();
+  return await checkNotificationPermission();
 }

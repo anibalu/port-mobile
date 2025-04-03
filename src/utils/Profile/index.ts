@@ -12,29 +12,9 @@ import {
   ProfileInfoUpdate,
   ProfileStatus,
 } from '@utils/Storage/RNSecure/secureProfileHandler';
-import {connectionFsSync} from '../Synchronization';
 
-/**
- * Fetches default avatar file attributes
- * @returns default avatar file attributes
- */
-export function getDefaultAvatarInfo(): FileAttributes {
-  return {...DEFAULT_PROFILE_AVATAR_INFO};
-}
-
-/**
- * Fetches a random avatar file attributes
- * @returns random avatar file attributes
- */
-export function getRandomAvatarInfo(): FileAttributes {
-  const randomAvatarId = pickRandomAvatarId();
-  const randomInfo: FileAttributes = {
-    fileUri: 'avatar://' + randomAvatarId,
-    fileName: randomAvatarId,
-    fileType: 'avatar',
-  };
-  return randomInfo;
-}
+// global object to cache profile information so that it doesn't have to be repeatedly read from storage
+let cachedProfile: ProfileInfo | undefined;
 
 /**
  * Sets up a user's profile info
@@ -66,11 +46,9 @@ export async function setupProfile(
           ? profilePic
           : await storage.moveProfilePictureToProfileDir(profilePic),
     };
-    store.dispatch({
-      type: 'UPDATE_PROFILE',
-      payload: profile,
-    });
-    await storage.saveProfileInfo(profile, true);
+    cachedProfile = profile;
+    await storage.saveProfileInfo(profile);
+    updateProfileStore();
     return ProfileStatus.created;
   } catch (error) {
     console.log('error creating profile:', error);
@@ -84,54 +62,72 @@ export async function setupProfile(
  */
 export async function deleteProfile(): Promise<void> {
   try {
+    cachedProfile = undefined;
+    await storage.saveProfileInfo(undefined);
     store.dispatch({
-      type: 'UPDATE_PROFILE',
+      type: 'DELETE_PROFILE',
       payload: undefined,
     });
-    await storage.saveProfileInfo(undefined, true);
   } catch (error) {
     console.log('error deleting profile:', error);
   }
 }
 
 /**
+ * Updates the profile store with the cached profile info
+ */
+function updateProfileStore() {
+  if (cachedProfile) {
+    store.dispatch({
+      type: 'UPDATE_PROFILE',
+      payload: {
+        name: cachedProfile.name,
+        profilePicInfo: cachedProfile.profilePicInfo,
+        lastBackupTime: cachedProfile.lastBackupTime,
+      },
+    });
+  }
+}
+
+/**
  * gets the profile info of the user
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = true.
  * @returns {Promise<ProfileInfo|undefined>} - profile info of the user, undefined if none exist
  */
-export async function getProfileInfo(
-  blocking: boolean = true,
-): Promise<ProfileInfo | undefined> {
+export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
+  let shouldUpdateProfileStore = false;
   try {
-    //read profile from cache
-    const entireState = store.getState();
-    const cachedProfile = entireState.profile.profile;
-    //if profile doesn't exist in cache
-    if (!cachedProfile.clientId) {
-      //read profile from storage
-      const savedProfile: ProfileInfo | undefined =
-        await storage.getProfileInfo(blocking);
-      //If undefined, no profile exists.
-      if (savedProfile) {
-        //update cache with profile info
-        store.dispatch({
-          type: 'UPDATE_PROFILE',
-          payload: savedProfile,
-        });
-        return savedProfile;
-      } else {
-        return undefined;
-      }
+    const profileStore = store?.getState()?.profile?.profile;
+    if (
+      profileStore?.name ||
+      profileStore?.profilePicInfo ||
+      profileStore?.lastBackupTime
+    ) {
+      shouldUpdateProfileStore = true;
     }
-    //if profile exists in cache
-    else {
-      const savedProfile: ProfileInfo = cachedProfile;
-      return savedProfile;
+    //read profile from cache
+    if (cachedProfile) {
+      if (shouldUpdateProfileStore) {
+        updateProfileStore();
+      }
+      return {...cachedProfile};
+    }
+    //read profile from storage
+    const savedProfile: ProfileInfo | undefined =
+      await storage.getProfileInfo();
+    //If undefined, no profile exists.
+    if (savedProfile && savedProfile.clientId) {
+      //update cache with profile info
+      cachedProfile = savedProfile;
+      if (shouldUpdateProfileStore) {
+        updateProfileStore();
+      }
+      return {...cachedProfile};
     }
   } catch (error) {
     console.log('error getting profile: ', error);
     return undefined;
   }
+  return undefined;
 }
 
 /**
@@ -139,11 +135,14 @@ export async function getProfileInfo(
  * @returns {Promise<ProfileStatus>} - if profile info exists or not
  */
 export async function checkProfileCreated(): Promise<ProfileStatus> {
-  const response = await getProfileInfo(true);
+  const response = await getProfileInfo();
   if (response) {
-    return ProfileStatus.created;
+    if (response.clientId) {
+      return ProfileStatus.created;
+    } else {
+      return ProfileStatus.unknown;
+    }
   } else {
-    console.log('profile doesnt exist');
     return ProfileStatus.failed;
   }
 }
@@ -151,67 +150,44 @@ export async function checkProfileCreated(): Promise<ProfileStatus> {
 /**
  * Updates profile with new profile info
  * @param {ProfileInfoUpdate} profileUpdate - profile info being updated.
- * @param {boolean} blocking - whether the function should block fs operations until completed. default = false.
  */
-export async function updateProfileInfo(
-  profileUpdate: ProfileInfoUpdate,
-  blocking: boolean = true,
-) {
-  const synced = async () => {
-    //get current profile info
-    const currentProfile = await getProfileInfo(false);
-    if (!currentProfile) {
-      throw new Error('NoProfile');
-    }
-    currentProfile.name = profileUpdate.name
-      ? processName(profileUpdate.name)
-      : currentProfile.name;
-    currentProfile.privateKey = profileUpdate.privateKey
-      ? profileUpdate.privateKey
-      : currentProfile.privateKey;
-    currentProfile.clientId = profileUpdate.clientId
-      ? profileUpdate.clientId
-      : currentProfile.clientId;
-    currentProfile.profilePicInfo = profileUpdate.profilePicInfo
-      ? profileUpdate.profilePicInfo
-      : currentProfile.profilePicInfo;
-    currentProfile.lastBackupTime = profileUpdate.lastBackupTime
-      ? profileUpdate.lastBackupTime
-      : currentProfile.lastBackupTime;
-    const profile: ProfileInfo = currentProfile;
-    //update cache and storage
-    await storage.saveProfileInfo(profile, false);
-    store.dispatch({
-      type: 'UPDATE_PROFILE',
-      payload: profile,
-    });
-  };
-  if (blocking) {
-    await connectionFsSync(synced);
-  } else {
-    await synced();
+export async function updateProfileInfo(profileUpdate: ProfileInfoUpdate) {
+  //get current profile info
+  if (!cachedProfile) {
+    throw new Error('NoProfile');
   }
+  if (profileUpdate.name) {
+    profileUpdate.name = processName(profileUpdate.name);
+  }
+  const updatedProfile = {...cachedProfile, ...profileUpdate};
+  //update cache and storage
+  await storage.saveProfileInfo(updatedProfile);
+  cachedProfile = updatedProfile;
+  updateProfileStore();
 }
 
-export async function updateProfileName(
-  name: string,
-  blocking: boolean = true,
-) {
-  await updateProfileInfo({name: name}, blocking);
+/**
+ * Updates profile name
+ * @param {string} name - new name
+ */
+export async function updateProfileName(name: string) {
+  await updateProfileInfo({name: name});
 }
 
-export async function updateBackupTime(
-  timestamp: string,
-  blocking: boolean = true,
-) {
-  await updateProfileInfo({lastBackupTime: timestamp}, blocking);
+/**
+ * Updates profile backup time
+ * @param {string} timestamp - new backup time
+ */
+export async function updateBackupTime(timestamp: string) {
+  await updateProfileInfo({lastBackupTime: timestamp});
 }
 
-export async function updateProfileAvatar(
-  avatar: FileAttributes,
-  blocking: boolean = true,
-) {
-  await updateProfileInfo({profilePicInfo: avatar}, blocking);
+/**
+ * Updates profile avatar
+ * @param {FileAttributes} avatar - new avatar
+ */
+export async function updateProfileAvatar(avatar: FileAttributes) {
+  await updateProfileInfo({profilePicInfo: avatar});
 }
 
 /**
@@ -243,14 +219,33 @@ export async function getProfilePictureUri(): Promise<string> {
 }
 
 /**
+ * Fetches default avatar file attributes
+ * @returns default avatar file attributes
+ */
+export function getDefaultAvatarInfo(): FileAttributes {
+  return {...DEFAULT_PROFILE_AVATAR_INFO};
+}
+
+/**
+ * Fetches a random avatar file attributes
+ * @returns random avatar file attributes
+ */
+export function getRandomAvatarInfo(): FileAttributes {
+  const randomAvatarId = pickRandomAvatarId();
+  const randomInfo: FileAttributes = {
+    fileUri: 'avatar://' + randomAvatarId,
+    fileName: randomAvatarId,
+    fileType: 'avatar',
+  };
+  return randomInfo;
+}
+
+/**
  * runs sanity checks on the name
  * @param {string} rawName - proposed new name
  * @returns {string} - name trimmed and processed to meet specifications
  */
 export function processName(rawName: string): string {
   const trimmedRawName = rawName.trim().substring(0, NAME_LENGTH_LIMIT);
-  if (trimmedRawName === '') {
-    return DEFAULT_NAME;
-  }
   return trimmedRawName;
 }

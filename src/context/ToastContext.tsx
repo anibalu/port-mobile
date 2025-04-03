@@ -71,18 +71,16 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({children}) => {
    */
   const showToast = (text: string, type: ToastType = ToastType.error) => {
     setToastToShow({text, type});
+    setIsToastVisible(true);
   };
 
   useEffect(() => {
-    // Show the toast if there is a text to display
-    if (toastToShow.text !== '') {
-      setIsToastVisible(true);
-      // Set a timer to hide the toast after a specified timeout (3 seconds)
-      const timer = setTimeout(() => {
-        setIsToastVisible(false);
-      }, ERROR_MODAL_VALIDITY_TIMEOUT);
-      return () => clearTimeout(timer);
-    }
+    // Set a timer to hide the toast after a specified timeout (3 seconds)
+    const timer = setTimeout(() => {
+      setIsToastVisible(false);
+    }, ERROR_MODAL_VALIDITY_TIMEOUT);
+
+    return () => clearTimeout(timer);
   }, [toastToShow]);
 
   return (

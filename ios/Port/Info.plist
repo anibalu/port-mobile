@@ -67,6 +67,8 @@
     <string>Port would like access to your Microphone to take videos or send voice notes</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Port would like to access your photo library so you can share pictures with others on the app</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Port would like to access your photo library so you can share pictures with others on the app</string>
     <key>UIAppFonts</key>
     <array>
       <string>MaterialIcons.ttf</string>

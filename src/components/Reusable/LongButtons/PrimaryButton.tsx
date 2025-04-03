@@ -30,6 +30,11 @@ import {
 } from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
+/**
+ * @deprecated
+ * @param param0
+ * @returns
+ */
 const PrimaryButton = ({
   buttonText,
   primaryButtonColor,

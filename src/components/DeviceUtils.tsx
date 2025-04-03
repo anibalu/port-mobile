@@ -2,6 +2,7 @@ import {isIOS} from './ComponentUtils';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 /**
+ * @deprecated
  * Utility file for platform and inset checks
  */
 

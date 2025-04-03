@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   useEffect,
   useCallback,
+  useMemo,
 } from 'react';
 
 import {ThemeType, getTheme, saveTheme} from '@utils/Themes';
@@ -12,7 +13,7 @@ import {useColorScheme} from 'react-native';
 
 type ModalContextType = {
   handleThemeChange: (theme: ThemeType) => void;
-  themeValue: ThemeType;
+  themeValue: 'light' | 'dark';
 };
 
 const ThemeContext = createContext<ModalContextType | undefined>(undefined);
@@ -30,33 +31,46 @@ type ModalProviderProps = {
 };
 
 export const ThemeProvider: React.FC<ModalProviderProps> = ({children}) => {
-  const [themeValue, setThemeValue] = useState<ThemeType>(ThemeType.dark);
-  const appearance = useColorScheme();
+  const colorScheme = useColorScheme();
+  const [themeValue, setThemeValue] = useState<'light' | 'dark'>(
+    (colorScheme as 'light' | 'dark' | null | undefined) || 'dark',
+  );
 
   /**
    * this util wraps around 2 seperate utils, save theme and set theme value
    */
   const handleThemeChange = useCallback(
     async (theme: ThemeType) => {
+      setThemeValue(
+        theme === ThemeType.default ? colorScheme || 'dark' : theme,
+      );
       await saveTheme(theme);
-      setThemeValue(theme === 'default' ? appearance : theme);
     },
-    [appearance],
+    [colorScheme],
   );
 
   useEffect(() => {
     (async () => {
       const currentTheme = await getTheme();
-      setThemeValue(currentTheme === 'default' ? appearance : currentTheme);
+      setThemeValue(
+        currentTheme === ThemeType.default
+          ? colorScheme || 'dark'
+          : currentTheme,
+      );
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [colorScheme]);
+
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(
+    () => ({
+      themeValue,
+      handleThemeChange,
+    }),
+    [themeValue, handleThemeChange],
+  );
+
   return (
-    <ThemeContext.Provider
-      value={{
-        handleThemeChange,
-        themeValue,
-      }}>
+    <ThemeContext.Provider value={contextValue}>
       {children}
     </ThemeContext.Provider>
   );

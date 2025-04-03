@@ -22,7 +22,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {checkCameraPermission} from '@utils/AppPermissions';
 import {generateRandomHexId} from '@utils/IdGenerator';

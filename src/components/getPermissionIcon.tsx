@@ -32,86 +32,94 @@ import CallDisabledDark from '@assets/dark/icons/CallDisabled.svg';
 
 import DynamicColors from '@components/DynamicColors';
 import {SvgProps} from 'react-native-svg';
-import {PortSpacing} from '@components/ComponentUtils';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {Colors} from './colorGuide';
+import {Spacing} from './spacingGuide';
 
-/**
- * Returns a JSX element representing an icon with a background color based on the provided permission state.
- *
- * @param {Array<string, boolean>} permission - A tuple where the first element is the permission name and the second is a boolean indicating whether the permission is enabled.
- * @returns {JSX.Element | null} - A circular `View` JSX element representing the icon with the appropriate background color, or null if the permission is not found.
- */
-
-type PermissionConfig = {
-  bgColor: string;
-  enabledIcon: FC<SvgProps>;
+export interface PermissionConfig {
+  bgColor: string; //same for dark and light mode
+  enabledIcon: FC<SvgProps>; //same for dark and light mode
   disabledIconLight: FC<SvgProps>;
   disabledIconDark: FC<SvgProps>;
-};
+}
 
-const permissionConfigMap: {[key: string]: PermissionConfig} = {
+/**
+ * Configuration map for permission icons and colors.
+ * Each permission has:
+ * - bgColor: Background color for the icon container (same in light/dark mode)
+ * - enabledIcon: Icon component to show when permission is enabled
+ * - disabledIconLight: Icon component for disabled state in light mode
+ * - disabledIconDark: Icon component for disabled state in dark mode
+ */
+export const permissionConfigMap: {
+  [key in keyof PermissionsStrict]: PermissionConfig;
+} = {
   notifications: {
-    bgColor: 'brightRed',
+    bgColor: Colors.common.lowAccentColors.brightRed,
     enabledIcon: BellRed,
     disabledIconLight: BellDisabled,
     disabledIconDark: BellDisabledDark,
   },
   autoDownload: {
-    bgColor: 'tealBlue',
+    bgColor: Colors.common.lowAccentColors.tealBlue,
     enabledIcon: DownloadTeal,
     disabledIconLight: DownloadDisabled,
     disabledIconDark: DownloadDisabledDark,
   },
   focus: {
-    bgColor: 'deepSafron',
+    bgColor: Colors.common.lowAccentColors.deepSafron,
     enabledIcon: HomeSafron,
     disabledIconLight: HomeDisabled,
     disabledIconDark: HomeDisabledDark,
   },
   contactSharing: {
-    bgColor: 'darkGreen',
+    bgColor: Colors.common.lowAccentColors.darkGreen,
     enabledIcon: ShareContactGreen,
     disabledIconLight: ShareContactDisabled,
     disabledIconDark: ShareContactDisabledDark,
   },
   disappearingMessages: {
-    bgColor: 'blue',
+    bgColor: Colors.common.lowAccentColors.blue,
     enabledIcon: DisappearingMessageBlue,
     disabledIconLight: DisappearingMessageDisabled,
     disabledIconDark: DisappearingMessageDisabledDark,
   },
   readReceipts: {
-    bgColor: 'orange',
+    bgColor: Colors.common.lowAccentColors.orange,
     enabledIcon: CheckCircleOrange,
     disabledIconLight: CheckCircleDisabled,
     disabledIconDark: CheckCircleDisabledDark,
   },
   displayPicture: {
-    bgColor: 'blue',
+    bgColor: Colors.common.lowAccentColors.blue,
     enabledIcon: ProfileTeal,
     disabledIconLight: ProfileDisabled,
     disabledIconDark: ProfileDisabledDark,
   },
   favourite: {
-    bgColor: 'backgroundGrey',
+    bgColor: Colors.common.lowAccentColors.grey,
     enabledIcon: FavouriteFolderOrange,
     disabledIconLight: FavouriteFolderDisabled,
     disabledIconDark: FavouriteFolderDisabledDark,
   },
   calling: {
-    bgColor: 'purple',
+    bgColor: Colors.common.lowAccentColors.purple,
     enabledIcon: CallEnabled,
     disabledIconLight: CallDisabled,
     disabledIconDark: CallDisabledDark,
   },
 };
 
+/**
+ * @deprecated
+ */
 const getPermissionIcon = ([permissionName, isEnabled, themeValue]: [
   string,
   boolean,
   string,
 ]) => {
   const Colors = DynamicColors();
-  const config = permissionConfigMap[permissionName];
+  const config = permissionConfigMap[permissionName as keyof PermissionsStrict];
   if (!config) {
     return <></>;
   }
@@ -145,7 +153,7 @@ const getPermissionIcon = ([permissionName, isEnabled, themeValue]: [
 const styles = StyleSheet.create({
   container: {
     borderRadius: 100,
-    padding: PortSpacing.tertiary.uniform,
+    padding: Spacing.s,
   },
 });
 

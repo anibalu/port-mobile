@@ -1,59 +1,41 @@
 import React from 'react';
-import {StatusBar, StyleSheet, View} from 'react-native';
-import {PortColors, isIOS} from './ComponentUtils';
-import DeviceInfo from 'react-native-device-info';
-import {useTheme} from 'src/context/ThemeContext';
-import {useInsetChecks} from './DeviceUtils';
+import {StatusBar, StatusBarProps, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {isIOS} from './ComponentUtils';
 
 /**
  * Status bar for the entire app.
  * Handles IOS and android whether notch exists or not.
  * @param backgroundColor - pass this prop ONLY if no back button should be shown. This absolutely positions the element for welcome page
+ * @param theme - pass this prop to set the theme of the status bar. Default is light.
  * @returns Status bar
  */
+
+export interface CustomStatusBarProps extends StatusBarProps {
+  backgroundColor?: string;
+  theme?: 'light' | 'dark';
+}
+
 export const CustomStatusBar = ({
-  backgroundColor = PortColors.primary.white,
+  backgroundColor = 'transparent',
+  theme = 'light',
   ...props
-}) => {
-  const {themeValue} = useTheme();
+}: CustomStatusBarProps) => {
   const insets = useSafeAreaInsets();
-
-  const {hasIosLargeTopInset} = useInsetChecks();
-  //For devices with a notch, we don't need to add an APPBAR_HEIGHT (both iOS and Android)
-  const APPBAR_HEIGHT = DeviceInfo.hasNotch()
-    ? isIOS
-      ? 50
-      : 56
-    : hasIosLargeTopInset
-    ? 0
-    : insets.top;
-
-  const styles = styling(APPBAR_HEIGHT);
 
   return isIOS ? (
     <View
-      style={StyleSheet.compose(styles.appBar, {
+      style={{
+        height: insets.top,
         backgroundColor: backgroundColor,
-      })}
+      }}
     />
   ) : (
     <StatusBar
-      translucent
+      translucent={true}
       backgroundColor={backgroundColor}
       {...props}
-      barStyle={themeValue === 'dark' ? 'light-content' : 'dark-content'}
+      barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
     />
   );
 };
-const STATUSBAR_HEIGHT = StatusBar.currentHeight;
-
-const styling = (APPBAR_HEIGHT: any) =>
-  StyleSheet.create({
-    statusBar: {
-      height: STATUSBAR_HEIGHT,
-    },
-    appBar: {
-      height: APPBAR_HEIGHT,
-    },
-  });

@@ -11,9 +11,13 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Autolink from 'react-native-autolink';
-import {PortColors} from './ComponentUtils';
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
+import {Colors} from './colorGuide';
 
+/**
+ * @deprecated - use FontWeight instead.
+ * Font types for the app.
+ */
 export enum FontType {
   'sb' = 'Rubik-SemiBold',
   'md' = 'Rubik-Medium',
@@ -34,6 +38,12 @@ export enum FontSizeType {
   'el' = 54,
 }
 
+export enum FontWeight {
+  'sb' = '600',
+  'md' = '500',
+  'rg' = '400',
+}
+
 export const getWeight = (fontType: FontType): '400' | '500' | '600' => {
   switch (fontType) {
     case FontType.sb: {
@@ -50,8 +60,9 @@ export const getWeight = (fontType: FontType): '400' | '500' | '600' => {
 };
 
 type TypographyProps = TextProps & {
-  fontType: FontType;
-  fontSizeType: FontSizeType;
+  fontType?: FontType;
+  fontSizeType?: FontSizeType;
+  fontWeight?: FontWeight;
   textColor?: ColorValue;
 };
 
@@ -65,10 +76,11 @@ export const NumberlessLinkText: React.FC<
 > = ({
   children,
   style,
-  fontType,
-  fontSizeType,
+  fontType = FontType.rg,
+  fontSizeType = FontSizeType.m,
+  fontWeight,
   onLayout = () => {},
-  textColor = PortColors.text.primary,
+  textColor = Colors.common.black,
   linkColor,
 }) => {
   const {connectOverURL} = useConnectionModal();
@@ -99,7 +111,7 @@ export const NumberlessLinkText: React.FC<
         {
           fontFamily: fontType,
           fontSize: fontSizeType,
-          fontWeight: getWeight(fontType),
+          fontWeight: fontWeight ? fontWeight : getWeight(fontType),
           color: textColor,
         },
         style,
@@ -117,16 +129,17 @@ export const NumberlessLinkText: React.FC<
 export const NumberlessText: React.FC<TypographyProps> = ({
   children,
   style,
-  fontType,
-  fontSizeType,
-  textColor = PortColors.text.primary,
+  fontType = FontType.rg,
+  fontSizeType = FontSizeType.m,
+  fontWeight,
+  textColor = Colors.common.black,
   ...rest
 }) => (
   <Text
     style={StyleSheet.compose(
       {
         fontSize: fontSizeType,
-        fontWeight: getWeight(fontType),
+        fontWeight: fontWeight ? fontWeight : getWeight(fontType),
         color: textColor,
       },
       style,
@@ -136,6 +149,11 @@ export const NumberlessText: React.FC<TypographyProps> = ({
   </Text>
 );
 
+/**
+ * @deprecated
+ * @param param0
+ * @returns
+ */
 export const NumberlessRegularText: React.FC<TextProps> = ({
   children,
   style,
@@ -146,6 +164,11 @@ export const NumberlessRegularText: React.FC<TextProps> = ({
   </Text>
 );
 
+/**
+ * @deprecated
+ * @param param0
+ * @returns
+ */
 export const NumberlessItalicText: React.FC<TextProps> = ({
   children,
   style,
@@ -156,6 +179,11 @@ export const NumberlessItalicText: React.FC<TextProps> = ({
   </Text>
 );
 
+/**
+ * @deprecated
+ * @param param0
+ * @returns
+ */
 export const NumberlessBoldText: React.FC<TextProps> = ({
   children,
   style,
@@ -166,6 +194,11 @@ export const NumberlessBoldText: React.FC<TextProps> = ({
   </Text>
 );
 
+/**
+ * @deprecated
+ * @param param0
+ * @returns
+ */
 export const NumberlessClickableText: React.FC<TextProps> = ({
   children,
   style,
@@ -179,6 +212,11 @@ export const NumberlessClickableText: React.FC<TextProps> = ({
   </TouchableOpacity>
 );
 
+/**
+ * @deprecated
+ * @param param0
+ * @returns
+ */
 export const NumberlessMediumText: React.FC<TextProps> = ({
   children,
   style,
@@ -189,6 +227,11 @@ export const NumberlessMediumText: React.FC<TextProps> = ({
   </Text>
 );
 
+/**
+ * @deprecated
+ * @param param0
+ * @returns
+ */
 export const NumberlessSemiBoldText: React.FC<TextProps> = ({
   children,
   style,
@@ -199,6 +242,9 @@ export const NumberlessSemiBoldText: React.FC<TextProps> = ({
   </Text>
 );
 
+/**
+ * @deprecated
+ */
 const styles = StyleSheet.create({
   regular: {
     color: '#747474',

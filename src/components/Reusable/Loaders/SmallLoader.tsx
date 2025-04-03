@@ -1,14 +1,18 @@
-/**
- * Small blue loader
- */
-
 import React from 'react';
 import {CircleSnail} from 'react-native-progress';
 import {View} from 'react-native';
-import DynamicColors from '@components/DynamicColors';
+import {useThemeColors} from '@components/colorGuide';
 
-const SmallLoader = ({size = 24}: {size?: number}) => {
-  const Colors = DynamicColors();
+const SmallLoader = ({
+  size = 24,
+  theme,
+  color,
+}: {
+  size?: number;
+  theme: 'light' | 'dark';
+  color?: string;
+}) => {
+  const Colors = useThemeColors(theme);
 
   return (
     <View
@@ -19,7 +23,7 @@ const SmallLoader = ({size = 24}: {size?: number}) => {
       <CircleSnail
         thickness={2}
         size={size}
-        color={Colors.primary.accent}
+        color={color || Colors.stroke}
         duration={500}
       />
     </View>

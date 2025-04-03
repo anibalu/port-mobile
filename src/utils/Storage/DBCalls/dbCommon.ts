@@ -3,7 +3,6 @@ SQLite.enablePromise(true);
 import {isIOS} from '@components/ComponentUtils';
 import {APP_GROUP_IDENTIFIER} from '@configs/constants';
 import RNFS from 'react-native-fs';
-import runMigrations from '../Migrations';
 
 async function iOSMoveDBFromLegacyLocation() {
   if (!isIOS) {
@@ -55,7 +54,7 @@ async function iOSMoveDBFromLegacyLocation() {
 }
 
 // A list to store available connections to our database
-const dbSingletonHelper: any[] = [];
+export const dbSingletonHelper: any[] = [];
 /**
  * Connect to our SQLite Database
  * @returns a simple db connection. returns null if there's an error opening a db.
@@ -107,7 +106,11 @@ export async function runSimpleQuery(
   }
 }
 
-export function resetDatabase() {
+/**
+ * Delete the database and run the migrations again
+ * @param runMigrations - the migrations to run
+ */
+export function deleteDatabase(runMigrations: () => Promise<void>) {
   dbSingletonHelper.pop();
   SQLite.deleteDatabase(
     {

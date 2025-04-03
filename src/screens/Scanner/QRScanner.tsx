@@ -1,17 +1,13 @@
-/**
- * QR scanner used in the App.
- */
 import TorchOff from '@assets/icons/TorchOff.svg';
 import TorchOn from '@assets/icons/TorchOn.svg';
 import Area from '@assets/miscellaneous/scanAreaBlue.svg';
 import CloseWhite from '@assets/icons/closeWhite.svg';
-import {PortSpacing, screen} from '@components/ComponentUtils';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {checkCameraPermission} from '@utils/AppPermissions';
 import React, {useEffect, useState} from 'react';
 import {Image, Pressable, StyleSheet, View} from 'react-native';
@@ -32,27 +28,45 @@ import {wait} from '@utils/Time';
 import {safeModalCloseDuration} from '@configs/constants';
 import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
 import {urlToJson} from '@utils/JsonToUrl';
-import DynamicColors from '@components/DynamicColors';
 import ImageIcon from '@assets/icons/GalleryIconWhite.svg';
 import {launchImageLibrary} from 'react-native-image-picker';
 import RNQRGenerator from 'rn-qr-generator';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+import {Spacing, Width} from '@components/spacingGuide';
+import {useThemeColors} from '@components/colorGuide';
 
-export default function QRScanner() {
+type Props = NativeStackScreenProps<AppStackParamList, 'Scan'>;
+
+function QRScanner({navigation}: Props) {
+  //camera device
   const device = useCameraDevice('back');
+  //show error modal
   const [showErrorModal, setShowErrorModal] = useState(false);
+  //error message
+  const [errorMessage, setErrorMessage] = useState<string | null | undefined>(
+    null,
+  );
+  //camera permission status
   const [isCameraPermissionGranted, setIsCameraPermissionGranted] =
     useState(false);
+  //torch state
   const [torchState, setTorchState] = useState<'on' | 'off'>('off');
+  //qr data
   const [qrData, setQrData] = useState('');
+  //is focused
   const isFocused = useIsFocused();
-  const navigation = useNavigation();
+  //is scanner active
   const [isScannerActive, setIsScannerActive] = useState(true);
+  //is loading
   const [isLoading, setIsLoading] = useState(false);
+  //uploaded image uri
   const [uploadedImageUri, setUploadedImageUri] = useState<string | null>(null);
 
-  const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const colors = useThemeColors('dark');
+  const styles = styling(colors);
 
+  //scan the QR and load up the data into qrData
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: codes => {
@@ -67,22 +81,27 @@ export default function QRScanner() {
     },
   });
 
+  //clean the screen
   const cleanScreen = () => {
     setQrData('');
     setTorchState('off');
+    setErrorMessage(null);
     setUploadedImageUri(null);
   };
 
+  //retry the scan
   const onRetry = async () => {
     setShowErrorModal(false);
+    setErrorMessage(null);
     await wait(safeModalCloseDuration);
     setIsScannerActive(true);
   };
 
-  //on Error, show error bottom sheet
-  const onError = () => {
+  //on Error, show error bottom sheet with error message
+  const onError = (errorMessage?: string | null) => {
     cleanScreen();
     setIsScannerActive(false);
+    setErrorMessage(errorMessage);
     setShowErrorModal(true);
   };
 
@@ -103,6 +122,7 @@ export default function QRScanner() {
       return 'ERROR: NO QR DETECTED';
     }
   }
+
   /**
    * Upload an image from gallery and read the qr code inside it.
    * @returns
@@ -133,21 +153,20 @@ export default function QRScanner() {
     setIsScannerActive(true);
   }
 
+  //process the qr data
   useEffect(() => {
     (async () => {
-      if (qrData !== '') {
+      if (qrData && qrData !== '') {
         try {
           setIsLoading(true);
           const updatedCode = qrData.startsWith('https://')
             ? urlToJson(qrData)
-            : JSON.parse(qrData);
-          //qrData needs to be processed here.
+            : JSON.parse(qrData); //for really old qr codes
           //check if Qr code is a legitimate Port Qr code
           const bundle = checkBundleValidity(JSON.stringify(updatedCode));
           //if code is legitimate, read it
           await readBundle(bundle);
           //try to use read bundles
-
           await processReadBundles();
           setIsLoading(false);
           //navigate to home screen
@@ -168,17 +187,14 @@ export default function QRScanner() {
 
   return (
     <>
-      <CustomStatusBar backgroundColor={Colors.primary.background} />
-      <SafeAreaView style={styles.container}>
-        <ErrorBottomSheet
-          visible={showErrorModal}
-          title={'Incorrect QR code scanned'}
-          description={
-            'The QR code scanned is not a valid Port QR code. Please scan a Port QR code.'
-          }
-          onClose={onRetry}
-          onTryAgain={onRetry}
-        />
+      <CustomStatusBar
+        theme={colors.theme}
+        backgroundColor={colors.background}
+      />
+      <SafeAreaView
+        backgroundColor={colors.background}
+        bottomNavigationBarColor={colors.background}
+        modifyNavigationBarColor={true}>
         {(uploadedImageUri && isFocused) ||
         (isCameraPermissionGranted && device && isFocused) ? (
           <View style={styles.cameraOptions}>
@@ -207,18 +223,18 @@ export default function QRScanner() {
                 <CloseWhite width={24} height={24} />
               </Pressable>
               {isLoading ? (
-                <DefaultLoader color={Colors.primary.accent} />
+                <DefaultLoader color={colors.accent} />
               ) : (
                 <View style={styles.scanBlock}>
                   <NumberlessText
-                    fontType={FontType.rg}
+                    fontWeight={FontWeight.rg}
                     fontSizeType={FontSizeType.m}
                     style={styles.text}>
                     Align a Port QR code within the frame
                   </NumberlessText>
                   <Area
-                    width={screen.width * 0.8}
-                    height={screen.width * 0.8}
+                    width={Width.screen * 0.8}
+                    height={Width.screen * 0.8}
                     style={styles.scanArea}
                   />
                   <View style={styles.optionButtons}>
@@ -227,9 +243,8 @@ export default function QRScanner() {
                         device &&
                         !uploadedImageUri && (
                           <Torch
-                            styles={styles}
-                            state={torchState}
-                            setState={setTorchState}
+                            torchState={torchState}
+                            setTorchState={setTorchState}
                           />
                         )}
                     </View>
@@ -251,7 +266,7 @@ export default function QRScanner() {
               <CloseWhite width={24} height={24} />
             </Pressable>
             <NumberlessText
-              fontType={FontType.rg}
+              fontWeight={FontWeight.rg}
               fontSizeType={FontSizeType.m}
               style={styles.text}>
               Please provide camera permission
@@ -261,59 +276,76 @@ export default function QRScanner() {
             </Pressable>
           </View>
         )}
+        <ErrorBottomSheet
+          visible={showErrorModal}
+          title={'Invalid Port Scanned'}
+          description={
+            errorMessage ||
+            'The QR code scanned is not a valid Port QR code. Please scan a Port QR code.'
+          }
+          onClose={onRetry}
+          onTryAgain={onRetry}
+        />
       </SafeAreaView>
     </>
   );
 }
-//Phone light toggle switch
+
+export default QRScanner;
+
+/**
+ * A component that renders a torch icon and a button to toggle the torch state.
+ * @param torchState - The current state of the torch.
+ * @param setTorchState - A function to set the torch state.
+ * @param styles - The styles for the component.
+ * @returns A component that renders a torch icon and a button to toggle the torch state.
+ */
 function Torch({
-  state,
-  setState,
-  styles,
+  torchState,
+  setTorchState,
 }: {
-  state: 'on' | 'off';
-  setState: (state: 'on' | 'off') => void;
-  styles: any;
+  torchState: 'on' | 'off';
+  setTorchState: (state: 'on' | 'off') => void;
 }) {
-  if (state === 'on') {
-    return (
-      <Pressable style={styles.roundButton} onPress={() => setState('off')}>
-        <TorchOn width={24} height={24} />
-      </Pressable>
-    );
-  } else {
-    return (
-      <Pressable style={styles.roundButton} onPress={() => setState('on')}>
-        <TorchOff width={24} height={24} />
-      </Pressable>
-    );
-  }
+  return torchState === 'on' ? (
+    <Pressable
+      style={torchStyles.roundButton}
+      onPress={() => setTorchState('off')}>
+      <TorchOn width={24} height={24} />
+    </Pressable>
+  ) : (
+    <Pressable
+      style={torchStyles.roundButton}
+      onPress={() => setTorchState('on')}>
+      <TorchOff width={24} height={24} />
+    </Pressable>
+  );
 }
 
-const styling = colors =>
+const torchStyles = StyleSheet.create({
+  roundButton: {
+    padding: Spacing.m,
+    opacity: 1,
+  },
+});
+
+const styling = (colors: any) =>
   StyleSheet.create({
-    container: {
-      flexDirection: 'column',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      paddingBottom: 0,
-      backgroundColor: colors.primary.black,
-    },
     closeButtonWrapper: {
       position: 'absolute',
-      top: PortSpacing.intermediate.top,
-      right: PortSpacing.intermediate.right,
+      top: Spacing.xl,
+      right: Spacing.xl,
     },
     permissionDenied: {
-      backgroundColor: colors.primary.black,
+      backgroundColor: colors.background,
       justifyContent: 'center',
       alignItems: 'center',
-      padding: PortSpacing.secondary.uniform,
+      padding: Spacing.l,
       width: '100%',
       height: '100%',
     },
     text: {
-      color: colors.primary.white,
+      color: colors.white,
     },
     camera: {
       height: '100%',
@@ -341,15 +373,15 @@ const styling = colors =>
     },
     scanArea: {
       borderRadius: 14,
-      marginTop: PortSpacing.secondary.top,
-      marginBottom: PortSpacing.secondary.bottom,
+      marginTop: Spacing.xl,
+      marginBottom: Spacing.xl,
     },
     roundButton: {
-      padding: 15,
+      padding: Spacing.m,
       opacity: 1,
     },
     uploadButton: {
-      padding: PortSpacing.medium.uniform,
+      padding: Spacing.l,
     },
     optionButtons: {
       flexDirection: 'row',

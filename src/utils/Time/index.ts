@@ -216,9 +216,12 @@ export function createDateBoundaryStamp(isoString: string | undefined): string {
  * Creates an ISO time stamp of current time.
  * @returns {string} - ISO time stamp as a string
  */
-export function generateISOTimeStamp() {
+export function generateISOTimeStamp(): string {
   const now: Date = new Date();
-  return now.toISOString();
+  const isoString = now.toISOString();
+  // ISO 8601 format: YYYY-MM-DDTHH:mm:ss.sssZ
+  // Length is always 24 characters (including the Z at the end)
+  return isoString; // length is 24 characters
 }
 
 export function getEpochTime() {
@@ -328,7 +331,7 @@ export function hasExpired(expiryTimestamp?: string | null): boolean {
   }
 }
 
-export function getExpiryTag(expiryTimestamp: string | null): string {
+export function getExpiryTag(expiryTimestamp?: string | null): string {
   if (!expiryTimestamp) {
     return 'Does not expire';
   } else {

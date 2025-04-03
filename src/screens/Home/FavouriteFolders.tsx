@@ -13,15 +13,17 @@ import {
 import React, {useCallback, useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 import {useSelector} from 'react-redux';
-import {useBottomNavContext} from 'src/context/BottomNavContext';
 
-const FavouriteFolders = () => {
+const FavouriteFolders = ({
+  setSelectedFolderData,
+}: {
+  setSelectedFolderData: (value: FolderInfoWithUnread) => void;
+}) => {
   const Colors = DynamicColors();
   const navigation = useNavigation();
   const [favoriteFolders, setFavoriteFolders] = useState<
     FolderInfoWithUnread[]
   >([]);
-  const {setSelectedFolderData} = useBottomNavContext();
   const updateFavoriteFolderData = async () => {
     console.log('Updating favorite folder data');
     setFavoriteFolders(await getFavouriteFoldersWithUnreadCount());

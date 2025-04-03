@@ -46,7 +46,7 @@ import BlockedCard from '@components/BlockedCard';
 import {useFocusEffect} from '@react-navigation/native';
 import {getCountOfBlockedUsers} from '@utils/Storage/blockUsers';
 import HelpCard from '@components/HelpCard';
-import {BottomNavStackParamList} from '@navigation/BottomNavStackTypes';
+import {BottomNavStackParamList} from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
 import {useSelector} from 'react-redux';
 import AccountCard from './AccountCard';
 

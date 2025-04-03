@@ -1,5 +1,5 @@
 export function jsonToUrl(
-  json: {[key: string]: string | number} | null,
+  json?: {[key: string]: string | number} | null,
 ): string | null {
   if (!json) {
     return null;

@@ -9,7 +9,7 @@ import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 
 import {getConnections} from '@utils/Storage/connections';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';

@@ -14,6 +14,7 @@ import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 
 /**
  * Generic button for Numberless, use this for any and all buttons in app.
+ * @deprecated
  * @param onPress
  * @param buttonStyle, custom styling
  * @param textStyle , custom styling for text

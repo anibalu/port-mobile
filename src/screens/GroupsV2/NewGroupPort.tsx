@@ -1,7 +1,7 @@
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useState} from 'react';

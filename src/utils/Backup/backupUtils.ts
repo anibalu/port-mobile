@@ -15,10 +15,9 @@ import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import {addCryptoEntry} from '../Storage/crypto';
 import {addPermissionEntry} from '../Storage/permissions';
-import {getProfileInfoRNSS} from '../Storage/RNSecure/secureProfileHandler';
 import {getAllCryptoData} from '../Storage/crypto';
 import {getAllPermissions} from '../Storage/permissions';
-import {saveProfileInfo} from '../Storage/profile';
+import {getProfileInfo, saveProfileInfo} from '../Storage/profile';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {addFolderEntry} from '@utils/Storage/folders';
 import {getAllFolders} from '@utils/Storage/folders';
@@ -260,7 +259,7 @@ async function serializedDatabaseSection() {
 }
 
 async function serializeProfileInfo() {
-  return JSON.stringify(await getProfileInfoRNSS());
+  return JSON.stringify(await getProfileInfo());
 }
 
 /**

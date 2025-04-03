@@ -11,7 +11,7 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
 import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import InviteContact from '@assets/icons/InviteContactOrange.svg';

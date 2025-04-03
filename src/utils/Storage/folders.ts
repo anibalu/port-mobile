@@ -1,4 +1,5 @@
 import * as dbCalls from './DBCalls/folders';
+import {FolderInfoWithUnread} from './DBCalls/folders';
 import {getNewMessageCount} from './connections';
 import {defaultFolderId} from '@configs/constants';
 
@@ -44,6 +45,12 @@ export async function getSuperportCountForFolder(folderId: string) {
  */
 export async function getConnectionsCountForFolder(folderId: string) {
   return await dbCalls.getConnectionsCountForFolder(folderId);
+}
+
+export interface FolderInfoWithUnread extends dbCalls.FolderInfo {
+  unread: number;
+  superportCount: number;
+  connectionsCount: number;
 }
 
 /**

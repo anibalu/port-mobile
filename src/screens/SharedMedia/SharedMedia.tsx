@@ -4,7 +4,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';

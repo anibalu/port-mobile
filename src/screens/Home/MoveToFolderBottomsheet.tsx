@@ -16,36 +16,43 @@ import {useFocusEffect} from '@react-navigation/native';
 import {defaultFolderInfo, safeModalCloseDuration} from '@configs/constants';
 import PrimaryButton from '../../components/Reusable/LongButtons/PrimaryButton';
 import DynamicColors from '@components/DynamicColors';
-import {useBottomNavContext} from '../../context/BottomNavContext';
 import {
   loadFolderScreenConnections,
   loadHomeScreenConnections,
 } from '@utils/Connections/onRefresh';
 import {moveConnectionsToNewFolderWithoutPermissionChange} from '@utils/ChatFolders';
+import {ChatTileProps} from '@components/ChatTile/ChatTile';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 
 const MoveToFolder = ({
   visible,
   onClose,
   buttonText,
   buttonColor,
+  selectedFolderData,
+  setSelectionMode,
+  setIsChatActionBarVisible,
+  selectedConnections,
+  setSelectedConnections,
+  setConnections,
+  setFolderConnections,
+  setTotalFolderUnreadCount,
+  setTotalUnreadCount,
 }: {
   visible: boolean;
   onClose: () => void;
   buttonText: string;
   buttonColor: 'b' | 'r' | 'w';
+  selectedFolderData: FolderInfo;
+  setSelectionMode: (value: boolean) => void;
+  setIsChatActionBarVisible: (value: boolean) => void;
+  selectedConnections: ChatTileProps[];
+  setSelectedConnections: (value: ChatTileProps[]) => void;
+  setConnections: (value: ConnectionInfo[]) => void;
+  setFolderConnections: (value: ChatTileProps[]) => void;
+  setTotalFolderUnreadCount: (value: number) => void;
+  setTotalUnreadCount: (value: number) => void;
 }) => {
-  const {
-    selectedFolderData,
-    setSelectionMode,
-    setIsChatActionBarVisible,
-    selectedConnections,
-    setSelectedConnections,
-    setConnections,
-    setFolderConnections,
-    setTotalFolderUnreadCount,
-    setTotalUnreadCount,
-  } = useBottomNavContext();
-
   const [folders, setFolders] = useState<FolderInfo[]>([
     selectedFolderData ? {...selectedFolderData} : {...defaultFolderInfo},
   ]);

@@ -8,7 +8,7 @@ import React, {ReactElement, useCallback, useMemo, useState} from 'react';
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 import SearchBar from '@components/SearchBar';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {
   FontSizeType,

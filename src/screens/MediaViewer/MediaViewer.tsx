@@ -2,7 +2,7 @@ import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import GreenTick from '@assets/icons/GreenTick.svg';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';

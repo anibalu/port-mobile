@@ -11,7 +11,7 @@ import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 import {getConnection} from '@utils/Storage/connections';
 import {getConnections} from '@utils/Storage/connections';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {getMessage} from '@utils/Storage/messages';
 import {getGroupMessage} from '@utils/Storage/groupMessages';

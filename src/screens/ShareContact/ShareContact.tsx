@@ -8,7 +8,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {getDirectChats} from '@utils/DirectChats';
 import DynamicColors from '@components/DynamicColors';

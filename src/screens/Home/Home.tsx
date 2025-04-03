@@ -26,11 +26,10 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
 import {useTheme} from 'src/context/ThemeContext';
 import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
-import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
 import SearchBar from '@components/SearchBar';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {BottomNavStackParamList} from '@navigation/BottomNavStackTypes';
+import {BottomNavStackParamList} from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
 import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
 import {
   FontSizeType,
@@ -40,12 +39,12 @@ import {
 import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactBottomSheet';
 import {cleanDeleteReadPort} from '@utils/Ports/direct';
 import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
-
-import FavouriteFolders from './FavouriteFolders';
 import {getConnections} from '@utils/Storage/connections';
 import NoChatsInHomePlaceholder from './NoChatsInHomePlaceholder';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {useCallContext} from '@screens/Calls/CallContext';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import NewConnectionsBottomsheet from '@screens/Home/components/CreateNewConnectionsBottomsheet';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
@@ -133,18 +132,23 @@ const Home = ({navigation, route}: Props) => {
   const styles = styling(colors, themeValue);
   const ping: any = useSelector(state => state.ping.ping);
 
-  const {
-    totalUnreadCount,
-    setTotalUnreadCount,
-    connections,
-    setConnections,
-    selectedProps,
-    setSelectedProps,
-    contactShareParams,
-    setContactShareParams,
-    connectionsNotInFocus,
-    setConnectionsNotInFocus,
-  } = useBottomNavContext();
+  const [totalUnreadCount, setTotalUnreadCount] = useState<number>(0);
+  const [connections, setConnections] = useState<ChatTileProps[] | null>(null);
+  const [selectedProps, setSelectedProps] = useState<ChatTileProps | null>(
+    null,
+  );
+  const [contactShareParams, setContactShareParams] = useState<{
+    name: string;
+    pairHash: string;
+  } | null>(null);
+  const [connectionsNotInFocus, setConnectionsNotInFocus] = useState<number>(0);
+  const [_isChatActionBarVisible, setIsChatActionBarVisible] =
+    useState<boolean>(false);
+
+  const [selectionMode, setSelectionMode] = useState<boolean>(false);
+  const [selectedConnections, setSelectedConnections] = useState<
+    ChatTileProps[]
+  >([]);
 
   //loader that waits for home screen to finish loading.
   const isLoading = useMemo(() => {
@@ -168,6 +172,18 @@ const Home = ({navigation, route}: Props) => {
 
   const [searchText, setSearchText] = useState<string>('');
 
+  const [openConnectionsBottomsheet, setOpenConnectionsBottomsheet] =
+    useState<boolean>(false);
+
+  const svgArray = [
+    {
+      assetName: 'RoundPlus',
+      light: require('@assets/light/icons/RoundPlus.svg').default,
+      dark: require('@assets/dark/icons/RoundPlus.svg').default,
+    },
+  ];
+  const results = useDynamicSVG(svgArray);
+  const RoundPlus = results.RoundPlus;
   //loads up connections
   useEffect(() => {
     (async () => {
@@ -180,7 +196,6 @@ const Home = ({navigation, route}: Props) => {
       setConnections(output.connections);
       setTotalUnreadCount(output.unread);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ping]);
 
   //filter by search string
@@ -208,9 +223,9 @@ const Home = ({navigation, route}: Props) => {
   }, [connections, searchText]);
 
   //rendered chat tile of a connection
-  function renderChatTile(connection: ChatTileProps): ReactElement {
+  function renderChatTile(props: CompleteChatTileProps): ReactElement {
     try {
-      return <ChatTile initialProps={connection} />;
+      return <ChatTile {...props} />;
     } catch (error) {
       return <></>;
     }
@@ -262,7 +277,14 @@ const Home = ({navigation, route}: Props) => {
               ? colors.primary.background
               : colors.primary.surface,
         }}>
-        <HomeTopbar unread={totalUnreadCount} />
+        <HomeTopbar
+          unread={totalUnreadCount}
+          setIsChatActionBarVisible={setIsChatActionBarVisible}
+          selectionMode={selectionMode}
+          setSelectionMode={setSelectionMode}
+          selectedConnections={selectedConnections}
+          setSelectedConnections={setSelectedConnections}
+        />
         <KeyboardAvoidingView
           behavior={isIOS ? 'padding' : 'height'}
           keyboardVerticalOffset={isIOS ? 50 : 0}
@@ -287,7 +309,18 @@ const Home = ({navigation, route}: Props) => {
                 {connections && connections.length > 0 ? (
                   <FlatList
                     data={viewableConnections}
-                    renderItem={element => renderChatTile(element.item)}
+                    renderItem={element =>
+                      renderChatTile({
+                        ...element.item,
+                        setSelectedProps,
+                        selectedConnections,
+                        setSelectedConnections,
+                        selectionMode,
+                        setSelectionMode,
+                        setIsChatActionBarVisible,
+                        setContactShareParams,
+                      })
+                    }
                     style={styles.chats}
                     scrollEnabled={viewableConnections.length > 0}
                     ListHeaderComponent={
@@ -301,7 +334,6 @@ const Home = ({navigation, route}: Props) => {
                               placeholder={'Search for chats'}
                             />
                           </View>
-                          <FavouriteFolders />
                         </>
                       ) : null
                     }
@@ -343,6 +375,18 @@ const Home = ({navigation, route}: Props) => {
             )}
           </View>
         </KeyboardAvoidingView>
+        <RoundPlus
+          onPress={() => {
+            console.log('pressed');
+            setOpenConnectionsBottomsheet(true);
+          }}
+          style={styles.plusButton}
+        />
+        <NewConnectionsBottomsheet
+          visible={openConnectionsBottomsheet}
+          onClose={() => setOpenConnectionsBottomsheet(false)}
+          navigation={navigation}
+        />
         <LoadingBottomSheet
           visible={selectedProps ? true : false}
           onClose={() => setSelectedProps(null)}
@@ -429,6 +473,11 @@ const styling = (colors: any, themeValue: any) =>
       width: '100%',
       flexDirection: 'column',
       justifyContent: 'flex-start',
+    },
+    plusButton: {
+      position: 'absolute',
+      bottom: PortSpacing.secondary.uniform,
+      right: PortSpacing.secondary.uniform,
     },
   });
 

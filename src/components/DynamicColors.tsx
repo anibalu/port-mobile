@@ -1,5 +1,9 @@
 import {useTheme} from 'src/context/ThemeContext';
 
+/**
+ * Dynamic colors for the app
+ * @deprecated  - use useColors() instead in colorGuide.ts. Checkout styling guidelines.
+ */
 const DynamicColors = (theme?: string | null) => {
   const {themeValue} = useTheme();
   const common = {

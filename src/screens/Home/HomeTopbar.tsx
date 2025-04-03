@@ -15,11 +15,24 @@ import {GenericButton} from '@components/GenericButton';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import ContactBook from '@assets/icons/ContactBook.svg';
-import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {useTheme} from 'src/context/ThemeContext';
 import Scanner from '@assets/icons/ScannerDarkGreen.svg';
 
-function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
+function HomeTopbar({
+  unread = 0,
+  setIsChatActionBarVisible,
+  selectionMode,
+  setSelectionMode,
+  selectedConnections,
+  setSelectedConnections,
+}: {
+  unread?: number;
+  setIsChatActionBarVisible: (visible: boolean) => void;
+  selectionMode: boolean;
+  setSelectionMode: (mode: boolean) => void;
+  selectedConnections: any[];
+  setSelectedConnections: (connections: any[]) => void;
+}): ReactNode {
   const title = useMemo(() => {
     if (unread) {
       return `Home (${unread})`;
@@ -28,13 +41,6 @@ function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
     }
   }, [unread]);
   const navigation = useNavigation<any>();
-  const {
-    setIsChatActionBarVisible,
-    selectionMode,
-    setSelectionMode,
-    selectedConnections,
-    setSelectedConnections,
-  } = useBottomNavContext();
 
   const handleCancel = () => {
     setSelectedConnections([]);
@@ -117,7 +123,7 @@ function HomeTopbar({unread = 0}: {unread?: number}): ReactNode {
             </Pressable>
             <Pressable
               style={styles.iconWrapper}
-              onPress={() => navigation.push('PortContactList')}>
+              onPress={() => navigation.push('ContactsScreen')}>
               <ContactBook width={24} height={24} />
               <NumberlessText
                 numberOfLines={1}

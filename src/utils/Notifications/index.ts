@@ -12,7 +12,6 @@ import notifee, {
   EventType,
   Notification,
 } from '@notifee/react-native';
-import store from '@store/appStore';
 import {getToken} from '@utils/ServerAuth';
 import {getConnection} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
@@ -89,10 +88,12 @@ export async function displaySimpleNotification(
   if (Platform.OS === 'ios') {
     return;
   }
+  // If the app is foregrounded, skip the notification
+  if (AppState.currentState === 'active') {
+    return;
+  }
   const channelId = await setupNotifee();
   console.info('notification channelId: ', channelId);
-  const entireState = store.getState();
-  const currentActiveChatId = entireState.profile.activeChat;
   const currentNotifications = await notifee.getDisplayedNotifications();
   let messages: any[] = [];
   let notificationIdToReplace: string | undefined;
@@ -163,17 +164,7 @@ export async function displaySimpleNotification(
   if (notificationIdToReplace) {
     await notifee.cancelDisplayedNotification(notificationIdToReplace);
   }
-
-  // If app is not in the foreground, display no matter what
-  if (AppState.currentState !== 'active') {
-    await notifee.displayNotification(notification);
-    return;
-  }
-  // Display a notification if I am on any screen that isn't the current chat
-  if (currentActiveChatId && currentActiveChatId !== chatId) {
-    await notifee.displayNotification(notification);
-    return;
-  }
+  await notifee.displayNotification(notification);
 }
 
 /**

@@ -1,10 +1,30 @@
 import {isIOS, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
 import store from '@store/appStore';
 import React, {useEffect, useRef} from 'react';
 import {AppState} from 'react-native';
 import Modal from 'react-native-modal';
 import {useSelector} from 'react-redux';
+import {useColors} from '@components/colorGuide';
+
+/**
+ * A reusable modal component that provides consistent behavior across the app.
+ * Features:
+ * - Handles keyboard avoidance
+ * - Supports bottom sheet (flex-end) and center positioning
+ * - Auto-closes when app goes to background (configurable)
+ * - Handles backdrop color customization
+ * - Supports theme forcing
+ * - Closes automatically when force close is triggered from redux store
+ *
+ * @param onClose - Function called when modal should close
+ * @param visible - Boolean controlling modal visibility
+ * @param children - Modal content
+ * @param avoidKeyboard - Whether modal should adjust for keyboard
+ * @param position - Modal position ('flex-end' or 'center')
+ * @param shouldAutoClose - Whether modal auto-closes on app background
+ * @param backdropColor - Custom backdrop color
+ * @param forceTheme - Override app theme for this modal
+ */
 
 const GenericModal = ({
   onClose,
@@ -14,6 +34,7 @@ const GenericModal = ({
   position = 'flex-end',
   shouldAutoClose = true, //responsible for closing the modal when app is backgrounded.
   backdropColor,
+  forceTheme,
 }: {
   onClose: any;
   visible: boolean;
@@ -22,11 +43,12 @@ const GenericModal = ({
   position?: 'flex-end' | 'center';
   shouldAutoClose?: boolean;
   backdropColor?: string;
+  forceTheme?: 'light' | 'dark';
 }) => {
   const forceClose: boolean = useSelector(
     state => state.forceCloseModal.forceClose,
   );
-  const Colors = DynamicColors();
+  const Colors = useColors(forceTheme);
 
   const appState = useRef(AppState.currentState);
 
@@ -61,7 +83,7 @@ const GenericModal = ({
 
   return (
     <Modal
-      backdropColor={backdropColor ? backdropColor : Colors.primary.overlay}
+      backdropColor={backdropColor ? backdropColor : Colors.overlay}
       backdropOpacity={0.5}
       avoidKeyboard={avoidKeyboard}
       propagateSwipe={true}

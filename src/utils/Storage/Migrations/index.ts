@@ -1,4 +1,4 @@
-import {runSimpleQuery} from '../DBCalls/dbCommon';
+import {deleteDatabase, runSimpleQuery} from '../DBCalls/dbCommon';
 import migration002 from './migration002';
 import migration004 from './migration004';
 import {migration005} from './migration005';
@@ -8,9 +8,11 @@ import {migration009} from './migration009';
 import migration010 from './migration010';
 import migration011 from './migration011';
 import migration012 from './migration012';
+import migration013 from './migration013';
+
 // Increment this counter everytime you add a migration.
 // If this file has been modified, hopefully this counter has ticked.
-// MOST_RECENT_MIGRATION_NUMBER = 012
+// MOST_RECENT_MIGRATION_NUMBER = 013
 
 // To run a migration, write a suitible callback and add it to the list.
 // Make sure to increment the counter above to make sure we don't do weird things.
@@ -24,6 +26,7 @@ const migrations: [number, () => Promise<void>][] = [
   [10, migration010],
   [11, migration011],
   [12, migration012],
+  [13, migration013],
 ];
 
 export default async function runMigrations() {
@@ -80,4 +83,11 @@ async function runMigration(id: number, callback: () => Promise<void>) {
   } else {
     console.log("[DB MIGRATION] Didn't need to run migration: ", id);
   }
+}
+
+/**
+ * Reset the database to the initial state on account deletion
+ */
+export function resetDatabase() {
+  deleteDatabase(runMigrations);
 }

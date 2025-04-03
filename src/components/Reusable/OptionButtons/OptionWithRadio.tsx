@@ -18,6 +18,14 @@ import {View} from 'react-native';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
+/**
+ * Option With Radio.
+ * Takes the following props:
+ * 1. On click function
+ * 2. Active/Inactive state
+ * 4. Title text
+ * @deprecated Use OptionWithRadio in @components/Options instead
+ */
 const OptionWithRadio = ({
   onClick,
   selectedOption,

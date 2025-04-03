@@ -11,28 +11,45 @@ import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 import MoveToFolder from './MoveToFolderBottomsheet';
-import {useBottomNavContext} from 'src/context/BottomNavContext';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {ToastType, useToast} from 'src/context/ToastContext';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {ChatType, ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
+import {ChatTileProps} from '@components/ChatTile/ChatTile';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 
-export function ChatActionsBar(): ReactNode {
+export function ChatActionsBar({
+  moveToFolderSheet,
+  setMoveToFolderSheet,
+  confirmSheet,
+  setConfirmSheet,
+  setSelectionMode,
+  setIsChatActionBarVisible,
+  selectedConnections,
+  setSelectedConnections,
+  setConnections,
+  setTotalUnreadCount,
+  selectedFolderData,
+  setFolderConnections,
+  setTotalFolderUnreadCount,
+}: {
+  moveToFolderSheet: boolean;
+  setMoveToFolderSheet: (value: boolean) => void;
+  confirmSheet: boolean;
+  setConfirmSheet: (value: boolean) => void;
+  setSelectionMode: (value: boolean) => void;
+  setIsChatActionBarVisible: (value: boolean) => void;
+  selectedConnections: ChatTileProps[];
+  setSelectedConnections: (value: ChatTileProps[]) => void;
+  setConnections: (value: ConnectionInfo[]) => void;
+  setTotalUnreadCount: (value: number) => void;
+  selectedFolderData: FolderInfo;
+  setFolderConnections: (value: ChatTileProps[]) => void;
+  setTotalFolderUnreadCount: (value: number) => void;
+}): ReactNode {
   const Colors = DynamicColors();
   const styles = styling(Colors);
-  const {
-    setSelectionMode,
-    moveToFolderSheet,
-    setMoveToFolderSheet,
-    confirmSheet,
-    setConfirmSheet,
-    setIsChatActionBarVisible,
-    selectedConnections,
-    setSelectedConnections,
-    setConnections,
-    setTotalUnreadCount,
-  } = useBottomNavContext();
 
   const svgArray = [
     {
@@ -178,6 +195,15 @@ export function ChatActionsBar(): ReactNode {
             }}
             buttonText={'Move chats'}
             buttonColor="b"
+            selectedFolderData={selectedFolderData}
+            setSelectionMode={setSelectionMode}
+            setIsChatActionBarVisible={setIsChatActionBarVisible}
+            selectedConnections={selectedConnections}
+            setSelectedConnections={setSelectedConnections}
+            setConnections={setConnections}
+            setTotalUnreadCount={setTotalUnreadCount}
+            setFolderConnections={setFolderConnections}
+            setTotalFolderUnreadCount={setTotalFolderUnreadCount}
           />
           <ConfirmationBottomSheet
             visible={confirmSheet}

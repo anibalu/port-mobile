@@ -17,7 +17,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {StackActions} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {

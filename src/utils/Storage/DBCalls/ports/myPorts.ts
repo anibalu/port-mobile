@@ -5,9 +5,9 @@ import {UnusedPortData} from './interfaces';
 export interface PortDataUpdate {
   version?: string | null;
   label?: string | null; //used as default name of contact
-  usedOnTimestamp?: string | null; //when the port was used
+  usedOnTimestamp?: string | null; //when the port was made useable
   expiryTimestamp?: string | null; //when the port will expire
-  channel?: string | null; //how the port bundle was packaged (qr, link, contact sharing, etc.)
+  bundleId?: string | null; //bundleId to construct the port link
   cryptoId?: string | null; //reference to crypto data
   folderId?: string | null; //reference to folder data
   permissionsId?: string | null; //reference to permissions data
@@ -19,6 +19,7 @@ export interface PortData extends PortDataUpdate {
   usedOnTimestamp: string;
   cryptoId: string;
   folderId: string;
+  permissionsId: string;
 }
 
 /**
@@ -52,7 +53,7 @@ export async function updatePortData(portId: string, update: PortDataUpdate) {
 		label = COALESCE(?, label),
 		usedOnTimestamp = COALESCE(?, usedOnTimestamp),
 		expiryTimestamp = COALESCE(?, expiryTimestamp),
-		channel = COALESCE(?, channel),
+		bundleId = COALESCE(?, bundleId),
 		cryptoId = COALESCE(?, cryptoId),
     folderId = COALESCE(?, folderId),
     permissionsId = COALESCE(?, permissionsId)
@@ -63,7 +64,7 @@ export async function updatePortData(portId: string, update: PortDataUpdate) {
       update.label,
       update.usedOnTimestamp,
       update.expiryTimestamp,
-      update.channel,
+      update.bundleId,
       update.cryptoId,
       update.folderId,
       update.permissionsId,

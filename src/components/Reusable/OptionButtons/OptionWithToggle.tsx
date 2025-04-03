@@ -24,26 +24,41 @@ import ToggleSwitch from 'toggle-switch-react-native';
 const OptionWithToggle = ({
   onToggle,
   IconLeft,
-  IconLeftView,
   toggleActiveState = false,
   heading,
   _description,
   boldTitle = false,
+  backgroundColor,
+  borderColorEnabled,
 }: {
-  IconLeftView?: JSX.Element | null;
   onToggle: () => void;
   IconLeft?: FC<SvgProps>;
   toggleActiveState: boolean;
   heading: string;
   _description?: string;
   boldTitle?: boolean;
+  backgroundColor?: string;
+  borderColorEnabled?: boolean;
 }) => {
   const Colors = DynamicColors();
   return (
     <View style={styles.optionWrapper} accessibilityIgnoresInvertColors>
       <View style={styles.topContainer}>
-        {IconLeft && <IconLeft height={20} width={20} />}
-        {IconLeftView && IconLeftView}
+        {IconLeft && (
+          <View
+            style={{
+              backgroundColor: backgroundColor,
+              borderWidth: 0.5,
+              borderRadius: 100,
+              padding: 4,
+              borderColor: borderColorEnabled
+                ? 'transparent'
+                : Colors.primary.darkgrey,
+            }}>
+            <IconLeft height={20} width={20} />
+          </View>
+        )}
+
         <NumberlessText
           textColor={Colors.text.primary}
           numberOfLines={1}

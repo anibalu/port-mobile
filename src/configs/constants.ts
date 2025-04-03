@@ -85,6 +85,7 @@ export const defaultPermissions: PermissionsStrict = {
   readReceipts: true,
   disappearingMessages: 0,
   favourite: true,
+  calling: true,
 };
 
 export const defaultPermissionsId: string = '00000000000000000000000000000000';

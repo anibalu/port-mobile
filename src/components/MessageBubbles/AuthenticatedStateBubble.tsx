@@ -2,7 +2,7 @@ import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
-import RetryRed from '@assets/icons/retryRed.svg';
+import RetryRed from '@assets/icons/RetryRed.svg';
 import * as API from '../../utils/DirectChats/APICalls';
 import {
   FontSizeType,

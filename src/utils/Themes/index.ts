@@ -1,4 +1,3 @@
-import {ThemeOptionTypes} from '@components/Reusable/BottomSheets/ThemeBottomsheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const THEME = 'theme';
@@ -28,11 +27,11 @@ export async function saveTheme(value: ThemeType) {
  * @returns theme
  */
 
-export async function getTheme() {
+export async function getTheme(): Promise<ThemeType> {
   try {
     const itemString = await AsyncStorage.getItem(THEME);
     if (itemString) {
-      return itemString;
+      return itemString as ThemeType;
     } else {
       await saveTheme(ThemeType.default);
       return ThemeType.default;
@@ -40,6 +39,11 @@ export async function getTheme() {
   } catch (error) {
     return ThemeType.default;
   }
+}
+
+export interface ThemeOptionTypes {
+  key: string;
+  value: ThemeType;
 }
 
 export const themeOptions: ThemeOptionTypes[] = [

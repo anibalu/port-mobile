@@ -17,7 +17,7 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useInsetChecks} from '@components/DeviceUtils';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT} from '@configs/constants';

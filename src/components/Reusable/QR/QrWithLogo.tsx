@@ -22,6 +22,9 @@ import {
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import DynamicColors from '@components/DynamicColors';
 
+/**
+ * @deprecated
+ */
 const QrWithLogo = ({
   isLoading,
   hasFailed,
@@ -40,6 +43,7 @@ const QrWithLogo = ({
 }) => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
+
   return (
     <View style={styles.qrBox}>
       {hasFailed ? (

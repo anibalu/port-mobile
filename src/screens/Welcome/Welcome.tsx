@@ -3,101 +3,64 @@
  * UI is updated to latest spec for both android and ios
  */
 import PortLogoWelcomeScreen from '@assets/miscellaneous/PortLogoWelcomeScreen.svg';
-import {isIOS, PortSpacing, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import {isIOS, screen} from '@components/ComponentUtils';
 import ScannerGreen from '@assets/icons/ScannerDarkGreen.svg';
-import RightChevron from '@assets/dark/icons/navigation/AngleRight.svg';
 import LinkSafron from '@assets/icons/LinkDeepSafron.svg';
-
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import OptionWithLogoAndChevron from '@components/Reusable/OptionButtons/OptionWithLogoAndChevron';
-import {OnboardingStackParamList} from '@navigation/OnboardingStackTypes';
+import PrimaryButton from '@components/Buttons/PrimaryButton';
+import OptionWithLogoAndChevron from '@components/Options/OptionWithLogoAndChevron';
+import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import store from '@store/appStore';
-import {checkProfileCreated} from '@utils/Profile';
-import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
-import React, {useEffect} from 'react';
+import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import LineSeparator from '@components/Reusable/Separators/LineSeparator';
+import LineSeparator from '@components/Separators/LineSeparator';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useInsetChecks} from '@components/DeviceUtils';
+import {Spacing, Width} from '@components/spacingGuide';
+import {useThemeColors} from '@components/colorGuide';
+import GradientCard from '@components/Cards/GradientCard';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Welcome'>;
 
 function Welcome({navigation}: Props) {
-  //On login, as an edge case we do a profile check to ensure that a user who has logged in before doesnt end up at onboaring
-  const profileCheck = async (): Promise<boolean> => {
-    try {
-      const result = await checkProfileCreated();
-      if (result === ProfileStatus.created) {
-        //lets profile store know that onboarding is complete
-        store.dispatch({
-          type: 'ONBOARDING_COMPLETE',
-          payload: true,
-        });
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.log('Error checking profile:', error);
-      return false;
-    }
-  };
-  useEffect(() => {
-    profileCheck();
-  }, []);
+  console.log('[Rendering Welcome Screen]');
 
   //what happens when the user presses "get started".
   const onPressStandardOnboarding = async () => {
-    const profileExists = await profileCheck();
-    if (!profileExists) {
-      navigation.push('OnboardingSetupScreen', {});
-    }
+    navigation.navigate('OnboardingSetupScreen', {});
   };
 
   //what happens when the user presses "Received a Port Link".
   const onPressCustomOnboardingWithLink = async () => {
-    const profileExists = await profileCheck();
-    if (!profileExists) {
-      navigation.push('CreateConnection', {type: 'link'});
-    }
+    navigation.push('OnboardingLinkInput');
   };
 
   //what happens when the user presses "Received a Port QR".
   const onPressCustomOnboardingWithQR = async () => {
-    const profileExists = await profileCheck();
-    if (!profileExists) {
-      navigation.push('CreateConnection', {type: 'QR'});
-    }
+    navigation.push('OnboardingQRScanner');
   };
 
   const onBackupPress = () => {
     navigation.push('RestoreAccount');
   };
-  const Colors = DynamicColors();
-  const DarkColors = DynamicColors('dark');
+  const colors = useThemeColors('dark');
 
-  const styles = styling(Colors);
-  const inset = useSafeAreaInsets();
-  const {hasIosBottomNotch} = useInsetChecks();
+  const styles = styling(colors);
 
   return (
     <>
-      <CustomStatusBar backgroundColor={DarkColors.primary.background} />
+      <CustomStatusBar
+        theme={colors.theme}
+        backgroundColor={colors.background}
+      />
       <SafeAreaView
-        removeOffset={true}
-        style={{
-          backgroundColor: DarkColors.primary.background,
-          paddingBottom: hasIosBottomNotch ? inset.bottom : 0,
-        }}>
+        backgroundColor={colors.background}
+        modifyNavigationBarColor={true}
+        bottomNavigationBarColor={colors.background}>
         <View style={styles.container}>
           <View style={styles.greeting}>
             {isIOS ? (
@@ -106,55 +69,64 @@ function Welcome({navigation}: Props) {
               <PortLogoWelcomeScreen width={screen.height} />
             )}
           </View>
-          <SimpleCard style={styles.buttonContainer}>
+          <GradientCard style={styles.buttonContainer} forceTheme={'dark'}>
             <NumberlessText
               style={{textAlign: 'center'}}
-              textColor={Colors.primary.white}
-              fontType={FontType.sb}
+              textColor={colors.white}
+              fontWeight={FontWeight.sb}
               fontSizeType={FontSizeType.xl}>
               Welcome to Port
             </NumberlessText>
-            <View style={{gap: PortSpacing.tertiary.uniform}}>
+            <View style={{gap: Spacing.s}}>
               <PrimaryButton
+                theme={'dark'}
                 isLoading={false}
-                primaryButtonColor="p"
-                buttonText={'Get Started'}
+                color={colors.purple}
+                text={'Get Started'}
                 disabled={false}
                 onClick={onPressStandardOnboarding}
+                textStyle={{
+                  fontSize: FontSizeType.l,
+                  fontWeight: FontWeight.md,
+                }}
               />
               <PrimaryButton
+                theme={'dark'}
                 isLoading={false}
-                primaryButtonColor="w"
-                buttonText={'Restore from backup'}
+                color={colors.white}
+                text={'Restore from backup'}
                 disabled={false}
                 onClick={onBackupPress}
+                textStyle={{
+                  fontSize: FontSizeType.l,
+                  fontWeight: FontWeight.md,
+                }}
               />
             </View>
-          </SimpleCard>
+          </GradientCard>
           <View
             style={{
               width: '100%',
-              marginVertical: PortSpacing.intermediate.uniform,
-              gap: 4,
+              marginVertical: Spacing.xl,
+              gap: Spacing.xs,
               flexDirection: 'column',
             }}>
             <OptionWithLogoAndChevron
-              backgroundColor={Colors.lowAccentColors.darkGreen}
-              theme={'dark'}
-              IconRight={RightChevron}
+              IconLeftParentStyle={{
+                backgroundColor: colors.lowAccentColors.darkGreen,
+              }}
+              forceTheme={'dark'}
               IconLeft={ScannerGreen}
               title={'Received a Port QR code?'}
               subtitle={'Scan it to form a chat'}
               onClick={onPressCustomOnboardingWithQR}
             />
-            <LineSeparator
-              fromContactBubble={true}
-              borderColor={DarkColors.primary.surface2}
-            />
+            <LineSeparator forceTheme={'dark'} />
             <OptionWithLogoAndChevron
-              backgroundColor={Colors.lowAccentColors.orange}
-              theme={'dark'}
-              IconRight={RightChevron}
+              IconLeftParentStyle={{
+                backgroundColor: colors.lowAccentColors.orange,
+              }}
+              forceTheme={'dark'}
               IconLeft={LinkSafron}
               title={'Received a Port link?'}
               subtitle={'Click it again or paste it here to form a chat'}
@@ -171,13 +143,11 @@ const styling = (color: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      height: screen.height,
-      width: screen.width,
       flexDirection: 'column',
       justifyContent: 'flex-end',
       alignItems: 'center',
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      backgroundColor: color.primary.defaultdark,
+      paddingHorizontal: Spacing.l,
+      backgroundColor: color.background,
     },
     greeting: {
       flex: 1,
@@ -186,13 +156,10 @@ const styling = (color: any) =>
     },
     buttonContainer: {
       flexDirection: 'column',
-      borderWidth: 0.5,
-      borderColor: '#61616B',
-      backgroundColor: 'transparent',
-      width: '100%',
-      gap: PortSpacing.intermediate.uniform,
-      paddingVertical: PortSpacing.secondary.uniform,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      gap: Spacing.xl,
+      paddingVertical: Spacing.l,
+      paddingHorizontal: Spacing.l,
+      width: Width.screen - 2 * Spacing.l,
     },
   });
 

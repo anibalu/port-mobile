@@ -1,7 +1,7 @@
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {AppStackParamList} from '@navigation/AppStackTypes';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {SafeAreaView} from '@components/SafeAreaView';
 import {CustomStatusBar} from '@components/CustomStatusBar';

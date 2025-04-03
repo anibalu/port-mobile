@@ -1,43 +1,43 @@
-/**
- * A simple error bottom sheet.
- * App Instances ex: 'incorrect qr',
- * Takes the following props:
- * 1. visible state for bottomsheet
- * 2. onClose function (runs on right 'x' and modal backdrop click)
- * 3. onTryAgain function
- * 4. title text
- * 5. description text
- */
-
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import AlertIcon from '@assets/icons/ErrorAlert.svg';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
-  getWeight,
 } from '@components/NumberlessText';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
-import SecondaryButton from '../LongButtons/SecondaryButton';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import SecondaryButton from '@components/Buttons/SecondaryButton';
+import useSVG from '@components/svgGuide';
+import {useColors} from '@components/colorGuide';
+import {Size, Spacing, Width} from '@components/spacingGuide';
+import LineSeparator from '@components/Separators/LineSeparator';
 
+/**
+ * A bottom sheet component that displays an error message and a button to try again.
+ * @param visible - Whether the bottom sheet is visible.
+ * @param title - The title of the error.
+ * @param description - The description of the error.
+ * @param onClose - The function to call when the bottom sheet is closed.
+ * @param onTryAgain - The function to call when the button is pressed.
+ * @param forceTheme - The theme to use for the bottom sheet.
+ */
 const ErrorBottomSheet = ({
   visible,
   title,
   description,
   onClose,
   onTryAgain,
+  forceTheme,
 }: {
   visible: boolean;
   onClose: () => void;
-  onTryAgain: () => Promise<void>;
+  onTryAgain?: () => Promise<void>;
   description: string;
   title: string;
+  forceTheme?: 'light' | 'dark';
 }) => {
-  const Colors = DynamicColors();
+  const Colors = useColors(forceTheme);
 
   const svgArray = [
     {
@@ -47,55 +47,75 @@ const ErrorBottomSheet = ({
     },
   ];
 
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
   const Retry = results.Retry;
 
   return (
     <PrimaryBottomSheet
-      showClose={true}
-      IconLeft={AlertIcon}
+      showClose={false}
+      showNotch={false}
       visible={visible}
-      IconLeftSize={'s'}
-      title={title}
-      titleStyle={styles.title}
       onClose={onClose}>
+      <View style={styles.connectionOptionsRegion}>
+        <View style={styles.mainContainer}>
+          <View style={styles.titleContainer}>
+            <AlertIcon width={Size.l} height={Size.l} />
+            <NumberlessText
+              textColor={Colors.red}
+              fontSizeType={FontSizeType.xl}
+              fontWeight={FontWeight.sb}>
+              {title}
+            </NumberlessText>
+          </View>
+          <LineSeparator style={{width: Width.screen}} />
+        </View>
+      </View>
       <View style={styles.mainWrapper}>
         <NumberlessText
-          style={styles.description}
           textColor={Colors.text.subtitle}
           fontSizeType={FontSizeType.m}
-          fontType={FontType.rg}>
+          fontWeight={FontWeight.rg}>
           {description}
         </NumberlessText>
-        <SecondaryButton
-          buttonText={'Try Again'}
-          secondaryButtonColor={'black'}
-          Icon={Retry}
-          iconSize={'s'}
-          onClick={onTryAgain}
-        />
+        {onTryAgain && (
+          <SecondaryButton
+            text={'Try Again'}
+            color={Colors.black}
+            theme={Colors.theme}
+            Icon={Retry}
+            onClick={onTryAgain}
+            isLoading={false}
+            disabled={false}
+          />
+        )}
       </View>
     </PrimaryBottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  mainWrapper: {
+  connectionOptionsRegion: {
+    width: Width.screen,
+    paddingHorizontal: Spacing.l,
+  },
+  mainContainer: {
+    width: '100%',
+    paddingTop: Spacing.s,
     flexDirection: 'column',
-    width: '100%',
-    marginTop: PortSpacing.intermediate.top,
-    ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+    alignItems: 'center',
+    gap: Spacing.m,
   },
-  title: {
-    fontFamily: FontType.md,
-    fontSize: FontSizeType.l,
-    fontWeight: getWeight(FontType.md),
-    marginLeft: PortSpacing.tertiary.left,
-    color: PortColors.primary.red.error,
+  mainWrapper: {
+    width: Width.screen,
+    paddingHorizontal: Spacing.l,
+    paddingTop: Spacing.l,
+    gap: Spacing.l,
   },
-  description: {
-    width: '100%',
-    marginBottom: PortSpacing.intermediate.bottom,
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.s,
   },
 });
 

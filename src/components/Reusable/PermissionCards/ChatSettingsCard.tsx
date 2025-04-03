@@ -200,7 +200,7 @@ const ChatSettingsCard = ({
             showDesappearingMessageModal={showDesappearingMessageModal}
             setShowDissappearingMessageModal={setShowDissappearingMessageModal}
             permission={permissions.disappearingMessages}
-            onUpdateDisappearingMessagedPermission={
+            onUpdateDisappearingMessagesPermission={
               onUpdateDisappearingMessagedPermission
             }
           />

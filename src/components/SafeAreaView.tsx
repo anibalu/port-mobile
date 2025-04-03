@@ -2,39 +2,51 @@
  * custom SafeAreaView for Port that uses safe insets.
  * Wrap this component around your screen so that the app handles various phone with various notches well.
  */
-import React from 'react';
+import React, {useEffect, useMemo} from 'react';
 import {StyleSheet, View, ViewProps, ViewStyle} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {PortSpacing, isIOS} from './ComponentUtils';
-import DynamicColors from './DynamicColors';
-import {useInsetChecks} from './DeviceUtils';
+import {isIOS} from './ComponentUtils';
+import changeNavigationBarColor from 'react-native-navigation-bar-color';
 
-interface SafeAreaViewProps extends ViewProps {
-  removeOffset?: boolean;
+export interface SafeAreaViewProps extends ViewProps {
+  backgroundColor?: string;
+  modifyNavigationBarColor?: boolean; //android only
+  bottomNavigationBarColor?: string; //android only
 }
-
+/**
+ * SafeAreaView component that uses safe insets.
+ * @param children - The children of the component.
+ * @param style - The style of the component.
+ * @param rest - The rest of the props.
+ */
 export function SafeAreaView({
   children,
+  backgroundColor,
+  bottomNavigationBarColor,
+  modifyNavigationBarColor = false,
   style,
-  removeOffset = false,
   ...rest
 }: SafeAreaViewProps) {
+  console.log('[Rendering SafeAreaView]');
   const insets = useSafeAreaInsets();
-  const {hasIosBottomNotch} = useInsetChecks();
 
-  const Colors = DynamicColors();
-  const safeAreaStyle: ViewStyle = {
-    flex: 1,
-    backgroundColor: Colors.primary.background,
-    paddingTop: isIOS ? 0 : insets.top,
-    paddingLeft: insets.left,
-    paddingRight: insets.right,
-    //if removeOffset prop is true and it is an android false we will add inset bottom, else if it is ios and has a bottom notch we will add some padding
-    paddingBottom:
-      isIOS && !removeOffset && hasIosBottomNotch
-        ? PortSpacing.secondary.bottom
-        : 0,
-  };
+  useEffect(() => {
+    if (bottomNavigationBarColor && !isIOS && modifyNavigationBarColor) {
+      changeNavigationBarColor(bottomNavigationBarColor);
+    }
+  }, [bottomNavigationBarColor, modifyNavigationBarColor]);
+
+  const safeAreaStyle: ViewStyle = useMemo(
+    () => ({
+      flex: 1,
+      paddingTop: isIOS ? 0 : insets.top,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+      paddingBottom: isIOS ? 0 : insets.bottom,
+      backgroundColor: backgroundColor,
+    }),
+    [insets.top, insets.left, insets.right, insets.bottom, backgroundColor],
+  );
 
   return (
     <View style={StyleSheet.compose(safeAreaStyle, style)} {...rest}>

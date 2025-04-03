@@ -28,7 +28,6 @@ import {
 import DisplayStatus from './DisplayStatus';
 import RenderText from './RenderText';
 import RenderTimestamp from './RenderTimestamp';
-import {useBottomNavContext} from 'src/context/BottomNavContext';
 import {Swipeable} from 'react-native-gesture-handler';
 import {useTheme} from 'src/context/ThemeContext';
 import {toggleRead} from '@utils/Storage/connections';
@@ -38,41 +37,39 @@ export interface ChatTileProps extends ConnectionInfo {
   isReadPort?: boolean;
 }
 
+export interface CompleteChatTileProps extends ChatTileProps {
+  setSelectedProps: (props: ChatTileProps | null) => void;
+  selectedConnections: ChatTileProps[];
+  setSelectedConnections: (connections: ChatTileProps[]) => void;
+  selectionMode: boolean;
+  setSelectionMode: (mode: boolean) => void;
+  setMoveToFolderSheet: (visible: boolean) => void;
+  setIsChatActionBarVisible: (visible: boolean) => void;
+  setContactShareParams: (params: any) => void;
+}
+
 const CHECKBOX_WIDTH = 40;
 
-function ChatTile({
-  initialProps,
-}: {
-  //controls display
-  initialProps: ChatTileProps;
-}): ReactNode {
-  const {
-    setSelectedProps,
-    selectedConnections,
-    setSelectedConnections,
-    selectionMode,
-    setSelectionMode,
-    setMoveToFolderSheet,
-    setIsChatActionBarVisible,
-    setContactShareParams,
-  } = useBottomNavContext();
+function ChatTile(initialProps: CompleteChatTileProps): ReactNode {
   const [props, setProps] = useState(initialProps);
   useMemo(() => {
     setProps(initialProps);
   }, [initialProps]);
 
-  const isSelected = selectedConnections.some(x => x.chatId === props.chatId);
+  const isSelected = props.selectedConnections?.some(
+    x => x.chatId === props.chatId,
+  );
   const navigation = useNavigation<any>();
   //handles navigation to a chat screen and toggles chat to read.
   const onClick = (): void => {
     if (props.isReadPort) {
-      if (!selectionMode) {
-        setSelectedProps(props);
+      if (!props.selectionMode) {
+        props.setSelectedProps(props);
       }
     } else {
       if (isSelected) {
         unselect();
-      } else if (selectionMode) {
+      } else if (props.selectionMode) {
         select();
       } else {
         toggleRead(props.chatId);
@@ -107,16 +104,16 @@ function ChatTile({
     ignoreAndroidSystemSettings: true /* Android Only */,
   };
   const select = () => {
-    setSelectedConnections([...selectedConnections, props]);
+    props.setSelectedConnections([...props.selectedConnections, props]);
   };
   const unselect = () => {
-    const newSelectedConnections = selectedConnections.filter(
+    const newSelectedConnections = props.selectedConnections.filter(
       x => x.chatId !== props.chatId,
     );
-    setSelectedConnections(newSelectedConnections);
+    props.setSelectedConnections(newSelectedConnections);
     if (newSelectedConnections.length === 0) {
-      setSelectionMode(false);
-      setIsChatActionBarVisible(false);
+      props.setSelectionMode(false);
+      props.setIsChatActionBarVisible(false);
     }
   };
   const selectWithHaptic = () => {
@@ -124,16 +121,16 @@ function ChatTile({
       return;
     }
     if (!isSelected) {
-      setSelectedConnections([...selectedConnections, props]);
+      props.setSelectedConnections([...props.selectedConnections, props]);
       RNReactNativeHapticFeedback.trigger('impactMedium', options);
-      setSelectionMode(true);
-      setIsChatActionBarVisible(true);
+      props.setSelectionMode(true);
+      props.setIsChatActionBarVisible(true);
     }
   };
 
   const [selectionScale] = useState(new Animated.Value(0));
   useEffect(() => {
-    if (selectionMode) {
+    if (props.selectionMode) {
       Animated.timing(selectionScale, {
         toValue: 1,
         duration: 150,
@@ -149,7 +146,7 @@ function ChatTile({
       }).start();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectionMode]);
+  }, [props.selectionMode]);
 
   const moveAnim = useRef(new Animated.Value(0)).current; // Starts from position 0
   const swipableRef = useRef(null);
@@ -168,9 +165,9 @@ function ChatTile({
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => {
-              setSelectedConnections([props]);
-              setIsChatActionBarVisible(true);
-              setMoveToFolderSheet(true);
+              props.setSelectedConnections([props]);
+              props.setIsChatActionBarVisible(true);
+              props.setMoveToFolderSheet(true);
             }}
             style={{
               flexDirection: 'column',
@@ -218,7 +215,7 @@ function ChatTile({
             activeOpacity={0.7}
             onPress={() => {
               if (props.connectionType === ChatType.direct) {
-                setContactShareParams({
+                props.setContactShareParams({
                   name: props.name,
                   pairHash: props.pairHash,
                 });
@@ -333,7 +330,7 @@ function ChatTile({
     return (
       <Swipeable
         ref={swipableRef}
-        enabled={!selectionMode}
+        enabled={!props.selectionMode}
         friction={2}
         leftThreshold={60}
         rightThreshold={100}
@@ -352,7 +349,7 @@ function ChatTile({
                 ]
           }>
           <View style={styles.container}>
-            {selectionMode && (
+            {props.selectionMode && (
               <Pressable
                 style={StyleSheet.compose(styles.checkboxContainer, {
                   backgroundColor: isSelected

@@ -1,7 +1,13 @@
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-import React, {useEffect, useMemo, useState} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {
+  AppState,
+  AppStateStatus,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {
   FontSizeType,
   FontWeight,
@@ -17,6 +23,10 @@ import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import ExpandableLocalPermissionsCard from '@components/PermissionsCards/ExpandableLocalPermissionsCard';
+import {
+  checkAndAskNotificationPermission,
+  checkNotificationPermission,
+} from '@utils/AppPermissions';
 
 type Props = NativeStackScreenProps<
   AppStackParamList,
@@ -26,7 +36,7 @@ type Props = NativeStackScreenProps<
 const DefaultPermissionsScreen = ({navigation, route}: Props) => {
   const {isFromOnboarding} = route.params || {};
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [permissions, setPermissions] = useState<PermissionsStrict>({
     ...defaultPermissions,
@@ -44,8 +54,9 @@ const DefaultPermissionsScreen = ({navigation, route}: Props) => {
     return JSON.stringify(permissions) !== JSON.stringify(editedPermissions);
   }, [permissions, editedPermissions, isFromOnboarding]);
 
-  const [permissionRequestFailed, _setPermissionRequestFailed] =
-    useState(false);
+  const [permissionRequestFailed, setPermissionRequestFailed] = useState(false);
+
+  const [notificationPermission, setNotificationPermission] = useState(false);
 
   const color = useColors();
 
@@ -64,24 +75,91 @@ const DefaultPermissionsScreen = ({navigation, route}: Props) => {
     onNavigateOut();
   };
 
+  //simply saves the permissions. does not check for notification permission
   const onSave = async () => {
+    setIsLoading(true);
     setPermissions(editedPermissions);
     await updatePermissions(defaultPermissionsId, editedPermissions);
-    // onNavigateOut();
+    setIsLoading(false);
+  };
+
+  //proceeds with the save and checks for notification permission
+  const onProceed = async () => {
+    setIsLoading(true);
+    try {
+      const notificationPermission = await checkAndAskNotificationPermission();
+      setNotificationPermission(notificationPermission);
+      if (!notificationPermission) {
+        throw new Error('Notification permission not granted');
+      }
+      setPermissions(editedPermissions);
+      await updatePermissions(defaultPermissionsId, editedPermissions);
+      setIsLoading(false);
+      onNavigateOut();
+    } catch (error) {
+      setPermissionRequestFailed(true);
+      setIsLoading(false);
+    }
+  };
+
+  //proceeds with the save and does not check for notification permission
+  const onProceedAnyway = async () => {
+    setIsLoading(true);
+    setPermissions(editedPermissions);
+    await updatePermissions(defaultPermissionsId, editedPermissions);
+    setIsLoading(false);
+    onNavigateOut();
   };
 
   const styles = styling(color);
 
   useEffect(() => {
     (async () => {
-      setIsLoading(true);
       const permissions = await getPermissions(defaultPermissionsId);
       setPermissions(permissions);
       setEditedPermissions(permissions);
-      //check and request app permissions
-      setIsLoading(false);
+      if (!isFromOnboarding) {
+        //check notification permission if not from onboarding
+        const notificationPermission = await checkNotificationPermission();
+        if (!notificationPermission) {
+          setNotificationPermission(false);
+          setPermissionRequestFailed(true);
+        }
+      }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Update UI based on permission changes
+  useEffect(() => {
+    if (notificationPermission) {
+      setPermissionRequestFailed(false);
+    }
+  }, [notificationPermission]);
+
+  // Define the permission check function with useCallback
+  const checkPermissions = useCallback(async () => {
+    const notificationPermission = await checkNotificationPermission();
+    setNotificationPermission(notificationPermission);
+    console.log('Checked permissions, status:', notificationPermission);
+  }, []);
+
+  // Run when app comes to foreground
+  useEffect(() => {
+    checkPermissions();
+    const subscription = AppState.addEventListener(
+      'change',
+      (nextAppState: AppStateStatus) => {
+        if (nextAppState === 'active') {
+          checkPermissions();
+        }
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [checkPermissions]);
 
   return (
     <>
@@ -116,6 +194,7 @@ const DefaultPermissionsScreen = ({navigation, route}: Props) => {
             bottomText={
               'You can change these permissions individually for each contact and Port later.'
             }
+            appNotificationPermissionNotGranted={permissionRequestFailed}
           />
         </ScrollView>
         <View style={styles.footer}>
@@ -130,7 +209,13 @@ const DefaultPermissionsScreen = ({navigation, route}: Props) => {
                 : 'Save'
             }
             disabled={!didPermissionsChange}
-            onClick={onSave}
+            onClick={
+              isFromOnboarding
+                ? permissionRequestFailed
+                  ? onProceedAnyway
+                  : onProceed
+                : onSave
+            }
           />
         </View>
       </SafeAreaView>

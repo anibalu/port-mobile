@@ -55,6 +55,13 @@ function AppStack() {
             initialRouteName={'HomeTab'}
             screenOptions={{headerShown: false, orientation: 'portrait'}}>
             <Stack.Screen
+              name="InitialPermissionsScreen"
+              component={DefaultPermissionsScreen}
+              options={{
+                gestureEnabled: false,
+              }}
+            />
+            <Stack.Screen
               name="DefaultPermissionsScreen"
               component={DefaultPermissionsScreen}
             />

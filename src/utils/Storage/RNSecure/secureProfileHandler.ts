@@ -21,14 +21,18 @@ export async function getProfileInfoRNSS(): Promise<ProfileInfo | undefined> {
  * saves profile info to file
  * @param {ProfileInfo} profile - profile info to save
  */
-export async function saveProfileInfoRNSS(
-  profile: ProfileInfo | undefined,
-): Promise<void> {
-  if (profile) {
-    await EncryptedStorage.setItem(sessionKey, JSON.stringify(profile));
-  } else {
-    await EncryptedStorage.clear();
+export async function saveProfileInfoRNSS(profile: ProfileInfo): Promise<void> {
+  if (!profile) {
+    throw new Error('Profile info is undefined');
   }
+  await EncryptedStorage.setItem(sessionKey, JSON.stringify(profile));
+}
+
+/**
+ * deletes profile info from file
+ */
+export async function deleteProfileInfoRNSS(): Promise<void> {
+  await EncryptedStorage.clear();
 }
 
 export interface ProfileInfoUpdate {

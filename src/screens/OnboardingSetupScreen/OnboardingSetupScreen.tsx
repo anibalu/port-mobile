@@ -140,7 +140,10 @@ const OnboardingSetupScreen = ({navigation}: Props) => {
             routes: [
               {
                 name: 'AppStack',
-                params: {screen: 'DefaultPermissionsScreen'},
+                params: {
+                  screen: 'InitialPermissionsScreen',
+                  params: {isFromOnboarding: true},
+                },
               },
             ],
           });

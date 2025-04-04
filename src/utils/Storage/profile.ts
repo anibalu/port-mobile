@@ -1,4 +1,7 @@
-import {ProfileInfo} from './RNSecure/secureProfileHandler';
+import {
+  deleteProfileInfoRNSS,
+  ProfileInfo,
+} from './RNSecure/secureProfileHandler';
 import {
   getProfileInfoRNSS,
   saveProfileInfoRNSS,
@@ -11,10 +14,17 @@ import {FileAttributes} from './StorageRNFS/interfaces';
 
 /**
  * saves profile info to storage
- * @param {ProfileInfo | undefined} profile - profile info to be saved
+ * @param {ProfileInfo} profile - profile info to be saved
  */
-export async function saveProfileInfo(profile: ProfileInfo | undefined) {
+export async function saveProfileInfo(profile: ProfileInfo) {
   await saveProfileInfoRNSS(profile);
+}
+
+/**
+ * deletes profile info from storage
+ */
+export async function deleteProfileInfo() {
+  await deleteProfileInfoRNSS();
 }
 
 /**

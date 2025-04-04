@@ -1,39 +1,32 @@
-/**
- * This component is responsible for allowing a user to change their profile picture.
- * It takes the following props:
- * 1. localImageAttr: FileAttributes - initial profile pic attributes
- * 2. setLocalImageAttr - set profile pic attributes on parent screen
- * 3. onSave - on save function to save new profile pic attributes
- * 4. onClose - on close function for bottom sheet
- * 5. visible - to determine if bottom sheet should be visible
- */
-
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {StyleSheet, View, FlatList, Animated, Easing} from 'react-native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Animated,
+  Easing,
+  Pressable,
+} from 'react-native';
 
 import Delete from '@assets/icons/TrashcanWhite.svg';
-import {
-  PortColors,
-  PortSpacing,
-  isIOS,
-  screen,
-} from '@components/ComponentUtils';
-import {GenericButton} from '@components/GenericButton';
-import {
-  DEFAULT_PROFILE_AVATAR_INFO,
-  safeModalCloseDuration,
-} from '@configs/constants';
+import {screen} from '@components/ComponentUtils';
+import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {DirectAvatarMapping} from '@configs/avatarmapping';
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {AvatarBox} from '../AvatarBox/AvatarBox';
-import PrimaryButton from '../LongButtons/PrimaryButton';
-import OptionWithRightIcon from '../OptionButtons/OptionWithRightIcon';
-import SimpleCard from '../Cards/SimpleCard';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import PrimaryButton from '@components/Buttons/PrimaryButton';
 import {compressImage} from '@utils/Compressor/graphicCompressors';
+import {Size, Spacing, Width} from '@components/spacingGuide';
+import {useColors, Colors} from '@components/colorGuide';
+import useSVG from '@components/svgGuide';
+import {FontWeight} from '@components/NumberlessText';
+import {FontSizeType} from '@components/NumberlessText';
+import {NumberlessText} from '@components/NumberlessText';
+import LineSeparator from '@components/Separators/LineSeparator';
+import GradientCard from '@components/Cards/GradientCard';
+import OptionWithLogoAndChevronWithoutDescription from '@components/Options/OptionWithLogoAndChevronWithoutDescription';
 
 interface EditAvatarProps {
   localImageAttr: FileAttributes;
@@ -43,17 +36,32 @@ interface EditAvatarProps {
   visible: boolean;
 }
 
-export default function EditAvatar(props: EditAvatarProps) {
-  const {localImageAttr, setLocalImageAttr, onSave, onClose, visible} = props;
-
+/**
+ * This component is responsible for allowing a user to change their profile picture.
+ * It takes the following props:
+ * 1. localImageAttr: FileAttributes - initial profile pic attributes
+ * 2. setLocalImageAttr - set profile pic attributes on parent screen
+ * 3. onSave - on save function to save new profile pic attributes
+ * 4. onClose - on close function for bottom sheet
+ * 5. visible - to determine if bottom sheet should be visible
+ */
+export default function EditAvatar({
+  localImageAttr,
+  setLocalImageAttr,
+  onSave,
+  onClose,
+  visible,
+}: EditAvatarProps) {
   //maintains local state interms of which avatar or picture is chosen.
   const [imageAttr, setImageAttr] = useState<FileAttributes>(localImageAttr);
+
   //constains the id of the selected avatar. empty string if profile image is not an avatar.
   const [selectedAvatar, setSelectedAvatar] = useState(
     localImageAttr.fileUri.substring(0, 9) === 'avatar://'
       ? localImageAttr.fileUri.replace('avatar://', '')
       : '',
   );
+
   //list of all avatars available. id:1 is default
   const avatarArray = Array.from(
     {length: DirectAvatarMapping.length},
@@ -61,6 +69,7 @@ export default function EditAvatar(props: EditAvatarProps) {
       return {id: index + 1};
     },
   );
+
   //loader waits for save to finish
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -74,10 +83,6 @@ export default function EditAvatar(props: EditAvatarProps) {
     );
   }, [localImageAttr]);
 
-  //reset state values to initial values on closing
-  const cleanClose = () => {
-    onClose();
-  };
   //Lets user pic a new picture from gallery and compress it.
   async function setNewPicture() {
     try {
@@ -123,7 +128,7 @@ export default function EditAvatar(props: EditAvatarProps) {
       await onSave(imageAttr);
     }
     setIsLoading(false);
-    cleanClose();
+    onClose();
   }
 
   //function that gets run when a profile picture is removed
@@ -134,12 +139,10 @@ export default function EditAvatar(props: EditAvatarProps) {
 
   //find number of columns possible
   function calculateColumns() {
-    return Math.floor(
-      (screen.width - 4 * PortSpacing.intermediate.uniform) / 48,
-    );
+    return Math.floor((screen.width - 4 * Spacing.l) / 48);
   }
-  const Colors = DynamicColors();
-  const styles = styling(Colors);
+  const colors = useColors();
+  const styles = styling(colors);
 
   const svgArray = [
     {
@@ -148,82 +151,79 @@ export default function EditAvatar(props: EditAvatarProps) {
       dark: require('@assets/dark/icons/Gallery.svg').default,
     },
   ];
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
 
   const GalleryIcon = results.GalleryIcon;
-
-  const flatlistScrollViewRef = useRef<FlatList>(null);
-
-  useEffect(() => {
-    let timerId: NodeJS.Timeout | null = null;
-
-    if (visible) {
-      timerId = setTimeout(() => {
-        // Flash scroll indicators when the bottom sheet opens
-        flatlistScrollViewRef?.current?.flashScrollIndicators();
-      }, safeModalCloseDuration);
-    }
-
-    return () => {
-      if (timerId) {
-        clearTimeout(timerId);
-      }
-    };
-  }, [visible]);
 
   return (
     <PrimaryBottomSheet
       bgColor="g"
       visible={visible}
-      showClose={true}
-      onClose={cleanClose}
-      title={'Change your profile picture'}
+      showNotch={false}
+      showClose={false}
+      onClose={onClose}
       shouldAutoClose={false}>
-      <View style={styles.container}>
-        <View style={styles.mainAvatarContainer}>
-          <AvatarBox profileUri={imageAttr.fileUri} avatarSize="m" />
-          {imageAttr.fileUri !== DEFAULT_PROFILE_AVATAR_INFO.fileUri && (
-            <GenericButton
-              buttonStyle={styles.buttonDelete}
-              onPress={onRemovePicture}
-              IconRight={Delete}
-              iconSize={20}
+      <View style={styles.connectionOptionsRegion}>
+        <View style={styles.mainContainer}>
+          <NumberlessText
+            textColor={colors.text.title}
+            fontSizeType={FontSizeType.xl}
+            fontWeight={FontWeight.sb}>
+            Choose your profile picture
+          </NumberlessText>
+          <LineSeparator style={{width: Width.screen}} />
+        </View>
+      </View>
+      <View style={styles.profilePictureHitbox}>
+        <AvatarBox profileUri={imageAttr.fileUri} avatarSize="m" />
+        {imageAttr.fileUri !== DEFAULT_PROFILE_AVATAR_INFO.fileUri && (
+          <Pressable style={styles.updatePicture} onPress={onRemovePicture}>
+            <Delete width={20} height={20} />
+          </Pressable>
+        )}
+      </View>
+      <View
+        style={{
+          width: Width.screen - 2 * Spacing.l,
+          marginVertical: Spacing.xl,
+        }}>
+        <OptionWithLogoAndChevronWithoutDescription
+          title={'Choose from gallery'}
+          IconLeft={GalleryIcon}
+          onClick={setNewPicture}
+        />
+      </View>
+      <GradientCard style={styles.avatarArea}>
+        <NumberlessText
+          style={{alignSelf: 'flex-start', marginLeft: Spacing.l}}
+          textColor={colors.text.title}
+          fontSizeType={FontSizeType.l}
+          fontWeight={FontWeight.rg}>
+          Choose an avatar
+        </NumberlessText>
+        <FlatList
+          data={avatarArray}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({item}) => (
+            <RenderAvatar
+              id={item.id.toString()}
+              selected={selectedAvatar}
+              onClick={onSelectAvatar}
             />
           )}
-        </View>
-        <SimpleCard style={{marginBottom: PortSpacing.secondary.bottom}}>
-          <OptionWithRightIcon
-            title={'Choose from gallery'}
-            IconRight={GalleryIcon}
-            onClick={setNewPicture}
-          />
-        </SimpleCard>
-        <SimpleCard style={styles.avatarArea}>
-          <OptionWithRightIcon title={'Choose an avatar'} onClick={() => {}} />
-          <FlatList
-            ref={flatlistScrollViewRef}
-            persistentScrollbar={true}
-            data={avatarArray}
-            keyExtractor={item => item.id.toString()}
-            renderItem={({item}) => (
-              <RenderAvatar
-                id={item.id.toString()}
-                selected={selectedAvatar}
-                onClick={onSelectAvatar}
-              />
-            )}
-            numColumns={calculateColumns()}
-            style={{
-              paddingHorizontal: PortSpacing.secondary.uniform,
-            }}
-          />
-        </SimpleCard>
+          numColumns={calculateColumns()}
+          style={{
+            paddingHorizontal: Spacing.l,
+          }}
+        />
+      </GradientCard>
+      <View style={{width: Width.screen - 2 * Spacing.l, marginTop: Spacing.l}}>
         <PrimaryButton
           disabled={localImageAttr.fileUri === imageAttr.fileUri}
           isLoading={isLoading}
           onClick={onSaveProfileImage}
-          primaryButtonColor={'p'}
-          buttonText={'Save'}
+          text={'Save'}
+          theme={colors.theme}
         />
       </View>
     </PrimaryBottomSheet>
@@ -281,24 +281,12 @@ function RenderAvatar({
     };
   }, [isLoading, opacityAnimation]);
 
-  const Colors = DynamicColors();
-  const styles = styling(Colors);
-
   return (
-    <View style={styles.avatarBoxPressable}>
-      <View
-        style={StyleSheet.compose(
-          styles.avatarBoxBorder,
-          id === selected && !isLoading
-            ? {
-                borderWidth: 3,
-                borderColor: PortColors.primary.blue.app,
-              }
-            : {},
-        )}>
+    <View style={avatarStyles.avatarBoxPressable}>
+      <View>
         {isLoading ? (
           <Animated.View style={{opacity: opacityAnimation}}>
-            <View style={styles.placeholder} />
+            <View style={avatarStyles.placeholder} />
           </Animated.View>
         ) : (
           <AvatarBox
@@ -307,6 +295,15 @@ function RenderAvatar({
             onPress={() => {
               onClick(id);
             }}
+            style={
+              id === selected && !isLoading
+                ? {
+                    borderWidth: 3,
+                    borderColor: Colors.common.boldAccentColors.blue,
+                    borderRadius: 100,
+                  }
+                : {}
+            }
           />
         )}
       </View>
@@ -314,57 +311,64 @@ function RenderAvatar({
   );
 }
 
+const avatarStyles = StyleSheet.create({
+  avatarBoxPressable: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarBoxBorder: {
+    width: 40,
+    height: 40,
+  },
+  placeholder: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 100,
+    width: 40,
+    height: 40,
+  },
+});
+
 const styling = (colors: any) =>
   StyleSheet.create({
-    container: {
-      flexDirection: 'column',
-      justifyContent: 'center',
+    connectionOptionsRegion: {
+      width: Width.screen,
+      paddingHorizontal: Spacing.l,
+    },
+    mainContainer: {
       width: '100%',
-      ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
-    },
-    placeholder: {
-      backgroundColor: '#f0f0f0',
-      borderRadius: 100,
-      width: 40,
-      height: 40,
-    },
-    mainAvatarContainer: {
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      marginVertical: PortSpacing.intermediate.uniform,
+      paddingTop: Spacing.s,
+      flexDirection: 'column',
       alignItems: 'center',
+      gap: Spacing.m,
     },
-    avatarBoxPressable: {
-      width: 48,
-      height: 48,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    avatarBoxBorder: {
-      width: 40,
-      height: 40,
-      borderRadius: 100,
-      alignItems: 'center',
-      justifyContent: 'center',
-      overflow: 'hidden',
-    },
-    buttonDelete: {
-      backgroundColor: PortColors.primary.red.error,
-      padding: 6,
-      width: 32,
-      height: 32,
-      borderRadius: 10,
-      position: 'absolute',
-      bottom: -6,
-      right: -6,
+    profilePictureHitbox: {
+      marginVertical: Spacing.l,
+      paddingHorizontal: Spacing.xl,
+      flexDirection: 'column',
+      alignItems: 'flex-end',
+      justifyContent: 'flex-end',
+      alignSelf: 'center',
     },
     avatarArea: {
       height: 270,
+      width: Width.screen - 2 * Spacing.l,
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: colors.primary.surface,
-      borderColor: PortColors.primary.border.dullGrey,
-      marginBottom: PortSpacing.secondary.bottom,
+      paddingVertical: Spacing.l,
+      gap: Spacing.l,
+    },
+    updatePicture: {
+      width: Size.xl,
+      height: Size.xl,
+      backgroundColor: colors.red,
+      position: 'absolute',
+      bottom: -Spacing.s,
+      right: Spacing.l,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: Spacing.l,
     },
   });

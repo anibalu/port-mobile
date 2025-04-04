@@ -5,7 +5,7 @@
  */
 import ChatTile, {ChatTileProps} from '@components/ChatTile/ChatTile';
 
-import notifee, {AuthorizationStatus} from '@notifee/react-native';
+import notifee from '@notifee/react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import React, {ReactElement, useEffect, useMemo, useState} from 'react';
@@ -79,43 +79,11 @@ const Home = ({navigation, route}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [isNotifPermissionGranted, setIsNotifPermissionGranted] =
-    useState(false);
-
-  //setup notification channels for the app. this also requests permissions.
-  const setupNotificationChannels = async () => {
-    // Needed for iOS
-    await notifee.requestPermission();
-    // Needed for Android
-    await notifee.createChannel({
-      id: 'default',
-      name: 'Default Channel',
-    });
-  };
-
-  //checks if notification permission is granted
-  async function checkNotificationPermission() {
-    const settings = await notifee.getNotificationSettings();
-    if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
-      setIsNotifPermissionGranted(true);
-    } else if (settings.authorizationStatus === AuthorizationStatus.DENIED) {
-      setIsNotifPermissionGranted(false);
-    }
-  }
-
   // This useFocusEffect asks for permissions that are absolutely necessary in
   // A very annoying manner
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        // Notification permissions
-        try {
-          console.log({isNotifPermissionGranted});
-          await setupNotificationChannels();
-          await checkNotificationPermission();
-        } catch (error) {
-          console.log('Error occurred during setup:', error);
-        }
         // Call permissions to set up callkeep
         await initialiseCallKeep();
 

@@ -63,7 +63,7 @@ export async function setupProfile(
 export async function deleteProfile(): Promise<void> {
   try {
     cachedProfile = undefined;
-    await storage.saveProfileInfo(undefined);
+    await storage.deleteProfileInfo();
     store.dispatch({
       type: 'DELETE_PROFILE',
       payload: undefined,

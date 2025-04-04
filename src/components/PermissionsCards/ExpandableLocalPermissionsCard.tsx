@@ -23,7 +23,7 @@ const ExpandableLocalPermissionsCard = ({
   seeMoreClicked,
   expandable = true,
   bottomText,
-  setPermissionRequestFailed,
+  appNotificationPermissionNotGranted,
 }: {
   heading?: string;
   permissions: PermissionsStrict;
@@ -32,10 +32,9 @@ const ExpandableLocalPermissionsCard = ({
   seeMoreClicked?: boolean;
   expandable?: boolean;
   bottomText?: string;
-  setPermissionRequestFailed?: (value: boolean) => void;
+  appNotificationPermissionNotGranted?: boolean;
 }) => {
   const Colors = useColors();
-  console.log('Colors', setPermissionRequestFailed);
   //controls dissapearing messages modal
   const [showDesappearingMessageModal, setShowDissappearingMessageModal] =
     useState<boolean>(false);
@@ -61,6 +60,8 @@ const ExpandableLocalPermissionsCard = ({
           title="Notify me"
           PermissionConfigMap={permissionConfigMap.notifications}
           theme={Colors.theme}
+          appPermissionNotGranted={appNotificationPermissionNotGranted}
+          appPermissionNotGrantedText="Please enable notifications in your device settings to receive alerts from contacts."
         />
         <BooleanPermissionOption
           onToggle={async () => {

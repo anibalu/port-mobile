@@ -4,14 +4,21 @@ import PrimaryButton from '@components/Buttons/PrimaryButton';
 import {defaultFolderInfo, defaultPermissions} from '@configs/constants';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import React, {useState} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+  AppState,
+  AppStateStatus,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import {Spacing} from '@components/spacingGuide';
 import TopBarDescription from '@components/Text/TopBarDescription';
 import {useColors} from '@components/colorGuide';
 import {GradientScreenView} from '@components/GradientScreenView';
 import ExpandableLocalPermissionsCard from '@components/PermissionsCards/ExpandableLocalPermissionsCard';
+import {checkNotificationPermission} from '@utils/AppPermissions';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 
@@ -36,6 +43,32 @@ const NewPortScreen = ({navigation}: Props) => {
   const onBackPress = () => {
     navigation.goBack();
   };
+
+  const [notificationPermission, setNotificationPermission] = useState(true);
+
+  // Define the permission check function with useCallback
+  const checkPermissions = useCallback(async () => {
+    const notificationPermission = await checkNotificationPermission();
+    setNotificationPermission(notificationPermission);
+    console.log('Checked permissions, status:', notificationPermission);
+  }, []);
+
+  // Run when app comes to foreground
+  useEffect(() => {
+    checkPermissions();
+    const subscription = AppState.addEventListener(
+      'change',
+      (nextAppState: AppStateStatus) => {
+        if (nextAppState === 'active') {
+          checkPermissions();
+        }
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [checkPermissions]);
 
   const styles = styling(color);
 
@@ -68,6 +101,7 @@ const NewPortScreen = ({navigation}: Props) => {
               setSeeMoreClicked={setSeeMoreClicked}
               seeMoreClicked={seeMoreClicked}
               bottomText={'You can always change these permissions later.'}
+              appNotificationPermissionNotGranted={!notificationPermission}
             />
           </View>
         </View>

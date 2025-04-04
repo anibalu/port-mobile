@@ -36,56 +36,76 @@ const BooleanPermissionOption = ({
   title,
   PermissionConfigMap,
   theme,
+  appPermissionNotGranted,
+  appPermissionNotGrantedText,
 }: {
   onToggle: () => void;
   permissionState: boolean;
   title: string;
   PermissionConfigMap: PermissionConfig;
   theme: 'light' | 'dark';
+  appPermissionNotGranted?: boolean;
+  appPermissionNotGrantedText?: string;
 }) => {
   const colors = useThemeColors(theme);
   return (
-    <View style={styles.optionWrapper}>
-      <View style={styles.topContainer}>
-        <View
-          style={{
-            backgroundColor: permissionState
-              ? PermissionConfigMap.bgColor
-              : 'transparent',
-            borderWidth: 0.5,
-            borderRadius: 100,
-            padding: Spacing.s,
-            borderColor: permissionState ? 'transparent' : colors.stroke,
-          }}>
-          {permissionState ? (
-            <PermissionConfigMap.enabledIcon height={Size.m} width={Size.m} />
-          ) : theme === 'light' ? (
-            <PermissionConfigMap.disabledIconLight
-              height={Size.m}
-              width={Size.m}
-            />
-          ) : (
-            <PermissionConfigMap.disabledIconDark
-              height={Size.m}
-              width={Size.m}
-            />
-          )}
+    <View>
+      <View style={styles.optionWrapper}>
+        <View style={styles.topContainer}>
+          <View
+            style={{
+              backgroundColor:
+                !appPermissionNotGranted && permissionState
+                  ? PermissionConfigMap.bgColor
+                  : 'transparent',
+              borderWidth: 0.5,
+              borderRadius: 100,
+              padding: Spacing.s,
+              borderColor:
+                !appPermissionNotGranted && permissionState
+                  ? 'transparent'
+                  : colors.stroke,
+            }}>
+            {!appPermissionNotGranted && permissionState ? (
+              <PermissionConfigMap.enabledIcon height={Size.m} width={Size.m} />
+            ) : theme === 'light' ? (
+              <PermissionConfigMap.disabledIconLight
+                height={Size.m}
+                width={Size.m}
+              />
+            ) : (
+              <PermissionConfigMap.disabledIconDark
+                height={Size.m}
+                width={Size.m}
+              />
+            )}
+          </View>
+          <NumberlessText
+            textColor={colors.text.title}
+            numberOfLines={1}
+            fontSizeType={FontSizeType.m}
+            fontWeight={FontWeight.rg}
+            style={styles.heading}>
+            {title}
+          </NumberlessText>
+          <ToggleSwitch
+            isOn={!appPermissionNotGranted && permissionState}
+            onColor={colors.enabled}
+            offColor={colors.disabled}
+            onToggle={onToggle}
+            disabled={appPermissionNotGranted}
+          />
         </View>
-        <NumberlessText
-          textColor={colors.text.title}
-          numberOfLines={1}
-          fontSizeType={FontSizeType.m}
-          fontWeight={FontWeight.rg}
-          style={styles.heading}>
-          {title}
-        </NumberlessText>
-        <ToggleSwitch
-          isOn={permissionState}
-          onColor={colors.enabled}
-          offColor={colors.disabled}
-          onToggle={onToggle}
-        />
       </View>
+      {appPermissionNotGranted && appPermissionNotGrantedText && (
+        <NumberlessText
+          style={{marginBottom: Spacing.xs}}
+          textColor={colors.red}
+          fontSizeType={FontSizeType.s}
+          fontWeight={FontWeight.rg}>
+          {appPermissionNotGrantedText}
+        </NumberlessText>
+      )}
     </View>
   );
 };

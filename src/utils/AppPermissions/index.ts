@@ -182,7 +182,7 @@ const setupNotificationChannels = async () => {
 };
 
 //checks if notification permission is granted
-async function checkNotificationPermission() {
+export async function checkNotificationPermission() {
   try {
     const settings = await notifee.getNotificationSettings();
     if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {

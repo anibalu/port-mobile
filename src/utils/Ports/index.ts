@@ -28,7 +28,7 @@ import {ChatType} from '@utils/Storage/DBCalls/connections';
 import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
 import {Mutex} from 'async-mutex';
 import {deleteDirectSuperport} from './APICalls';
-import {Port} from './SingleUsePorts/Port';
+// import {Port} from './SingleUsePorts/Port';
 import {SuperPort} from './SuperPorts/SuperPort';
 
 /**
@@ -254,7 +254,7 @@ export async function readBundle(
   try {
     switch (bundle.target) {
       case BundleTarget.direct:
-        await Port.reader.accept(bundle, folderId);
+        await direct.acceptPortBundle(bundle as PortBundle, channel, folderId);
         break;
       case BundleTarget.group:
         await group.acceptGroupPortBundle(
@@ -293,7 +293,7 @@ async function useReadBundle(readBundle: ReadPortData) {
   try {
     switch (readBundle.target) {
       case BundleTarget.direct:
-        await Port.reader.load(readBundle).use();
+        await direct.newChatOverReadPortBundle(readBundle);
         break;
       case BundleTarget.group:
         await group.newGroupChatOverReadPortBundle(readBundle);

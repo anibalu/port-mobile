@@ -94,18 +94,20 @@ function updateProfileStore() {
  * @returns {Promise<ProfileInfo|undefined>} - profile info of the user, undefined if none exist
  */
 export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
-  let shouldUpdateProfileStore = false;
+  let shouldUpdateProfileStore = true;
   try {
     const profileStore = store?.getState()?.profile?.profile;
+    //check if profile store has any values. If it does, we need not update the profile store.
     if (
       profileStore?.name ||
       profileStore?.profilePicInfo ||
       profileStore?.lastBackupTime
     ) {
-      shouldUpdateProfileStore = true;
+      shouldUpdateProfileStore = false;
     }
     //read profile from cache
     if (cachedProfile) {
+      console.log('returning cached profile: ', cachedProfile);
       if (shouldUpdateProfileStore) {
         updateProfileStore();
       }
@@ -114,6 +116,7 @@ export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
     //read profile from storage
     const savedProfile: ProfileInfo | undefined =
       await storage.getProfileInfo();
+    console.log('returning saved profile: ', savedProfile);
     //If undefined, no profile exists.
     if (savedProfile && savedProfile.clientId) {
       //update cache with profile info

@@ -79,7 +79,8 @@ const OnboardingSetupScreen = ({navigation}: Props) => {
   const setupActions: ThunkAction[] = [
     //setup a user's profile. Onboarding fails if this fails
     async (): Promise<boolean> => {
-      const response = await setupProfile(userName, imageAttr);
+      const processedName = processName(userName);
+      const response = await setupProfile(processedName, imageAttr);
       if (response === ProfileStatus.created) {
         return true;
       }

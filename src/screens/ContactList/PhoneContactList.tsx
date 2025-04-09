@@ -13,7 +13,6 @@ import SearchBar from '@components/SearchBar';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {
   FontSizeType,
-  FontType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
@@ -22,13 +21,14 @@ import TopBarDescription from '@components/Text/TopBarDescription';
 import {GradientScreenView} from '@components/GradientScreenView';
 import {Height, Spacing} from '@components/spacingGuide';
 import {defaultFolderInfo, defaultPermissions} from '@configs/constants';
+import { Contact, EmailAddress, PhoneNumber } from 'react-native-contacts/type';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'PhoneContactList'>;
 
 interface ContactInfo {
   contactName: string;
-  contactEmail: Contacts.EmailAddress[];
-  contactNumber: Contacts.PhoneNumber[];
+  contactEmail: EmailAddress[];
+  contactNumber: PhoneNumber[];
 }
 
 const PhoneContactList = ({navigation}: Props) => {
@@ -55,20 +55,9 @@ const PhoneContactList = ({navigation}: Props) => {
             b.givenName + ' ' + b.familyName,
           ),
         );
-        // // Grouping contacts by the first letter
-        const groupedContacts = contacts
-          .filter(x => x.givenName)
-          .reduce((groups: any, contact) => {
-            const firstLetter = contact.givenName[0].toUpperCase();
-            if (!groups[firstLetter]) {
-              groups[firstLetter] = [];
-            }
-            groups[firstLetter].push(contact);
-            return groups;
-          }, {});
 
-        setContactList(groupedContacts);
-        setFilteredContacts(groupedContacts);
+        setContactList(contacts);
+        setFilteredContacts(contacts);
       } catch (error) {
         console.error('Error loading contacts: ', error);
       }
@@ -82,34 +71,28 @@ const PhoneContactList = ({navigation}: Props) => {
       if (searchText.trim() === '') {
         setFilteredContacts(contactList);
       } else {
-        const filtered = Object.keys(contactList).reduce(
-          (result: any, key: string) => {
-            const matchingContacts = (
-              contactList[key] as Contacts.Contact[]
-            ).filter(contact =>
-              (contact.givenName + ' ' + contact.familyName)
-                .toLowerCase()
-                .includes(searchText.toLowerCase()),
-            );
-            if (matchingContacts.length > 0) {
-              result[key] = matchingContacts;
-            }
-            return result;
-          },
-          {},
-        );
-        setFilteredContacts(filtered);
+        const filteredData = contactList.filter(item => {
+          return item.displayName
+            .toLowerCase()
+            .includes(searchText.toLowerCase());
+        });
+        setFilteredContacts(filteredData);
       }
     }
   }, [searchText, contactList]);
 
-  interface ItemInterface extends Contacts.Contact {
+  interface ItemInterface extends Contact {
     firstLetter: string;
     index: number;
   }
-  function renderContactTile({item}: {item: ItemInterface}): ReactElement {
-    const isLastInGroup =
-      item.index === filteredContacts[item.firstLetter].length - 1;
+  function renderContactTile({
+    item,
+    index,
+  }: {
+    item: ItemInterface;
+    index: number;
+  }): ReactElement {
+    const isLastInGroup = index === filteredContacts.length - 1;
     return (
       <View
         style={{
@@ -140,14 +123,17 @@ const PhoneContactList = ({navigation}: Props) => {
             })
           }
           style={{
-            padding: 10,
+            padding: Spacing.s,
             borderRadius: Spacing.s,
-            backgroundColor: Colors.accent,
+            backgroundColor:
+              Colors.theme === 'dark' ? Colors.surface2 : Colors.accent,
           }}>
           <NumberlessText
             numberOfLines={1}
-            textColor={Colors.surface}
-            fontWeight={FontWeight.rg}
+            textColor={
+              Colors.theme === 'dark' ? Colors.text.title : Colors.surface
+            }
+            fontWeight={FontWeight.md}
             fontSizeType={FontSizeType.s}>
             INVITE
           </NumberlessText>
@@ -170,14 +156,14 @@ const PhoneContactList = ({navigation}: Props) => {
   return (
     <GradientScreenView
       color={Colors}
-      title="Contacts"
+      title="Invite phone contacts"
       onBackPress={onBackPress}
       modifyNavigationBarColor={true}
       bottomNavigationBarColor={Colors.black}>
       <View style={styles.scrollContainer}>
         <TopBarDescription
           theme={Colors.theme}
-          description="Invite your contacts to experience Port, where every conversation is secure and clutter-free."
+          description="Create Ports for your favourite phone contacts and invite them to Port to enjoy a clutter-free, secure chat experience."
         />
         <View style={styles.scrollableElementsParent}>
           <View
@@ -191,8 +177,7 @@ const PhoneContactList = ({navigation}: Props) => {
                 width: '100%',
                 flexDirection: 'row',
                 alignItems: 'center',
-                borderRadius: 12,
-                paddingHorizontal: Spacing.s,
+                borderRadius: Spacing.m,
               }}
               searchText={searchText}
               setSearchText={setSearchtext}
@@ -202,14 +187,7 @@ const PhoneContactList = ({navigation}: Props) => {
             <ActivityIndicator color={Colors.text.subtitle} />
           ) : (
             <FlatList
-              data={Object.entries(filteredContacts).flatMap(
-                ([firstLetter, contacts]: [firstLetter: any, contacts: any]) =>
-                  contacts.map((contact: Contacts.Contact, index: number) => ({
-                    ...contact,
-                    firstLetter,
-                    index,
-                  })),
-              )}
+              data={filteredContacts}
               renderItem={renderContactTile}
               keyExtractor={item => item.recordID}
               style={styles.contactListContainer}
@@ -225,7 +203,7 @@ const PhoneContactList = ({navigation}: Props) => {
                   <NumberlessText
                     textColor={Colors.text.subtitle}
                     fontSizeType={FontSizeType.l}
-                    fontType={FontType.rg}>
+                    fontWeight={FontWeight.rg}>
                     No Phone Contacts found
                   </NumberlessText>
                 </View>
@@ -244,10 +222,10 @@ const styling = (colors: any) =>
       borderWidth: 0.5,
       backgroundColor: colors.surface,
       borderColor: colors.stroke,
-      marginHorizontal: Spacing.m,
       borderRadius: Spacing.m,
       paddingHorizontal: Spacing.m,
       paddingVertical: Spacing.s,
+      marginHorizontal: Spacing.m,
     },
     scrollContainer: {
       backgroundColor: colors.background,
@@ -260,7 +238,6 @@ const styling = (colors: any) =>
     },
     scrollableElementsParent: {
       marginTop: -Spacing.xxl,
-      paddingHorizontal: Spacing.l,
       paddingBottom: Spacing.l,
       gap: Spacing.l,
     },

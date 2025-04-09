@@ -22,7 +22,6 @@ import QRScanner from '@screens/Scanner/QRScanner';
 import BlockedContacts from '@screens/BlockedContacts/BlockedContacts';
 import HelpScreen from '@screens/Help/HelpScreen';
 import Templates from '@screens/Templates/Templates';
-import PortContactList from '@screens/ContactList/PortContactList';
 import PhoneContactList from '@screens/ContactList/PhoneContactList';
 import BottomNavStack from './BottomNavStack/BottomNavStack';
 import ContactProfile from '@screens/ContactProfile/ContactProfile';
@@ -37,7 +36,6 @@ import AccountSettings from '@screens/MyAccount';
 import DeleteAccount from '@screens/DeleteAccount';
 import NewPortScreen from '@screens/NewPortScreen/NewPortScreen';
 import ContactsScreen from '@screens/ContactsScreen/ContactsScreen';
-import InviteContactsScreen from '@screens/InviteContactsScreen/InviteContactsScreen';
 import NewSuperPortStack from './NewSuperPortStack/NewSuperPortStack';
 import NewPortStack from './NewPortStack/NewPortStack';
 import DefaultPermissionsScreen from '@screens/DefaultPermissions/DefaultPermissionsScreen';
@@ -55,17 +53,9 @@ function AppStack() {
             initialRouteName={'HomeTab'}
             screenOptions={{headerShown: false, orientation: 'portrait'}}>
             <Stack.Screen
-              name="InitialPermissionsScreen"
-              component={DefaultPermissionsScreen}
-              options={{
-                gestureEnabled: false,
-              }}
-            />
-            <Stack.Screen
               name="DefaultPermissionsScreen"
               component={DefaultPermissionsScreen}
             />
-            <Stack.Screen name="PortContactList" component={PortContactList} />
             <Stack.Screen
               name="PhoneContactList"
               component={PhoneContactList}
@@ -123,10 +113,6 @@ function AppStack() {
               }}
             />
             <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
-            <Stack.Screen
-              name="InviteContactsScreen"
-              component={InviteContactsScreen}
-            />
           </Stack.Navigator>
         </CallContextProvider>
       </ConnectionModalProvider>

@@ -16,7 +16,6 @@ export type AppStackParamList = {
   DeleteAccount: undefined;
   AccountSettings: undefined;
   HomeTab: undefined;
-  PortContactList: undefined;
   PhoneContactList: undefined;
   SuperportQRScreen: {
     superportId: string;
@@ -132,7 +131,6 @@ export type AppStackParamList = {
   AllPortsScreen: any;
   // change soon ^
   DefaultPermissionsScreen: {isFromOnboarding?: boolean};
-  InviteContactsScreen: undefined;
   ContactsScreen: undefined;
   // Isolation: undefined;
 

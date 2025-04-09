@@ -3,7 +3,7 @@
  * a few other neat features.
  * screen id: 5
  */
-import ChatTile, {ChatTileProps} from '@components/ChatTile/ChatTile';
+import ChatTile, {ChatTileProps, CompleteChatTileProps} from '@components/ChatTile/ChatTile';
 
 import notifee from '@notifee/react-native';
 import {useFocusEffect} from '@react-navigation/native';
@@ -18,8 +18,8 @@ import {
   Easing,
 } from 'react-native';
 import {useSelector} from 'react-redux';
-import HomeTopbar from './HomeTopbar';
-import HomescreenPlaceholder from './HomescreenPlaceholder';
+import HomeTopbar from './components/HomeTopbar';
+import HomescreenPlaceholder from './components/HomescreenPlaceholder';
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 import {CustomStatusBar} from '@components/CustomStatusBar';
@@ -40,7 +40,6 @@ import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactB
 import {cleanDeleteReadPort} from '@utils/Ports/direct';
 import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 import {getConnections} from '@utils/Storage/connections';
-import NoChatsInHomePlaceholder from './NoChatsInHomePlaceholder';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {useCallContext} from '@screens/Calls/CallContext';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
@@ -109,7 +108,7 @@ const Home = ({navigation, route}: Props) => {
     name: string;
     pairHash: string;
   } | null>(null);
-  const [connectionsNotInFocus, setConnectionsNotInFocus] = useState<number>(0);
+  const [_connectionsNotInFocus, setConnectionsNotInFocus] = useState<number>(0);
   const [_isChatActionBarVisible, setIsChatActionBarVisible] =
     useState<boolean>(false);
 
@@ -334,8 +333,6 @@ const Home = ({navigation, route}: Props) => {
                       </View>
                     )}
                   />
-                ) : connectionsNotInFocus > 0 ? (
-                  <NoChatsInHomePlaceholder />
                 ) : (
                   <HomescreenPlaceholder />
                 )}

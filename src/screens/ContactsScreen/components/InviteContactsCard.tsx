@@ -16,17 +16,16 @@ import {ToastType, useToast} from 'src/context/ToastContext';
 
 const InviteContactsCard = () => {
   const Colors = useColors();
-  const styles = styling(Colors);
   const navigation = useNavigation();
   const {showToast} = useToast();
 
   const onInviteClicked = async () => {
     const granted = await checkAndAskContactPermission();
     if (granted) {
-      navigation.push('PhoneContactList');
+      navigation.navigate('PhoneContactList');
     } else {
       showToast(
-        'Please allow access to your contacts in order to continue. This can be changed in your Settings.',
+        'To invite contacts, Port needs access to your contacts. You can enable this permission in your device settings.',
         ToastType.error,
       );
     }
@@ -38,18 +37,17 @@ const InviteContactsCard = () => {
         textColor={Colors.text.title}
         fontSizeType={FontSizeType.l}
         fontWeight={FontWeight.md}>
-        Your favourite people, just one invite away!
+        Invite your favourite people to Port!
       </NumberlessText>
       <NumberlessText
         textColor={Colors.text.subtitle}
         fontWeight={FontWeight.rg}
         fontSizeType={FontSizeType.m}>
-        Once someone accepts your invite, they will appear here as your Port
-        connections.
+        Create Ports for your favourite phone contacts and invite them to Port.
       </NumberlessText>
       <PrimaryButton
         theme={Colors.theme}
-        text="Invite now!"
+        text="Invite phone contacts"
         onClick={onInviteClicked}
         isLoading={false}
         disabled={false}
@@ -58,16 +56,11 @@ const InviteContactsCard = () => {
   );
 };
 
-const styling = (Colors: any) =>
-  StyleSheet.create({
+const styles = StyleSheet.create({
     gradientcard: {
-      borderRadius: 16,
-      borderWidth: 0.5,
-      borderColor: Colors.stroke,
       padding: Spacing.l,
       paddingVertical: Spacing.l,
       gap: Spacing.m,
-      backgroundColor: Colors.surface,
     },
   });
 

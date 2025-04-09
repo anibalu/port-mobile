@@ -9,7 +9,7 @@ import {
 
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Contacts from 'react-native-contacts';
-import { Contact, EmailAddress, PhoneNumber } from 'react-native-contacts/type';
+import {Contact, EmailAddress, PhoneNumber} from 'react-native-contacts/type';
 
 import {useColors} from '@components/colorGuide';
 import {GradientScreenView} from '@components/GradientScreenView';

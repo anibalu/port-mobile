@@ -1,0 +1,15 @@
+diff --git a/node_modules/react-native-contacts/index.ts b/node_modules/react-native-contacts/index.ts
+index 9f15471..0635c82 100644
+--- a/node_modules/react-native-contacts/index.ts
++++ b/node_modules/react-native-contacts/index.ts
+@@ -2,8 +2,8 @@ import { NativeModules } from "react-native";
+ import NativeContacts from "./src/NativeContacts";
+ import { Contact, PermissionType } from "./type";
+ 
+-const isTurboModuleEnabled = global.__turboModuleProxy != null;
+-const Contacts = isTurboModuleEnabled ? NativeContacts : NativeModules.Contacts;
++// Patched because we're on the new architecture
++const Contacts = NativeContacts!; 
+ 
+ async function getAll(): Promise<Contact[]> {
+   return Contacts.getAll();

@@ -1,17 +1,18 @@
-import {PortSpacing} from '@components/ComponentUtils';
+import PrimaryButton from '@components/Buttons/PrimaryButton';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
+import EditName from '@components/Reusable/BottomSheets/EditName';
 import ThemeBottomsheet from '@components/Reusable/BottomSheets/ThemeBottomsheet';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {SafeAreaView} from '@components/SafeAreaView';
 import GenericTitle from '@components/Text/GenericTitle';
+import { useColors } from '@components/colorGuide';
+import { Spacing } from '@components/spacingGuide';
 import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
 import {createSecureDataBackup} from '@utils/Backup/backupUtils';
@@ -43,7 +44,9 @@ const NewProfileScreen = () => {
     ThemeType.default,
   );
   const [openThemeBottomSheet, setOpenThemeBottomSheet] = useState(false);
-  const colors = DynamicColors();
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState<string>(processedName);
+  const colors = useColors()
   const styles = styling(colors);
 
   const {themeValue} = useTheme();
@@ -91,6 +94,11 @@ const NewProfileScreen = () => {
       light: require('@assets/light/icons/RoundPencil.svg').default,
       dark: require('@assets/dark/icons/RoundPencil.svg').default,
     },
+    {
+      assetName: 'Account',
+      light: require('@assets/light/icons/Profile/Account.svg').default,
+      dark: require('@assets/dark/icons/Profile/Account.svg').default,
+    },
   ];
   const results = useDynamicSVG(svgArray);
   const DefaultPermissions = results.DefaultPermissions;
@@ -100,6 +108,7 @@ const NewProfileScreen = () => {
   const Appearance = results.Appearance;
   const AngleRight = results.AngleRight;
   const RoundPencil = results.RoundPencil;
+  const Account = results.Account;
 
   async function onSavePicture(newProfilePicAttr: FileAttributes) {
     await setNewProfilePicture(newProfilePicAttr);
@@ -118,8 +127,8 @@ const NewProfileScreen = () => {
   }, [processedName]);
   return (
     <>
-      <CustomStatusBar backgroundColor={colors.primary.surface} />
-      <SafeAreaView>
+      <CustomStatusBar backgroundColor={colors.background} />
+      <SafeAreaView   backgroundColor={colors.background}>
         <GenericTitle title="New Profile" />
         <ScrollView contentContainerStyle={styles.profile}>
           <AvatarBox
@@ -127,27 +136,28 @@ const NewProfileScreen = () => {
             avatarSize="m"
             onPress={() => setOpenEditAvatarModal(true)}
           />
-          <View
+          <Pressable
+          onPress={() => setEditingName(true)}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              gap: PortSpacing.tertiary.uniform,
+              gap: Spacing.s,
             }}>
             <NumberlessText
               fontSizeType={FontSizeType.xl}
-              fontType={FontType.sb}
-              textColor={colors.text.primary}>
+              fontWeight={FontWeight.sb}
+              textColor={colors.text.title}>
               {processedName}
             </NumberlessText>
-            <RoundPencil width={20} height={20} />
-          </View>
+            <RoundPencil   width={20} height={20} />
+          </Pressable>
           <NumberlessText
             fontSizeType={FontSizeType.s}
-            fontType={FontType.rg}
+            fontWeight={FontWeight.rg}
             textColor={colors.text.subtitle}
             style={{
               textAlign: 'center',
-              marginTop: PortSpacing.tertiary.uniform,
+              marginTop: Spacing.s,
             }}>
             Your profile picture and name is end to end encrypted. Neither Port
             nor your connections ever see your data in an unencrypted state.
@@ -160,13 +170,13 @@ const NewProfileScreen = () => {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: PortSpacing.secondary.uniform,
+                gap:Spacing.l,
               }}>
               <DefaultPermissions />
               <NumberlessText
                 fontSizeType={FontSizeType.l}
-                fontType={FontType.md}
-                textColor={colors.text.primary}>
+                fontWeight={FontWeight.md}
+                textColor={colors.text.title}>
                 Default Permissions
               </NumberlessText>
             </View>
@@ -180,13 +190,13 @@ const NewProfileScreen = () => {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: PortSpacing.secondary.uniform,
+                gap:Spacing.l,
               }}>
               <Appearance />
               <NumberlessText
                 fontSizeType={FontSizeType.l}
-                fontType={FontType.md}
-                textColor={colors.text.primary}>
+                fontWeight={FontWeight.md}
+                textColor={colors.text.title}>
                 Appearance
               </NumberlessText>
             </View>
@@ -194,17 +204,17 @@ const NewProfileScreen = () => {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: PortSpacing.secondary.uniform,
+                gap:Spacing.l,
               }}>
               <NumberlessText
                 style={{
                   backgroundColor: colors.lowAccentColors.tealBlue,
-                  paddingHorizontal: PortSpacing.tertiary.uniform,
+                  paddingHorizontal: Spacing.s,
                   paddingVertical: 4,
                   borderRadius: 20,
                 }}
                 fontSizeType={FontSizeType.m}
-                fontType={FontType.md}
+                fontWeight={FontWeight.md}
                 textColor={colors.boldAccentColors.tealBlue}>
                 {selectedTheme}
               </NumberlessText>
@@ -217,13 +227,13 @@ const NewProfileScreen = () => {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: PortSpacing.secondary.uniform,
+                gap: Spacing.l,
               }}>
               <Backup />
               <NumberlessText
                 fontSizeType={FontSizeType.l}
-                fontType={FontType.md}
-                textColor={colors.text.primary}>
+                fontWeight={FontWeight.md}
+                textColor={colors.text.title}>
                 Backup
               </NumberlessText>
             </View>
@@ -237,13 +247,13 @@ const NewProfileScreen = () => {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: PortSpacing.secondary.uniform,
+                gap: Spacing.l,
               }}>
               <Blocked />
               <NumberlessText
                 fontSizeType={FontSizeType.l}
-                fontType={FontType.md}
-                textColor={colors.text.primary}>
+                fontWeight={FontWeight.md}
+                textColor={colors.text.title}>
                 Blocked Contacts
               </NumberlessText>
             </View>
@@ -257,14 +267,34 @@ const NewProfileScreen = () => {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: PortSpacing.secondary.uniform,
+                gap: Spacing.l,
               }}>
               <Legal />
               <NumberlessText
                 fontSizeType={FontSizeType.l}
-                fontType={FontType.md}
-                textColor={colors.text.primary}>
+                fontWeight={FontWeight.md}
+                textColor={colors.text.title}>
                 Legal
+              </NumberlessText>
+            </View>
+            <AngleRight />
+          </Pressable>
+          <View style={styles.line} />
+          <Pressable
+            onPress={() => navigation.push('AccountSettings')}
+            style={styles.row}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: Spacing.l,
+              }}>
+              <Account />
+              <NumberlessText
+                fontSizeType={FontSizeType.l}
+                fontWeight={FontWeight.md}
+                textColor={colors.text.title}>
+                Account settings
               </NumberlessText>
             </View>
             <AngleRight />
@@ -275,8 +305,8 @@ const NewProfileScreen = () => {
               disabled={false}
               isLoading={false}
               onClick={() => navigation.push('GiveUsFeedbackScreen')}
-              buttonText="Give us feedback"
-              primaryButtonColor={'p'}
+              text="Give us feedback"
+              theme={colors.theme}
             />
           </View>
           <EditAvatar
@@ -294,6 +324,16 @@ const NewProfileScreen = () => {
             setShowThemeBottomsheet={setOpenThemeBottomSheet}
             showThemeBottomsheet={openThemeBottomSheet}
           />
+
+        <EditName
+          title={'Edit your name'}
+          visible={editingName}
+          name={newName}
+          setName={setNewName}
+          onClose={() => {
+            setEditingName(false);
+          }}
+        />
         </ScrollView>
       </SafeAreaView>
     </>
@@ -303,34 +343,30 @@ const NewProfileScreen = () => {
 const styling = (colors: any) =>
   StyleSheet.create({
     profile: {
-      backgroundColor: colors.primary.surface,
+      backgroundColor: colors.background,
       flexDirection: 'column',
       alignItems: 'center',
-      paddingVertical: PortSpacing.secondary.bottom,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      borderTopColor: colors.primary.stroke,
-      borderTopWidth: 0.5,
+      paddingVertical: Spacing.l,
+      paddingHorizontal:  Spacing.l,
       flex: 1,
     },
     bottomContainer: {
       flexDirection: 'column',
       alignItems: 'center',
       width: '100%',
-      position: 'absolute',
-      bottom: PortSpacing.primary.uniform,
     },
     row: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       width: '100%',
-      marginTop: PortSpacing.secondary.uniform,
+      marginTop: Spacing.l
     },
     line: {
-      borderBottomColor: colors.primary.stroke,
+      borderBottomColor: colors.stroke,
       borderBottomWidth: 0.5,
       width: '100%',
-      marginTop: PortSpacing.tertiary.uniform,
+      marginTop:Spacing.s,
     },
   });
 

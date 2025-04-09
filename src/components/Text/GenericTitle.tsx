@@ -33,7 +33,7 @@ const styling = (Colors: any) =>
       paddingHorizontal: PortSpacing.secondary.uniform,
       height: 64,
       justifyContent: 'center',
-      backgroundColor: Colors.primary.surface,
+      backgroundColor: Colors.primary.background,
     },
   });
 

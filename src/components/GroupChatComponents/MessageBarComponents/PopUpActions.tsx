@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
-import * as DocumentPicker from '@react-native-documents/picker';
 import {useNavigation} from '@react-navigation/native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import Animated, {
@@ -11,7 +10,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import {isIOS} from '@components/ComponentUtils';
+
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
@@ -19,11 +18,10 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 
+import {selectFiles} from '@utils/Files';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-
-
 
 const PopUpActions = ({
   togglePopUp,
@@ -162,41 +160,13 @@ const PopUpActions = ({
   // file pressed
   const onFilePressed = async (): Promise<void> => {
     try {
-      // open files
-      const selected: DocumentPicker.DocumentPickerResponse[] = await DocumentPicker.pick({
-        type: [
-          DocumentPicker.types.audio,
-          DocumentPicker.types.csv,
-          DocumentPicker.types.doc,
-          DocumentPicker.types.docx,
-          DocumentPicker.types.pdf,
-          DocumentPicker.types.ppt,
-          DocumentPicker.types.pptx,
-          DocumentPicker.types.xls,
-          DocumentPicker.types.xlsx,
-          DocumentPicker.types.zip,
-        ],
-        //We need to copy documents to a directory locally before sharing on newer Android.
-        ...(!isIOS && {copyTo: 'cachesDirectory'}),
-      });
-      const fileList = [];
-      for (let index = 0; index < selected.length; index++) {
-        const file: FileAttributes = {
-          //file path has encoded characters. However, the resource is only accessible after decoding file path.
-          //android uses fileCopyUri, ios uses uri.
-          fileUri: decodeURIComponent(
-            selected[index].fileCopyUri || selected[index].uri,
-          ),
-          fileType: selected[index].type || '',
-          fileName: selected[index].name || '',
-        };
-        //file is sent
-        const msg = {
+      // Select files and transform them to the appropriate shape
+      const fileList = (await selectFiles()).map(data => {
+        return {
           contentType: ContentType.file,
-          data: {...file},
+          data,
         };
-        fileList.push(msg);
-      }
+      });
       //send file message
       goToConfirmation(fileList);
     } catch (error) {

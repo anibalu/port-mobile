@@ -1,10 +1,8 @@
-import * as DocumentPicker from '@react-native-documents/picker';
 import Papa from 'papaparse';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 
-import {isIOS} from '@components/ComponentUtils';
-
+import {selectFiles} from '@utils/Files';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
 import {fetchNewPorts} from '@utils/Ports';
@@ -22,10 +20,10 @@ import {ProfileInfo} from '@utils/Storage/RNSecure/secureProfileHandler';
 import {addSuperport, getAllSuperports} from '@utils/Storage/superPorts';
 import {generateISOTimeStamp} from '@utils/Time';
 
+
 import {addCryptoEntry, getAllCryptoData} from '../Storage/crypto';
 import {addPermissionEntry, getAllPermissions} from '../Storage/permissions';
 import {getProfileInfo, saveProfileInfo} from '../Storage/profile';
-
 
 const BACKUP_VERSION = '20240412'; // Write as date to guesstimate when the backup code was written
 const sectionSplitMagic = '\n<---SECTION SPLIT--->\n'; // TODO Debt: need to account for and escape this sequence across sections
@@ -313,19 +311,14 @@ export async function readSecureDataBackup(
   onFailure: () => any,
 ) {
   try {
-    const selections: DocumentPicker.DocumentPickerResponse[] =
-      await DocumentPicker.pick({
-        type: [DocumentPicker.types.plainText],
-        //We need to copy documents to a directory locally before sharing on newer Android.
-        ...(!isIOS && {copyTo: 'cachesDirectory'}),
-      });
+    const selections = await selectFiles();
     const selected = selections[0];
     if (!selected) {
       console.warn('[BACKUP] no file selected');
       onFailure();
       return;
     }
-    const path = selected.fileCopyUri ? selected.fileCopyUri : selected.uri;
+    const path = selected.fileUri;
 
     let backup: string | null;
     try {

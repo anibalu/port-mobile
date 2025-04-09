@@ -1,0 +1,30 @@
+name: 'Auto-label bug category'
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Check out repository'
+        uses: actions/checkout@v2
+
+      - name: 'Set up GitHub CLI'
+        uses: cli/cli@v2
+
+      - name: 'Add category label based on issue form'
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          echo "Processing issue #${ISSUE_NUMBER}"
+          if echo "$ISSUE_BODY" | grep -q "UI mismatch"; then
+            gh issue edit ${ISSUE_NUMBER} --add-label "UI mismatch"
+          elif echo "$ISSUE_BODY" | grep -q "UI Broken"; then
+            gh issue edit ${ISSUE_NUMBER} --add-label "UI Broken"
+          elif echo "$ISSUE_BODY" | grep -q "Flow broken"; then
+            gh issue edit ${ISSUE_NUMBER} --add-label "Flow broken"
+          else
+            echo "No matching category found."
+          fi

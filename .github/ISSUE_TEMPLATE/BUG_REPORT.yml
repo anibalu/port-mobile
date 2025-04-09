@@ -1,0 +1,70 @@
+name: 'Bug Report'
+description: Create a new ticket for a bug.
+title: '[BUG] - <title>'
+labels: ['bug']
+body:
+  - type: dropdown
+    id: bug_category
+    attributes:
+      label: 'Bug Category'
+      description: |
+        Select the category of the bug
+        - **UI mismatch:** Includes instances of deviation from Figma designs.
+        - **UI Broken:** Includes poor aesthetics due to padding issues, wrong colors/assets, etc.
+        - **Flow broken:** Includes instances where a feature or flow is impossible to achieve.
+      options:
+        - UI mismatch
+        - UI Broken
+        - Flow broken
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 'Description'
+      description: Please enter an explicit description of your issue
+      placeholder: Short and explicit description of your incident...
+    validations:
+      required: true
+  - type: textarea
+    id: reprod
+    attributes:
+      label: 'Reproduction steps'
+      description: Please enter an explicit description of your issue
+      value: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+      render: bash
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: 'Screenshots'
+      description: If applicable, add screenshots to help explain your problem.
+      value: |
+        ![DESCRIPTION](LINK.png)
+      render: bash
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: 'Logs'
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+    validations:
+      required: false
+  - type: dropdown
+    id: os
+    attributes:
+      label: 'OS'
+      description: What is the impacted environment?
+      multiple: true
+      options:
+        - iOS
+        - Android
+        - Both
+    validations:
+      required: false

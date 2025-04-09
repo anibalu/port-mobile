@@ -3,15 +3,18 @@
  * the user to enter a new nickname to update the user's
  * profile
  */
-import {updateProfileName} from '@utils/Profile';
 import React, {ReactNode, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {PortColors, screen} from './ComponentUtils';
-import GenericInput from './GenericInput';
+
+import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
 
 import DirectChat from '@utils/DirectChats/DirectChat';
+import {updateProfileName} from '@utils/Profile';
+
+import {PortColors, screen} from './ComponentUtils';
+import GenericInput from './GenericInput';
 import {SaveButton} from './SaveButton';
-import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
+
 
 interface updateNameProps {
   setUpdated: (x: boolean) => void;

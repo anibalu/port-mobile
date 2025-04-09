@@ -1,9 +1,6 @@
 /**
  * This screen manages an ongoing call.
  */
-import {PortSpacing, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useEffect, useMemo, useReducer, useState} from 'react';
 import {
   BackHandler,
@@ -13,46 +10,59 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import WorkQueue from '@utils/WorkQueue';
-import {generateISOTimeStamp} from '@utils/Time';
-import Signaller from '@utils/Calls/Signaller';
-import {CallWorkItem, CoordinatorWorkItem} from '@utils/Calls/CallWorkQueue';
-import {
-  CallEvents,
-  PeerConnectionManager,
-} from '@utils/Calls/PeerConnectionManager';
-import {MediaStreamManager} from '@utils/Calls/MediaStreamManager';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {MediaStream} from 'react-native-webrtc';
-import {DEFAULT_AVATAR, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
-import {CallEndReason} from '@utils/Calls/CallOSBridge';
-import CallingTopBar from './Components/CallingTopBar';
-import OutputOptionsModal from './Components/OutputOptionsModal';
-import {useSelector} from 'react-redux';
-import {SvgProps} from 'react-native-svg';
-import MicrophoneOff from '@assets/dark/icons/MicOff.svg';
-import MicrophoneOn from '@assets/dark/icons/MicOn.svg';
-import SpeakerOn from '@assets/dark/icons/SpeakerOn.svg';
-import SpeakerOff from '@assets/dark/icons/SpeakerOff.svg';
-import Bluetooth from '@assets/dark/icons/Bluetooth.svg';
-import VideoOn from '@assets/dark/icons/VideoOn.svg';
-import VideoOff from '@assets/dark/icons/VideoOff.svg';
-import ViewSwitch from '@assets/dark/icons/ViewSwitch.svg';
-import EndCall from '@assets/dark/icons/EndCall.svg';
-import {PeerStream, PeerVideoSize} from './Components/PeerStream';
-import {MyStream, MyVideoSize} from './Components/MyStream';
+
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import RNCallKeep, {AudioRoute} from 'react-native-callkeep';
-import {useCallContext} from './CallContext';
+import {PERMISSIONS, check} from 'react-native-permissions';
+import {SvgProps} from 'react-native-svg';
+import {MediaStream} from 'react-native-webrtc';
+import {useSelector} from 'react-redux';
+
+import {PortSpacing, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
+
+import {DEFAULT_AVATAR, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
+import {CallEndReason} from '@utils/Calls/CallOSBridge';
+import {CallWorkItem, CoordinatorWorkItem} from '@utils/Calls/CallWorkQueue';
+import {MediaStreamManager} from '@utils/Calls/MediaStreamManager';
+import {
+  CallEvents,
+  PeerConnectionManager,
+} from '@utils/Calls/PeerConnectionManager';
+import Signaller from '@utils/Calls/Signaller';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {generateISOTimeStamp} from '@utils/Time';
+import WorkQueue from '@utils/WorkQueue';
+
+import Bluetooth from '@assets/dark/icons/Bluetooth.svg';
+import EndCall from '@assets/dark/icons/EndCall.svg';
+import MicrophoneOff from '@assets/dark/icons/MicOff.svg';
+import MicrophoneOn from '@assets/dark/icons/MicOn.svg';
+import SpeakerOff from '@assets/dark/icons/SpeakerOff.svg';
+import SpeakerOn from '@assets/dark/icons/SpeakerOn.svg';
+import VideoOff from '@assets/dark/icons/VideoOff.svg';
+import VideoOn from '@assets/dark/icons/VideoOn.svg';
+import ViewSwitch from '@assets/dark/icons/ViewSwitch.svg';
 import CloseWhite from '@assets/icons/closeWhite.svg';
-import {check, PERMISSIONS} from 'react-native-permissions';
+
+import {useCallContext} from './CallContext';
+import CallingTopBar from './Components/CallingTopBar';
+import {MyStream, MyVideoSize} from './Components/MyStream';
+import OutputOptionsModal from './Components/OutputOptionsModal';
+import {PeerStream, PeerVideoSize} from './Components/PeerStream';
+
+
+
 
 type Props = NativeStackScreenProps<AppStackParamList, 'OngoingCall'>;
 

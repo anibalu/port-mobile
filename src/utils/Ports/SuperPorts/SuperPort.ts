@@ -1,10 +1,13 @@
+import {defaultFolderId} from '@configs/constants';
+
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import * as storage from '@utils/Storage/superPorts';
+
 import SuperPortGenerator from './SuperPortGenerator/SuperPortGenerator';
 import SuperPortGenerator_1_0_0 from './SuperPortGenerator/Versions/SuperPortGenerator_1_0_0';
-import * as storage from '@utils/Storage/superPorts';
-import SuperPortReader_1_0_0 from './SuperPortReader/Versions/SuperPortReader_1_0_0';
 import SuperPortReader from './SuperPortReader/SuperPortReader';
-import {defaultFolderId} from '@configs/constants';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import SuperPortReader_1_0_0 from './SuperPortReader/Versions/SuperPortReader_1_0_0';
+
 
 /**
  * SuperPort namespace for handling superport connections.

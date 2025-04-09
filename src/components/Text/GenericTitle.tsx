@@ -1,3 +1,6 @@
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -5,8 +8,6 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
 
 /**
  * Generic Title component

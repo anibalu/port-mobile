@@ -1,4 +1,9 @@
+import React from 'react';
+import {View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import getPermissionIcon from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontType,
@@ -6,23 +11,21 @@ import {
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
-import React from 'react';
-import {View} from 'react-native';
-import {updatePermissions} from '@utils/Storage/permissions';
-import {
-  BooleanPermissions,
-  PermissionsStrict,
-} from '@utils/Storage/DBCalls/permissions/interfaces';
-import DynamicColors from '@components/DynamicColors';
-import getPermissionIcon from '@components/getPermissionIcon';
-import {useTheme} from 'src/context/ThemeContext';
+
+import {modifyCallPermission} from '@utils/Calls/APICalls';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 import {
   pauseContactPortForDirectChat,
   resumeContactPortForDirectChat,
 } from '@utils/Ports/contactport';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {modifyCallPermission} from '@utils/Calls/APICalls';
-import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
+import {
+  BooleanPermissions,
+  PermissionsStrict,
+} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {updatePermissions} from '@utils/Storage/permissions';
+
+import {useTheme} from 'src/context/ThemeContext';
 
 const ContactSettingsCard = ({
   permissionsId,

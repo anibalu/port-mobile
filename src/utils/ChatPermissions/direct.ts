@@ -1,9 +1,11 @@
 import {defaultPermissions} from '@configs/constants';
+
+import DirectChat from '@utils/DirectChats/DirectChat';
+
 import {
   DirectPermissions,
   Permissions,
 } from '../Storage/DBCalls/permissions/interfaces';
-import DirectChat from '@utils/DirectChats/DirectChat';
 
 /**
  * Default permissions for direct chats

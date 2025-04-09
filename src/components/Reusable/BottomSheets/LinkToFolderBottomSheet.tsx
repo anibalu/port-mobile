@@ -1,4 +1,8 @@
+import React, {useEffect, useRef} from 'react';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -8,14 +12,15 @@ import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomS
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import React, {useEffect, useRef} from 'react';
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import DynamicColors from '@components/DynamicColors';
-import {updateGeneratedSuperportFolder} from '@utils/Ports';
+
 import {safeModalCloseDuration} from '@configs/constants';
-import {ToastType, useToast} from 'src/context/ToastContext';
+
+import {updateGeneratedSuperportFolder} from '@utils/Ports';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+
 import AddCircle from '@assets/icons/bluePlusWithCircle.svg';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 /**
  * LinkToFolderBottomSheet

@@ -1,18 +1,20 @@
-import {PortSpacing, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {SafeAreaView} from '@components/SafeAreaView';
 import React from 'react';
 import {Linking, Pressable, StyleSheet, View} from 'react-native';
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+
 import {useNavigation} from '@react-navigation/native';
 
+import {PortSpacing, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 // TODO: Why is the legal screen labeled HelpScreen

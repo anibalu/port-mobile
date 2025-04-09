@@ -1,5 +1,3 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   AppState,
@@ -10,48 +8,59 @@ import {
   View,
 } from 'react-native';
 
-import {DEFAULT_AVATAR} from '@configs/constants';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-//import store from '@store/appStore';
-import {toggleRead} from '@utils/Storage/connections';
-import store from '@store/appStore';
-import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {getLatestMessages} from '@utils/Storage/messages';
-import {isIOS, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import RichReactionsBottomsheet from '@components/Reusable/BottomSheets/RichReactionsBottomsheet';
-import ChatTopbar from '@screens/Chat/ChatTopbar';
-import ChatList from './ChatList';
-import {MessageActionsBar} from '@screens/Chat/MessageActionsBar';
-import MessageBar from '@screens/Chat/MessageBar';
-import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
-import Disconnected from '@screens/Chat/Disconnected';
-import {AudioPlayerProvider} from 'src/context/AudioPlayerContext';
-import {ChatContextProvider, useChatContext} from './ChatContext';
-import BlurViewModal from '@components/Reusable/BlurView/BlurView';
-import DualActionBottomSheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
-import ReportMessageBottomSheet from '@components/Reusable/BottomSheets/ReportMessageBottomSheet';
-import DynamicColors from '@components/DynamicColors';
-import {TemplateParams} from '@utils/Storage/DBCalls/templates';
-import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
-import {useTheme} from 'src/context/ThemeContext';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
   runOnJS,
   useAnimatedReaction,
   useSharedValue,
 } from 'react-native-reanimated';
-import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
-import {TRIGGER_TYPES} from '@store/triggerRedraw';
 import {useSelector} from 'react-redux';
+
+import {isIOS, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
+import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
+import BlurViewModal from '@components/Reusable/BlurView/BlurView';
+import DualActionBottomSheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
+import ReportMessageBottomSheet from '@components/Reusable/BottomSheets/ReportMessageBottomSheet';
+import RichReactionsBottomsheet from '@components/Reusable/BottomSheets/RichReactionsBottomsheet';
+
+import {DEFAULT_AVATAR} from '@configs/constants';
 import {messageReportCategories} from '@configs/reportingCategories';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
+//import store from '@store/appStore';
+import ChatTopbar from '@screens/Chat/ChatTopbar';
+import Disconnected from '@screens/Chat/Disconnected';
+import {MessageActionsBar} from '@screens/Chat/MessageActionsBar';
+import MessageBar from '@screens/Chat/MessageBar';
+
+import store from '@store/appStore';
+import {TRIGGER_TYPES} from '@store/triggerRedraw';
+
+import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
+import {toggleRead} from '@utils/Storage/connections';
+import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {TemplateParams} from '@utils/Storage/DBCalls/templates';
+import {getLatestMessages} from '@utils/Storage/messages';
+import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
+
+import {AudioPlayerProvider} from 'src/context/AudioPlayerContext';
+import {useTheme} from 'src/context/ThemeContext';
+
+import {ChatContextProvider, useChatContext} from './ChatContext';
+import {MessageBarActionsContextProvider} from './ChatContexts/MessageBarActions';
 import {
   MessageSelectionMode,
   SelectionContextProvider,
   useSelectionContext,
 } from './ChatContexts/SelectedMessages';
-import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {MessageBarActionsContextProvider} from './ChatContexts/MessageBarActions';
+import ChatList from './ChatList';
+
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DirectChat'>;
 

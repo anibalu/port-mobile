@@ -11,18 +11,23 @@
 
 import React, {useMemo, useState} from 'react';
 import {Keyboard, StyleSheet, View} from 'react-native';
-import SimpleInput from '../Inputs/SimpleInput';
-import PrimaryButton from '../LongButtons/PrimaryButton';
+
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
+
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
+
+import SimpleInput from '../Inputs/SimpleInput';
+import PrimaryButton from '../LongButtons/PrimaryButton';
+
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+
 
 const UsageLimitsBottomSheet = ({
   visible,

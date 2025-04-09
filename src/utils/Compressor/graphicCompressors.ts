@@ -1,7 +1,9 @@
-import {FILE_COMPRESSION_THRESHOLD} from '@configs/constants';
-import {moveToTmp} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {Image, Video} from 'react-native-compressor';
 import RNFS from 'react-native-fs';
+
+import {FILE_COMPRESSION_THRESHOLD} from '@configs/constants';
+
+import {moveToTmp} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 /**
  * Checks if a file is over the compression threshold to trigger compression

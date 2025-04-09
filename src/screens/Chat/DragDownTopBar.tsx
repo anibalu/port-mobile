@@ -1,25 +1,29 @@
-import React, {useMemo, forwardRef, useImperativeHandle} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {forwardRef, useImperativeHandle, useMemo} from 'react';
+import {StyleSheet, View} from 'react-native';
+
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import Animated, {
   SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
+
 import {screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import {useTheme} from 'src/context/ThemeContext';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import PermissionIcons from '@components/PermissionIcons';
-import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
 import ContactSettingsCard from '@components/Reusable/PermissionCards/ContactSettingsCard';
 import NewChatSettingsCard from '@components/Reusable/PermissionCards/NewChatSettingsCard';
+
+import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {useTheme} from 'src/context/ThemeContext';
 
 /**
  * Access slider constants

@@ -1,16 +1,19 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
+
 import QRCode from 'react-native-qrcode-svg';
-import {jsonToUrl} from '@utils/JsonToUrl';
+
 import {useThemeColors} from '@components/colorGuide';
-import {Spacing, Width} from '@components/spacingGuide';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import useSVG from '@components/svgGuide';
 import {
-  NumberlessText,
-  FontWeight,
   FontSizeType,
+  FontWeight,
+  NumberlessText,
 } from '@components/NumberlessText';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import {Spacing, Width} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
+
+import {jsonToUrl} from '@utils/JsonToUrl';
 
 /**
  * Component to display a QR code with a profile picture that can be exported.

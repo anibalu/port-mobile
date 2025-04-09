@@ -1,21 +1,27 @@
+import React, {useEffect, useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+
+
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {DEFAULT_NAME} from '@configs/constants';
-import React, {useEffect, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import {MAX_WIDTH_CONTENT, RenderTimeStamp} from '../BubbleUtils';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import {useNavigation} from '@react-navigation/native';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import {approveContactShareOnce} from '@utils/ContactSharing';
 
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {DEFAULT_NAME} from '@configs/constants';
+
+import {useChatContext} from '@screens/DirectChat/ChatContext';
+
+import {approveContactShareOnce} from '@utils/ContactSharing';
+import DirectChat from '@utils/DirectChats/DirectChat';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {MAX_WIDTH_CONTENT, RenderTimeStamp} from '../BubbleUtils';
 
 const ContactRequestBubble = ({message}: {message: LoadedMessage}) => {
   const [destination, setDestination] = useState(DEFAULT_NAME);

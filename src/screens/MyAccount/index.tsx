@@ -1,17 +1,21 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {SafeAreaView} from '@components/SafeAreaView';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AccountSettings'>;

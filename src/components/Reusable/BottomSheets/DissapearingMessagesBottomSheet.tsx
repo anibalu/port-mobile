@@ -1,16 +1,20 @@
+import React from 'react';
+import {FlatList, StyleSheet, View} from 'react-native';
+
+import {useColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import OptionWithRadio from '@components/Options/OptionWithRadio';
+import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import LineSeparator from '@components/Separators/LineSeparator';
-import React from 'react';
-import {disappearDuration, disappearOptions} from '@utils/Time/interfaces';
-import {FlatList, StyleSheet, View} from 'react-native';
-import {useColors} from '@components/colorGuide';
 import {Spacing,Width} from '@components/spacingGuide';
+
+import {disappearDuration, disappearOptions} from '@utils/Time/interfaces';
+
+
 
 const DissapearingMessagesBottomsheet = ({
   setShowDissappearingMessageModal,

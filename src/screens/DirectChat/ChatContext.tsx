@@ -1,20 +1,24 @@
+import React, {createContext, useContext, useMemo, useState} from 'react';
+
+import Clipboard from '@react-native-clipboard/clipboard';
+import {useNavigation} from '@react-navigation/native';
+
 import {SELECTED_MESSAGES_LIMIT} from '@configs/constants';
+
 import {
   ContentType,
   LargeDataParams,
   LinkParams,
   TextParams,
 } from '@utils/Messaging/interfaces';
-import React, {createContext, useState, useContext, useMemo} from 'react';
-import Clipboard from '@react-native-clipboard/clipboard';
-import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
-import {getRichReactions} from '@utils/Storage/reactions';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {useNavigation} from '@react-navigation/native';
 import {
   LineMessageData,
   LoadedMessage,
 } from '@utils/Storage/DBCalls/lineMessage';
+import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
+import {getRichReactions} from '@utils/Storage/reactions';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
 
 export interface SelectedMessageType {

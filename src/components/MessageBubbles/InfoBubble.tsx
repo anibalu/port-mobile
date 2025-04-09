@@ -1,15 +1,19 @@
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {ContentType, InfoParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {DisappearingMessageInfoBubble} from './ContentBubbles/DisappearingMessageInfoBubble';
-import DynamicColors from '@components/DynamicColors';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
+
+import {DisappearingMessageInfoBubble} from './ContentBubbles/DisappearingMessageInfoBubble';
+
 
 export const InfoBubble = ({message}: {message: LoadedMessage}): ReactNode => {
   const Colors = DynamicColors();

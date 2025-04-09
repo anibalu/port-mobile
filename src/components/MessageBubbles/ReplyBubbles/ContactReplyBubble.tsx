@@ -1,20 +1,24 @@
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {ContactBundleParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
+
 import {
   MAX_WIDTH_REPLY,
   MIN_WIDTH_REPLY,
   REPLY_MEDIA_HEIGHT,
   REPLY_MEDIA_WIDTH,
 } from '../BubbleUtils';
-import DynamicColors from '@components/DynamicColors';
-import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
+
 
 /**
  * @param message, message object

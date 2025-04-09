@@ -1,12 +1,16 @@
-import CrossIcon from '@assets/icons/BlackCross.svg';
+import React from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+
+import CrossIcon from '@assets/icons/BlackCross.svg';
+
 import {screen} from '../ComponentUtils';
+
 import GenericModal from './GenericModal';
 import GenericModalTopBar from './GenericModalTopBar';
 

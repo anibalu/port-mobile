@@ -1,9 +1,10 @@
 // in case of receiving contact bundle response
 
+import {relayContactBundle} from '@utils/ContactSharing';
 import {ContactBundleResponseParams} from '@utils/Messaging/interfaces';
+
 import DirectReceiveAction from '../DirectReceiveAction';
 
-import {relayContactBundle} from '@utils/ContactSharing';
 
 class ReceiveContactBundleResponse extends DirectReceiveAction {
   generatePreviewText(): string {

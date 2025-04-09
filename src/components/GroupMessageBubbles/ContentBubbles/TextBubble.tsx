@@ -1,22 +1,26 @@
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessLinkText,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {TextParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {
-  hasOnlyEmojis,
-  getEmojiSize,
-  RenderTimeStamp,
-  TIME_STAMP_TEXT_PADDING_SENDER,
-  TIME_STAMP_TEXT_PADDING_RECEIVER,
-} from '../BubbleUtils';
-import DynamicColors from '@components/DynamicColors';
-import {useTheme} from 'src/context/ThemeContext';
 import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
+
+import {useTheme} from 'src/context/ThemeContext';
+
+import {
+  RenderTimeStamp,
+  TIME_STAMP_TEXT_PADDING_RECEIVER,
+  TIME_STAMP_TEXT_PADDING_SENDER,
+  getEmojiSize,
+  hasOnlyEmojis,
+} from '../BubbleUtils';
 
 export const TextBubble = ({
   message,

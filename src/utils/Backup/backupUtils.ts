@@ -1,27 +1,31 @@
+import * as DocumentPicker from '@react-native-documents/picker';
+import Papa from 'papaparse';
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
+
 import {isIOS} from '@components/ComponentUtils';
-import {addConnection, getConnections} from '@utils/Storage/connections';
+
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
 import {fetchNewPorts} from '@utils/Ports';
 import {updateBackupTime} from '@utils/Profile';
-import {ProfileInfo} from '@utils/Storage/RNSecure/secureProfileHandler';
+import {blockUser, getAllBlockedUsers} from '@utils/Storage/blockUsers';
+import {addConnection, getConnections} from '@utils/Storage/connections';
+import {addContactPort, getAllContactPorts} from '@utils/Storage/contactPorts';
+import {addContact, getContacts} from '@utils/Storage/contacts';
+import {GroupMemberEntry} from '@utils/Storage/DBCalls/groupMembers';
+import {addFolderEntry, getAllFolders} from '@utils/Storage/folders';
+import {addGroup, getAllGroups} from '@utils/Storage/group';
+import {getAllGroupMembers, newMember} from '@utils/Storage/groupMembers';
 import {addLine, getLines} from '@utils/Storage/lines';
+import {ProfileInfo} from '@utils/Storage/RNSecure/secureProfileHandler';
+import {addSuperport, getAllSuperports} from '@utils/Storage/superPorts';
 import {generateISOTimeStamp} from '@utils/Time';
-import Papa from 'papaparse';
-import * as DocumentPicker from '@react-native-documents/picker';
-import RNFS from 'react-native-fs';
-import Share from 'react-native-share';
+
 import {addCryptoEntry, getAllCryptoData} from '../Storage/crypto';
 import {addPermissionEntry, getAllPermissions} from '../Storage/permissions';
 import {getProfileInfo, saveProfileInfo} from '../Storage/profile';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {addFolderEntry, getAllFolders} from '@utils/Storage/folders';
-import {blockUser, getAllBlockedUsers} from '@utils/Storage/blockUsers';
-import {addSuperport, getAllSuperports} from '@utils/Storage/superPorts';
-import {addContact, getContacts} from '@utils/Storage/contacts';
-import {addContactPort, getAllContactPorts} from '@utils/Storage/contactPorts';
-import {addGroup, getAllGroups} from '@utils/Storage/group';
-import {getAllGroupMembers, newMember} from '@utils/Storage/groupMembers';
-import {GroupMemberEntry} from '@utils/Storage/DBCalls/groupMembers';
+
 
 const BACKUP_VERSION = '20240412'; // Write as date to guesstimate when the backup code was written
 const sectionSplitMagic = '\n<---SECTION SPLIT--->\n'; // TODO Debt: need to account for and escape this sequence across sections

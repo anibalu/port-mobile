@@ -1,12 +1,16 @@
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {ContentType} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
+
 import AudioBubble from './ContentBubbles/AudioBubble';
 import {DeletedBubble} from './ContentBubbles/DeletedBubble';
 import {FileBubble} from './ContentBubbles/FileBubble';
@@ -14,7 +18,6 @@ import {ImageBubble} from './ContentBubbles/ImageBubble';
 import {LinkPreviewBubble} from './ContentBubbles/LinkPreviewBubble';
 import {TextBubble} from './ContentBubbles/TextBubble';
 import {VideoBubble} from './ContentBubbles/VideoBubble';
-import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
 /**
  * Extend supported content types to support more types of content bubbles.
  */

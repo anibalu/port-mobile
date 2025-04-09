@@ -1,9 +1,11 @@
+import axios from 'axios';
+
 import {
   GROUP_PICTURE_RESOURCE,
   LARGE_FILE_PRESIGNED_URL_RESOURCE,
 } from '@configs/api';
+
 import {getToken} from '@utils/ServerAuth';
-import axios from 'axios';
 
 /**
  * Asynchronously retrieves a presigned URL for downloading a large file based on its media ID.

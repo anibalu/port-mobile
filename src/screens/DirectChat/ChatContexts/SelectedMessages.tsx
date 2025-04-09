@@ -2,8 +2,9 @@
  * This context tracking of selected messages
  */
 
-import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 import React, {createContext, useContext, useState} from 'react';
+
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
 export enum MessageSelectionMode {
   Single,

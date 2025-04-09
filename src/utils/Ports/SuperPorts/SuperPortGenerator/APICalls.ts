@@ -1,11 +1,13 @@
+import axios from 'axios';
+
 import {
   LINE_SUPERPORT_CREATION_DELETION,
   LINE_SUPERPORT_LIMIT_MODIFICATION,
   LINE_SUPERPORT_PAUSE,
   LINE_SUPERPORT_RESUME,
 } from '@configs/api';
+
 import {getToken} from '@utils/ServerAuth';
-import axios from 'axios';
 
 /**
  * Fetches a new direct superport.

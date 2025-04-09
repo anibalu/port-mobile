@@ -1,6 +1,6 @@
 import React from 'react';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -8,8 +8,12 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryButton from '../LongButtons/PrimaryButton';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import PrimaryButton from '../LongButtons/PrimaryButton';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 interface FavouriteFolderProps {
   onClose: () => void;

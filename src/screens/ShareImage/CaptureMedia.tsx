@@ -1,13 +1,17 @@
 /**
  * QR scanner used in the App.
  */
-import CameraButton from '@assets/icons/CameraButton.svg';
-import CameraReverse from '@assets/icons/CameraReverse.svg';
-import TorchOff from '@assets/icons/TorchOff.svg';
-import TorchOn from '@assets/icons/TorchOn.svg';
-import VideoRecord from '@assets/icons/VideoRecord.svg';
-import Gallery from '@assets/icons/WhiteGallery.svg';
-import CloseWhite from '@assets/icons/closeWhite.svg';
+import React, {useEffect, useRef, useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {Asset, launchImageLibrary} from 'react-native-image-picker';
+import {
+  Camera,
+  useCameraDevice,
+  useMicrophonePermission,
+} from 'react-native-vision-camera';
+
 import {
   PortColors,
   PortSpacing,
@@ -22,21 +26,23 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
+
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
 import {checkCameraPermission} from '@utils/AppPermissions';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {getEpochTime} from '@utils/Time';
-import React, {useEffect, useRef, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import {Asset, launchImageLibrary} from 'react-native-image-picker';
-import {
-  Camera,
-  useCameraDevice,
-  useMicrophonePermission,
-} from 'react-native-vision-camera';
+
+import CameraButton from '@assets/icons/CameraButton.svg';
+import CameraReverse from '@assets/icons/CameraReverse.svg';
+import CloseWhite from '@assets/icons/closeWhite.svg';
+import TorchOff from '@assets/icons/TorchOff.svg';
+import TorchOn from '@assets/icons/TorchOn.svg';
+import VideoRecord from '@assets/icons/VideoRecord.svg';
+import Gallery from '@assets/icons/WhiteGallery.svg';
+
 import {imageRegex} from 'src/context/ConnectionModalContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CaptureMedia'>;

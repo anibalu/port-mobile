@@ -1,4 +1,5 @@
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
+
 import {runSimpleQuery, toBool, toNumber} from './dbCommon';
 
 export enum ChatType {

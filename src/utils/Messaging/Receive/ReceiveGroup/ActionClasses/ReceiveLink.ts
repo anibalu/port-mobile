@@ -1,17 +1,19 @@
+import {getChatPermissions} from '@utils/ChatPermissions';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {LinkParams, MessageStatus} from '@utils/Messaging/interfaces';
 import {displaySimpleNotification} from '@utils/Notifications';
-import {getChatPermissions} from '@utils/ChatPermissions';
-import GroupReceiveAction from '../GroupReceiveAction';
-import {handleAsyncLinkDownload} from '../HandleLinkDownload';
-import {
-  ChatType,
-  NewMessageCountAction,
-} from '@utils/Storage/DBCalls/connections';
 import {
   getConnection,
   updateConnectionOnNewMessage,
 } from '@utils/Storage/connections';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {
+  ChatType,
+  NewMessageCountAction,
+} from '@utils/Storage/DBCalls/connections';
+
+import GroupReceiveAction from '../GroupReceiveAction';
+import {handleAsyncLinkDownload} from '../HandleLinkDownload';
+
 
 class ReceiveLink extends GroupReceiveAction {
   generatePreviewText(): string {

@@ -1,4 +1,9 @@
+import React, {useState} from 'react';
+import {View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import getPermissionIcon from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontType,
@@ -7,20 +12,20 @@ import {
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
 import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
-import {getLabelByTimeDiff} from '@utils/Time';
+
+import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
   BooleanPermissions,
   PermissionsStrict,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
 import {updatePermissions} from '@utils/Storage/permissions';
-import React, {useState} from 'react';
-import {View} from 'react-native';
-import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
-import DynamicColors from '@components/DynamicColors';
-import getPermissionIcon from '@components/getPermissionIcon';
+import {getLabelByTimeDiff} from '@utils/Time';
+
 import {useTheme} from 'src/context/ThemeContext';
+
+import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
+
 
 const NewChatSettingsCard = ({
   chatId,

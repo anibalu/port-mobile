@@ -1,3 +1,8 @@
+import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
+
+import {getChatPermissions} from '@utils/ChatPermissions';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContentType,
   DataType,
@@ -6,17 +11,17 @@ import {
   PayloadMessageParams,
   connectionUpdateTypes,
 } from '@utils/Messaging/interfaces';
-import * as storage from '@utils/Storage/groupMessages';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
-import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
-import * as API from '../../APICalls';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
-import {getChatPermissions} from '@utils/ChatPermissions';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
-import {SendGroupMessage} from './AbstractSender';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
+import * as storage from '@utils/Storage/groupMessages';
+import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
+
+import * as API from '../../APICalls';
+
+
+import {SendGroupMessage} from './AbstractSender';
+
 
 /**
  * Content types that trigger this sender

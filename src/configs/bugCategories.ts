@@ -1,8 +1,9 @@
+import Chatting from '@assets/icons/bugReporting/Chatting.svg';
+import Connecting from '@assets/icons/bugReporting/Connecting.svg';
 import Groups from '@assets/icons/bugReporting/Groups.';
 import Others from '@assets/icons/bugReporting/Others.';
 import SuperPorts from '@assets/icons/bugReporting/SuperPorts.';
-import Chatting from '@assets/icons/bugReporting/Chatting.svg';
-import Connecting from '@assets/icons/bugReporting/Connecting.svg';
+
 
 /**
  * categories for bug reporting

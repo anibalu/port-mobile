@@ -1,14 +1,15 @@
+import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
+
+import Group from '@utils/Groups/Group';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContentType,
   DataType,
   MessageStatus,
   PayloadMessageParams,
 } from '@utils/Messaging/interfaces';
-import * as storage from '@utils/Storage/groupMessages';
-import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
-import Group from '@utils/Groups/Group';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
-import {generateRandomHexId} from '@utils/IdGenerator';
+import * as storage from '@utils/Storage/groupMessages';
 
 class GroupReceiveAction {
   protected message: any;

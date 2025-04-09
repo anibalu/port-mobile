@@ -3,22 +3,6 @@
  * screen Id: 8
  */
 
-import {PortSpacing} from '@components/ComponentUtils';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-  getWeight,
-} from '@components/NumberlessText';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {
-  DEFAULT_NAME,
-  DEFAULT_PROFILE_AVATAR_INFO,
-  TOPBAR_HEIGHT,
-} from '@configs/constants';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {updateProfileName} from '@utils/Profile';
-import {setNewProfilePicture} from '@utils/ProfilePicture';
 import React, {
   ReactNode,
   useCallback,
@@ -26,28 +10,50 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import {StyleSheet, View, Pressable, ScrollView} from 'react-native';
-import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
 
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {useSelector} from 'react-redux';
+
+import BackupCard from '@components/BackupCard';
+import BlockedCard from '@components/BlockedCard';
+import {PortSpacing} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
+import HelpCard from '@components/HelpCard';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-
+import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import EditName from '@components/Reusable/BottomSheets/EditName';
 import EditableInputCard from '@components/Reusable/Cards/EditableInputCard';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import BackupCard from '@components/BackupCard';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import {SafeAreaView} from '@components/SafeAreaView';
 import ThemeCard from '@components/ThemeCard';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {ThemeType} from '@utils/Themes';
-import {useTheme} from 'src/context/ThemeContext';
-import BlockedCard from '@components/BlockedCard';
-import {useFocusEffect} from '@react-navigation/native';
-import {getCountOfBlockedUsers} from '@utils/Storage/blockUsers';
-import HelpCard from '@components/HelpCard';
+
+import {
+  DEFAULT_NAME,
+  DEFAULT_PROFILE_AVATAR_INFO,
+  TOPBAR_HEIGHT,
+} from '@configs/constants';
+
 import {BottomNavStackParamList} from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
-import {useSelector} from 'react-redux';
+
+import {updateProfileName} from '@utils/Profile';
+import {setNewProfilePicture} from '@utils/ProfilePicture';
+import {getCountOfBlockedUsers} from '@utils/Storage/blockUsers';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+import {ThemeType} from '@utils/Themes';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {useTheme} from 'src/context/ThemeContext';
+
+
 import AccountCard from './AccountCard';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'MyProfile'>;

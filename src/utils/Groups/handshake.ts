@@ -1,8 +1,9 @@
-import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
-import * as API from './APICalls';
-import {CryptoDataStrict} from '@utils/Storage/DBCalls/crypto';
-import {deriveSharedSecret} from '@utils/Crypto/x25519';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import {deriveSharedSecret} from '@utils/Crypto/x25519';
+import {CryptoDataStrict} from '@utils/Storage/DBCalls/crypto';
+import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
+
+import * as API from './APICalls';
 
 /**
  * Generate a shared secret with a member of the group.

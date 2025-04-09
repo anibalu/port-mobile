@@ -1,18 +1,25 @@
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import RetryRed from '@assets/icons/RetryRed.svg';
-import * as API from '../../utils/DirectChats/APICalls';
+
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {RETRY_INTERVAL} from '@configs/constants';
-import DynamicColors from '@components/DynamicColors';
+
+import {useChatContext} from '@screens/DirectChat/ChatContext';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import RetryRed from '@assets/icons/RetryRed.svg';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
+
+import * as API from '../../utils/DirectChats/APICalls';
 
 export const AuthenticatedStateBubble = (): ReactNode => {
   const {isAuthenticated, isConnected, chatId, name} = useChatContext();

@@ -1,18 +1,16 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import SimpleCard from '../Cards/SimpleCard';
-import QrWithLogo from '../QR/QrWithLogo';
-import {AVATAR_ARRAY} from '@configs/constants';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import SecondaryButton from '../LongButtons/SecondaryButton';
-import RetryIcon from '@assets/icons/Retry.svg';
-import AlternateSecondaryButton from '../LongButtons/AlternateSecondaryButton';
-import DynamicColors from '@components/DynamicColors';
+
+import {AVATAR_ARRAY} from '@configs/constants';
+
 import {
   DirectSuperportBundle,
   GroupBundle,
@@ -20,7 +18,16 @@ import {
   PortBundle,
 } from '@utils/Ports/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import OneTimePill from '@assets/icons/NewGroupPill.svg';
+import RetryIcon from '@assets/icons/Retry.svg';
+
+import SimpleCard from '../Cards/SimpleCard';
+import AlternateSecondaryButton from '../LongButtons/AlternateSecondaryButton';
+import SecondaryButton from '../LongButtons/SecondaryButton';
+import QrWithLogo from '../QR/QrWithLogo';
+
+
 
 const GroupPortCard = ({
   isLoading,

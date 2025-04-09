@@ -1,12 +1,15 @@
-import {getGroupMessage} from '@utils/Storage/groupMessages';
-import * as API from './APICalls';
-import {getMedia} from '@utils/Storage/DBCalls/media';
-import {getConnection} from '@utils/Storage/connections';
-import {GroupIllegalReport} from './index';
-import {ContentType} from '@utils/Messaging/interfaces';
-import {generateISOTimeStamp} from '@utils/Time';
 import Group from '@utils/Groups/Group';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getConnection} from '@utils/Storage/connections';
+import {getMedia} from '@utils/Storage/DBCalls/media';
+import {getGroupMessage} from '@utils/Storage/groupMessages';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {generateISOTimeStamp} from '@utils/Time';
+
+import * as API from './APICalls';
+
+import {GroupIllegalReport} from './index';
+
 
 /**
  * Tries to create a LineIllegalReport and calls submitIllegalReport

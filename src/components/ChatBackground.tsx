@@ -1,8 +1,10 @@
 import React, {ReactNode, memo} from 'react';
 import {ImageBackground, StyleSheet} from 'react-native';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import {screen} from './ComponentUtils';
 import DynamicColors from './DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const ChatBackground = ({standard = true}): ReactNode => {
   const Colors = DynamicColors();

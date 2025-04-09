@@ -2,11 +2,16 @@
  * Methods to register the device for VoIP Push Notifications over APNS on iOS
  */
 
-import {isIOS} from '@components/ComponentUtils';
-import RNVoipPushNotification from 'react-native-voip-push-notification';
-import * as API from './APICalls';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNVoipPushNotification from 'react-native-voip-push-notification';
+
+import {isIOS} from '@components/ComponentUtils';
+
 import {getProfileInfo} from '@utils/Profile';
+
+import * as API from './APICalls';
+
+
 
 export type APNSToken = string;
 // The key in async storage for the cached APNS token

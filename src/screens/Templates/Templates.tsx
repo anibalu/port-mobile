@@ -1,25 +1,30 @@
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
-
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {TemplateParams} from '@utils/Storage/DBCalls/templates';
-import {getAllTemplates} from '@utils/Storage/templates';
 import React, {useCallback, useEffect, useState} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
-import TemplateCard from './TemplateCard';
-import AddTemplateBottomsheet from '@components/Reusable/BottomSheets/AddTemplateBottomsheet';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
+
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+
 import {PortSpacing} from '@components/ComponentUtils';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import NoTemplate from '@assets/icons/NoTemplate.svg';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import AddTemplateBottomsheet from '@components/Reusable/BottomSheets/AddTemplateBottomsheet';
+import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {TemplateParams} from '@utils/Storage/DBCalls/templates';
+import {getAllTemplates} from '@utils/Storage/templates';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import NoTemplate from '@assets/icons/NoTemplate.svg';
+
+import TemplateCard from './TemplateCard';
+
 
 const Templates = ({route}) => {
   const {chatId} = route.params;

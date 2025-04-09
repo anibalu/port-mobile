@@ -1,3 +1,6 @@
+import React from 'react';
+import {Pressable, StyleSheet} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -5,9 +8,8 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
 
 const FilledPill = ({
   value,

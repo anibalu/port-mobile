@@ -1,40 +1,46 @@
-import TorchOff from '@assets/icons/TorchOff.svg';
-import TorchOn from '@assets/icons/TorchOn.svg';
-import Area from '@assets/miscellaneous/scanAreaBlue.svg';
-import {
-  FontSizeType,
-  FontWeight,
-  NumberlessText,
-} from '@components/NumberlessText';
-import {useIsFocused} from '@react-navigation/native';
-import {checkCameraPermission} from '@utils/AppPermissions';
 import React, {useEffect, useState} from 'react';
 import {Image, Pressable, StyleSheet, View} from 'react-native';
+
+import {useIsFocused} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {launchImageLibrary} from 'react-native-image-picker';
 import {
   Camera,
   useCameraDevice,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import {SafeAreaView} from '@components/SafeAreaView';
+import RNQRGenerator from 'rn-qr-generator';
+
+import {useThemeColors} from '@components/colorGuide';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import {
+  FontSizeType,
+  FontWeight,
+  NumberlessText,
+} from '@components/NumberlessText';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
+import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {Spacing, Width} from '@components/spacingGuide';
+import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
+
+import {safeModalCloseDuration} from '@configs/constants';
+
+import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
+
+import {checkCameraPermission} from '@utils/AppPermissions';
+import {urlToJson} from '@utils/JsonToUrl';
 import {
   checkBundleValidity,
   processReadBundles,
   readBundle,
 } from '@utils/Ports';
 import {wait} from '@utils/Time';
-import {safeModalCloseDuration} from '@configs/constants';
-import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
-import {urlToJson} from '@utils/JsonToUrl';
+
 import ImageIcon from '@assets/icons/GalleryIconWhite.svg';
-import {launchImageLibrary} from 'react-native-image-picker';
-import RNQRGenerator from 'rn-qr-generator';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {Spacing, Width} from '@components/spacingGuide';
-import {useThemeColors} from '@components/colorGuide';
-import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
-import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
+import TorchOff from '@assets/icons/TorchOff.svg';
+import TorchOn from '@assets/icons/TorchOn.svg';
+import Area from '@assets/miscellaneous/scanAreaBlue.svg';
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
   'OnboardingQRScanner'

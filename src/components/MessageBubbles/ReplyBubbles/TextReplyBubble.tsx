@@ -1,15 +1,18 @@
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {TextParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {PortSpacing} from '@components/ComponentUtils';
-import {REPLY_MEDIA_HEIGHT} from '../BubbleUtils';
-import DynamicColors from '@components/DynamicColors';
 import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
+
+import {REPLY_MEDIA_HEIGHT} from '../BubbleUtils';
 
 export const TextReplyBubble = ({
   reply,

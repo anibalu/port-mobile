@@ -8,7 +8,9 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+
 import {SvgProps} from 'react-native-svg';
+
 import {PortColors} from './ComponentUtils';
 import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 

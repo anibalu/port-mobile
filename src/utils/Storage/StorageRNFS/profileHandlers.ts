@@ -1,5 +1,7 @@
-import {profileDir} from '@configs/paths';
 import RNFS from 'react-native-fs';
+
+import {profileDir} from '@configs/paths';
+
 import {FileAttributes} from './interfaces';
 import {getRelativeURI, getSafeAbsoluteURI} from './sharedFileHandlers';
 

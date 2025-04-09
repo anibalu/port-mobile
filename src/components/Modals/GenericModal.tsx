@@ -1,10 +1,13 @@
-import {isIOS, screen} from '@components/ComponentUtils';
-import store from '@store/appStore';
 import React, {useEffect, useRef} from 'react';
 import {AppState} from 'react-native';
+
 import Modal from 'react-native-modal';
 import {useSelector} from 'react-redux';
+
 import {useColors} from '@components/colorGuide';
+import {isIOS, screen} from '@components/ComponentUtils';
+
+import store from '@store/appStore';
 
 /**
  * A reusable modal component that provides consistent behavior across the app.

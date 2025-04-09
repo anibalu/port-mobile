@@ -1,3 +1,4 @@
+import {urlToJson} from '@utils/JsonToUrl';
 import {checkBundleValidity} from '@utils/Ports';
 import {
   DirectContactPortBundle,
@@ -6,8 +7,8 @@ import {
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
+
 import * as API from './APICalls';
-import {urlToJson} from '@utils/JsonToUrl';
 interface urlObject {
   url: string;
 }

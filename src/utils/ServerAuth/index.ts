@@ -1,13 +1,15 @@
 import {signMessage} from '@utils/Crypto/ed25519';
+import {
+  SavedServerAuthToken,
+  ServerAuthToken,
+} from '@utils/Storage/RNSecure/secureTokenHandler';
+
 import {TOKEN_VALIDITY_INTERVAL} from '../../configs/constants';
 import {getProfileInfo} from '../Profile';
 import {readAuthToken, saveAuthToken} from '../Storage/authToken';
 import {connectionFsSync} from '../Synchronization';
 import {checkTimeout, generateISOTimeStamp} from '../Time';
-import {
-  SavedServerAuthToken,
-  ServerAuthToken,
-} from '@utils/Storage/RNSecure/secureTokenHandler';
+
 import * as API from './APICalls';
 
 // global object to cache auth token so that it doesn't have to be repeatedly read from storage.

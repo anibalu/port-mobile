@@ -1,14 +1,17 @@
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
+import {PortColors} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
 
-import {PortColors} from '@components/ComponentUtils';
-import {RenderTimeStamp} from '../BubbleUtils';
 import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
+
+import {RenderTimeStamp} from '../BubbleUtils';
+
 
 export const DeletedBubble = ({
   message,

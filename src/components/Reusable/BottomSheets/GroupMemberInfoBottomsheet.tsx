@@ -1,4 +1,10 @@
+import React, {useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -7,25 +13,25 @@ import {
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 
-import React, {useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import DynamicColors from '@components/DynamicColors';
-import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
 import {
   DEFAULT_GROUP_MEMBER_NAME,
   safeModalCloseDuration,
 } from '@configs/constants';
-import {AvatarBox} from '../AvatarBox/AvatarBox';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {getChatTileTimestamp, wait} from '@utils/Time';
-import Group from '@utils/Groups/Group';
-import {ToastType, useToast} from 'src/context/ToastContext';
-import {useNavigation} from '@react-navigation/native';
+
 import DirectChat, {LineDataCombined} from '@utils/DirectChats/DirectChat';
-import SmallLoader from '../Loaders/SmallLoader';
+import Group from '@utils/Groups/Group';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
 import {getContact} from '@utils/Storage/contacts';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {getChatTileTimestamp, wait} from '@utils/Time';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
+
+import {AvatarBox} from '../AvatarBox/AvatarBox';
+import SmallLoader from '../Loaders/SmallLoader';
+
 
 interface GroupMemberUseableData extends GroupMemberLoadedData {
   directChatId?: string | null;

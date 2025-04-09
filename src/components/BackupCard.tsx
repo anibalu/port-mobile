@@ -1,14 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import SimpleCard from './Reusable/Cards/SimpleCard';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
-import {PortSpacing} from './ComponentUtils';
 import {StyleSheet, View} from 'react-native';
-import TertiaryButton from './Reusable/LongButtons/TertiaryButton';
+
 import {createSecureDataBackup} from '@utils/Backup/backupUtils';
 import {getLastBackupTime} from '@utils/Profile';
-import {getChatTileTimestamp} from '@utils/Time';
-import DynamicColors from './DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {getChatTileTimestamp} from '@utils/Time';
+
+import {PortSpacing} from './ComponentUtils';
+import DynamicColors from './DynamicColors';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import SimpleCard from './Reusable/Cards/SimpleCard';
+import TertiaryButton from './Reusable/LongButtons/TertiaryButton';
 
 const BackupCard = () => {
   const [lastBackup, setLastBackup] = useState<string | undefined>();

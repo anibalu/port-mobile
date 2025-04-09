@@ -1,20 +1,3 @@
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import AddFolderViolet from '@assets/icons/AddFolderViolet.svg';
-import ShareContactGreen from '@assets/icons/ShareContactGreen.svg';
-// import LabelChip from '@components/Reusable/Chip/LabelChip';
-import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
-import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import {DEFAULT_AVATAR} from '@configs/constants';
-import {useNavigation} from '@react-navigation/native';
-import {ChatType, ConnectionInfo} from '@utils/Storage/DBCalls/connections';
-import {ContentType} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Animated,
@@ -24,12 +7,37 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+import {Swipeable} from 'react-native-gesture-handler';
+import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+// import LabelChip from '@components/Reusable/Chip/LabelChip';
+import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
+
+import {DEFAULT_AVATAR} from '@configs/constants';
+
+import {ContentType} from '@utils/Messaging/interfaces';
+import {toggleRead} from '@utils/Storage/connections';
+import {ChatType, ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+
+import AddFolderViolet from '@assets/icons/AddFolderViolet.svg';
+import ShareContactGreen from '@assets/icons/ShareContactGreen.svg';
+
+import {useTheme} from 'src/context/ThemeContext';
+
 import DisplayStatus from './DisplayStatus';
 import RenderText from './RenderText';
 import RenderTimestamp from './RenderTimestamp';
-import {Swipeable} from 'react-native-gesture-handler';
-import {useTheme} from 'src/context/ThemeContext';
-import {toggleRead} from '@utils/Storage/connections';
+
 
 export interface ChatTileProps extends ConnectionInfo {
   expired?: boolean;

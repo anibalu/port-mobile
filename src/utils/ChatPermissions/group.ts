@@ -1,9 +1,11 @@
 import {defaultPermissions} from '@configs/constants';
+
+import Group from '@utils/Groups/Group';
+
 import {
   GroupPermissions,
   Permissions,
 } from '../Storage/DBCalls/permissions/interfaces';
-import Group from '@utils/Groups/Group';
 
 /**
  * Default permissions for group chats

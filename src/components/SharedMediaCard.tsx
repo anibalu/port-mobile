@@ -1,23 +1,27 @@
+import React from 'react';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import React from 'react';
-import Play from '@assets/icons/videoPlay.svg';
-import {StyleSheet, View, FlatList, Pressable} from 'react-native';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {MediaEntry} from '@utils/Storage/DBCalls/media';
-import {ContentType} from '@utils/Messaging/interfaces';
-import {useNavigation} from '@react-navigation/native';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {getMessage} from '@utils/Storage/messages';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+
+import {ContentType} from '@utils/Messaging/interfaces';
 import {isGroupChat} from '@utils/Storage/connections';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {getGroupMessage} from '@utils/Storage/groupMessages';
+import {getMessage} from '@utils/Storage/messages';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import Play from '@assets/icons/videoPlay.svg';
 
 const SharedMediaCard = ({
   chatId,

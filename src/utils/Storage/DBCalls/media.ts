@@ -1,8 +1,9 @@
-import {runSimpleQuery} from './dbCommon';
 import {
   ContentType,
   LargeDataMessageContentTypes,
 } from '@utils/Messaging/interfaces';
+
+import {runSimpleQuery} from './dbCommon';
 
 export interface MediaUpdate {
   type: ContentType;

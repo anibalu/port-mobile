@@ -10,6 +10,11 @@
  * 7. HeadingIcon
  */
 
+import React, {FC} from 'react';
+import {Pressable, StyleSheet,View} from 'react-native';
+
+import {SvgProps} from 'react-native-svg';
+
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -17,10 +22,9 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
-import React, {FC} from 'react';
-import {Pressable, StyleSheet,View} from 'react-native';
-import {SvgProps} from 'react-native-svg';
+
 
 const TopBarWithRightIcon = ({
   IconRight,

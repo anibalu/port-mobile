@@ -1,10 +1,14 @@
-import {DirectAvatarMapping} from '@configs/avatarmapping';
-import {AVATAR_ARRAY} from '@configs/constants';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {getMedia} from '@utils/Storage/media';
 import React, {FC, useEffect, useState} from 'react';
 import {Image, Pressable, StyleSheet, ViewStyle} from 'react-native';
+
 import {SvgProps} from 'react-native-svg';
+
+import {DirectAvatarMapping} from '@configs/avatarmapping';
+import {AVATAR_ARRAY} from '@configs/constants';
+
+import {getMedia} from '@utils/Storage/media';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
 
 /**
  * Displays the avatar

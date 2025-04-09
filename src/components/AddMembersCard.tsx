@@ -1,23 +1,27 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import SimpleCard from './Reusable/Cards/SimpleCard';
-import {PortSpacing} from './ComponentUtils';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
-import DynamicColors from './DynamicColors';
 import {Pressable, StyleSheet, View} from 'react-native';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
-import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
+
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+
 import {
   DEFAULT_GROUP_MEMBER_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
   GROUP_MEMBER_LIMIT,
 } from '@configs/constants';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {GroupData} from '@utils/Storage/DBCalls/group';
-import {useSelector} from 'react-redux';
-import {getChatIdFromPairHash} from '@utils/Storage/connections';
-import GroupMemberInfoBottomsheet from './Reusable/BottomSheets/GroupMemberInfoBottomsheet';
+
 import Group from '@utils/Groups/Group';
+import {getChatIdFromPairHash} from '@utils/Storage/connections';
+import {GroupData} from '@utils/Storage/DBCalls/group';
+import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {PortSpacing} from './ComponentUtils';
+import DynamicColors from './DynamicColors';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
+import GroupMemberInfoBottomsheet from './Reusable/BottomSheets/GroupMemberInfoBottomsheet';
+import SimpleCard from './Reusable/Cards/SimpleCard';
 
 interface GroupMemberUseableData extends GroupMemberLoadedData {
   directChatId?: string | null;

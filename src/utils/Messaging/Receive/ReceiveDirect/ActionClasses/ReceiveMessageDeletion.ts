@@ -1,7 +1,9 @@
 import {ContentType, DeletionParams} from '@utils/Messaging/interfaces';
-import DirectReceiveAction from '../DirectReceiveAction';
-import {cleanDeleteMessage} from '@utils/Storage/messages';
 import {updateConnectionIfLatestMessageIsX} from '@utils/Storage/connections';
+import {cleanDeleteMessage} from '@utils/Storage/messages';
+
+import DirectReceiveAction from '../DirectReceiveAction';
+
 
 class ReceiveMessageDeletion extends DirectReceiveAction {
   generatePreviewText(): string {

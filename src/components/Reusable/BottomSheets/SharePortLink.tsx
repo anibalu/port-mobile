@@ -4,26 +4,34 @@
 
 import React, {useState} from 'react';
 import {Keyboard, StyleSheet, View} from 'react-native';
-import SimpleInput from '../Inputs/SimpleInput';
-import PrimaryButton from '../LongButtons/PrimaryButton';
+
+import {useNavigation} from '@react-navigation/native';
+import Share from 'react-native-share';
+
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
+
 import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+
+import {updateGeneratedPortLabel} from '@utils/Ports';
 import {
   DirectSuperportBundle,
   GroupBundle,
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
-import {updateGeneratedPortLabel} from '@utils/Ports';
-import Share from 'react-native-share';
-import {useNavigation} from '@react-navigation/native';
+
+import SimpleInput from '../Inputs/SimpleInput';
+import PrimaryButton from '../LongButtons/PrimaryButton';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
+
+
 
 const SharePortLink = ({
   visible,

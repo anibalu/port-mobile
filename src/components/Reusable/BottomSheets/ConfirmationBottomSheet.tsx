@@ -11,16 +11,20 @@
 
 import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import PrimaryButton from '../LongButtons/PrimaryButton';
+
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
+
+import PrimaryButton from '../LongButtons/PrimaryButton';
+
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+
 
 const ConfirmationBottomSheet = ({
   visible,

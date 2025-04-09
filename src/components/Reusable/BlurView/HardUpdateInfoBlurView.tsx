@@ -4,24 +4,30 @@
  * to continue using the app.
  */
 
-import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useState} from 'react';
+import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
+
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import PrimaryButton from '../LongButtons/PrimaryButton';
-import AvatarWithDocument from '@assets/icons/AvatarWithDocument.svg';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import CheckBox from '../MultiSelectMembers/CheckBox';
-import {useUpdateStatus} from 'src/context/UpdateStatusContext';
-import {sendUpdatedAcceptance} from '@utils/TermsAndConditions/APICalls';
+
 import {saveUpdateStatusToLocal} from '@utils/TermsAndConditions';
+import {sendUpdatedAcceptance} from '@utils/TermsAndConditions/APICalls';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import AvatarWithDocument from '@assets/icons/AvatarWithDocument.svg';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
+import {useUpdateStatus} from 'src/context/UpdateStatusContext';
+
+import PrimaryButton from '../LongButtons/PrimaryButton';
+import CheckBox from '../MultiSelectMembers/CheckBox';
+
 
 const HardUpdateInfoBlurView = () => {
   const {

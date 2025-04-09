@@ -1,14 +1,17 @@
-import Delete from '@assets/icons/DeleteIcon.svg';
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+
 import {PortColors, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import Delete from '@assets/icons/DeleteIcon.svg';
 
 export function MediaMessageActionsBar({
   determineDeleteModalDisplay,

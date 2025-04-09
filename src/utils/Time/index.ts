@@ -1,4 +1,5 @@
 import {ARTIFICIAL_LOADER_INTERVAL} from '../../configs/constants';
+
 import {
   disappearDuration,
   disappearOptions,

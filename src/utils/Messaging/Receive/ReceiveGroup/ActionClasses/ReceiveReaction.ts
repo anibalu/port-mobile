@@ -1,15 +1,16 @@
+import {getChatPermissions} from '@utils/ChatPermissions';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {
   ContentType,
   MessageStatus,
   ReactionParams,
 } from '@utils/Messaging/interfaces';
+import {displaySimpleNotification} from '@utils/Notifications';
+import {getConnection,updateConnection} from '@utils/Storage/connections';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import * as storage from '@utils/Storage/groupMessages';
 import * as ReactionStorage from '@utils/Storage/reactions';
-import {getConnection,updateConnection} from '@utils/Storage/connections';
-import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
-import {displaySimpleNotification} from '@utils/Notifications';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+
 import GroupReceiveAction from '../GroupReceiveAction';
 
 /**

@@ -1,12 +1,15 @@
+import axios from 'axios';
+
 import {
   LINE_MESSAGE_REPORTING_RESOURCE,
   MESSAGE_REPORTING_RESOURCE,
 } from '@configs/api';
+
+import DirectChat from '@utils/DirectChats/DirectChat';
 import {uploadRawMedia} from '@utils/Messaging/LargeData';
 import {getToken} from '@utils/ServerAuth';
-import axios from 'axios';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {LineIllegalReport, GroupIllegalReport, attachedFiles} from './index';
+
+import {GroupIllegalReport, LineIllegalReport, attachedFiles} from './index';
 
 export async function sendMessageReport(
   chatId: string,

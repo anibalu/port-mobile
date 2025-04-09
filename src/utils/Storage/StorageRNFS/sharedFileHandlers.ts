@@ -1,11 +1,14 @@
 import RNFS from 'react-native-fs';
-import {conversationsDir, filesDir, mediaDir} from '@configs/paths';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {ContentType} from '@utils/Messaging/interfaces';
+
 import {
   FILE_ENCRYPTION_KEY_LENGTH,
   SHARED_FILE_SIZE_LIMIT_IN_BYTES,
 } from '@configs/constants';
+import {conversationsDir, filesDir, mediaDir} from '@configs/paths';
+
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {ContentType} from '@utils/Messaging/interfaces';
+
 import NativeCryptoModule from 'src/specs/NativeCryptoModule';
 
 /**

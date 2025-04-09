@@ -1,6 +1,9 @@
-import {LINE_MANAGEMENT_RESOURCE, LINE_RETRY_URL} from '@configs/api';
-import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+
+import {LINE_MANAGEMENT_RESOURCE, LINE_RETRY_URL} from '@configs/api';
+
+import {getToken} from '@utils/ServerAuth';
+
 import {IntroMessage} from './DirectChat';
 
 interface newLineData {

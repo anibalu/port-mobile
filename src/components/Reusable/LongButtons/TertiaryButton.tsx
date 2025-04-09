@@ -11,11 +11,13 @@
  * 5. onClick - function that runs on clicking.
  */
 
+import React, {FC} from 'react';
+import {StyleSheet, Text, TextStyle, TouchableOpacity} from 'react-native';
+
+import {SvgProps} from 'react-native-svg';
+
 import {FontSizes} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import React, {FC} from 'react';
-import {TouchableOpacity, Text, StyleSheet, TextStyle} from 'react-native';
-import {SvgProps} from 'react-native-svg';
 
 const TertiaryButton = ({
   buttonText,

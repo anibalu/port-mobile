@@ -2,27 +2,32 @@
  * This welcome screen shows Port branding and greets the user the first time they open the app.
  * UI is updated to latest spec for both android and ios
  */
-import PortLogoWelcomeScreen from '@assets/miscellaneous/PortLogoWelcomeScreen.svg';
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import PrimaryButton from '@components/Buttons/PrimaryButton';
+import GradientCard from '@components/Cards/GradientCard';
+import {useThemeColors} from '@components/colorGuide';
 import {isIOS, screen} from '@components/ComponentUtils';
-import ScannerGreen from '@assets/icons/ScannerDarkGreen.svg';
-import LinkSafron from '@assets/icons/LinkDeepSafron.svg';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryButton from '@components/Buttons/PrimaryButton';
 import OptionWithLogoAndChevron from '@components/Options/OptionWithLogoAndChevron';
-import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
-import LineSeparator from '@components/Separators/LineSeparator';
-import {CustomStatusBar} from '@components/CustomStatusBar';
 import {SafeAreaView} from '@components/SafeAreaView';
+import LineSeparator from '@components/Separators/LineSeparator';
 import {Spacing, Width} from '@components/spacingGuide';
-import {useThemeColors} from '@components/colorGuide';
-import GradientCard from '@components/Cards/GradientCard';
+
+import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
+
+import LinkSafron from '@assets/icons/LinkDeepSafron.svg';
+import ScannerGreen from '@assets/icons/ScannerDarkGreen.svg';
+import PortLogoWelcomeScreen from '@assets/miscellaneous/PortLogoWelcomeScreen.svg';
+
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Welcome'>;
 

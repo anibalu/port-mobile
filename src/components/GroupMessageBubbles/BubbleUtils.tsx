@@ -1,18 +1,7 @@
 import React, {ReactNode, useMemo} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
-import {MessageStatus} from '@utils/Messaging/interfaces';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
-import {getTimeStamp} from '@utils/Time';
-import Sending from '@assets/icons/statusIndicators/sendingBubble.svg';
+
 import FileViewer from 'react-native-file-viewer';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import store from '@store/appStore';
-import DynamicColors from '@components/DynamicColors';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -20,13 +9,29 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
+
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+
+import store from '@store/appStore';
+
+import {MessageStatus} from '@utils/Messaging/interfaces';
+import {handleAsyncMediaDownload} from '@utils/Messaging/Receive/ReceiveGroup/HandleMediaDownload';
+import {SendMediaGroupMessage} from '@utils/Messaging/Send/SendGroupMessage/senders/MediaSender';
 import {
   GroupMessageData,
   GroupReplyContent,
   LoadedGroupMessage,
 } from '@utils/Storage/DBCalls/groupMessage';
-import {handleAsyncMediaDownload} from '@utils/Messaging/Receive/ReceiveGroup/HandleMediaDownload';
-import {SendMediaGroupMessage} from '@utils/Messaging/Send/SendGroupMessage/senders/MediaSender';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {getTimeStamp} from '@utils/Time';
+
+import Sending from '@assets/icons/statusIndicators/sendingBubble.svg';
 
 //max width of message bubble
 export const MAX_WIDTH = screen.width - 2 * PortSpacing.secondary.uniform - 64;

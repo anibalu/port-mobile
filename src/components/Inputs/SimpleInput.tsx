@@ -1,9 +1,11 @@
+import React, {useState} from 'react';
+import {KeyboardTypeOptions, StyleSheet, TextInput} from 'react-native';
+
 import {useColors} from '@components/colorGuide';
 import {FontSizeType, FontWeight} from '@components/NumberlessText';
 import {Height} from '@components/spacingGuide';
+
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
-import React, {useState} from 'react';
-import {KeyboardTypeOptions, StyleSheet, TextInput} from 'react-native';
 
 /**
  * A reusable text input component with dynamic theming and styling.

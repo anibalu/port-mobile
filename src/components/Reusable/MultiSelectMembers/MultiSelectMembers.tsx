@@ -9,10 +9,14 @@
  */
 
 import React, {useState} from 'react';
-import ClickableTextWithAvatar from './ClickableTextWithAvatar';
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
-import MultiSelectMembersCard from '../Cards/MultiSelectMembersCard';
 import {View} from 'react-native';
+
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+
+import MultiSelectMembersCard from '../Cards/MultiSelectMembersCard';
+
+import ClickableTextWithAvatar from './ClickableTextWithAvatar';
+
 
 const MultiSelectMembers = ({
   members,

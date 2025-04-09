@@ -1,5 +1,5 @@
 import {defaultPermissions} from '@configs/constants';
-import {runSimpleQuery, toBool} from '../dbCommon';
+
 import {
   Permissions,
   PermissionsEntry,
@@ -7,6 +7,8 @@ import {
   booleanKeysOfPermissions,
   numberKeysOfPermissions,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
+
+import {runSimpleQuery, toBool} from '../dbCommon';
 
 /**
  * Adds a set of permissions to storage

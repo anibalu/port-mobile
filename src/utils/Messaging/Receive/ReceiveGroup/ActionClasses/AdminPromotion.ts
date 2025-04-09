@@ -1,4 +1,5 @@
 import Group from '@utils/Groups/Group';
+
 import GroupReceiveAction from '../GroupReceiveAction';
 
 class AdminPromotion extends GroupReceiveAction {

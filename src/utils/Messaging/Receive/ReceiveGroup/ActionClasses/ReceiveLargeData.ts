@@ -1,21 +1,23 @@
+import store from '@store/appStore';
+
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {GroupPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {getConnection,updateConnectionOnNewMessage} from '@utils/Storage/connections';
-import {ChatType,ConnectionInfo,NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   DataType,
   LargeDataParams,
   MessageStatus,
 } from '@utils/Messaging/interfaces';
 import {displaySimpleNotification} from '@utils/Notifications';
-import {handleAsyncMediaDownload} from '../HandleMediaDownload';
-import store from '@store/appStore';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {saveNewMedia} from '@utils/Storage/media';
-import * as storage from '@utils/Storage/groupMessages';
-import GroupReceiveAction from '../GroupReceiveAction';
+import {getConnection,updateConnectionOnNewMessage} from '@utils/Storage/connections';
+import {ChatType,ConnectionInfo,NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
+import {GroupPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
+import * as storage from '@utils/Storage/groupMessages';
+import {saveNewMedia} from '@utils/Storage/media';
+
+import GroupReceiveAction from '../GroupReceiveAction';
+import {handleAsyncMediaDownload} from '../HandleMediaDownload';
 
 class ReceiveLargeData extends GroupReceiveAction {
   async performAction(): Promise<void> {

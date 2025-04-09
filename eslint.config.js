@@ -80,9 +80,20 @@ export default tseslint.config(
       '@typescript-eslint/no-namespace': 'off',
       'no-async-promise-executor': 'off', // We'd never fuck this up, would we?
 
+      // Sort imports within a declaration (addressing the 'all' before 'single' syntax issue)
+      'sort-imports': [
+        'error',
+        {
+          ignoreCase: false,
+          ignoreDeclarationSort: true, // Let import/order handle declaration sorting
+          ignoreMemberSort: false,
+          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+        },
+      ],
+
       // Import specific rules
       'import/order': [
-        'warn',
+        'error', // Changed from 'warn' to 'error'
         {
           groups: [
             'builtin',
@@ -97,6 +108,23 @@ export default tseslint.config(
             order: 'asc',
             caseInsensitive: true,
           },
+          pathGroups: [
+            {
+              pattern: '{react,react-dom,react-native}',
+              group: 'external',
+              position: 'before',
+            },
+            {pattern: '@components/**', group: 'internal', position: 'before'},
+            {pattern: '@configs/**', group: 'internal', position: 'before'},
+            {pattern: '@navigation/**', group: 'internal', position: 'before'},
+            {pattern: '@screens/**', group: 'internal', position: 'before'},
+            {pattern: '@store/**', group: 'internal', position: 'before'},
+            {pattern: '@utils/**', group: 'internal', position: 'before'},
+            {pattern: '@assets/**', group: 'internal', position: 'before'},
+            {pattern: '@specs/**', group: 'internal', position: 'before'},
+          ],
+          pathGroupsExcludedImportTypes: ['react', 'react-dom', 'react-native'],
+          warnOnUnassignedImports: true,
         },
       ],
       'import/no-duplicates': 'error',

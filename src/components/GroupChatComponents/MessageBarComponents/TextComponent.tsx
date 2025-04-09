@@ -1,13 +1,3 @@
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-  getWeight,
-} from '@components/NumberlessText';
-import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useMemo, useState} from 'react';
 import {
   Keyboard,
@@ -17,21 +7,42 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import KeyboardIcon from '@assets/icons/Keyboard.svg';
-import PopUpActions from './PopUpActions';
-import EmojiKeyboard from './EmojiKeyboard';
-import {useChatContext} from '@screens/GroupChat/ChatContext';
-import {wait} from '@utils/Time';
+
 import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import WhitePlus from '@assets/dark/icons/WhitePlus.svg';
 import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
+
+import {useChatContext} from '@screens/GroupChat/ChatContext';
+
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {wait} from '@utils/Time';
+
 import DisabledSend from '@assets/dark/icons/DisabledSend.svg';
+import WhitePlus from '@assets/dark/icons/WhitePlus.svg';
+import KeyboardIcon from '@assets/icons/Keyboard.svg';
+
 import {useTheme} from 'src/context/ThemeContext';
+
+import EmojiKeyboard from './EmojiKeyboard';
+import PopUpActions from './PopUpActions';
+
+
+
+
 
 const TextComponent = ({
   replyToMessage,

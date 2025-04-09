@@ -1,30 +1,20 @@
 import {defaultFolderId} from '@configs/constants';
-import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
+
+import {moveConnectionToNewFolderWithoutPermissionChange} from '@utils/ChatFolders';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import {deriveSharedSecret} from '@utils/Crypto/x25519';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {createPreview} from '@utils/ImageUtils';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 import {
-  GroupPermissions,
-  Permissions,
-} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {
+  addConnection,
   deleteConnection,
   getBasicConnectionInfo,
-  getChatIdFromRoutingId,
-addConnection} from '@utils/Storage/connections';
+getChatIdFromRoutingId} from '@utils/Storage/connections';
+import {addContact, updateContact} from '@utils/Storage/contacts';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
-import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
-import {
-  getFileNameFromUri,
-  getSafeAbsoluteURI,
-  isAvatarUri,
-  isMediaUri,
-  moveToLargeFileDir,
-} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import * as groupStorage from '@utils/Storage/group';
-import * as memberStorage from '@utils/Storage/groupMembers';
-import * as API from './APICalls';
-import {deriveSharedSecret} from '@utils/Crypto/x25519';
-import {generateISOTimeStamp} from '@utils/Time';
-import * as permissionStorage from '@utils/Storage/permissions';
+import {ContactUpdate} from '@utils/Storage/DBCalls/contacts';
 import {
   GroupData,
   GroupDataWithoutGroupId,
@@ -34,19 +24,32 @@ import {
   GroupMemberLoadedData,
   GroupMemberUpdate,
 } from '@utils/Storage/DBCalls/groupMembers';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {createPreview} from '@utils/ImageUtils';
+import {
+  GroupPermissions,
+  Permissions,
+} from '@utils/Storage/DBCalls/permissions/interfaces';
+import * as groupStorage from '@utils/Storage/group';
+import * as memberStorage from '@utils/Storage/groupMembers';
+import {deleteAllMessagesInChat} from '@utils/Storage/groupMessages';
 import {
   deleteMedia,
   getMedia,
   saveNewMedia,
   updateMedia,
 } from '@utils/Storage/media';
-import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
-import {addContact, updateContact} from '@utils/Storage/contacts';
-import {ContactUpdate} from '@utils/Storage/DBCalls/contacts';
-import {moveConnectionToNewFolderWithoutPermissionChange} from '@utils/ChatFolders';
-import {deleteAllMessagesInChat} from '@utils/Storage/groupMessages';
+import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
+import * as permissionStorage from '@utils/Storage/permissions';
+import {
+  getFileNameFromUri,
+  getSafeAbsoluteURI,
+  isAvatarUri,
+  isMediaUri,
+  moveToLargeFileDir,
+} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {generateISOTimeStamp} from '@utils/Time';
+
+import * as API from './APICalls';
+
 
 class Group {
   private chatId: string | null;

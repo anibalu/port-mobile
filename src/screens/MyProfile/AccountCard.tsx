@@ -1,15 +1,18 @@
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+
 import {useNavigation} from '@react-navigation/native';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
-  NumberlessText,
-  FontType,
   FontSizeType,
+  FontType,
+  NumberlessText,
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 // TODO: why is the legal card called the "help card?"
 const AccountCard = () => {

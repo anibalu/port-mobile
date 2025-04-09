@@ -1,16 +1,19 @@
-import RecentlyUsed from '@assets/icons/emojis/History.svg';
-import Smileys from '@assets/icons/emojis/Smiley.svg';
-import People from '@assets/icons/emojis/People.svg';
-import Animals from '@assets/icons/emojis/Animals.svg';
-import Food from '@assets/icons/emojis/FoodandDrinks.svg';
-import Activities from '@assets/icons/emojis/Activities.svg';
-import Travel from '@assets/icons/emojis/Travel.svg';
-import Objects from '@assets/icons/emojis/Objects.svg';
-import Symbols from '@assets/icons/emojis/Symbols.svg';
-import Flags from '@assets/icons/emojis/Flags.svg';
-
 import {FC} from 'react';
+
 import {SvgProps} from 'react-native-svg';
+
+import Activities from '@assets/icons/emojis/Activities.svg';
+import Animals from '@assets/icons/emojis/Animals.svg';
+import Flags from '@assets/icons/emojis/Flags.svg';
+import Food from '@assets/icons/emojis/FoodandDrinks.svg';
+import RecentlyUsed from '@assets/icons/emojis/History.svg';
+import Objects from '@assets/icons/emojis/Objects.svg';
+import People from '@assets/icons/emojis/People.svg';
+import Smileys from '@assets/icons/emojis/Smiley.svg';
+import Symbols from '@assets/icons/emojis/Symbols.svg';
+import Travel from '@assets/icons/emojis/Travel.svg';
+
+
 
 interface EmojiCategory {
   [key: string]: {

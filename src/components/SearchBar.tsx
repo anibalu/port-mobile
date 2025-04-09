@@ -1,10 +1,14 @@
-import SearchGrey from '@assets/icons/GreySearch.svg';
-import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {memo, useState} from 'react';
 import {Pressable, StyleSheet, TextInput, View} from 'react-native';
-import DynamicColors from './DynamicColors';
+
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import SearchGrey from '@assets/icons/GreySearch.svg';
+
 import {PortSpacing} from './ComponentUtils';
+import DynamicColors from './DynamicColors';
 
 const SearchBar = ({
   searchText,

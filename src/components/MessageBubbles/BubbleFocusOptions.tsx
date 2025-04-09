@@ -1,12 +1,27 @@
+import React, {useEffect, useRef} from 'react';
+import {Animated, StyleSheet, TouchableHighlight, View} from 'react-native';
+
+import Clipboard from '@react-native-clipboard/clipboard';
+import {useNavigation} from '@react-navigation/native';
+
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {Animated, StyleSheet, TouchableHighlight, View} from 'react-native';
-import React, {useEffect, useRef} from 'react';
+
 import {useChatContext} from '@screens/DirectChat/ChatContext';
+import {
+  MessageBarActionType,
+  useMessageBarActionsContext,
+} from '@screens/DirectChat/ChatContexts/MessageBarActions';
+import {
+  MessageSelectionMode,
+  useSelectionContext,
+} from '@screens/DirectChat/ChatContexts/SelectedMessages';
+
 import {
   ContentType,
   ReportMessageContentTypes,
@@ -15,18 +30,9 @@ import {
   editableContentTypes,
 } from '@utils/Messaging/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import DynamicColors from '@components/DynamicColors';
+
 import {useTheme} from 'src/context/ThemeContext';
-import {
-  MessageSelectionMode,
-  useSelectionContext,
-} from '@screens/DirectChat/ChatContexts/SelectedMessages';
-import Clipboard from '@react-native-clipboard/clipboard';
-import {useNavigation} from '@react-navigation/native';
-import {
-  MessageBarActionType,
-  useMessageBarActionsContext,
-} from '@screens/DirectChat/ChatContexts/MessageBarActions';
+
 
 const BubbleFocusOptions = () => {
   const {isConnected, onDelete, onReport, chatId, setReplyToMessage} =

@@ -1,28 +1,35 @@
+import React, {ReactNode, useEffect, useRef} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
+
+import {
+  MessageSelectionMode,
+  useSelectionContext,
+} from '@screens/DirectChat/ChatContexts/SelectedMessages';
+
 import {
   ContentType,
   InfoContentTypes,
   MessageStatus,
   UpdateRequiredMessageContentTypes,
 } from '@utils/Messaging/interfaces';
-import {generateISOTimeStamp, getDateStamp} from '@utils/Time';
-import React, {ReactNode, useEffect, useRef} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import {MessageBubble} from './MessageBubble';
-import {InfoBubble} from './InfoBubble';
-import DynamicColors from '@components/DynamicColors';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
-import {
-  MessageSelectionMode,
-  useSelectionContext,
-} from '@screens/DirectChat/ChatContexts/SelectedMessages';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import {generateISOTimeStamp, getDateStamp} from '@utils/Time';
+
+import {InfoBubble} from './InfoBubble';
+import {MessageBubble} from './MessageBubble';
+
+
 
 //Currently only sends read receipts for DMs
 const sendReadReceipt = async (chatId: string, message: LoadedMessage) => {

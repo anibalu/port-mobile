@@ -1,27 +1,31 @@
 import React, {ReactElement, useEffect, useMemo, useState} from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   StyleSheet,
-  View,
   TouchableOpacity,
-  ActivityIndicator,
+  View,
 } from 'react-native';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Contacts from 'react-native-contacts';
-import SearchBar from '@components/SearchBar';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import { Contact, EmailAddress, PhoneNumber } from 'react-native-contacts/type';
+
+import {useColors} from '@components/colorGuide';
+import {GradientScreenView} from '@components/GradientScreenView';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {useColors} from '@components/colorGuide';
-import TopBarDescription from '@components/Text/TopBarDescription';
-import {GradientScreenView} from '@components/GradientScreenView';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import SearchBar from '@components/SearchBar';
 import {Height, Spacing} from '@components/spacingGuide';
+import TopBarDescription from '@components/Text/TopBarDescription';
+
 import {defaultFolderInfo, defaultPermissions} from '@configs/constants';
-import { Contact, EmailAddress, PhoneNumber } from 'react-native-contacts/type';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'PhoneContactList'>;
 

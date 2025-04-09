@@ -1,10 +1,3 @@
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import {ReplyBubbleMessageBar} from '@components/MessageBubbles/ReplyBubble';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType, LinkParams} from '@utils/Messaging/interfaces';
-import {downloadImageToMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {debounce} from 'lodash';
 import React, {
   ReactNode,
   memo,
@@ -16,25 +9,38 @@ import React, {
 } from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
+import {debounce} from 'lodash';
 import {OpenGraphParser} from 'react-native-opengraph-kit';
-import {extractLink} from '@components/MessageBubbles/BubbleUtils';
-import LinkPreview from './LinkPreview';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import VoiceRecorder from './MessageBarComponents/VoiceRecorder';
-import TextComponent from './MessageBarComponents/TextComponent';
-import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {extractLink} from '@components/MessageBubbles/BubbleUtils';
+import {ReplyBubbleMessageBar} from '@components/MessageBubbles/ReplyBubble';
+
+import {useChatContext} from '@screens/DirectChat/ChatContext';
 import {
   MessageBarActionType,
   useMessageBarActionsContext,
 } from '@screens/DirectChat/ChatContexts/MessageBarActions';
+
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {ContentType, LinkParams} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {TemplateParams} from '@utils/Storage/DBCalls/templates';
+import {downloadImageToMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
+
+import LinkPreview from './LinkPreview';
+import TextComponent from './MessageBarComponents/TextComponent';
+import VoiceRecorder from './MessageBarComponents/VoiceRecorder';
+
 
 const MessageBar = ({
   ifTemplateExists,

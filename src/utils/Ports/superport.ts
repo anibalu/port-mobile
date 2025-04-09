@@ -2,27 +2,29 @@ import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import {
   CURRENT_SUPERPORT_VERSION,
   DEFAULT_NAME,
+  ORG_NAME,
   defaultFolderId,
   defaultSuperportConnectionsLimit,
-  ORG_NAME,
 } from '@configs/constants';
+
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
-import * as storageReadPorts from '@utils/Storage/readPorts';
-import * as storageSuperports from '@utils/Storage/superPorts';
-import {generateISOTimeStamp, hasExpired} from '@utils/Time';
-import * as API from './APICalls';
-import {DirectSuperportBundle} from './interfaces';
-import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import {SuperportData} from '@utils/Storage/DBCalls/ports/superPorts';
-import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
-import {getProfileName} from '@utils/Profile';
-import {checkLineExists} from '@utils/Storage/lines';
 import {
   generatorInitialInfoSend,
   readerInitialInfoSend,
 } from '@utils/DirectChats/initialInfoExchange';
+import {getProfileName} from '@utils/Profile';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
+import {SuperportData} from '@utils/Storage/DBCalls/ports/superPorts';
+import {checkLineExists} from '@utils/Storage/lines';
+import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
+import * as storageReadPorts from '@utils/Storage/readPorts';
+import * as storageSuperports from '@utils/Storage/superPorts';
+import {generateISOTimeStamp, hasExpired} from '@utils/Time';
+
+import * as API from './APICalls';
+import {DirectSuperportBundle} from './interfaces';
 
 /**
  * Creates a new superport

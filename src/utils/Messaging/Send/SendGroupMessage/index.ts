@@ -1,21 +1,22 @@
 import {ContentType, DataType} from '@utils/Messaging/interfaces';
+
 import {
-  genericContentTypes,
-  SendGenericGroupMessage,
-} from './senders/GenericSender';
-import {mediaContentTypes, SendMediaGroupMessage} from './senders/MediaSender';
-import {
-  reactionContentTypes,
-  SendReactionGroupMessage,
-} from './senders/ReactionSender';
-import {
-  deleteContentTypes,
   SendDeleteGroupMessage,
+  deleteContentTypes,
 } from './senders/DeletionSender';
 import {
   SendEditedMessage,
   editedMessageTypes,
 } from './senders/EditedMessageSender';
+import {
+  SendGenericGroupMessage,
+  genericContentTypes,
+} from './senders/GenericSender';
+import {SendMediaGroupMessage, mediaContentTypes} from './senders/MediaSender';
+import {
+  SendReactionGroupMessage,
+  reactionContentTypes,
+} from './senders/ReactionSender';
 
 function assignSenderClass(contentType: ContentType) {
   let SenderClass = null;

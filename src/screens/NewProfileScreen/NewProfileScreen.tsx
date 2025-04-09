@@ -1,4 +1,11 @@
+import React, {useEffect, useMemo, useState} from 'react';
+import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+
 import PrimaryButton from '@components/Buttons/PrimaryButton';
+import { useColors } from '@components/colorGuide';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {
   FontSizeType,
@@ -10,20 +17,18 @@ import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import EditName from '@components/Reusable/BottomSheets/EditName';
 import ThemeBottomsheet from '@components/Reusable/BottomSheets/ThemeBottomsheet';
 import {SafeAreaView} from '@components/SafeAreaView';
-import GenericTitle from '@components/Text/GenericTitle';
-import { useColors } from '@components/colorGuide';
 import { Spacing } from '@components/spacingGuide';
+import GenericTitle from '@components/Text/GenericTitle';
+
 import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
-import {useNavigation} from '@react-navigation/native';
+
 import {createSecureDataBackup} from '@utils/Backup/backupUtils';
 import {updateProfileName} from '@utils/Profile';
 import {setNewProfilePicture} from '@utils/ProfilePicture';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {ThemeType} from '@utils/Themes';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React, {useEffect, useMemo, useState} from 'react';
-import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
-import {useSelector} from 'react-redux';
+
 import {useTheme} from 'src/context/ThemeContext';
 
 const NewProfileScreen = () => {

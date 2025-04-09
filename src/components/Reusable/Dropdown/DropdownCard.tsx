@@ -1,4 +1,3 @@
-import {PortSpacing} from '@components/ComponentUtils';
 import React, {useRef, useState} from 'react';
 import {
   Animated,
@@ -9,13 +8,15 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const DropdownCard = ({title, children}: {title: string; children: any}) => {

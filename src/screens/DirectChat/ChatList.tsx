@@ -1,10 +1,3 @@
-import DownArrow from '@assets/icons/navigation/WhiteAngleDown.svg';
-import {PortSpacing} from '@components/ComponentUtils';
-import {
-  ContentType,
-  DisplayableContentTypes,
-} from '@utils/Messaging/interfaces';
-import {checkDateBoundary, checkMessageTimeGap} from '@utils/Time';
 import React, {ReactNode, useRef, useState} from 'react';
 import {
   FlatList,
@@ -14,13 +7,25 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {MessageBubbleParent} from '@components/MessageBubbles/MessageBubbleParent';
-import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
-import {AuthenticatedStateBubble} from '@components/MessageBubbles/AuthenticatedStateBubble';
+
+import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
+import {AuthenticatedStateBubble} from '@components/MessageBubbles/AuthenticatedStateBubble';
+import {MessageBubbleParent} from '@components/MessageBubbles/MessageBubbleParent';
+
+import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
+import {
+  ContentType,
+  DisplayableContentTypes,
+} from '@utils/Messaging/interfaces';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
-import {useChatContext} from './ChatContext';
+import {checkDateBoundary, checkMessageTimeGap} from '@utils/Time';
+
+import DownArrow from '@assets/icons/navigation/WhiteAngleDown.svg';
+
 import {useTheme} from 'src/context/ThemeContext';
+
+import {useChatContext} from './ChatContext';
 
 const MESSAGE_TIME_GAP_FOR_PADDING = 60 * 60 * 1000;
 

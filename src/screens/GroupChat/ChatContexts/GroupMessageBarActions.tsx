@@ -3,8 +3,9 @@
  * Handles dispatching of operations to the message bar.
  */
 
-import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
 import React, {createContext, useContext, useReducer} from 'react';
+
+import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
 
 export enum GroupMessageBarActionsType {
   None = 0,

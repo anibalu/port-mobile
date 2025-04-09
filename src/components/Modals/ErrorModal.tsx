@@ -1,10 +1,14 @@
 import React from 'react';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import {StyleSheet, View} from 'react-native';
-import {PortColors, PortSpacing, screen} from '../ComponentUtils';
-import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
+
 import Error from '@assets/icons/InfoRed.svg';
 import Success from '@assets/icons/SuccessTick.svg';
+
+import {useErrorModal} from 'src/context/ErrorModalContext';
+
+import {PortColors, PortSpacing, screen} from '../ComponentUtils';
+import {FontSizeType, FontType, NumberlessText} from '../NumberlessText';
+
 
 function ErrorModal() {
   const {modalVisible, errorToShow} = useErrorModal();

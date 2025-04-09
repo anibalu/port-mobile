@@ -1,9 +1,9 @@
 import {createPreview} from '@utils/ImageUtils';
-import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
 import {LargeDataParams} from '@utils/Messaging/interfaces';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {updateMedia} from '@utils/Storage/media';
+import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
 import * as storage from '@utils/Storage/groupMessages';
+import {updateMedia} from '@utils/Storage/media';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 /**
  * Function to handle media download for a message. Can be called asynchronosly, or awaited.

@@ -1,4 +1,9 @@
+import React, {useState} from 'react';
+import {View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {permissionConfigMap} from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontType,
@@ -6,14 +11,13 @@ import {
 } from '@components/NumberlessText';
 import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
 import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
-import {getLabelByTimeDiff} from '@utils/Time';
+
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import React, {useState} from 'react';
-import {View} from 'react-native';
-import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
-import DynamicColors from '@components/DynamicColors';
-import {permissionConfigMap} from '@components/getPermissionIcon';
+import {getLabelByTimeDiff} from '@utils/Time';
+
 import {useTheme} from 'src/context/ThemeContext';
+
+import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
 import SimpleCard from '../Cards/SimpleCard';
 
 /**

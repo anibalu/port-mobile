@@ -2,12 +2,15 @@
  * @format
  */
 
-import {AppRegistry,Text, TextInput,LogBox} from 'react-native';
+import {AppRegistry,LogBox, Text,TextInput} from 'react-native';
+
+import {DEMO_MODE} from '@env';
+
+import {initBackgroundFetch} from '@utils/BackgroundOperations/backgroundFetch';
+
 import App from './App';
 import {name as appName} from './app.json';
 import {registerBackgroundMessaging} from './src/utils/Messaging/PushNotifications/fcm';
-import {initBackgroundFetch} from '@utils/BackgroundOperations/backgroundFetch';
-import {DEMO_MODE} from '@env';
 
 if (DEMO_MODE === 'true') {
   LogBox.ignoreAllLogs();

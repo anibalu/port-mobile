@@ -1,11 +1,15 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {FontSizeType, FontWeight, NumberlessText} from '../NumberlessText';
+
+import {PortColors} from '@components/ComponentUtils';
+import {Spacing, Width} from '@components/spacingGuide';
+
 import Error from '@assets/icons/InfoRed.svg';
 import Success from '@assets/icons/SuccessTick.svg';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
-import {Spacing, Width} from '@components/spacingGuide';
-import {PortColors} from '@components/ComponentUtils';
+
+import {FontSizeType, FontWeight, NumberlessText} from '../NumberlessText';
 
 function Toast() {
   const {isToastVisible, toastToShow} = useToast();

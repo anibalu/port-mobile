@@ -1,14 +1,16 @@
 import store from '@store/appStore';
-import DirectReceiveAction from '../DirectReceiveAction';
-import {handleAsyncMediaDownload} from '../HandleMediaDownload';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {DataType, MessageStatus} from '@utils/Messaging/interfaces';
-import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
-import {generateRandomHexId} from '@utils/IdGenerator';
+
 import {getChatPermissions} from '@utils/ChatPermissions';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {DataType, MessageStatus} from '@utils/Messaging/interfaces';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import {saveNewMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
+
+import DirectReceiveAction from '../DirectReceiveAction';
+import {handleAsyncMediaDownload} from '../HandleMediaDownload';
 
 class ReceiveDisplayImage extends DirectReceiveAction {
   generatePreviewText(): string {

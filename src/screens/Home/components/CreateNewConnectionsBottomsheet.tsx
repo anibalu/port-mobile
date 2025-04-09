@@ -1,17 +1,19 @@
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
+
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
+import GradientCard from '@components/Cards/GradientCard';
+import {useColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import GradientCard from '@components/Cards/GradientCard';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import useSVG from '@components/svgGuide';
-import {useColors} from '@components/colorGuide';
-import {Spacing, Width} from '@components/spacingGuide';
+import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import LineSeparator from '@components/Separators/LineSeparator';
+import {Spacing, Width} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 /**
  * A bottom sheet component for creating new connections.
  *

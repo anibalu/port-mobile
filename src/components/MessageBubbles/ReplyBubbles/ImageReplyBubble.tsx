@@ -1,22 +1,25 @@
+import React, {ReactNode, useEffect, useState} from 'react';
+import {Image, StyleSheet, View} from 'react-native';
+
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {LargeDataParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode, useEffect, useState} from 'react';
-import {Image, StyleSheet, View} from 'react-native';
-import {PortSpacing} from '@components/ComponentUtils';
+import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
+import {getMedia} from '@utils/Storage/media';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
 import {
   MAX_WIDTH_REPLY,
   MIN_WIDTH_REPLY,
   REPLY_MEDIA_HEIGHT,
   REPLY_MEDIA_WIDTH,
 } from '../BubbleUtils';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import DynamicColors from '@components/DynamicColors';
-import {getMedia} from '@utils/Storage/media';
-import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
 
 export const ImageReplyBubble = ({
   reply,

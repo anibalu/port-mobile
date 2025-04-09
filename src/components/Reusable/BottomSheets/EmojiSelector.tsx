@@ -1,28 +1,34 @@
-import React, {useState, useEffect, FC} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import {
-  View,
+  ActivityIndicator,
+  FlatList,
+  Platform,
   StyleSheet,
   TouchableOpacity,
-  Platform,
-  FlatList,
-  ActivityIndicator,
+  View,
 } from 'react-native';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import emoji from 'emoji-datasource';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
+import {SvgProps} from 'react-native-svg';
+
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 
-import SimpleCard from '../Cards/SimpleCard';
 import {EmojiCategories} from '@configs/emojiCategories';
-import BasicSearchBar from '../TopBars/BasicSearchBar';
+
 import {wait} from '@utils/Time';
-import {SvgProps} from 'react-native-svg';
-import DynamicColors from '@components/DynamicColors';
+
+import SimpleCard from '../Cards/SimpleCard';
+import BasicSearchBar from '../TopBars/BasicSearchBar';
+
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 interface Emoji {
   unified: string;

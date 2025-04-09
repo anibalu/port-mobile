@@ -2,13 +2,16 @@
  * This file exposes a helper to delete a user's account.
  */
 
-import {INITIAL_POST_MANAGEMENT_RESOURCE} from '@configs/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+import {INITIAL_POST_MANAGEMENT_RESOURCE} from '@configs/api';
+
 import {getToken} from '@utils/ServerAuth';
 import {resetDatabase} from '@utils/Storage/Migrations';
 import {clearRNSS} from '@utils/Storage/RNSecure/clearRNSS';
 import clearAllFiles from '@utils/Storage/StorageRNFS/clearStorage';
-import axios from 'axios';
+
 
 /**
  * Permanently delete a user's account.

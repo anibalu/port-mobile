@@ -1,14 +1,16 @@
+import React, {FC} from 'react';
+import {StyleSheet, TouchableOpacity, View, ViewStyle} from 'react-native';
+
+import {SvgProps} from 'react-native-svg';
+
+import {useColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {FC} from 'react';
-import {StyleSheet, TouchableOpacity, View, ViewStyle} from 'react-native';
-import {SvgProps} from 'react-native-svg';
-import useSVG from '@components/svgGuide';
-import {useColors} from '@components/colorGuide';
 import {Size, Spacing} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 /**
  * A reusable component that renders a touchable option with:

@@ -1,25 +1,31 @@
-import Play from '@assets/icons/videoPlay.svg';
+import React, {useCallback, useState} from 'react';
+import {FlatList, Image, Pressable, StyleSheet, View} from 'react-native';
+
+import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+
+
+import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
 import {isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {MediaEntry} from '@utils/Storage/DBCalls/media';
+
 import {ContentType} from '@utils/Messaging/interfaces';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {getImagesAndVideos} from '@utils/Storage/media';
-import React, {useCallback, useState} from 'react';
-import {FlatList, Image, Pressable, StyleSheet, View} from 'react-native';
-import {TabStackParamList} from './SharedMedia';
-import Icon from '@assets/icons/NoFilesFound.svg';
-import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
-import DynamicColors from '@components/DynamicColors';
-import {getMessage} from '@utils/Storage/messages';
 import {isGroupChat} from '@utils/Storage/connections';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {getGroupMessage} from '@utils/Storage/groupMessages';
+import {getImagesAndVideos} from '@utils/Storage/media';
+import {getMessage} from '@utils/Storage/messages';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import Icon from '@assets/icons/NoFilesFound.svg';
+import Play from '@assets/icons/videoPlay.svg';
+
+import {TabStackParamList} from './SharedMedia';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewPhotosVideos'>;
 

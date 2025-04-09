@@ -3,9 +3,10 @@
  * Takes no props.
  */
 
-import DynamicColors from '@components/DynamicColors';
 import React from 'react';
 import {StyleSheet,View} from 'react-native';
+
+import DynamicColors from '@components/DynamicColors';
 
 const LineSeparator = ({
   fromContactBubble = false,

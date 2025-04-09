@@ -9,21 +9,26 @@
  * 6. boolean to show user unfo (used in contact profile)
  */
 
+import React, {FC} from 'react';
+import {Pressable, StyleSheet,View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+import {SvgProps} from 'react-native-svg';
+
+
+import {BackButton} from '@components/BackButton';
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
-import React, {FC} from 'react';
-import {Pressable, StyleSheet,View} from 'react-native';
-import {SvgProps} from 'react-native-svg';
-import {useNavigation} from '@react-navigation/native';
-import {AvatarBox} from '../AvatarBox/AvatarBox';
-import DynamicColors from '@components/DynamicColors';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
-import {BackButton} from '@components/BackButton';
+
+import {AvatarBox} from '../AvatarBox/AvatarBox';
 
 const UserInfoTopbar = ({
   IconRight,

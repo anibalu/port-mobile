@@ -1,6 +1,6 @@
-import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {PortBundle} from '@utils/Ports/interfaces';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
 
 abstract class PortGenerator {
   abstract version: string;

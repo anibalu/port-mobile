@@ -1,3 +1,6 @@
+import React, {useMemo, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -7,15 +10,15 @@ import {
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
-import Tick from '@assets/icons/notes/Tick.svg';
-import Greentick from '@assets/icons/notes/Greentick.svg';
-import React, {useMemo, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {GroupData} from '@utils/Storage/DBCalls/group';
+
 import Group from '@utils/Groups/Group';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {GroupData} from '@utils/Storage/DBCalls/group';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import Greentick from '@assets/icons/notes/Greentick.svg';
+import Tick from '@assets/icons/notes/Tick.svg';
 
 const Description = ({
   description,

@@ -1,3 +1,8 @@
+import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
+
+import {getChatPermissions} from '@utils/ChatPermissions';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContentType,
   DataType,
@@ -8,23 +13,21 @@ import {
   PayloadMessageParams,
   connectionUpdateExemptTypes,
 } from '@utils/Messaging/interfaces';
-import * as storage from '@utils/Storage/messages';
-import {SendDirectMessage} from './AbstractSender';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
-import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
-import * as API from '../../APICalls';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
+import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import {saveNewMedia, updateMedia} from '@utils/Storage/media';
+import * as storage from '@utils/Storage/messages';
 import {
   checkFileSizeWithinLimits,
   moveToLargeFileDir,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
-import {saveNewMedia, updateMedia} from '@utils/Storage/media';
-import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
-import {getChatPermissions} from '@utils/ChatPermissions';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
-import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import {generateExpiresOnISOTimestamp, generateISOTimeStamp} from '@utils/Time';
+
+import * as API from '../../APICalls';
+
+import {SendDirectMessage} from './AbstractSender';
 
 /**
  * Content types that trigger this sender

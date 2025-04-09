@@ -4,11 +4,13 @@
  */
 import React from 'react';
 import {StyleSheet, ViewProps, ViewStyle} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {PortSpacing, isIOS} from './ComponentUtils';
+
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import DynamicColors from './DynamicColors';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+
+import {PortSpacing, isIOS} from './ComponentUtils';
 import {useInsetChecks} from './DeviceUtils';
+import DynamicColors from './DynamicColors';
 
 interface GestureSafeAreaViewProps extends ViewProps {
   removeOffset?: boolean;

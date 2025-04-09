@@ -1,5 +1,3 @@
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {SafeAreaView} from '@components/SafeAreaView';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   AppState,
@@ -8,25 +6,32 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import PrimaryButton from '@components/Buttons/PrimaryButton';
+import {useColors} from '@components/colorGuide';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {defaultPermissions, defaultPermissionsId} from '@configs/constants';
-import {Height, Spacing} from '@components/spacingGuide';
-import PrimaryButton from '@components/Buttons/PrimaryButton';
-import {useColors} from '@components/colorGuide';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 import ExpandableLocalPermissionsCard from '@components/PermissionsCards/ExpandableLocalPermissionsCard';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {Height, Spacing} from '@components/spacingGuide';
+import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
+
+import {defaultPermissions, defaultPermissionsId} from '@configs/constants';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
 import {
   checkAndAskNotificationPermission,
   checkNotificationPermission,
 } from '@utils/AppPermissions';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
 
 type Props = NativeStackScreenProps<
   AppStackParamList,

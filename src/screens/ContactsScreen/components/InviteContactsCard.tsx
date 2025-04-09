@@ -1,17 +1,22 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import InviteContactsLogo from '@assets/dark/icons/InviteContacts.svg';
+
+import {useNavigation} from '@react-navigation/native';
+
+import PrimaryButton from '@components/Buttons/PrimaryButton';
 import GradientCard from '@components/Cards/GradientCard';
-import {Spacing} from '@components/spacingGuide';
+import {useColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {useNavigation} from '@react-navigation/native';
-import {useColors} from '@components/colorGuide';
-import PrimaryButton from '@components/Buttons/PrimaryButton';
+import {Spacing} from '@components/spacingGuide';
+
 import {checkAndAskContactPermission} from '@utils/AppPermissions';
+
+import InviteContactsLogo from '@assets/dark/icons/InviteContacts.svg';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
 
 const InviteContactsCard = () => {

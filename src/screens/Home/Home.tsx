@@ -3,47 +3,55 @@
  * a few other neat features.
  * screen id: 5
  */
-import ChatTile, {ChatTileProps, CompleteChatTileProps} from '@components/ChatTile/ChatTile';
 
-import notifee from '@notifee/react-native';
-import {useFocusEffect} from '@react-navigation/native';
-import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import React, {ReactElement, useEffect, useMemo, useState} from 'react';
 import {
+  Animated,
+  Easing,
   FlatList,
   KeyboardAvoidingView,
   StyleSheet,
   View,
-  Animated,
-  Easing,
 } from 'react-native';
+
+import notifee from '@notifee/react-native';
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useSelector} from 'react-redux';
-import HomeTopbar from './components/HomeTopbar';
-import HomescreenPlaceholder from './components/HomescreenPlaceholder';
+
+import ChatTile, {ChatTileProps, CompleteChatTileProps} from '@components/ChatTile/ChatTile';
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
-import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import {useTheme} from 'src/context/ThemeContext';
-import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
 import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
-import SearchBar from '@components/SearchBar';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {BottomNavStackParamList} from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
-import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactBottomSheet';
-import {cleanDeleteReadPort} from '@utils/Ports/direct';
 import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
+import SearchBar from '@components/SearchBar';
+
+import {BOTTOMBAR_HEIGHT} from '@configs/constants';
+
+import {BottomNavStackParamList} from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
+
+import {useCallContext} from '@screens/Calls/CallContext';
+import NewConnectionsBottomsheet from '@screens/Home/components/CreateNewConnectionsBottomsheet';
+
+import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
+import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
+import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
+import {cleanDeleteReadPort} from '@utils/Ports/direct';
 import {getConnections} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
-import {useCallContext} from '@screens/Calls/CallContext';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import NewConnectionsBottomsheet from '@screens/Home/components/CreateNewConnectionsBottomsheet';
+
+import {useTheme} from 'src/context/ThemeContext';
+
+import HomescreenPlaceholder from './components/HomescreenPlaceholder';
+import HomeTopbar from './components/HomeTopbar';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 

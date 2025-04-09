@@ -1,21 +1,25 @@
-import {PortSpacing, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {SafeAreaView} from '@components/SafeAreaView';
 import React, {useEffect, useState} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+
 import {useNavigation} from '@react-navigation/native';
-import {BlockedUser} from '@utils/Storage/DBCalls/blockUser';
+
 import BlockedContactTile from '@components/BlockedContactTile';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import Icon from '@assets/icons/NoFilesFound.svg';
+import {PortSpacing, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+
 import {getAllBlockedUsers} from '@utils/Storage/blockUsers';
-import DynamicColors from '@components/DynamicColors';
+import {BlockedUser} from '@utils/Storage/DBCalls/blockUser';
+
+import Icon from '@assets/icons/NoFilesFound.svg';
 
 const BlockedContacts = () => {
   const navigation = useNavigation();

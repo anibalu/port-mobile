@@ -1,15 +1,18 @@
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {RenderTimeStamp} from '../BubbleUtils';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
-import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {RenderTimeStamp} from '../BubbleUtils';
 
 export const CallBubble = ({message}: {message: LoadedMessage}): ReactNode => {
   const Colors = DynamicColors();

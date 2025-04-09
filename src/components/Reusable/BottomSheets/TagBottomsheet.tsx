@@ -1,4 +1,8 @@
+import React, {useState} from 'react';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
+
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -6,14 +10,13 @@ import {
 } from '@components/NumberlessText';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import React, {useState} from 'react';
-import {FlatList, Pressable, StyleSheet, View} from 'react-native';
-
-import DynamicColors from '@components/DynamicColors';
-import SimpleInput from '../Inputs/SimpleInput';
 import {TagColors} from '@components/TagColors';
-import PrimaryButton from '../LongButtons/PrimaryButton';
+
 import {generateRandomHexId} from '@utils/IdGenerator';
+
+import SimpleInput from '../Inputs/SimpleInput';
+import PrimaryButton from '../LongButtons/PrimaryButton';
+
 
 const TagBottomsheet = ({
   visible,

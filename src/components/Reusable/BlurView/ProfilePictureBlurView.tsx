@@ -1,8 +1,10 @@
-import {StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
+import {StyleSheet, TouchableOpacity} from 'react-native';
+
 import {isIOS, screen} from '@components/ComponentUtils';
-import {AvatarBox} from '../AvatarBox/AvatarBox';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+
+import {AvatarBox} from '../AvatarBox/AvatarBox';
 
 const ProfilePictureBlurViewModal = ({
   avatarUrl,

@@ -7,18 +7,22 @@ import {
   TextStyle,
   View,
 } from 'react-native';
+
 import {SvgProps} from 'react-native-svg';
-import GenericModal from '@components/Modals/GenericModal';
+
+import {useColors} from '@components/colorGuide';
 import {isIOS, screen} from '@components/ComponentUtils';
+import GenericModal from '@components/Modals/GenericModal';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import SmallLoader from '../Loaders/SmallLoader';
-import useSVG from '@components/svgGuide';
-import {useColors} from '@components/colorGuide';
 import {Size, Spacing, Width} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
+
+import SmallLoader from '../Loaders/SmallLoader';
+
 
 /**
  * A reusable bottom sheet component that provides consistent behavior and styling.

@@ -2,9 +2,11 @@
  * This file assists in clearing all files in RNFS
  */
 
-import {isIOS} from '@components/ComponentUtils';
-import {APP_GROUP_IDENTIFIER} from '@configs/constants';
 import RNFS from 'react-native-fs';
+
+import {isIOS} from '@components/ComponentUtils';
+
+import {APP_GROUP_IDENTIFIER} from '@configs/constants';
 
 /**
  * HAZMAT SUIT ON. Clear all files saved locally

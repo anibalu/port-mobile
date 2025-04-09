@@ -1,6 +1,7 @@
-import {NameParams} from '@utils/Messaging/interfaces';
-import GroupReceiveAction from '../GroupReceiveAction';
 import Group from '@utils/Groups/Group';
+import {NameParams} from '@utils/Messaging/interfaces';
+
+import GroupReceiveAction from '../GroupReceiveAction';
 
 class ReceiveName extends GroupReceiveAction {
   async performAction(): Promise<void> {

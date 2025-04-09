@@ -1,45 +1,48 @@
-import * as storage from '@utils/Storage/lines';
-import * as API from './APICalls';
+import {DEFAULT_NAME} from '@configs/constants';
+
+import store from '@store/appStore';
+
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
+import {getProfileInfo} from '@utils/Profile';
+import {isUserBlocked} from '@utils/Storage/blockUsers';
 import {
+  addConnection,
   deleteConnection,
   getBasicConnectionInfo,
   getChatIdFromPairHash,
   getChatIdFromRoutingId,
   updateConnectionOnNewMessage,
-  addConnection,
 } from '@utils/Storage/connections';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
-import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
-import {generateISOTimeStamp} from '@utils/Time';
 import {
-  DirectPermissions,
-  Permissions,
-} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {
-  clearPermissions,
-  getPermissions,
-  updatePermissions,
-} from '@utils/Storage/permissions';
-import store from '@store/appStore';
-import {isUserBlocked} from '@utils/Storage/blockUsers';
-import {deleteAllMessagesInChat} from '@utils/Storage/messages';
-import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import {getProfileInfo} from '@utils/Profile';
-import {DEFAULT_NAME} from '@configs/constants';
-import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
-import {LineData, LineDataEntry} from '@utils/Storage/DBCalls/lines';
-import {ContactEntry, ContactInfo} from '@utils/Storage/DBCalls/contacts';
+  deleteContactPortsAssociatedWithContact,
+  getContactPortTicket,
+} from '@utils/Storage/contactPorts';
 import {
   addContact,
   deleteContact,
   getContact,
   updateContact,
 } from '@utils/Storage/contacts';
-import {generateRandomHexId} from '@utils/IdGenerator';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {ContactEntry, ContactInfo} from '@utils/Storage/DBCalls/contacts';
+import {LineData, LineDataEntry} from '@utils/Storage/DBCalls/lines';
 import {
-  deleteContactPortsAssociatedWithContact,
-  getContactPortTicket,
-} from '@utils/Storage/contactPorts';
+  DirectPermissions,
+  Permissions,
+} from '@utils/Storage/DBCalls/permissions/interfaces';
+import * as storage from '@utils/Storage/lines';
+import {deleteAllMessagesInChat} from '@utils/Storage/messages';
+import {
+  clearPermissions,
+  getPermissions,
+  updatePermissions,
+} from '@utils/Storage/permissions';
+import {generateISOTimeStamp} from '@utils/Time';
+
+import * as API from './APICalls';
 
 /**
  * Describes data associated with direct chats

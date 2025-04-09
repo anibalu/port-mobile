@@ -1,5 +1,6 @@
 import React from 'react';
 import {ImageBackground, StyleSheet, View} from 'react-native';
+
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -7,9 +8,10 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 interface PortInfoProps {
   onClose: () => void;

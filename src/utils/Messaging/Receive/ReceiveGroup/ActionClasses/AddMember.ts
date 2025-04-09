@@ -1,10 +1,12 @@
 import store from '@store/appStore';
+
 import Group from '@utils/Groups/Group';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {getProfileInfo} from '@utils/Profile';
-import GroupReceiveAction from '../GroupReceiveAction';
 import {isAvatarUri} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import GroupReceiveAction from '../GroupReceiveAction';
 
 class AddMember extends GroupReceiveAction {
   async performAction(): Promise<void> {

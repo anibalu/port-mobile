@@ -1,5 +1,5 @@
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
+import DirectChat from '@utils/DirectChats/DirectChat';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContactBundleParams,
@@ -7,17 +7,17 @@ import {
   ContentType,
   MessageStatus,
 } from '@utils/Messaging/interfaces';
-import {saveMessage} from '@utils/Storage/messages';
-import {generateISOTimeStamp} from '@utils/Time';
-import {generateBundle} from '@utils/Ports';
-import {PortBundle} from '@utils/Ports/interfaces';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import {expiryOptions} from '@utils/Time/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import * as messageStorage from '@utils/Storage/messages';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import {generateBundle} from '@utils/Ports';
 import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
+import {PortBundle} from '@utils/Ports/interfaces';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {saveMessage} from '@utils/Storage/messages';
+import * as messageStorage from '@utils/Storage/messages';
+import {generateISOTimeStamp} from '@utils/Time';
+import {expiryOptions} from '@utils/Time/interfaces';
 
 export interface ContactShareRequest {
   source: string; //chat id of contact from whom a port is being requested

@@ -1,6 +1,7 @@
 import React from 'react';
-import TopBarTitle from './TopBarTitle';
+
 import TopBarDescription from './TopBarDescription';
+import TopBarTitle from './TopBarTitle';
 
 /**
  * TopBarEmptyTitleAndDescription component displays an empty title and description in the top bar.

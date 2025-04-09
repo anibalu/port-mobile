@@ -1,14 +1,19 @@
-import {BasicGroupInfo} from '@utils/Storage/DBCalls/group';
-import {getGroupsWithContact} from '@utils/Storage/group';
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, View} from 'react-native';
-import DynamicColors from './DynamicColors';
-import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
-import {PortSpacing} from './ComponentUtils';
+
 import {useNavigation} from '@react-navigation/native';
-import {getChatIdFromRoutingId} from '@utils/Storage/connections';
+
 import {DEFAULT_GROUP_PROFILE_AVATAR_INFO} from '@configs/constants';
+
+import {getChatIdFromRoutingId} from '@utils/Storage/connections';
+import {BasicGroupInfo} from '@utils/Storage/DBCalls/group';
+import {getGroupsWithContact} from '@utils/Storage/group';
+
+import {PortSpacing} from './ComponentUtils';
+import DynamicColors from './DynamicColors';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
+
 
 export function CommonGroups({pairHash}: {pairHash: string}): ReactNode {
   const [groupsInCommon, setGroupsInCommon] = useState<BasicGroupInfo[]>([]);

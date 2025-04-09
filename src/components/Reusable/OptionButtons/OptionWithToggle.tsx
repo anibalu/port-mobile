@@ -8,6 +8,12 @@
  * 5. Has border bottom
  */
 
+import React, {FC} from 'react';
+import {StyleSheet,View} from 'react-native';
+
+import {SvgProps} from 'react-native-svg';
+import ToggleSwitch from 'toggle-switch-react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -15,10 +21,6 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {FC} from 'react';
-import {StyleSheet,View} from 'react-native';
-import {SvgProps} from 'react-native-svg';
-import ToggleSwitch from 'toggle-switch-react-native';
 
 const OptionWithToggle = ({
   onToggle,

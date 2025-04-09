@@ -1,14 +1,17 @@
 import React from 'react';
 import {Image, StyleSheet, View} from 'react-native';
-import {MediaEntry} from '@utils/Storage/DBCalls/media';
-import {getDateStamp} from '@utils/Time';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {getDateStamp} from '@utils/Time';
+
 import ChevronRight from '@assets/icons/navigation/GreyAngleRight.svg';
 
 export default function LinkTile({

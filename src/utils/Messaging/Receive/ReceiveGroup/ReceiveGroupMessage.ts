@@ -1,6 +1,7 @@
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import Group from '@utils/Groups/Group';
 import {PayloadMessageParams} from '@utils/Messaging/interfaces';
+
 import GroupReceiveAction from './GroupReceiveAction';
 import {groupReceiveActionPicker} from './possibleActions';
 

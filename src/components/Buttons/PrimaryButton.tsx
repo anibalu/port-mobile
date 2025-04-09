@@ -1,19 +1,21 @@
 import React, {FC} from 'react';
 import {
-  TouchableOpacity,
+  ActivityIndicator,
   StyleSheet,
   TextStyle,
-  ActivityIndicator,
+  TouchableOpacity,
   ViewStyle,
 } from 'react-native';
-import {Colors, useThemeColors} from '@components/colorGuide';
+
 import {SvgProps} from 'react-native-svg';
-import {Spacing, Size} from '@components/spacingGuide';
+
+import {Colors, useThemeColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
+import {Size, Spacing} from '@components/spacingGuide';
 
 interface PrimaryButtonProps {
   text: string;

@@ -1,10 +1,11 @@
+import {OpenGraphParser} from 'react-native-opengraph-kit';
+
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {LinkParams} from '@utils/Messaging/interfaces';
-import {downloadImageToMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {saveNewMedia, updateMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
 import {getMessage} from '@utils/Storage/messages';
-import {OpenGraphParser} from 'react-native-opengraph-kit';
+import {downloadImageToMediaDir} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 /**
  * Function to handle media download for a message. Can be called asynchronosly, or awaited.

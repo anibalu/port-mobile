@@ -1,26 +1,31 @@
+import React, {useState} from 'react';
+import {Image, KeyboardAvoidingView, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+import DeviceInfo from 'react-native-device-info';
+import {Asset, launchImageLibrary} from 'react-native-image-picker';
+
 import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
-import {Image, KeyboardAvoidingView, StyleSheet, View} from 'react-native';
-import Upload from '@assets/icons/GalleryAccentLight.svg';
-import UploadBlack from '@assets/icons/GalleryOutline.svg';
+
+import {submitBugReport} from '@utils/BugReporting/bug_reports';
+
 import AddImage from '@assets/icons/AddImage.svg';
 import BlueCross from '@assets/icons/BlueCross.svg';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import {Asset, launchImageLibrary} from 'react-native-image-picker';
-import DeviceInfo from 'react-native-device-info';
-import {submitBugReport} from '@utils/BugReporting/bug_reports';
-import DynamicColors from '@components/DynamicColors';
+import Upload from '@assets/icons/GalleryAccentLight.svg';
+import UploadBlack from '@assets/icons/GalleryOutline.svg';
+
 import {useTheme} from 'src/context/ThemeContext';
 import {ToastType, useToast} from 'src/context/ToastContext';
 

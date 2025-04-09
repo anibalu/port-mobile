@@ -7,14 +7,15 @@
  * - ToastProvider: Provider component to wrap around the application.
  */
 
-import {ERROR_MODAL_VALIDITY_TIMEOUT} from '@configs/constants';
 import React, {
+  ReactNode,
   createContext,
   useContext,
-  ReactNode,
-  useState,
   useEffect,
+  useState,
 } from 'react';
+
+import {ERROR_MODAL_VALIDITY_TIMEOUT} from '@configs/constants';
 
 /**
  * Enum for Toast types.

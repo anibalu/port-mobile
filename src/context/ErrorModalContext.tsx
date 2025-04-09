@@ -1,9 +1,9 @@
 import React, {
-  createContext,
-  useState,
-  useContext,
   ReactNode,
+  createContext,
+  useContext,
   useEffect,
+  useState,
 } from 'react';
 
 import {ERROR_MODAL_VALIDITY_TIMEOUT} from '@configs/constants';

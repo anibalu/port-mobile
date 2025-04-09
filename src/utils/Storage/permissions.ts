@@ -1,12 +1,13 @@
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   Permissions,
   PermissionsEntry,
   PermissionsStrict,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
-import * as dbCalls from './DBCalls/permissions';
+
 import {getConnectionsByFolder} from './connections';
+import * as dbCalls from './DBCalls/permissions';
 import {getFolder} from './folders';
-import {generateRandomHexId} from '@utils/IdGenerator';
 
 /**
  * Adds a set of permissions to storage

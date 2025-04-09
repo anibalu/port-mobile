@@ -1,14 +1,17 @@
+import React from 'react';
+import {Pressable, StyleSheet} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
-import DynamicColors from '@components/DynamicColors';
-import {useTheme} from 'src/context/ThemeContext';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {useTheme} from 'src/context/ThemeContext';
 
 const NumberPill = ({
   connectionLimit,

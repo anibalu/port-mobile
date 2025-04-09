@@ -1,11 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {Pressable, ScrollView, StyleSheet} from 'react-native';
-import {PortColors, isIOS, screen} from './ComponentUtils';
+
+import {Thumbnail, createThumbnail} from 'react-native-create-thumbnail';
 import LinearGradient from 'react-native-linear-gradient';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import VideoPlayer from 'react-native-video-player';
-import {createThumbnail, Thumbnail} from 'react-native-create-thumbnail';
+
+import {PortColors, isIOS, screen} from './ComponentUtils';
 import DynamicColors from './DynamicColors';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+
+
 
 const VideoView = ({
   fileUri,

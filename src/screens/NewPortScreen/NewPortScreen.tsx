@@ -1,9 +1,4 @@
-import PortLabelAndLimitCard from '@components/Reusable/PortLabelAndLimit/PortLabelAndLimitCard';
 // import TagCard from '@components/Reusable/Cards/TagCard';
-import PrimaryButton from '@components/Buttons/PrimaryButton';
-import {defaultFolderInfo, defaultPermissions} from '@configs/constants';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   AppState,
@@ -12,13 +7,23 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import {Spacing} from '@components/spacingGuide';
-import TopBarDescription from '@components/Text/TopBarDescription';
+
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import PrimaryButton from '@components/Buttons/PrimaryButton';
 import {useColors} from '@components/colorGuide';
 import {GradientScreenView} from '@components/GradientScreenView';
 import ExpandableLocalPermissionsCard from '@components/PermissionsCards/ExpandableLocalPermissionsCard';
+import PortLabelAndLimitCard from '@components/Reusable/PortLabelAndLimit/PortLabelAndLimitCard';
+import {Spacing} from '@components/spacingGuide';
+import TopBarDescription from '@components/Text/TopBarDescription';
+
+import {defaultFolderInfo, defaultPermissions} from '@configs/constants';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
 import {checkNotificationPermission} from '@utils/AppPermissions';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 

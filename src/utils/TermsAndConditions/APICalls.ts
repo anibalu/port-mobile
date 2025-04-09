@@ -1,6 +1,8 @@
-import {POLICY_ACCEPTANCE} from '@configs/api';
-import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+
+import {POLICY_ACCEPTANCE} from '@configs/api';
+
+import {getToken} from '@utils/ServerAuth';
 
 export interface TermsAndConditionParams {
   needsToAccept: boolean;

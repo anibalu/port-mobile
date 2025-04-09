@@ -1,25 +1,28 @@
 import React, {forwardRef, useImperativeHandle, useMemo} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
+
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import Animated, {
   SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
+
 import {screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-
-import {useTheme} from 'src/context/ThemeContext';
-import ChatSettingsCardGroup from '@components/Reusable/PermissionCards/ChatSettingsCardGroup';
-import AdvanceSettingsCardGroup from '@components/Reusable/PermissionCards/AdvanceSettingsCardGroup';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import PermissionIconsGroup from '@components/PermissionIconsGroup';
+import AdvanceSettingsCardGroup from '@components/Reusable/PermissionCards/AdvanceSettingsCardGroup';
+import ChatSettingsCardGroup from '@components/Reusable/PermissionCards/ChatSettingsCardGroup';
+
 import {GroupPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
+
+import {useTheme} from 'src/context/ThemeContext';
 
 /**
  * Access slider constants

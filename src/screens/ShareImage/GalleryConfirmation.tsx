@@ -1,35 +1,3 @@
-import Camera from '@assets/icons/CameraThinWhite.svg';
-import Send from '@assets/icons/navigation/WhiteArrowUp.svg';
-import Whitecross from '@assets/icons/greyCrossIcon.svg';
-import Delete from '@assets/icons/Whitedelete.svg';
-import Play from '@assets/icons/videoPlay.svg';
-import BlackOverlay from '@assets/miscellaneous/blackOverlay.svg';
-import {
-  PortColors,
-  PortSpacing,
-  isIOS,
-  screen,
-} from '@components/ComponentUtils';
-import {GenericButton} from '@components/GenericButton';
-import GenericInput from '@components/GenericInput';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import {StackActions} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {
-  compressImage,
-  compressVideo,
-} from '@utils/Compressor/graphicCompressors';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import {ContentType} from '@utils/Messaging/interfaces';
-import {
-  getRelativeURI,
-  moveToTmp,
-} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
@@ -40,20 +8,61 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+
+import {StackActions} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import FileViewer from 'react-native-file-viewer';
 import Pdf from 'react-native-pdf';
 import Carousel from 'react-native-snap-carousel';
-import useKeyboardVisibility from '../../utils/Hooks/useKeyboardVisibility';
-import Group from '@utils/Groups/Group';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {SafeAreaView} from '@components/SafeAreaView';
+
+import {
+  PortColors,
+  PortSpacing,
+  isIOS,
+  screen,
+} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
-import {createPreview} from '@utils/ImageUtils';
 import DynamicColors from '@components/DynamicColors';
+import {GenericButton} from '@components/GenericButton';
+import GenericInput from '@components/GenericInput';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import {SafeAreaView} from '@components/SafeAreaView';
+
 import {DEFAULT_NAME} from '@configs/constants';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
+import {
+  compressImage,
+  compressVideo,
+} from '@utils/Compressor/graphicCompressors';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import Group from '@utils/Groups/Group';
+import {createPreview} from '@utils/ImageUtils';
+import {ContentType} from '@utils/Messaging/interfaces';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {isGroupChat} from '@utils/Storage/connections';
+import {
+  getRelativeURI,
+  moveToTmp,
+} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import Camera from '@assets/icons/CameraThinWhite.svg';
+import Whitecross from '@assets/icons/greyCrossIcon.svg';
+import Send from '@assets/icons/navigation/WhiteArrowUp.svg';
+import Play from '@assets/icons/videoPlay.svg';
+import Delete from '@assets/icons/Whitedelete.svg';
+import BlackOverlay from '@assets/miscellaneous/blackOverlay.svg';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
+
+import useKeyboardVisibility from '../../utils/Hooks/useKeyboardVisibility';
+
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 

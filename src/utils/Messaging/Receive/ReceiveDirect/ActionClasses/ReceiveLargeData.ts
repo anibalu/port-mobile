@@ -1,21 +1,23 @@
+import store from '@store/appStore';
+
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {getConnection,updateConnectionOnNewMessage} from '@utils/Storage/connections';
-import {ChatType,ConnectionInfo,NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   DataType,
   LargeDataParams,
   MessageStatus,
 } from '@utils/Messaging/interfaces';
 import {displaySimpleNotification} from '@utils/Notifications';
-import DirectReceiveAction from '../DirectReceiveAction';
-import {handleAsyncMediaDownload} from '../HandleMediaDownload';
-import store from '@store/appStore';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {getConnection,updateConnectionOnNewMessage} from '@utils/Storage/connections';
+import {ChatType,ConnectionInfo,NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
-import {generateRandomHexId} from '@utils/IdGenerator';
+import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {saveNewMedia} from '@utils/Storage/media';
 import * as storage from '@utils/Storage/messages';
+
+import DirectReceiveAction from '../DirectReceiveAction';
+import {handleAsyncMediaDownload} from '../HandleMediaDownload';
 
 class ReceiveLargeData extends DirectReceiveAction {
   async performAction(): Promise<void> {

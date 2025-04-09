@@ -1,6 +1,7 @@
-import {PortColors} from '@components/ComponentUtils';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
+
+import {PortColors} from '@components/ComponentUtils';
 
 const Notch = () => {
   return <View style={styles.topnotch} />;

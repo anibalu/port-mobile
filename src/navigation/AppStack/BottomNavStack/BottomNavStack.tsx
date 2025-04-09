@@ -1,14 +1,18 @@
 import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Home from '@screens/Home/Home';
-import {BottomNavStackParamList} from './BottomNavStackTypes';
-import NewProfileScreen from '@screens/NewProfileScreen/NewProfileScreen';
-import AllPortsScreen from '@screens/AllPorts/AllPortsScreen';
-import useSVG from '@components/svgGuide';
-import {useColors} from '@components/colorGuide';
-import {Height} from '@components/spacingGuide';
-import {FontSizeType, FontWeight} from '@components/NumberlessText';
 import {View} from 'react-native';
+
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+
+import {useColors} from '@components/colorGuide';
+import {FontSizeType, FontWeight} from '@components/NumberlessText';
+import {Height} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
+
+import AllPortsScreen from '@screens/AllPorts/AllPortsScreen';
+import Home from '@screens/Home/Home';
+import NewProfileScreen from '@screens/NewProfileScreen/NewProfileScreen';
+
+import {BottomNavStackParamList} from './BottomNavStackTypes';
 
 const Tab = createBottomTabNavigator<BottomNavStackParamList>();
 

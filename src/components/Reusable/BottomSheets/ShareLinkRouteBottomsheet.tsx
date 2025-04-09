@@ -4,16 +4,23 @@
 
 import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {safeModalCloseDuration} from '@configs/constants';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
+
 
 import {useNavigation} from '@react-navigation/native';
-import SecondaryButton from '../LongButtons/SecondaryButton';
+
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
+
+import {safeModalCloseDuration} from '@configs/constants';
+
+import {checkAndAskContactPermission} from '@utils/AppPermissions';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {wait} from '@utils/Time';
-import {checkAndAskContactPermission} from '@utils/AppPermissions';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
+
+import SecondaryButton from '../LongButtons/SecondaryButton';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 const ShareLinkRouteBottomsheet = ({
   visible,

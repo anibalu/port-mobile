@@ -1,3 +1,6 @@
+import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -7,12 +10,12 @@ import {
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
-import Tick from '@assets/icons/notes/Tick.svg';
-import Greentick from '@assets/icons/notes/Greentick.svg';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import {updateContact} from '@utils/Storage/contacts';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import Greentick from '@assets/icons/notes/Greentick.svg';
+import Tick from '@assets/icons/notes/Tick.svg';
 
 const Notes = ({
   note,

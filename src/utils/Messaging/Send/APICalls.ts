@@ -1,9 +1,11 @@
-import {ServerAuthToken} from '@utils/Storage/RNSecure/secureTokenHandler';
-import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+
 import {MESSAGING_RESOURCE} from '@configs/api';
+
+import {getToken} from '@utils/ServerAuth';
 import {getBasicConnectionInfo} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {ServerAuthToken} from '@utils/Storage/RNSecure/secureTokenHandler';
 
 /**
  * API call to send a payload

@@ -1,15 +1,15 @@
 import React, {
-  createContext,
-  useState,
-  useContext,
   ReactNode,
-  useEffect,
+  createContext,
   useCallback,
+  useContext,
+  useEffect,
   useMemo,
+  useState,
 } from 'react';
+import {useColorScheme} from 'react-native';
 
 import {ThemeType, getTheme, saveTheme} from '@utils/Themes';
-import {useColorScheme} from 'react-native';
 
 type ModalContextType = {
   handleThemeChange: (theme: ThemeType) => void;

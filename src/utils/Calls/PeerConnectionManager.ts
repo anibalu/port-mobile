@@ -7,6 +7,9 @@ import {
   RTCPeerConnection,
   RTCSessionDescription,
 } from 'react-native-webrtc';
+import RTCDataChannel from 'react-native-webrtc/lib/typescript/RTCDataChannel';
+
+import {getPeerRtcConfig} from '@utils/Calls/APICalls';
 
 import {
   DispatchWorkItem,
@@ -14,8 +17,6 @@ import {
   SignallingPayload,
   SignallingWorkItem,
 } from './CallWorkQueue';
-import {getPeerRtcConfig} from '@utils/Calls/APICalls';
-import RTCDataChannel from 'react-native-webrtc/lib/typescript/RTCDataChannel';
 
 export enum CallEvents {
   micOn = 'mic_on',

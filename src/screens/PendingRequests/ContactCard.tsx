@@ -1,19 +1,23 @@
+import React, {useState} from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {cleanDeletePort,PendingCardInfo} from '@utils/Ports';
+import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+
+import {PendingCardInfo,cleanDeletePort} from '@utils/Ports';
 import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
 import {formatTimeAgo} from '@utils/Time';
-import React, {useState} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+
 import Link from '@assets/icons/LinkIcon.svg';
 import QRIcon from '@assets/icons/QRIcon.svg';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
-import DynamicColors from '@components/DynamicColors';
+
 
 const ContactCard = (props: PendingCardInfo) => {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);

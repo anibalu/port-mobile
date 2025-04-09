@@ -10,17 +10,20 @@
  * 5. onClick - function that runs on clicking.
  */
 
-import {PortSpacing} from '@components/ComponentUtils';
 import React, {FC} from 'react';
-import {TouchableOpacity, StyleSheet} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
+
 import {SvgProps} from 'react-native-svg';
-import SmallLoader from '../Loaders/SmallLoader';
+
+import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
+import SmallLoader from '../Loaders/SmallLoader';
 
 const AlternateSecondaryButton = ({
   isLoading,

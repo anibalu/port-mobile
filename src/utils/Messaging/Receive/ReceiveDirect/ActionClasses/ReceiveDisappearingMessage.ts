@@ -1,13 +1,14 @@
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {
   DisappearingMessageParams,
   MessageStatus,
 } from '@utils/Messaging/interfaces';
-import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
-import DirectReceiveAction from '../DirectReceiveAction';
 import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {getPermissions, updatePermissions} from '@utils/Storage/permissions';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 class ReceiveDisappearingMessage extends DirectReceiveAction {
   generatePreviewText() {

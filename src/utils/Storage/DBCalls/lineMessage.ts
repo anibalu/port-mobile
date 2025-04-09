@@ -1,6 +1,7 @@
-import {runSimpleQuery, toBool} from './dbCommon';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';
+
+import {runSimpleQuery, toBool} from './dbCommon';
 
 export interface updateMessageParams {
   contentType?: ContentType | null; // What type of message the content is

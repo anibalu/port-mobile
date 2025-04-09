@@ -1,32 +1,37 @@
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
+  NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
+  ScrollViewProps,
   StyleSheet,
   View,
-  ScrollView,
-  Pressable,
-  NativeSyntheticEvent,
-  ScrollViewProps,
 } from 'react-native';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {CustomStatusBar} from '@components/CustomStatusBar';
+
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import {CommonGroups} from '@components/CommonGroups';
 import {PortSpacing, screen} from '@components/ComponentUtils';
-import EditIcon from '@assets/icons/PencilCircleAccent.svg';
-import Alert from '@assets/icons/Alert.svg';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import SharedMediaCard from '../../components/SharedMediaCard';
-import {useFocusEffect} from '@react-navigation/native';
-import {getImagesAndVideos} from '@utils/Storage/media';
-import {MediaEntry} from '@utils/Storage/DBCalls/media';
-import DirectChat from '@utils/DirectChats/DirectChat';
+import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePictureBlurView';
+import AddFolderBottomsheet from '@components/Reusable/BottomSheets/AddFolderBottomsheet';
+import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 import EditName from '@components/Reusable/BottomSheets/EditName';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
+import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
+import {SafeAreaView} from '@components/SafeAreaView';
+
 import {
   DEFAULT_AVATAR,
   DEFAULT_NAME,
@@ -34,29 +39,31 @@ import {
   defaultPermissions,
   safeModalCloseDuration,
 } from '@configs/constants';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 
-import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import AddFolderBottomsheet from '@components/Reusable/BottomSheets/AddFolderBottomsheet';
-import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import {getAllFolders} from '@utils/Storage/folders';
-import {getConnection} from '@utils/Storage/connections';
-import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
+import DirectChat from '@utils/DirectChats/DirectChat';
 import * as storage from '@utils/Storage/blockUsers';
-import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
-import DynamicColors from '@components/DynamicColors';
+import {getConnection} from '@utils/Storage/connections';
+import {getContact} from '@utils/Storage/contacts';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {getAllFolders} from '@utils/Storage/folders';
+import {getImagesAndVideos} from '@utils/Storage/media';
+import {deleteAllMessagesInChat} from '@utils/Storage/messages';
+import {getPermissions} from '@utils/Storage/permissions';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {getChatTileTimestamp, wait} from '@utils/Time';
+
+import Alert from '@assets/icons/Alert.svg';
+import EditIcon from '@assets/icons/PencilCircleAccent.svg';
+
 import {useTheme} from 'src/context/ThemeContext';
-import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePictureBlurView';
-import Notes from '../../components/Notes';
-import {getPermissions} from '@utils/Storage/permissions';
-import {getContact} from '@utils/Storage/contacts';
 import {ToastType, useToast} from 'src/context/ToastContext';
-import {deleteAllMessagesInChat} from '@utils/Storage/messages';
-import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
-import {CommonGroups} from '@components/CommonGroups';
+
+import Notes from '../../components/Notes';
+import SharedMediaCard from '../../components/SharedMediaCard';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ChatProfile'>;
 

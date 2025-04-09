@@ -1,11 +1,14 @@
 import React from 'react';
-import SimpleCard from './Reusable/Cards/SimpleCard';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
-import {PortSpacing} from './ComponentUtils';
 import {Pressable, StyleSheet, View} from 'react-native';
+
 import {useNavigation} from '@react-navigation/native';
-import DynamicColors from './DynamicColors';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {PortSpacing} from './ComponentUtils';
+import DynamicColors from './DynamicColors';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import SimpleCard from './Reusable/Cards/SimpleCard';
 
 // TODO: why is the legal card called the "help card?"
 const HelpCard = () => {

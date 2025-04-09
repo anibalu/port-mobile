@@ -1,16 +1,19 @@
 import React, {ReactNode, useEffect, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {RenderTimeStamp} from '../BubbleUtils';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
-import {checkTimeout} from '@utils/Time';
-import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {checkTimeout} from '@utils/Time';
+
+import {RenderTimeStamp} from '../BubbleUtils';
 
 export const CallBubble = ({message}: {message: LoadedMessage}): ReactNode => {
   const [canJoinCall, setCanJoinCall] = useState(false);

@@ -1,3 +1,6 @@
+import React, {useState} from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
@@ -8,9 +11,8 @@ import {
 } from '@components/NumberlessText';
 import {SafeAreaView} from '@components/SafeAreaView';
 import GenericTitle from '@components/Text/GenericTitle';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React, {useState} from 'react';
-import {StyleSheet, View} from 'react-native';
 
 const AllPortsScreen = () => {
   const Colors = DynamicColors();

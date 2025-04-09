@@ -1,27 +1,17 @@
-import {ContactPortData} from '@utils/Storage/DBCalls/ports/contactPorts';
-import * as API from './APICalls';
-import {checkLineExists} from '@utils/Storage/lines';
-import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
-import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import {
   CURRENT_CONTACTPORT_VERSION,
   DEFAULT_NAME,
-  defaultFolderId,
   ORG_NAME,
+  defaultFolderId,
 } from '@configs/constants';
-import * as storageContactPorts from '@utils/Storage/contactPorts';
-import {generateISOTimeStamp, hasExpired} from '@utils/Time';
-import {DirectContactPortBundle} from './interfaces';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import * as storageReadPorts from '@utils/Storage/readPorts';
-import {getProfileName} from '@utils/Profile';
+
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
-import {getChatIdFromPairHash, getConnection} from '@utils/Storage/connections';
 import {
   generatorInitialInfoSend,
   readerInitialInfoSend,
 } from '@utils/DirectChats/initialInfoExchange';
-import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContactBundleParams,
@@ -29,8 +19,20 @@ import {
   ContentType,
   PayloadMessageParams,
 } from '@utils/Messaging/interfaces';
-import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
+import {getProfileName} from '@utils/Profile';
+import {getChatIdFromPairHash, getConnection} from '@utils/Storage/connections';
+import * as storageContactPorts from '@utils/Storage/contactPorts';
+import {ContactPortData} from '@utils/Storage/DBCalls/ports/contactPorts';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
+import {checkLineExists} from '@utils/Storage/lines';
 import {getMessage, updateMessageData} from '@utils/Storage/messages';
+import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
+import * as storageReadPorts from '@utils/Storage/readPorts';
+import {generateISOTimeStamp, hasExpired} from '@utils/Time';
+
+import * as API from './APICalls';
+import {DirectContactPortBundle} from './interfaces';
 
 /**
  * Fetch a contact port bundle. If no contact port exists, create one.

@@ -1,18 +1,22 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Animated, Pressable, StyleSheet, View} from 'react-native';
+
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {useChatContext} from '@screens/GroupChat/ChatContext';
-import {reactionMapping} from '@configs/reactionmapping';
-import {getRichReactions} from '@utils/Storage/reactions';
 import EmojiSelector from '@components/Reusable/BottomSheets/EmojiSelector';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {PortSpacing} from '@components/ComponentUtils';
+
+import {reactionMapping} from '@configs/reactionmapping';
+
+import {useChatContext} from '@screens/GroupChat/ChatContext';
 import {useSelectionContext} from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
+
+import {getRichReactions} from '@utils/Storage/reactions';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 export const RenderReactionBar = () => {
   const [richReactions, setRichReactions] = useState<any>([]);

@@ -4,20 +4,24 @@
  * the app.
  */
 
-import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React from 'react';
+import {Linking, StyleSheet, TouchableOpacity, View} from 'react-native';
+
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import AvatarWithDocument from '@assets/icons/AvatarWithDocument.svg';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {useUpdateStatus} from 'src/context/UpdateStatusContext';
+
 import {saveUpdateStatusToLocal} from '@utils/TermsAndConditions';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import AvatarWithDocument from '@assets/icons/AvatarWithDocument.svg';
+
+import {useUpdateStatus} from 'src/context/UpdateStatusContext';
 
 const SoftUpdateInfoBlurView = () => {
   const {onSoftModalClose, showSoftUpdateInfoModal, termsAndConditionsStatus} =

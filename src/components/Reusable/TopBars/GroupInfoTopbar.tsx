@@ -9,20 +9,25 @@
  * 6. boolean to show user unfo (used in contact profile)
  */
 
+import React from 'react';
+import {Pressable, StyleSheet,View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
-import React from 'react';
-import {Pressable, StyleSheet,View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {AvatarBox} from '../AvatarBox/AvatarBox';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {AvatarBox} from '../AvatarBox/AvatarBox';
 
 const GroupInfoTopbar = ({
   avatarUri,

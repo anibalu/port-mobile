@@ -9,18 +9,22 @@
 
 import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import WifiOff from '@assets/icons/WifiOff.svg';
-import CloudOff from '@assets/icons/CloudOff.svg';
+
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
+
+import CloudOff from '@assets/icons/CloudOff.svg';
+import WifiOff from '@assets/icons/WifiOff.svg';
+
 import PrimaryButton from '../LongButtons/PrimaryButton';
-import DynamicColors from '@components/DynamicColors';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 const LoadingBottomSheet = ({
   visible,

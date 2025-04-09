@@ -1,10 +1,14 @@
 import React from 'react';
-import {DEFAULT_AVATAR} from '@configs/constants';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {StyleSheet, View} from 'react-native';
-import {screen} from '@components/ComponentUtils';
+
 import {MediaStream, RTCView} from 'react-native-webrtc';
+
+import {screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+
+import {DEFAULT_AVATAR} from '@configs/constants';
+
 import {CallUIState} from '../OngoingCall';
 
 export const PeerStream = ({

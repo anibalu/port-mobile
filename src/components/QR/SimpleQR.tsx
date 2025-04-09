@@ -1,15 +1,19 @@
 import React from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import DefaultLoader from '@components/Loaders/DefaultLoader';
+
 import QRCode from 'react-native-qrcode-svg';
+
+import {useThemeColors} from '@components/colorGuide';
+import DefaultLoader from '@components/Loaders/DefaultLoader';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {jsonToUrl} from '@utils/JsonToUrl';
-import {useThemeColors} from '@components/colorGuide';
 import {Spacing, Width} from '@components/spacingGuide';
+
+import {jsonToUrl} from '@utils/JsonToUrl';
+
 import RetryIcon from '@assets/icons/RetryRed.svg';
 
 /**

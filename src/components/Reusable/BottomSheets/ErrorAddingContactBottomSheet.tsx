@@ -10,15 +10,18 @@
 
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import AlertIcon from '@assets/icons/ErrorAlert.svg';
+
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
+
+import AlertIcon from '@assets/icons/ErrorAlert.svg';
+
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 
 const ErrorAddingContactBottomSheet = ({
   visible,

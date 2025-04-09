@@ -6,19 +6,23 @@
  * @returns {ReactNode} - The JSX element representing the message status indicator.
  */
 
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
+
 import Failure from '@assets/icons/statusIndicators/failure.svg';
 import {default as Journaled} from '@assets/icons/statusIndicators/sending.svg';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+
 import {ChatTileProps} from './ChatTile';
 
 //Converts the new message count to a display string, with '999+' for counts over 999.

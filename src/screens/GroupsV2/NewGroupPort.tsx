@@ -1,27 +1,32 @@
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
+
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import Share from 'react-native-share';
 import {useSelector} from 'react-redux';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
+import GroupPortCard from '@components/Reusable/ConnectionCards/GroupPortCard';
+import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
+import {SafeAreaView} from '@components/SafeAreaView';
+
 import {
   DEFAULT_AVATAR,
   DEFAULT_GROUP_NAME,
   safeModalCloseDuration,
 } from '@configs/constants';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
+import Group from '@utils/Groups/Group';
 import {generateBundle, getBundleClickableLink} from '@utils/Ports';
-import {wait} from '@utils/Time';
-import Share from 'react-native-share';
 import {GroupBundle} from '@utils/Ports/interfaces';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import DynamicColors from '@components/DynamicColors';
-import GroupPortCard from '@components/Reusable/ConnectionCards/GroupPortCard';
-import Group from '@utils/Groups/Group';
+import {wait} from '@utils/Time';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewGroupPort'>;
 const NewGroupPort = ({route}: Props) => {

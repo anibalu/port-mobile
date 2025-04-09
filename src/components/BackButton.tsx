@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
 } from 'react-native';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import {SvgProps} from 'react-native-svg';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 interface BackButtonProps extends TouchableOpacityProps {
   Icon?: FC<SvgProps>;

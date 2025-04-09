@@ -1,4 +1,5 @@
 import store from '@store/appStore';
+
 import Group from '@utils/Groups/Group';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
@@ -10,6 +11,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
 import {generateISOTimeStamp} from '@utils/Time';
+
 import NativeCryptoModule from 'src/specs/NativeCryptoModule';
 
 /**

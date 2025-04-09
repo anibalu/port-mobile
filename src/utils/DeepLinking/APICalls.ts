@@ -1,6 +1,8 @@
-import {BUNDLE_MANAGEMENT_RESOURCE} from '@configs/api';
-import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+
+import {BUNDLE_MANAGEMENT_RESOURCE} from '@configs/api';
+
+import {getToken} from '@utils/ServerAuth';
 
 export async function getBundle(bundleId: string): Promise<string | null> {
   const token = await getToken();

@@ -1,18 +1,20 @@
 /**
  * Storage helpers for messages of direct chats
  */
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {generateISOTimeStamp} from '@utils/Time';
+
 import {
   ContentType,
   DataType,
   LargeDataMessageContentTypes,
   MessageStatus,
 } from '../Messaging/interfaces';
+
+import {getConnection, updateConnection} from './connections';
+import {ConnectionInfo} from './DBCalls/connections';
 import * as lineDBCalls from './DBCalls/lineMessage';
 import {deleteMedia} from './media';
-import {getConnection, updateConnection} from './connections';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
-import {ConnectionInfo} from './DBCalls/connections';
 
 /**
  * saves message to storage.

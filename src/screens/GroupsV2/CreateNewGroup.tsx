@@ -1,27 +1,31 @@
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {SafeAreaView} from '@components/SafeAreaView';
 import React, {useRef, useState} from 'react';
 import {KeyboardAvoidingView, ScrollView, StyleSheet, View} from 'react-native';
-import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
+
 import {useNavigation} from '@react-navigation/native';
-import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {GenericButton} from '@components/GenericButton';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
+import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
+import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
+import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
+import {SafeAreaView} from '@components/SafeAreaView';
+
 import {
   DEFAULT_GROUP_PROFILE_AVATAR_INFO,
   safeModalCloseDuration,
 } from '@configs/constants';
-import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
-import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+
 import Group from '@utils/Groups/Group';
 import {fetchNewPorts} from '@utils/Ports';
-import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
-import {wait} from '@utils/Time';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {wait} from '@utils/Time';
 
 const CreateNewGroup = () => {
   const navigation = useNavigation();

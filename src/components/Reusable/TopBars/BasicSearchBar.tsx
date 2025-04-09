@@ -8,12 +8,15 @@ import {
 } from 'react-native';
 
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import BlackCross from '@assets/icons/BlackCross.svg';
 import BackIcon from '@assets/icons/navigation/BlackArrowLeftThin.svg';
-import {NAME_LENGTH_LIMIT} from '@configs/constants';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const BasicSearchBar = ({
   searchText,

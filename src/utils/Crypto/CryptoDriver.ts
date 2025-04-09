@@ -1,12 +1,13 @@
 import {generateRandomHexId} from '@utils/IdGenerator';
 import * as storage from '@utils/Storage/crypto';
-import {hash} from './hash';
 import {
-  CryptoDataMember,
-  CryptoDataStrict,
   CryptoData,
   CryptoDataContactPort,
+  CryptoDataMember,
+  CryptoDataStrict,
 } from '@utils/Storage/DBCalls/crypto';
+
+import {hash} from './hash';
 import {generateRad16} from './rad';
 import * as x25519 from './x25519';
 

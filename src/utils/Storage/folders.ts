@@ -1,7 +1,8 @@
+import {defaultFolderId} from '@configs/constants';
+
+import {getNewMessageCount} from './connections';
 import * as dbCalls from './DBCalls/folders';
 import {FolderInfoWithUnread} from './DBCalls/folders';
-import {getNewMessageCount} from './connections';
-import {defaultFolderId} from '@configs/constants';
 
 /**
  * Save a new folder.

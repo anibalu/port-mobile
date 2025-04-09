@@ -1,5 +1,5 @@
-import {runSimpleQuery} from '@utils/Storage/DBCalls/dbCommon';
 import {MessageStatus} from '@utils/Messaging/interfaces';
+import {runSimpleQuery} from '@utils/Storage/DBCalls/dbCommon';
 
 /**
  * Set up lineMessages storage

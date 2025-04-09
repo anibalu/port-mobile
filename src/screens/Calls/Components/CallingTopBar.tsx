@@ -1,3 +1,6 @@
+import React from 'react';
+import {StyleSheet,View} from 'react-native';
+
 import {PortSpacing, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -5,11 +8,13 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
-import React from 'react';
-import {StyleSheet,View} from 'react-native';
-import {CallState, CallUIState} from '../OngoingCall';
+
 import MicrophoneOn from '@assets/dark/icons/MicOn.svg';
+
+import {CallState, CallUIState} from '../OngoingCall';
+
 
 const CallingTopBar = ({
   heading,

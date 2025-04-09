@@ -1,16 +1,20 @@
-import {DEFAULT_PROFILE_AVATAR_INFO,DEFAULT_NAME, NAME_LENGTH_LIMIT} from '@configs/constants';
+import {DEFAULT_NAME,DEFAULT_PROFILE_AVATAR_INFO, NAME_LENGTH_LIMIT} from '@configs/constants';
+
 import {generateKeys} from '@utils/Crypto/ed25519';
 import {pickRandomAvatarId} from '@utils/IdGenerator';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import store from '../../store/appStore';
-import * as storage from '../Storage/profile';
-import * as API from './APICalls';
 import {
   ProfileInfo,
   ProfileInfoUpdate,
   ProfileStatus,
 } from '@utils/Storage/RNSecure/secureProfileHandler';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import store from '../../store/appStore';
+import * as storage from '../Storage/profile';
+
+import * as API from './APICalls';
+
 
 // global object to cache profile information so that it doesn't have to be repeatedly read from storage
 let cachedProfile: ProfileInfo | undefined;

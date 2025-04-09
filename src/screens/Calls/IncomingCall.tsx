@@ -2,32 +2,38 @@
  * This screen displays information about an incoming call and allows the user to choose
  * Whether to answer or decline it.
  */
-import {isIOS, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import React, {useEffect, useRef, useState} from 'react';
+import {AppState, StyleSheet, TouchableOpacity, View} from 'react-native';
 
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+
+import {isIOS, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {useInsetChecks} from '@components/DeviceUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React, {useEffect, useRef, useState} from 'react';
-import {AppState, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useInsetChecks} from '@components/DeviceUtils';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT} from '@configs/constants';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {useCallContext} from './CallContext';
+import {SafeAreaView} from '@components/SafeAreaView';
+
+import {DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT} from '@configs/constants';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
 import {
+  getAndroidCallAnswerInfo,
   getPreLaunchEvents,
   isCallCurrentlyActive,
-  getAndroidCallAnswerInfo,
 } from '@utils/Calls/CallOSBridge';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {useCallContext} from './CallContext';
+
 
 type Props = NativeStackScreenProps<AppStackParamList, 'IncomingCall'>;
 

@@ -1,14 +1,17 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import FileIcon from '@assets/icons/FileClip.svg';
-import {MediaEntry} from '@utils/Storage/DBCalls/media';
-import {getDateStamp} from '@utils/Time';
+
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
+
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
+import {getDateStamp} from '@utils/Time';
+
+import FileIcon from '@assets/icons/FileClip.svg';
 
 export default function FileTile({
   mediaItem,

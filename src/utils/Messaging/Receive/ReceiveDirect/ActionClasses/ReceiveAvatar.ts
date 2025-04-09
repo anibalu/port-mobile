@@ -1,6 +1,8 @@
 import {DEFAULT_AVATAR} from '@configs/constants';
+
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {DisplayAvatarParams} from '@utils/Messaging/interfaces';
+
 import DirectReceiveAction from '../DirectReceiveAction';
 
 class ReceiveAvatar extends DirectReceiveAction {

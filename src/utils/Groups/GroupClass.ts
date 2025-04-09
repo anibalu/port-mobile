@@ -1,5 +1,9 @@
 import {defaultFolderId} from '@configs/constants';
+
+import {moveConnectionToNewFolderWithoutPermissionChange} from '@utils/ChatFolders';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {
   addConnection,
   deleteConnection,
@@ -13,24 +17,22 @@ import {
   GroupUpdateData,
 } from '@utils/Storage/DBCalls/group';
 import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
-import * as groupStorage from '@utils/Storage/group';
-import * as memberStorage from '@utils/Storage/groupMembers';
-import * as permissionStorage from '@utils/Storage/permissions';
-import * as API from './APICalls';
-import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {generateISOTimeStamp} from '@utils/Time';
-import GroupMember from './GroupMemberClass';
-import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
-import {deleteMedia} from '@utils/Storage/media';
-import {isAvatarUri} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {moveConnectionToNewFolderWithoutPermissionChange} from '@utils/ChatFolders';
-import {saveGroupImage, uploadGroupImage} from './groupPicture';
 import {
   GroupPermissions,
   Permissions,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
+import * as groupStorage from '@utils/Storage/group';
+import * as memberStorage from '@utils/Storage/groupMembers';
 import {deleteAllMessagesInChat} from '@utils/Storage/groupMessages';
+import {deleteMedia} from '@utils/Storage/media';
+import * as permissionStorage from '@utils/Storage/permissions';
+import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
+import {isAvatarUri} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {generateISOTimeStamp} from '@utils/Time';
+
+import * as API from './APICalls';
+import GroupMember from './GroupMemberClass';
+import {saveGroupImage, uploadGroupImage} from './groupPicture';
 import {performHandshakes} from './handshake';
 
 class Group {

@@ -1,15 +1,15 @@
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {createPreview} from '@utils/ImageUtils';
+import {ContentType} from '@utils/Messaging/interfaces';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
+import {getMedia, saveNewMedia, updateMedia} from '@utils/Storage/media';
 import {
   getFileNameFromUri,
   getSafeAbsoluteURI,
   isMediaUri,
   moveToLargeFileDir,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {createPreview} from '@utils/ImageUtils';
-import {generateRandomHexId} from '@utils/IdGenerator';
 import {generateISOTimeStamp} from '@utils/Time';
-import {getMedia, saveNewMedia, updateMedia} from '@utils/Storage/media';
-import {ContentType} from '@utils/Messaging/interfaces';
-import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
 
 /**
  * Save an actual image to group media storage and return mediaId.

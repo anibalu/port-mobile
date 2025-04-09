@@ -1,12 +1,14 @@
 import React, {useState} from 'react';
-import SimpleCard from './Reusable/Cards/SimpleCard';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
-import {PortSpacing} from './ComponentUtils';
 import {Pressable, StyleSheet, View} from 'react-native';
-import ThemeBottomsheet from './Reusable/BottomSheets/ThemeBottomsheet';
-import {themeOptions,ThemeType} from '@utils/Themes';
-import DynamicColors from './DynamicColors';
+
+import {ThemeType,themeOptions} from '@utils/Themes';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {PortSpacing} from './ComponentUtils';
+import DynamicColors from './DynamicColors';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import ThemeBottomsheet from './Reusable/BottomSheets/ThemeBottomsheet';
+import SimpleCard from './Reusable/Cards/SimpleCard';
 
 const ThemeCard = ({
   selected,

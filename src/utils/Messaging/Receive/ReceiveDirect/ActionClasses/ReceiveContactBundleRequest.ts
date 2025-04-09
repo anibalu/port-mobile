@@ -1,15 +1,16 @@
 // this is to receieve a contact bundle request
-import DirectReceiveAction from '../DirectReceiveAction';
+import {getChatPermissions} from '@utils/ChatPermissions';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {approveContactShareIfPermitted} from '@utils/ContactSharing';
 import {
   ContactBundleRequestParams,
   MessageStatus,
 } from '@utils/Messaging/interfaces';
-import {approveContactShareIfPermitted} from '@utils/ContactSharing';
+import {displaySimpleNotification} from '@utils/Notifications';
 import {getConnection,updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import {ChatType,NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
-import {getChatPermissions} from '@utils/ChatPermissions';
-import {displaySimpleNotification} from '@utils/Notifications';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 class ReceiveContactBundleRequest extends DirectReceiveAction {
   generatePreviewText(): string {

@@ -1,3 +1,6 @@
+import React, {useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -6,15 +9,15 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import AddTemplateBottomsheet from '@components/Reusable/BottomSheets/AddTemplateBottomsheet';
+import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
+
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
-import React, {useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import Delete from '@assets/icons/DeleteIcon.svg';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {deletetemplate} from '@utils/Storage/templates';
-import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import Delete from '@assets/icons/DeleteIcon.svg';
 
 const TemplateCard = ({
   template,

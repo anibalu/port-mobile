@@ -1,42 +1,48 @@
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {
+  KeyboardAvoidingView,
+  Pressable,
+  ScrollView,
   StyleSheet,
   View,
-  Pressable,
-  KeyboardAvoidingView,
-  ScrollView,
 } from 'react-native';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {CustomStatusBar} from '@components/CustomStatusBar';
+
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import {CommonGroups} from '@components/CommonGroups';
 import {PortSpacing, screen} from '@components/ComponentUtils';
-import EditIcon from '@assets/icons/PencilCircleAccent.svg';
-import Alert from '@assets/icons/Alert.svg';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
+import Notes from '@components/Notes';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {useFocusEffect} from '@react-navigation/native';
+import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePictureBlurView';
+import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 import EditName from '@components/Reusable/BottomSheets/EditName';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
+import {SafeAreaView} from '@components/SafeAreaView';
+
 import {DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT} from '@configs/constants';
 
-import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
-import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
 import * as storage from '@utils/Storage/blockUsers';
-import DynamicColors from '@components/DynamicColors';
+import {updateContact} from '@utils/Storage/contacts';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {getChatTileTimestamp} from '@utils/Time';
-import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePictureBlurView';
-import Notes from '@components/Notes';
+
+import Alert from '@assets/icons/Alert.svg';
+import EditIcon from '@assets/icons/PencilCircleAccent.svg';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
-import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
-import {updateContact} from '@utils/Storage/contacts';
-import {CommonGroups} from '@components/CommonGroups';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ContactProfile'>;
 

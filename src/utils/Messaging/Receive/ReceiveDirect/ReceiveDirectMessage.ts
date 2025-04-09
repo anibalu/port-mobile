@@ -1,8 +1,9 @@
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
+import DirectChat from '@utils/DirectChats/DirectChat';
 import {PayloadMessageParams} from '@utils/Messaging/interfaces';
+
 import DirectReceiveAction from './DirectReceiveAction';
 import {pickDirectReceiveAction} from './possibleActions';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import CryptoDriver from '@utils/Crypto/CryptoDriver';
 
 class ReceiveDirectMessage {
   private message: any;

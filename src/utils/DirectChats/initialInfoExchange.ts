@@ -1,8 +1,8 @@
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {getProfileName, getProfilePicture} from '@utils/Profile';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 /**
  * Initial messages sent by port reader.

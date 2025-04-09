@@ -1,22 +1,28 @@
 /**
  * Top Bar of the home screen containing sidebar menu, pending request count and search.
  */
+import React, {ReactNode, useMemo} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+
 import {PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
-import {useNavigation} from '@react-navigation/native';
-import React, {ReactNode, useMemo} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import {GenericButton} from '@components/GenericButton';
-import DynamicColors from '@components/DynamicColors';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import ContactBook from '@assets/icons/ContactBook.svg';
-import {useTheme} from 'src/context/ThemeContext';
 import Scanner from '@assets/icons/ScannerDarkGreen.svg';
+
+import {useTheme} from 'src/context/ThemeContext';
 
 function HomeTopbar({
   unread = 0,

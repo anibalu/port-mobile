@@ -5,6 +5,9 @@
  * @returns {JSX.Element} - Rendered component with info text
  */
 
+import React from 'react';
+import {View} from 'react-native';
+
 import {screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -12,8 +15,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React from 'react';
-import {View} from 'react-native';
+
 import {ChatTileProps} from './ChatTile';
 
 const RenderText = ({

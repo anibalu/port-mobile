@@ -5,16 +5,19 @@
  * @returns {JSX.Element} - Rendered component with timestamp
  */
 
+import React from 'react';
+import {View} from 'react-native';
+
+import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React from 'react';
-import {View} from 'react-native';
+
 import {getChatTileTimestamp} from '@utils/Time';
-import {PortSpacing} from '@components/ComponentUtils';
+
 import {ChatTileProps} from './ChatTile';
 
 const RenderTimestamp = ({props}: {props: ChatTileProps}) => {

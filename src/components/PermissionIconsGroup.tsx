@@ -1,38 +1,43 @@
 import React, {FC, useState} from 'react';
-import {View, StyleSheet, Pressable} from 'react-native';
-import BellRed from '@assets/icons/BellRed.svg';
-import DownloadTeal from '@assets/icons/DownloadTeal.svg';
-import HomeSafron from '@assets/icons/HomeSafron.svg';
-import DisappearingMessageBlue from '@assets/icons/DisappearingMessageBlue.svg';
-import ProfileTeal from '@assets/icons/ProfileTeal.svg';
+import {Pressable, StyleSheet, View} from 'react-native';
 
-import BellDisabled from '@assets/light/icons/BellDisabled.svg';
-import DownloadDisabled from '@assets/light/icons/DownloadDisabled.svg';
-import HomeDisabled from '@assets/light/icons/HomeDisabled.svg';
-import DisappearingMessageDisabled from '@assets/light/icons/DisappearingMessageDisabled.svg';
-import ProfileDisabled from '@assets/light/icons/ProfileDisabled.svg';
-
-import BellDisabledDark from '@assets/dark/icons/BellDisabled.svg';
-import DownloadDisabledDark from '@assets/dark/icons/DownloadDisabled.svg';
-import HomeDisabledDark from '@assets/dark/icons/HomeDisabled.svg';
-import DisappearingMessageDisabledDark from '@assets/dark/icons/DisappearingMessageDisabled.svg';
-import ProfileDisabledDark from '@assets/dark/icons/ProfileDisabled.svg';
-
-import DynamicColors from '@components/DynamicColors';
 import {SvgProps} from 'react-native-svg';
+
 import {PortSpacing} from '@components/ComponentUtils';
-import {useTheme} from 'src/context/ThemeContext';
+import DynamicColors from '@components/DynamicColors';
+
+import Group from '@utils/Groups/Group';
+import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 import {
   BooleanPermissions,
   GroupPermissions,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
-import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 import {updatePermissions} from '@utils/Storage/permissions';
 import {getLabelByTimeDiff} from '@utils/Time';
+
+import BellDisabledDark from '@assets/dark/icons/BellDisabled.svg';
+import DisappearingMessageDisabledDark from '@assets/dark/icons/DisappearingMessageDisabled.svg';
+import DownloadDisabledDark from '@assets/dark/icons/DownloadDisabled.svg';
+import HomeDisabledDark from '@assets/dark/icons/HomeDisabled.svg';
+import ProfileDisabledDark from '@assets/dark/icons/ProfileDisabled.svg';
+import BellRed from '@assets/icons/BellRed.svg';
+import DisappearingMessageBlue from '@assets/icons/DisappearingMessageBlue.svg';
+import DownloadTeal from '@assets/icons/DownloadTeal.svg';
+import HomeSafron from '@assets/icons/HomeSafron.svg';
+import ProfileTeal from '@assets/icons/ProfileTeal.svg';
+import BellDisabled from '@assets/light/icons/BellDisabled.svg';
+import DisappearingMessageDisabled from '@assets/light/icons/DisappearingMessageDisabled.svg';
+import DownloadDisabled from '@assets/light/icons/DownloadDisabled.svg';
+import HomeDisabled from '@assets/light/icons/HomeDisabled.svg';
+import ProfileDisabled from '@assets/light/icons/ProfileDisabled.svg';
+
+
+import {useTheme} from 'src/context/ThemeContext';
+
 import DissapearingMessagesBottomsheet from './Reusable/BottomSheets/DissapearingMessagesBottomSheet';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
-import Group from '@utils/Groups/Group';
+
 
 /**
  * Returns a JSX element representing an icon with a background color based on the provided permission state.

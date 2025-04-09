@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import {StyleProp, StyleSheet, TextStyle, ViewStyle} from 'react-native';
+
 import {GenericButton} from './GenericButton';
 
 export const SaveButton = ({

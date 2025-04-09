@@ -8,6 +8,11 @@
  * 5. onIconRightPress
  */
 
+import React, {FC} from 'react';
+import {Pressable, StyleSheet,View} from 'react-native';
+
+import {SvgProps} from 'react-native-svg';
+
 import {BackButton} from '@components/BackButton';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -15,10 +20,9 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
-import React, {FC} from 'react';
-import {Pressable, StyleSheet,View} from 'react-native';
-import {SvgProps} from 'react-native-svg';
+
 
 const SimpleTopbar = ({
   IconLeft,

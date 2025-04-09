@@ -1,21 +1,26 @@
-import {SafeAreaView} from '@components/SafeAreaView';
-import {useNavigation} from '@react-navigation/native';
 import React, {ReactElement, useEffect, useState} from 'react';
-import ContactCard from './ContactCard';
 import {FlatList, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
-import {PendingCardInfo,getPendingRequests, numberOfPendingRequests} from '@utils/Ports';
+
+import {PortSpacing, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
-import {PortSpacing, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
 import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+
+import {PendingCardInfo,getPendingRequests, numberOfPendingRequests} from '@utils/Ports';
+
 import Icon from '@assets/icons/NoPendingRequests.svg';
-import DynamicColors from '@components/DynamicColors';
+
+import ContactCard from './ContactCard';
 
 //rendered chat tile of a connection
 function renderPendingRequest(pendingRequest: PendingCardInfo): ReactElement {

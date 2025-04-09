@@ -1,5 +1,7 @@
-import {sessionKey} from '@configs/paths';
 import EncryptedStorage from 'react-native-encrypted-storage';
+
+import {sessionKey} from '@configs/paths';
+
 import {FileAttributes} from '../StorageRNFS/interfaces';
 
 /**

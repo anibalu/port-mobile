@@ -1,13 +1,15 @@
 import React, {useState} from 'react';
+import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import DynamicColors from '@components/DynamicColors';
 
 function DualActionBottomSheet({
   showMore,

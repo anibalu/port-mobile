@@ -1,12 +1,27 @@
+import React, {useEffect, useRef} from 'react';
+import {Animated, StyleSheet, TouchableHighlight, View} from 'react-native';
+
+import Clipboard from '@react-native-clipboard/clipboard';
+import {useNavigation} from '@react-navigation/native';
+
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {Animated, StyleSheet, TouchableHighlight, View} from 'react-native';
-import React, {useEffect, useRef} from 'react';
+
 import {useChatContext} from '@screens/GroupChat/ChatContext';
+import {
+  GroupMessageBarActionsType,
+  useMessageBarActionsContext,
+} from '@screens/GroupChat/ChatContexts/GroupMessageBarActions';
+import {
+  GroupMessageSelectionMode,
+  useSelectionContext,
+} from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
+
 import {
   ContentType,
   ReportMessageContentTypes,
@@ -15,18 +30,9 @@ import {
   editableContentTypes,
 } from '@utils/Messaging/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import DynamicColors from '@components/DynamicColors';
+
 import {useTheme} from 'src/context/ThemeContext';
-import {
-  GroupMessageSelectionMode,
-  useSelectionContext,
-} from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
-import {useNavigation} from '@react-navigation/native';
-import Clipboard from '@react-native-clipboard/clipboard';
-import {
-  GroupMessageBarActionsType,
-  useMessageBarActionsContext,
-} from '@screens/GroupChat/ChatContexts/GroupMessageBarActions';
+
 
 const BubbleFocusOptions = () => {
   const {isConnected, onDelete, onReport, setReplyToMessage, chatId} =

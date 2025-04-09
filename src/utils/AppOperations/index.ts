@@ -1,11 +1,13 @@
+import {debounce} from 'lodash';
+
 import store from '@store/appStore';
-import sendJournaled from '@utils/Messaging/Send/sendJournaled';
+
 import pullBacklog from '@utils/Messaging/pullBacklog';
+import sendJournaled from '@utils/Messaging/Send/sendJournaled';
 import {cancelAllNotifications} from '@utils/Notifications';
 import {cleanUpPorts, processReadBundles} from '@utils/Ports';
-import {deleteExpiredMessages} from '@utils/Storage/messages';
 import {deleteExpiredGroupMessages} from '@utils/Storage/groupMessages';
-import {debounce} from 'lodash';
+import {deleteExpiredMessages} from '@utils/Storage/messages';
 import {checkForUpdates} from '@utils/TermsAndConditions';
 
 async function commonAppOperations(): Promise<void> {

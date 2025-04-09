@@ -1,25 +1,30 @@
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {LinkPreviewReplyBubble} from './ReplyBubbles/LinkPreviewReplyBubble';
+
+import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
+
 import {ContentType} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {TextReplyBubble} from './ReplyBubbles/TextReplyBubble';
-import {MIN_WIDTH_REPLY, REPLY_MEDIA_HEIGHT} from './BubbleUtils';
-import {ImageReplyBubble} from './ReplyBubbles/ImageReplyBubble';
-import {VideoReplyBubble} from './ReplyBubbles/VideoReplyBubble';
-import FileReplyBubble from './ReplyBubbles/FileReplyBubble';
-import AudioReplyBubble from './ReplyBubbles/AudioReplyBubble';
 import {
   GroupReplyContent,
   LoadedGroupMessage,
 } from '@utils/Storage/DBCalls/groupMessage';
-import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
-import DynamicColors from '@components/DynamicColors';
+
+import {MIN_WIDTH_REPLY, REPLY_MEDIA_HEIGHT} from './BubbleUtils';
+import AudioReplyBubble from './ReplyBubbles/AudioReplyBubble';
+import FileReplyBubble from './ReplyBubbles/FileReplyBubble';
+import {ImageReplyBubble} from './ReplyBubbles/ImageReplyBubble';
+import {LinkPreviewReplyBubble} from './ReplyBubbles/LinkPreviewReplyBubble';
+import {TextReplyBubble} from './ReplyBubbles/TextReplyBubble';
+import {VideoReplyBubble} from './ReplyBubbles/VideoReplyBubble';
+
 
 export const ReplyBubble = ({reply}: {reply: GroupReplyContent}): ReactNode => {
   return (

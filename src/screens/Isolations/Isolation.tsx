@@ -1,11 +1,11 @@
-import {SafeAreaView} from '@components/SafeAreaView';
 import React from 'react';
 import {StyleSheet} from 'react-native';
 
 import {screen} from '@components/ComponentUtils';
 import Flipper from '@components/FlippingComponents/Flipper';
-import Front from '@components/FlippingComponents/QR/Front';
 import Back from '@components/FlippingComponents/QR/Back';
+import Front from '@components/FlippingComponents/QR/Front';
+import {SafeAreaView} from '@components/SafeAreaView';
 
 const Isolation = () => {
   const onFlipPress = () => console.log('flippedd!!');

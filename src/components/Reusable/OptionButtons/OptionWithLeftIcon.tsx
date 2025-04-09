@@ -7,11 +7,13 @@
  * 4. Desc Text (optional)
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 import React, {FC} from 'react';
 import {StyleSheet, Text, TouchableOpacity,View} from 'react-native';
+
 import {SvgProps} from 'react-native-svg';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 
 const OptionWithLeftIcon = ({
   onClick = () => {},

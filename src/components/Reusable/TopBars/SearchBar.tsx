@@ -1,12 +1,13 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import SearchInput from '@components/Reusable/Inputs/SearchInput';
+
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
+import SearchInput from '@components/Reusable/Inputs/SearchInput';
 const SearchBar = ({
   searchText,
   setSearchText,

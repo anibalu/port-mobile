@@ -1,7 +1,8 @@
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {ContentType, editableContentTypes} from '@utils/Messaging/interfaces';
 import {updateConnectionIfLatestMessageIsX} from '@utils/Storage/connections';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import * as storage from '@utils/Storage/groupMessages';
+
 import GroupReceiveAction from '../GroupReceiveAction';
 
 /**

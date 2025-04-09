@@ -1,18 +1,19 @@
-import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import * as storageReadPorts from '@utils/Storage/readPorts';
-import * as permissionStorage from '@utils/Storage/permissions';
-import {generateISOTimeStamp, hasExpired} from '@utils/Time';
-import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
-
 import {defaultFolderId} from '@configs/constants';
-import PortReader from '../PortReader';
+
+import {getChatPermissions} from '@utils/ChatPermissions';
+import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {getMessage, updateMessageData} from '@utils/Storage/messages';
 import {ContactBundleParams, ContentType} from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {getProfileName, getProfilePicture} from '@utils/Profile';
-import {getChatPermissions} from '@utils/ChatPermissions';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {getMessage, updateMessageData} from '@utils/Storage/messages';
+import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
+import * as permissionStorage from '@utils/Storage/permissions';
+import * as storageReadPorts from '@utils/Storage/readPorts';
+import {generateISOTimeStamp, hasExpired} from '@utils/Time';
+
+import PortReader from '../PortReader';
 
 const PORT_READER_VERSION = '1.0.0';
 

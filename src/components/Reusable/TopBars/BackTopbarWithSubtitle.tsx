@@ -5,17 +5,20 @@
  * 1. onBackPress
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import React from 'react';
 import {Pressable, StyleSheet,View} from 'react-native';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import DynamicColors from '@components/DynamicColors';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const BackTopbarWithSubtitle = ({
   onBackPress,

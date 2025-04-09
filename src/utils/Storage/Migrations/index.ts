@@ -1,4 +1,5 @@
 import {deleteDatabase, runSimpleQuery} from '../DBCalls/dbCommon';
+
 import migration002 from './migration002';
 import migration004 from './migration004';
 import {migration005} from './migration005';

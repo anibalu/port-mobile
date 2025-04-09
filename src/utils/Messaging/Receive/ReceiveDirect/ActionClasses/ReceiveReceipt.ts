@@ -3,9 +3,10 @@ import {
   MessageStatus,
   ReceiptParams,
 } from '@utils/Messaging/interfaces';
-import * as storage from '@utils/Storage/messages';
-import DirectReceiveAction from '../DirectReceiveAction';
 import {updateConnectionIfLatestMessageIsX} from '@utils/Storage/connections';
+import * as storage from '@utils/Storage/messages';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 /**
  * Handles any form of silent message updates, such as read receipts and payload deliveries.

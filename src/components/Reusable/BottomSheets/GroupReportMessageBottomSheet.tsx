@@ -1,30 +1,38 @@
 import React, {useState} from 'react';
+import {Keyboard, StyleSheet, View} from 'react-native';
+
+
+import {useNavigation} from '@react-navigation/native';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {StyleSheet, View, Keyboard} from 'react-native';
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
+
+import {safeModalCloseDuration} from '@configs/constants';
+import {messageReportCategories} from '@configs/reportingCategories';
+
 import {useChatContext} from '@screens/GroupChat/ChatContext';
 
-import PrimaryButton from '../LongButtons/PrimaryButton';
-import {wait} from '@utils/Time';
+import Group from '@utils/Groups/Group';
+import {REPORT_TYPES, createGroupMessageReport} from '@utils/MessageReporting';
 import {sendMessageReport} from '@utils/MessageReporting/APICalls';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {safeModalCloseDuration} from '@configs/constants';
-import DynamicColors from '@components/DynamicColors';
+import {wait} from '@utils/Time';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
+
 import SimpleCard from '../Cards/SimpleCard';
+import LargeTextInput from '../Inputs/LargeTextInput';
+import SimpleInput from '../Inputs/SimpleInput';
+import PrimaryButton from '../LongButtons/PrimaryButton';
 import OptionWithRadio from '../OptionButtons/OptionWithRadio';
 import LineSeparator from '../Separators/LineSeparator';
-import {messageReportCategories} from '@configs/reportingCategories';
-import SimpleInput from '../Inputs/SimpleInput';
-import {REPORT_TYPES, createGroupMessageReport} from '@utils/MessageReporting';
-import {useNavigation} from '@react-navigation/native';
-import {ToastType, useToast} from 'src/context/ToastContext';
-import Group from '@utils/Groups/Group';
-import LargeTextInput from '../Inputs/LargeTextInput';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 function GroupReportMessageBottomSheet({
   openModal,

@@ -1,12 +1,18 @@
-import {PortSpacing, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import {TOPBAR_HEIGHT} from '@configs/constants';
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Logo from '@assets/icons/WhitePortLogo.svg';
-import Settings from '@assets/dark/icons/Settings.svg';
-import Cross from '@assets/dark/icons/Cross.svg';
+
 import LinearGradient from 'react-native-linear-gradient';
+
+import {PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+
+import {TOPBAR_HEIGHT} from '@configs/constants';
+
+import Cross from '@assets/dark/icons/Cross.svg';
+import Settings from '@assets/dark/icons/Settings.svg';
+import Logo from '@assets/icons/WhitePortLogo.svg';
+
+
 import {useTheme} from 'src/context/ThemeContext';
 
 /**

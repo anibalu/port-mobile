@@ -11,18 +11,21 @@
  * 3. profileUri - will be using generic avatar here(will have a default avatar)
  */
 
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React, {useMemo, useState} from 'react';
 import {Pressable, View} from 'react-native';
-import {AvatarBox} from '../AvatarBox/AvatarBox';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
+
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {AvatarBox} from '../AvatarBox/AvatarBox';
 
 const ClickableTextWithAvatar = ({
   selectedMembers,

@@ -1,6 +1,8 @@
-import {UnusedPortData} from './interfaces';
-import {runSimpleQuery} from '../dbCommon';
 import {generateISOTimeStamp} from '@utils/Time';
+
+import {runSimpleQuery} from '../dbCommon';
+
+import {UnusedPortData} from './interfaces';
 
 export interface GroupPortDataUpdate {
   version?: string | null;

@@ -1,13 +1,16 @@
 import React, {useState} from 'react';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import {Pressable, StyleSheet, View} from 'react-native';
-import {PortSpacing} from './ComponentUtils';
-import ConfirmationBottomSheet from './Reusable/BottomSheets/ConfirmationBottomSheet';
-import {blockUser, unblockUser} from '@utils/Storage/blockUsers';
-import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
+
 import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+
+import {blockUser, unblockUser} from '@utils/Storage/blockUsers';
 import {BlockedUser} from '@utils/Storage/DBCalls/blockUser';
+
+import {PortSpacing} from './ComponentUtils';
 import DynamicColors from './DynamicColors';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
+import ConfirmationBottomSheet from './Reusable/BottomSheets/ConfirmationBottomSheet';
 
 interface BlockedContactProps extends BlockedUser {
   isLast: boolean;

@@ -6,15 +6,17 @@
  * 4. Title text
  */
 
+import React from 'react';
+import {StyleSheet, TouchableOpacity,View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React from 'react';
-import {StyleSheet, TouchableOpacity,View} from 'react-native';
-import DynamicColors from '@components/DynamicColors';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 /**

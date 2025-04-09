@@ -1,16 +1,19 @@
-import * as groupDBCalls from './DBCalls/groupMessage';
-import {UpdateParams} from './messages';
-import {deleteMedia} from './media';
-import {generateISOTimeStamp} from '@utils/Time';
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {
   ContentType,
   DataType,
   LargeDataMessageContentTypes,
   MessageStatus,
 } from '@utils/Messaging/interfaces';
-import {ConnectionInfo} from './DBCalls/connections';
+import {generateISOTimeStamp} from '@utils/Time';
+
 import {getConnection, updateConnection} from './connections';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {ConnectionInfo} from './DBCalls/connections';
+import * as groupDBCalls from './DBCalls/groupMessage';
+import {deleteMedia} from './media';
+import {UpdateParams} from './messages';
+
+
 
 /**
  * saves group message to storage.

@@ -1,14 +1,14 @@
-import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
-import {TemplateParams} from '@utils/Storage/DBCalls/templates';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {LineDataCombined} from '@utils/DirectChats/DirectChat';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {ContactEntry} from '@utils/Storage/DBCalls/contacts';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {GroupData} from '@utils/Storage/DBCalls/group';
 import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {TemplateParams} from '@utils/Storage/DBCalls/templates';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 
 export type AppStackParamList = {
   OngoingCall: {chatId: string; callId: string; isVideoCall: boolean};

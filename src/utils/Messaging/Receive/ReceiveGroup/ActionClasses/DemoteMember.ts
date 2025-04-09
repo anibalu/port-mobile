@@ -1,6 +1,8 @@
-import GroupReceiveAction from '../GroupReceiveAction';
 import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
+
 import Group from '@utils/Groups/Group';
+
+import GroupReceiveAction from '../GroupReceiveAction';
 
 class DemoteMember extends GroupReceiveAction {
   async performAction(): Promise<void> {

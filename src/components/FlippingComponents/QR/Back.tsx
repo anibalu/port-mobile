@@ -1,3 +1,5 @@
+import React from 'react';
+
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
@@ -5,7 +7,6 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import React from 'react';
 
 const Back = () => {
   const Colors = DynamicColors();

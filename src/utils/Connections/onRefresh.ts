@@ -1,13 +1,15 @@
-import {bundleTargetToChatType, getReadPorts} from '@utils/Ports';
-import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
-import {hasExpired} from '@utils/Time';
-import {defaultFolderId, defaultPermissionsId} from '@configs/constants';
 import {ChatTileProps} from '@components/ChatTile/ChatTile';
+
+import {defaultFolderId, defaultPermissionsId} from '@configs/constants';
+
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
+import {bundleTargetToChatType, getReadPorts} from '@utils/Ports';
 import {
   getAllConnectionsInFocus,
   getConnectionsByFolder,
   getNewMessageCount,
 } from '@utils/Storage/connections';
+import {hasExpired} from '@utils/Time';
 
 /**
  * Loads up connections and unread in home screen.

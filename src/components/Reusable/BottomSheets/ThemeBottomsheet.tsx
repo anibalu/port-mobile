@@ -1,12 +1,14 @@
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import React from 'react';
+import {FlatList, View} from 'react-native';
 
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import {themeOptions, ThemeType} from '@utils/Themes';
-import React from 'react';
-import {FlatList, View} from 'react-native';
+
+import {ThemeType, themeOptions} from '@utils/Themes';
+
 import {useTheme} from 'src/context/ThemeContext';
 
 const ThemeBottomsheet = ({

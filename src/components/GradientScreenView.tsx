@@ -1,9 +1,11 @@
 import React from 'react';
 import {View} from 'react-native';
-import {SafeAreaView, SafeAreaViewProps} from './SafeAreaView';
-import {CustomStatusBar} from './CustomStatusBar';
-import {Colors} from './colorGuide';
+
 import {ThemeType} from '@utils/Themes';
+
+import {Colors} from './colorGuide';
+import {CustomStatusBar} from './CustomStatusBar';
+import {SafeAreaView, SafeAreaViewProps} from './SafeAreaView';
 import {Height, Width} from './spacingGuide';
 import TopBarTitle from './Text/TopBarTitle';
 import SimpleBackTopBar from './TopBars/SimpleBackTopBar';

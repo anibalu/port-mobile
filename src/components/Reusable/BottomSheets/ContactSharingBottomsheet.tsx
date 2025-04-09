@@ -1,24 +1,32 @@
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
-import PrimaryButton from '../LongButtons/PrimaryButton';
+
+import Share from 'react-native-share';
+
+import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import SecondaryButton from '../LongButtons/SecondaryButton';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
-import {getBundleClickableLink} from '@utils/Ports';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import Share from 'react-native-share';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {getChatIdFromPairHash} from '@utils/Storage/connections';
+
 import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {getBundleClickableLink} from '@utils/Ports';
+import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
+import {getChatIdFromPairHash} from '@utils/Storage/connections';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import PrimaryButton from '../LongButtons/PrimaryButton';
+import SecondaryButton from '../LongButtons/SecondaryButton';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
+
+
+
 
 /**
  * 1. On contact share pressed, we start try to share contact.

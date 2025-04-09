@@ -1,10 +1,14 @@
+import React, {FC} from 'react';
+import {KeyboardTypeOptions, StyleSheet, TextInput, View} from 'react-native';
+
+import {SvgProps} from 'react-native-svg';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {FontType} from '@components/NumberlessText';
+
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
-import React, {FC} from 'react';
-import {KeyboardTypeOptions, StyleSheet, TextInput, View} from 'react-native';
-import {SvgProps} from 'react-native-svg';
+
 
 /**
  * Simple Input with Right Icon component

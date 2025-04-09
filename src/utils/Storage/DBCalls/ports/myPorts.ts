@@ -1,5 +1,7 @@
 import {generateISOTimeStamp} from '@utils/Time';
+
 import {runSimpleQuery} from '../dbCommon';
+
 import {UnusedPortData} from './interfaces';
 
 export interface PortDataUpdate {

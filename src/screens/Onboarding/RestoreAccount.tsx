@@ -1,20 +1,26 @@
+import React, {useState} from 'react';
+import {StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+
 import {PortSpacing, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
-import Restore from '@assets/icons/Restore.svg';
-import {StyleSheet, View} from 'react-native';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import {readSecureDataBackup} from '@utils/Backup/backupUtils';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+
 import store from '@store/appStore';
-import DynamicColors from '@components/DynamicColors';
+
+import {readSecureDataBackup} from '@utils/Backup/backupUtils';
+
+import Restore from '@assets/icons/Restore.svg';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
 
 const RestoreAccount = () => {

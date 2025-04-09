@@ -1,12 +1,13 @@
 import React, {
+  ReactNode,
   createContext,
   useContext,
-  useState,
   useMemo,
-  ReactNode,
+  useState,
 } from 'react';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+
 import PortGenerator from '@utils/Ports/SingleUsePorts/PortGenerator/PortGenerator';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 
 interface PortContextState {
   permissions?: PermissionsStrict;

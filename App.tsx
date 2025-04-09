@@ -5,38 +5,41 @@
  * 2. Sets up background operations and periodic foreground operations
  */
 
-import {NavigationContainer} from '@react-navigation/native';
 import React, {useEffect, useRef, useState} from 'react';
-
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {Provider} from 'react-redux';
-import store from './src/store/appStore';
-
-import {
-  initialiseFCM,
-  foregroundMessageHandler,
-} from '@utils/Messaging/PushNotifications/fcm';
-
-import {RootStack} from '@navigation/RootStack';
-import {checkProfileCreated} from '@utils/Profile';
-import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
+import {AppState} from 'react-native';
 
 import {addEventListener} from '@react-native-community/netinfo';
+import {NavigationContainer} from '@react-navigation/native';
+import BootSplash from 'react-native-bootsplash';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {Provider} from 'react-redux';
+
+
+import Toast from '@components/Modals/Toast';
+import HardUpdateInfoBlurView from '@components/Reusable/BlurView/HardUpdateInfoBlurView';
+import SoftUpdateInfoBlurView from '@components/Reusable/BlurView/SoftUpdateInfoBlurView';
+
+import {rootNavigationRef} from '@navigation/rootNavigation';
+import {RootStack} from '@navigation/RootStack';
+
 import {
   backgroundToForegroundOperations,
   performDebouncedCommonAppOperations,
 } from '@utils/AppOperations';
-import {AppState} from 'react-native';
+import {
+  foregroundMessageHandler,
+  initialiseFCM,
+} from '@utils/Messaging/PushNotifications/fcm';
+import {checkProfileCreated} from '@utils/Profile';
+import runMigrations from '@utils/Storage/Migrations';
+import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
+import {wait} from '@utils/Time';
+
 import {ThemeProvider} from 'src/context/ThemeContext';
 import {ToastProvider} from 'src/context/ToastContext';
-import Toast from '@components/Modals/Toast';
-import SoftUpdateInfoBlurView from '@components/Reusable/BlurView/SoftUpdateInfoBlurView';
-import HardUpdateInfoBlurView from '@components/Reusable/BlurView/HardUpdateInfoBlurView';
 import {UpdateStatusProvider} from 'src/context/UpdateStatusContext';
-import {wait} from '@utils/Time';
-import runMigrations from '@utils/Storage/Migrations';
-import BootSplash from 'react-native-bootsplash';
-import {rootNavigationRef} from '@navigation/rootNavigation';
+
+import store from './src/store/appStore';
 
 function App(): JSX.Element {
   const appState = useRef(AppState.currentState);

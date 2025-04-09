@@ -1,21 +1,26 @@
+import React, {ReactNode, useRef} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
 import {PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {InfoContentTypes} from '@utils/Messaging/interfaces';
-import {getDateStamp} from '@utils/Time';
-import React, {ReactNode, useRef} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import {MessageBubble} from './MessageBubble';
-import {InfoBubble} from './InfoBubble';
-import DynamicColors from '@components/DynamicColors';
-import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
+
 import {
   GroupMessageSelectionMode,
   useSelectionContext,
 } from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
+
+import {InfoContentTypes} from '@utils/Messaging/interfaces';
+import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
+import {getDateStamp} from '@utils/Time';
+
+import {InfoBubble} from './InfoBubble';
+import {MessageBubble} from './MessageBubble';
+
 
 //Decides if a date stamp should appear before a message bubble.
 //If date stamp shouldn't appear, decides if additional padding needs to be added.

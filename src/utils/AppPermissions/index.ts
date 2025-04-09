@@ -1,13 +1,15 @@
-import {isIOS} from '@components/ComponentUtils';
 import {PermissionsAndroid, Platform} from 'react-native';
+
+import notifee, {AuthorizationStatus} from '@notifee/react-native';
 import {
   PERMISSIONS,
+  Permission,
+  RESULTS,
   check,
   request,
-  RESULTS,
-  Permission,
 } from 'react-native-permissions';
-import notifee, {AuthorizationStatus} from '@notifee/react-native';
+
+import {isIOS} from '@components/ComponentUtils';
 
 /**
  * Self explanatory

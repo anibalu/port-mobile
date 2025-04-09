@@ -1,26 +1,30 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
-import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
-import {MessageStatus} from '@utils/Messaging/interfaces';
-import {formatDuration} from '@utils/Time';
+
+import {CircleSnail} from 'react-native-progress';
+
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {PortSpacing} from '@components/ComponentUtils';
-import {CircleSnail} from 'react-native-progress';
 import ProgressBar from '@components/Reusable/Loaders/ProgressBar';
-import {RenderTimeStamp, handleDownload, handleRetry} from '../BubbleUtils';
 
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {MessageStatus} from '@utils/Messaging/interfaces';
 import {
   LineMessageData,
   LoadedMessage,
 } from '@utils/Storage/DBCalls/lineMessage';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {formatDuration} from '@utils/Time';
+
+import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
 import {ToastType, useToast} from 'src/context/ToastContext';
+
+import {RenderTimeStamp, handleDownload, handleRetry} from '../BubbleUtils';
 
 const AudioBubble = ({
   message,

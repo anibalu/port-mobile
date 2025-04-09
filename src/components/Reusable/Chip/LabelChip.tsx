@@ -6,14 +6,15 @@
  * 3. bgColor - string
  */
 
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
 
 const LabelChip = ({
   text,

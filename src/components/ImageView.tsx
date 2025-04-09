@@ -1,10 +1,13 @@
 import React, {useState} from 'react';
 import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
-import {PortColors, screen} from './ComponentUtils';
-import LinearGradient from 'react-native-linear-gradient';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+
 import {ImageZoom} from '@likashefqet/react-native-image-zoom';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import LinearGradient from 'react-native-linear-gradient';
+
+import {PortColors, screen} from './ComponentUtils';
+import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
+
 
 const ImageView = ({
   fileUri,

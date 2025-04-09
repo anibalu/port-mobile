@@ -9,16 +9,19 @@
 
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import BrandLogo from '@assets/icons/BrandLogo.svg';
-import BrandName from '@assets/icons/BrandName.svg';
+
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
+
+import BrandLogo from '@assets/icons/BrandLogo.svg';
+import BrandName from '@assets/icons/BrandName.svg';
+
 import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 
 const CreatingLinkBottomSheet = ({
   visible,

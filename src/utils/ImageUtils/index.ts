@@ -1,11 +1,13 @@
 import ImageResizer from '@bam.tech/react-native-image-resizer';
+import * as Thumbnail from 'react-native-create-thumbnail';
+
 import {PREVIEW_PICTURE_DIMENSIONS} from '@configs/constants';
+
 import {ContentType} from '@utils/Messaging/interfaces';
 import {
   moveToLargeFileDir,
   moveToTmp,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import * as Thumbnail from 'react-native-create-thumbnail';
 
 export interface PreviewConfig {
   chatId?: string;

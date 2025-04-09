@@ -1,6 +1,4 @@
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
   ContentType,
   DataType,
@@ -8,6 +6,8 @@ import {
   PayloadMessageParams,
   UpdateRequiredMessageContentTypes,
 } from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import * as storage from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';

@@ -2,7 +2,13 @@
  * This context handles call initiation along with management call functionality
  */
 
+import React, {createContext, useContext, useEffect, useReducer} from 'react';
+
 import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+
+import store from '@store/appStore';
+
 import {
   CallEndReason,
   endCallOSUI,
@@ -11,9 +17,6 @@ import {
   rejectCallOSUI,
   setUpCallKeep,
 } from '@utils/Calls/CallOSBridge';
-import React, {createContext, useContext, useEffect, useReducer} from 'react';
-import {useSelector} from 'react-redux';
-import store from '@store/appStore';
 import {registerForVoIPPushNotifications} from '@utils/Messaging/PushNotifications/VoIPAPNS';
 
 // bodgy fix since we need to be able to map callIds to chatIds

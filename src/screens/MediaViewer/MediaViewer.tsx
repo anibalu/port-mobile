@@ -1,36 +1,43 @@
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import GreenTick from '@assets/icons/GreenTick.svg';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import PopupBottomsheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
-import {cleanDeleteMessage} from '@utils/Storage/messages';
-import {cleanDeleteGroupMessage} from '@utils/Storage/groupMessages';
-import Share from 'react-native-share';
-import {MediaMessageActionsBar} from '@components/ActionBars/MediaMessageActionsBar';
-import {useNavigation} from '@react-navigation/native';
-import BackTopbarWithSubtitle from '@components/Reusable/TopBars/BackTopbarWithSubtitle';
-import {getTimeAndDateStamp} from '@utils/Time';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
-import ImageView from '@components/ImageView';
-import VideoView from '@components/VideoView';
-import DynamicColors from '@components/DynamicColors';
+
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import Share from 'react-native-share';
+
+import {MediaMessageActionsBar} from '@components/ActionBars/MediaMessageActionsBar';
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
+import ImageView from '@components/ImageView';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {ToastType, useToast} from 'src/context/ToastContext';
+import PopupBottomsheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
+import BackTopbarWithSubtitle from '@components/Reusable/TopBars/BackTopbarWithSubtitle';
+import {SafeAreaView} from '@components/SafeAreaView';
+import VideoView from '@components/VideoView';
+
 import {DEFAULT_GROUP_MEMBER_NAME, DEFAULT_NAME} from '@configs/constants';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
+import DirectChat from '@utils/DirectChats/DirectChat';
 import Group from '@utils/Groups/Group';
+import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
+import {cleanDeleteGroupMessage} from '@utils/Storage/groupMessages';
+import {cleanDeleteMessage} from '@utils/Storage/messages';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {getTimeAndDateStamp} from '@utils/Time';
+
+import GreenTick from '@assets/icons/GreenTick.svg';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MediaViewer'>;
 

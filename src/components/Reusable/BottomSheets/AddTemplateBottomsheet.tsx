@@ -1,15 +1,19 @@
 import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
+
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
-import PrimaryButton from '../LongButtons/PrimaryButton';
 import DynamicColors from '@components/DynamicColors';
-import SimpleInput from '../Inputs/SimpleInput';
-import LargeTextInput from '../Inputs/LargeTextInput';
-import {addTemplate, editTemplate} from '@utils/Storage/templates';
+import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
+import {addTemplate, editTemplate} from '@utils/Storage/templates';
+
+import LargeTextInput from '../Inputs/LargeTextInput';
+import SimpleInput from '../Inputs/SimpleInput';
+import PrimaryButton from '../LongButtons/PrimaryButton';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 const AddTemplateBottomsheet = ({
   visible,

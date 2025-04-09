@@ -1,5 +1,5 @@
-import {UnusedPortData} from './DBCalls/ports/interfaces';
 import * as dbCalls from './DBCalls/ports/groupPorts';
+import {UnusedPortData} from './DBCalls/ports/interfaces';
 
 /**
  * Create a new group port entry

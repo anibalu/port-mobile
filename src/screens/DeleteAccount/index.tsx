@@ -1,22 +1,27 @@
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import React, {useRef, useState} from 'react';
 import {StyleSheet, TextInput, View} from 'react-native';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import permanentlyDeleteAccount from '@utils/AccountDeletion';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import AlertIcon from '@assets/icons/ErrorAlert.svg';
 import ProfileDeletionBlurView from '@components/Reusable/BlurView/ProfileDeletionBlurView';
-import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
+import permanentlyDeleteAccount from '@utils/AccountDeletion';
+
+import AlertIcon from '@assets/icons/ErrorAlert.svg';
 
 const DELETION_TEXT = 'DELETE ACCOUNT';
 

@@ -1,15 +1,18 @@
-import {useThemeColors} from '@components/colorGuide';
-import {FontWeight, NumberlessText,FontSizeType} from '@components/NumberlessText';
-import {Spacing, Size} from '@components/spacingGuide';
 import React, {FC} from 'react';
 import {
-  TouchableOpacity,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
   ActivityIndicator,
+  StyleSheet,
+  TextStyle,
+  TouchableOpacity,
+  ViewStyle,
 } from 'react-native';
+
 import {SvgProps} from 'react-native-svg';
+
+import {useThemeColors} from '@components/colorGuide';
+import {FontSizeType, FontWeight,NumberlessText} from '@components/NumberlessText';
+import {Size, Spacing} from '@components/spacingGuide';
+
 
 interface SecondaryButtonProps {
   text: string;

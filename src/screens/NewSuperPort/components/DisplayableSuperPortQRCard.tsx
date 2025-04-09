@@ -1,15 +1,16 @@
 import React from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
+
+import GradientCard from '@components/Cards/GradientCard';
+import {useThemeColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import useSVG from '@components/svgGuide';
-import {Height, Spacing, Width} from '@components/spacingGuide';
-import GradientCard from '@components/Cards/GradientCard';
-import {useThemeColors} from '@components/colorGuide';
 import SimpleQR from '@components/QR/SimpleQR';
+import {Height, Spacing, Width} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 const DisplayableSuperPortQRCard = ({
   isLoading,

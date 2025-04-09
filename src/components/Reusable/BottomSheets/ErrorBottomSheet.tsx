@@ -1,17 +1,20 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import AlertIcon from '@assets/icons/ErrorAlert.svg';
+
+import SecondaryButton from '@components/Buttons/SecondaryButton';
+import {useColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
-import SecondaryButton from '@components/Buttons/SecondaryButton';
-import useSVG from '@components/svgGuide';
-import {useColors} from '@components/colorGuide';
-import {Size, Spacing, Width} from '@components/spacingGuide';
 import LineSeparator from '@components/Separators/LineSeparator';
+import {Size, Spacing, Width} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
+
+import AlertIcon from '@assets/icons/ErrorAlert.svg';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 /**
  * A bottom sheet component that displays an error message and a button to try again.

@@ -2,8 +2,9 @@
  * This context tracking of selected messages from a group
  */
 
-import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
 import React, {createContext, useContext, useState} from 'react';
+
+import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
 
 export enum GroupMessageSelectionMode {
   Single,

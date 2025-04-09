@@ -4,14 +4,17 @@
 
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
-import DefaultLoader from '../Loaders/DefaultLoader';
+
 import QRCode from 'react-native-qrcode-svg';
+
+import {PortColors, PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {jsonToUrl} from '@utils/JsonToUrl';
 import {
   DirectSuperportBundle,
@@ -19,8 +22,10 @@ import {
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
+
 import {AvatarBox} from '../AvatarBox/AvatarBox';
-import DynamicColors from '@components/DynamicColors';
+import DefaultLoader from '../Loaders/DefaultLoader';
+
 
 /**
  * @deprecated

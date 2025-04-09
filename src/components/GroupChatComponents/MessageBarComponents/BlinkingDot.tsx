@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Animated, Easing} from 'react-native';
 
 // this is a ui element for a blinking dot used for audio recording

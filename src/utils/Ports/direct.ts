@@ -1,37 +1,39 @@
+import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
 import {
   CURRENT_PORT_VERSION,
   DEFAULT_NAME,
   IDEAL_UNUSED_PORTS_NUMBER,
   ORG_NAME,
 } from '@configs/constants';
-import * as API from './APICalls';
-import * as storageMyPorts from '@utils/Storage/myPorts';
-import * as storageReadPorts from '@utils/Storage/readPorts';
-import {PortBundle} from './interfaces';
-import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
+
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
-import {getProfileName} from '@utils/Profile';
-import {
-  hasExpired,
-  generateISOTimeStamp,
-  getExpiryTimestamp,
-} from '@utils/Time';
-import {expiryOptionsTypes} from '@utils/Time/interfaces';
 import DirectChat, {IntroMessage} from '@utils/DirectChats/DirectChat';
-import {ContactBundleParams} from '@utils/Messaging/interfaces';
-import {BUNDLE_ID_PREPEND_LINK} from '@configs/api';
-import {getMessage, updateMessageData} from '@utils/Storage/messages';
-import {
-  clearPermissions,
-  createChatPermissionsFromFolderId,
-} from '@utils/Storage/permissions';
-import {checkLineExists} from '@utils/Storage/lines';
 import {
   generatorInitialInfoSend,
   readerInitialInfoSend,
 } from '@utils/DirectChats/initialInfoExchange';
+import {ContactBundleParams} from '@utils/Messaging/interfaces';
+import {getProfileName} from '@utils/Profile';
+import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
+import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
+import {checkLineExists} from '@utils/Storage/lines';
+import {getMessage, updateMessageData} from '@utils/Storage/messages';
+import * as storageMyPorts from '@utils/Storage/myPorts';
+import {
+  clearPermissions,
+  createChatPermissionsFromFolderId,
+} from '@utils/Storage/permissions';
+import * as storageReadPorts from '@utils/Storage/readPorts';
+import {
+  generateISOTimeStamp,
+  getExpiryTimestamp,
+  hasExpired,
+} from '@utils/Time';
+import {expiryOptionsTypes} from '@utils/Time/interfaces';
+
+import * as API from './APICalls';
+import {PortBundle} from './interfaces';
 
 /**
  * Fetches new unused ports and stores it in storage.

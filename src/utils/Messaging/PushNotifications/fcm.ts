@@ -1,9 +1,13 @@
-import messaging from '@react-native-firebase/messaging';
-import {showDefaultNotification} from '@utils/Notifications';
-import pullBacklog from '../pullBacklog';
-import * as API from './APICalls';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
+
 import {isIOS} from '@components/ComponentUtils';
+
+import {showDefaultNotification} from '@utils/Notifications';
+
+import pullBacklog from '../pullBacklog';
+
+import * as API from './APICalls';
 
 export type FCMToken = string;
 

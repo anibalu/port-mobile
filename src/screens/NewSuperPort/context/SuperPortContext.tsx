@@ -1,12 +1,13 @@
 import React, {
+  ReactNode,
   createContext,
   useContext,
-  useState,
   useMemo,
-  ReactNode,
+  useState,
 } from 'react';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+
 import SuperPortGenerator from '@utils/Ports/SuperPorts/SuperPortGenerator/SuperPortGenerator';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 
 interface SuperPortContextState {
   permissions?: PermissionsStrict;

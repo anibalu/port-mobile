@@ -1,11 +1,13 @@
+import React, {memo} from 'react';
+import {StyleSheet, TextStyle, View, ViewStyle} from 'react-native';
+
 import {BackButton} from '@components/BackButton';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {memo} from 'react';
-import {StyleSheet, TextStyle, View, ViewStyle} from 'react-native';
+
 import {PortColors} from './ComponentUtils';
 
 const GenericTopBar = ({

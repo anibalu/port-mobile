@@ -1,13 +1,14 @@
+import React from 'react';
+import {StyleSheet, TouchableOpacity,View} from 'react-native';
+
+import {useColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import React from 'react';
-import {StyleSheet, TouchableOpacity,View} from 'react-native';
-import {useColors} from '@components/colorGuide';
-import useSVG from '@components/svgGuide';
 import {Spacing} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 /**
  * Option With Radio.

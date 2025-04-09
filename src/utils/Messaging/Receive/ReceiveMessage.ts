@@ -1,4 +1,5 @@
 import {getChatIdFromRoutingId} from '@utils/Storage/connections';
+
 import ReceiveDirectMessage from './ReceiveDirect/ReceiveDirectMessage';
 import ReceiveGroupMessage from './ReceiveGroup/ReceiveGroupMessage';
 

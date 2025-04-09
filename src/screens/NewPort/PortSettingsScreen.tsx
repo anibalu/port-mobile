@@ -1,8 +1,4 @@
 // import TagCard from '@components/Reusable/Cards/TagCard';
-import PrimaryButton from '@components/Buttons/PrimaryButton';
-import {defaultPermissions} from '@configs/constants';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   AppState,
@@ -11,17 +7,29 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {Spacing, Width} from '@components/spacingGuide';
-import TopBarDescription from '@components/Text/TopBarDescription';
+
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import PrimaryButton from '@components/Buttons/PrimaryButton';
+import SecondaryButton from '@components/Buttons/SecondaryButton';
 import {useColors} from '@components/colorGuide';
 import {GradientScreenView} from '@components/GradientScreenView';
 import ExpandableLocalPermissionsCard from '@components/PermissionsCards/ExpandableLocalPermissionsCard';
+import {Spacing, Width} from '@components/spacingGuide';
+import TopBarDescription from '@components/Text/TopBarDescription';
+
+import {defaultPermissions} from '@configs/constants';
+
 import {NewPortStackParamList} from '@navigation/AppStack/NewPortStack/NewPortStackTypes';
-import SecondaryButton from '@components/Buttons/SecondaryButton';
-import PortContactNameCard from './components/PortContactNameCard';
-import {usePortData, usePortActions} from './context/PortContext';
-import {ToastType, useToast} from 'src/context/ToastContext';
+
 import {checkNotificationPermission} from '@utils/AppPermissions';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
+
+import PortContactNameCard from './components/PortContactNameCard';
+import {usePortActions, usePortData} from './context/PortContext';
+
 
 type Props = NativeStackScreenProps<
   NewPortStackParamList,

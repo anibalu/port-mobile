@@ -1,5 +1,6 @@
-import {TRIGGER_TYPES, TriggerType} from '@store/triggerRedraw';
 import {useSelector} from 'react-redux';
+
+import {TRIGGER_TYPES, TriggerType} from '@store/triggerRedraw';
 
 export const useListenForTrigger = (type: TriggerType) => {
   const triggerStateMapping = {

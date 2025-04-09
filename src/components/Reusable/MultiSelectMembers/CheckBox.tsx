@@ -5,6 +5,7 @@
 
 import React from 'react';
 import {View} from 'react-native';
+
 import Checked from '@assets/miscellaneous/checked.svg';
 import Unchecked from '@assets/miscellaneous/unchecked.svg';
 

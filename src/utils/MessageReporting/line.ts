@@ -1,12 +1,14 @@
-import {getMessage} from '@utils/Storage/messages';
-import {getMedia} from '@utils/Storage/DBCalls/media';
-import {getConnection} from '@utils/Storage/connections';
-import * as API from './APICalls';
-import {LineIllegalReport} from './index';
-import {ContentType} from '@utils/Messaging/interfaces';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {generateISOTimeStamp} from '@utils/Time';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {getConnection} from '@utils/Storage/connections';
+import {getMedia} from '@utils/Storage/DBCalls/media';
+import {getMessage} from '@utils/Storage/messages';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {generateISOTimeStamp} from '@utils/Time';
+
+import * as API from './APICalls';
+
+import {LineIllegalReport} from './index';
 
 /**
  * Tries to create a LineIllegalReport and calls submitIllegalReport

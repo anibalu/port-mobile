@@ -1,6 +1,6 @@
-import {SuperportData} from '@utils/Storage/DBCalls/ports/superPorts';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {DirectSuperportBundle} from '@utils/Ports/interfaces';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {SuperportData} from '@utils/Storage/DBCalls/ports/superPorts';
 
 abstract class SuperPortGenerator {
   abstract version: string;

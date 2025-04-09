@@ -1,4 +1,10 @@
+import React, {useCallback, useState} from 'react';
+import {FlatList, StyleSheet} from 'react-native';
+
+import {useFocusEffect} from '@react-navigation/native';
+
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
@@ -8,13 +14,13 @@ import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomS
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import {getAllFolders} from '@utils/Storage/folders';
-import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import React, {useCallback, useState} from 'react';
-import {FlatList, StyleSheet} from 'react-native';
+
 import {moveConnectionToNewFolderWithoutPermissionChange} from '@utils/ChatFolders';
-import {useFocusEffect} from '@react-navigation/native';
-import DynamicColors from '@components/DynamicColors';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import {getAllFolders} from '@utils/Storage/folders';
+
+
+
 
 const AddFolderBottomsheet = ({
   chatId,

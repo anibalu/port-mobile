@@ -1,17 +1,21 @@
+import React, {ReactNode} from 'react';
+import {Image, Linking, Pressable, StyleSheet, View} from 'react-native';
+
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {LinkParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {Image, Linking, Pressable, StyleSheet, View} from 'react-native';
-import {IMAGE_DIMENSIONS} from '../BubbleUtils';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {PortSpacing} from '@components/ComponentUtils';
-import {TextBubble} from './TextBubble';
-import DynamicColors from '@components/DynamicColors';
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import {IMAGE_DIMENSIONS} from '../BubbleUtils';
+
+import {TextBubble} from './TextBubble';
 
 /**
  * Extend supported content types to support more types of content bubbles.

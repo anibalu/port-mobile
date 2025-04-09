@@ -1,5 +1,13 @@
+import React, {ReactNode} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+import {SharedValue} from 'react-native-reanimated';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+
 import {BackButton} from '@components/BackButton';
-import {isIOS, PortSpacing, screen} from '@components/ComponentUtils';
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
@@ -7,21 +15,23 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {useNavigation} from '@react-navigation/native';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import React, {ReactNode} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {ChatTopBarWithAccessControls} from './DragDownTopBar';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useTheme} from 'src/context/ThemeContext';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
-import {SharedValue} from 'react-native-reanimated';
-import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {createCallId} from '@utils/Calls/CallOSBridge';
+
 import {useCallContext} from '@screens/Calls/CallContext';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
+
+import {createCallId} from '@utils/Calls/CallOSBridge';
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {useTheme} from 'src/context/ThemeContext';
+
+import {ChatTopBarWithAccessControls} from './DragDownTopBar';
+
+
+
 
 /**
  * Handles top bar for chat

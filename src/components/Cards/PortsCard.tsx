@@ -1,3 +1,6 @@
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -7,10 +10,11 @@ import {
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import LineSeparator from '@components/Reusable/Separators/LineSeparator';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
+
 import ReusableIcon from '@assets/icons/Reusable.svg';
+
 
 const PortsCard = ({
   title,

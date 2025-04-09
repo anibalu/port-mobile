@@ -1,16 +1,19 @@
+import React, {ReactNode} from 'react';
+import {View} from 'react-native';
+
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {useChatContext} from '@screens/GroupChat/ChatContext';
-import {getLabelByTimeDiff} from '@utils/Time';
+
 import {DisappearingMessageParams} from '@utils/Messaging/interfaces';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React, {ReactNode} from 'react';
-import {View} from 'react-native';
 import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {getLabelByTimeDiff} from '@utils/Time';
 
 export const DisappearingMessageInfoBubble = ({
   message,

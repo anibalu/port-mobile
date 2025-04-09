@@ -1,13 +1,15 @@
+import React, {ReactNode, useEffect,useMemo} from 'react';
+import {Animated, Easing, Image, StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {GenericButton} from '@components/GenericButton';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {useEffect, useMemo,ReactNode} from 'react';
-import {StyleSheet, View, Image, Animated, Easing} from 'react-native';
-import {GenericButton} from '@components/GenericButton';
-import DynamicColors from '@components/DynamicColors';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 interface LinkPreviewData {
   title?: string;

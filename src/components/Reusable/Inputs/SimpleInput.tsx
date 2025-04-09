@@ -6,11 +6,14 @@
  * 3. Placeholder text
  */
 
-import DynamicColors from '@components/DynamicColors';
-import {FontType} from '@components/NumberlessText';
-import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {useState} from 'react';
 import {KeyboardTypeOptions, StyleSheet, TextInput} from 'react-native';
+
+import DynamicColors from '@components/DynamicColors';
+import {FontType} from '@components/NumberlessText';
+
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
+
 import {useTheme} from 'src/context/ThemeContext';
 
 const SimpleInput = ({

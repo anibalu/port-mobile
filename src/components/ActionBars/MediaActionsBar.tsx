@@ -1,24 +1,27 @@
 import React, {ReactNode, useState} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
-import ShareIcon from '@assets/icons/ShareBold.svg';
-import Delete from '@assets/icons/delete.svg';
-import Forward from '@assets/icons/forward.svg';
+import Share from 'react-native-share';
 
 import {PortColors} from '@components/ComponentUtils';
 import {GenericButton} from '@components/GenericButton';
+import DeleteModal from '@components/Modals/DeleteModal';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {MediaEntry} from '@utils/Storage/DBCalls/media';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
-import Share from 'react-native-share';
-import DeleteModal from '@components/Modals/DeleteModal';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
+
 import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
+import {cleanDeleteMessage, getMessage} from '@utils/Storage/messages';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import Delete from '@assets/icons/delete.svg';
+import Forward from '@assets/icons/forward.svg';
+import ShareIcon from '@assets/icons/ShareBold.svg';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
 
 /**

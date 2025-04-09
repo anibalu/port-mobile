@@ -1,12 +1,3 @@
-import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
-import {
-  FontSizeType,
-  FontType,
-  getWeight,
-  NumberlessText,
-} from '@components/NumberlessText';
-import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
@@ -15,17 +6,31 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+
+import Contacts from 'react-native-contacts';
+import Share from 'react-native-share';
+
+import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import LargeTextInput from '../Inputs/LargeTextInput';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import PrimaryButton from '../LongButtons/PrimaryButton';
-import {useTheme} from 'src/context/ThemeContext';
-import SecondaryButton from '../LongButtons/SecondaryButton';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
+import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
+import SimpleCard from '@components/Reusable/Cards/SimpleCard';
+
+import {jsonToUrl} from '@utils/JsonToUrl';
 import {generateBundle, getBundleClickableLink} from '@utils/Ports';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
-import Share from 'react-native-share';
-import Contacts from 'react-native-contacts';
-import {jsonToUrl} from '@utils/JsonToUrl';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {useTheme} from 'src/context/ThemeContext';
+
+import LargeTextInput from '../Inputs/LargeTextInput';
+import PrimaryButton from '../LongButtons/PrimaryButton';
+import SecondaryButton from '../LongButtons/SecondaryButton';
 import LineSeparator from '../Separators/LineSeparator';
 
 /**

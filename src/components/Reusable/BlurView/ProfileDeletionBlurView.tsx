@@ -1,18 +1,25 @@
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+
+import {TouchableOpacity} from 'react-native-gesture-handler';
+
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryButton from '../LongButtons/PrimaryButton';
-import store from '@store/appStore';
+
 import {rootNavigationRef} from '@navigation/rootNavigation';
+
+import store from '@store/appStore';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import PrimaryButton from '../LongButtons/PrimaryButton';
+
 
 const ProfileDeletionBlurView = ({modalClose}: {modalClose: boolean}) => {
   const svgArray = [

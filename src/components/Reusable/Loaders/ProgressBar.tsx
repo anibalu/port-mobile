@@ -1,7 +1,8 @@
-import {screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
 import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
+
+import {screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 
 // this is an ui element for showing progress in a bar
 

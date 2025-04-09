@@ -1,4 +1,3 @@
-import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React from 'react';
 import {
   StyleProp,
@@ -7,6 +6,9 @@ import {
   TextInputProps,
   ViewStyle,
 } from 'react-native';
+
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
+
 import {PortColors} from './ComponentUtils';
 import {
   FontSizeType,

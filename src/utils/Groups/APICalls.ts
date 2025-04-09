@@ -1,12 +1,14 @@
+import axios from 'axios';
+
 import {
   GROUP_ADMIN_MANAGEMENT_RESOURCE,
-  GROUP_EXIT_RESOURCE,
   GROUP_BASE,
+  GROUP_EXIT_RESOURCE,
   GROUP_MEMBER_REMOVE_RESOURCE,
   GROUP_MEMBER_RESOURCE,
 } from '@configs/api';
+
 import {getToken} from '@utils/ServerAuth';
-import axios from 'axios';
 
 /**
  * Creates a group on the backend

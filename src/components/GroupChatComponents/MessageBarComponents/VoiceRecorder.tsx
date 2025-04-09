@@ -1,3 +1,9 @@
+import React, {useEffect, useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import {debounce} from 'lodash';
+import {useMicrophonePermission} from 'react-native-vision-camera';
+
 import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {GenericButton} from '@components/GenericButton';
@@ -6,25 +12,25 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React, {useEffect, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
-import WhitecrossOutline from '@assets/icons/WhitecrossOutline.svg';
-import {useMicrophonePermission} from 'react-native-vision-camera';
-import BlinkingDot from './BlinkingDot';
-import AmplitudeBars from './Recording';
-import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
-import {formatDuration} from '@utils/Time';
-import {debounce} from 'lodash';
 import ProgressBar from '@components/Reusable/Loaders/ProgressBar';
+
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {moveToTmp} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
 import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
-import {ToastType, useToast} from 'src/context/ToastContext';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {moveToTmp} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {formatDuration} from '@utils/Time';
 import {redrawOnNewMessage} from '@utils/TriggerTools/RedrawTrigger/redrawOnTrigger';
+
+import WhitecrossOutline from '@assets/icons/WhitecrossOutline.svg';
+
+import {useAudioPlayerContext} from 'src/context/AudioPlayerContext';
 import {useTheme} from 'src/context/ThemeContext';
+import {ToastType, useToast} from 'src/context/ToastContext';
+
+import BlinkingDot from './BlinkingDot';
+import AmplitudeBars from './Recording';
 
 const MESSAGE_INPUT_TEXT_WIDTH = screen.width - 115;
 

@@ -1,24 +1,31 @@
+import React, {useEffect, useState} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import LineSeparator from '@components/Reusable/Separators/LineSeparator';
+
 import {DEFAULT_AVATAR, DEFAULT_NAME} from '@configs/constants';
-import {useNavigation} from '@react-navigation/native';
+
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {ContactBundleParams} from '@utils/Messaging/interfaces';
-import React, {useEffect, useState} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
+
 import {
-  attemptConnect,
   MAX_WIDTH_CONTENT,
   RenderTimeStamp,
+  attemptConnect,
 } from '../BubbleUtils';
-import LineSeparator from '@components/Reusable/Separators/LineSeparator';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import DynamicColors from '@components/DynamicColors';
-import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
-import {ToastType, useToast} from 'src/context/ToastContext';
+
 
 const ContactBubble = ({message}: {message: LoadedMessage}) => {
   const navigation = useNavigation<any>();

@@ -1,12 +1,15 @@
+import store from '@store/appStore';
+
 import Group from '@utils/Groups/Group';
-import GroupReceiveAction from '../GroupReceiveAction';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {createPreview} from '@utils/ImageUtils';
 import {ContentType, GroupPictureParams} from '@utils/Messaging/interfaces';
 import LargeDataDownload from '@utils/Messaging/LargeData/LargeDataDownload';
-import {createPreview} from '@utils/ImageUtils';
-import {getFileNameFromUri} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {saveNewMedia, updateMedia} from '@utils/Storage/media';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import store from '@store/appStore';
+import {getFileNameFromUri} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import GroupReceiveAction from '../GroupReceiveAction';
+
 
 class ReceiveGroupPicture extends GroupReceiveAction {
   async performAction(): Promise<void> {

@@ -5,13 +5,16 @@
  * 2. set text function
  */
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
-import {NAME_LENGTH_LIMIT} from '@configs/constants';
 import React, {useState} from 'react';
 import {Pressable, StyleSheet, TextInput, View} from 'react-native';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
+import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 const SearchInput = ({
   text,

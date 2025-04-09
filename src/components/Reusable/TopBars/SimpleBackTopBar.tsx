@@ -1,11 +1,15 @@
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import LinearGradient from 'react-native-linear-gradient';
-import {useTheme} from 'src/context/ThemeContext';
-import {Height, Spacing, Width} from '@components/spacingGuide';
+
 import {Colors} from '@components/colorGuide';
+import {Height, Spacing, Width} from '@components/spacingGuide';
+
 import {ThemeType} from '@utils/Themes';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {useTheme} from 'src/context/ThemeContext';
 /**
  * Simple back top bar.
  * @param onBackPress - The function to call when the back button is pressed.

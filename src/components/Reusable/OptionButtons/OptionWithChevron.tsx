@@ -9,17 +9,21 @@
  * 6. Has border bottom
  */
 
+import React, {FC} from 'react';
+import {StyleSheet, TouchableOpacity,View} from 'react-native';
+
+import {SvgProps} from 'react-native-svg';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {FC} from 'react';
-import {StyleSheet, TouchableOpacity,View} from 'react-native';
-import {SvgProps} from 'react-native-svg';
-import DynamicColors from '@components/DynamicColors';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import {useTheme} from 'src/context/ThemeContext';
 
 const OptionWithChevron = ({

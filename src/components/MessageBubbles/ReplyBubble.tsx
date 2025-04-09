@@ -1,26 +1,31 @@
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {LinkPreviewReplyBubble} from './ReplyBubbles/LinkPreviewReplyBubble';
+
+import {useChatContext} from '@screens/DirectChat/ChatContext';
+
 import {ContentType} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {TextReplyBubble} from './ReplyBubbles/TextReplyBubble';
-import {MIN_WIDTH_REPLY, REPLY_MEDIA_HEIGHT} from './BubbleUtils';
-import {ImageReplyBubble} from './ReplyBubbles/ImageReplyBubble';
-import {VideoReplyBubble} from './ReplyBubbles/VideoReplyBubble';
-import FileReplyBubble from './ReplyBubbles/FileReplyBubble';
-import ContactReplyBubble from './ReplyBubbles/ContactReplyBubble';
-import AudioReplyBubble from './ReplyBubbles/AudioReplyBubble';
 import {
   LineMessageData,
   ReplyContent,
 } from '@utils/Storage/DBCalls/lineMessage';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import DynamicColors from '@components/DynamicColors';
+
+import {MIN_WIDTH_REPLY, REPLY_MEDIA_HEIGHT} from './BubbleUtils';
+import AudioReplyBubble from './ReplyBubbles/AudioReplyBubble';
+import ContactReplyBubble from './ReplyBubbles/ContactReplyBubble';
+import FileReplyBubble from './ReplyBubbles/FileReplyBubble';
+import {ImageReplyBubble} from './ReplyBubbles/ImageReplyBubble';
+import {LinkPreviewReplyBubble} from './ReplyBubbles/LinkPreviewReplyBubble';
+import {TextReplyBubble} from './ReplyBubbles/TextReplyBubble';
+import {VideoReplyBubble} from './ReplyBubbles/VideoReplyBubble';
+
 
 export const ReplyBubble = ({reply}: {reply: ReplyContent}): ReactNode => {
   const {name} = useChatContext();

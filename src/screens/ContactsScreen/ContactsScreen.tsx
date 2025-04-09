@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useColors } from '@components/colorGuide';
-import TopBarDescription from '@components/Text/TopBarDescription';
-import { Spacing } from '@components/spacingGuide';
+
 import { useNavigation } from '@react-navigation/native';
-import NewContactOptions from './components/NewContactOptions';
-import InviteContactsCard from './components/InviteContactsCard';
+
+import { useColors } from '@components/colorGuide';
 import { GradientScreenView } from '@components/GradientScreenView';
-import { ConnectionInfo } from '@utils/Storage/DBCalls/connections';
-import ConnectionsCard from './components/ConnectionsCard';
+import { Spacing } from '@components/spacingGuide';
+import TopBarDescription from '@components/Text/TopBarDescription';
+
 import { getDirectChats } from '@utils/DirectChats';
+import { ConnectionInfo } from '@utils/Storage/DBCalls/connections';
+
+import ConnectionsCard from './components/ConnectionsCard';
+import InviteContactsCard from './components/InviteContactsCard';
+import NewContactOptions from './components/NewContactOptions';
+
+
+
 
 const ContactsScreen = () => {
   const Colors = useColors();

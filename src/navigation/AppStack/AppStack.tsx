@@ -2,43 +2,48 @@
  * Primary navigation stack of the app.
  * User is navigated here if onboarding is done or if profile is already setup.
  */
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import DirectChat from '@screens/DirectChat/Chat';
-import GroupChat from '@screens/GroupChat/Chat';
-import ChatProfile from '@screens/ChatProfile/ChatProfile';
-import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
-import ShareContact from '@screens/ShareContact/ShareContact';
-import GalleryConfirmation from '@screens/ShareImage/GalleryConfirmation';
-import SelectShareContacts from '@screens/ShareImage/SelectShareContacts';
-import SharedMedia from '@screens/SharedMedia/SharedMedia';
 import React from 'react';
-import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
-import {AppStackParamList} from './AppStackTypes';
-import CreateNewGroup from '@screens/GroupsV2/CreateNewGroup';
-import NewGroupPort from '@screens/GroupsV2/NewGroupPort';
-import GiveUsFeedbackScreen from '@screens/Feedback/GiveUsFeedbackScreen';
-import MediaViewer from '@screens/MediaViewer/MediaViewer';
-import QRScanner from '@screens/Scanner/QRScanner';
+
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
 import BlockedContacts from '@screens/BlockedContacts/BlockedContacts';
-import HelpScreen from '@screens/Help/HelpScreen';
-import Templates from '@screens/Templates/Templates';
+import {CallContextProvider} from '@screens/Calls/CallContext';
+import IncomingCall from '@screens/Calls/IncomingCall';
+import OngoingCall from '@screens/Calls/OngoingCall';
+import ChatProfile from '@screens/ChatProfile/ChatProfile';
 import PhoneContactList from '@screens/ContactList/PhoneContactList';
-import BottomNavStack from './BottomNavStack/BottomNavStack';
 import ContactProfile from '@screens/ContactProfile/ContactProfile';
-import GroupProfile from '@screens/GroupsV2/GroupProfile';
+import ContactsScreen from '@screens/ContactsScreen/ContactsScreen';
+import DefaultPermissionsScreen from '@screens/DefaultPermissions/DefaultPermissionsScreen';
+import DeleteAccount from '@screens/DeleteAccount';
+import DirectChat from '@screens/DirectChat/Chat';
+import GiveUsFeedbackScreen from '@screens/Feedback/GiveUsFeedbackScreen';
+import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
+import GroupChat from '@screens/GroupChat/Chat';
 import AddNewContacts from '@screens/GroupsV2/AddNewContacts';
 import AllMembers from '@screens/GroupsV2/AllMembers';
-import GroupTemplates from '@screens/Templates/GroupTemplates';
-import IncomingCall from '@screens/Calls/IncomingCall';
-import {CallContextProvider} from '@screens/Calls/CallContext';
-import OngoingCall from '@screens/Calls/OngoingCall';
+import CreateNewGroup from '@screens/GroupsV2/CreateNewGroup';
+import GroupProfile from '@screens/GroupsV2/GroupProfile';
+import NewGroupPort from '@screens/GroupsV2/NewGroupPort';
+import HelpScreen from '@screens/Help/HelpScreen';
+import MediaViewer from '@screens/MediaViewer/MediaViewer';
 import AccountSettings from '@screens/MyAccount';
-import DeleteAccount from '@screens/DeleteAccount';
 import NewPortScreen from '@screens/NewPortScreen/NewPortScreen';
-import ContactsScreen from '@screens/ContactsScreen/ContactsScreen';
-import NewSuperPortStack from './NewSuperPortStack/NewSuperPortStack';
+import QRScanner from '@screens/Scanner/QRScanner';
+import ShareContact from '@screens/ShareContact/ShareContact';
+import SharedMedia from '@screens/SharedMedia/SharedMedia';
+import GalleryConfirmation from '@screens/ShareImage/GalleryConfirmation';
+import SelectShareContacts from '@screens/ShareImage/SelectShareContacts';
+import GroupTemplates from '@screens/Templates/GroupTemplates';
+import Templates from '@screens/Templates/Templates';
+
+import {ConnectionModalProvider} from 'src/context/ConnectionModalContext';
+
+import {AppStackParamList} from './AppStackTypes';
+import BottomNavStack from './BottomNavStack/BottomNavStack';
 import NewPortStack from './NewPortStack/NewPortStack';
-import DefaultPermissionsScreen from '@screens/DefaultPermissions/DefaultPermissionsScreen';
+import NewSuperPortStack from './NewSuperPortStack/NewSuperPortStack';
+
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 

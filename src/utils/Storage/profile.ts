@@ -1,14 +1,14 @@
 import {
-  deleteProfileInfoRNSS,
   ProfileInfo,
+  deleteProfileInfoRNSS,
 
   getProfileInfoRNSS,
   saveProfileInfoRNSS} from './RNSecure/secureProfileHandler';
+import {FileAttributes} from './StorageRNFS/interfaces';
 import {
   moveProfilePictureToProfileDirRNFS,
   removeProfilePictureRNFS,
 } from './StorageRNFS/profileHandlers';
-import {FileAttributes} from './StorageRNFS/interfaces';
 
 /**
  * saves profile info to storage

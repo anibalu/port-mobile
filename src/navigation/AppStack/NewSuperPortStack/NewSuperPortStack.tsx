@@ -1,9 +1,12 @@
 import React from 'react';
+
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
 import {SuperPortProvider} from '@screens/NewSuperPort/context/SuperPortContext';
-import {NewSuperPortStackParamList} from './NewSuperPortStackTypes';
 import SuperPortQRScreen from '@screens/NewSuperPort/SuperPortQRScreen';
 import SuperPortSettingsScreen from '@screens/NewSuperPort/SuperPortSettingsScreen';
+
+import {NewSuperPortStackParamList} from './NewSuperPortStackTypes';
 
 const Stack = createNativeStackNavigator<NewSuperPortStackParamList>();
 

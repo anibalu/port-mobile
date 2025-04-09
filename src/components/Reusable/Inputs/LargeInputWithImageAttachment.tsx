@@ -8,6 +8,9 @@
  * 4. Show limit
  */
 
+import React, {useState} from 'react';
+import {Image, StyleSheet, TextInput, View} from 'react-native';
+
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -16,9 +19,8 @@ import {
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
+
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
-import React, {useState} from 'react';
-import {Image, StyleSheet, TextInput, View} from 'react-native';
 
 const LargeInputWithImageAttachment = ({
   text,

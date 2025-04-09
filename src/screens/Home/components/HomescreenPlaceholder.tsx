@@ -1,16 +1,21 @@
 /**
  * Default chat tile displayed when there are no connections
  */
+import React, {ReactNode, useMemo, useState} from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+
 import {PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {ReactNode, useMemo, useState} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import DynamicColors from '@components/DynamicColors';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+
 import {
   BOTTOMBAR_HEIGHT,
   DEFAULT_NAME,
@@ -18,11 +23,12 @@ import {
   TOPBAR_HEIGHT,
   safeModalCloseDuration,
 } from '@configs/constants';
-import PortBrand from '@assets/icons/PortBrandPurple.svg';
-import {useSelector} from 'react-redux';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import PortInfoBottomsheet from './PortInfoBottomsheet';
+
 import {wait} from '@utils/Time';
+
+import PortBrand from '@assets/icons/PortBrandPurple.svg';
+
+import PortInfoBottomsheet from './PortInfoBottomsheet';
 
 function HomescreenPlaceholder(): ReactNode {
   const navigation = useNavigation();

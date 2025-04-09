@@ -5,10 +5,11 @@ import {
   GroupMemberLoadedData,
   GroupMemberUpdate,
 } from '@utils/Storage/DBCalls/groupMembers';
+import * as groupStorage from '@utils/Storage/group';
 import * as memberStorage from '@utils/Storage/groupMembers';
 import {generateISOTimeStamp} from '@utils/Time';
+
 import * as API from './APICalls';
-import * as groupStorage from '@utils/Storage/group';
 import {performHandshake} from './handshake';
 
 class GroupMember {

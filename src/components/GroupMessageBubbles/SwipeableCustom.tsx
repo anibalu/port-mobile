@@ -6,23 +6,23 @@ import * as React from 'react';
 import {Component} from 'react';
 import {
   Animated,
-  StyleSheet,
-  View,
   I18nManager,
   LayoutChangeEvent,
   StyleProp,
+  StyleSheet,
+  View,
   ViewStyle,
 } from 'react-native';
 
 import {
   GestureEvent,
-  TapGestureHandler,
   HandlerStateChangeEvent,
-  TapGestureHandlerEventPayload,
-  State,
   PanGestureHandler,
   PanGestureHandlerEventPayload,
   PanGestureHandlerProps,
+  State,
+  TapGestureHandler,
+  TapGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
 
 const DRAG_TOSS = 0.05;

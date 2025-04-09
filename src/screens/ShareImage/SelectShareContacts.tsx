@@ -1,21 +1,24 @@
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import MultiSelectMembers from '@components/Reusable/MultiSelectMembers/MultiSelectMembers';
-import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React, {useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 
-import {getConnections} from '@utils/Storage/connections';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import MultiSelectMembers from '@components/Reusable/MultiSelectMembers/MultiSelectMembers';
+import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
+import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {getConnections} from '@utils/Storage/connections';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SelectShareContacts'>;
 

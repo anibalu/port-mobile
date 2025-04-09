@@ -1,6 +1,7 @@
+import {ContentType} from '@utils/Messaging/interfaces';
+
 import {MediaEntry,MediaUpdate} from './DBCalls/media';
 import * as dbCalls from './DBCalls/media';
-import {ContentType} from '@utils/Messaging/interfaces';
 import {deleteFile} from './StorageRNFS/sharedFileHandlers';
 
 const MEDIA_ID_LENGTH = 32;

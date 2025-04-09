@@ -8,6 +8,11 @@
  * 5. Has border bottom
  */
 
+import React, {FC} from 'react';
+import {StyleSheet, TouchableOpacity,View} from 'react-native';
+
+import {SvgProps} from 'react-native-svg';
+
 import {PortColors} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -16,9 +21,7 @@ import {
   NumberlessText,
   getWeight,
 } from '@components/NumberlessText';
-import React, {FC} from 'react';
-import {StyleSheet, TouchableOpacity,View} from 'react-native';
-import {SvgProps} from 'react-native-svg';
+
 
 const OptionWithRightIcon = ({
   onClick,

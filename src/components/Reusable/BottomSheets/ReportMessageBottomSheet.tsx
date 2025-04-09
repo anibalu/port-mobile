@@ -1,32 +1,40 @@
 import React, {useState} from 'react';
+import {Keyboard, StyleSheet, View} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {StyleSheet, View, Keyboard} from 'react-native';
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import * as storage from '@utils/Storage/blockUsers';
-import PrimaryButton from '../LongButtons/PrimaryButton';
-import {wait} from '@utils/Time';
-import {sendMessageReport} from '@utils/MessageReporting/APICalls';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
 import {safeModalCloseDuration} from '@configs/constants';
-import DynamicColors from '@components/DynamicColors';
+import {messageReportCategories} from '@configs/reportingCategories';
+
+import {useChatContext} from '@screens/DirectChat/ChatContext';
+import {useSelectionContext} from '@screens/DirectChat/ChatContexts/SelectedMessages';
+
+import DirectChat from '@utils/DirectChats/DirectChat';
+import {REPORT_TYPES, createLineMessageReport} from '@utils/MessageReporting';
+import {sendMessageReport} from '@utils/MessageReporting/APICalls';
+import * as storage from '@utils/Storage/blockUsers';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {wait} from '@utils/Time';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
+
 import SimpleCard from '../Cards/SimpleCard';
+import LargeTextInput from '../Inputs/LargeTextInput';
+import SimpleInput from '../Inputs/SimpleInput';
+import PrimaryButton from '../LongButtons/PrimaryButton';
+import SecondaryButton from '../LongButtons/SecondaryButton';
 import OptionWithRadio from '../OptionButtons/OptionWithRadio';
 import LineSeparator from '../Separators/LineSeparator';
-import {messageReportCategories} from '@configs/reportingCategories';
-import SimpleInput from '../Inputs/SimpleInput';
-import {REPORT_TYPES, createLineMessageReport} from '@utils/MessageReporting';
-import {useSelectionContext} from '@screens/DirectChat/ChatContexts/SelectedMessages';
-import {useNavigation} from '@react-navigation/native';
-import DirectChat from '@utils/DirectChats/DirectChat';
-import SecondaryButton from '../LongButtons/SecondaryButton';
-import LargeTextInput from '../Inputs/LargeTextInput';
-import {ToastType, useToast} from 'src/context/ToastContext';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 function ReportMessageBottomSheet({
   openModal,

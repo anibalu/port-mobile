@@ -6,8 +6,8 @@ import {
   setupRoutingIdAndPairHashValues,
 } from './alterConnectionsTable';
 import {
-  addContactPorts,
   addContactPortTickets,
+  addContactPorts,
   addTicketColumnToReadPortTable,
 } from './contactPorts';
 import {setupContactsTable} from './contacts';

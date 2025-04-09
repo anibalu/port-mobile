@@ -1,10 +1,14 @@
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {ReactNode} from 'react';
-import AppStack from './AppStack/AppStack';
-import {RootStackTypes} from './RootStackTypes';
-import OnboardingStack from './OnboardingStack/OnboardingStack';
 import {View} from 'react-native';
+
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
 import {Colors} from '@components/colorGuide';
+
+import AppStack from './AppStack/AppStack';
+import OnboardingStack from './OnboardingStack/OnboardingStack';
+import {RootStackTypes} from './RootStackTypes';
+
 
 const Stack = createNativeStackNavigator<RootStackTypes>();
 

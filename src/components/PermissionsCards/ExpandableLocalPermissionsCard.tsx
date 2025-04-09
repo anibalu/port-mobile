@@ -1,17 +1,20 @@
+import React, {useState} from 'react';
+import {View} from 'react-native';
+
+import GradientCard from '@components/Cards/GradientCard';
+import {useColors} from '@components/colorGuide';
+import {permissionConfigMap} from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {getLabelByTimeDiff} from '@utils/Time';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import React, {useState} from 'react';
-import {View} from 'react-native';
 import DissapearingMessagesBottomsheet from '@components/Reusable/BottomSheets/DissapearingMessagesBottomSheet';
-import {permissionConfigMap} from '@components/getPermissionIcon';
-import GradientCard from '@components/Cards/GradientCard';
-import {useColors} from '@components/colorGuide';
 import {Spacing} from '@components/spacingGuide';
+
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {getLabelByTimeDiff} from '@utils/Time';
+
 import BooleanPermissionOption from './Options/BooleanPermissionOption';
 import NumberPermissionOption from './Options/NumberPermissionOption';
 

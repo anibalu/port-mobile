@@ -10,8 +10,11 @@ import {
   TextProps,
   TouchableOpacity,
 } from 'react-native';
+
 import Autolink from 'react-native-autolink';
+
 import {useConnectionModal} from 'src/context/ConnectionModalContext';
+
 import {Colors} from './colorGuide';
 
 /**

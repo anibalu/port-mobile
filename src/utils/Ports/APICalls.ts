@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 import {
   BUNDLE_MANAGEMENT_RESOURCE,
   CONTACT_BASE,
@@ -12,8 +14,8 @@ import {
   LINE_SUPERPORT_PAUSE,
   LINE_SUPERPORT_RESUME,
 } from '@configs/api';
+
 import {getToken} from '@utils/ServerAuth';
-import axios from 'axios';
 
 /**
  * fetches new unused Ports

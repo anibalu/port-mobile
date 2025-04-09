@@ -1,19 +1,24 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Port from '@assets/icons/NewContacts/Port.svg';
-import Group from '@assets/icons/NewContacts/Group.svg';
-import Contact from '@assets/icons/NewContacts/Contact.svg';
+
+import { useNavigation } from '@react-navigation/native';
+
+import GradientCard from '@components/Cards/GradientCard';
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import { Spacing } from '@components/spacingGuide';
-import { useColors } from '@components/colorGuide';
 import useSVG from '@components/svgGuide';
-import { useNavigation } from '@react-navigation/native';
-import GradientCard from '@components/Cards/GradientCard';
+
 import { checkAndAskContactPermission } from '@utils/AppPermissions';
+
+import Contact from '@assets/icons/NewContacts/Contact.svg';
+import Group from '@assets/icons/NewContacts/Group.svg';
+import Port from '@assets/icons/NewContacts/Port.svg';
+
 import { ToastType, useToast } from 'src/context/ToastContext';
 
 const NewContactOptions = () => {

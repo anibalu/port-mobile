@@ -1,50 +1,55 @@
 import React, {FC, useState} from 'react';
-import {View, StyleSheet, Pressable} from 'react-native';
-import BellRed from '@assets/icons/BellRed.svg';
-import DownloadTeal from '@assets/icons/DownloadTeal.svg';
-import HomeSafron from '@assets/icons/HomeSafron.svg';
-import ShareContactGreen from '@assets/icons/ShareContactGreen.svg';
-import CheckCircleOrange from '@assets/icons/CheckCircleOrange.svg';
-import DisappearingMessageBlue from '@assets/icons/DisappearingMessageBlue.svg';
-import ProfileTeal from '@assets/icons/ProfileTeal.svg';
-import CallEnabled from '@assets/icons/CallEnabled.svg';
-import CallDisabled from '@assets/light/icons/CallDisabled.svg';
-import BellDisabled from '@assets/light/icons/BellDisabled.svg';
-import DownloadDisabled from '@assets/light/icons/DownloadDisabled.svg';
-import HomeDisabled from '@assets/light/icons/HomeDisabled.svg';
-import ShareContactDisabled from '@assets/light/icons/ShareContactDisabled.svg';
-import CheckCircleDisabled from '@assets/light/icons/CheckCircleDisabled.svg';
-import DisappearingMessageDisabled from '@assets/light/icons/DisappearingMessageDisabled.svg';
-import ProfileDisabled from '@assets/light/icons/ProfileDisabled.svg';
+import {Pressable, StyleSheet, View} from 'react-native';
 
-import BellDisabledDark from '@assets/dark/icons/BellDisabled.svg';
-import DownloadDisabledDark from '@assets/dark/icons/DownloadDisabled.svg';
-import HomeDisabledDark from '@assets/dark/icons/HomeDisabled.svg';
-import ShareContactDisabledDark from '@assets/dark/icons/ShareContactDisabled.svg';
-import CheckCircleDisabledDark from '@assets/dark/icons/CheckCircleDisabled.svg';
-import DisappearingMessageDisabledDark from '@assets/dark/icons/DisappearingMessageDisabled.svg';
-import ProfileDisabledDark from '@assets/dark/icons/ProfileDisabled.svg';
-import CallDisabledDark from '@assets/dark/icons/CallDisabled.svg';
+import {SvgProps} from 'react-native-svg';
 
 import DynamicColors from '@components/DynamicColors';
-import {SvgProps} from 'react-native-svg';
-import {useTheme} from 'src/context/ThemeContext';
-import {
-  BooleanPermissions,
-  PermissionsStrict,
-} from '@utils/Storage/DBCalls/permissions/interfaces';
+
+import {modifyCallPermission} from '@utils/Calls/APICalls';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
-import {updatePermissions} from '@utils/Storage/permissions';
-import {getLabelByTimeDiff} from '@utils/Time';
-import DissapearingMessagesBottomsheet from './Reusable/BottomSheets/DissapearingMessagesBottomSheet';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 import {
   pauseContactPortForDirectChat,
   resumeContactPortForDirectChat,
 } from '@utils/Ports/contactport';
-import {modifyCallPermission} from '@utils/Calls/APICalls';
+import {
+  BooleanPermissions,
+  PermissionsStrict,
+} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {updatePermissions} from '@utils/Storage/permissions';
+import {getLabelByTimeDiff} from '@utils/Time';
+
+import BellDisabledDark from '@assets/dark/icons/BellDisabled.svg';
+import CallDisabledDark from '@assets/dark/icons/CallDisabled.svg';
+import CheckCircleDisabledDark from '@assets/dark/icons/CheckCircleDisabled.svg';
+import DisappearingMessageDisabledDark from '@assets/dark/icons/DisappearingMessageDisabled.svg';
+import DownloadDisabledDark from '@assets/dark/icons/DownloadDisabled.svg';
+import HomeDisabledDark from '@assets/dark/icons/HomeDisabled.svg';
+import ProfileDisabledDark from '@assets/dark/icons/ProfileDisabled.svg';
+import ShareContactDisabledDark from '@assets/dark/icons/ShareContactDisabled.svg';
+import BellRed from '@assets/icons/BellRed.svg';
+import CallEnabled from '@assets/icons/CallEnabled.svg';
+import CheckCircleOrange from '@assets/icons/CheckCircleOrange.svg';
+import DisappearingMessageBlue from '@assets/icons/DisappearingMessageBlue.svg';
+import DownloadTeal from '@assets/icons/DownloadTeal.svg';
+import HomeSafron from '@assets/icons/HomeSafron.svg';
+import ProfileTeal from '@assets/icons/ProfileTeal.svg';
+import ShareContactGreen from '@assets/icons/ShareContactGreen.svg';
+import BellDisabled from '@assets/light/icons/BellDisabled.svg';
+import CallDisabled from '@assets/light/icons/CallDisabled.svg';
+import CheckCircleDisabled from '@assets/light/icons/CheckCircleDisabled.svg';
+import DisappearingMessageDisabled from '@assets/light/icons/DisappearingMessageDisabled.svg';
+import DownloadDisabled from '@assets/light/icons/DownloadDisabled.svg';
+import HomeDisabled from '@assets/light/icons/HomeDisabled.svg';
+import ProfileDisabled from '@assets/light/icons/ProfileDisabled.svg';
+import ShareContactDisabled from '@assets/light/icons/ShareContactDisabled.svg';
+
+import {useTheme} from 'src/context/ThemeContext';
+
+import DissapearingMessagesBottomsheet from './Reusable/BottomSheets/DissapearingMessagesBottomSheet';
+
 
 /**
  * Returns a JSX element representing an icon with a background color based on the provided permission state.

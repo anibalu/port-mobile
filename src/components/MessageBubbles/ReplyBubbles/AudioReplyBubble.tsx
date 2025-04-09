@@ -1,20 +1,23 @@
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
+
+import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
+import {formatDuration} from '@utils/Time';
+
 import {
   MAX_WIDTH_REPLY,
   MIN_WIDTH_REPLY,
   REPLY_MEDIA_HEIGHT,
   REPLY_MEDIA_WIDTH,
 } from '../BubbleUtils';
-import {formatDuration} from '@utils/Time';
-import DynamicColors from '@components/DynamicColors';
-import {ReplyContent} from '@utils/Storage/DBCalls/lineMessage';
 
 export default function AudioReplyBubble({
   reply,

@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import {INITIAL_POST_MANAGEMENT_RESOURCE} from '@configs/api';
 
 /**

@@ -1,8 +1,10 @@
-import {useColors} from '@components/colorGuide';
-import {Spacing} from '@components/spacingGuide';
 import React from 'react';
 import {StyleSheet,View} from 'react-native';
+
 import LinearGradient from 'react-native-linear-gradient';
+
+import {useColors} from '@components/colorGuide';
+import {Spacing} from '@components/spacingGuide';
 
 /**
  * Card with a gradient border.

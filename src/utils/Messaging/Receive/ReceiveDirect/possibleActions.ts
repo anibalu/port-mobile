@@ -1,31 +1,32 @@
 import {ContentType, PayloadMessageParams} from '@utils/Messaging/interfaces';
+
 import Deletion from './ActionClasses/Deletion';
 import InitialInfoResponse from './ActionClasses/InitialInfoResponse';
+import NewChatOverContactPort from './ActionClasses/NewChatOverContactPort';
 import NewChatOverPort from './ActionClasses/NewChatOverPort';
 import NewChatOverSuperport from './ActionClasses/NewChatOverSuperport';
+import ReceiveAudio from './ActionClasses/ReceiveAudio';
 import ReceiveAvatar from './ActionClasses/ReceiveAvatar';
+import ReceiveCall from './ActionClasses/ReceiveCall';
 import ReceiveContactBundle from './ActionClasses/ReceiveContactBundle';
 import ReceiveContactBundleRequest from './ActionClasses/ReceiveContactBundleRequest';
 import ReceiveContactBundleResponse from './ActionClasses/ReceiveContactBundleResponse';
+import ReceiveContactPortBundle from './ActionClasses/ReceiveContactPortBundle';
+import ReceiveContactPortRequest from './ActionClasses/ReceiveContactPortRequest';
+import ReceiveContactPortTicket from './ActionClasses/ReceiveContactPortTicket';
+import ReceiveDisappearingMessage from './ActionClasses/ReceiveDisappearingMessage';
 import ReceiveDisplayImage from './ActionClasses/ReceiveDisplayImage';
+import ReceiveEditedMessage from './ActionClasses/ReceiveEditedMessage';
 import ReceiveFile from './ActionClasses/ReceiveFile';
 import ReceiveImage from './ActionClasses/ReceiveImage';
+import ReceiveLink from './ActionClasses/ReceiveLink';
+import ReceiveMessageDeletion from './ActionClasses/ReceiveMessageDeletion';
 import ReceiveName from './ActionClasses/ReceiveName';
 import ReceiveReaction from './ActionClasses/ReceiveReaction';
+import ReceiveReceipt from './ActionClasses/ReceiveReceipt';
 import ReceiveText from './ActionClasses/ReceiveText';
-import ReceiveLink from './ActionClasses/ReceiveLink';
-import ReceiveAudio from './ActionClasses/ReceiveAudio';
 import ReceiveVideo from './ActionClasses/ReceiveVideo';
 import DirectReceiveAction from './DirectReceiveAction';
-import ReceiveReceipt from './ActionClasses/ReceiveReceipt';
-import ReceiveMessageDeletion from './ActionClasses/ReceiveMessageDeletion';
-import ReceiveDisappearingMessage from './ActionClasses/ReceiveDisappearingMessage';
-import ReceiveContactPortBundle from './ActionClasses/ReceiveContactPortBundle';
-import ReceiveContactPortTicket from './ActionClasses/ReceiveContactPortTicket';
-import ReceiveContactPortRequest from './ActionClasses/ReceiveContactPortRequest';
-import NewChatOverContactPort from './ActionClasses/NewChatOverContactPort';
-import ReceiveEditedMessage from './ActionClasses/ReceiveEditedMessage';
-import ReceiveCall from './ActionClasses/ReceiveCall';
 
 const SupportedReceieveDecryptedContentTypes = [
   ContentType.name,

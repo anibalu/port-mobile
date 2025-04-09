@@ -1,8 +1,9 @@
-import {ContentType, editableContentTypes} from '@utils/Messaging/interfaces';
-import DirectReceiveAction from '../DirectReceiveAction';
-import {updateConnectionIfLatestMessageIsX} from '@utils/Storage/connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {ContentType, editableContentTypes} from '@utils/Messaging/interfaces';
+import {updateConnectionIfLatestMessageIsX} from '@utils/Storage/connections';
 import * as storage from '@utils/Storage/messages';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 /**
  * This receive edited message gets decryptedMessageContent which has an messageIdToEdit and text.

@@ -1,25 +1,29 @@
 import React, {useCallback, useState} from 'react';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
+import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import FileViewer from 'react-native-file-viewer';
+
+import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
-import {MediaEntry} from '@utils/Storage/DBCalls/media';
+import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
+
 import {ContentType} from '@utils/Messaging/interfaces';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {getMediaForChat} from '@utils/Storage/media';
-import FileViewer from 'react-native-file-viewer';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
 import Icon from '@assets/icons/NoFilesFound.svg';
 
-import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import LinkTile from './LinkTile';
-import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
+
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewLinks'>;
 

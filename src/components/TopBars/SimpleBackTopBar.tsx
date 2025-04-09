@@ -1,8 +1,11 @@
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+
 import LinearGradient from 'react-native-linear-gradient';
-import {Height, Spacing, Width} from '@components/spacingGuide';
+
 import {Colors} from '@components/colorGuide';
+import {Height, Spacing, Width} from '@components/spacingGuide';
+
 import BackIcon from '@assets/dark/icons/navigation/BlackArrowLeftThin.svg';
 
 /**

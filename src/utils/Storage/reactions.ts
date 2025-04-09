@@ -1,8 +1,10 @@
-import {ReactionSender} from '@utils/Messaging/interfaces';
-import * as DBCalls from './DBCalls/reactions';
-import {getConnection} from './connections';
-import Group from '@utils/Groups/Group';
 import {DEFAULT_GROUP_MEMBER_NAME, DEFAULT_NAME} from '@configs/constants';
+
+import Group from '@utils/Groups/Group';
+import {ReactionSender} from '@utils/Messaging/interfaces';
+
+import {getConnection} from './connections';
+import * as DBCalls from './DBCalls/reactions';
 
 /**
  * Add a reaction to a message

@@ -1,5 +1,6 @@
-import {isIOS} from './ComponentUtils';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+
+import {isIOS} from './ComponentUtils';
 
 /**
  * @deprecated

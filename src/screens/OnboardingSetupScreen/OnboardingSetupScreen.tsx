@@ -1,7 +1,3 @@
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
 import {
   Linking,
@@ -11,20 +7,32 @@ import {
   TextInput,
   View,
 } from 'react-native';
+
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import PrimaryButton from '@components/Buttons/PrimaryButton';
+import {useColors} from '@components/colorGuide';
+import CustomKeyboardAvoidingView from '@components/CustomKeyboardAvoidingView';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {Size, Spacing} from '@components/spacingGuide';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
-import PrimaryButton from '@components/Buttons/PrimaryButton';
-import {useColors} from '@components/colorGuide';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {Size, Spacing} from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
-import {ToastType, useToast} from 'src/context/ToastContext';
+
+import {NAME_LENGTH_LIMIT} from '@configs/constants';
+
+import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
+import {rootNavigationRef} from '@navigation/rootNavigation';
+
+import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
+import {fetchNewPorts} from '@utils/Ports';
 import {
   deleteProfile,
   getRandomAvatarInfo,
@@ -32,11 +40,9 @@ import {
   setupProfile,
 } from '@utils/Profile';
 import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
-import {fetchNewPorts} from '@utils/Ports';
-import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
-import CustomKeyboardAvoidingView from '@components/CustomKeyboardAvoidingView';
-import {NAME_LENGTH_LIMIT} from '@configs/constants';
-import {rootNavigationRef} from '@navigation/rootNavigation';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
   'OnboardingSetupScreen'

@@ -1,6 +1,8 @@
-import {LINE_LINKS_MANAGEMENT_RESOURCE} from '@configs/api';
-import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+
+import {LINE_LINKS_MANAGEMENT_RESOURCE} from '@configs/api';
+
+import {getToken} from '@utils/ServerAuth';
 
 /**
  * fetches new unused Ports

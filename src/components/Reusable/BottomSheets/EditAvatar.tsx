@@ -1,30 +1,36 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {
-  StyleSheet,
-  View,
-  FlatList,
   Animated,
   Easing,
+  FlatList,
   Pressable,
+  StyleSheet,
+  View,
 } from 'react-native';
 
-import Delete from '@assets/icons/TrashcanWhite.svg';
-import {screen} from '@components/ComponentUtils';
-import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import {launchImageLibrary} from 'react-native-image-picker';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import {DirectAvatarMapping} from '@configs/avatarmapping';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+
 import PrimaryButton from '@components/Buttons/PrimaryButton';
-import {compressImage} from '@utils/Compressor/graphicCompressors';
-import {Size, Spacing, Width} from '@components/spacingGuide';
-import {useColors, Colors} from '@components/colorGuide';
-import useSVG from '@components/svgGuide';
-import {FontWeight,FontSizeType,NumberlessText} from '@components/NumberlessText';
-import LineSeparator from '@components/Separators/LineSeparator';
 import GradientCard from '@components/Cards/GradientCard';
+import {Colors, useColors} from '@components/colorGuide';
+import {screen} from '@components/ComponentUtils';
+import {FontSizeType,FontWeight,NumberlessText} from '@components/NumberlessText';
 import OptionWithLogoAndChevronWithoutDescription from '@components/Options/OptionWithLogoAndChevronWithoutDescription';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import LineSeparator from '@components/Separators/LineSeparator';
+import {Size, Spacing, Width} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
+
+import {DirectAvatarMapping} from '@configs/avatarmapping';
+import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+
+import {compressImage} from '@utils/Compressor/graphicCompressors';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+
+import Delete from '@assets/icons/TrashcanWhite.svg';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
+
 
 interface EditAvatarProps {
   localImageAttr: FileAttributes;

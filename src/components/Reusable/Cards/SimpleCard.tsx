@@ -3,10 +3,11 @@
  * Takes no props.
  */
 
+import React from 'react';
+import {StyleProp, StyleSheet, View,ViewStyle} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
-import React from 'react';
-import {StyleProp, StyleSheet, ViewStyle,View} from 'react-native';
 const SimpleCard = ({
   children,
   style,

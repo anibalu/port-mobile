@@ -1,7 +1,9 @@
-import Group from '@utils/Groups/Group';
-import GroupReceiveAction from '../GroupReceiveAction';
-import {GroupAvatarParams} from '@utils/Messaging/interfaces';
 import {DEFAULT_AVATAR} from '@configs/constants';
+
+import Group from '@utils/Groups/Group';
+import {GroupAvatarParams} from '@utils/Messaging/interfaces';
+
+import GroupReceiveAction from '../GroupReceiveAction';
 
 class ReceiveGroupAvatar extends GroupReceiveAction {
   async performAction(): Promise<void> {

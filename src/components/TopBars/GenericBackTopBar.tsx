@@ -1,6 +1,8 @@
 import React from 'react';
 import {Pressable, StyleSheet, View, ViewStyle} from 'react-native';
+
 import {Height, Spacing, Width} from '@components/spacingGuide';
+
 import BackIconDark from '@assets/dark/icons/navigation/BlackArrowLeftThin.svg';
 import BackIconLight from '@assets/light/icons/navigation/BlackArrowLeftThin.svg';
 

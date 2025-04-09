@@ -1,5 +1,6 @@
-import {performPeriodicOperations} from '@utils/AppOperations';
 import BackgroundFetch from 'react-native-background-fetch';
+
+import {performPeriodicOperations} from '@utils/AppOperations';
 
 export async function initBackgroundFetch() {
   // Initialize BackgroundFetch only once when component mounts.

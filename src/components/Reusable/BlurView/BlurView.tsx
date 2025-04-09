@@ -1,3 +1,4 @@
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   Animated,
   KeyboardAvoidingView,
@@ -6,21 +7,24 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import BubbleFocusOptions from '@components/MessageBubbles/BubbleFocusOptions';
-import {RenderReactionBar} from '@components/MessageBubbles/Reactions';
-import {MessageBubble} from '@components/MessageBubbles/MessageBubble';
-import {wait} from '@utils/Time';
+
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import BubbleFocusOptions from '@components/MessageBubbles/BubbleFocusOptions';
+import {MessageBubble} from '@components/MessageBubbles/MessageBubble';
+import {RenderReactionBar} from '@components/MessageBubbles/Reactions';
+
+import MessageBar from '@screens/Chat/MessageBar';
+import {useChatContext} from '@screens/DirectChat/ChatContext';
+import {useSelectionContext} from '@screens/DirectChat/ChatContexts/SelectedMessages';
+
 import {
   ContentType,
   UnReactableMessageContentTypes,
 } from '@utils/Messaging/interfaces';
-import MessageBar from '@screens/Chat/MessageBar';
-import {useSelectionContext} from '@screens/DirectChat/ChatContexts/SelectedMessages';
+import {wait} from '@utils/Time';
 
 const BlurViewModal = () => {
   const {

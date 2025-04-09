@@ -1,10 +1,11 @@
 import {DEFAULT_NAME} from '@configs/constants';
+
+import * as storage from '@utils/Storage/contacts';
 import {
   ContactEntry,
   ContactInfo,
   ContactUpdate,
 } from '@utils/Storage/DBCalls/contacts';
-import * as storage from '@utils/Storage/contacts';
 
 type AcceptedContactUpdate = Omit<ContactUpdate, 'name'>;
 

@@ -13,8 +13,8 @@
  * - If the content type does not match any of the specified types or data is not provided, it returns an empty string.
  */
 
-import {getLabelByTimeDiff} from '@utils/Time';
 import {ContentType} from '@utils/Messaging/interfaces';
+import {getLabelByTimeDiff} from '@utils/Time';
 
 type ContentTypeEmojiAndText = {
   emoji?: string;

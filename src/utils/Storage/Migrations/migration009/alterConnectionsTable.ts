@@ -1,4 +1,5 @@
 import {DEFAULT_NAME} from '@configs/constants';
+
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {runSimpleQuery} from '@utils/Storage/DBCalls/dbCommon';
 

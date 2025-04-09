@@ -1,40 +1,47 @@
+import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
+import {Animated, Easing, StyleSheet, View} from 'react-native';
+
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
+
+import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
+
+import {
+  GroupMessageBarActionsType,
+  useMessageBarActionsContext,
+} from '@screens/GroupChat/ChatContexts/GroupMessageBarActions';
+import {
+  GroupMessageSelectionMode,
+  useSelectionContext,
+} from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
+
 import {
   ContentType,
   // MessageStatus,
   UnReplyableMessageContentTypes,
   UnSelectableMessageContentTypes,
 } from '@utils/Messaging/interfaces';
-import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
-import {StyleSheet, View, Animated, Easing} from 'react-native';
-import {ContentBubble} from './ContentBubble';
-import {ReplyBubble} from './ReplyBubble';
-import {MAX_WIDTH, memberIdToHex} from './BubbleUtils';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import Swipeable from './SwipeableCustom';
-import ReplyFilled from '@assets/icons/ReplyFilled.svg';
-import {RenderReactions} from './Reactions';
-import {getReactionCounts} from '@utils/Storage/reactions';
-import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
-import DynamicColors from '@components/DynamicColors';
+import {mediaContentTypes} from '@utils/Messaging/Send/SendGroupMessage/senders/MediaSender';
 import {LoadedGroupMessage} from '@utils/Storage/DBCalls/groupMessage';
 import {getGroupMessage} from '@utils/Storage/groupMessages';
-import {mediaContentTypes} from '@utils/Messaging/Send/SendGroupMessage/senders/MediaSender';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
-import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
-import {
-  GroupMessageSelectionMode,
-  useSelectionContext,
-} from '@screens/GroupChat/ChatContexts/GroupSelectedMessages';
-import {
-  GroupMessageBarActionsType,
-  useMessageBarActionsContext,
-} from '@screens/GroupChat/ChatContexts/GroupMessageBarActions';
+import {getReactionCounts} from '@utils/Storage/reactions';
+
+import ReplyFilled from '@assets/icons/ReplyFilled.svg';
+
+import {MAX_WIDTH, memberIdToHex} from './BubbleUtils';
+import {ContentBubble} from './ContentBubble';
+import {RenderReactions} from './Reactions';
+import {ReplyBubble} from './ReplyBubble';
+import Swipeable from './SwipeableCustom';
 
 const MessageBubbleContent = ({
   handleLongPress,

@@ -1,6 +1,8 @@
-import {INITIAL_POST_MANAGEMENT_RESOURCE} from '@configs/api';
-import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+
+import {INITIAL_POST_MANAGEMENT_RESOURCE} from '@configs/api';
+
+import {getToken} from '@utils/ServerAuth';
 
 export const patchFCMToken = async (tokenFCM: string) => {
   const token = await getToken();

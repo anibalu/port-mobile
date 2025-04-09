@@ -1,17 +1,8 @@
-import {isIOS} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
-import {useNavigation} from '@react-navigation/native';
-import {ContentType} from '@utils/Messaging/interfaces';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useEffect} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+
 import * as DocumentPicker from '@react-native-documents/picker';
+import {useNavigation} from '@react-navigation/native';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import Animated, {
   Easing,
@@ -19,6 +10,20 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+
+import {isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+
+import {ContentType} from '@utils/Messaging/interfaces';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+
 
 const PopUpActions = ({
   togglePopUp,

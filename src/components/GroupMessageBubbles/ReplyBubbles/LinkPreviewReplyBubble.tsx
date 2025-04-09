@@ -1,23 +1,25 @@
+import React, {ReactNode} from 'react';
+import {Image, StyleSheet, View} from 'react-native';
+
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {LinkParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {Image, StyleSheet, View} from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
+import {LinkParams} from '@utils/Messaging/interfaces';
+import {GroupReplyContent} from '@utils/Storage/DBCalls/groupMessage';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
 import {
   MAX_WIDTH_REPLY,
-  memberIdToHex,
   MIN_WIDTH_REPLY,
   REPLY_MEDIA_HEIGHT,
   REPLY_MEDIA_WIDTH,
+  memberIdToHex,
 } from '../BubbleUtils';
-import DynamicColors from '@components/DynamicColors';
-import {GroupReplyContent} from '@utils/Storage/DBCalls/groupMessage';
 
 /**
  * Extend supported content types to support more types of content bubbles.

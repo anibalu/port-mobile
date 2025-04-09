@@ -12,28 +12,31 @@
 
 import React, {useState} from 'react';
 import {StyleSheet, TextInput, View} from 'react-native';
-import SimpleCard from '../Cards/SimpleCard';
-import QrWithLogo from '../QR/QrWithLogo';
-import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
-import Logo from '@assets/icons/Portlogo.svg';
-import Greentick from '@assets/icons/notes/Tick.svg';
 
 import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+
+import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+
 import {
   DirectSuperportBundle,
   GroupBundle,
   GroupSuperportBundle,
   PortBundle,
 } from '@utils/Ports/interfaces';
-import EditIcon from '@assets/icons/GreyPencilFilled.svg';
-
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
+
+import EditIcon from '@assets/icons/GreyPencilFilled.svg';
+import Greentick from '@assets/icons/notes/Tick.svg';
+import Logo from '@assets/icons/Portlogo.svg';
+
+import SimpleCard from '../Cards/SimpleCard';
+import QrWithLogo from '../QR/QrWithLogo';
 
 const ShareablePortCard = ({
   profilePicAttr = DEFAULT_PROFILE_AVATAR_INFO,

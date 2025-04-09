@@ -1,3 +1,7 @@
+import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
+
+import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   ContentType,
   DataType,
@@ -5,15 +9,15 @@ import {
   MessageStatus,
   PayloadMessageParams,
 } from '@utils/Messaging/interfaces';
-import * as storage from '@utils/Storage/messages';
-import {SendDirectMessage} from './AbstractSender';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {generateISOTimeStamp} from '@utils/Time';
-import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
-import * as API from '../../APICalls';
 import {getConnection, updateConnection} from '@utils/Storage/connections';
-import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import * as storage from '@utils/Storage/messages';
+import {generateISOTimeStamp} from '@utils/Time';
+
+import * as API from '../../APICalls';
+
+import {SendDirectMessage} from './AbstractSender';
+
 
 export const editedMessageTypes: ContentType[] = [ContentType.editedMessage];
 

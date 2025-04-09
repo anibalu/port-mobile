@@ -1,5 +1,7 @@
-import {AUTH_SERVER_CHALLENGE_RESOURCE} from '@configs/api';
 import axios from 'axios';
+
+import {AUTH_SERVER_CHALLENGE_RESOURCE} from '@configs/api';
+
 import {ServerAuthToken} from '@utils/Storage/RNSecure/secureTokenHandler';
 
 /**

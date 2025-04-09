@@ -1,4 +1,5 @@
 import EncryptedStorage from 'react-native-encrypted-storage';
+
 import {tokenKey} from '../../../configs/paths';
 
 export type ServerAuthToken = string;

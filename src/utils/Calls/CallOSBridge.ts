@@ -1,8 +1,11 @@
-import {isIOS} from '@components/ComponentUtils';
-import DirectChat from '@utils/DirectChats/DirectChat';
 import {NativeModules, PermissionsAndroid} from 'react-native';
+
 import RNCallKeep from 'react-native-callkeep';
 import uuid from 'react-native-uuid';
+
+import {isIOS} from '@components/ComponentUtils';
+
+import DirectChat from '@utils/DirectChats/DirectChat';
 
 const {CallHelperModule} = NativeModules;
 

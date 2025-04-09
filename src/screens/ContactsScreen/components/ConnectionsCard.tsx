@@ -1,16 +1,19 @@
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import GradientCard from '@components/Cards/GradientCard';
+import {useColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {useColors} from '@components/colorGuide';
 import {Spacing} from '@components/spacingGuide';
+
 import {DEFAULT_NAME} from '@configs/constants';
+
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
 
 const ConnectionsCard = ({
   allConnections,

@@ -1,37 +1,46 @@
-import React, {useMemo, useState, useEffect, useRef} from 'react';
-import {GradientScreenView} from '@components/GradientScreenView';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
+
+import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+import Clipboard from '@react-native-clipboard/clipboard';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {DirectSuperportBundle} from '@utils/Ports/interfaces';
-import {DEFAULT_PROFILE_AVATAR_INFO, DEFAULT_NAME} from '@configs/constants';
+import Share from 'react-native-share';
+import ViewShot from 'react-native-view-shot';
 import {useSelector} from 'react-redux';
-import {useColors} from '@components/colorGuide';
-import PortLogoAndSettingsTopBar from '@components/TopBars/PortLogoAndSettingsTopBar';
-import {Spacing, Width} from '@components/spacingGuide';
+
 import PrimaryButton from '@components/Buttons/PrimaryButton';
-import ShareIcon from '@assets/dark/icons/Share.svg';
-import DisplayableSuperPortQRCard from './components/DisplayableSuperPortQRCard';
+import SecondaryButton from '@components/Buttons/SecondaryButton';
+import {useColors} from '@components/colorGuide';
+import {isIOS} from '@components/ComponentUtils';
+import {GradientScreenView} from '@components/GradientScreenView';
+import ExportableQRWithPicture from '@components/QR/ExportableQRWithPicture';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import {Spacing, Width} from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
+import TopBarEmptyTitleAndDescription from '@components/Text/TopBarEmptyTitleAndDescription';
+import PortLogoAndSettingsTopBar from '@components/TopBars/PortLogoAndSettingsTopBar';
+
+import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+
+import {NewSuperPortStackParamList} from '@navigation/AppStack/NewSuperPortStack/NewSuperPortStackTypes';
+
+import {hasCameraRollSavePermission} from '@utils/AppPermissions';
+import {jsonToUrl} from '@utils/JsonToUrl';
+import {DirectSuperportBundle} from '@utils/Ports/interfaces';
+import {SuperPort} from '@utils/Ports/SuperPorts/SuperPort';
+import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {getPermissions} from '@utils/Storage/permissions';
+
+import ShareIcon from '@assets/dark/icons/Share.svg';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
+
+import DisplayableSuperPortQRCard from './components/DisplayableSuperPortQRCard';
 import {
   useSuperPortActions,
   useSuperPortData,
 } from './context/SuperPortContext';
-import {SuperPort} from '@utils/Ports/SuperPorts/SuperPort';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {jsonToUrl} from '@utils/JsonToUrl';
-import {NewSuperPortStackParamList} from '@navigation/AppStack/NewSuperPortStack/NewSuperPortStackTypes';
-import TopBarEmptyTitleAndDescription from '@components/Text/TopBarEmptyTitleAndDescription';
-import Clipboard from '@react-native-clipboard/clipboard';
-import {ToastType, useToast} from 'src/context/ToastContext';
-import {getPermissions} from '@utils/Storage/permissions';
-import SecondaryButton from '@components/Buttons/SecondaryButton';
-import useSVG from '@components/svgGuide';
-import ExportableQRWithPicture from '@components/QR/ExportableQRWithPicture';
-import ViewShot from 'react-native-view-shot';
-import Share from 'react-native-share';
-import {isIOS} from '@components/ComponentUtils';
-import {CameraRoll} from '@react-native-camera-roll/camera-roll';
-import {hasCameraRollSavePermission} from '@utils/AppPermissions';
+
 
 type Props = NativeStackScreenProps<
   NewSuperPortStackParamList,

@@ -1,10 +1,11 @@
 import {ContentType, DeletionParams} from '@utils/Messaging/interfaces';
 import {updateConnectionIfLatestMessageIsX} from '@utils/Storage/connections';
-import GroupReceiveAction from '../GroupReceiveAction';
 import {
   cleanDeleteGroupMessage,
   getGroupMessage,
 } from '@utils/Storage/groupMessages';
+
+import GroupReceiveAction from '../GroupReceiveAction';
 
 class ReceiveMessageDeletion extends GroupReceiveAction {
   generatePreviewText(): string {

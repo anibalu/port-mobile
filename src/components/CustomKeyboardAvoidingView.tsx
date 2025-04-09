@@ -1,5 +1,6 @@
 import React from 'react';
 import {KeyboardAvoidingView, KeyboardAvoidingViewProps} from 'react-native';
+
 import {isIOS} from './ComponentUtils';
 
 interface CustomKeyboardAvoidingViewProps extends KeyboardAvoidingViewProps {

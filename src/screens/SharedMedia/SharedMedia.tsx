@@ -1,20 +1,26 @@
+import React from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+import {PortSpacing} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
+
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+
+
 import ViewFiles from './ViewFiles';
 import ViewPhotosVideos from './ViewPhotosVideos';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
-import DynamicColors from '@components/DynamicColors';
-import {PortSpacing} from '@components/ComponentUtils';
+
 type Props = NativeStackScreenProps<AppStackParamList, 'SharedMedia'>;
 
 export type TabStackParamList = {

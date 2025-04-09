@@ -1,15 +1,17 @@
+import {DEFAULT_NAME} from '@configs/constants';
+
+import {getChatPermissions} from '@utils/ChatPermissions';
+import DirectChat from '@utils/DirectChats/DirectChat';
 import {
   ContentType,
   MessageStatus,
   NameParams,
 } from '@utils/Messaging/interfaces';
-import DirectReceiveAction from '../DirectReceiveAction';
-import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
-import {DEFAULT_NAME} from '@configs/constants';
 import {displaySimpleNotification} from '@utils/Notifications';
-import {getChatPermissions} from '@utils/ChatPermissions';
+import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import {ChatType,NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
-import DirectChat from '@utils/DirectChats/DirectChat';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 class ReceiveName extends DirectReceiveAction {
   generatePreviewText(): string {

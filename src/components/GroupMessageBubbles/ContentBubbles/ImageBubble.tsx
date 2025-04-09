@@ -1,4 +1,3 @@
-import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
@@ -7,30 +6,38 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {
-  RenderTimeStamp,
-  handleDownload,
-  IMAGE_DIMENSIONS,
-  handleRetry,
-} from '../BubbleUtils';
-import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import {TextBubble} from './TextBubble';
-import LinearGradient from 'react-native-linear-gradient';
-import Download from '@assets/icons/Download.svg';
+
 import {useNavigation} from '@react-navigation/native';
-import UploadSend from '@assets/icons/UploadSend.svg';
+import LinearGradient from 'react-native-linear-gradient';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
+
+import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
 import {
   GroupMessageData,
   LoadedGroupMessage,
 } from '@utils/Storage/DBCalls/groupMessage';
+import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import Download from '@assets/icons/Download.svg';
+import UploadSend from '@assets/icons/UploadSend.svg';
+
 import {ToastType, useToast} from 'src/context/ToastContext';
+
+import {
+  IMAGE_DIMENSIONS,
+  RenderTimeStamp,
+  handleDownload,
+  handleRetry,
+} from '../BubbleUtils';
+
+import {TextBubble} from './TextBubble';
 
 export const ImageBubble = ({
   message,

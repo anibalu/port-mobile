@@ -1,7 +1,8 @@
 // this is to receieve the final contact bundle
-import DirectReceiveAction from '../DirectReceiveAction';
 import {ContentType} from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 class ReceiveContactPortRequest extends DirectReceiveAction {
   generatePreviewText(): string {

@@ -1,3 +1,6 @@
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -5,9 +8,8 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {BOTTOMBAR_HEIGHT} from '@configs/constants';
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
 
 const Disconnected = ({name}: {name: string}) => {
   const Colors = DynamicColors();

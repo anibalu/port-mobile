@@ -1,12 +1,14 @@
+import {isGroupChat} from '@utils/Storage/connections';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
+
 import {
   DirectPermissions,
   GroupPermissions,
   Permissions,
 } from '../Storage/DBCalls/permissions/interfaces';
-import * as group from './group';
+
 import * as direct from './direct';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
-import {isGroupChat} from '@utils/Storage/connections';
+import * as group from './group';
 
 type ChatPermissions<T extends ChatType> = T extends ChatType.direct
   ? DirectPermissions

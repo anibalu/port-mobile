@@ -1,5 +1,6 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
+
 import {PortColors} from './ComponentUtils';
 import {GenericButton} from './GenericButton';
 

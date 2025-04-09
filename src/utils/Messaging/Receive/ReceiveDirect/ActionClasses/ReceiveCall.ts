@@ -1,11 +1,14 @@
-import DirectReceiveAction from '../DirectReceiveAction';
 import {MAX_CALL_ANSWER_WINDOW_SECONDS} from '@configs/constants';
-import * as storage from '@utils/Storage/messages';
-import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
-import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
-import {generateRandomHexId} from '@utils/IdGenerator';
+
 import store from '@store/appStore';
+
 import {displayIncomingCallOSUI} from '@utils/Calls/CallOSBridge';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
+import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import * as storage from '@utils/Storage/messages';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 class ReceiveCall extends DirectReceiveAction {
   generatePreviewText(): string {

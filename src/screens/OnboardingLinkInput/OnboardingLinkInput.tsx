@@ -1,16 +1,19 @@
 import React, {useState} from 'react';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
+import {ScrollView, StyleSheet, TextInput, View} from 'react-native';
+
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {useColors} from '@components/colorGuide';
-import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
-import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
-import {FontSizeType, FontWeight,NumberlessText} from '@components/NumberlessText';
-import {StyleSheet, TextInput, View, ScrollView} from 'react-native';
+
 import PrimaryButton from '@components/Buttons/PrimaryButton';
-import {Spacing} from '@components/spacingGuide';
+import {useColors} from '@components/colorGuide';
 import CustomKeyboardAvoidingView from '@components/CustomKeyboardAvoidingView';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {FontSizeType, FontWeight,NumberlessText} from '@components/NumberlessText';
+import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
+import {SafeAreaView} from '@components/SafeAreaView';
+import {Spacing} from '@components/spacingGuide';
+import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
+
+import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,

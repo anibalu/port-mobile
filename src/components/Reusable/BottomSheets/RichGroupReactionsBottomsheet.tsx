@@ -10,25 +10,29 @@
 import React, {useEffect, useState} from 'react';
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryBottomSheet from './PrimaryBottomSheet';
-import {PortSpacing} from '@components/ComponentUtils';
-import {getRichReactions, RichReaction} from '@utils/Storage/reactions';
-import SimpleCard from '../Cards/SimpleCard';
-import {AvatarBox} from '../AvatarBox/AvatarBox';
-import LineSeparator from '../Separators/LineSeparator';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {ContentType} from '@utils/Messaging/interfaces';
-import {getProfilePictureUri} from '@utils/Profile';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
-import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
+
 import Group from '@utils/Groups/Group';
+import {ContentType} from '@utils/Messaging/interfaces';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {getProfilePictureUri} from '@utils/Profile';
+import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
+import {RichReaction, getRichReactions} from '@utils/Storage/reactions';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import {AvatarBox} from '../AvatarBox/AvatarBox';
+import SimpleCard from '../Cards/SimpleCard';
+import LineSeparator from '../Separators/LineSeparator';
+
+import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 const RichGroupReactionsBottomsheet = ({
   visible,

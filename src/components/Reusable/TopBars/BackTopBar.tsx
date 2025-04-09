@@ -4,17 +4,19 @@
  * 1. onBackPress
  */
 
-import {PortSpacing} from '@components/ComponentUtils';
 import React from 'react';
 import {StyleSheet,View} from 'react-native';
+
+import {BackButton} from '@components/BackButton';
+import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
+
 import {TOPBAR_HEIGHT} from '@configs/constants';
-import {BackButton} from '@components/BackButton';
 
 const BackTopbar = ({
   onBackPress,

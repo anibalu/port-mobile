@@ -8,25 +8,31 @@
  * 3. setSelectedMembers - handles selection and unselection of members
  */
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import SimpleCard from './SimpleCard';
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
-import MultiSelectMemberRadio from '../MultiSelectMembers/MultiSelectMemberRadio';
-import LineSeparator from '../Separators/LineSeparator';
 import {Pressable, ScrollView, View} from 'react-native';
+
+import {useFocusEffect} from '@react-navigation/native';
+import {SvgXml} from 'react-native-svg';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
 import FilterByFolderBottomSheet from '@components/Reusable/BottomSheets/FilterByFolderBottomSheet';
+
+import {folderIdToHex} from '@utils/Folders/folderIdToHex';
+import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import {useFocusEffect} from '@react-navigation/native';
 import {getAllFolders} from '@utils/Storage/folders';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {folderIdToHex} from '@utils/Folders/folderIdToHex';
-import {SvgXml} from 'react-native-svg';
+
+import MultiSelectMemberRadio from '../MultiSelectMembers/MultiSelectMemberRadio';
+import LineSeparator from '../Separators/LineSeparator';
+
+
+import SimpleCard from './SimpleCard';
 // import PurpleCheckCircle from '@assets/icons/PurpleCheckCircle.svg';
 // import CheckBox from '../MultiSelectMembers/CheckBox';
 

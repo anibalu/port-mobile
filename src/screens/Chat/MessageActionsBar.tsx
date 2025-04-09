@@ -1,20 +1,24 @@
 import React, {ReactNode} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
+
+import Clipboard from '@react-native-clipboard/clipboard';
+import {useNavigation} from '@react-navigation/native';
+
 import {PortColors, PortSpacing, isIOS} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {useChatContext} from '@screens/DirectChat/ChatContext';
-import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {
   MessageSelectionMode,
   useSelectionContext,
 } from '@screens/DirectChat/ChatContexts/SelectedMessages';
-import Clipboard from '@react-native-clipboard/clipboard';
-import {useNavigation} from '@react-navigation/native';
+
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 /**
  * Renders action bar based on messages that are selected

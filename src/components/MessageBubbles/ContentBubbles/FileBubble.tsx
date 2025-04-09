@@ -1,29 +1,35 @@
-import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useMemo, useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
+
+import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
+import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
+
+import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
+import {
+  LineMessageData,
+  LoadedMessage,
+} from '@utils/Storage/DBCalls/lineMessage';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
+import Download from '@assets/icons/Download.svg';
+import UploadSend from '@assets/icons/UploadSend.svg';
+
+import {ToastType, useToast} from 'src/context/ToastContext';
+
 import {
   FILE_BUBBLE_HEIGHT,
   handleDownload,
   handleMediaOpen,
   handleRetry,
 } from '../BubbleUtils';
-import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
-import Download from '@assets/icons/Download.svg';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-} from '@components/NumberlessText';
+
 import {TextBubble} from './TextBubble';
-import UploadSend from '@assets/icons/UploadSend.svg';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import DynamicColors from '@components/DynamicColors';
-import {
-  LineMessageData,
-  LoadedMessage,
-} from '@utils/Storage/DBCalls/lineMessage';
-import {ToastType, useToast} from 'src/context/ToastContext';
 
 export const FileBubble = ({
   message,

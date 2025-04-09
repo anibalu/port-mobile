@@ -1,10 +1,11 @@
-import {MessageStatus, TextParams} from '@utils/Messaging/interfaces';
-import DirectReceiveAction from '../DirectReceiveAction';
-import {getConnection,updateConnectionOnNewMessage} from '@utils/Storage/connections';
-import {displaySimpleNotification} from '@utils/Notifications';
-import {ChatType,NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
+import {MessageStatus, TextParams} from '@utils/Messaging/interfaces';
+import {displaySimpleNotification} from '@utils/Notifications';
+import {getConnection,updateConnectionOnNewMessage} from '@utils/Storage/connections';
+import {ChatType,NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 class ReceiveText extends DirectReceiveAction {
   generatePreviewText(): string {

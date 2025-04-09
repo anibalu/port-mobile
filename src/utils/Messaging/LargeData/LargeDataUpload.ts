@@ -1,10 +1,11 @@
-import * as API from './APICalls';
 import {
   addFilePrefix,
   deleteFile,
-  getSafeAbsoluteURI,
   encryptFile,
+  getSafeAbsoluteURI,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import * as API from './APICalls';
 
 /**
  * Class responsible for uploading large files to a pre-signed url.

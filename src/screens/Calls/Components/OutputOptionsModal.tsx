@@ -1,18 +1,23 @@
 import React, {FC} from 'react';
-import {View, Pressable, StyleSheet} from 'react-native';
-import GenericModal from '@components/Modals/GenericModal';
-import DynamicColors from '@components/DynamicColors';
+import {Pressable, StyleSheet, View} from 'react-native';
+
+import {AudioRoute} from 'react-native-callkeep';
 import {SvgProps} from 'react-native-svg';
+
+import {screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import GenericModal from '@components/Modals/GenericModal';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {screen} from '@components/ComponentUtils';
-import {AudioRoute} from 'react-native-callkeep';
-import Speaker from '@assets/dark/icons/Speaker.svg';
-import Headset from '@assets/dark/icons/Headset.svg';
+
 import Bluetooth from '@assets/dark/icons/Bluetooth.svg';
+import Headset from '@assets/dark/icons/Headset.svg';
+import Speaker from '@assets/dark/icons/Speaker.svg';
+
+
 
 const OutputOptionsModal = ({
   visible,

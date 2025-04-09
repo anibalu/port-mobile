@@ -1,11 +1,3 @@
-import {useNavigation} from '@react-navigation/native';
-import store from '@store/appStore';
-import {getBundleFromLink} from '@utils/DeepLinking';
-import {ContentType} from '@utils/Messaging/interfaces';
-import {processReadBundles, readBundle} from '@utils/Ports';
-import {addFilePrefix} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import {Mutex} from 'async-mutex';
 import React, {
   ReactNode,
   createContext,
@@ -14,7 +6,19 @@ import React, {
   useState,
 } from 'react';
 import {Linking} from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
+import {Mutex} from 'async-mutex';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
+
+import store from '@store/appStore';
+
+import {getBundleFromLink} from '@utils/DeepLinking';
+import {ContentType} from '@utils/Messaging/interfaces';
+import {processReadBundles, readBundle} from '@utils/Ports';
+import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
+import {addFilePrefix} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
 
 type ModalContextType = {
   linkUseError: number;

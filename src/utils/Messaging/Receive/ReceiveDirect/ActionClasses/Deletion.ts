@@ -1,4 +1,5 @@
 import DirectChat from '@utils/DirectChats/DirectChat';
+
 import DirectReceiveAction from '../DirectReceiveAction';
 
 class Deletion extends DirectReceiveAction {

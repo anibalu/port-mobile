@@ -1,12 +1,3 @@
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import {
-  FontSizeType,
-  FontType,
-  NumberlessText,
-  getWeight,
-} from '@components/NumberlessText';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useMemo, useState} from 'react';
 import {
   Keyboard,
@@ -16,11 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import KeyboardIcon from '@assets/icons/Keyboard.svg';
-import PopUpActions from './PopUpActions';
-import EmojiKeyboard from './EmojiKeyboard';
-import {useChatContext} from '@screens/DirectChat/ChatContext';
-import {wait} from '@utils/Time';
+
 import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Animated, {
   interpolate,
@@ -28,10 +15,30 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+  getWeight,
+} from '@components/NumberlessText';
+
+import {useChatContext} from '@screens/DirectChat/ChatContext';
+
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {wait} from '@utils/Time';
+
 import DisabledSend from '@assets/dark/icons/DisabledSend.svg';
-import {useTheme} from 'src/context/ThemeContext';
 import WhitePlus from '@assets/dark/icons/WhitePlus.svg';
+import KeyboardIcon from '@assets/icons/Keyboard.svg';
+
+import {useTheme} from 'src/context/ThemeContext';
+
+import EmojiKeyboard from './EmojiKeyboard';
+import PopUpActions from './PopUpActions';
 
 // this component is reponsible for textinput for message bar in direct chat
 const TextComponent = ({

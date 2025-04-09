@@ -1,11 +1,15 @@
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import Welcome from '@screens/Welcome/Welcome';
 import React from 'react';
-import {OnboardingStackParamList} from './OnboardingStackTypes';
+
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
 import RestoreAccount from '@screens/Onboarding/RestoreAccount';
-import OnboardingSetupScreen from '@screens/OnboardingSetupScreen/OnboardingSetupScreen';
-import OnboardingQRScanner from '@screens/OnboardingScanner/OnboardingQRScanner';
 import OnboardingLinkInput from '@screens/OnboardingLinkInput/OnboardingLinkInput';
+import OnboardingQRScanner from '@screens/OnboardingScanner/OnboardingQRScanner';
+import OnboardingSetupScreen from '@screens/OnboardingSetupScreen/OnboardingSetupScreen';
+import Welcome from '@screens/Welcome/Welcome';
+
+import {OnboardingStackParamList} from './OnboardingStackTypes';
+
 const Stack = createNativeStackNavigator<OnboardingStackParamList>();
 
 function OnboardingStack() {

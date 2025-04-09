@@ -1,6 +1,8 @@
-import {CALL_PERMISSIONS_MANAGEMENT, TURN_SERVER_URL} from '@configs/api';
-import {getToken} from '@utils/ServerAuth';
 import axios from 'axios';
+
+import {CALL_PERMISSIONS_MANAGEMENT, TURN_SERVER_URL} from '@configs/api';
+
+import {getToken} from '@utils/ServerAuth';
 
 type RTCIceServer = {
   credential?: string;

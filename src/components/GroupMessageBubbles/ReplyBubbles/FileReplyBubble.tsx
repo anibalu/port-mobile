@@ -1,21 +1,25 @@
+import React, {ReactNode} from 'react';
+import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import {LargeDataParams} from '@utils/Messaging/interfaces';
-import React, {ReactNode} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {GroupReplyContent} from '@utils/Storage/DBCalls/groupMessage';
+
 import {
   MAX_WIDTH_REPLY,
-  memberIdToHex,
   MIN_WIDTH_REPLY,
   REPLY_MEDIA_HEIGHT,
   REPLY_MEDIA_WIDTH,
+  memberIdToHex,
 } from '../BubbleUtils';
-import DynamicColors from '@components/DynamicColors';
-import {GroupReplyContent} from '@utils/Storage/DBCalls/groupMessage';
+
 
 /**
  * @param message, message object

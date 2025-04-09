@@ -4,9 +4,11 @@
  */
 import React, {useEffect, useMemo} from 'react';
 import {StyleSheet, View, ViewProps, ViewStyle} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {isIOS} from './ComponentUtils';
+
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+
+import {isIOS} from './ComponentUtils';
 
 export interface SafeAreaViewProps extends ViewProps {
   backgroundColor?: string;

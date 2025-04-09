@@ -1,30 +1,35 @@
+import React, {ReactElement, useCallback, useMemo, useState} from 'react';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
+
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {useSelector} from 'react-redux';
+
 import {PortSpacing, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
-import {SafeAreaView} from '@components/SafeAreaView';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React, {ReactElement, useCallback, useMemo, useState} from 'react';
-import {FlatList, Pressable, StyleSheet, View} from 'react-native';
-import SearchBar from '@components/SearchBar';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import GroupMemberInfoBottomsheet from '@components/Reusable/BottomSheets/GroupMemberInfoBottomsheet';
+import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
+import SearchBar from '@components/SearchBar';
+
 import {
   DEFAULT_GROUP_MEMBER_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
 } from '@configs/constants';
-import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
-import GroupMemberInfoBottomsheet from '@components/Reusable/BottomSheets/GroupMemberInfoBottomsheet';
-import {useSelector} from 'react-redux';
-import {getChatIdFromPairHash} from '@utils/Storage/connections';
-import {useFocusEffect} from '@react-navigation/native';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
 import Group from '@utils/Groups/Group';
+import {getChatIdFromPairHash} from '@utils/Storage/connections';
+import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AllMembers'>;
 

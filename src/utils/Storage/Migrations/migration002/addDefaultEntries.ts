@@ -3,6 +3,7 @@ import {
   defaultPermissions,
   defaultPermissionsId,
 } from '@configs/constants';
+
 import {runSimpleQuery} from '@utils/Storage/DBCalls/dbCommon';
 
 /**

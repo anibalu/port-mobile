@@ -1,11 +1,16 @@
-import ReceiveMessage from './Receive/ReceiveMessage';
-import * as API from './APICalls';
-import store from '@store/appStore';
-import {getToken} from '@utils/ServerAuth';
-import {WEBSOCKET_URL} from '@configs/api';
 import {Mutex} from 'async-mutex';
+
 import {isIOS} from '@components/ComponentUtils';
+
+import {WEBSOCKET_URL} from '@configs/api';
+
+import store from '@store/appStore';
+
+import {getToken} from '@utils/ServerAuth';
 import {getUnprocessedMessages} from '@utils/Storage/unprocessedMessages';
+
+import * as API from './APICalls';
+import ReceiveMessage from './Receive/ReceiveMessage';
 
 // Used to ensure that the device doesn't concurrently pull the user's message backlog
 const backlogLock = new Mutex();

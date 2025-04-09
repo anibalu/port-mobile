@@ -1,8 +1,12 @@
-const SQLite = require('react-native-sqlite-storage');
-SQLite.enablePromise(true);
-import {isIOS} from '@components/ComponentUtils';
-import {APP_GROUP_IDENTIFIER} from '@configs/constants';
 import RNFS from 'react-native-fs';
+
+import {isIOS} from '@components/ComponentUtils';
+
+import {APP_GROUP_IDENTIFIER} from '@configs/constants';
+
+const SQLite = require('react-native-sqlite-storage');
+
+SQLite.enablePromise(true);
 
 async function iOSMoveDBFromLegacyLocation() {
   if (!isIOS) {

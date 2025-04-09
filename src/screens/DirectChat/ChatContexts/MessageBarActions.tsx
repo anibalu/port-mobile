@@ -3,8 +3,9 @@
  * Handles dispatching of operations to the message bar.
  */
 
-import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 import React, {createContext, useContext, useReducer} from 'react';
+
+import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
 export enum MessageBarActionType {
   None = 0,

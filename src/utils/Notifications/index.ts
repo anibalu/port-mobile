@@ -1,6 +1,5 @@
-import {isIOS} from '@components/ComponentUtils';
-import {PERMISSION_MANAGEMENT_URL} from '@configs/api';
-import {DEFAULT_AVATAR} from '@configs/constants';
+import {AppState, Platform, Settings} from 'react-native';
+
 import notifee, {
   AndroidColor,
   AndroidGroupAlertBehavior,
@@ -12,11 +11,18 @@ import notifee, {
   EventType,
   Notification,
 } from '@notifee/react-native';
+import axios from 'axios';
+
+import {isIOS} from '@components/ComponentUtils';
+
+import {PERMISSION_MANAGEMENT_URL} from '@configs/api';
+import {DEFAULT_AVATAR} from '@configs/constants';
+
 import {getToken} from '@utils/ServerAuth';
 import {getConnection} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
-import axios from 'axios';
-import {AppState, Platform, Settings} from 'react-native';
+
+
 
 /**
  * Routes the user to the appropriate chat screen when a notification is pressed

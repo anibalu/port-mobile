@@ -1,22 +1,27 @@
 import React from 'react';
-import SimpleCard from '../Cards/SimpleCard';
 import {StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
+import getPermissionIcon from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
-import OptionWithToggle from '../OptionButtons/OptionWithToggle';
-import getPermissionIcon from '@components/getPermissionIcon';
+
 import {
   DirectPermissions,
   PermissionsStrict,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
-import {useTheme} from 'src/context/ThemeContext';
 import {updatePermissions} from '@utils/Storage/permissions';
+
 import AccentArrow from '@assets/icons/AccentArrow.svg';
+
+import {useTheme} from 'src/context/ThemeContext';
+
+import SimpleCard from '../Cards/SimpleCard';
+import OptionWithToggle from '../OptionButtons/OptionWithToggle';
 
 const FavouriteFolderSettingsCard = ({
   permissions,

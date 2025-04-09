@@ -1,12 +1,14 @@
 import React, {
-  createContext,
-  useState,
-  useContext,
   ReactNode,
+  createContext,
+  useContext,
   useEffect,
+  useState,
 } from 'react';
-import {getUpdateStatusKeyFromLocal} from '@utils/TermsAndConditions';
+
 import {useSelector} from 'react-redux';
+
+import {getUpdateStatusKeyFromLocal} from '@utils/TermsAndConditions';
 
 type ModalContextType = {
   termsAndConditionsStatus: TermsAndConditionsStatus;

@@ -1,7 +1,8 @@
 // this is to receieve the final contact bundle
-import DirectReceiveAction from '../DirectReceiveAction';
 import {ContactPortTicketParams} from '@utils/Messaging/interfaces';
 import {checkAndAcceptContactPortTicket} from '@utils/Ports/contactport';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 class ReceiveContactPortTicket extends DirectReceiveAction {
   generatePreviewText(): string {

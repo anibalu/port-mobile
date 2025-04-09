@@ -1,26 +1,29 @@
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import MultiSelectMembers from '@components/Reusable/MultiSelectMembers/MultiSelectMembers';
-import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {ChatType,ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React, {useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 
-import {getConnection,getConnections} from '@utils/Storage/connections';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import {getMessage} from '@utils/Storage/messages';
-import {getGroupMessage} from '@utils/Storage/groupMessages';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
-import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
-import {LargeDataParams} from '@utils/Messaging/interfaces';
-import {copyToTmp} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+
+import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
+import MultiSelectMembers from '@components/Reusable/MultiSelectMembers/MultiSelectMembers';
+import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
+import {SafeAreaView} from '@components/SafeAreaView';
 import SearchBar from '@components/SearchBar';
+
+import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+
+import {LargeDataParams} from '@utils/Messaging/interfaces';
+import LargeDataUpload from '@utils/Messaging/LargeData/LargeDataUpload';
+import {mediaContentTypes} from '@utils/Messaging/Send/SendDirectMessage/senders/MediaSender';
+import SendMessage from '@utils/Messaging/Send/SendMessage';
+import {getConnection,getConnections} from '@utils/Storage/connections';
+import {ChatType,ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+import {getGroupMessage} from '@utils/Storage/groupMessages';
+import {getMessage} from '@utils/Storage/messages';
+import {copyToTmp} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ForwardToContact'>;
 

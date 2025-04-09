@@ -1,11 +1,14 @@
 import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import Logo from '@assets/icons/WhitePortLogo.svg';
-import Settings from '@assets/dark/icons/Settings.svg';
-import Cross from '@assets/dark/icons/Cross.svg';
+
 import LinearGradient from 'react-native-linear-gradient';
-import {Height, Size, Spacing, Width} from '@components/spacingGuide';
+
 import {Colors} from '@components/colorGuide';
+import {Height, Size, Spacing, Width} from '@components/spacingGuide';
+
+import Cross from '@assets/dark/icons/Cross.svg';
+import Settings from '@assets/dark/icons/Settings.svg';
+import Logo from '@assets/icons/WhitePortLogo.svg';
 
 const PortLogoAndSettingsTopBar = ({
   onSettingsPress,

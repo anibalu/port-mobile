@@ -1,26 +1,31 @@
 import React, {useCallback, useState} from 'react';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
+
+import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import FileViewer from 'react-native-file-viewer';
+
+
+import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
+import {screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
-import {MediaEntry} from '@utils/Storage/DBCalls/media';
-import {ContentType} from '@utils/Messaging/interfaces';
-import {getMediaForChat} from '@utils/Storage/media';
-import FileViewer from 'react-native-file-viewer';
-
-import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {TabStackParamList} from '@screens/SharedMedia/SharedMedia';
-import FileTile from './FileTile';
+
+import {ContentType} from '@utils/Messaging/interfaces';
+import {MediaEntry} from '@utils/Storage/DBCalls/media';
+import {getMediaForChat} from '@utils/Storage/media';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import {screen} from '@components/ComponentUtils';
+
 import Icon from '@assets/icons/NoFilesFound.svg';
-import {MediaActionsBar} from '@components/ActionBars/MediaActionsBar';
-import DynamicColors from '@components/DynamicColors';
+
+import FileTile from './FileTile';
 
 type Props = MaterialTopTabScreenProps<TabStackParamList, 'ViewFiles'>;
 

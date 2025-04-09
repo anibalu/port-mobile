@@ -1,15 +1,19 @@
 import React, {useState} from 'react';
-import SimpleCard from './SimpleCard';
-import DynamicColors from '@components/DynamicColors';
 import {Pressable, StyleSheet, View} from 'react-native';
+
 import {PortSpacing} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+
 import TagBottomsheet from '../BottomSheets/TagBottomsheet';
+
+import SimpleCard from './SimpleCard';
 
 /**
  * Tag Card component

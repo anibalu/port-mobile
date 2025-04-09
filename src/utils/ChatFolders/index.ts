@@ -1,25 +1,26 @@
-import * as folderStorage from '@utils/Storage/folders';
-import * as permissionsStorage from '@utils/Storage/permissions';
-import {
-  Permissions,
-  PermissionsStrict,
-} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {defaultFolderId} from '@configs/constants';
+
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
+import {
+  remotePauseContactPorts,
+  remoteResumeContactPorts,
+} from '@utils/Ports/contactport';
 import {
   getConnectionsByFolder,
   getLineIdFromChatId,
   updateConnection,
 } from '@utils/Storage/connections';
-import {defaultFolderId} from '@configs/constants';
-import {ChatType, ConnectionEntry} from '@utils/Storage/DBCalls/connections';
-import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
-import {getFolder} from '@utils/Storage/folders';
-import {
-  remotePauseContactPorts,
-  remoteResumeContactPorts,
-} from '@utils/Ports/contactport';
 import {getContactPortDataFromPairHash} from '@utils/Storage/contactPorts';
+import {ChatType, ConnectionEntry} from '@utils/Storage/DBCalls/connections';
+import {FolderInfo} from '@utils/Storage/DBCalls/folders';
+import {
+  Permissions,
+  PermissionsStrict,
+} from '@utils/Storage/DBCalls/permissions/interfaces';
+import {getFolder} from '@utils/Storage/folders';
+import * as folderStorage from '@utils/Storage/folders';
+import * as permissionsStorage from '@utils/Storage/permissions';
 
 /**
  * Add a new chat folder and returns folderId

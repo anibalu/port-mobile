@@ -3,8 +3,10 @@ import {
   deleteFile,
   downloadResourceToTmpDir,
 } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import * as API from './APICalls';
+
 import {ContentType} from '../interfaces';
+
+import * as API from './APICalls';
 
 class LargeDataDownload {
   private chatId: string;

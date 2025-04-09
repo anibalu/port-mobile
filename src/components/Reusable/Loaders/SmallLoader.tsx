@@ -1,6 +1,8 @@
 import React from 'react';
-import {CircleSnail} from 'react-native-progress';
 import {View} from 'react-native';
+
+import {CircleSnail} from 'react-native-progress';
+
 import {useThemeColors} from '@components/colorGuide';
 
 const SmallLoader = ({

@@ -1,14 +1,16 @@
 import React from 'react';
 import {View} from 'react-native';
+
+import ToggleSwitch from 'toggle-switch-react-native';
+
+import GradientCard from '@components/Cards/GradientCard';
+import {useColors} from '@components/colorGuide';
+import SimpleInput from '@components/Inputs/SimpleInput';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import ToggleSwitch from 'toggle-switch-react-native';
-import SimpleInput from '@components/Inputs/SimpleInput';
-import GradientCard from '@components/Cards/GradientCard';
-import {useColors} from '@components/colorGuide';
 import {Spacing} from '@components/spacingGuide';
 
 /**

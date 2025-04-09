@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import {View, Animated, Easing} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Animated, Easing, View} from 'react-native';
 
 // this is ui element for amplitude bars while an audio is being recorded
 

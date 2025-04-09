@@ -1,4 +1,8 @@
 import React from 'react';
+import {StyleSheet,View} from 'react-native';
+
+import ToggleSwitch from 'toggle-switch-react-native';
+
 import {useThemeColors} from '@components/colorGuide';
 import {PermissionConfig} from '@components/getPermissionIcon';
 import {
@@ -6,9 +10,7 @@ import {
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {Size, Height, Spacing} from '@components/spacingGuide';
-import {StyleSheet,View} from 'react-native';
-import ToggleSwitch from 'toggle-switch-react-native';
+import {Height, Size, Spacing} from '@components/spacingGuide';
 
 /**
  * A reusable component for rendering permission toggle options with icons.

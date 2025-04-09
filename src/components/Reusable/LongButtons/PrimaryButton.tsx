@@ -17,18 +17,20 @@
  * 7. onClick - function that runs on clicking.
  */
 
-import {FontSizes} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
 import React, {FC} from 'react';
 import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  TextStyle,
   ActivityIndicator,
+  StyleSheet,
+  Text,
+  TextStyle,
+  TouchableOpacity,
   ViewStyle,
 } from 'react-native';
+
 import {SvgProps} from 'react-native-svg';
+
+import {FontSizes} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 
 /**
  * @deprecated

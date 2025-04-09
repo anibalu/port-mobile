@@ -1,17 +1,34 @@
-import {SendMediaDirectMessage, mediaContentTypes} from './senders/MediaSender';
+import {ContentType, DataType} from '@utils/Messaging/interfaces';
+
 import {
-  SendGenericDirectMessage,
-  genericContentTypes,
-} from './senders/GenericSender';
+  SendContactBundleDirectMessage,
+  contactBundleContentTypes,
+} from './senders/ContactBundleSender';
 import {
-  SendPlaintextDirectMessage,
-  plaintextContentTypes,
-} from './senders/PlaintextSender';
+  SendContactPortBundleDirectMessage,
+  contactPortBundleContentTypes,
+} from './senders/ContactPortBundleSender';
+import {
+  SendContactRequestDirectMessage,
+  contactBundleRequestContentTypes,
+} from './senders/ContactRequestSender';
 import {
   SendDeleteDirectMessage,
   deleteContentTypes,
 } from './senders/DeletionSender';
-import {ContentType, DataType} from '@utils/Messaging/interfaces';
+import {
+  SendEditedMessage,
+  editedMessageTypes,
+} from './senders/EditMessageSender';
+import {
+  SendGenericDirectMessage,
+  genericContentTypes,
+} from './senders/GenericSender';
+import {SendMediaDirectMessage, mediaContentTypes} from './senders/MediaSender';
+import {
+  SendPlaintextDirectMessage,
+  plaintextContentTypes,
+} from './senders/PlaintextSender';
 import {
   SendReactionDirectMessage,
   reactionContentTypes,
@@ -20,22 +37,6 @@ import {
   SendReceiptDirectMessage,
   receiptContentTypes,
 } from './senders/ReceiptSender';
-import {
-  contactBundleContentTypes,
-  SendContactBundleDirectMessage,
-} from './senders/ContactBundleSender';
-import {
-  SendContactRequestDirectMessage,
-  contactBundleRequestContentTypes,
-} from './senders/ContactRequestSender';
-import {
-  contactPortBundleContentTypes,
-  SendContactPortBundleDirectMessage,
-} from './senders/ContactPortBundleSender';
-import {
-  SendEditedMessage,
-  editedMessageTypes,
-} from './senders/EditMessageSender';
 
 function assignSenderClass(contentType: ContentType) {
   let SenderClass = null;

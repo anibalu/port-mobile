@@ -1,7 +1,9 @@
+import axios from 'axios';
+
 import {QUEUE_GET_URL} from '@configs/api';
+
 import {getToken} from '@utils/ServerAuth';
 import {ServerAuthToken} from '@utils/Storage/RNSecure/secureTokenHandler';
-import axios from 'axios';
 
 export async function getMessages(): Promise<Array<any>> {
   const token: ServerAuthToken = await getToken();

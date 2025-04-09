@@ -1,13 +1,15 @@
 import React from 'react';
+import {StyleSheet, TouchableOpacity,View} from 'react-native';
+
+import {useThemeColors} from '@components/colorGuide';
+import {PermissionConfig} from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {StyleSheet, TouchableOpacity,View} from 'react-native';
 import {Height, Size, Spacing} from '@components/spacingGuide';
-import {useThemeColors} from '@components/colorGuide';
-import {PermissionConfig} from '@components/getPermissionIcon';
+
 import RightChevronBlue from '@assets/dark/icons/navigation/AngleRightBlue.svg';
 
 const NumberPermissionOption = ({

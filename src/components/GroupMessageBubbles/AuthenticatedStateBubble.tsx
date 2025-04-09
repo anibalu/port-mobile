@@ -1,13 +1,16 @@
-import {PortSpacing, screen} from '@components/ComponentUtils';
 import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {useChatContext} from '@screens/GroupChat/ChatContext';
+
+import {PortSpacing, screen} from '@components/ComponentUtils';
+import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import DynamicColors from '@components/DynamicColors';
+
+import {useChatContext} from '@screens/GroupChat/ChatContext';
+
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 export const AuthenticatedStateBubble = (): ReactNode => {

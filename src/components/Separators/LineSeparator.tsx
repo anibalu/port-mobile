@@ -1,8 +1,10 @@
-import {useColors} from '@components/colorGuide';
 import React from 'react';
-import {StyleSheet, ViewStyle,View} from 'react-native';
-import {Height} from '@components/spacingGuide';
+import {StyleSheet, View,ViewStyle} from 'react-native';
+
 import LinearGradient from 'react-native-linear-gradient';
+
+import {useColors} from '@components/colorGuide';
+import {Height} from '@components/spacingGuide';
 
 /**
  * A line separator component that can be used to separate sections of a screen.

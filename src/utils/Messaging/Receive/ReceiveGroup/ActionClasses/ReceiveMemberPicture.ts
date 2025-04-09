@@ -1,12 +1,14 @@
 import store from '@store/appStore';
-import {handleAsyncMediaDownload} from '../HandleMediaDownload';
-import {DataType, MessageStatus} from '@utils/Messaging/interfaces';
-import {generateRandomHexId} from '@utils/IdGenerator';
-import {saveNewMedia} from '@utils/Storage/media';
-import * as storage from '@utils/Storage/groupMessages';
-import GroupReceiveAction from '../GroupReceiveAction';
+
 import Group from '@utils/Groups/Group';
+import {generateRandomHexId} from '@utils/IdGenerator';
+import {DataType, MessageStatus} from '@utils/Messaging/interfaces';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
+import * as storage from '@utils/Storage/groupMessages';
+import {saveNewMedia} from '@utils/Storage/media';
+
+import GroupReceiveAction from '../GroupReceiveAction';
+import {handleAsyncMediaDownload} from '../HandleMediaDownload';
 
 class ReceiveMemberPicture extends GroupReceiveAction {
   generatePreviewText(): string {

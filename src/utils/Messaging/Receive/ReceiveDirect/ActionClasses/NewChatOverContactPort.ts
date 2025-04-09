@@ -1,6 +1,7 @@
 import {useCreatedBundle} from '@utils/Ports';
-import DirectReceiveAction from '../DirectReceiveAction';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+
+import DirectReceiveAction from '../DirectReceiveAction';
 
 class NewChatOverContactPort extends DirectReceiveAction {
   /**

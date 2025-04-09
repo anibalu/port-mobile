@@ -1,10 +1,13 @@
-import {PortSpacing} from '@components/ComponentUtils';
-import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 import React from 'react';
 import {Pressable, StyleSheet, Text} from 'react-native';
-import SimpleCard from './SimpleCard';
-import EditIcon from '@assets/icons/PencilAccent.svg';
+
+import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
+import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
+
+import EditIcon from '@assets/icons/PencilAccent.svg';
+
+import SimpleCard from './SimpleCard';
 
 const EditableInputCardWithoutBorder = ({
   text,

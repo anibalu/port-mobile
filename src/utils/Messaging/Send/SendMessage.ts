@@ -1,10 +1,12 @@
-import {isGroupChat} from '@utils/Storage/connections';
 import {generateRandomHexId} from '@utils/IdGenerator';
+import {isGroupChat} from '@utils/Storage/connections';
+
 import {
   ContentType,
   DataType,
   MessageDataTypeBasedOnContentType,
 } from '../interfaces';
+
 import {retryDirect, sendDirect} from './SendDirectMessage';
 import {retryGroup, sendGroup} from './SendGroupMessage';
 

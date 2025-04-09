@@ -70,7 +70,7 @@ const VideoView = ({
           setStartedPlaying(true);
         }}
         onPlayPress={() => setShowText(p => !p)}
-        video={{
+        source={{
           uri: fileUri,
         }}
         muted={false}

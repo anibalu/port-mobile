@@ -29,7 +29,7 @@ class MainActivity : ReactActivity() {
     super.onCreate(null)
   }
 
-  override fun onNewIntent(intent: Intent?) {
+  override fun onNewIntent(intent: Intent) {
     if (intent != null) {
       super.onNewIntent(intent)
       setIntent(intent)

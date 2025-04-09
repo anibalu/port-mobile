@@ -5137,7 +5137,7 @@ depd@2.0.0:
   resolved "https://registry.yarnpkg.com/depd/-/depd-2.0.0.tgz#b696163cc757560d09cf22cc8fad1571b79e76df"
   integrity sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==
 
-deprecated-react-native-prop-types@^2.2.0, deprecated-react-native-prop-types@^2.3.0:
+deprecated-react-native-prop-types@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/deprecated-react-native-prop-types/-/deprecated-react-native-prop-types-2.3.0.tgz#c10c6ee75ff2b6de94bb127f142b814e6e08d9ab"
   integrity sha512-pWD0voFtNYxrVqvBMYf5gq3NA2GCpfodS1yNynTPc93AYA/KEMGeWDqqeUB6R2Z9ZofVhks2aeJXiuQqKNpesA==
@@ -5290,11 +5290,6 @@ electron-to-chromium@^1.5.73:
   version "1.5.129"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.129.tgz#fafa835aea5d15fcd5cbe9bd6bf1cb5d4b3aa06e"
   integrity sha512-JlXUemX4s0+9f8mLqib/bHH8gOHf5elKS6KeWG3sk3xozb/JTq/RLXIv8OKUWiK4Ah00Wm88EFj5PYkFr4RUPA==
-
-eme-encryption-scheme-polyfill@^2.0.1:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/eme-encryption-scheme-polyfill/-/eme-encryption-scheme-polyfill-2.1.2.tgz#38f68361a30744e4c421a3c7dee5fc0895c26a1f"
-  integrity sha512-ccDEgbk5+hJbzEDcUkID0chK+vy/pXi1oQIIADGpyYdZThAbLLod7WZKryU32IWmFX4BAWmzZtf4LeUnnNzcQQ==
 
 emittery@^0.13.1:
   version "0.13.1"
@@ -8136,11 +8131,6 @@ jsx-ast-utils@^2.0.1, jsx-ast-utils@^2.2.1:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
-keymirror@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/keymirror/-/keymirror-0.1.1.tgz#918889ea13f8d0a42e7c557250eee713adc95c35"
-  integrity sha512-vIkZAFWoDijgQT/Nvl2AHCMmnegN2ehgTPYuyy2hWQkQSntI0S7ESYqdLkoSe1HyEBFHHkCgSIvVdSEiWwKvCg==
-
 keyv@^4.5.4:
   version "4.5.4"
   resolved "https://registry.yarnpkg.com/keyv/-/keyv-4.5.4.tgz#a879a99e29452f942439f2a405e3af8b31d4de93"
@@ -9923,22 +9913,15 @@ react-native-vector-icons@^10.1.0:
     prop-types "^15.7.2"
     yargs "^16.1.1"
 
-react-native-video-player@^0.14.0:
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/react-native-video-player/-/react-native-video-player-0.14.0.tgz#7156496191065689c0d2e34dcde9ac903aee583f"
-  integrity sha512-lgdqq9h3Mi2poRII3sCE9RgrZIA140bWd83NEzyZp3andKaUiXKYSFcWu+BoySn2Y24dCrDFnhVEkvPq6sTndg==
-  dependencies:
-    deprecated-react-native-prop-types "^2.3.0"
+react-native-video-player@^0.16.2:
+  version "0.16.2"
+  resolved "https://registry.yarnpkg.com/react-native-video-player/-/react-native-video-player-0.16.2.tgz#526f241191e0802ace03c9bd27222e692a01b8cf"
+  integrity sha512-BycfflDEeSLtTBPCsBSz0bANJJQNCvFyNhipP4kRKc1gVjw3DyJjxV7YZj4HSzeXtC8/82l57q6ziStMBzkrFQ==
 
-react-native-video@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-5.2.1.tgz#a17e856759d7e17eee9cbd9df0d05ba22e88d457"
-  integrity sha512-aJlr9MeTuQ0LpZ4n+EC9RvhoKeiPbLtI2Rxy8u7zo/wzGevbRpWHSBj9xZ5YDBXnAVXzuqyNIkGhdw7bfdIBZw==
-  dependencies:
-    deprecated-react-native-prop-types "^2.2.0"
-    keymirror "^0.1.1"
-    prop-types "^15.7.2"
-    shaka-player "^2.5.9"
+react-native-video@^6.12.0:
+  version "6.12.0"
+  resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-6.12.0.tgz#f65285f1da063869dd332dbb34f8b64a247d3fb5"
+  integrity sha512-MPiOk/8qszBY2zAZZuuzyNPcRK6+UFHutzRcEJlGodZ5GCUNmw1vIE6FCInL22S/YpnGywwiKVQDQCjjqQx9Fg==
 
 react-native-view-shot@^3.8.0:
   version "3.8.0"
@@ -10573,13 +10556,6 @@ setprototypeof@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
-
-shaka-player@^2.5.9:
-  version "2.5.23"
-  resolved "https://registry.yarnpkg.com/shaka-player/-/shaka-player-2.5.23.tgz#db92d1c6cf2314f0180a2cec11b0e2f2560336f5"
-  integrity sha512-3MC9k0OXJGw8AZ4n/ZNCZS2yDxx+3as5KgH6Tx4Q5TRboTBBCu6dYPI5vp1DxKeyU12MBN1Zcbs7AKzXv2EnCg==
-  dependencies:
-    eme-encryption-scheme-polyfill "^2.0.1"
 
 shallow-clone@^3.0.0:
   version "3.0.1"

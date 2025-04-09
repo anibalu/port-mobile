@@ -17,9 +17,11 @@ export interface ProfileServerGenerated {
 export async function submitUserPublicKey(
   publicKey: string,
 ): Promise<ProfileServerGenerated> {
+  console.log('Here: ', publicKey);
   const response = await axios.post(INITIAL_POST_MANAGEMENT_RESOURCE, {
     authPubKey: publicKey,
   });
+  console.log('Here as well');
   if (response.data.userId) {
     const serverGenerated: ProfileServerGenerated = {
       clientId: response.data.userId,

@@ -91,7 +91,7 @@ async function backlogPullWithWS(): Promise<void> {
 
   // Attempt to acquire a token immediately to prevent connections that never authenticate
   return new Promise(async (resolve, reject) => {
-    var token: string;
+    let token: string;
     try {
       token = await getToken();
     } catch (e) {
@@ -100,7 +100,7 @@ async function backlogPullWithWS(): Promise<void> {
       return;
     }
 
-    var ws: WebSocket;
+    let ws: WebSocket;
     try {
       ws = new WebSocket(WEBSOCKET_URL);
     } catch (e) {

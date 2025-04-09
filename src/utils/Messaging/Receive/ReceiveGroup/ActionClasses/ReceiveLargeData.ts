@@ -1,9 +1,7 @@
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {GroupPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {getConnection} from '@utils/Storage/connections';
-import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+import {getConnection,updateConnectionOnNewMessage} from '@utils/Storage/connections';
+import {ChatType,ConnectionInfo,NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 import {
   DataType,
   LargeDataParams,
@@ -12,7 +10,6 @@ import {
 import {displaySimpleNotification} from '@utils/Notifications';
 import {handleAsyncMediaDownload} from '../HandleMediaDownload';
 import store from '@store/appStore';
-import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {saveNewMedia} from '@utils/Storage/media';

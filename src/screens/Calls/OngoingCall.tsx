@@ -46,10 +46,12 @@ import {PeerStream, PeerVideoSize} from './Components/PeerStream';
 import {MyStream, MyVideoSize} from './Components/MyStream';
 import RNCallKeep, {AudioRoute} from 'react-native-callkeep';
 import {useCallContext} from './CallContext';
-import {FontSizeType} from '@components/NumberlessText';
-import {FontType} from '@components/NumberlessText';
+import {
+  FontSizeType,
+  FontType,
+  NumberlessText,
+} from '@components/NumberlessText';
 import CloseWhite from '@assets/icons/closeWhite.svg';
-import {NumberlessText} from '@components/NumberlessText';
 import {check, PERMISSIONS} from 'react-native-permissions';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'OngoingCall'>;
@@ -359,7 +361,7 @@ function OngoingCall({route, navigation}: Props) {
       case 'peer_connected':
         signaller?.cleanup();
         break;
-      case 'peer_stream_track_update':
+      case 'peer_stream_track_update': {
         const peerMediaStream = peerConnectionManager?.getMediaStream();
         if (peerMediaStream) {
           setPeerStream(peerMediaStream);
@@ -373,6 +375,7 @@ function OngoingCall({route, navigation}: Props) {
           }
         }
         break;
+      }
       case 'closed_signaller':
         // If the peer stream is not available, end the call.
         if (peerStream) {

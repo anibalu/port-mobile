@@ -8,8 +8,7 @@ import {
   deleteConnection,
   getBasicConnectionInfo,
   getChatIdFromRoutingId,
-} from '@utils/Storage/connections';
-import {addConnection} from '@utils/Storage/connections';
+addConnection} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';

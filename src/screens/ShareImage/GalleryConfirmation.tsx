@@ -96,8 +96,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
       dataList.map(async item => {
         const updatedItem = {...item}; // shallow copy, as the original is immutable
         if (updatedItem.contentType === ContentType.video) {
-          let compressedUri;
-          compressedUri = await compressVideo(updatedItem.data.fileUri);
+          const compressedUri = await compressVideo(updatedItem.data.fileUri);
           if (!compressedUri) {
             compressionError();
           }
@@ -113,8 +112,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
           updatedItem.data.previewUri = thumbnailUri;
         }
         if (updatedItem.contentType === ContentType.image) {
-          let compressedUri;
-          compressedUri = await compressImage(updatedItem.data.fileUri);
+          const compressedUri = await compressImage(updatedItem.data.fileUri);
           if (!compressedUri) {
             compressionError();
           }

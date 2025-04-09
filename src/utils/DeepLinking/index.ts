@@ -30,9 +30,9 @@ export async function getBundleFromLink(
     const url = urlObj.url;
     const jsonUrlObj = urlToJson(url);
     if (url) {
-      let regex = /[?&]([^=#]+)=([^&#]*)/g,
-        params: any = {},
-        match: any;
+      const regex = /[?&]([^=#]+)=([^&#]*)/g;
+      const params: any = {};
+      let match: any;
       while ((match = regex.exec(url))) {
         params[match[1]] = match[2];
       }

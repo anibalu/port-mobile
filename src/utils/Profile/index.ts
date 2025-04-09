@@ -1,9 +1,8 @@
-import {DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+import {DEFAULT_PROFILE_AVATAR_INFO,DEFAULT_NAME, NAME_LENGTH_LIMIT} from '@configs/constants';
 import {generateKeys} from '@utils/Crypto/ed25519';
 import {pickRandomAvatarId} from '@utils/IdGenerator';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import {DEFAULT_NAME, NAME_LENGTH_LIMIT} from '../../configs/constants';
 import store from '../../store/appStore';
 import * as storage from '../Storage/profile';
 import * as API from './APICalls';
@@ -63,7 +62,7 @@ export async function setupProfile(
 export async function deleteProfile(): Promise<void> {
   try {
     cachedProfile = undefined;
-    await storage.deleteProfileInfo();
+    await storage.saveProfileInfo(undefined);
     store.dispatch({
       type: 'DELETE_PROFILE',
       payload: undefined,
@@ -94,20 +93,18 @@ function updateProfileStore() {
  * @returns {Promise<ProfileInfo|undefined>} - profile info of the user, undefined if none exist
  */
 export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
-  let shouldUpdateProfileStore = true;
+  let shouldUpdateProfileStore = false;
   try {
     const profileStore = store?.getState()?.profile?.profile;
-    //check if profile store has any values. If it does, we need not update the profile store.
     if (
       profileStore?.name ||
       profileStore?.profilePicInfo ||
       profileStore?.lastBackupTime
     ) {
-      shouldUpdateProfileStore = false;
+      shouldUpdateProfileStore = true;
     }
     //read profile from cache
     if (cachedProfile) {
-      console.log('returning cached profile: ', cachedProfile);
       if (shouldUpdateProfileStore) {
         updateProfileStore();
       }
@@ -116,7 +113,6 @@ export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
     //read profile from storage
     const savedProfile: ProfileInfo | undefined =
       await storage.getProfileInfo();
-    console.log('returning saved profile: ', savedProfile);
     //If undefined, no profile exists.
     if (savedProfile && savedProfile.clientId) {
       //update cache with profile info

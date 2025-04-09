@@ -2,9 +2,8 @@ import React from 'react';
 import {View} from 'react-native';
 import {Colors} from '@components/colorGuide';
 import {Height, Spacing} from '@components/spacingGuide';
-import {FontSizeType, FontWeight} from '@components/NumberlessText';
+import {FontSizeType, FontWeight,NumberlessText} from '@components/NumberlessText';
 import LinearGradient from 'react-native-linear-gradient';
-import {NumberlessText} from '@components/NumberlessText';
 
 /**
  * TopBarTitle component displays a title in the top bar of the app.

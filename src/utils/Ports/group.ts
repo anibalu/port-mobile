@@ -225,7 +225,7 @@ export async function getGroupPortBundleClickableLink(
   bundleString: string | null = null,
 ) {
   const generatedPort = await getGeneratedGroupPortData(portId);
-  let currentChannel = generatedPort.channel;
+  const currentChannel = generatedPort.channel;
   if (currentChannel) {
     const bundleId =
       currentChannel.substring(0, 7) === 'link://'

@@ -80,9 +80,9 @@ export async function sendDirect(
   messageId: string,
   _onSuccess?: (success: boolean) => void,
 ) {
-  let SenderClass = assignSenderClass(contentType);
+  const SenderClass = assignSenderClass(contentType);
   if (SenderClass) {
-    let sender = new SenderClass(chatId, contentType, data, replyId, messageId);
+    const sender = new SenderClass(chatId, contentType, data, replyId, messageId);
     await sender.send();
     return;
   }
@@ -99,9 +99,9 @@ export async function retryDirect(
   messageId: string,
   _onSuccess?: (success: boolean) => void,
 ) {
-  let SenderClass = assignSenderClass(contentType);
+  const SenderClass = assignSenderClass(contentType);
   if (SenderClass) {
-    let sender = new SenderClass(chatId, contentType, data, replyId, messageId);
+    const sender = new SenderClass(chatId, contentType, data, replyId, messageId);
     await sender.retry();
     return;
   }

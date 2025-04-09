@@ -46,9 +46,9 @@ export async function sendGroup(
   singleRecipient: string | null | undefined,
   _onSuccess?: (success: boolean) => void,
 ) {
-  let SenderClass = assignSenderClass(contentType);
+  const SenderClass = assignSenderClass(contentType);
   if (SenderClass) {
-    let sender = new SenderClass(
+    const sender = new SenderClass(
       chatId,
       contentType,
       data,
@@ -73,9 +73,9 @@ export async function retryGroup(
   singleRecipient: string | null | undefined,
   _onSuccess?: (success: boolean) => void,
 ) {
-  let SenderClass = assignSenderClass(contentType);
+  const SenderClass = assignSenderClass(contentType);
   if (SenderClass) {
-    let sender = new SenderClass(
+    const sender = new SenderClass(
       chatId,
       contentType,
       data,

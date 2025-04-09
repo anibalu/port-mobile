@@ -3,13 +3,11 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import MultiSelectMembers from '@components/Reusable/MultiSelectMembers/MultiSelectMembers';
 import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+import {ChatType,ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import React, {useEffect, useMemo, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 
-import {getConnection} from '@utils/Storage/connections';
-import {getConnections} from '@utils/Storage/connections';
+import {getConnection,getConnections} from '@utils/Storage/connections';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';

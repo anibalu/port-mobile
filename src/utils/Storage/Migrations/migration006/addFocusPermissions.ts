@@ -38,7 +38,7 @@ export async function setFocusPermissionForDefaultFolder() {
     (tx, results) => {},
   );
   // update permissions in all chats in a folder
-  let connections: ConnectionInfo[] = [];
+  const connections: ConnectionInfo[] = [];
   await runSimpleQuery(
     `
     SELECT

@@ -8,7 +8,7 @@ async function submitBugReport(
   device: string,
   images: any,
   description: string,
-  setIsLoading: Function,
+  setIsLoading: (x: boolean) => any,
 ) {
   try {
     setIsLoading(true);

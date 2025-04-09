@@ -1,17 +1,14 @@
-import {
-  generateX25519Keys,
-  deriveX25519SharedSecret,
-  encryptWithX25519SharedSecret,
-  decryptWithX25519SharedSecret,
-  KeyPair,
-} from '@numberless/react-native-numberless-crypto';
-
+import NativeCryptoModule from 'src/specs/NativeCryptoModule';
+type KeyPair = {
+  privateKey: string;
+  publicKey: string;
+};
 /**
  * generator for x25519 key pair in hex encoded format
  * @returns {KeyPair} - hex encoded public key and private key
  */
-export async function generateKeys(): Promise<KeyPair> {
-  return await generateX25519Keys();
+export function generateKeys(): KeyPair {
+  return JSON.parse(NativeCryptoModule.generateX25519Keypair());
 }
 
 /**
@@ -20,11 +17,11 @@ export async function generateKeys(): Promise<KeyPair> {
  * @param peerPublicKey - peer's public key
  * @returns - hex encoded shared secret key
  */
-export async function deriveSharedSecret(
+export function deriveSharedSecret(
   privateKey: string,
   peerPublicKey: string,
-): Promise<string> {
-  const sharedSecret = await deriveX25519SharedSecret(
+): string {
+  const sharedSecret = NativeCryptoModule.deriveX25519Secret(
     privateKey,
     peerPublicKey,
   );
@@ -40,14 +37,8 @@ export async function deriveSharedSecret(
  * @param sharedSecret - shared key
  * @returns - ciphertext as a url-safe base64 encoded string
  */
-export async function encrypt(
-  plaintext: string,
-  sharedSecret: string,
-): Promise<string> {
-  const ciphertext = await encryptWithX25519SharedSecret(
-    plaintext,
-    sharedSecret,
-  );
+export function encrypt(plaintext: string, sharedSecret: string): string {
+  const ciphertext = NativeCryptoModule.aes256Encrypt(plaintext, sharedSecret);
   if (ciphertext === 'error') {
     throw new Error('Error encrypting plaintext');
   }
@@ -60,14 +51,8 @@ export async function encrypt(
  * @param sharedSecret - shared key
  * @returns - plaintext as a string
  */
-export async function decrypt(
-  ciphertext: string,
-  sharedSecret: string,
-): Promise<string> {
-  const plaintext = await decryptWithX25519SharedSecret(
-    ciphertext,
-    sharedSecret,
-  );
+export function decrypt(ciphertext: string, sharedSecret: string): string {
+  const plaintext = NativeCryptoModule.aes256Decrypt(ciphertext, sharedSecret);
   if (plaintext === 'error') {
     throw new Error('Error decrypting ciphertext');
   }

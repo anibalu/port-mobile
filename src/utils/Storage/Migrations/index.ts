@@ -32,7 +32,7 @@ const migrations: [number, () => Promise<void>][] = [
 export default async function runMigrations() {
   await createMigrationsTable();
   console.log('created migrations table');
-  for (let migration of migrations) {
+  for (const migration of migrations) {
     console.log('trying to run migration: ', migration[0]);
     await runMigration(migration[0], migration[1]);
   }

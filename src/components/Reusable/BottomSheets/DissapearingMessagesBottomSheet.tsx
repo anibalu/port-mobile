@@ -10,8 +10,7 @@ import React from 'react';
 import {disappearDuration, disappearOptions} from '@utils/Time/interfaces';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {useColors} from '@components/colorGuide';
-import {Spacing} from '@components/spacingGuide';
-import {Width} from '@components/spacingGuide';
+import {Spacing,Width} from '@components/spacingGuide';
 
 const DissapearingMessagesBottomsheet = ({
   setShowDissappearingMessageModal,

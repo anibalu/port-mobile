@@ -92,7 +92,10 @@ const VideoView = ({
   try {
     mirrored =
       myMediaStream.getVideoTracks()[0].getConstraints().facingMode === 'user';
-  } catch {}
+  } catch {
+    // Leave the stream mirroring as is
+    console.error('Could not switch camera mirroring');
+  }
   return (
     <View
       style={

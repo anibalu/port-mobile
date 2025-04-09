@@ -249,7 +249,8 @@ export async function newChatOverReadPortBundle(readPortBundle: ReadPortData) {
         const message = await getMessage(fromChatId, messsageId);
         if (message) {
           const update = message.data as ContactBundleParams;
-          (update.accepted = true), (update.createdChatId = chat.getChatId());
+          update.accepted = true;
+          update.createdChatId = chat.getChatId();
           await updateMessageData(fromChatId, messsageId, update);
         }
       }
@@ -352,7 +353,7 @@ export async function getPortBundleClickableLink(
   bundleString: string | null = null,
 ): Promise<string> {
   const generatedPort = await getGeneratedPortData(portId);
-  let currentChannel = generatedPort.channel;
+  const currentChannel = generatedPort.channel;
   if (currentChannel) {
     const bundleId =
       currentChannel.substring(0, 7) === 'link://'

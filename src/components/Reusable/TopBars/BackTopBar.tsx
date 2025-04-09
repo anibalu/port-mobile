@@ -6,8 +6,7 @@
 
 import {PortSpacing} from '@components/ComponentUtils';
 import React from 'react';
-import {StyleSheet} from 'react-native';
-import {View} from 'react-native';
+import {StyleSheet,View} from 'react-native';
 import {
   FontSizeType,
   FontType,

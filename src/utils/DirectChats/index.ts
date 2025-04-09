@@ -1,6 +1,5 @@
 import {getConnections} from '@utils/Storage/connections';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+import {ChatType,ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 
 /**
  * Retrieves all direct chats

@@ -21,7 +21,7 @@ export async function createGroupMessageReport(
   messageId: string,
   reportType: string,
   additionalInfo: string = '',
-): Promise<String> {
+): Promise<string> {
   const attachedFiles = []; // Using an array in case we allow bulk reporting of media
   let contentType: string = ''; // Content-Type HTTP header is not mandatory but it is recommended
   const message = await getGroupMessage(chatId, messageId);

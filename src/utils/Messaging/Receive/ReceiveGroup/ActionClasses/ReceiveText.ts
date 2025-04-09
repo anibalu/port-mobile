@@ -1,6 +1,5 @@
 import {MessageStatus, TextParams} from '@utils/Messaging/interfaces';
-import {getConnection} from '@utils/Storage/connections';
-import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
+import {getConnection,updateConnectionOnNewMessage} from '@utils/Storage/connections';
 import {displaySimpleNotification} from '@utils/Notifications';
 import {
   ChatType,

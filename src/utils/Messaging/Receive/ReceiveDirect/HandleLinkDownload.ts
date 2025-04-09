@@ -20,7 +20,7 @@ export const handleAsyncLinkDownload = async (
   if (message?.data) {
     const initialDataObj = message.data as LinkParams;
     const openGraphData = await fetchData(initialDataObj.linkUri);
-    let fileUri = openGraphData
+    const fileUri = openGraphData
       ? await downloadImageToMediaDir(
           chatId,
           initialDataObj.fileName || generateRandomHexId(),

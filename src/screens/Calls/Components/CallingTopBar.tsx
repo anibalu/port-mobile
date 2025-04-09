@@ -7,8 +7,7 @@ import {
 } from '@components/NumberlessText';
 import {TOPBAR_HEIGHT} from '@configs/constants';
 import React from 'react';
-import {StyleSheet} from 'react-native';
-import {View} from 'react-native';
+import {StyleSheet,View} from 'react-native';
 import {CallState, CallUIState} from '../OngoingCall';
 import MicrophoneOn from '@assets/dark/icons/MicOn.svg';
 

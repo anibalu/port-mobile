@@ -105,7 +105,8 @@ class SuperPortReader_1_0_0 extends SuperPortReader {
           const message = await getMessage(fromChatId, messsageId);
           if (message) {
             const update = message.data as ContactBundleParams;
-            (update.accepted = true), (update.createdChatId = chat.getChatId());
+            update.accepted = true;
+            update.createdChatId = chat.getChatId();
             await updateMessageData(fromChatId, messsageId, update);
           }
         }

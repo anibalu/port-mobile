@@ -11,6 +11,7 @@ module.exports = {
           '@screens': './src/screens',
           '@store': './src/store',
           '@utils': './src/utils',
+          '@specs': './src/specs',
           '@assets': './assets',
         },
         extensions: [
@@ -29,5 +30,5 @@ module.exports = {
     'react-native-reanimated/plugin',
     'module:react-native-dotenv',
   ],
-  presets: ['module:metro-react-native-babel-preset'],
+  presets: ['module:@react-native/babel-preset'],
 };

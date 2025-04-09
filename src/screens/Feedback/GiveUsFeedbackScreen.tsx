@@ -57,7 +57,7 @@ const GiveUsFeedbackScreen = () => {
     description: string,
     attached_files: (string | undefined)[],
   ) => {
-    let deviceInfo = await DeviceInfo.getUserAgent();
+    const deviceInfo = await DeviceInfo.getUserAgent();
     const images = attached_files[0] === '' ? [] : attached_files;
     const response = await submitBugReport(
       'Feedback',

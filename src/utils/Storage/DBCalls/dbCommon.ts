@@ -1,4 +1,4 @@
-var SQLite = require('react-native-sqlite-storage');
+const SQLite = require('react-native-sqlite-storage');
 SQLite.enablePromise(true);
 import {isIOS} from '@components/ComponentUtils';
 import {APP_GROUP_IDENTIFIER} from '@configs/constants';

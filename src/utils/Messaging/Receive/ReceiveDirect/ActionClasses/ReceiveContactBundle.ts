@@ -1,12 +1,16 @@
 // this is to receieve the final contact bundle
-import {getConnection} from '@utils/Storage/connections';
-import {updateConnectionOnNewMessage} from '@utils/Storage/connections';
+import {
+  getConnection,
+  updateConnectionOnNewMessage,
+} from '@utils/Storage/connections';
 import DirectReceiveAction from '../DirectReceiveAction';
 import {ContactBundleParams, MessageStatus} from '@utils/Messaging/interfaces';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
+import {
+  ChatType,
+  NewMessageCountAction,
+} from '@utils/Storage/DBCalls/connections';
 import {displaySimpleNotification} from '@utils/Notifications';
 import {getChatPermissions} from '@utils/ChatPermissions';
-import {NewMessageCountAction} from '@utils/Storage/DBCalls/connections';
 import getConnectionTextByContentType from '@utils/Connections/getConnectionTextByContentType';
 class ReceiveContactBundle extends DirectReceiveAction {
   generatePreviewText(): string {

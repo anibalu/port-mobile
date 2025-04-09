@@ -37,7 +37,7 @@ const MessageBubbleContent = ({
   swipeable = true,
 }: {
   handleLongPress: any;
-  handlePress: Function;
+  handlePress: (x: string) => void;
   message: LoadedMessage;
   swipeable?: boolean;
 }): ReactNode => {
@@ -160,7 +160,7 @@ export const MessageBubble = ({
   swipeable = true,
 }: {
   handleLongPress: any;
-  handlePress: Function;
+  handlePress: (x: string) => void;
   message: LoadedMessage;
   selected: boolean;
   swipeable?: boolean;

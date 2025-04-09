@@ -165,7 +165,7 @@ const GroupMemberInfoBottomsheet = ({
     await wait(safeModalCloseDuration);
     const contact = await getContact(pairHash);
 
-    let chatId = await getChatIdFromPairHash(pairHash);
+    const chatId = await getChatIdFromPairHash(pairHash);
     let chatData: LineDataCombined | null = null;
     if (chatId) {
       const chat = new DirectChat(chatId);

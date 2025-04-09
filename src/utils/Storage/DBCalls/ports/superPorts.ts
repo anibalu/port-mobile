@@ -165,7 +165,7 @@ export async function getSuperportData(
  * @returns information associated with the superport
  */
 export async function getAllSuperports(): Promise<SuperportData[]> {
-  let matchingEntry: SuperportData[] = [];
+  const matchingEntry: SuperportData[] = [];
   await runSimpleQuery(
     `
     SELECT *

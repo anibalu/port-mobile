@@ -45,7 +45,7 @@ const MessageBubbleContent = ({
   handleLongPress: any;
   message: LoadedGroupMessage;
   swipeable?: boolean;
-  handlePress?: Function;
+  handlePress?: (x: string) => void;
 }): ReactNode => {
   const {setRichReactionMessage} = useSelectionContext();
   const Colors = DynamicColors();
@@ -174,7 +174,7 @@ export const MessageBubble = ({
   handleLongPress: any;
   message: LoadedGroupMessage;
   swipeable?: boolean;
-  handlePress?: Function;
+  handlePress?: (x: string) => void;
   selected: boolean;
 }): ReactNode => {
   const {selectionMode, selectedMessages} = useSelectionContext();

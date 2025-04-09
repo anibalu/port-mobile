@@ -16,8 +16,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import React, {FC} from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
-import {View} from 'react-native';
+import {StyleSheet, TouchableOpacity,View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';

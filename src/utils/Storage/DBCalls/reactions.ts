@@ -93,7 +93,7 @@ export async function getReactionsForMessage(
   chatId: string,
   messageId: string,
 ): Promise<[] | messageReaction[]> {
-  let reactions: messageReaction[] = [];
+  const reactions: messageReaction[] = [];
   await runSimpleQuery(
     `
     SELECT senderId, reaction

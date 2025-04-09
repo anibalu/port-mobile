@@ -17,8 +17,7 @@ import {
   getWeight,
 } from '@components/NumberlessText';
 import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
-import {View} from 'react-native';
+import {Pressable, StyleSheet,View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import DynamicColors from '@components/DynamicColors';

@@ -5,8 +5,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import * as storage from '@utils/Storage/groupMessages';
 import * as ReactionStorage from '@utils/Storage/reactions';
-import {getConnection} from '@utils/Storage/connections';
-import {updateConnection} from '@utils/Storage/connections';
+import {getConnection,updateConnection} from '@utils/Storage/connections';
 import {getChatPermissions} from '@utils/ChatPermissions';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {displaySimpleNotification} from '@utils/Notifications';

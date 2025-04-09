@@ -164,7 +164,7 @@ export async function getLatestMessages(
   chatId: string,
   limit: number = 50,
 ): Promise<LoadedMessage[]> {
-  let messageList: LoadedMessage[] = [];
+  const messageList: LoadedMessage[] = [];
   /**
    * We begin by getting the first <limit> most recent messages and alias
    * that to the table messages.
@@ -297,7 +297,7 @@ export async function updateSavedMessage(
 export async function getAllMessagesIdsInChat(
   chatId: string,
 ): Promise<string[]> {
-  let messages: string[] = [];
+  const messages: string[] = [];
   await runSimpleQuery(
     `
     SELECT messageId FROM lineMessages
@@ -306,7 +306,7 @@ export async function getAllMessagesIdsInChat(
     [chatId],
     (tx, results) => {
       for (let i = 0; i < results.rows.length; i++) {
-        let entry = results.rows.item(i).messageId;
+        const entry = results.rows.item(i).messageId;
         messages.push(entry);
       }
     },
@@ -341,7 +341,7 @@ export async function permanentlyDeleteMessage(
  * @returns all messages that haven't been sent
  */
 export async function getUnsent(): Promise<LineMessageData[]> {
-  let unsent: LineMessageData[] = [];
+  const unsent: LineMessageData[] = [];
   await runSimpleQuery(
     `
     SELECT * FROM lineMessages 
@@ -387,7 +387,7 @@ export async function deleteUnsent() {
 export async function getExpiredMessages(
   currentTimestamp: string,
 ): Promise<LineMessageData[]> {
-  let expired: LineMessageData[] = [];
+  const expired: LineMessageData[] = [];
   await runSimpleQuery(
     `
     SELECT * FROM lineMessages 

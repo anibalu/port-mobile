@@ -384,7 +384,7 @@ export async function getSuperportBundleClickableLink(
   bundleString: string | null = null,
 ) {
   const createdSuperport = await getCreatedSuperportData(portId);
-  let currentChannel = createdSuperport.channel;
+  const currentChannel = createdSuperport.channel;
   if (currentChannel) {
     const bundleId =
       currentChannel.substring(0, 7) === 'link://'

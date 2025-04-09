@@ -110,7 +110,7 @@ class CryptoDriver {
   }
   public async updateSharedSecret(peerPublicKey: string) {
     this.cryptoData = await this.loadKeys();
-    const sharedSecret = await x25519.deriveSharedSecret(
+    const sharedSecret = x25519.deriveSharedSecret(
       this.cryptoData.privateKey,
       peerPublicKey,
     );
@@ -162,7 +162,7 @@ class CryptoDriver {
   public async encrypt(plaintext: string): Promise<string> {
     this.cryptoData = await this.loadKeys();
     if (this.cryptoData && this.cryptoData.sharedSecret) {
-      return await x25519.encrypt(plaintext, this.cryptoData.sharedSecret);
+      return x25519.encrypt(plaintext, this.cryptoData.sharedSecret);
     }
     throw new Error('NoSharedSecret');
   }
@@ -174,7 +174,7 @@ class CryptoDriver {
   public async decrypt(ciphertext: string): Promise<string> {
     this.cryptoData = await this.loadKeys();
     if (this.cryptoData && this.cryptoData.sharedSecret) {
-      return await x25519.decrypt(ciphertext, this.cryptoData.sharedSecret);
+      return x25519.decrypt(ciphertext, this.cryptoData.sharedSecret);
     }
     throw new Error('NoSharedSecret');
   }

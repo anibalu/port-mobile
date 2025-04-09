@@ -3,7 +3,7 @@ import BackgroundFetch from 'react-native-background-fetch';
 
 export async function initBackgroundFetch() {
   // Initialize BackgroundFetch only once when component mounts.
-  let status = await BackgroundFetch.configure(
+  const status = await BackgroundFetch.configure(
     {minimumFetchInterval: 15},
     allottedBackgroundTime,
     onTimeout,

@@ -187,7 +187,7 @@ export const ChatContextProvider = ({
         break;
       }
     }
-    let showGlobalDelete = isDeleted ? !isDeleted : senderExists;
+    const showGlobalDelete = isDeleted ? !isDeleted : senderExists;
     setShowDeleteForEveryone(showGlobalDelete);
     setOpenDeleteMessageModal(true);
     return senderExists; // Return whether to show delete for everyone or not
@@ -300,7 +300,7 @@ export const ChatContextProvider = ({
       setIsEmojiSelectorVisible(p => !p);
     }
     // removes messageId from selected messages on short press
-    let isSelectionMode = selectionMode ? true : false;
+    const isSelectionMode = selectionMode ? true : false;
     if (selectedMessages.includes(messageId)) {
       const newSelection = selectedMessages.filter(
         selectedMessageId => selectedMessageId !== messageId,

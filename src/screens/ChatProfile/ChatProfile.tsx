@@ -468,7 +468,11 @@ const ChatProfile = ({route, navigation}: Props) => {
           visible={confirmBlockUserSheet}
           onClose={() => setConfirmBlockUserSheet(false)}
           onConfirm={async () => {
-            isBlocked ? await unblockUser() : await blockUser();
+            if (isBlocked) {
+              await unblockUser();
+            } else {
+              await blockUser();
+            }
           }}
           title={
             isBlocked

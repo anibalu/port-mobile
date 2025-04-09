@@ -64,10 +64,10 @@ const EditName = ({
 
   const onSavePress = () => {
     const trimmedName = newName.trim();
-    setName && setName(trimmedName);
-    onSave && onSave(trimmedName);
+    setName?.(trimmedName);
+    onSave?.(trimmedName);
     Keyboard.dismiss();
-    onClose && onClose();
+    onClose?.();
   };
 
   const Colors = DynamicColors();

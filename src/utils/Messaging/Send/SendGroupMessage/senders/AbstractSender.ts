@@ -1,4 +1,3 @@
-import {multiEncryptWithX25519SharedSecrets} from '@numberless/react-native-numberless-crypto';
 import store from '@store/appStore';
 import Group from '@utils/Groups/Group';
 import {generateRandomHexId} from '@utils/IdGenerator';
@@ -11,6 +10,7 @@ import {
 } from '@utils/Messaging/interfaces';
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
 import {generateISOTimeStamp} from '@utils/Time';
+import NativeCryptoModule from 'src/specs/NativeCryptoModule';
 
 /**
  * Content types that should trigger push notifications.
@@ -129,15 +129,35 @@ export abstract class SendGroupMessage<T extends ContentType> {
       const recipientPair = memberAndKeyPairs.filter(
         item => item[0] === this.savedMessage.singleRecepient,
       );
-      return await multiEncryptWithX25519SharedSecrets(
-        plaintext,
-        recipientPair,
-      );
+      return this.multiEncryptWithX25519SharedSecrets(plaintext, recipientPair);
     }
-    return await multiEncryptWithX25519SharedSecrets(
+    return await this.multiEncryptWithX25519SharedSecrets(
       plaintext,
       memberAndKeyPairs,
     );
+  }
+
+  /**
+   * @todo move this out of here. Not very clean to make this an instance method.
+   * Encrypt a secret with multiple different keys
+   * @param plaintext string to encrypt
+   * @param taggedSecrets list of (tag, secret) pairs
+   */
+  multiEncryptWithX25519SharedSecrets(
+    plaintext: string,
+    taggedSecrets: string[][],
+  ) {
+    const results: any = {};
+    let tag: string;
+    let secret: string;
+    for (let i = 0; i < taggedSecrets.length; i++) {
+      tag = taggedSecrets[i][0];
+      secret = taggedSecrets[i][1];
+      results[tag] = {
+        encryptedContent: NativeCryptoModule.aes256Encrypt(plaintext, secret),
+      };
+    }
+    return results;
   }
   /**
    * Checks if the notification silencing flag needs to be added when payload is sent

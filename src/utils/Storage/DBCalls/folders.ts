@@ -95,7 +95,7 @@ export async function getConnectionsCountForFolder(folderId: string) {
  * @returns - list of folders
  */
 export async function getAllFolders(): Promise<FolderInfo[]> {
-  let matches: FolderInfo[] = [];
+  const matches: FolderInfo[] = [];
   await runSimpleQuery(
     `
     SELECT *
@@ -146,7 +146,7 @@ export async function deleteFolder(folderId: string) {
 }
 
 export async function getFavouriteFolders() {
-  let matches: FolderInfo[] = [];
+  const matches: FolderInfo[] = [];
   await runSimpleQuery(
     `
     SELECT *

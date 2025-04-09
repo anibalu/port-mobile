@@ -146,15 +146,15 @@ const EmojiSelector: React.FC<EmojiSelectorProps> = ({
   };
 
   const addToHistoryAsync = async (emoji: Emoji) => {
-    let historyData = await AsyncStorage.getItem(storage_key);
+    const historyData = await AsyncStorage.getItem(storage_key);
 
     let value = [];
     if (!historyData) {
-      let record = {...emoji, count: 1};
+      const record = {...emoji, count: 1};
       value.push(record);
     } else {
-      let json = JSON.parse(historyData);
-      let existingIndex = json.findIndex(
+      const json = JSON.parse(historyData);
+      const existingIndex = json.findIndex(
         (r: Emoji) => r.unified === emoji.unified,
       );
       if (existingIndex !== -1) {
@@ -162,7 +162,7 @@ const EmojiSelector: React.FC<EmojiSelectorProps> = ({
         json.splice(existingIndex, 1);
       }
       // Add the emoji to the beginning of the history array
-      let record = {...emoji, count: 1};
+      const record = {...emoji, count: 1};
       value = [record, ...json];
     }
 
@@ -171,15 +171,15 @@ const EmojiSelector: React.FC<EmojiSelectorProps> = ({
   };
 
   const loadHistoryAsync = async () => {
-    let result = await AsyncStorage.getItem(storage_key);
+    const result = await AsyncStorage.getItem(storage_key);
     if (result) {
-      let historyData = JSON.parse(result);
+      const historyData = JSON.parse(result);
       setHistory(historyData);
     }
   };
 
   const returnSectionData = () => {
-    let emojiData = (() => {
+    const emojiData = (() => {
       if (category === Categories.all && searchQuery === '') {
         let largeList: Emoji[] = [];
         categoryKeys.forEach(c => {
@@ -229,9 +229,9 @@ const EmojiSelector: React.FC<EmojiSelectorProps> = ({
   }
 
   const prerenderEmojis = () => {
-    let emojis: {[key: string]: Emoji[]} = {};
+    const emojis: {[key: string]: Emoji[]} = {};
     categoryKeys.forEach(c => {
-      let name = Categories[c].name;
+      const name = Categories[c].name;
       emojis[name] = sortEmoji(emojiByCategory(name));
     });
 

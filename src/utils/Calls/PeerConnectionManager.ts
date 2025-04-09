@@ -373,7 +373,7 @@ export class PeerConnectionManager {
           console.error('new candidate failed: ', e);
         }
         break;
-      case 'webrtc_offer':
+      case 'webrtc_offer': {
         // We are the person who got called, and have received an offer to start a peer
         // connection from the person who called us. Wow...
 
@@ -381,7 +381,10 @@ export class PeerConnectionManager {
         // peer can see/hear us
         try {
           this.addMyMediaStreamsToPeer();
-        } catch (e) {}
+        } catch (e) {
+          // Don't have a clean way to handle this
+          console.error('[PEER CONNECTION] could not add my stream to peer connection')
+        }
 
         // Accept the offer, if possible
         const offerDescription = new RTCSessionDescription(workItem.info);
@@ -401,6 +404,7 @@ export class PeerConnectionManager {
         };
         this.dispatchWorkItem({target: 'signaller', item: acceptanceMessage});
         break;
+      }
       case 'data_channel':
         this.dataChannel = workItem.info;
         this.callEventListener = createCallEventListener(this.dispatchWorkItem);

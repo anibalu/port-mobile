@@ -16,8 +16,8 @@ type ModalContextType = {
   audio: string | null;
   duration: any;
   onStartPlay: (
-    setProgress: Function,
-    setPlayTime: Function,
+    setProgress: (x: number) => void,
+    setPlayTime: (x: string) => void,
     fileUri?: string,
   ) => void;
   onStartRecord: () => void;
@@ -138,7 +138,7 @@ export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
 
   // util to convert duration of milliseconds to MM:SS
   function convertToMMSS(inputString: string) {
-    let parts = inputString.split(':');
+    const parts = inputString.split(':');
 
     let minutes = parseInt(parts[0]);
     let seconds = parseInt(parts[1]);
@@ -146,7 +146,7 @@ export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
     minutes += Math.floor(seconds / 60);
     seconds %= 60;
 
-    let formattedString =
+    const formattedString =
       (minutes < 10 ? '0' : '') +
       minutes +
       ':' +
@@ -157,7 +157,9 @@ export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
   }
 
   // sets the audio that is currently being played
-  const [currentlyPlaying, setCurrentlyPlaying] = useState(undefined);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | undefined>(
+    undefined,
+  );
 
   // util to start playing any audio
   // first it stops any previous instance of a player
@@ -165,8 +167,8 @@ export const AudioPlayerProvider: React.FC<ModalProviderProps> = ({
   // otherwise it plays the local audio file ex in message bar
 
   const onStartPlay = async (
-    setProgress: any,
-    setPlayTime: any,
+    setProgress: (x: number) => void,
+    setPlayTime: (x: string) => void,
     fileUri?: string,
   ) => {
     await onStopPlayer();

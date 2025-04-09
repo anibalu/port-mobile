@@ -11,9 +11,7 @@ import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import React, {useEffect} from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
-import DocumentPicker, {
-  DocumentPickerResponse,
-} from 'react-native-document-picker';
+import * as DocumentPicker from '@react-native-documents/picker';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import Animated, {
   Easing,
@@ -164,7 +162,7 @@ const PopUpActions = ({
   const onFilePressed = async (): Promise<void> => {
     try {
       // open files
-      const selected: DocumentPickerResponse[] = await DocumentPicker.pick({
+      const selected: DocumentPicker.DocumentPickerResponse[] = await DocumentPicker.pick({
         type: [
           DocumentPicker.types.audio,
           DocumentPicker.types.csv,

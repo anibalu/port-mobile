@@ -6,7 +6,7 @@ import {
   FILE_ENCRYPTION_KEY_LENGTH,
   SHARED_FILE_SIZE_LIMIT_IN_BYTES,
 } from '@configs/constants';
-import * as numberlessCrypto from '@numberless/react-native-numberless-crypto';
+import NativeCryptoModule from 'src/specs/NativeCryptoModule';
 
 /**
  * Creates a conversations directory if it doesn't exist and returns the path to it.
@@ -229,7 +229,7 @@ export async function encryptFile(
 ): Promise<EncryptedFileProperties> {
   const encryptedFilePath = await initialiseEncryptedTempFile();
   try {
-    const key = await numberlessCrypto.encryptFile(
+    const key = await NativeCryptoModule.aes256FileEncrypt(
       removeFilePrefix(inputFilePath),
       encryptedFilePath,
     );
@@ -258,14 +258,11 @@ export async function decryptFile(
   try {
     await RNFS.writeFile(decryptedFilePath, '');
     console.log('initial file created');
-    const response = await numberlessCrypto.decryptFile(
+    await NativeCryptoModule.aes256FileDecrypt(
       encryptedFilePath,
       decryptedFilePath,
       key,
     );
-    if (response !== 'success') {
-      throw new Error(response);
-    }
   } catch (error) {
     await RNFS.unlink(decryptedFilePath);
     console.log('Error decrypting file: ', error);
@@ -372,7 +369,7 @@ export async function downloadImageToMediaDir(
   try {
     await downloadFile(fromUrl, destinationPath);
     return getRelativeURI(destinationPath);
-  } catch (error) {
+  } catch {
     //if download fails, return null.
     return null;
   }

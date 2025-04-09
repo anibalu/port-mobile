@@ -1,6 +1,5 @@
 import * as dbCalls from './DBCalls/ports/superPorts';
-import {SuperportData} from './DBCalls/ports/superPorts';
-import {SuperportDataUpdate} from './DBCalls/ports/superPorts';
+import {SuperportData,SuperportDataUpdate} from './DBCalls/ports/superPorts';
 /**
  * Create a new super port entry
  * Add a new super port to the list

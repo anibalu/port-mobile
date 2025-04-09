@@ -13,8 +13,7 @@ import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
 import RNReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import {DEFAULT_AVATAR} from '@configs/constants';
 import {useNavigation} from '@react-navigation/native';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+import {ChatType, ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {ContentType} from '@utils/Messaging/interfaces';
 import React, {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -148,7 +147,6 @@ function ChatTile(initialProps: CompleteChatTileProps): ReactNode {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.selectionMode]);
 
-  const moveAnim = useRef(new Animated.Value(0)).current; // Starts from position 0
   const swipableRef = useRef(null);
 
   const renderLeftActions = () => {
@@ -340,14 +338,7 @@ function ChatTile(initialProps: CompleteChatTileProps): ReactNode {
         renderLeftActions={renderLeftActions}
         renderRightActions={renderRightActions}>
         <Animated.View
-          style={
-            true
-              ? {...styles.container, justifyContent: 'flex-end'}
-              : [
-                  {...styles.container, justifyContent: 'flex-start'},
-                  {transform: [{translateX: moveAnim}]},
-                ]
-          }>
+          style={{...styles.container, justifyContent: 'flex-end'}}>
           <View style={styles.container}>
             {props.selectionMode && (
               <Pressable

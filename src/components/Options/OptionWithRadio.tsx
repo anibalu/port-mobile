@@ -4,8 +4,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import React from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
-import {View} from 'react-native';
+import {StyleSheet, TouchableOpacity,View} from 'react-native';
 import {useColors} from '@components/colorGuide';
 import useSVG from '@components/svgGuide';
 import {Spacing} from '@components/spacingGuide';

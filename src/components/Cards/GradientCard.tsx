@@ -1,8 +1,7 @@
 import {useColors} from '@components/colorGuide';
 import {Spacing} from '@components/spacingGuide';
 import React from 'react';
-import {StyleSheet} from 'react-native';
-import {View} from 'react-native';
+import {StyleSheet,View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 /**

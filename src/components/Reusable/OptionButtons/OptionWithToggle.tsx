@@ -16,8 +16,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import React, {FC} from 'react';
-import {StyleSheet} from 'react-native';
-import {View} from 'react-native';
+import {StyleSheet,View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import ToggleSwitch from 'toggle-switch-react-native';
 

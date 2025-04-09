@@ -50,7 +50,7 @@ export async function getUpdateStatusKeyFromLocal() {
     } else {
       return null;
     }
-  } catch (error) {
+  } catch {
     return null;
   }
 }

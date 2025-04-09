@@ -23,8 +23,8 @@ const RenderText = ({
 }) => {
   const Colors = DynamicColors();
 
-  let text = newMessage?.text;
-  let italic = false;
+  const text = newMessage?.text;
+  const italic = false;
 
   return (
     <View style={{flexDirection: 'row', flex: 1}}>

@@ -4,8 +4,7 @@ import React, {ReactElement, useEffect, useState} from 'react';
 import ContactCard from './ContactCard';
 import {FlatList, View} from 'react-native';
 import {useSelector} from 'react-redux';
-import {PendingCardInfo} from '@utils/Ports';
-import {getPendingRequests, numberOfPendingRequests} from '@utils/Ports';
+import {PendingCardInfo,getPendingRequests, numberOfPendingRequests} from '@utils/Ports';
 import {
   FontSizeType,
   FontType,

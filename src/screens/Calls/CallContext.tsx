@@ -78,7 +78,7 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
         initiatedVideoCall: action.initiatedVideoCall,
         callState: 'outgoing',
       };
-    case 'incoming_call':
+    case 'incoming_call': {
       if (state) {
         // We're already handling an incoming/ongoing call
         return state;
@@ -103,6 +103,7 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
         callState: 'unanswered',
         abortController,
       };
+    }
     case 'answer_call':
       if (!state || state.callState !== 'unanswered') {
         // Can't answer the current ongoing call, if any

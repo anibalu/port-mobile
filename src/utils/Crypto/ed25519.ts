@@ -1,12 +1,9 @@
-import {
-  generateEd25519Keys,
-  signMessageEd25519,
-} from '@numberless/react-native-numberless-crypto';
+import NativeCryptoModule from 'src/specs/NativeCryptoModule';
 
-export async function generateKeys() {
-  return await generateEd25519Keys();
+export function generateKeys() {
+  return JSON.parse(NativeCryptoModule.generateEd25519Keypair());
 }
 
-export async function signMessage(message: string, privateKey: string) {
-  return await signMessageEd25519(message, privateKey);
+export function signMessage(message: string, privateKey: string) {
+  return NativeCryptoModule.ed25519SignMessage(message, privateKey);
 }

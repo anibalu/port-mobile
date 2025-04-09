@@ -66,7 +66,7 @@ export interface RichReaction extends DBCalls.reaction {
 export async function getRichReactions(
   chatId: string,
   messageId: string,
-  line: Boolean = true,
+  line: boolean = true,
 ): Promise<RichReaction[]> {
   const self_name = 'You';
   if (line) {

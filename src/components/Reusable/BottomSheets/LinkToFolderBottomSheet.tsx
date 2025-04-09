@@ -64,7 +64,7 @@ const LinkToFolderBottomSheet = ({
     if (portId) {
       try {
         await updateGeneratedSuperportFolder(portId, item.folderId);
-        setSelectedFolderData && setSelectedFolderData(item);
+        setSelectedFolderData?.(item);
       } catch {
         showToast(
           'Error updating chosen folder. Please check your internet connection and try again!',
@@ -72,7 +72,7 @@ const LinkToFolderBottomSheet = ({
         );
       }
     } else {
-      setSelectedFolderData && setSelectedFolderData(item);
+      setSelectedFolderData?.(item);
     }
     onClose();
   };

@@ -297,7 +297,7 @@ export async function loadLimitedConnectionsInFolder(
  * @returns chats with focus permission turned on
  */
 export async function loadConnectionsInFocus() {
-  let connections: ConnectionInfo[] = [];
+  const connections: ConnectionInfo[] = [];
   await runSimpleQuery(
     `SELECT 
       connection.chatId as chatId,

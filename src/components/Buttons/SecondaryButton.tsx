@@ -1,6 +1,5 @@
 import {useThemeColors} from '@components/colorGuide';
-import {FontWeight, NumberlessText} from '@components/NumberlessText';
-import {FontSizeType} from '@components/NumberlessText';
+import {FontWeight, NumberlessText,FontSizeType} from '@components/NumberlessText';
 import {Spacing, Size} from '@components/spacingGuide';
 import React, {FC} from 'react';
 import {

@@ -18,7 +18,7 @@ export async function saveTheme(value: ThemeType) {
   try {
     await AsyncStorage.setItem(THEME, value);
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -36,7 +36,7 @@ export async function getTheme(): Promise<ThemeType> {
       await saveTheme(ThemeType.default);
       return ThemeType.default;
     }
-  } catch (error) {
+  } catch {
     return ThemeType.default;
   }
 }

@@ -14,8 +14,7 @@ import {
 } from '@components/NumberlessText';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import React from 'react';
-import {ReactNode} from 'react';
+import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Failure from '@assets/icons/statusIndicators/failure.svg';
 import {default as Journaled} from '@assets/icons/statusIndicators/sending.svg';

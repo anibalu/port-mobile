@@ -6,8 +6,8 @@ import {
   getChatIdFromPairHash,
   getChatIdFromRoutingId,
   updateConnectionOnNewMessage,
+  addConnection,
 } from '@utils/Storage/connections';
-import {addConnection} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {generateISOTimeStamp} from '@utils/Time';

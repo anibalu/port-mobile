@@ -4,8 +4,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import {cleanDeletePort} from '@utils/Ports';
-import {PendingCardInfo} from '@utils/Ports';
+import {cleanDeletePort,PendingCardInfo} from '@utils/Ports';
 import {PortTable} from '@utils/Storage/DBCalls/ports/interfaces';
 import {formatTimeAgo} from '@utils/Time';
 import React, {useState} from 'react';

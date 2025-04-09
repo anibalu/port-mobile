@@ -1,4 +1,4 @@
-import {hashSHA256} from '@numberless/react-native-numberless-crypto';
+import NativeCryptoModule from 'src/specs/NativeCryptoModule';
 
 /**
  * hashes a given string using sha 256
@@ -6,6 +6,6 @@ import {hashSHA256} from '@numberless/react-native-numberless-crypto';
  * @returns 64 character hex encoded hash
  */
 
-export async function hash(toHash: string) {
-  return await hashSHA256(toHash);
+export function hash(toHash: string) {
+  return  NativeCryptoModule.hashSHA256(toHash);
 }

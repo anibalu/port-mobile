@@ -114,12 +114,11 @@ export default class Signaller {
    */
   processMessage(signallingWorkItem: SignallingWorkItem) {
     switch (signallingWorkItem.type) {
-      case 'signal':
-        if (!signallingWorkItem.message.message) {
-        }
+      case 'signal': {
         const payload = JSON.stringify(signallingWorkItem.message);
         this.socket.send(payload);
         break;
+      }
       default:
         console.warn(
           '[SIGNALLING] unhandled work item type, ',

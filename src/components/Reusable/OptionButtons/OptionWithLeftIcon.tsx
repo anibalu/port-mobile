@@ -10,8 +10,7 @@
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
 import {FontSizeType, FontType, getWeight} from '@components/NumberlessText';
 import React, {FC} from 'react';
-import {StyleSheet, Text, TouchableOpacity} from 'react-native';
-import {View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity,View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 
 const OptionWithLeftIcon = ({

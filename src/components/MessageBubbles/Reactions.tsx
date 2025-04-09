@@ -131,7 +131,7 @@ export const RenderReactionBar = () => {
             if (!selfReaction || reactionMapping.includes(selfReaction)) {
               setIsEmojiSelectorVisible(true);
             } else {
-              message && onReaction(message, selfReaction);
+              onReaction(message, selfReaction);
             }
           }}>
           {!selfReaction || reactionMapping.includes(selfReaction) ? (
@@ -161,7 +161,7 @@ export function RenderReactions({
   showReactionRibbon = () => {},
 }: {
   reactions: any[];
-  showReactionRibbon?: Function;
+  showReactionRibbon?: (x: boolean) => void;
 }) {
   const Colors = DynamicColors();
   const styles = styling(Colors);

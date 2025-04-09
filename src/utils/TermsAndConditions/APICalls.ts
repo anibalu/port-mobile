@@ -14,7 +14,7 @@ export async function getTermsAndConditions(): Promise<any> {
       headers: {Authorization: `${token}`},
     });
     return response.data;
-  } catch (error) {
+  } catch {
     console.error('error: failed to fetch T&C update');
     return null;
   }

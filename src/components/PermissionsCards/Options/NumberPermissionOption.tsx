@@ -4,8 +4,7 @@ import {
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {StyleSheet, TouchableOpacity} from 'react-native';
-import {View} from 'react-native';
+import {StyleSheet, TouchableOpacity,View} from 'react-native';
 import {Height, Size, Spacing} from '@components/spacingGuide';
 import {useThemeColors} from '@components/colorGuide';
 import {PermissionConfig} from '@components/getPermissionIcon';

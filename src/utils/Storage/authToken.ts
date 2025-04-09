@@ -1,5 +1,4 @@
-import {SavedServerAuthToken} from './RNSecure/secureTokenHandler';
-import {
+import {SavedServerAuthToken,
   getTokenInfoRNSS,
   saveTokenInfoRNSS,
 } from './RNSecure/secureTokenHandler';

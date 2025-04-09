@@ -28,7 +28,7 @@ export function getTimeStamp(ISOTime: string | undefined): string {
       .replace(/\bam\b/i, 'AM')
       .replace(/\bpm\b/i, 'PM');
     return formattedTime;
-  } catch (error) {
+  } catch {
     return '';
   }
 }
@@ -152,7 +152,7 @@ export function getReadableTimestamp(
       .replace(/\bam\b/i, 'AM')
       .replace(/\bpm\b/i, 'PM');
     return formattedTime;
-  } catch (error) {
+  } catch {
     return '';
   }
 }
@@ -340,7 +340,7 @@ export function getExpiryTag(expiryTimestamp?: string | null): string {
       const expiryTime = new Date(expiryTimestamp);
       const timeDifference = expiryTime.getTime() - currentTime.getTime();
       return formatTimeUntilExpiry(timeDifference);
-    } catch (error) {
+    } catch {
       return 'unknown expiry';
     }
   }
@@ -405,7 +405,7 @@ export function formatDuration(milliseconds: number): string {
   let seconds = Math.floor(milliseconds / 1000);
 
   // Calculate minutes
-  let minutes = Math.floor(seconds / 60);
+  const minutes = Math.floor(seconds / 60);
 
   // Calculate remaining seconds
   seconds = seconds % 60;

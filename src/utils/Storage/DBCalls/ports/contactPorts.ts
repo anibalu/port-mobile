@@ -250,7 +250,7 @@ export async function getContactPortData(
 export async function getAllContactPorts(): Promise<
   (ContactPortData | AcceptedContactPortData)[]
 > {
-  let matches: (ContactPortData | AcceptedContactPortData)[] = [];
+  const matches: (ContactPortData | AcceptedContactPortData)[] = [];
   await runSimpleQuery(
     `
       SELECT *
@@ -405,7 +405,7 @@ export async function deleteContactPortData(portId: string) {
 export async function deleteContactPortsAssociatedWithContact(
   pairHash: string,
 ) {
-  let matches: ContactPortData[] = [];
+  const matches: ContactPortData[] = [];
   await runSimpleQuery(
     `
       SELECT *

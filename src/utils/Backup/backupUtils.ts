@@ -1,6 +1,5 @@
 import {isIOS} from '@components/ComponentUtils';
-import {addConnection} from '@utils/Storage/connections';
-import {getConnections} from '@utils/Storage/connections';
+import {addConnection, getConnections} from '@utils/Storage/connections';
 import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
 import {fetchNewPorts} from '@utils/Ports';
 import {updateBackupTime} from '@utils/Profile';
@@ -8,19 +7,14 @@ import {ProfileInfo} from '@utils/Storage/RNSecure/secureProfileHandler';
 import {addLine, getLines} from '@utils/Storage/lines';
 import {generateISOTimeStamp} from '@utils/Time';
 import Papa from 'papaparse';
-import DocumentPicker, {
-  DocumentPickerResponse,
-} from 'react-native-document-picker';
+import * as DocumentPicker from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
-import {addCryptoEntry} from '../Storage/crypto';
-import {addPermissionEntry} from '../Storage/permissions';
-import {getAllCryptoData} from '../Storage/crypto';
-import {getAllPermissions} from '../Storage/permissions';
+import {addCryptoEntry, getAllCryptoData} from '../Storage/crypto';
+import {addPermissionEntry, getAllPermissions} from '../Storage/permissions';
 import {getProfileInfo, saveProfileInfo} from '../Storage/profile';
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {addFolderEntry} from '@utils/Storage/folders';
-import {getAllFolders} from '@utils/Storage/folders';
+import {addFolderEntry, getAllFolders} from '@utils/Storage/folders';
 import {blockUser, getAllBlockedUsers} from '@utils/Storage/blockUsers';
 import {addSuperport, getAllSuperports} from '@utils/Storage/superPorts';
 import {addContact, getContacts} from '@utils/Storage/contacts';
@@ -311,22 +305,23 @@ async function populateTable(tableName: tableOpt, tableCSV: string) {
  * @returns
  */
 export async function readSecureDataBackup(
-  onSuccess: Function,
-  onFailure: Function,
+  onSuccess: () => any,
+  onFailure: () => any,
 ) {
   try {
-    const selections: DocumentPickerResponse[] = await DocumentPicker.pick({
-      type: [DocumentPicker.types.plainText],
-      //We need to copy documents to a directory locally before sharing on newer Android.
-      ...(!isIOS && {copyTo: 'cachesDirectory'}),
-    });
+    const selections: DocumentPicker.DocumentPickerResponse[] =
+      await DocumentPicker.pick({
+        type: [DocumentPicker.types.plainText],
+        //We need to copy documents to a directory locally before sharing on newer Android.
+        ...(!isIOS && {copyTo: 'cachesDirectory'}),
+      });
     const selected = selections[0];
     if (!selected) {
       console.warn('[BACKUP] no file selected');
       onFailure();
       return;
     }
-    var path = selected.fileCopyUri ? selected.fileCopyUri : selected.uri;
+    const path = selected.fileCopyUri ? selected.fileCopyUri : selected.uri;
 
     let backup: string | null;
     try {

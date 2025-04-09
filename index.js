@@ -2,13 +2,11 @@
  * @format
  */
 
-import {AppRegistry} from 'react-native';
+import {AppRegistry,Text, TextInput,LogBox} from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
 import {registerBackgroundMessaging} from './src/utils/Messaging/PushNotifications/fcm';
-import {Text, TextInput} from 'react-native';
 import {initBackgroundFetch} from '@utils/BackgroundOperations/backgroundFetch';
-import {LogBox} from 'react-native';
 import {DEMO_MODE} from '@env';
 
 if (DEMO_MODE === 'true') {

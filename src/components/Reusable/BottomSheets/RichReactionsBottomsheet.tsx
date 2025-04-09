@@ -130,9 +130,7 @@ const RichReactionsBottomsheet = ({
               </NumberlessText>
             )}
           </View>
-          <NumberlessText
-            fontSizeType={FontSizeType.exs}
-            fontType={FontType.rg}>
+          <NumberlessText fontSizeType={FontSizeType.xl} fontType={FontType.rg}>
             {item.reaction}
           </NumberlessText>
         </View>
@@ -176,7 +174,7 @@ const RichReactionsBottomsheet = ({
         <NumberlessText
           textColor={Colors.text.primary}
           fontSizeType={
-            item.reaction === 'All' ? FontSizeType.l : FontSizeType.exs
+            item.reaction === 'All' ? FontSizeType.l : FontSizeType.xl
           }
           fontType={FontType.rg}>
           {item.reaction}

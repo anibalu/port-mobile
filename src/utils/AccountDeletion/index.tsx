@@ -45,10 +45,6 @@ export default async function permanentlyDeleteAccount() {
   } catch (e) {
     console.error('[ACCOUNT DELETION] Could not clear async storage', e);
   }
-  try {
-  } catch (e) {
-    console.error('[ACCOUNT DELETION] Could not clear sqlite storage', e);
-  }
   // Clear RNSS
   try {
     await clearRNSS();
@@ -61,7 +57,7 @@ export default async function permanentlyDeleteAccount() {
     console.warn('Final step');
     resetDatabase();
   } catch (e) {
-    console.error('[ACCOUNT DELETION] Could not clear RNSS', e);
+    console.error('[ACCOUNT DELETION] Could not reset the database', e);
   }
 }
 

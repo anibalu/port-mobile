@@ -14,7 +14,7 @@ import {SaveButton} from './SaveButton';
 import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
 
 interface updateNameProps {
-  setUpdated: Function;
+  setUpdated: (x: boolean) => void;
   initialName: string;
   chatId?: string;
 }

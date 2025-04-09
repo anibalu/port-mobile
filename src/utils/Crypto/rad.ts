@@ -1,4 +1,4 @@
-import {rad, rad16} from '@numberless/react-native-numberless-crypto';
+import NativeCryptoModule from 'src/specs/NativeCryptoModule';
 
 /**
  * generates random string of desired byte size
@@ -6,7 +6,7 @@ import {rad, rad16} from '@numberless/react-native-numberless-crypto';
  * @returns hex encoded rad of length = 2*length
  */
 export async function generateRad(length: number) {
-  const generatedRad = await rad(length);
+  const generatedRad = NativeCryptoModule.randHex(length);
   if (generatedRad === 'error') {
     throw new Error('Error in generating RAD');
   }
@@ -17,9 +17,5 @@ export async function generateRad(length: number) {
  * @returns 32 character hex encoded random string
  */
 export async function generateRad16() {
-  const generatedRad = await rad16();
-  if (generatedRad === 'error') {
-    throw new Error('Error in generating RAD16');
-  }
-  return generatedRad;
+  return generateRad(16);
 }

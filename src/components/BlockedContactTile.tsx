@@ -71,7 +71,11 @@ const BlockedContactTile = (user: BlockedContactProps) => {
         visible={confirmBlockUserSheet}
         onClose={() => setConfirmBlockUserSheet(false)}
         onConfirm={async () => {
-          isBlocked ? await unblockUserClicked() : await blockUserClicked();
+          if (isBlocked) {
+            await unblockUserClicked();
+          } else {
+            await blockUserClicked();
+          }
         }}
         title={
           isBlocked

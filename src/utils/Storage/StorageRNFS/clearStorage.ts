@@ -12,7 +12,7 @@ import RNFS from 'react-native-fs';
 export default async function clearAllFiles() {
   try {
     await emptyDirectory(RNFS.CachesDirectoryPath);
-  } catch (e) {
+  } catch {
     console.warn('Could not clear caches dir');
   }
   await emptyDirectory(RNFS.DocumentDirectoryPath);

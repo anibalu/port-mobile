@@ -11,7 +11,7 @@ export async function getProfileInfoRNSS(): Promise<ProfileInfo | undefined> {
   try {
     const session: any = await EncryptedStorage.getItem(sessionKey);
     return JSON.parse(session);
-  } catch (e) {
+  } catch {
     console.warn('Could not get profile from encrypted storage');
     return undefined;
   }

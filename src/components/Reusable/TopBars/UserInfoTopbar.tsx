@@ -17,8 +17,7 @@ import {
   getWeight,
 } from '@components/NumberlessText';
 import React, {FC} from 'react';
-import {Pressable, StyleSheet} from 'react-native';
-import {View} from 'react-native';
+import {Pressable, StyleSheet,View} from 'react-native';
 import {SvgProps} from 'react-native-svg';
 import {useNavigation} from '@react-navigation/native';
 import {AvatarBox} from '../AvatarBox/AvatarBox';

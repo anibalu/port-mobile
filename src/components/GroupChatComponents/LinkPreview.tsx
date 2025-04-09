@@ -4,8 +4,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
-import React, {useEffect, useMemo} from 'react';
-import {ReactNode} from 'react';
+import React, {useEffect, useMemo,ReactNode} from 'react';
 import {StyleSheet, View, Image, Animated, Easing} from 'react-native';
 import {GenericButton} from '@components/GenericButton';
 import DynamicColors from '@components/DynamicColors';

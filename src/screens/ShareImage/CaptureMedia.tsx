@@ -222,7 +222,7 @@ const CaptureMedia = ({navigation, route}: Props) => {
     //:${milliseconds.toString().padStart(3, '0')}`;
   };
 
-  let device = useCameraDevice(cameraPosition);
+  const device = useCameraDevice(cameraPosition);
   const Colors = DynamicColors();
 
   return (

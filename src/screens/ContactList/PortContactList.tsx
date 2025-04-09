@@ -138,7 +138,7 @@ const PortContactList = ({navigation}: Props) => {
     return (
       <Pressable
         onPress={async () => {
-          let chatId = await getChatIdFromPairHash(item.pairHash);
+          const chatId = await getChatIdFromPairHash(item.pairHash);
           let chatData: LineDataCombined | null = null;
           if (chatId) {
             const chat = new DirectChat(chatId);

@@ -6,8 +6,7 @@
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import React from 'react';
-import {StyleProp, StyleSheet, ViewStyle} from 'react-native';
-import {View} from 'react-native';
+import {StyleProp, StyleSheet, ViewStyle,View} from 'react-native';
 const SimpleCard = ({
   children,
   style,

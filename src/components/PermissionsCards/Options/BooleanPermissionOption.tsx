@@ -7,8 +7,7 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {Size, Height, Spacing} from '@components/spacingGuide';
-import {StyleSheet} from 'react-native';
-import {View} from 'react-native';
+import {StyleSheet,View} from 'react-native';
 import ToggleSwitch from 'toggle-switch-react-native';
 
 /**

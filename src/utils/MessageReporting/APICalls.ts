@@ -51,13 +51,13 @@ export async function sendMessageReport(
 export async function submitIllegalReport(
   report: GroupIllegalReport | LineIllegalReport,
   attachedFiles: Array<attachedFiles> | [],
-): Promise<String> {
+): Promise<string> {
   const formData = new FormData();
   Object.keys(report).forEach(key =>
     formData.append(key, report[key as keyof typeof report]),
   );
   if (attachedFiles.length) {
-    for (let file in attachedFiles) {
+    for (const file in attachedFiles) {
       formData.append('attached_files', attachedFiles[file]);
     }
   }

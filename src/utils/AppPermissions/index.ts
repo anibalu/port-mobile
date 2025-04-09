@@ -16,7 +16,7 @@ import notifee, {AuthorizationStatus} from '@notifee/react-native';
  */
 
 export const checkCameraPermission = async (
-  setIsCameraPermissionGranted: Function,
+  setIsCameraPermissionGranted: (x: boolean) => void,
 ) => {
   const requestCameraPermission = async (cameraPermission: Permission) => {
     const cameraPermissionStatus = await request(cameraPermission);

@@ -31,7 +31,6 @@ export enum FontSizeType {
   'm' = 14,
   's' = 12,
   'xs' = 10,
-  'exs' = 20, //e => emoji size
   'es' = 24,
   'esPlus' = 28,
   'em' = 36,
@@ -86,7 +85,7 @@ export const NumberlessLinkText: React.FC<
   const {connectOverURL} = useConnectionModal();
   const handleLinkPress = (url: string) => {
     const numberlessDomain = 'porting.me';
-    const match = url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
+    const match = url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i); // eslint-disable-line no-useless-escape
     const hostname = match ? match[1] : null;
     if (hostname && hostname.endsWith(numberlessDomain)) {
       connectOverURL({url});

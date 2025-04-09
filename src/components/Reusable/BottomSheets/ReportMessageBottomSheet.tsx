@@ -10,7 +10,6 @@ import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import * as storage from '@utils/Storage/blockUsers';
 import PrimaryButton from '../LongButtons/PrimaryButton';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import {wait} from '@utils/Time';
 import {sendMessageReport} from '@utils/MessageReporting/APICalls';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -27,6 +26,7 @@ import {useNavigation} from '@react-navigation/native';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import SecondaryButton from '../LongButtons/SecondaryButton';
 import LargeTextInput from '../Inputs/LargeTextInput';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 function ReportMessageBottomSheet({
   openModal,
@@ -62,8 +62,8 @@ function ReportMessageBottomSheet({
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
-  //this is incorrectly name "ReportSubmittedError". It is infact a success notification.
-  const {ReportSubmittedError} = useErrorModal();
+  const {showToast} = useToast();
+
   const [topButtonLoading, setTopButtonLoading] = useState<boolean>(false);
   const [text, setText] = useState<string>('');
   const reportMessage = async () => {
@@ -109,7 +109,7 @@ function ReportMessageBottomSheet({
       setTopButtonLoading(false);
       setSelectedMessages([]);
       await wait(safeModalCloseDuration);
-      ReportSubmittedError();
+      showToast('Report successfully submitted', ToastType.success);
     }
   };
 

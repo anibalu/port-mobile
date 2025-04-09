@@ -6,7 +6,6 @@ import {
   TextParams,
 } from '@utils/Messaging/interfaces';
 import React, {createContext, useState, useContext, useMemo} from 'react';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {getRichReactions} from '@utils/Storage/reactions';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
@@ -18,6 +17,7 @@ import {
   getLoadedGroupMessage,
 } from '@utils/Storage/groupMessages';
 import Group from '@utils/Groups/GroupClass';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 export interface SelectedMessageType {
   pageY: number;
@@ -140,8 +140,8 @@ export const ChatContextProvider = ({
   children: any;
 }) => {
   const navigation = useNavigation();
-  const {copyingMessageError, messageCopied, MessageAlreadyReportedError} =
-    useErrorModal();
+
+  const {showToast} = useToast();
 
   const [isConnected, setIsConnected] = useState(connected);
   const [reportedMessages, setReportedMessages] = useState<string[] | null>(
@@ -313,7 +313,7 @@ export const ChatContextProvider = ({
       //makes short press select a message if atleast one message is already selected.
       if (selectedMessages.length >= 1) {
         if (selectedMessages.length >= SELECTED_MESSAGES_LIMIT) {
-          copyingMessageError();
+          showToast('Cannot copy this message', ToastType.error);
         } else {
           setSelectedMessages([...selectedMessages, messageId]);
         }
@@ -363,7 +363,7 @@ export const ChatContextProvider = ({
       }
       console.log('copying: , ', copyString);
       Clipboard.setString(copyString);
-      messageCopied();
+      showToast('Copied!', ToastType.success);
     } catch (error) {
       console.log('Error copying messages', error);
     }
@@ -418,7 +418,7 @@ export const ChatContextProvider = ({
           reportedMessages.includes(selectedMessage?.message?.messageId);
 
     if (isReported) {
-      MessageAlreadyReportedError();
+      showToast('Message already reported!', ToastType.error);
       onCleanCloseFocus();
     } else {
       setShowReportModal(true);

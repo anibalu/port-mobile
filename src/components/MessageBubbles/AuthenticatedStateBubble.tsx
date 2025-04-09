@@ -10,9 +10,9 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import {RETRY_INTERVAL} from '@configs/constants';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 export const AuthenticatedStateBubble = (): ReactNode => {
   const {isAuthenticated, isConnected, chatId, name} = useChatContext();
@@ -65,8 +65,7 @@ const UnAuthenticatedStateBubble = ({
   const [showRetry, setShowRetry] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const {notifyUserOfConnectionError, unableToNotifyUserError} =
-    useErrorModal();
+  const {showToast} = useToast();
 
   useEffect(() => {
     // Calculate the retry time from the 'createdOn' time
@@ -82,10 +81,10 @@ const UnAuthenticatedStateBubble = ({
     if (lineId) {
       try {
         await API.retryDirectChatFromPort(lineId);
-        notifyUserOfConnectionError();
+        showToast('Notification sent to user', ToastType.success);
         setShowRetry(false);
       } catch (error) {
-        unableToNotifyUserError();
+        showToast('Error while notifying user', ToastType.error);
         console.error('Error while retrying:', error);
       }
     }

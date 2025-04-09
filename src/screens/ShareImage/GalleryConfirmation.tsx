@@ -43,7 +43,6 @@ import {
 import FileViewer from 'react-native-file-viewer';
 import Pdf from 'react-native-pdf';
 import Carousel from 'react-native-snap-carousel';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import useKeyboardVisibility from '../../utils/Hooks/useKeyboardVisibility';
 import Group from '@utils/Groups/Group';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
@@ -54,6 +53,7 @@ import {createPreview} from '@utils/ImageUtils';
 import DynamicColors from '@components/DynamicColors';
 import {DEFAULT_NAME} from '@configs/constants';
 import {isGroupChat} from '@utils/Storage/connections';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GalleryConfirmation'>;
 
@@ -76,7 +76,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const isKeyboardVisible = useKeyboardVisibility();
   const [userNameInDM, setUserNameInDM] = useState('');
-  const {compressionError, FileTooLarge} = useErrorModal();
+  const {showToast} = useToast();
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -98,7 +98,10 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         if (updatedItem.contentType === ContentType.video) {
           const compressedUri = await compressVideo(updatedItem.data.fileUri);
           if (!compressedUri) {
-            compressionError();
+            showToast(
+              'Error compressing media, your media will be sent as is.',
+              ToastType.error,
+            );
           }
           updatedItem.data = {
             ...updatedItem.data,
@@ -114,7 +117,10 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
         if (updatedItem.contentType === ContentType.image) {
           const compressedUri = await compressImage(updatedItem.data.fileUri);
           if (!compressedUri) {
-            compressionError();
+            showToast(
+              'Error compressing media, your media will be sent as is.',
+              ToastType.error,
+            );
           }
           updatedItem.data = {
             ...updatedItem.data,
@@ -330,7 +336,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
           try {
             await sender.send();
           } catch (error) {
-            FileTooLarge();
+            showToast('Your media was too large to share', ToastType.error);
           }
         }
       }

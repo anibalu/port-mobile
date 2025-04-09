@@ -15,12 +15,12 @@ import {RenderTimeStamp, handleDownload, handleRetry} from '../BubbleUtils';
 
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {
   GroupMessageData,
   LoadedGroupMessage,
 } from '@utils/Storage/DBCalls/groupMessage';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 const AudioBubble = ({
   message,
@@ -55,11 +55,14 @@ const AudioBubble = ({
 
   const durationTime = message?.data?.duration;
 
-  const {mediaDownloadError} = useErrorModal();
+  const {showToast} = useToast();
   const triggerDownload = async () => {
     setDownloading(true);
     await handleDownload(message.chatId, message.messageId, () =>
-      mediaDownloadError(),
+      showToast(
+        'Error downloading media, please try again later!',
+        ToastType.error,
+      ),
     );
     setDownloading(false);
   };

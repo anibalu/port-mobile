@@ -13,7 +13,6 @@ import {
   IMAGE_DIMENSIONS,
   handleRetry,
 } from '../BubbleUtils';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import {PortColors, PortSpacing} from '@components/ComponentUtils';
@@ -31,6 +30,7 @@ import {
   GroupMessageData,
   LoadedGroupMessage,
 } from '@utils/Storage/DBCalls/groupMessage';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 export const ImageBubble = ({
   message,
@@ -52,11 +52,14 @@ export const ImageBubble = ({
     setImageUri(message.filePath || message.data.fileUri || null);
   }, [message]);
 
-  const {mediaDownloadError} = useErrorModal();
+  const {showToast} = useToast();
   const triggerDownload = async () => {
     setStartedManualDownload(true);
     await handleDownload(message.chatId, message.messageId, () =>
-      mediaDownloadError(),
+      showToast(
+        'Error downloading media, please try again later!',
+        ToastType.error,
+      ),
     );
     setStartedManualDownload(false);
   };

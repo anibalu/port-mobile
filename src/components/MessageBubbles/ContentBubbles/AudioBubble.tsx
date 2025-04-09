@@ -19,8 +19,8 @@ import {
   LineMessageData,
   LoadedMessage,
 } from '@utils/Storage/DBCalls/lineMessage';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 const AudioBubble = ({
   message,
@@ -55,11 +55,14 @@ const AudioBubble = ({
 
   const durationTime = message?.data?.duration;
 
-  const {mediaDownloadError} = useErrorModal();
+  const {showToast} = useToast();
   const triggerDownload = async () => {
     setDownloading(true);
     await handleDownload(message.chatId, message.messageId, () =>
-      mediaDownloadError(),
+      showToast(
+        'Error downloading media, please try again later!',
+        ToastType.error,
+      ),
     );
     setDownloading(false);
   };

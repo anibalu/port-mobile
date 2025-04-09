@@ -17,7 +17,6 @@ import {
   foregroundMessageHandler,
 } from '@utils/Messaging/PushNotifications/fcm';
 
-import ErrorModal from '@components/Modals/ErrorModal';
 import {RootStack} from '@navigation/RootStack';
 import {checkProfileCreated} from '@utils/Profile';
 import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
@@ -30,7 +29,6 @@ import {
 import {AppState} from 'react-native';
 import {ThemeProvider} from 'src/context/ThemeContext';
 import {ToastProvider} from 'src/context/ToastContext';
-import {ErrorModalProvider} from 'src/context/ErrorModalContext';
 import Toast from '@components/Modals/Toast';
 import SoftUpdateInfoBlurView from '@components/Reusable/BlurView/SoftUpdateInfoBlurView';
 import HardUpdateInfoBlurView from '@components/Reusable/BlurView/HardUpdateInfoBlurView';
@@ -121,17 +119,14 @@ function App(): JSX.Element {
         <ThemeProvider>
           <UpdateStatusProvider>
             <SafeAreaProvider>
-              <ErrorModalProvider>
-                <ToastProvider>
-                  <NavigationContainer ref={rootNavigationRef}>
-                    <RootStack />
-                  </NavigationContainer>
-                  <Toast />
-                  <ErrorModal />
-                  <SoftUpdateInfoBlurView />
-                  <HardUpdateInfoBlurView />
-                </ToastProvider>
-              </ErrorModalProvider>
+              <ToastProvider>
+                <NavigationContainer ref={rootNavigationRef}>
+                  <RootStack />
+                </NavigationContainer>
+                <Toast />
+                <SoftUpdateInfoBlurView />
+                <HardUpdateInfoBlurView />
+              </ToastProvider>
             </SafeAreaProvider>
           </UpdateStatusProvider>
         </ThemeProvider>

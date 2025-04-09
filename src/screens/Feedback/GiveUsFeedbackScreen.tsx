@@ -19,18 +19,17 @@ import BlueCross from '@assets/icons/BlueCross.svg';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import {Asset, launchImageLibrary} from 'react-native-image-picker';
 import DeviceInfo from 'react-native-device-info';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import {submitBugReport} from '@utils/BugReporting/bug_reports';
 import DynamicColors from '@components/DynamicColors';
 import {useTheme} from 'src/context/ThemeContext';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 const GiveUsFeedbackScreen = () => {
   const navigation = useNavigation();
   const [text, setText] = useState('');
   const [images, setImages] = useState<(string | undefined)[]>([]);
   const [loading, setIsLoading] = useState(false);
-  const {shareFeedbackSucceess, shareFeedbackError} = useErrorModal();
-
+  const {showToast} = useToast();
   const openImageGallery = async () => {
     try {
       const response = await launchImageLibrary({
@@ -68,10 +67,13 @@ const GiveUsFeedbackScreen = () => {
       setIsLoading,
     );
     if (response) {
-      shareFeedbackSucceess();
+      showToast('Thanks for sharing your feedback.', ToastType.success);
       navigation.goBack();
     } else {
-      shareFeedbackError();
+      showToast(
+        'Network error while sending feedback. Please try again later',
+        ToastType.error,
+      );
     }
   };
   const removeImage = index => {

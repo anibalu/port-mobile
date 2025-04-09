@@ -17,7 +17,6 @@ import {Pressable, StyleSheet, View} from 'react-native';
 
 import {OpenGraphParser} from 'react-native-opengraph-kit';
 import LinkPreview from './LinkPreview';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import {useChatContext} from '@screens/GroupChat/ChatContext';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
@@ -35,6 +34,7 @@ import {
   GroupMessageBarActionsType,
   useMessageBarActionsContext,
 } from '@screens/GroupChat/ChatContexts/GroupMessageBarActions';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 const MessageBar = ({
   ifTemplateExists,
@@ -52,7 +52,7 @@ const MessageBar = ({
     setMessageToEdit,
     messageToEdit,
   } = useChatContext();
-  const {MessageDataTooBigError} = useErrorModal();
+  const {showToast} = useToast();
 
   const {messageBarAction, dispatchMessageBarAction} =
     useMessageBarActionsContext();
@@ -120,7 +120,7 @@ const MessageBar = ({
         setMessageToEdit(null);
         setText('');
       } catch (error) {
-        MessageDataTooBigError();
+        showToast('Your message was too long', ToastType.error);
       }
     }
   };
@@ -143,7 +143,7 @@ const MessageBar = ({
       try {
         await sender.send();
       } catch (error) {
-        MessageDataTooBigError();
+        showToast('Your message was too long', ToastType.error);
       }
     }
   };

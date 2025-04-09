@@ -19,7 +19,6 @@ import {Pressable, StyleSheet, View} from 'react-native';
 import {OpenGraphParser} from 'react-native-opengraph-kit';
 import {extractLink} from '@components/MessageBubbles/BubbleUtils';
 import LinkPreview from './LinkPreview';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import {useChatContext} from '@screens/DirectChat/ChatContext';
 import DynamicColors from '@components/DynamicColors';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
@@ -35,6 +34,7 @@ import {
   MessageBarActionType,
   useMessageBarActionsContext,
 } from '@screens/DirectChat/ChatContexts/MessageBarActions';
+import {ToastType, useToast} from 'src/context/ToastContext';
 
 const MessageBar = ({
   ifTemplateExists,
@@ -52,7 +52,7 @@ const MessageBar = ({
     text,
     setText,
   } = useChatContext();
-  const {MessageDataTooBigError} = useErrorModal();
+  const {showToast} = useToast();
 
   const {messageBarAction, dispatchMessageBarAction} =
     useMessageBarActionsContext();
@@ -124,7 +124,7 @@ const MessageBar = ({
     try {
       await sender.send();
     } catch (error) {
-      MessageDataTooBigError();
+      showToast('Your message was too long', ToastType.error);
     }
     // Clear any remnants in the message bar, if any
     clearEverything();
@@ -227,7 +227,7 @@ const MessageBar = ({
         setMessageToEdit(null);
         setText('');
       } catch (error) {
-        MessageDataTooBigError();
+        showToast('Your message was too long', ToastType.error);
       }
     }
   };

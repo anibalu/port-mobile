@@ -10,7 +10,6 @@ import PrimaryBottomSheet from './PrimaryBottomSheet';
 import {useChatContext} from '@screens/GroupChat/ChatContext';
 
 import PrimaryButton from '../LongButtons/PrimaryButton';
-import {useErrorModal} from 'src/context/ErrorModalContext';
 import {wait} from '@utils/Time';
 import {sendMessageReport} from '@utils/MessageReporting/APICalls';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
@@ -59,8 +58,7 @@ function GroupReportMessageBottomSheet({
     isConnected,
     chatId,
   } = useChatContext();
-  //this is incorrectly name "ReportSubmittedError". It is infact a success notification.
-  const {ReportSubmittedError} = useErrorModal();
+
   const [topButtonLoading, setTopButtonLoading] = useState<boolean>(false);
   const [text, setText] = useState<string>('');
 
@@ -111,7 +109,7 @@ function GroupReportMessageBottomSheet({
       setTopButtonLoading(false);
       setSelectedMessage(null);
       await wait(safeModalCloseDuration);
-      ReportSubmittedError();
+      showToast('Report successfully submitted', ToastType.success);
     }
   };
 

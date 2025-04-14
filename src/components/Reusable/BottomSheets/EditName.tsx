@@ -21,14 +21,15 @@
 import React, {useMemo, useState} from 'react';
 import {Keyboard, KeyboardTypeOptions, StyleSheet, View} from 'react-native';
 
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import { useColors } from '@components/colorGuide';
+import { isIOS} from '@components/ComponentUtils';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
-  getWeight,
 } from '@components/NumberlessText';
+import LineSeparator from '@components/Separators/LineSeparator';
+import { Spacing, Width } from '@components/spacingGuide';
 
 import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
 
@@ -56,7 +57,7 @@ const EditName = ({
   onSave?: (name?: string) => void;
   name: string;
   setName?: (name: string) => void;
-  title?: string;
+  title:string;
   description?: string;
   placeholderText?: string;
   keyboardType?: KeyboardTypeOptions;
@@ -75,29 +76,40 @@ const EditName = ({
     onClose?.();
   };
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
 
   return (
     <PrimaryBottomSheet
-      showClose={true}
+      showClose={false}
       bgColor="g"
       visible={visible}
-      title={title}
-      titleStyle={styles.title}
+      shouldAutoClose={false}
       onClose={onClose}>
+            <View style={styles.connectionOptionsRegion}>
+        <View style={styles.mainContainer}>
+          <NumberlessText
+            textColor={Colors.text.title}
+            fontSizeType={FontSizeType.xl}
+            fontWeight={FontWeight.sb}>
+            {title}
+          </NumberlessText>
+          <LineSeparator style={{width: Width.screen}} />
+        </View>
+      </View>
       <View style={styles.mainWrapper}>
         {description && (
           <View
-            style={{width: '100%', marginBottom: PortSpacing.secondary.bottom}}>
+            style={{width: '100%', marginBottom: Spacing.m}}>
             <NumberlessText
               style={{color: Colors.text.subtitle}}
               fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}>
+              fontWeight={FontWeight.rg}
+             >
               {description}
             </NumberlessText>
           </View>
         )}
-        <View style={{marginBottom: PortSpacing.secondary.bottom}}>
+        <View style={{marginBottom: Spacing.m}}>
           <SimpleInput
             keyboardType={keyboardType}
             placeholderText={placeholderText}
@@ -129,13 +141,24 @@ const styles = StyleSheet.create({
   mainWrapper: {
     flexDirection: 'column',
     width: '100%',
-    marginTop: PortSpacing.secondary.top,
-    ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+    marginTop: Spacing.m,
+    ...(isIOS ? {marginBottom: Spacing.m} : 0),
+  },
+  connectionOptionsRegion: {
+    width: Width.screen,
+    paddingHorizontal: Spacing.l,
+  },
+  mainContainer: {
+    width: '100%',
+    paddingTop: Spacing.s,
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: Spacing.m,
   },
   title: {
-    fontFamily: FontType.md,
+    fontFamily: FontWeight.md,
     fontSize: FontSizeType.l,
-    fontWeight: getWeight(FontType.md),
+    fontWeight: (FontWeight.md),
   },
 });
 

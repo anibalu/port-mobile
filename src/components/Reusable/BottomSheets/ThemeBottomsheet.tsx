@@ -1,13 +1,17 @@
 import React from 'react';
-import {FlatList, View} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
 
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import { useColors } from '@components/colorGuide';
+import {isIOS} from '@components/ComponentUtils';
+import { FontSizeType, FontWeight, NumberlessText } from '@components/NumberlessText';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
-import LineSeparator from '@components/Reusable/Separators/LineSeparator';
+import LineSeparator from '@components/Separators/LineSeparator';
+import { Spacing, Width } from '@components/spacingGuide';
 
 import {ThemeType, themeOptions} from '@utils/Themes';
+
 
 import {useTheme} from 'src/context/ThemeContext';
 
@@ -29,20 +33,32 @@ const ThemeBottomsheet = ({
     handleThemeChange(themeValue);
     setShowThemeBottomsheet(false);
   };
-
+const Colors = useColors()
   return (
     <PrimaryBottomSheet
+    shouldAutoClose={false}
       bgColor="g"
       onClose={() => setShowThemeBottomsheet(false)}
-      showClose={true}
+      showClose={false}
       visible={showThemeBottomsheet}
-      title="Theme">
+    >
+       <View style={styles.connectionOptionsRegion}>
+        <View style={styles.mainContainer}>
+          <NumberlessText
+            textColor={Colors.text.title}
+            fontSizeType={FontSizeType.xl}
+            fontWeight={FontWeight.sb}>
+            Theme
+          </NumberlessText>
+          <LineSeparator style={{width: Width.screen}} />
+        </View>
+      </View>
       <SimpleCard
         style={{
-          paddingVertical: PortSpacing.secondary.uniform,
+          paddingVertical: Spacing.l,
           width: '100%',
-          marginTop: PortSpacing.medium.top,
-          ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+          marginTop: Spacing.m,
+          ...(isIOS ? {marginBottom:  Spacing.l} : 0),
         }}>
         <FlatList
           keyExtractor={(item, index) => index.toString()}
@@ -69,5 +85,19 @@ const ThemeBottomsheet = ({
     </PrimaryBottomSheet>
   );
 };
+
+const styles =StyleSheet.create({
+  connectionOptionsRegion: {
+    width: Width.screen,
+    paddingHorizontal: Spacing.l,
+  },
+  mainContainer: {
+    width: '100%',
+    paddingTop: Spacing.s,
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: Spacing.m,
+  },
+})
 
 export default ThemeBottomsheet;

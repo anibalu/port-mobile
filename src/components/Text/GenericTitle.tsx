@@ -1,13 +1,14 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
+import { Spacing } from '@components/spacingGuide';
+
 
 /**
  * Generic Title component
@@ -15,26 +16,27 @@ import {
  * @returns {React.ReactElement}
  */
 const GenericTitle = ({title}: {title: string}) => {
-  const Colors = DynamicColors();
+  const Colors = useColors()
   const styles = styling(Colors);
   return (
     <View style={styles.container}>
       <NumberlessText
-        textColor={Colors.text.primary}
+        textColor={Colors.text.title}
         fontSizeType={FontSizeType.xl}
-        fontType={FontType.sb}>
+        fontWeight={FontWeight.sb}
+>
         {title}
       </NumberlessText>
     </View>
   );
 };
-const styling = (Colors: any) =>
+const styling = (colors: any) =>
   StyleSheet.create({
     container: {
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.l,
       height: 64,
       justifyContent: 'center',
-      backgroundColor: Colors.primary.background,
+      backgroundColor:colors.background2
     },
   });
 

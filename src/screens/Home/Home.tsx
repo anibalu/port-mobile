@@ -19,17 +19,19 @@ import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useSelector} from 'react-redux';
 
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
+import { isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
 import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactBottomSheet';
 import SearchBar from '@components/SearchBar';
+import { Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 import {BOTTOMBAR_HEIGHT} from '@configs/constants';
 
@@ -43,7 +45,6 @@ import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
 import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
 import {cleanDeleteReadPort} from '@utils/Ports/direct';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 import {useTheme} from 'src/context/ThemeContext';
 
@@ -51,6 +52,8 @@ import HomescreenPlaceholder from './components/HomescreenPlaceholder';
 import HomeTopbar from './components/HomeTopbar';
 import Tile, {TileProps} from './Tile';
 
+
+const MINIMUM_CONNECTIONS =2
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
 type DisplayConnections = {
@@ -186,9 +189,15 @@ const Home = ({navigation, route}: Props) => {
       light: require('@assets/light/icons/RoundPlus.svg').default,
       dark: require('@assets/dark/icons/RoundPlus.svg').default,
     },
+    {
+      assetName: 'HomePlaceholderIcon',
+      light: require('@assets/light/icons/HomePlaceholderIcon.svg').default,
+      dark: require('@assets/dark/icons/HomePlaceholderIcon.svg').default,
+    },
   ];
-  const svgResults = useDynamicSVG(svgArray);
+  const svgResults = useSVG(svgArray);
   const RoundPlus = svgResults.RoundPlus;
+  const HomePlaceholderIcon = svgResults.HomePlaceholderIcon;
   // loads up connections on every ping
   useEffect(() => {
     (async () => {
@@ -304,8 +313,15 @@ const Home = ({navigation, route}: Props) => {
                         />
                       </View>
                     }
-                    ListFooterComponent={
+                    ListFooterComponent={connections.matching.length > MINIMUM_CONNECTIONS?
                       <View style={{height: BOTTOMBAR_HEIGHT}} />
+                      : 
+                      <View style={styles.homecard}>
+                      <HomescreenPlaceholder 
+                  onPlusPress={() => setOpenConnectionsBottomsheet(true)}
+                  />
+                        </View>          
+                 
                     }
                     refreshing={refreshing}
                     onRefresh={async () => {
@@ -324,14 +340,22 @@ const Home = ({navigation, route}: Props) => {
                         <NumberlessText
                           textColor={colors.text.subtitle}
                           fontSizeType={FontSizeType.l}
-                          fontType={FontType.rg}>
+                          fontWeight={FontWeight.rg}
+                       >
                           No matching chats found
                         </NumberlessText>
                       </View>
                     )}
                   />
                 ) : (
-                  <HomescreenPlaceholder />
+                  <View style={styles.placeholdercard}>
+          <HomePlaceholderIcon/>
+                  <View style={styles.placeholder}>           
+                  <HomescreenPlaceholder 
+                  onPlusPress={() => setOpenConnectionsBottomsheet(true)}
+                  />
+                         </View>
+                         </View>
                 )}
               </>
             )}
@@ -374,8 +398,8 @@ const styling = (colors: any, themeValue: any) =>
     isolationButton: {
       alignSelf: 'flex-end',
       position: 'absolute',
-      bottom: PortSpacing.primary.bottom,
-      left: PortSpacing.secondary.left,
+      bottom: Spacing.xml,
+      left: Spacing.l,
       height: 56,
       width: 56,
     },
@@ -384,8 +408,8 @@ const styling = (colors: any, themeValue: any) =>
         themeValue === 'dark'
           ? colors.primary.background
           : colors.primary.surface,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingVertical: PortSpacing.tertiary.uniform,
+      paddingHorizontal: Spacing.l,
+      paddingVertical:Spacing.s,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -397,24 +421,24 @@ const styling = (colors: any, themeValue: any) =>
       height: 44,
       alignItems: 'center',
       borderRadius: 12,
-      paddingHorizontal: PortSpacing.tertiary.uniform,
+      paddingHorizontal: Spacing.s
     },
     tilePlaceholder: {
       height: 91,
-      marginHorizontal: PortSpacing.tertiary.uniform,
-      marginBottom: PortSpacing.tertiary.uniform,
+      marginHorizontal: Spacing.s,
+      marginBottom:Spacing.s,
       borderRadius: 16,
     },
     tilePlaceholderContainer: {
       flex: 1,
       justifyContent: 'flex-start',
-      paddingVertical: PortSpacing.medium.uniform,
+      paddingVertical: Spacing.m
     },
     addButtonWrapper: {
       alignSelf: 'flex-end',
       position: 'absolute',
-      bottom: PortSpacing.primary.bottom,
-      right: PortSpacing.secondary.right,
+      bottom:Spacing.xml,
+      right: Spacing.l,
       height: 56,
       width: 56,
     },
@@ -426,9 +450,18 @@ const styling = (colors: any, themeValue: any) =>
     },
     plusButton: {
       position: 'absolute',
-      bottom: PortSpacing.secondary.uniform,
-      right: PortSpacing.secondary.uniform,
+      bottom: Spacing.l,
+      right: Spacing.l,
     },
+    placeholder:{
+      position:'absolute', top: 400,
+    },placeholdercard:{
+      marginTop: Spacing.xl, 
+                  marginHorizontal: Spacing.s
+    },
+    homecard:{
+      position:'absolute', top: screen.height/5, marginHorizontal: Spacing.s, justifyContent:'center' 
+    }
   });
 
 export default Home;

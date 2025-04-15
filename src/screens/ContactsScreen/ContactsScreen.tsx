@@ -8,8 +8,8 @@ import { GradientScreenView } from '@components/GradientScreenView';
 import { Spacing } from '@components/spacingGuide';
 import TopBarDescription from '@components/Text/TopBarDescription';
 
-import { getDirectChats } from '@utils/DirectChats';
-import { ConnectionInfo } from '@utils/Storage/DBCalls/connections';
+import { getContacts } from '@utils/Storage/contacts';
+import { ContactEntry } from '@utils/Storage/DBCalls/contacts';
 
 import ConnectionsCard from './components/ConnectionsCard';
 import InviteContactsCard from './components/InviteContactsCard';
@@ -23,7 +23,7 @@ const ContactsScreen = () => {
 
   const styles = styling(Colors);
   const navigation = useNavigation();
-  const [allConnections, setAllConnections] = useState<ConnectionInfo[]>([]);
+  const [allConnections, setAllConnections] = useState<ContactEntry[]>([]);
 
   // handles back navigation on backpress
   const onBackPress = () => {
@@ -32,7 +32,8 @@ const ContactsScreen = () => {
 
   useEffect(() => {
     (async () => {
-      const checkForConnections = await getDirectChats();
+      const checkForConnections = await getContacts();
+      console.log("checkForConnections",checkForConnections)
       setAllConnections(checkForConnections);
     })();
   }, []);

@@ -1,5 +1,7 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet} from 'react-native';
+
+import { useNavigation } from '@react-navigation/native';
 
 import GradientCard from '@components/Cards/GradientCard';
 import {useColors} from '@components/colorGuide';
@@ -13,15 +15,43 @@ import {Spacing} from '@components/spacingGuide';
 
 import {DEFAULT_NAME} from '@configs/constants';
 
-import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+import DirectChat, { LineDataCombined } from '@utils/DirectChats/DirectChat';
+import { getChatIdFromPairHash } from '@utils/Storage/connections';
+import { getContact } from '@utils/Storage/contacts';
+import { ContactEntry } from '@utils/Storage/DBCalls/contacts';
+
+import { ToastType, useToast } from 'src/context/ToastContext';
 
 const ConnectionsCard = ({
   allConnections,
 }: {
-  allConnections: ConnectionInfo[];
+  allConnections: ContactEntry[];
 }) => {
   const Colors = useColors();
   const styles = styling(Colors);
+  const navigation = useNavigation()
+  const {showToast}= useToast()
+  const onGoToProfile = async (pairHash: string) => {
+    try {
+      // Navigate to contact profile page.
+      const contact = await getContact(pairHash);
+  
+      const chatId = await getChatIdFromPairHash(pairHash);
+      let chatData: LineDataCombined | null = null;
+      if (chatId) {
+        const chat = new DirectChat(chatId);
+        chatData = await chat.getChatData();
+      }
+      navigation.navigate('ContactProfile', {
+        chatId,
+        chatData: chatData,
+        contactInfo: contact,
+      });
+    } catch (error) {
+      console.error('Failed to navigate to profile:', error);
+      showToast('Failed to navigate to profile, please try again', ToastType.error)
+    }
+  };
 
   return (
     <GradientCard style={styles.card}>
@@ -34,12 +64,15 @@ const ConnectionsCard = ({
       </NumberlessText>
       {allConnections.map((item, index) => {
         return (
-          <View
+          <Pressable
+          onPress={()=>  
+            onGoToProfile(item.pairHash)
+          }
             style={StyleSheet.compose(styles.list, {
               borderBottomWidth: allConnections.length - 1 === index ? 0 : 0.5,
               borderBottomColor: Colors.stroke,
             })}>
-            <AvatarBox avatarSize="s" profileUri={item.pathToDisplayPic} />
+            <AvatarBox avatarSize="s" profileUri={item.displayPic} />
             <NumberlessText
               numberOfLines={1}
               textColor={Colors.text.title}
@@ -47,7 +80,7 @@ const ConnectionsCard = ({
               fontSizeType={FontSizeType.m}>
               {item.name || DEFAULT_NAME}
             </NumberlessText>
-          </View>
+          </Pressable>
         );
       })}
     </GradientCard>

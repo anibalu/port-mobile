@@ -4,7 +4,7 @@
  * screen id: 5
  */
 
-import React, {ReactElement, useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useReducer, useState} from 'react';
 import {
   Animated,
   Easing,
@@ -19,7 +19,6 @@ import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useSelector} from 'react-redux';
 
-import ChatTile, {ChatTileProps, CompleteChatTileProps} from '@components/ChatTile/ChatTile';
 import {PortSpacing, isIOS} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
@@ -30,7 +29,6 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactBottomSheet';
-import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 import SearchBar from '@components/SearchBar';
 
 import {BOTTOMBAR_HEIGHT} from '@configs/constants';
@@ -44,7 +42,6 @@ import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
 import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
 import {cleanDeleteReadPort} from '@utils/Ports/direct';
-import {getConnections} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
@@ -52,14 +49,65 @@ import {useTheme} from 'src/context/ThemeContext';
 
 import HomescreenPlaceholder from './components/HomescreenPlaceholder';
 import HomeTopbar from './components/HomeTopbar';
+import Tile, {TileProps} from './Tile';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
+type DisplayConnections = {
+  _all: TileProps[];
+  filter: string;
+  matching: TileProps[];
+  hasConnection: boolean;
+  initialLoadComplete: boolean;
+};
+
+type ConnectionAction =
+  | {
+      event: 'updateAll';
+      payload: TileProps[];
+    }
+  | {
+      event: 'updateFilter';
+      payload: string;
+    };
+
+/**
+ * Reducer to manage connections in UI state
+ * @param state
+ * @param action
+ * @returns updated state
+ */
+function connectionReducer(
+  state: DisplayConnections,
+  action: ConnectionAction,
+) {
+  const currentState = {...state};
+  switch (action.event) {
+    case 'updateAll':
+      currentState._all = action.payload;
+      currentState.initialLoadComplete = true;
+      currentState.hasConnection = action.payload.length > 0;
+      break;
+    case 'updateFilter':
+      currentState.filter = action.payload;
+      break;
+  }
+  // Apply the filter
+  if ('' === currentState.filter) {
+    currentState.matching = currentState._all;
+    return currentState;
+  }
+  currentState.matching = currentState._all.filter(connection =>
+    connection.name.toLowerCase().includes(currentState.filter.toLowerCase()),
+  );
+  return currentState;
+}
+
 const Home = ({navigation, route}: Props) => {
   const {initialiseCallKeep} = useCallContext();
+  // If we got here with an initial chat request, honour it
   useMemo(() => {
     if (route.params) {
-      console.log(route.params);
       const {initialChatType, chatData} = route.params;
       if (ChatType.direct === initialChatType) {
         navigation.push('DirectChat', chatData);
@@ -107,45 +155,27 @@ const Home = ({navigation, route}: Props) => {
   const styles = styling(colors, themeValue);
   const ping: any = useSelector(state => state.ping.ping);
 
-  const [totalUnreadCount, setTotalUnreadCount] = useState<number>(0);
-  const [connections, setConnections] = useState<ChatTileProps[] | null>(null);
-  const [selectedProps, setSelectedProps] = useState<ChatTileProps | null>(
-    null,
+  // Initialise our connections state
+  const [connections, dispatchConnectionAction] = useReducer(
+    connectionReducer,
+    {
+      _all: [],
+      matching: [],
+      filter: '',
+      hasConnection: false,
+      initialLoadComplete: false,
+    },
   );
-  const [contactShareParams, setContactShareParams] = useState<{
-    name: string;
-    pairHash: string;
-  } | null>(null);
-  const [_connectionsNotInFocus, setConnectionsNotInFocus] = useState<number>(0);
+
+  // To track a selected port, helps with "Stop adding" and stuff
+  const [selectedPortProps, setSelectedPortProps] = useState<
+    (TileProps & {isReadPort: true}) | null
+  >(null);
   const [_isChatActionBarVisible, setIsChatActionBarVisible] =
     useState<boolean>(false);
 
-  const [selectionMode, setSelectionMode] = useState<boolean>(false);
-  const [selectedConnections, setSelectedConnections] = useState<
-    ChatTileProps[]
-  >([]);
-
-  //loader that waits for home screen to finish loading.
-  const isLoading = useMemo(() => {
-    if (connections) {
-      return false;
-    } else {
-      return true;
-    }
-  }, [connections]);
-
-  //subset of the connections that are viewable on homescreen.
-  const [viewableConnections, setViewableConnections] = useState<
-    ChatTileProps[]
-  >(connections || []);
-
+  // This is for the little loader when you pull down on the home screen
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [allConnections, setAllConnections] = useState<ChatTileProps[]>([]);
-
-  //connections displayed on home screen (depending on what the search string is).
-  //If search string is empty, all connections are displayed
-
-  const [searchText, setSearchText] = useState<string>('');
 
   const [openConnectionsBottomsheet, setOpenConnectionsBottomsheet] =
     useState<boolean>(false);
@@ -157,55 +187,19 @@ const Home = ({navigation, route}: Props) => {
       dark: require('@assets/dark/icons/RoundPlus.svg').default,
     },
   ];
-  const results = useDynamicSVG(svgArray);
-  const RoundPlus = results.RoundPlus;
-  //loads up connections
+  const svgResults = useDynamicSVG(svgArray);
+  const RoundPlus = svgResults.RoundPlus;
+  // loads up connections on every ping
   useEffect(() => {
     (async () => {
-      const output = await loadHomeScreenConnections();
-      const checkForConnections = await getConnections();
-      setAllConnections(checkForConnections);
-      if (checkForConnections.length !== output.connections.length) {
-        setConnectionsNotInFocus(checkForConnections.length);
-      }
-      setConnections(output.connections);
-      setTotalUnreadCount(output.unread);
+      dispatchConnectionAction({
+        event: 'updateAll',
+        payload: await loadHomeScreenConnections(),
+      });
     })();
   }, [ping]);
 
-  //filter by search string
-  const getFilteredConnectionsBySearch = (chats: ChatTileProps[]) => {
-    const filteredSearch = chats.filter(connection =>
-      connection.name.toLowerCase().includes(searchText.toLowerCase()),
-    );
-    return filteredSearch;
-  };
-
-  //sets up viewable connections
-  useMemo(() => {
-    (async () => {
-      if (connections) {
-        if (searchText === '') {
-          setViewableConnections(connections);
-        } else {
-          setViewableConnections(
-            getFilteredConnectionsBySearch(allConnections),
-          );
-        }
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connections, searchText]);
-
-  //rendered chat tile of a connection
-  function renderChatTile(props: CompleteChatTileProps): ReactElement {
-    try {
-      return <ChatTile {...props} />;
-    } catch (error) {
-      return <></>;
-    }
-  }
-
+  // This animation helps render placeholder tiles while connections load
   const opacityAnimation = useMemo(() => new Animated.Value(1), []);
   useEffect(() => {
     const breathingAnimation = Animated.loop(
@@ -224,7 +218,7 @@ const Home = ({navigation, route}: Props) => {
         }),
       ]),
     );
-    if (isLoading) {
+    if (!connections.initialLoadComplete) {
       breathingAnimation.start();
     } else {
       breathingAnimation.stop();
@@ -233,7 +227,7 @@ const Home = ({navigation, route}: Props) => {
     return () => {
       breathingAnimation.stop();
     };
-  }, [isLoading, opacityAnimation]);
+  }, [opacityAnimation, connections.initialLoadComplete]);
 
   return (
     <>
@@ -253,19 +247,22 @@ const Home = ({navigation, route}: Props) => {
               : colors.primary.surface,
         }}>
         <HomeTopbar
-          unread={totalUnreadCount}
+          unread={connections.matching.reduce(
+            (acc, cur) => (acc += cur.newMessageCount),
+            0,
+          )}
           setIsChatActionBarVisible={setIsChatActionBarVisible}
-          selectionMode={selectionMode}
-          setSelectionMode={setSelectionMode}
-          selectedConnections={selectedConnections}
-          setSelectedConnections={setSelectedConnections}
+          selectionMode={false} // TODO: remove this dependency on the topbar
+          setSelectionMode={() => {}}
+          selectedConnections={[]} // TODO remove dependency on this
+          setSelectedConnections={() => {}}
         />
         <KeyboardAvoidingView
           behavior={isIOS ? 'padding' : 'height'}
           keyboardVerticalOffset={isIOS ? 50 : 0}
           style={styles.scrollViewContainer}>
           <View style={{flex: 1}}>
-            {isLoading ? (
+            {!connections.initialLoadComplete ? (
               <Animated.View style={{opacity: opacityAnimation}}>
                 <View style={styles.tilePlaceholderContainer}>
                   {Array.from({length: 10}).map((_, index) => (
@@ -281,36 +278,31 @@ const Home = ({navigation, route}: Props) => {
               </Animated.View>
             ) : (
               <>
-                {connections && connections.length > 0 ? (
+                {connections.hasConnection ? (
                   <FlatList
-                    data={viewableConnections}
-                    renderItem={element =>
-                      renderChatTile({
-                        ...element.item,
-                        setSelectedProps,
-                        selectedConnections,
-                        setSelectedConnections,
-                        selectionMode,
-                        setSelectionMode,
-                        setIsChatActionBarVisible,
-                        setContactShareParams,
-                      })
-                    }
+                    data={connections.matching}
+                    renderItem={element => (
+                      <Tile
+                        {...element.item}
+                        setSelectedPortProps={setSelectedPortProps}
+                      />
+                    )}
                     style={styles.chats}
-                    scrollEnabled={viewableConnections.length > 0}
+                    scrollEnabled={connections.matching.length > 0}
                     ListHeaderComponent={
-                      connections && connections.length > 0 ? (
-                        <>
-                          <View style={styles.barWrapper}>
-                            <SearchBar
-                              style={styles.search}
-                              searchText={searchText}
-                              setSearchText={setSearchText}
-                              placeholder={'Search for chats'}
-                            />
-                          </View>
-                        </>
-                      ) : null
+                      <View style={styles.barWrapper}>
+                        <SearchBar
+                          style={styles.search}
+                          searchText={connections.filter}
+                          setSearchText={(filter: string) =>
+                            dispatchConnectionAction({
+                              event: 'updateFilter',
+                              payload: filter,
+                            })
+                          }
+                          placeholder={'Search for chats'}
+                        />
+                      </View>
                     }
                     ListFooterComponent={
                       <View style={{height: BOTTOMBAR_HEIGHT}} />
@@ -318,10 +310,7 @@ const Home = ({navigation, route}: Props) => {
                     refreshing={refreshing}
                     onRefresh={async () => {
                       setRefreshing(true);
-                      await performDebouncedCommonAppOperations();
-                      const output = await loadHomeScreenConnections();
-                      setConnections(output.connections);
-                      setTotalUnreadCount(output.unread);
+                      performDebouncedCommonAppOperations();
                       setRefreshing(false);
                     }}
                     keyExtractor={connection => connection.chatId}
@@ -361,25 +350,13 @@ const Home = ({navigation, route}: Props) => {
           navigation={navigation}
         />
         <LoadingBottomSheet
-          visible={selectedProps ? true : false}
-          onClose={() => setSelectedProps(null)}
+          visible={selectedPortProps ? true : false}
+          onClose={() => setSelectedPortProps(null)}
           title={'Adding new contact...'}
           onStopPress={async () => {
-            if (selectedProps?.isReadPort) {
-              await cleanDeleteReadPort(selectedProps.chatId);
-              const output = await loadHomeScreenConnections();
-              setConnections(output.connections);
-              setTotalUnreadCount(output.unread);
-            }
+            await cleanDeleteReadPort(selectedPortProps!.chatId);
           }}
         />
-        {contactShareParams && (
-          <ContactSharingBottomsheet
-            visible={contactShareParams ? true : false}
-            contactShareParams={contactShareParams}
-            onClose={() => setContactShareParams(null)}
-          />
-        )}
       </GestureSafeAreaView>
     </>
   );

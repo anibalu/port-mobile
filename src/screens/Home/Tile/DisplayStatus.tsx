@@ -17,13 +17,12 @@ import {
   NumberlessText,
 } from '@components/NumberlessText';
 
-import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
+import {MessageStatus} from '@utils/Messaging/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 import Failure from '@assets/icons/statusIndicators/failure.svg';
 import {default as Journaled} from '@assets/icons/statusIndicators/sending.svg';
 
-import {ChatTileProps} from './ChatTile';
 
 //Converts the new message count to a display string, with '999+' for counts over 999.
 function displayNumber(newMsgCount: number): string {
@@ -68,22 +67,23 @@ const MessageStatusIndicator = ({readStatus}: {readStatus: MessageStatus}) => {
 };
 
 export default function DisplayStatus({
-  newMessage,
+  unreadCount,
+  readStatus,
+  deleted,
 }: {
-  newMessage: ChatTileProps;
+  unreadCount: number;
+  readStatus: MessageStatus;
+  deleted: boolean;
 }): ReactNode {
-  if (
-    newMessage.text === '' ||
-    newMessage.recentMessageType === ContentType.deleted
-  ) {
+  if (deleted) {
     return <></>;
   }
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
   // Display the new message count if the read status is new and the count is greater than 0
-  if (newMessage.readStatus === MessageStatus.latest) {
-    if (newMessage.newMessageCount > 0) {
+  if (readStatus === MessageStatus.latest) {
+    if (unreadCount > 0) {
       return (
         <View style={styles.statusWrapper}>
           <View style={styles.new}>
@@ -93,7 +93,7 @@ export default function DisplayStatus({
               textColor={PortColors.text.primaryWhite}
               numberOfLines={1}
               allowFontScaling={false}>
-              {displayNumber(newMessage.newMessageCount)}
+              {displayNumber(unreadCount)}
             </NumberlessText>
           </View>
         </View>
@@ -106,7 +106,7 @@ export default function DisplayStatus({
     return (
       <View style={styles.indicatorContainer}>
         <View>
-          <MessageStatusIndicator readStatus={newMessage.readStatus} />
+          <MessageStatusIndicator readStatus={readStatus} />
         </View>
       </View>
     );

@@ -2,6 +2,7 @@
 .env
 *.apk
 *.aab
+**sentry.properties
 
 # Editors
 .vscode

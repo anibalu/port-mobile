@@ -1,28 +1,34 @@
-import {ChatTileProps} from '@components/ChatTile/ChatTile';
-
 import {defaultFolderId, defaultPermissionsId} from '@configs/constants';
+
+import {TileProps} from '@screens/Home/Tile';
 
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {bundleTargetToChatType, getReadPorts} from '@utils/Ports';
 import {
-  getAllConnectionsInFocus,
+  getConnections,
   getConnectionsByFolder,
   getNewMessageCount,
 } from '@utils/Storage/connections';
 import {hasExpired} from '@utils/Time';
 
+const noop = () => {};
+
 /**
  * Loads up connections and unread in home screen.
  * @returns - connections and unread in home screen.
  */
-export async function loadHomeScreenConnections() {
+export async function loadHomeScreenConnections(): Promise<TileProps[]> {
   try {
     console.log('Loading home screen connections');
     // fetch all connections
-    const fetchedConnections = await getAllConnectionsInFocus();
+    const fetchedConnections: TileProps[] = (
+      await getConnections()
+    ).map(item => {
+      return {...item, isReadPort: false, setSelectedPortProps: noop};
+    });
     // fetch all read ports
-    const fetchedReadPorts = (await getReadPorts()).map(port => {
-      const readPortChatTile: ChatTileProps = {
+    const fetchedReadPorts: TileProps[] = (await getReadPorts()).map(port => {
+      const readPortChatTile = {
         chatId: port.portId,
         connectionType: bundleTargetToChatType(port.target),
         name: port.name,
@@ -40,15 +46,15 @@ export async function loadHomeScreenConnections() {
         permissionsId: defaultPermissionsId,
         pairHash: '',
         routingId: '',
+        setSelectedPortProps: noop,
       };
       return readPortChatTile;
     });
-    const newArray = fetchedReadPorts.concat(fetchedConnections);
     console.log('loaded up connections');
-    return {connections: newArray, unread: 0};
+    return fetchedReadPorts.concat(fetchedConnections);
   } catch (error) {
     console.error('Error loading connections: ', error);
-    return {connections: [], unread: 0};
+    return [];
   }
 }
 

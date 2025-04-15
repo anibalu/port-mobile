@@ -18,9 +18,7 @@ import {
 
 import {getChatTileTimestamp} from '@utils/Time';
 
-import {ChatTileProps} from './ChatTile';
-
-const RenderTimestamp = ({props}: {props: ChatTileProps}) => {
+const RenderTimestamp = ({timestamp}: {timestamp: string}) => {
   const Colors = DynamicColors();
 
   return (
@@ -34,7 +32,7 @@ const RenderTimestamp = ({props}: {props: ChatTileProps}) => {
           paddingRight: PortSpacing.secondary.right,
           paddingLeft: PortSpacing.tertiary.left,
         }}>
-        {props.text !== '' && getChatTileTimestamp(props.timestamp)}
+        {getChatTileTimestamp(timestamp)}
       </NumberlessText>
     </View>
   );

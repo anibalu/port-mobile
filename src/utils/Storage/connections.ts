@@ -41,16 +41,6 @@ export async function getConnectionsByFolder(
 }
 
 /**
- * This util returns all chats which has focus permission as true
- * @returns chats with focus permission turned on
- */
-export async function getAllConnectionsInFocus(): Promise<
-  DBCalls.ConnectionInfo[]
-> {
-  return await DBCalls.loadConnectionsInFocus();
-}
-
-/**
  * Finds the connection attributes associated with a chatId.
  * @param {string} chatId - the chatId of the connection.
  * @returns - the connection attributes associated with a chatId or null if there is no connection.

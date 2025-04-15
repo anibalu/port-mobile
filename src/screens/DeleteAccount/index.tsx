@@ -3,27 +3,30 @@ import {StyleSheet, TextInput, View} from 'react-native';
 
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import PrimaryButton from '@components/Buttons/PrimaryButton';
+import { useColors } from '@components/colorGuide';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
 import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import ProfileDeletionBlurView from '@components/Reusable/BlurView/ProfileDeletionBlurView';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
+import { Height, Spacing } from '@components/spacingGuide';
 
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+import {rootNavigationRef} from '@navigation/rootNavigation';
+
+import store from '@store/appStore';
 
 import permanentlyDeleteAccount from '@utils/AccountDeletion';
 
 import AlertIcon from '@assets/icons/ErrorAlert.svg';
 
-const DELETION_TEXT = 'DELETE ACCOUNT';
+
+const DELETION_TEXT = 'DELETE';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'DeleteAccount'>;
 
@@ -39,20 +42,37 @@ const DeleteAccount = ({navigation}: Props) => {
   const [deletionState, setDeletionState] = useState<DeletionState>(
     DeletionState.uninitiated,
   );
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
   const inputRef = useRef(null);
-  const [modalClose, setModalClose] = useState(false);
 
   const deleteAccount = async () => {
-    inputRef.current.blur();
+    if(inputRef.current){
+      inputRef.current.blur();
+    }
     setDeletionState(DeletionState.ongoing);
     try {
       await permanentlyDeleteAccount();
-      setModalClose(true);
       setDeletionState(DeletionState.completed);
+      store.dispatch({
+        type: 'DELETE_PROFILE',
+        payload: {},
+      });
+      if (rootNavigationRef.isReady()) {
+
+        rootNavigationRef.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'OnboardingStack',
+              params: {
+                screen: 'Welcome',
+              },
+            },
+          ],
+        });
+      }
     } catch (e) {
-      setModalClose(false);
       console.error('[ACCOUNT DELETION] failed', e);
       setDeletionState(DeletionState.uninitiated);
     }
@@ -61,7 +81,7 @@ const DeleteAccount = ({navigation}: Props) => {
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
+        backgroundColor={Colors.surface}
       />
       <GestureSafeAreaView style={styles.screen}>
         <BackTopbar
@@ -76,31 +96,28 @@ const DeleteAccount = ({navigation}: Props) => {
             <NumberlessText
               style={{alignSelf: 'center'}}
               fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}
-              textColor={Colors.text.primary}>
-              By deleting your account you will lose all your connections, lose
-              all messages and media you have sent or received and your backups
-              will be invalidated.
+              fontWeight={FontWeight.rg}
+              textColor={Colors.text.title}>
+              This will invalidate any back-ups you have created and delete account info, profile and all of your messages.
             </NumberlessText>
             <NumberlessText
-              style={{alignSelf: 'center'}}
               fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}
+              fontWeight={FontWeight.rg}
               textColor={Colors.text.subtitle}>
-              To confirm that you understand the risks, please type '
-              {DELETION_TEXT}' below.
+              To confirm deletion, please type '{DELETION_TEXT}' below
             </NumberlessText>
             <TextInput
               style={{
-                color: Colors.text.primary,
+                color: Colors.text.title,
                 borderWidth: 0.5,
-                borderColor: Colors.primary.stroke,
+                borderColor: Colors.stroke,
                 borderRadius: 16,
-                paddingHorizontal: PortSpacing.tertiary.uniform,
+                padding:Spacing.s,
+                height: Height.inputBar
               }}
               ref={inputRef}
-              placeholderTextColor={Colors.text.placeholder}
-              placeholder={DELETION_TEXT}
+              placeholderTextColor={Colors.text.subtitle}
+              placeholder={"Type 'DELETE' here"}
               onChangeText={setDeletionConfirmationText}
               defaultValue=""
               maxLength={32}
@@ -109,9 +126,9 @@ const DeleteAccount = ({navigation}: Props) => {
         </View>
         <View style={styles.button}>
           <PrimaryButton
-            buttonText="Delete Account"
+          theme={Colors.theme}
+            text="Delete Account"
             onClick={deleteAccount}
-            primaryButtonColor="r"
             // We disable the button if the confirmation text isn't a case-insensitive
             // match
             disabled={
@@ -121,9 +138,7 @@ const DeleteAccount = ({navigation}: Props) => {
             isLoading={DeletionState.ongoing === deletionState}
           />
         </View>
-        {DeletionState.completed === deletionState && modalClose && (
-          <ProfileDeletionBlurView modalClose={modalClose} />
-        )}
+      
       </GestureSafeAreaView>
     </>
   );
@@ -134,33 +149,34 @@ const styling = (Colors: any) =>
     screen: {
       flex: 1,
       justifyContent: 'space-between',
-      backgroundColor: PortColors.primary.black,
+      backgroundColor: Colors.black,
     },
     content: {
       flex: 1,
       flexDirection: 'column',
       alignContent: 'flex-start',
-      padding: PortSpacing.tertiary.uniform,
-      gap: PortSpacing.primary.uniform,
-      backgroundColor: Colors.primary.background,
+      padding: Spacing.s,
+      paddingTop:Spacing.xl,
+      gap: Spacing.s,
+      backgroundColor: Colors.background,
     },
     card: {
-      padding: PortSpacing.tertiary.uniform,
-      gap: PortSpacing.medium.uniform,
-      paddingVertical: PortSpacing.secondary.uniform,
+      padding: Spacing.l,
+      gap: Spacing.l,
+      paddingVertical: Spacing.l,
       borderWidth: 0.5,
-      borderColor: Colors.primary.red,
+      borderColor: Colors.red,
     },
     successcard: {
-      padding: PortSpacing.tertiary.uniform,
-      gap: PortSpacing.medium.uniform,
-      paddingVertical: PortSpacing.secondary.uniform,
+      padding:Spacing.s,
+      gap: Spacing.m,
+      paddingVertical:Spacing.m,
       alignItems: 'center',
     },
     button: {
-      padding: PortSpacing.tertiary.uniform,
-      backgroundColor: Colors.primary.background,
-      paddingVertical: PortSpacing.secondary.uniform,
+      padding:Spacing.s,
+      backgroundColor: Colors.background,
+      paddingVertical: Spacing.l,
     },
   });
 

@@ -3,25 +3,24 @@ import {Pressable, StyleSheet, View} from 'react-native';
 
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import { useColors } from '@components/colorGuide';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
+import { Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AccountSettings'>;
 
 const AccountSettings = ({navigation}: Props) => {
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
 
   const svgArray = [
@@ -33,14 +32,14 @@ const AccountSettings = ({navigation}: Props) => {
     },
   ];
 
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
   const GreyAngleRightIcon = results.GreyAngleRightIcon;
 
   return (
     <>
       <CustomStatusBar
         barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
+        backgroundColor={Colors.surface}
       />
 
       <SafeAreaView style={styles.screen}>
@@ -55,17 +54,17 @@ const AccountSettings = ({navigation}: Props) => {
             style={styles.button}>
             <NumberlessText
               fontSizeType={FontSizeType.l}
-              fontType={FontType.rg}
-              textColor={Colors.primary.red}>
+              fontWeight={FontWeight.rg}
+              textColor={Colors.red}>
               Delete my account
             </NumberlessText>
             <GreyAngleRightIcon />
           </Pressable>
           <NumberlessText
-            style={{alignSelf: 'center'}}
+            style={{marginLeft: Spacing.l}}
             fontSizeType={FontSizeType.m}
-            fontType={FontType.rg}
-            textColor={Colors.text.primary}>
+            fontWeight={FontWeight.rg}
+            textColor={Colors.text.title}>
             Port prides itself on not collecting any personally identifying
             information. It's the reason we exist. All sensitive information
             like your nickname and profile pictuire are stored locally and
@@ -82,24 +81,26 @@ const styling = (Colors: any) =>
     screen: {
       flex: 1,
       justifyContent: 'space-between',
-      backgroundColor: PortColors.primary.black,
+      backgroundColor: Colors.black,
     },
     content: {
       flex: 1,
       flexDirection: 'column',
       alignContent: 'flex-start',
-      padding: PortSpacing.medium.uniform,
-      gap: PortSpacing.tertiary.uniform,
-      backgroundColor: Colors.primary.background,
+      padding: Spacing.m,
+      gap: Spacing.s,
+      backgroundColor: Colors.background,
     },
     button: {
-      backgroundColor: Colors.primary.surface,
+      backgroundColor: Colors.surface,
       height: 58,
       justifyContent: 'space-between',
       flexDirection: 'row',
       borderRadius: 16,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.l,
       alignItems: 'center',
+      borderWidth: 0.5, 
+      borderColor: Colors.stroke
     },
   });
 

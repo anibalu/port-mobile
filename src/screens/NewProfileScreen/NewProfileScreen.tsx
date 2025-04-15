@@ -64,7 +64,7 @@ const NewProfileScreen = ({navigation}:Props) => {
   const {themeValue} = useTheme();
 
   useEffect(() => {
-    setSelectedTheme(themeValue);
+    setSelectedTheme(themeValue); 
   }, [themeValue]);
 
   const svgArray = [

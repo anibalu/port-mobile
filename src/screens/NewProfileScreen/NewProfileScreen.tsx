@@ -1,46 +1,44 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
 import { useColors } from '@components/colorGuide';
-import {CustomStatusBar} from '@components/CustomStatusBar';
+import { CustomStatusBar } from '@components/CustomStatusBar';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import { AvatarBox } from '@components/Reusable/AvatarBox/AvatarBox';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import EditName from '@components/Reusable/BottomSheets/EditName';
 import ThemeBottomsheet from '@components/Reusable/BottomSheets/ThemeBottomsheet';
-import {SafeAreaView} from '@components/SafeAreaView';
+import { SafeAreaView } from '@components/SafeAreaView';
 import { Spacing } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 import GenericTitle from '@components/Text/GenericTitle';
 
-import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+import { DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO } from '@configs/constants';
 
 import { BottomNavStackParamList } from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
 
-import {createSecureDataBackup} from '@utils/Backup/backupUtils';
-import {getProfileInfo, updateProfileName} from '@utils/Profile';
-import {setNewProfilePicture} from '@utils/ProfilePicture';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import {ThemeType} from '@utils/Themes';
+import { createSecureDataBackup } from '@utils/Backup/backupUtils';
+import { getProfileInfo, updateProfileName } from '@utils/Profile';
+import { setNewProfilePicture } from '@utils/ProfilePicture';
+import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
+import { ThemeType } from '@utils/Themes';
 
-
-
-import {useTheme} from 'src/context/ThemeContext';
+import { useTheme } from 'src/context/ThemeContext';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Settings'>;
 
 
-const NewProfileScreen = ({navigation}:Props) => {
+const NewProfileScreen = ({ navigation }: Props) => {
   const profile = useSelector(state => state.profile.profile);
-  const {name, avatar} = useMemo(() => {
+  const { name, avatar } = useMemo(() => {
     getProfileInfo().then((profile) => {
       console.log('profile', profile);
     });
@@ -64,10 +62,10 @@ const NewProfileScreen = ({navigation}:Props) => {
   const colors = useColors()
   const styles = styling(colors);
 
-  const {themeValue} = useTheme();
+  const { themeValue } = useTheme();
 
   useEffect(() => {
-    setSelectedTheme(themeValue); 
+    setSelectedTheme(themeValue);
   }, [themeValue]);
 
   const svgArray = [
@@ -134,11 +132,11 @@ const NewProfileScreen = ({navigation}:Props) => {
   const onBackupPress = async () => {
     await createSecureDataBackup();
   };
-  
+
   return (
     <>
       <CustomStatusBar backgroundColor={colors.background2} />
-      <SafeAreaView   backgroundColor={colors.background2} >
+      <SafeAreaView backgroundColor={colors.background2} >
         <GenericTitle title="Profile" />
         <ScrollView contentContainerStyle={styles.profile}>
           <AvatarBox
@@ -147,7 +145,7 @@ const NewProfileScreen = ({navigation}:Props) => {
             onPress={() => setOpenEditAvatarModal(true)}
           />
           <Pressable
-          onPress={() => setEditingName(true)}
+            onPress={() => setEditingName(true)}
             style={styles.bottomCard}>
             <NumberlessText
               fontSizeType={FontSizeType.xl}
@@ -155,20 +153,27 @@ const NewProfileScreen = ({navigation}:Props) => {
               textColor={colors.text.title}>
               {newName}
             </NumberlessText>
-            <RoundPencil   width={20} height={20} />
+            <RoundPencil width={20} height={20} />
           </Pressable>
           <NumberlessText
+
             fontSizeType={FontSizeType.s}
             fontWeight={FontWeight.rg}
             textColor={colors.text.subtitle}
             style={styles.bottomCard}>
-            Your profile picture and name is end to end encrypted. Neither Port
-            nor your connections ever see your data in an unencrypted state.
+            Your name and profile picture are private — only visible to you
+            and your chosen contacts. We don’t see or store them.
           </NumberlessText>
 
           <Pressable
             onPress={() => navigation.navigate('DefaultPermissionsScreen')}
-            style={styles.row}>
+            style={
+              StyleSheet.compose({
+                borderBottomColor: colors.stroke,
+                borderBottomWidth: 0.5, marginTop: Spacing.l
+              }, styles.row
+              )
+            }>
             <View
               style={styles.card}>
               <DefaultPermissions />
@@ -183,9 +188,15 @@ const NewProfileScreen = ({navigation}:Props) => {
           </Pressable>
           <Pressable
             onPress={() => setOpenThemeBottomSheet(true)}
-            style={styles.row}>
+            style={
+              StyleSheet.compose({
+                borderBottomColor: colors.stroke,
+                borderBottomWidth: 0.5,
+              }, styles.row
+              )
+            }>
             <View
-                style={styles.card}>
+              style={styles.card}>
               <Appearance />
               <NumberlessText
                 fontSizeType={FontSizeType.l}
@@ -194,9 +205,9 @@ const NewProfileScreen = ({navigation}:Props) => {
                 Appearance
               </NumberlessText>
             </View>
-            
+
             <View
-                 style={styles.card}>
+              style={styles.card}>
               <NumberlessText
                 style={{
                   backgroundColor: colors.lowAccentColors.tealBlue,
@@ -212,9 +223,15 @@ const NewProfileScreen = ({navigation}:Props) => {
               <AngleRight />
             </View>
           </Pressable>
-          <Pressable onPress={onBackupPress} style={styles.row}>
+          <Pressable onPress={onBackupPress} style={
+            StyleSheet.compose({
+              borderBottomColor: colors.stroke,
+              borderBottomWidth: 0.5,
+            }, styles.row
+            )
+          }>
             <View
-               style={styles.card}>
+              style={styles.card}>
               <Backup />
               <NumberlessText
                 fontSizeType={FontSizeType.l}
@@ -227,9 +244,15 @@ const NewProfileScreen = ({navigation}:Props) => {
           </Pressable>
           <Pressable
             onPress={() => navigation.push('BlockedContacts')}
-            style={styles.row}>
+            style={
+              StyleSheet.compose({
+                borderBottomColor: colors.stroke,
+                borderBottomWidth: 0.5,
+              }, styles.row
+              )
+            }>
             <View
-                style={styles.card}>
+              style={styles.card}>
               <Blocked />
               <NumberlessText
                 fontSizeType={FontSizeType.l}
@@ -241,25 +264,16 @@ const NewProfileScreen = ({navigation}:Props) => {
             <AngleRight />
           </Pressable>
           <Pressable
-            onPress={() => navigation.push('HelpScreen')}
-            style={styles.row}>
-            <View
-                style={styles.card}>
-              <Legal />
-              <NumberlessText
-                fontSizeType={FontSizeType.l}
-                fontWeight={FontWeight.md}
-                textColor={colors.text.title}>
-                Legal
-              </NumberlessText>
-            </View>
-            <AngleRight />
-          </Pressable>
-          <Pressable
             onPress={() => navigation.push('AccountSettings')}
-            style={styles.row}>
+            style={
+              StyleSheet.compose({
+                borderBottomColor: colors.stroke,
+                borderBottomWidth: 0.5,
+              }, styles.row
+              )
+            }>
             <View
-               style={styles.card}>
+              style={styles.card}>
               <Account />
               <NumberlessText
                 fontSizeType={FontSizeType.l}
@@ -270,23 +284,46 @@ const NewProfileScreen = ({navigation}:Props) => {
             </View>
             <AngleRight />
           </Pressable>
-
-       
-          <EditAvatar
-            localImageAttr={profilePicAttr}
-            setLocalImageAttr={setProfilePicAttr}
-            visible={openEditAvatarModal}
-            onSave={onSavePicture}
-            onClose={() => {
-              setOpenEditAvatarModal(false);
-            }}
-          />
+          <Pressable
+            onPress={() => navigation.push('HelpScreen')}
+            style={styles.row}>
+            <View
+              style={styles.card}>
+              <Legal />
+              <NumberlessText
+                fontSizeType={FontSizeType.l}
+                fontWeight={FontWeight.md}
+                textColor={colors.text.title}>
+                Legal
+              </NumberlessText>
+            </View>
+            <AngleRight />
+          </Pressable>
+          <View style={styles.bottomContainer}>
+            <PrimaryButton
+              disabled={false}
+              isLoading={false}
+              onClick={() => navigation.push('GiveUsFeedbackScreen')}
+              text="Give us feedback"
+              theme={colors.theme}
+            />
+          </View>
+        </ScrollView>
+        <EditAvatar
+          localImageAttr={profilePicAttr}
+          setLocalImageAttr={setProfilePicAttr}
+          visible={openEditAvatarModal}
+          onSave={onSavePicture}
+          onClose={() => {
+            setOpenEditAvatarModal(false);
+          }}
+        />
         <ThemeBottomsheet
-            selected={selectedTheme}
-            setSelected={setSelectedTheme}
-            setShowThemeBottomsheet={setOpenThemeBottomSheet}
-            showThemeBottomsheet={openThemeBottomSheet}
-          />
+          selected={selectedTheme}
+          setSelected={setSelectedTheme}
+          setShowThemeBottomsheet={setOpenThemeBottomSheet}
+          showThemeBottomsheet={openThemeBottomSheet}
+        />
 
         <EditName
           title={'Edit your name'}
@@ -298,17 +335,6 @@ const NewProfileScreen = ({navigation}:Props) => {
             setEditingName(false);
           }}
         />
-              <View style={styles.bottomContainer}>
-            <PrimaryButton
-              disabled={false}
-              isLoading={false}
-              onClick={() => navigation.push('GiveUsFeedbackScreen')}
-              text="Give us feedback"
-              theme={colors.theme}
-            />
-          </View>
-        </ScrollView>
-  
       </SafeAreaView>
     </>
   );
@@ -321,11 +347,10 @@ const styling = (colors: any) =>
       flexDirection: 'column',
       alignItems: 'center',
       paddingVertical: Spacing.l,
-      paddingHorizontal:  Spacing.l,
-      flex: 1,
+      paddingHorizontal: Spacing.l,
     },
     bottomContainer: {
-      width:'100%'
+      width: '100%',
     },
     row: {
       flexDirection: 'row',
@@ -333,19 +358,20 @@ const styling = (colors: any) =>
       justifyContent: 'space-between',
       width: '100%',
       paddingVertical: Spacing.m,
-      borderBottomColor: colors.stroke,
-      borderBottomWidth: 0.5,
+
     },
-bottomCard:{
-     flexDirection: 'row',
-              alignItems: 'center',
-              gap: Spacing.s,
-},
-card:{
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: Spacing.l
-}
+    bottomCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.s,
+      marginTop: Spacing.m,
+      textAlign: 'center'
+    },
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.l
+    }
   });
 
 export default NewProfileScreen;

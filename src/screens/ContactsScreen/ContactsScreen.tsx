@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -14,9 +14,6 @@ import { ContactEntry } from '@utils/Storage/DBCalls/contacts';
 import ConnectionsCard from './components/ConnectionsCard';
 import InviteContactsCard from './components/InviteContactsCard';
 import NewContactOptions from './components/NewContactOptions';
-
-
-
 
 const ContactsScreen = () => {
   const Colors = useColors();
@@ -38,6 +35,27 @@ const ContactsScreen = () => {
     })();
   }, []);
 
+  const renderContent = () => {
+    return (
+      <View style={styles.scrollContainer}>
+        <TopBarDescription
+          theme={Colors.theme}
+          description="Invite more contacts to Port and enjoy a clutter-free, secure chat experience."
+        />
+        <View style={styles.scrollableElementsParent}>
+          <View style={styles.card}>
+            <NewContactOptions />
+            {allConnections.length > 0 ? (
+              <ConnectionsCard allConnections={allConnections} />
+            ) : (
+              <InviteContactsCard />
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <GradientScreenView
       color={Colors}
@@ -45,24 +63,11 @@ const ContactsScreen = () => {
       onBackPress={onBackPress}
       modifyNavigationBarColor={true}
       bottomNavigationBarColor={Colors.black}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.scrollContainer}>
-          <TopBarDescription
-            theme={Colors.theme}
-            description="Invite more contacts to Port and enjoy a clutter-free, secure chat experience."
-          />
-          <View style={styles.scrollableElementsParent}>
-            <View style={styles.card}>
-              <NewContactOptions />
-              {allConnections.length > 0 ? (
-                <ConnectionsCard allConnections={allConnections} />
-              ) : (
-                <InviteContactsCard />)
-              }
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+      <FlatList
+        data={[1]}
+        renderItem={renderContent}
+        showsVerticalScrollIndicator={false}
+      />
     </GradientScreenView>
   );
 };

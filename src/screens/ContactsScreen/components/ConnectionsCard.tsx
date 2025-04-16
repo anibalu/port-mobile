@@ -1,5 +1,5 @@
 import React from 'react';
-import {Pressable, StyleSheet} from 'react-native';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -52,40 +52,43 @@ const ConnectionsCard = ({
       showToast('Failed to navigate to profile, please try again', ToastType.error)
     }
   };
-
-  return (
-    <GradientCard style={styles.card}>
-      <NumberlessText
-        textColor={Colors.text.title}
-        style={{marginBottom: Spacing.s}}
-        fontWeight={FontWeight.md}
-        fontSizeType={FontSizeType.m}>
-        Port Contacts
-      </NumberlessText>
-      {allConnections.map((item, index) => {
-        return (
-          <Pressable
-          onPress={()=>  
-            onGoToProfile(item.pairHash)
-          }
-            style={StyleSheet.compose(styles.list, {
-              borderBottomWidth: allConnections.length - 1 === index ? 0 : 0.5,
-              borderBottomColor: Colors.stroke,
-            })}>
-            <AvatarBox avatarSize="s" profileUri={item.displayPic} />
-            <NumberlessText
-              numberOfLines={1}
-              textColor={Colors.text.title}
-              fontWeight={FontWeight.rg}
-              fontSizeType={FontSizeType.m}>
-              {item.name || DEFAULT_NAME}
-            </NumberlessText>
-          </Pressable>
-        );
-      })}
-    </GradientCard>
-  );
-};
+  
+return (
+  <View style={{paddingBottom: allConnections.length > 10 ? Spacing.xxl : 300}}>
+  <GradientCard style={styles.card}>
+    <NumberlessText
+      textColor={Colors.text.title}
+      style={{ marginBottom: Spacing.s, marginTop: Spacing.s}}
+      fontWeight={FontWeight.md}
+      fontSizeType={FontSizeType.m}>
+      Port Contacts
+    </NumberlessText>
+    <FlatList
+      showsVerticalScrollIndicator={false}
+      data={allConnections}
+      keyExtractor={(item) => item.pairHash}
+      renderItem={({ item, index }) =>{ return (
+        <Pressable
+          onPress={() => onGoToProfile(item.pairHash)}
+          style={StyleSheet.compose(styles.list, {
+            borderBottomWidth: allConnections.length - 1 === index ? 0 : 0.5,
+            borderBottomColor: Colors.stroke,
+          })}>
+          <AvatarBox avatarSize="s" profileUri={item.displayPic} />
+          <NumberlessText
+            numberOfLines={1}
+            textColor={Colors.text.title}
+            fontWeight={FontWeight.rg}
+            fontSizeType={FontSizeType.m}>
+            {item.name || DEFAULT_NAME}
+          </NumberlessText>
+        </Pressable>
+      )}}
+    />
+  </GradientCard>
+  </View>
+)
+        }
 
 const styling = (color: any) =>
   StyleSheet.create({

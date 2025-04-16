@@ -95,7 +95,7 @@ const DisplayablePortQRCard = ({
             fontWeight={FontWeight.rg}
             textColor={colors.text.subtitle}
             fontSizeType={FontSizeType.m}>
-            {`Show this QR code or share the link below with ${contactName} and add them as a contact`}
+            {`Show this QR code or share the link below with ${contactName} to add them as a contact`}
           </NumberlessText>
         </View>
       )}

@@ -1,24 +1,24 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  ScrollView,
+  FlatList,
   StyleSheet,
   View,
 } from 'react-native';
 
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Contacts from 'react-native-contacts';
-import { EmailAddress, PhoneNumber} from 'react-native-contacts/type';
+import { EmailAddress, PhoneNumber } from 'react-native-contacts/type';
 
-import {useColors} from '@components/colorGuide';
-import {GradientScreenView} from '@components/GradientScreenView';
+import { useColors } from '@components/colorGuide';
+import { GradientScreenView } from '@components/GradientScreenView';
 import SearchBar from '@components/SearchBar';
-import {Height, Spacing} from '@components/spacingGuide';
+import { Height, Spacing } from '@components/spacingGuide';
 import TopBarDescription from '@components/Text/TopBarDescription';
 
-import {defaultFolderInfo, defaultPermissions} from '@configs/constants';
+import { defaultFolderInfo, defaultPermissions } from '@configs/constants';
 
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
 
 import ContactsList from './components/ContactsList';
 
@@ -31,7 +31,7 @@ interface ContactInfo {
   contactNumber: PhoneNumber[];
 }
 
-const PhoneContactList = ({navigation}: Props) => {
+const PhoneContactList = ({ navigation }: Props) => {
   const Colors = useColors();
 
   const styles = styling(Colors);
@@ -72,7 +72,7 @@ const PhoneContactList = ({navigation}: Props) => {
         setFilteredContacts(contactList);
       } else {
         const filteredData = contactList.filter(item => {
-          return item.displayName
+          return item.givenName
             .toLowerCase()
             .includes(searchText.toLowerCase());
         });
@@ -88,13 +88,49 @@ const PhoneContactList = ({navigation}: Props) => {
       screen: 'PortQRScreen',
       params: {
         contactName: contact.contactName,
-        permissions: {...defaultPermissions},
+        permissions: { ...defaultPermissions },
         folderId: defaultFolderInfo.folderId,
       },
     });
   };
 
- 
+  const renderContent = () => {
+    return (
+      <View style={styles.scrollContainer}>
+        <TopBarDescription
+          theme={Colors.theme}
+          description="Create Ports for your favourite phone contacts and invite them to Port to enjoy a clutter-free, secure chat experience."
+        />
+        <View style={styles.scrollableElementsParent}>
+          {isLoading ? (
+            <View style={{paddingTop: Spacing.xxxxl, justifyContent: 'flex-start', alignItems: 'center', height: 600}}>
+              <ActivityIndicator color={Colors.text.subtitle} />
+            </View>
+          ) : (
+            <View style={styles.card}>
+              <SearchBar
+                style={{
+                  backgroundColor: Colors.surface,
+                  height: Height.searchBar,
+                  width: '100%',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderRadius: Spacing.xml,
+                }}
+                searchText={searchText}
+                setSearchText={setSearchtext}
+              />
+              <ContactsList
+                filteredContacts={filteredContacts}
+                onInviteContactClick={onInviteContactClick}
+              />
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <GradientScreenView
       color={Colors}
@@ -102,38 +138,11 @@ const PhoneContactList = ({navigation}: Props) => {
       onBackPress={onBackPress}
       modifyNavigationBarColor={true}
       bottomNavigationBarColor={Colors.black}>
-      <View style={styles.scrollContainer}>
-        <TopBarDescription
-          theme={Colors.theme}
-          description="Create Ports for your favourite phone contacts and invite them to Port to enjoy a clutter-free, secure chat experience."
-        />
-        <ScrollView style={styles.scrollableElementsParent}>
-          <View
-            style={{
-              paddingHorizontal: Spacing.l,
-            }}>
-            <SearchBar
-              style={{
-                backgroundColor: Colors.surface,
-                height: Height.searchBar,
-                width: '100%',
-                flexDirection: 'row',
-                alignItems: 'center',
-                borderRadius: Spacing.xml,
-              }}
-              searchText={searchText}
-              setSearchText={setSearchtext}
-            />
-          </View>
-          {isLoading ? (
-            <ActivityIndicator color={Colors.text.subtitle} />
-          ) : (
-            <View style={{margin: Spacing.l}}>
-    <ContactsList filteredContacts={filteredContacts} onInviteContactClick={onInviteContactClick} />
-            </View>
-          )}
-        </ScrollView>
-      </View>
+      <FlatList
+        data={[1]}
+        renderItem={renderContent}
+        showsVerticalScrollIndicator={false}
+      />
     </GradientScreenView>
   );
 };
@@ -142,15 +151,13 @@ const styling = (colors: any) =>
   StyleSheet.create({
     scrollContainer: {
       backgroundColor: colors.background,
-      flex: 1,
     },
     scrollableElementsParent: {
       marginTop: -Spacing.xxl,
       paddingBottom: Spacing.l,
       gap: Spacing.l,
     },
- 
-    
+    card: { marginHorizontal: Spacing.l, gap: Spacing.l },
   });
 
 export default PhoneContactList;

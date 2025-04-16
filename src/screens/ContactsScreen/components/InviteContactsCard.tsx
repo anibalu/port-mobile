@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
 
@@ -36,6 +36,7 @@ const InviteContactsCard = () => {
     }
   };
   return (
+    <View style={{paddingBottom: 300}}>
     <GradientCard style={styles.gradientcard}>
       <InviteContactsLogo style={{alignSelf: 'center'}} />
       <NumberlessText
@@ -58,6 +59,7 @@ const InviteContactsCard = () => {
         disabled={false}
       />
     </GradientCard>
+    </View>
   );
 };
 

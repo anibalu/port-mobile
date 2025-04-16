@@ -1,190 +1,289 @@
-import {defaultFolderId} from '@configs/constants';
+import { z } from 'zod';
 
-import {getChatPermissions} from '@utils/ChatPermissions';
+import {DEFAULT_NAME, NAME_LENGTH_LIMIT, ORG_NAME} from '@configs/constants';
+
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {ContactBundleParams, ContentType} from '@utils/Messaging/interfaces';
-import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {getProfileName, getProfilePicture} from '@utils/Profile';
+import { readerInitialInfoSend } from '@utils/DirectChats/initialInfoExchange';
+import { generateRandomHexId } from '@utils/IdGenerator';
+import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
+import { setRemoteNotificationPermissionForDirectChat } from '@utils/Notifications';
+import { DirectSuperportBundle } from '@utils/Ports/interfaces';
+import {getProfileName} from '@utils/Profile';
+import { isUserBlocked } from '@utils/Storage/blockUsers';
+import { addConnection, getBasicConnectionInfo, getChatIdFromPairHash, updateConnectionOnNewMessage } from '@utils/Storage/connections';
+import { addContact } from '@utils/Storage/contacts';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
-import {getMessage, updateMessageData} from '@utils/Storage/messages';
-import {createChatPermissionsFromFolderId} from '@utils/Storage/permissions';
+import { LineDataEntry } from '@utils/Storage/DBCalls/lines';
+import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
+import { BundleTarget } from '@utils/Storage/DBCalls/ports/interfaces';
+import { ReadPortData } from '@utils/Storage/DBCalls/ports/readPorts';
+import { addLine, readLineData } from '@utils/Storage/lines';
 import * as permissionStorage from '@utils/Storage/permissions';
 import * as storageReadPorts from '@utils/Storage/readPorts';
 import {generateISOTimeStamp, hasExpired} from '@utils/Time';
 
+import * as API from '../APICalls';
 import SuperPortReader from '../SuperPortReader';
 
+
+
 const SUPERPORT_READER_VERSION = '1.0.0';
+
+const SuperPortBundleSchema = z.object({
+  portId: z.string().length(32).regex(/^[0-9a-f]{32}$/),
+  version: z.literal('1.0.0'),
+  org: z.literal(ORG_NAME),
+  target: z.literal(BundleTarget.superportDirect),
+  name: z.string().max(NAME_LENGTH_LIMIT).optional(),
+  rad: z.string().length(32).regex(/^[0-9a-f]{32}$/),
+  keyHash: z.string().length(64).regex(/^[0-9a-f]{64}$/),
+  pubkey: z.string().length(64).regex(/^[0-9a-f]{64}$/),
+  expiryTimestamp: z.string().datetime().optional(),
+});
+
+interface PlaintextSecretContent {
+  rad: string;
+  name: string;
+}
+
+type SuperPortBundle_1_0_0 = z.infer<typeof SuperPortBundleSchema>;
 
 class SuperPortReader_1_0_0 extends SuperPortReader {
   version: string = SUPERPORT_READER_VERSION;
 
-  static validateBundle(bundleData: any): void {
-    if (
-      !bundleData.version ||
-      bundleData.version !== SUPERPORT_READER_VERSION
-    ) {
-      throw new Error('Invalid version for Port Data');
-    }
-  }
-
-  static validate(portData: any): void {
-    SuperPortReader_1_0_0.validateBundle(portData);
-    if (
-      !portData.cryptoId ||
-      typeof portData.cryptoId !== 'string' ||
-      portData.cryptoId.length !== 32
-    ) {
-      throw new Error('Invalid cryptoId in SuperPort data');
-    }
-  }
-
   /**
-   * util to accept the port bundle received
+   * Validates the super port bundle
    * @param bundleData bundle data received
-   * @param folderId of the chat
+   * @returns validated port bundle
+   * @throws Error if bundle is invalid
    */
-  static async accept(bundleData: any, folderId: string = defaultFolderId) {
-    SuperPortReader_1_0_0.validateBundle(bundleData);
-    //setup crypto
-    const cryptoDriver = new CryptoDriver();
-    await cryptoDriver.create();
-    const cryptoId = cryptoDriver.getCryptoId();
-    //save read port
-    await storageReadPorts.newReadPort({
-      portId: bundleData.portId,
-      version: bundleData.version,
-      target: bundleData.target,
-      name: bundleData.name,
-      description: bundleData.description,
-      usedOnTimestamp: generateISOTimeStamp(),
-      folderId: folderId,
-      cryptoId: cryptoId,
-    });
+  static validateBundle(bundleData: any): DirectSuperportBundle {
+    const parsedBundle: SuperPortBundle_1_0_0 = SuperPortBundleSchema.parse(bundleData);
+    // DirectSuperportBundle is a superset of SuperPortBundle_1_0_0
+    return parsedBundle as DirectSuperportBundle;
   }
 
   /**
-   * Forms a chat
+   * Accepts a port bundle
+   * @param bundleData bundle data received
+   * @param permissions permissions to be assigned to the chat
+   * @param folderId folder id to be assigned to the chat
+   * @returns read port data or null if error
    */
-  async use(): Promise<void> {
-    //create chat permissions to be assigned to chat using folder Id
-    const permissionsId = await createChatPermissionsFromFolderId(
-      this.portData.folderId,
-    );
-    //check timestamp expiry
-    if (hasExpired(this.portData.expiryTimestamp)) {
-      await cleanup(
-        this.portData.portId,
-        permissionsId,
-        this.portData.cryptoId,
-      );
-      return;
-    }
-    const chat = new DirectChat();
+  static async accept(bundleData: DirectSuperportBundle, permissions: PermissionsStrict, folderId: string): Promise<ReadPortData | null> {
     try {
-      //try to create direct chat. If port is invalid, expire the port
-      await chat.createChatUsingPortId(
-        this.portData.portId,
-        {
-          name: this.portData.name,
-          authenticated: false,
-          disconnected: false,
-          cryptoId: this.portData.cryptoId,
-          connectedOn: this.portData.usedOnTimestamp,
-          connectionSource: this.portData.channel,
-          permissionsId: permissionsId,
-        },
-        this.portData.folderId,
-        false,
+      //we can assume that bundle data is validated
+      const validatedBundle = bundleData as SuperPortBundle_1_0_0;
+      //setup crypto
+      const cryptoDriver = new CryptoDriver();
+      await cryptoDriver.create();
+      await cryptoDriver.updatePeerPublicKeyHashAndRad(
+        validatedBundle.keyHash,
+        validatedBundle.rad,
       );
-      if (this.portData.channel) {
-        const channel = this.portData.channel;
-        if (channel.substring(0, 9) === 'shared://') {
-          const fromChatId = channel.substring(9, 9 + 32);
-          const messsageId = channel.substring(9 + 32 + 3, 9 + 32 + 3 + 32);
-          const message = await getMessage(fromChatId, messsageId);
-          if (message) {
-            const update = message.data as ContactBundleParams;
-            update.accepted = true;
-            update.createdChatId = chat.getChatId();
-            await updateMessageData(fromChatId, messsageId, update);
-          }
-        }
+      cryptoDriver.updateSharedSecret(validatedBundle.pubkey);
+      const cryptoId = cryptoDriver.getCryptoId();
+      //setup permissions
+      const permissionsId = generateRandomHexId();
+      await permissionStorage.addPermissionEntry({
+        permissionsId: permissionsId,
+        ...permissions,
+      });
+      const portData: ReadPortData = {
+        portId: validatedBundle.portId,
+        version: validatedBundle.version,
+        target: validatedBundle.target,
+        name: validatedBundle.name || DEFAULT_NAME,
+        usedOnTimestamp: generateISOTimeStamp(),
+        expiryTimestamp: validatedBundle.expiryTimestamp,
+        folderId: folderId,
+        cryptoId: cryptoId,
+        permissionsId: permissionsId,
       }
-      console.log('[Deleting read port on successful chat formation]');
+      //save read port
+      await storageReadPorts.newReadPort(portData);
+      return portData;
+    } catch (error) {
+      console.error('Error accepting super port bundle: ', error);
+      return null;
+    }
+  }
+
+  /**
+   * Cleans up the read port
+   */
+  async clean() {
+    try {
+      //delete read port from storage
       await storageReadPorts.deleteReadPortData(this.portData.portId);
-      console.log('[Sending initial set of messages]');
-      const chatId = chat.getChatId();
-      await readerInitialInfoSend(chatId);
-    } catch (error: any) {
-      //delete permissions if there is an error.
-      if (typeof error === 'object' && error.response) {
-        if (error.response.status === 404) {
-          console.log('Port has expired');
-          //expire port
-          await cleanup(
-            this.portData.portId,
-            permissionsId,
-            this.portData.cryptoId,
-          );
+      if (this.portData.cryptoId) {
+        const cryptoDriver = new CryptoDriver(this.portData.cryptoId);
+        await cryptoDriver.deleteCryptoData();
+      }
+      if (this.portData.permissionsId) {
+        await permissionStorage.clearPermissions(this.portData.permissionsId);
+      }
+    } catch (error) {
+      console.log('Error cleaning up read port: ', error);
+    }
+  }
+
+  /**
+   * Creates default permissions for the read port in case it doesn't exist.
+   * Read Ports before version 1.0.0 might not have permissions.
+   */
+  private async createPermissions() {
+    const permissionsId = generateRandomHexId();
+    const defaultPermissions = await permissionStorage.getPermissions();
+    await permissionStorage.addPermissionEntry({
+      permissionsId: permissionsId,
+      ...defaultPermissions,
+    });
+    this.portData = { ...this.portData, permissionsId: permissionsId };
+    await storageReadPorts.updateReadPort(this.portData.portId, this.portData);
+  }
+
+  /**
+   * Generates an intro message for the read port before using it to form a chat.
+   * @returns intro message
+   */
+  private async generateIntroMessage(): Promise<API.IntroMessage> {
+    try {
+      const name = await getProfileName();
+      const cryptoDriver = new CryptoDriver(this.portData.cryptoId);
+      const rad = await cryptoDriver.getRad();
+      const plaintextSecret: PlaintextSecretContent = {
+        name,
+        rad,
+      };
+      const encryptedSecretContent = await cryptoDriver.encrypt(
+        JSON.stringify(plaintextSecret),
+      );
+      return { pubkey: await cryptoDriver.getPublicKey(), encryptedSecretContent };
+    } catch (error) {
+      console.log('Error generating intro message: ', error);
+      throw new Error('Error generating intro message');
+    }
+  }
+
+  /**
+   * Uses the read port to form a chat
+   */
+  async use() {
+    //declare variables
+    let lineId: string | null = null;
+    let pairHash: string | null = null;
+    try {
+      //run basic checks
+      //check cryptoId exists
+      if (!this.portData.cryptoId) {
+        throw new Error('NoCryptoId');
+      }
+      //if permissions don't exist, create them.
+      if (!this.portData.permissionsId) {
+        await this.createPermissions();
+      }
+      //check expiry timestamp
+      if (hasExpired(this.portData.expiryTimestamp)) {
+        throw new Error('Attempted to use an expired port');
+      }
+      //generate intro message
+      const introMessage = await this.generateIntroMessage();
+      //we catch the error here to prevent the port from being cleaned up if any of the API calls fail
+      try {
+        const result = await API.newDirectChatFromSuperport(
+          this.portData.portId,
+          introMessage,
+        );
+        lineId = result.lineId;
+        pairHash = result.pairHash;
+      } catch (error) {
+        console.log('Temporary error using read super port: ', error);
+        console.log('We are not cleaning up the read super port as it is still usable');
+        return;
+      }
+      //run additional checks
+      if (!lineId || !pairHash) {
+        throw new Error('LineId and PairHash not returned from API');
+      }
+      //If user is blocked, don't form a chat
+      if (await isUserBlocked(pairHash)) {
+        throw new Error('UserIsBlocked');
+      }
+      //Ensure active connection does not exist for the pairHash
+      let associatedChatId: string | null = await getChatIdFromPairHash(pairHash);
+      let lineData: LineDataEntry | null = null;
+      if (associatedChatId) {
+        console.log('Existing chatId found for pairHash: ', associatedChatId);
+        const existingConnection = await getBasicConnectionInfo(associatedChatId);
+        lineData = await readLineData(
+          existingConnection.routingId,
+        );
+        if (lineData && !lineData.disconnected) {
+          throw new Error('Connection already exists for the pairHash');
         }
       }
+      //add line to db
+      await addLine({
+        lineId: lineId,
+        authenticated: true,
+        disconnected: false,
+        cryptoId: this.portData.cryptoId,
+        permissionsId: this.portData.permissionsId,
+      });
+
+      if (associatedChatId) {
+        //update existing connection with new lineId
+        await updateConnectionOnNewMessage({
+          chatId: associatedChatId,
+          routingId: lineId,
+        });
+        //clean delete old lineId and associated data
+        if (lineData) {
+          await DirectChat.cleanDeleteLine(lineData.lineId, lineData);
+        }
+      } else {
+        //generate new chatId
+        associatedChatId = generateRandomHexId();
+        //add new connection
+        await addConnection({
+          chatId: associatedChatId,
+          connectionType: ChatType.direct,
+          recentMessageType: ContentType.newChat,
+          readStatus: MessageStatus.latest,
+          timestamp: generateISOTimeStamp(),
+          newMessageCount: 0,
+          folderId: this.portData.folderId,
+          pairHash: pairHash,
+          routingId: lineId,
+        });
+        //add contact since pairHash is new
+        await addContact({
+          pairHash: pairHash,
+          name: this.portData.name || DEFAULT_NAME,
+          connectedOn: generateISOTimeStamp(),
+        });
+      }
+      //delete read port data from storage. don't clean delete since permissions and crypto data references are still needed.
+      await storageReadPorts.deleteReadPortData(this.portData.portId);
+      //set remote notification permission for the line
+      const permissions = await permissionStorage.getPermissions(this.portData.permissionsId);
+      setRemoteNotificationPermissionForDirectChat(lineId, permissions.notifications, true);
+      //send reader initial info messages
+      readerInitialInfoSend(associatedChatId);
+    } catch (error) {
+      console.log('Error using read super port: ', error);
+      console.log('Cleaning up the read super port as it is not usable');
+      await this.clean();
+      if (lineId) {
+        console.log('Informing server of failure to form chat on the reader side.');
+        await DirectChat.cleanDeleteLine(lineId);
+        DirectChat.informServerOfDisconnection(lineId);
+      }
+      return;
     }
   }
 }
 
 export default SuperPortReader_1_0_0;
-
-/**
- * Cleanup residuals if port creation fails.
- * @param portId
- * @param permissionsId
- * @param cryptoId
- */
-async function cleanup(
-  portId: string,
-  permissionsId: string,
-  cryptoId: string,
-) {
-  //load up crypto driver
-  const cryptoDriver = new CryptoDriver(cryptoId);
-  await storageReadPorts.deleteReadPortData(portId);
-  await cryptoDriver.deleteCryptoData();
-  await permissionStorage.clearPermissions(permissionsId);
-}
-
-/**
- * Initial messages sent by port reader.
- * @param chatId
- */
-async function readerInitialInfoSend(chatId: string) {
-  //send name
-  const nameSender = new SendMessage(chatId, ContentType.name, {
-    name: await getProfileName(),
-  });
-  await nameSender.send();
-  //send contact port
-  const contactPortSender = new SendMessage(
-    chatId,
-    ContentType.contactPortBundle,
-    {},
-  );
-  await contactPortSender.send();
-  //send profile picture based on permission
-  const chatPermissions = await getChatPermissions(chatId, ChatType.direct);
-  if (chatPermissions.displayPicture) {
-    const profilePictureAttributes = await getProfilePicture();
-    if (!profilePictureAttributes) {
-      return;
-    }
-    const contentType =
-      profilePictureAttributes.fileType === 'avatar'
-        ? ContentType.displayAvatar
-        : ContentType.displayImage;
-    const sendDisplayPicture = new SendMessage(chatId, contentType, {
-      ...profilePictureAttributes,
-    });
-    await sendDisplayPicture.send();
-  }
-}

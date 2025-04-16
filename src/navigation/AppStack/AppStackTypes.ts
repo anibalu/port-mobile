@@ -107,7 +107,6 @@ export type AppStackParamList = {
     onRemove?: (item: any) => void;
   };
   CaptureMedia: {chatId: string; isGroupChat?: boolean};
-  PendingRequests: undefined;
   PreviewShareablePort: {
     qrData: string | null;
     linkData: string | null;
@@ -137,4 +136,6 @@ export type AppStackParamList = {
   //child stacks
   NewPortStack: any;
   NewSuperPortStack: any;
+  NewGroupSuperPort: {portData: any; chatId: string; chatData: GroupData};
+  AddNewGroupMembers: {link: string; chatData: GroupData; chatId: string};
 };

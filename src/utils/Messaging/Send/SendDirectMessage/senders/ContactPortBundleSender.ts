@@ -1,4 +1,4 @@
-import {MESSAGE_DATA_MAX_LENGTH} from '@configs/constants';
+import {MESSAGE_DATA_MAX_LENGTH, defaultFolderId, defaultPermissions} from '@configs/constants';
 
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
@@ -8,7 +8,7 @@ import {
   MessageStatus,
   PayloadMessageParams,
 } from '@utils/Messaging/interfaces';
-import {fetchContactPortBundle} from '@utils/Ports/contactport';
+import { ContactPort } from '@utils/Ports/ContactPorts/ContactPort';
 import {getConnection} from '@utils/Storage/connections';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
 import * as storage from '@utils/Storage/messages';
@@ -157,11 +157,14 @@ export class SendContactPortBundleDirectMessage<
       let bundle = this.savedMessage.data?.bundle;
       if (!bundle) {
         //if bundle does not exist, we attempt to create it.
-        bundle = await fetchContactPortBundle(
+        const contactPort = await ContactPort.generator.shared.create(
           (
             await getConnection(this.chatId)
           ).pairHash,
-        );
+          defaultFolderId,
+          defaultPermissions,
+        )
+        bundle = await contactPort.getShareableBundle();
       }
       //if bundle still does not exist, we throw an error
       if (!bundle) {

@@ -1,6 +1,6 @@
 // this is to receieve the final contact bundle
 import {ContactPortTicketParams} from '@utils/Messaging/interfaces';
-import {checkAndAcceptContactPortTicket} from '@utils/Ports/contactport';
+import { ContactPort } from '@utils/Ports/ContactPorts/ContactPort';
 
 import DirectReceiveAction from '../DirectReceiveAction';
 
@@ -18,11 +18,8 @@ class ReceiveContactPortTicket extends DirectReceiveAction {
     //save contact port bundle to accepted contact ports
     const contactPortTicket = this.decryptedMessageContent
       .data as ContactPortTicketParams;
-    await checkAndAcceptContactPortTicket(
-      contactPortTicket.contactPortId,
-      contactPortTicket.ticketId,
-      this.chatId,
-    );
+    const contactPort = await ContactPort.generator.shared.fromPortId(contactPortTicket.contactPortId);
+    await contactPort.acceptTicket(contactPortTicket.ticketId, this.chatId);
   }
 }
 

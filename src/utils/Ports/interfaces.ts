@@ -6,21 +6,6 @@ import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
  */
 
 /**
- * Associated interfaces for each type of port bundle.
- */
-export type BundleType<T extends BundleTarget> = T extends BundleTarget.direct
-  ? PortBundle
-  : T extends BundleTarget.group
-  ? GroupBundle
-  : T extends BundleTarget.superportDirect
-  ? DirectSuperportBundle
-  : T extends BundleTarget.superportGroup
-  ? GroupSuperportBundle
-  : T extends BundleTarget.contactPort
-  ? DirectContactPortBundle
-  : never;
-
-/**
  * Base params present in a port bundle.
  */
 interface BundleBase {
@@ -72,6 +57,9 @@ export interface GroupBundle extends BundleBase {
 }
 
 /**
- * Describes data displayed in a QR or link for a group superport. Currently unsupported
+ * Describes data displayed in a QR or link for a group superport.
  */
-export interface GroupSuperportBundle extends BundleBase {}
+export interface GroupSuperportBundle extends BundleBase {
+  target: BundleTarget.superportGroup;
+  description?: string | null;
+}

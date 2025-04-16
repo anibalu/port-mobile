@@ -1,18 +1,11 @@
 import {defaultFolderId} from '@configs/constants';
 
 import {generateRandomHexId} from '@utils/IdGenerator';
-import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
-import {
-  remotePauseContactPorts,
-  remoteResumeContactPorts,
-} from '@utils/Ports/contactport';
 import {
   getConnectionsByFolder,
-  getLineIdFromChatId,
   updateConnection,
 } from '@utils/Storage/connections';
-import {getContactPortDataFromPairHash} from '@utils/Storage/contactPorts';
-import {ChatType, ConnectionEntry} from '@utils/Storage/DBCalls/connections';
+import {ConnectionEntry} from '@utils/Storage/DBCalls/connections';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {
   Permissions,
@@ -62,50 +55,6 @@ export async function updateFolderPermissions(
   } catch (error) {
     console.log('Error updating folder permissions', error);
   }
-}
-
-/**
- * Apply folder permissions to all chats in folder
- */
-export async function applyFolderPermissions(folderId: string) {
-  //get folder permissions
-  const folderPermissions = await permissionsStorage.getFolderPermissions(
-    folderId,
-  );
-  const connections = await getConnectionsByFolder(folderId);
-
-  // Let the backend know to silence notifications for chats in the folder
-  const newNotificationPermissionState = folderPermissions.notifications;
-
-  const notificationUpdateChatList: {id: string; type: 'line' | 'group'}[] = [];
-  const contactPortList: string[] = [];
-  let contactPort = null;
-  for (let i = 0; i < connections.length; i++) {
-    contactPort = await getContactPortDataFromPairHash(connections[i].pairHash);
-    if (contactPort) {
-      contactPortList.push(contactPort.portId);
-    }
-    notificationUpdateChatList.push({
-      id: await getLineIdFromChatId(connections[i].chatId),
-      type: (connections[i].connectionType === ChatType.direct
-        ? 'line'
-        : 'group') as 'line' | 'group',
-    });
-  }
-  await setRemoteNotificationPermissionsForChats(
-    newNotificationPermissionState,
-    notificationUpdateChatList,
-  );
-  if (folderPermissions.contactSharing) {
-    await remoteResumeContactPorts(contactPortList);
-  } else {
-    await remotePauseContactPorts(contactPortList);
-  }
-  // updates permissions of all chats in a folder
-  await permissionsStorage.updateChatPermissionsInAFolder(
-    folderId,
-    folderPermissions,
-  );
 }
 
 /**

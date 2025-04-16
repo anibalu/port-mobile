@@ -94,7 +94,8 @@
     "react-native-webrtc": "^124.0.5",
     "react-redux": "^8.1.0",
     "rn-qr-generator": "^1.4.0",
-    "toggle-switch-react-native": "^3.3.0"
+    "toggle-switch-react-native": "^3.3.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

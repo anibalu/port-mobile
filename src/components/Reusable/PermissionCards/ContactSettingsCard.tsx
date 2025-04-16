@@ -18,7 +18,7 @@ import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
 import {
   pauseContactPortForDirectChat,
   resumeContactPortForDirectChat,
-} from '@utils/Ports/contactport';
+} from '@utils/Ports';
 import {
   BooleanPermissions,
   PermissionsStrict,

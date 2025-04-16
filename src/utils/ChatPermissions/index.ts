@@ -1,10 +1,8 @@
-import {isGroupChat} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 import {
   DirectPermissions,
   GroupPermissions,
-  Permissions,
 } from '../Storage/DBCalls/permissions/interfaces';
 
 import * as direct from './direct';
@@ -49,23 +47,4 @@ export async function getChatPermissions<T extends ChatType>(
     return (await direct.getChatPermissions(chatId)) as ChatPermissions<T>;
   }
   throw new Error('Invalid ChatType');
-}
-
-/**
- * Update a chat's permissions
- * Please avoid using this if chat type is known.
- * Use updatePermissions available in DirectChat and Group classes.
- * @param chatId
- * @param update
- */
-export async function updateChatPermissions(
-  chatId: string,
-  update: Permissions,
-) {
-  const isGroup = await isGroupChat(chatId);
-  if (isGroup) {
-    await group.updatePermissions(chatId, update);
-  } else {
-    await direct.updatePermissions(chatId, update);
-  }
 }

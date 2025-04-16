@@ -1,6 +1,7 @@
 import {combineReducers, configureStore} from '@reduxjs/toolkit';
 
 import latestCallReducer from './call';
+import connectionErrors from './connectionErrors';
 import connectionFsSyncMutex from './connectionFsSyncMutex';
 import latestNewConnection from './latestNewConnection';
 import ping from './ping';
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   triggerRedraw,
   forceCloseModal,
   latestCallReducer,
+  connectionErrors,
 });
 
 const store = configureStore({

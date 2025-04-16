@@ -10,7 +10,8 @@ import {
   GROUP_MEMBER_LIMIT,
 } from '@configs/constants';
 
-import Group from '@utils/Groups/Group';
+import Group from '@utils/Groups/GroupClass';
+import { GroupSuperPort } from '@utils/Ports/GroupSuperPorts/GroupSuperPort';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
 import {GroupData} from '@utils/Storage/DBCalls/group';
 import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
@@ -22,6 +23,7 @@ import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
 import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
 import GroupMemberInfoBottomsheet from './Reusable/BottomSheets/GroupMemberInfoBottomsheet';
 import SimpleCard from './Reusable/Cards/SimpleCard';
+
 
 interface GroupMemberUseableData extends GroupMemberLoadedData {
   directChatId?: string | null;
@@ -87,20 +89,21 @@ const AddMembersCard = ({
     ...allMembers,
   ]);
 
-  const onCreateGroupPort = () => {
-    /**
-     * Our stack currently is
-     *
-     * GroupProfile
-     * ...
-     *
-     * So we simply push the new screen, so that on navigating back, we end up on the GroupProfile
-     * screen even if there is an instance of group settings further back, which is theoretically possible
-     */
-    navigation.push('NewGroupPort', {
-      chatId: chatId,
-      chatData: chatData,
-    });
+  // generates qr code from group superport class
+  const onQRGeneration = async () => {
+    try {
+      const groupSuperPortHandler = await GroupSuperPort.generator.create(
+        chatData.groupId,
+      );
+      const portData = groupSuperPortHandler.getPort();
+      navigation.navigate('NewGroupSuperPort', {
+        chatData: chatData,
+        portData: portData,
+        chatId: chatId,
+      });
+    } catch (error) {
+      console.log('Error fetching group superport', error);
+    }
   };
 
   const onPressMember = async (member: GroupMemberLoadedData) => {
@@ -150,8 +153,8 @@ const AddMembersCard = ({
     useCallback(() => {
       const fetchMembers = async () => {
         try {
-          const groupHandler = new Group(chatId);
-          const groupMembers = await groupHandler.getMembers();
+          const groupHandler = await Group.load(chatId);
+          const groupMembers = groupHandler.getGroupMembers();
           setAllMembers(groupMembers);
         } catch (error) {
           console.error('Error in loading group members: ', error);
@@ -187,7 +190,7 @@ const AddMembersCard = ({
       </View>
       {chatData.amAdmin && (
         <>
-          <Pressable onPress={onCreateGroupPort} style={styles.heading}>
+          <Pressable onPress={onQRGeneration} style={styles.heading}>
             <Link height={24} width={24} />
             <NumberlessText
               style={styles.text}
@@ -195,7 +198,7 @@ const AddMembersCard = ({
               fontSizeType={FontSizeType.m}
               numberOfLines={1}
               ellipsizeMode="tail">
-              Add new members using a Group Port
+              Create an invitation
             </NumberlessText>
           </Pressable>
         </>

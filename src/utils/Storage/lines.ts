@@ -43,6 +43,12 @@ export async function readLineData(
   }
   return lineData;
 }
+
+/**
+ * Get data for a given line if it exists
+ * @param lineId a 32 char lineId
+ * @returns
+ */
 export async function getLineData(
   lineId: string,
 ): Promise<DBCalls.LineDataEntry | null> {

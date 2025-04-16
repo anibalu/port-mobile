@@ -43,7 +43,7 @@ import NewConnectionsBottomsheet from '@screens/Home/components/CreateNewConnect
 import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
 import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
-import {cleanDeleteReadPort} from '@utils/Ports/direct';
+import {cleanDeleteReadPort} from '@utils/Ports';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 import {useTheme} from 'src/context/ThemeContext';

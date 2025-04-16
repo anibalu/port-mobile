@@ -23,6 +23,16 @@ export async function readerInitialInfoSend(chatId: string) {
   await contactPortSender.send();
   //send profile picture based on permission
   const chatPermissions = await getChatPermissions(chatId, ChatType.direct);
+  if (chatPermissions.disappearingMessages) {
+    const sendDissapearingMessages = new SendMessage(
+      chatId,
+      ContentType.disappearingMessages,
+      {
+        timeoutValue: chatPermissions.disappearingMessages,
+      },
+    );
+    await sendDissapearingMessages.send();
+  }
   if (chatPermissions.displayPicture) {
     const profilePictureAttributes = await getProfilePicture();
     if (!profilePictureAttributes) {

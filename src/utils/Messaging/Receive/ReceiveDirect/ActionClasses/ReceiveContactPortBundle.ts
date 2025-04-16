@@ -1,6 +1,7 @@
 // this is to receieve the final contact bundle
 import {ContactPortBundleParams} from '@utils/Messaging/interfaces';
-import {acceptAuthorizedContactBundle} from '@utils/Ports/contactport';
+import { ContactPort } from '@utils/Ports/ContactPorts/ContactPort';
+import { getBasicConnectionInfo } from '@utils/Storage/connections';
 
 import DirectReceiveAction from '../DirectReceiveAction';
 
@@ -20,7 +21,8 @@ class ReceiveContactPortBundle extends DirectReceiveAction {
       this.decryptedMessageContent.data as ContactPortBundleParams
     ).bundle;
     if (bundle) {
-      await acceptAuthorizedContactBundle(bundle, this.chatId);
+      const connection = await getBasicConnectionInfo(this.chatId);
+      await ContactPort.generator.accepted.create(connection.pairHash, bundle);
     }
   }
 }

@@ -21,11 +21,11 @@ const PortLogoAndSettingsTopBar = ({
 }) => {
   return theme === 'light' ? (
     <View style={styles.topbarContainer}>
-      <Pressable onPress={onSettingsPress}>
+      <Pressable onPress={onSettingsPress} style={{marginLeft: Spacing.m}}>
         <Settings width={Size.l} height={Size.l} />
       </Pressable>
       <Logo />
-      <Pressable onPress={onClosePress}>
+      <Pressable onPress={onClosePress} style={{marginRight: Spacing.m}}>
         <Cross width={Size.l} height={Size.l} />
       </Pressable>
     </View>
@@ -33,11 +33,11 @@ const PortLogoAndSettingsTopBar = ({
     <LinearGradient
       colors={[Colors.dark.purpleGradient[0], Colors.dark.purpleGradient[1]]}
       style={styles.topbarContainer}>
-      <Pressable onPress={onSettingsPress}>
+      <Pressable onPress={onSettingsPress} style={{marginLeft: Spacing.m}}>
         <Settings width={Size.l} height={Size.l} />
       </Pressable>
       <Logo />
-      <Pressable onPress={onClosePress}>
+      <Pressable onPress={onClosePress} style={{marginRight: Spacing.m}}>
         <Cross width={Size.l} height={Size.l} />
       </Pressable>
     </LinearGradient>
@@ -47,7 +47,6 @@ const PortLogoAndSettingsTopBar = ({
 const styles = StyleSheet.create({
   topbarContainer: {
     flexDirection: 'row',
-    paddingHorizontal: Spacing.m,
     alignItems: 'center',
     height: Height.topbar,
     width: Width.screen,

@@ -313,6 +313,11 @@ export function getExpiryTimestamp(
   return null;
 }
 
+/**
+ * Checks if something has expired.
+ * @param expiryTimestamp - The timestamp to check.
+ * @returns true if the timestamp has expired, false otherwise.
+ */
 export function hasExpired(expiryTimestamp?: string | null): boolean {
   try {
     if (!expiryTimestamp) {

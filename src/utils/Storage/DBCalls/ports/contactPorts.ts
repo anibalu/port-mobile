@@ -13,6 +13,7 @@ export interface ContactPortDataUpdate extends AcceptedContactPortDataUpdate {
   connectionsMade?: number | null;
   folderId?: string | null;
   paused?: boolean | null;
+  permissionsId?: string | null;
 }
 
 /**
@@ -28,6 +29,7 @@ export interface ContactPortData extends ContactPortDataUpdate {
   connectionsMade: number;
   folderId: string;
   paused: boolean;
+  permissionsId: string;
 }
 
 /**
@@ -134,8 +136,9 @@ export async function addContactPort(data: ContactPortData) {
         cryptoId,
         connectionsMade,
         folderId,
-        paused
-      ) VALUES (?,?,?,?,?,?,?,?,?,?);`,
+        paused,
+        permissionsId
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?);`,
     [
       data.portId,
       data.pairHash,
@@ -147,6 +150,7 @@ export async function addContactPort(data: ContactPortData) {
       data.connectionsMade,
       data.folderId,
       data.paused,
+      data.permissionsId
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (tx, result) => {},
@@ -199,7 +203,8 @@ export async function updateContactPortData(
       cryptoId = COALESCE(?, cryptoId),
       connectionsMade = COALESCE(?, connectionsMade),
       folderId = COALESCE(?, folderId),
-      paused = COALESCE(?, paused)
+      paused = COALESCE(?, paused),
+      permissionsId = COALESCE(?, permissionsId)
       WHERE portId = ? ;
       `,
     [
@@ -210,6 +215,7 @@ export async function updateContactPortData(
       data.connectionsMade,
       data.folderId,
       data.paused,
+      data.permissionsId,
       portId,
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

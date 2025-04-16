@@ -22,16 +22,19 @@ const MultiSelectMembers = ({
   members,
   setSelectedMembers,
   selectedMembers,
+  showBackgroundColor = true,
 }: {
   members: ConnectionInfo[];
   setSelectedMembers: (member: any) => void;
   selectedMembers: ConnectionInfo[];
+  showBackgroundColor?: boolean;
 }) => {
   const [selectAll, setSelectAll] = useState(false);
   return (
     <View style={{flex: 1}}>
       {selectedMembers.length > 0 && (
         <ClickableTextWithAvatar
+          showBackgroundColor={showBackgroundColor}
           setSelectAll={setSelectAll}
           setSelectedMembers={setSelectedMembers}
           selectedMembers={selectedMembers}

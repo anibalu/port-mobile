@@ -5,7 +5,7 @@ import Share from 'react-native-share';
 import {selectFiles} from '@utils/Files';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
-import {fetchNewPorts} from '@utils/Ports';
+import { Port } from '@utils/Ports/SingleUsePorts/Port';
 import {updateBackupTime} from '@utils/Profile';
 import {blockUser, getAllBlockedUsers} from '@utils/Storage/blockUsers';
 import {addConnection, getConnections} from '@utils/Storage/connections';
@@ -341,7 +341,7 @@ export async function readSecureDataBackup(
     for (let i = 0; i < dbOrder.length; i++) {
       await populateTable(dbOrder[i], dbCSVs[i]);
     }
-    await fetchNewPorts();
+    await Port.generator.fetchNewPorts();
     try {
       await initialiseFCM();
     } catch (e) {

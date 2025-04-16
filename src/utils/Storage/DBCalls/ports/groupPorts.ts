@@ -9,8 +9,8 @@ export interface GroupPortDataUpdate {
   groupId?: string | null;
   usedOnTimestamp?: string | null;
   expiryTimestamp?: string | null;
-  channel?: string | null;
-  folderId?: string | null;
+  bundleId?: string | null;
+  folderId?: string | null; //deprecated
 }
 
 export interface GroupPortData extends GroupPortDataUpdate {
@@ -18,7 +18,6 @@ export interface GroupPortData extends GroupPortDataUpdate {
   version: string;
   groupId: string;
   usedOnTimestamp: string;
-  folderId: string;
 }
 
 /**
@@ -55,7 +54,7 @@ export async function updateGroupPortData(
 		groupId = COALESCE(?, groupId),
 		usedOnTimestamp = COALESCE(?, usedOnTimestamp),
 		expiryTimestamp = COALESCE(?, expiryTimestamp),
-		channel = COALESCE(?, channel),
+		bundleId = COALESCE(?, bundleId),
     folderId = COALESCE(?, folderId)
 		WHERE portId = ? ;
 		`,
@@ -64,7 +63,7 @@ export async function updateGroupPortData(
       update.groupId,
       update.usedOnTimestamp,
       update.expiryTimestamp,
-      update.channel,
+      update.bundleId,
       update.folderId,
       portId,
     ],
@@ -128,7 +127,7 @@ export async function getUnusedGroupPort(
     },
   );
   if (matchingEntry.portId) {
-    updateGroupPortData(matchingEntry.portId, {
+    await updateGroupPortData(matchingEntry.portId, {
       usedOnTimestamp: generateISOTimeStamp(),
     });
   }

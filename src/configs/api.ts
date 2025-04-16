@@ -88,3 +88,12 @@ export const CONTACT_SHARING_RESUME = `${CONTACT_BASE}/resume`;
  * Call PermissionsEndpoints
  */
 export const CALL_PERMISSIONS_MANAGEMENT = `${MGMT_BASE}/call-permissions`;
+
+/**
+ * Group Superport Endpoints
+ */
+export const GROUP_SUPERPORT_CREATION_DELETION = `${SUPERPORT_BASE}/group`;
+export const GROUP_SUPERPORT_LIMIT_MODIFICATION = `${SUPERPORT_BASE}/group/limit`;
+export const GROUP_SUPERPORT_PAUSE = `${SUPERPORT_BASE}/group/pause`;
+export const GROUP_SUPERPORT_RESUME = `${SUPERPORT_BASE}/group/resume`;
+export const GROUP_SUPERPORT_JOIN = `${GROUP_BASE}/member/from-superport`;

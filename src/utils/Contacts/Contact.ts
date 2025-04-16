@@ -10,16 +10,13 @@ import {
 type AcceptedContactUpdate = Omit<ContactUpdate, 'name'>;
 
 class Contact {
-  private pairHash: string;
-  private contactInfo: ContactInfo;
+  private contactInfo: ContactEntry;
 
   /**
    * This class is used to manage a contact.
-   * @param pairHash - pairHash associated with the contact.
    * @param contactInfo - info associated with the contact.
    */
-  constructor(pairHash: string, contactInfo: ContactInfo) {
-    this.pairHash = pairHash;
+  constructor(contactInfo: ContactEntry) {
     this.contactInfo = contactInfo;
   }
 
@@ -29,7 +26,7 @@ class Contact {
    * @returns - contact class
    */
   static async load(pairHash: string): Promise<Contact> {
-    return new Contact(pairHash, await storage.getContact(pairHash));
+    return new Contact(await storage.getContact(pairHash));
   }
 
   /**
@@ -40,10 +37,7 @@ class Contact {
    */
   static async add(contact: ContactEntry): Promise<Contact> {
     await storage.addContact(contact);
-    return new Contact(
-      contact.pairHash,
-      await storage.getContact(contact.pairHash),
-    );
+    return new Contact(await storage.getContact(contact.pairHash));
   }
 
   /**
@@ -58,15 +52,55 @@ class Contact {
    * get the pairHash associated with the contact.
    * @returns - pairHash associated with the contact.
    */
-  public async getPairHash(): Promise<string> {
-    return this.pairHash;
+  public getPairHash(): string {
+    return this.contactInfo.pairHash;
   }
 
+  /**
+   * Get the name of the contact.
+   * @returns - name of the contact
+   */
+  public getName(): string {
+    return this.contactInfo.name || DEFAULT_NAME;
+  }
+
+  /**
+   * Get the display picture of the contact.
+   * @returns - display picture of the contact
+   */
+  public getDisplayPic(): string | null | undefined {
+    return this.contactInfo.displayPic;
+  }
+
+  /**
+   * Get the notes of the contact.
+   * @returns - notes of the contact
+   */
+  public getNotes(): string | null | undefined {
+    return this.contactInfo.notes;
+  }
+
+  /**
+   * Get the date the contact was connected on.
+   * @returns - date the contact was connected on
+   */
+  public getConnectedOn(): string | null | undefined {
+    return this.contactInfo.connectedOn;
+  }
+
+  /**
+   * Get the source of the connection.
+   * @returns - source of the connection
+   */
+  public getConnectionSource(): string | null | undefined {
+    return this.contactInfo.connectionSource;
+  }
+  
   /**
    * get the contact info associated with the contact.
    * @returns - contact info associated with the contact
    */
-  public async getContactInfo(): Promise<ContactInfo> {
+  public getContactInfo(): ContactInfo {
     return this.contactInfo;
   }
 
@@ -77,10 +111,10 @@ class Contact {
    */
   public async addContactName(name: string) {
     if (!this.contactInfo.name || this.contactInfo.name === DEFAULT_NAME) {
-      await storage.updateContact(this.pairHash, {
+      await storage.updateContact(this.contactInfo.pairHash, {
         name: name,
       });
-      this.contactInfo = await storage.getContact(this.pairHash);
+      this.contactInfo = await storage.getContact(this.contactInfo.pairHash);
     }
   }
 
@@ -89,10 +123,10 @@ class Contact {
    * @param name - name to be updated.
    */
   public async overwriteContactName(name: string) {
-    await storage.updateContact(this.pairHash, {
+    await storage.updateContact(this.contactInfo.pairHash, {
       name: name,
     });
-    this.contactInfo = await storage.getContact(this.pairHash);
+    this.contactInfo = await storage.getContact(this.contactInfo.pairHash);
   }
 
   /**
@@ -102,8 +136,8 @@ class Contact {
    * @param update
    */
   public async updateContact(update: AcceptedContactUpdate) {
-    await storage.updateContact(this.pairHash, update);
-    this.contactInfo = await storage.getContact(this.pairHash);
+    await storage.updateContact(this.contactInfo.pairHash, update);
+    this.contactInfo = await storage.getContact(this.contactInfo.pairHash);
   }
 }
 

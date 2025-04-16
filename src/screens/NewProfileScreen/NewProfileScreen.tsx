@@ -26,7 +26,7 @@ import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 import { BottomNavStackParamList } from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
 
 import {createSecureDataBackup} from '@utils/Backup/backupUtils';
-import {updateProfileName} from '@utils/Profile';
+import {getProfileInfo, updateProfileName} from '@utils/Profile';
 import {setNewProfilePicture} from '@utils/ProfilePicture';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {ThemeType} from '@utils/Themes';
@@ -41,6 +41,9 @@ type Props = NativeStackScreenProps<BottomNavStackParamList, 'Settings'>;
 const NewProfileScreen = ({navigation}:Props) => {
   const profile = useSelector(state => state.profile.profile);
   const {name, avatar} = useMemo(() => {
+    getProfileInfo().then((profile) => {
+      console.log('profile', profile);
+    });
     return {
       name: profile?.name || DEFAULT_NAME,
       avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
@@ -125,17 +128,13 @@ const NewProfileScreen = ({navigation}:Props) => {
     await setNewProfilePicture(newProfilePicAttr);
   }
 
-  const onSaveName = async () => {
-    await updateProfileName(processedName);
+  const onSaveName = async (newName: string) => {
+    await updateProfileName(newName);
   };
   const onBackupPress = async () => {
     await createSecureDataBackup();
   };
-
-  useMemo(() => {
-    onSaveName();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [processedName]);
+  
   return (
     <>
       <CustomStatusBar backgroundColor={colors.background2} />
@@ -154,7 +153,7 @@ const NewProfileScreen = ({navigation}:Props) => {
               fontSizeType={FontSizeType.xl}
               fontWeight={FontWeight.sb}
               textColor={colors.text.title}>
-              {processedName}
+              {newName}
             </NumberlessText>
             <RoundPencil   width={20} height={20} />
           </Pressable>
@@ -293,6 +292,7 @@ const NewProfileScreen = ({navigation}:Props) => {
           title={'Edit your name'}
           visible={editingName}
           name={newName}
+          onSave={onSaveName}
           setName={setNewName}
           onClose={() => {
             setEditingName(false);

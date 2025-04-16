@@ -1,5 +1,6 @@
-import {useCreatedBundle} from '@utils/Ports';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import store from '@store/appStore';
+
+import { Port } from '@utils/Ports/SingleUsePorts/Port';
 
 import DirectReceiveAction from '../DirectReceiveAction';
 
@@ -13,14 +14,21 @@ class NewChatOverPort extends DirectReceiveAction {
     return '';
   }
   async performAction(): Promise<void> {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    await useCreatedBundle(
-      this.lineId, //routing Id and chat Id are same when a new chat is being formed.
-      this.message.lineLinkId,
-      BundleTarget.direct,
-      this.message.pairHash,
-      this.message.introduction,
-    );
+    try {
+      //create new chat over port
+      const port = await Port.generator.fromPortId(this.message.lineLinkId);
+      await port.use(this.lineId, this.message.pairHash, this.message.introduction);
+      //update store of new connection
+      store.dispatch({
+        type: 'NEW_CONNECTION',
+        payload: {
+          lineId: this.lineId,
+          connectionLinkId: this.message.lineLinkId,
+        },
+      });
+    } catch (error) {
+      console.log('Error creating new chat over port: ', error);
+    }
   }
 }
 

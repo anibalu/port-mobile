@@ -32,7 +32,7 @@ import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingSt
 import {rootNavigationRef} from '@navigation/rootNavigation';
 
 import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
-import {fetchNewPorts} from '@utils/Ports';
+import { Port } from '@utils/Ports/SingleUsePorts/Port';
 import {
   deleteProfile,
   getRandomAvatarInfo,
@@ -95,7 +95,7 @@ const OnboardingSetupScreen = ({navigation}: Props) => {
 
     //fetch new ports. Onboarding doesn't fail if this fails
     async (): Promise<boolean> => {
-      await fetchNewPorts();
+      await Port.generator.fetchNewPorts();
       return true;
     },
 

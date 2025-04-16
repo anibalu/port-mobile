@@ -32,6 +32,12 @@ abstract class SuperPortGenerator {
   }
 
   /**
+   * Gets the version of the port generator
+   * @returns the version of the port generator
+   */
+  abstract getVersion(): string;
+
+  /**
    * Gets port data
    * @returns  port data
    */
@@ -85,6 +91,14 @@ abstract class SuperPortGenerator {
    * Delete a superport's data from storage.
    */
   abstract clean(): Promise<void>;
+
+  /**
+   * Uses a super port to form a new chat
+   * @param lineId - The line ID created by the server for the new chat.
+   * @param pairHash - The unique pair hash for the user pair.
+   * @param introMessage - The intro message sent by the SuperPort reader.
+   */
+  abstract use(lineId: string, pairHash: string, introMessage: any): Promise<void>;
 }
 
 export default SuperPortGenerator;

@@ -7,9 +7,8 @@ class Deletion extends DirectReceiveAction {
     return '';
   }
   async performAction(): Promise<void> {
-    const chatHandler = new DirectChat(this.chatId);
     //we only need to disconnect locally as disconnection message is coming from the server.
-    await chatHandler.disconnect(this.lineId, true);
+    await DirectChat.cleanDisconnectLine(this.lineId, true);
   }
 }
 

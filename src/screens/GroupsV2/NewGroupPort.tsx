@@ -22,9 +22,8 @@ import {
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 
 import Group from '@utils/Groups/Group';
-import {generateBundle, getBundleClickableLink} from '@utils/Ports';
+import { GroupPort } from '@utils/Ports/GroupPorts/GroupPort';
 import {GroupBundle} from '@utils/Ports/interfaces';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {wait} from '@utils/Time';
 
@@ -96,7 +95,8 @@ const NewGroupPort = ({route}: Props) => {
       setIsLoading(true);
       setHasFailed(false);
       //use this function to generate and fetch QR code data.
-      const bundle = await generateBundle(BundleTarget.group, chatData.groupId);
+      const groupPort = await GroupPort.generator.create(chatData.groupId);
+      const bundle = await groupPort.getShareableBundle();
       if (bundle) {
         setQrData(bundle);
       }
@@ -119,17 +119,14 @@ const NewGroupPort = ({route}: Props) => {
     try {
       setIsLoadingLink(true);
       if (qrData && qrData.portId) {
-        const link = await getBundleClickableLink(
-          BundleTarget.group,
-          qrData.portId,
-          JSON.stringify(qrData),
-        );
+        const groupPort = await GroupPort.generator.fromPortId(qrData.portId);
+        const link = await groupPort.getShareableLink();
         setIsLoadingLink(false);
         try {
           const shareContent = {
             title: 'Share a group link',
             message:
-              `Click the link to join the group ${name} on Port.\n` + link,
+            `Hey! Click the link to join the group ${name} on Port.\n` + link,
           };
           await Share.open(shareContent);
         } catch (error) {

@@ -19,6 +19,21 @@ export interface ReadPortData {
   cryptoId: string;
   folderId: string;
   ticket?: string | null;
+  permissionsId: string;
+}
+
+export interface ReadPortDataUpdate {
+  version?: string | null;
+  target?: BundleTarget | null;
+  name?: string | null;
+  description?: string | null;
+  usedOnTimestamp?: string | null;
+  expiryTimestamp?: string | null;
+  channel?: string | null;
+  cryptoId?: string | null;
+  folderId?: string | null;
+  ticket?: string | null;
+  permissionsId?: string | null;
 }
 
 /**
@@ -40,8 +55,9 @@ export async function newReadPort(newPort: ReadPortData) {
       channel,
       cryptoId,
       folderId,
-      ticket
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+      ticket,
+      permissionsId
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
     `,
     [
       newPort.portId,
@@ -55,9 +71,51 @@ export async function newReadPort(newPort: ReadPortData) {
       newPort.cryptoId,
       newPort.folderId,
       newPort.ticket,
+      newPort.permissionsId
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, results) => {},
+    (tx, results) => { },
+  );
+}
+
+/**
+ * Update an existing read port
+ * @param portId a 32 character identifier for a port
+ * @param update updates to be performed on a port
+ */
+export async function updateReadPort(portId: string, portData: ReadPortDataUpdate) {
+  await runSimpleQuery(
+    `
+    UPDATE readPorts SET 
+    version = COALESCE(?, version),
+    target = COALESCE(?, target),
+    name = COALESCE(?, name),
+    description = COALESCE(?, description),
+    usedOnTimestamp = COALESCE(?, usedOnTimestamp),
+    expiryTimestamp = COALESCE(?, expiryTimestamp),
+    channel = COALESCE(?, channel),
+    cryptoId = COALESCE(?, cryptoId),
+    folderId = COALESCE(?, folderId),
+    ticket = COALESCE(?, ticket),
+    permissionsId = COALESCE(?, permissionsId)
+    WHERE portId = ?;
+    `,
+    [
+      portData.version, 
+      portData.target, 
+      portData.name, 
+      portData.description, 
+      portData.usedOnTimestamp, 
+      portData.expiryTimestamp, 
+      portData.channel, 
+      portData.cryptoId, 
+      portData.folderId, 
+      portData.ticket, 
+      portData.permissionsId, 
+      portId
+    ],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (tx, results) => { },
   );
 }
 
@@ -125,7 +183,7 @@ export async function expireReadPort(portId: string) {
 		`,
     [generateISOTimeStamp(), portId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, results) => {},
+    (tx, results) => { },
   );
 }
 
@@ -141,6 +199,6 @@ export async function deleteReadPortData(portId: string) {
     `,
     [portId],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (tx, results) => {},
+    (tx, results) => { },
   );
 }

@@ -1,3 +1,5 @@
+import { defaultFolderId, defaultPermissions } from '@configs/constants';
+
 import {getChatPermissions} from '@utils/ChatPermissions';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import {generateRandomHexId} from '@utils/IdGenerator';
@@ -8,16 +10,15 @@ import {
   MessageStatus,
 } from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {generateBundle} from '@utils/Ports';
-import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
+import { ContactPort } from '@utils/Ports/ContactPorts/ContactPort';
 import {PortBundle} from '@utils/Ports/interfaces';
+import { Port } from '@utils/Ports/SingleUsePorts/Port';
+import { getProfileName } from '@utils/Profile';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import {saveMessage} from '@utils/Storage/messages';
 import * as messageStorage from '@utils/Storage/messages';
 import {generateISOTimeStamp} from '@utils/Time';
-import {expiryOptions} from '@utils/Time/interfaces';
 
 export interface ContactShareRequest {
   source: string; //chat id of contact from whom a port is being requested
@@ -42,9 +43,8 @@ export async function shareContactPort(
 ) {
   const chatToShare = new DirectChat(contactChatIdToShare);
   const pairHashToShare = (await chatToShare.getChatData()).pairHash;
-  const contactPortBundle = await convertAuthorizedContactPortToShareablePort(
-    pairHashToShare,
-  );
+  const contactPort = await ContactPort.generator.accepted.fromPairHash(pairHashToShare);
+  const contactPortBundle = await contactPort.getShareableBundle();
   const sender = new SendMessage(contactRecipient, ContentType.contactBundle, {
     bundle: contactPortBundle,
   });
@@ -128,13 +128,8 @@ export async function approveContactShareOnce(data: GenerateContactBundle) {
   // update the message to approved.
   // generate a port bundle
 
-  const bundle = await generateBundle(
-    BundleTarget.direct,
-    null,
-    data.destinationName,
-    expiryOptions[0],
-    'shared://' + data.requester,
-  );
+  const port = await Port.generator.create(data.destinationName, defaultFolderId, defaultPermissions);
+  const bundle = await port.getShareableBundle(await getProfileName());
 
   const sender = new SendMessage(
     data.requester,

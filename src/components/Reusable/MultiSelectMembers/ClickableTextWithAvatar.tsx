@@ -31,10 +31,12 @@ const ClickableTextWithAvatar = ({
   selectedMembers,
   setSelectedMembers,
   setSelectAll,
+  showBackgroundColor = true,
 }: {
   selectedMembers: ConnectionInfo[];
   setSelectAll: (p: any) => void;
   setSelectedMembers: (member: any) => void;
+  showBackgroundColor: boolean;
 }) => {
   const [showAll, setShowAll] = useState(false);
 
@@ -78,15 +80,18 @@ const ClickableTextWithAvatar = ({
         gap: PortSpacing.tertiary.uniform,
         paddingHorizontal: PortSpacing.secondary.uniform,
         paddingVertical: PortSpacing.tertiary.uniform,
-        backgroundColor: Colors.primary.surface,
-      }}>
+        backgroundColor: showBackgroundColor
+          ? Colors.primary.surface
+          : 'transparent',      }}>
       {visibleMembers.map(member => (
         <View
           key={member.chatId}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: 'transparent',
+            backgroundColor: showBackgroundColor
+              ? 'transparent'
+              : Colors.primary.surface,
             borderColor: Colors.primary.stroke,
             borderWidth: 0.5,
             borderRadius: PortSpacing.tertiary.uniform,

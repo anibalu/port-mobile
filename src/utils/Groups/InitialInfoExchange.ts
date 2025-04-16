@@ -28,6 +28,7 @@ export async function readerInitialInfoSend(chatId: string) {
     const sendDisplayPicture = new SendMessage(chatId, contentType, {
       ...profilePictureAttributes,
     });
-    await sendDisplayPicture.send();
+    //no need to wait for this operation
+    sendDisplayPicture.send();
   }
 }

@@ -39,6 +39,7 @@ export interface ConnectionEntry extends ConnectionUpdate {
   newMessageCount: number;
   folderId: string;
   routingId: string;
+  pairHash: string;
 }
 
 /**

@@ -15,7 +15,6 @@ import LineSeparator from '@components/Reusable/Separators/LineSeparator';
 
 import {safeModalCloseDuration} from '@configs/constants';
 
-import {updateGeneratedSuperportFolder} from '@utils/Ports';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 
 
@@ -41,11 +40,9 @@ const FilterByFolderBottomSheet = ({
   onClose,
   currentFolder,
   setSelectedFolderData,
-  portId,
   title,
   subtitle,
 }: {
-  portId?: any;
   foldersArray: FolderInfo[];
   setSelectedFolderData: (folder: FolderInfo | null) => void;
   visible: boolean;
@@ -61,9 +58,6 @@ const FilterByFolderBottomSheet = ({
       setSelectedFolderData(null);
     } else {
       setSelectedFolderData(item);
-    }
-    if (portId) {
-      await updateGeneratedSuperportFolder(portId, item.folderId);
     }
     onClose();
   };

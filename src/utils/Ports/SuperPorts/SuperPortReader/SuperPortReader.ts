@@ -1,37 +1,45 @@
-import {defaultFolderId} from '@configs/constants';
+import { DirectSuperportBundle } from '@utils/Ports/interfaces';
+import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
+import { ReadPortData } from '@utils/Storage/DBCalls/ports/readPorts';
 
 abstract class SuperPortReader {
   abstract version: string;
-  protected portData: any;
+  protected portData: ReadPortData;
 
-  constructor(portData: any) {
-    (this.constructor as typeof SuperPortReader).validate(portData);
+  constructor(portData: ReadPortData) {
     this.portData = portData;
   }
 
-  static validateBundle(bundleData: any) {
-    console.log('Validating read super port bundle data: ', bundleData);
-  }
-
-  static validate(portData: any) {
-    console.log('Validating read super port data: ', portData);
-  }
-
   /**
-   * util to accept the port bundle received
-   * @param bundleData bundle data received
-   * @param folderId of the chat
+   * Validates the super port bundle
+   * @param bundleData - The super port bundle data to validate.
+   * @returns The validated super port bundle.
+   * @throws {Error} If the bundle data is invalid.
    */
-  static async accept(bundleData: any, folderId: string = defaultFolderId) {
-    console.log(
-      'accepting read super port bundle data: ',
-      bundleData,
-      folderId,
-    );
+  static validateBundle(bundleData: any): DirectSuperportBundle {
+    console.log('Validating read super port bundle data: ', bundleData);
+    throw new Error('Bundle validation is handled in the version specific classes');
   }
 
   /**
-   * Forms a chat
+   * Accepts the port bundle
+   * @param bundleData bundle data received
+   * @param permissions permissions to be assigned to the chat
+   * @param folderId folder id to be assigned to the chat
+   * @returns read port data or null if error
+   */
+  static async accept(bundleData: any, permissions: PermissionsStrict, folderId: string): Promise<ReadPortData | null> {
+    console.log('accepting read port bundle data: ', bundleData, permissions, folderId);
+    throw new Error('Accept is handled in the version specific classes');
+  }
+
+  /**
+   * Cleans up the read port
+   */
+  abstract clean(): Promise<void>;
+
+  /**
+   * Uses the read port to form a chat
    */
   abstract use(): Promise<void>;
 }

@@ -66,7 +66,7 @@ export async function setupProfile(
 export async function deleteProfile(): Promise<void> {
   try {
     cachedProfile = undefined;
-    await storage.saveProfileInfo(undefined);
+    await storage.deleteProfileInfo();
     store.dispatch({
       type: 'DELETE_PROFILE',
       payload: undefined,
@@ -97,7 +97,7 @@ function updateProfileStore() {
  * @returns {Promise<ProfileInfo|undefined>} - profile info of the user, undefined if none exist
  */
 export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
-  let shouldUpdateProfileStore = false;
+  let shouldUpdateProfileStore = true;
   try {
     const profileStore = store?.getState()?.profile?.profile;
     if (
@@ -105,10 +105,11 @@ export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
       profileStore?.profilePicInfo ||
       profileStore?.lastBackupTime
     ) {
-      shouldUpdateProfileStore = true;
+      shouldUpdateProfileStore = false;
     }
     //read profile from cache
     if (cachedProfile) {
+      console.log('returning cached profile: ', cachedProfile);
       if (shouldUpdateProfileStore) {
         updateProfileStore();
       }
@@ -119,6 +120,7 @@ export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
       await storage.getProfileInfo();
     //If undefined, no profile exists.
     if (savedProfile && savedProfile.clientId) {
+      console.log('returning saved profile: ', savedProfile);
       //update cache with profile info
       cachedProfile = savedProfile;
       if (shouldUpdateProfileStore) {
@@ -156,13 +158,15 @@ export async function checkProfileCreated(): Promise<ProfileStatus> {
  */
 export async function updateProfileInfo(profileUpdate: ProfileInfoUpdate) {
   //get current profile info
-  if (!cachedProfile) {
+  const currentProfile = await getProfileInfo();
+  if (!currentProfile) {
     throw new Error('NoProfile');
   }
   if (profileUpdate.name) {
     profileUpdate.name = processName(profileUpdate.name);
   }
-  const updatedProfile = {...cachedProfile, ...profileUpdate};
+  const updatedProfile = {...currentProfile, ...profileUpdate};
+  console.log('updatedProfile', updatedProfile);
   //update cache and storage
   await storage.saveProfileInfo(updatedProfile);
   cachedProfile = updatedProfile;

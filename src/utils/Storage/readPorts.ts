@@ -11,6 +11,15 @@ export async function newReadPort(newPort: ReadPortData) {
 }
 
 /**
+ * Update an existing read port
+ * @param portId a 32 character identifier for a port
+ * @param update updates to be performed on a port
+ */
+export async function updateReadPort(portId: string, update: dbCalls.ReadPortDataUpdate) {
+  await dbCalls.updateReadPort(portId, update);
+}
+
+/**
  * Read all readPorts
  * @returns information associated with the port
  */

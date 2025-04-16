@@ -3,15 +3,35 @@ import {defaultFolderId, defaultPermissionsId} from '@configs/constants';
 import {TileProps} from '@screens/Home/Tile';
 
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
-import {bundleTargetToChatType, getReadPorts} from '@utils/Ports';
+import {getReadPorts} from '@utils/Ports';
 import {
   getConnections,
   getConnectionsByFolder,
   getNewMessageCount,
 } from '@utils/Storage/connections';
+import { ChatType } from '@utils/Storage/DBCalls/connections';
+import { BundleTarget } from '@utils/Storage/DBCalls/ports/interfaces';
 import {hasExpired} from '@utils/Time';
 
 const noop = () => {};
+
+/**
+ * Mapping between different kinds of bundles and the kind of connections they lead to.
+ * @param x - bundle type
+ * @returns - chat type
+ */
+function bundleTargetToChatType(x: BundleTarget) {
+  if (
+    x === BundleTarget.direct ||
+    x === BundleTarget.superportDirect ||
+    x === BundleTarget.contactPort
+  ) {
+    return ChatType.direct;
+  } else {
+    return ChatType.group;
+  }
+}
+
 
 /**
  * Loads up connections and unread in home screen.

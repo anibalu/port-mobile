@@ -14,10 +14,8 @@ import {
 
 import {ContentType} from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {getBundleClickableLink} from '@utils/Ports';
-import {convertAuthorizedContactPortToShareablePort} from '@utils/Ports/contactport';
+import { ContactPort } from '@utils/Ports/ContactPorts/ContactPort';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 import PrimaryButton from '../LongButtons/PrimaryButton';
@@ -70,14 +68,8 @@ const ContactSharingBottomsheet = ({
   const onLoad = async () => {
     setIsLoading(true);
     try {
-      const bundle = await convertAuthorizedContactPortToShareablePort(
-        contactShareParams.pairHash,
-      );
-      const bundleLink = await getBundleClickableLink(
-        BundleTarget.contactPort,
-        bundle.portId,
-        JSON.stringify(bundle),
-      );
+      const contactPort = await ContactPort.generator.accepted.fromPairHash(contactShareParams.pairHash);
+      const bundleLink = await contactPort.getShareableLink();
       const shareContent = {
         title: `Sharing ${contactShareParams.name}'s a contact`,
         message: `Click on this link to connect with ${contactShareParams.name} on Port \n ${bundleLink}`,

@@ -41,7 +41,6 @@ const GradientCard = ({
       angle={135}
       angleCenter={{x: 0.5, y: 0.5}}
       style={{
-        ...styles.outerCardContainer,
         borderRadius: style && style.borderRadius ? style.borderRadius : 16,
       }}>
       <View
@@ -49,6 +48,7 @@ const GradientCard = ({
           backgroundColor: Colors.surface,
           ...style,
           borderRadius: style && style.borderRadius ? style.borderRadius : 16,
+          margin: 1,
         })}
         pointerEvents={pointerEvents}>
         {children}
@@ -72,9 +72,6 @@ const GradientCard = ({
 const styles = StyleSheet.create({
   cardContainer: {
     paddingVertical: Spacing.s,
-  },
-  outerCardContainer: {
-    padding: 1,
   },
 });
 

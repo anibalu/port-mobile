@@ -1,4 +1,4 @@
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   NativeSyntheticEvent,
   Pressable,
@@ -38,23 +38,20 @@ import {
   DEFAULT_GROUP_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
   defaultFolderInfo,
-  defaultPermissions,
   safeModalCloseDuration,
 } from '@configs/constants';
 
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 
-import Group from '@utils/Groups/Group';
+import Group from '@utils/Groups/GroupClass';
 import {ContentType} from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {getConnection} from '@utils/Storage/connections';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {MediaEntry} from '@utils/Storage/DBCalls/media';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {getAllFolders} from '@utils/Storage/folders';
 import {deleteAllMessagesInChat} from '@utils/Storage/groupMessages';
 import {getImagesAndVideos} from '@utils/Storage/media';
-import {getPermissions} from '@utils/Storage/permissions';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import {isAvatarUri} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
@@ -100,12 +97,9 @@ const GroupProfile = ({route, navigation}: Props) => {
   const [selectedFolder, setSelectedFolder] = useState<FolderInfo>({
     ...defaultFolderInfo,
   });
-  //set permissions
-  const [permissions, setPermissions] = useState<PermissionsStrict>({
-    ...defaultPermissions,
-  });
   //to edit group picture
   const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
+  const [groupClass, setGroupClass] = useState<Group | null>(null);
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -128,6 +122,14 @@ const GroupProfile = ({route, navigation}: Props) => {
   const RightChevron = results.RightChevron;
   const EditCameraIcon = results.EditCameraIcon;
 
+  useEffect(() => {
+    (async () => {
+      const groupHandler = await Group.load(chatId);
+      setGroupClass(groupHandler);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const loadMedia = async () => {
     const response = await getImagesAndVideos(chatId);
     setMedia(response);
@@ -138,7 +140,6 @@ const GroupProfile = ({route, navigation}: Props) => {
       (async () => {
         try {
           const connection = await getConnection(chatId);
-          setPermissions(await getPermissions(chatData.permissionsId));
           const folders = await getAllFolders();
           const folder = folders.find(f => f.folderId === connection.folderId);
           if (folder) {
@@ -160,9 +161,8 @@ const GroupProfile = ({route, navigation}: Props) => {
   const onSaveName = async (name?: string) => {
     if (name) {
       //update name if group admin
-      const chatHandler = new Group(chatId);
-      await chatHandler.updateData({name: name});
-      const groupData = await chatHandler.getData();
+      await groupClass?.updateGroupData({name: name});
+      const groupData = groupClass?.getGroupData();
       if (groupData && groupData.amAdmin) {
         const sender = new SendMessage(chatId, ContentType.groupName, {
           groupName: groupData.name,
@@ -178,9 +178,10 @@ const GroupProfile = ({route, navigation}: Props) => {
    */
   async function onSavePicture(profilePicAttr: FileAttributes) {
     const profilePic = profilePicAttr.fileUri;
-    const chatHandler = new Group(chatId);
-    await chatHandler.updateAndUploadPicture(profilePic);
-    const groupData = await chatHandler.getData();
+    // const chatHandler = new Group(chatId);
+    await groupClass?.saveGroupPicture(profilePic);
+    await groupClass?.uploadGroupPicture();
+    const groupData = groupClass?.getGroupData();
     if (groupData && groupData.amAdmin && groupData.groupPicture) {
       const sender = isAvatarUri(groupData.groupPicture)
         ? new SendMessage(chatId, ContentType.groupAvatar, {
@@ -209,11 +210,10 @@ const GroupProfile = ({route, navigation}: Props) => {
     }
   };
 
-  const handleChatDisconnect = async (chatIdString: string) => {
+  const handleChatDisconnect = async () => {
     try {
       //handle exiting group
-      const chatHandler = new Group(chatIdString);
-      await chatHandler.leaveGroup();
+      await groupClass?.leaveGroup();
       setConnected(false);
     } catch (error) {
       wait(safeModalCloseDuration).then(() => {
@@ -258,7 +258,6 @@ const GroupProfile = ({route, navigation}: Props) => {
             <View style={styles.avatarContainer} ref={userAvatarViewRef}>
               <View style={styles.profilePictureHitbox}>
                 <AvatarBox
-                  isHomeContact={permissions.focus}
                   profileUri={displayPic.fileUri}
                   avatarSize="m"
                   onPress={() => onProfilePictureClick()}
@@ -451,7 +450,7 @@ const GroupProfile = ({route, navigation}: Props) => {
         <EditName
           visible={editingName}
           onClose={() => setEditingName(false)}
-          onSave={(name?: string) => onSaveName(name)}
+          onSave={(name: string) => onSaveName(name)}
           name={displayName}
           setName={setDisplayName}
           title="Update this group's name"
@@ -468,7 +467,7 @@ const GroupProfile = ({route, navigation}: Props) => {
         <ConfirmationBottomSheet
           visible={confirmSheet}
           onClose={() => setConfirmSheet(false)}
-          onConfirm={async () => await handleChatDisconnect(chatId)}
+          onConfirm={async () => await handleChatDisconnect()}
           title={'Are you sure you want to exit this group?'}
           description={
             'Current chat history will be saved, but you can subsequently choose to delete it.'
@@ -482,8 +481,7 @@ const GroupProfile = ({route, navigation}: Props) => {
           onConfirm={async () => {
             try {
               //delete chat
-              const chatHandler = new Group(chatId);
-              await chatHandler.deleteGroup();
+              await Group.delete(chatId);
               navigation.popToTop();
               navigation.replace('HomeTab', {
                 screen: 'Home',

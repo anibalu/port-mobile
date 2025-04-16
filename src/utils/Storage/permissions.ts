@@ -1,3 +1,5 @@
+import {defaultPermissionsId} from '@configs/constants';
+
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {
   Permissions,
@@ -8,7 +10,6 @@ import {
 import {getConnectionsByFolder} from './connections';
 import * as dbCalls from './DBCalls/permissions';
 import {getFolder} from './folders';
-
 /**
  * Adds a set of permissions to storage
  * @param data - permissions
@@ -27,7 +28,7 @@ export async function getAllPermissions(): Promise<PermissionsEntry[]> {
  * @returns the permissions for a given chat
  */
 export async function getPermissions(
-  permissionsId?: string | null,
+  permissionsId: string = defaultPermissionsId,
 ): Promise<PermissionsStrict> {
   return await dbCalls.getPermissions(permissionsId);
 }
@@ -73,7 +74,7 @@ export async function getFolderPermissions(
   folderId: string,
 ): Promise<PermissionsStrict> {
   const folder = await getFolder(folderId);
-  return await dbCalls.getPermissions(folder?.permissionsId);
+  return await dbCalls.getPermissions(folder?.permissionsId || defaultPermissionsId);
 }
 
 /**

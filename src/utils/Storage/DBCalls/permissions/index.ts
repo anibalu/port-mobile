@@ -65,7 +65,7 @@ export async function getAllPermissions(): Promise<PermissionsEntry[]> {
  * @returns the permissions for a given chat
  */
 export async function getPermissions(
-  permissionsId?: string | null,
+  permissionsId: string,
 ): Promise<PermissionsStrict> {
   const match: PermissionsStrict = {...defaultPermissions};
   if (!permissionsId) {

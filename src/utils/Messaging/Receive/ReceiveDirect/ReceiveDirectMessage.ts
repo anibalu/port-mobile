@@ -65,7 +65,7 @@ class ReceiveDirectMessage {
             error,
           );
           //If validation fails, attempt disconnection.
-          chat.disconnect(this.lineId);
+          await DirectChat.cleanDisconnectLine(this.lineId);
           this.decryptedMessageContent = null;
         }
       }

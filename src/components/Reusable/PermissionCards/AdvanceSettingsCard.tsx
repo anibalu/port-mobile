@@ -15,7 +15,7 @@ import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggl
 import {
   pauseContactPortForDirectChat,
   resumeContactPortForDirectChat,
-} from '@utils/Ports/contactport';
+} from '@utils/Ports';
 import {
   BooleanPermissions,
   PermissionsStrict,

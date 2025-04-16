@@ -18,11 +18,13 @@
  * The `EditName` component is typically used in scenarios where a user needs to update any label be it their profile name or superport name.
  */
 
-import React, {useMemo, useState} from 'react';
-import {Keyboard, KeyboardTypeOptions, StyleSheet, View} from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Keyboard, KeyboardTypeOptions, StyleSheet, View } from 'react-native';
 
+import PrimaryButton from '@components/Buttons/PrimaryButton';
 import { useColors } from '@components/colorGuide';
-import { isIOS} from '@components/ComponentUtils';
+import { isIOS } from '@components/ComponentUtils';
+import SimpleInput from '@components/Inputs/SimpleInput';
 import {
   FontSizeType,
   FontWeight,
@@ -31,10 +33,8 @@ import {
 import LineSeparator from '@components/Separators/LineSeparator';
 import { Spacing, Width } from '@components/spacingGuide';
 
-import {MIN_NAME_LENGTH, NAME_LENGTH_LIMIT} from '@configs/constants';
+import { MIN_NAME_LENGTH, NAME_LENGTH_LIMIT } from '@configs/constants';
 
-import SimpleInput from '../Inputs/SimpleInput';
-import PrimaryButton from '../LongButtons/PrimaryButton';
 
 import PrimaryBottomSheet from './PrimaryBottomSheet';
 
@@ -43,7 +43,7 @@ const EditName = ({
   loading = false,
   visible,
   onClose,
-  onSave = () => {},
+  onSave = () => { },
   name,
   setName,
   title,
@@ -54,10 +54,10 @@ const EditName = ({
   loading?: boolean;
   visible: boolean;
   onClose?: () => void;
-  onSave?: (name?: string) => void;
+  onSave?: (name: string) => void;
   name: string;
   setName?: (name: string) => void;
-  title:string;
+  title: string;
   description?: string;
   placeholderText?: string;
   keyboardType?: KeyboardTypeOptions;
@@ -85,7 +85,7 @@ const EditName = ({
       visible={visible}
       shouldAutoClose={false}
       onClose={onClose}>
-            <View style={styles.connectionOptionsRegion}>
+      <View style={styles.connectionOptionsRegion}>
         <View style={styles.mainContainer}>
           <NumberlessText
             textColor={Colors.text.title}
@@ -93,44 +93,45 @@ const EditName = ({
             fontWeight={FontWeight.sb}>
             {title}
           </NumberlessText>
-          <LineSeparator style={{width: Width.screen}} />
+          <LineSeparator style={{ width: Width.screen }} />
         </View>
       </View>
       <View style={styles.mainWrapper}>
         {description && (
           <View
-            style={{width: '100%', marginBottom: Spacing.m}}>
+            style={{ width: '100%', marginBottom: Spacing.m }}>
             <NumberlessText
-              style={{color: Colors.text.subtitle}}
+              style={{ color: Colors.text.subtitle }}
               fontSizeType={FontSizeType.m}
               fontWeight={FontWeight.rg}
-             >
+            >
               {description}
             </NumberlessText>
           </View>
         )}
-        <View style={{marginBottom: Spacing.m}}>
-          <SimpleInput
-            keyboardType={keyboardType}
-            placeholderText={placeholderText}
-            maxLength={NAME_LENGTH_LIMIT}
-            text={newName}
-            setText={setNewName}
-            bgColor="w"
-          />
-        </View>
+        <SimpleInput
+          keyboardType={keyboardType}
+          placeholderText={placeholderText}
+          maxLength={NAME_LENGTH_LIMIT}
+          text={newName}
+          setText={setNewName}
+          bgColor="w"
+          autoFocus={true}
+        />
+      </View>
+      <View style={{ width: Width.screen - 2 * Spacing.l, marginTop: Spacing.l }}>
         <PrimaryButton
-          buttonText={'Save'}
-          primaryButtonColor={'b'}
-          isLoading={loading}
           disabled={
             name !== newName &&
-            newName &&
-            newName.trim().length >= MIN_NAME_LENGTH
+              newName &&
+              newName.trim().length >= MIN_NAME_LENGTH
               ? false
               : true
           }
+          isLoading={loading}
           onClick={onSavePress}
+          text={'Save'}
+          theme={Colors.theme}
         />
       </View>
     </PrimaryBottomSheet>
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     width: '100%',
     marginTop: Spacing.m,
-    ...(isIOS ? {marginBottom: Spacing.m} : 0),
+    ...(isIOS ? { marginBottom: Spacing.m } : 0),
   },
   connectionOptionsRegion: {
     width: Width.screen,

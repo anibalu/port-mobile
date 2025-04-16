@@ -6,6 +6,7 @@ import {
   GROUP_EXIT_RESOURCE,
   GROUP_MEMBER_REMOVE_RESOURCE,
   GROUP_MEMBER_RESOURCE,
+  GROUP_SUPERPORT_JOIN,
 } from '@configs/api';
 
 import {getToken} from '@utils/ServerAuth';
@@ -56,6 +57,30 @@ export async function joinGroup(
     GROUP_MEMBER_RESOURCE,
     {
       groupLink: linkId,
+      pubkey: pubKey,
+    },
+    {headers: {Authorization: `${token}`}},
+  );
+  if (response.data.groupId && response.data.members) {
+    const groupId: string = response.data.groupId;
+    const members: GroupMemberResponse[] = response.data.members;
+    return {groupId: groupId, groupMembersAuthData: members};
+  }
+  throw new Error('APIError');
+}
+
+export async function joinGroupFromSuperport(
+  linkId: string,
+  pubKey: string,
+): Promise<{
+  groupId: string;
+  groupMembersAuthData: GroupMemberResponse[];
+}> {
+  const token = await getToken();
+  const response = await axios.put(
+    GROUP_SUPERPORT_JOIN,
+    {
+      groupSuperportId: linkId,
       pubkey: pubKey,
     },
     {headers: {Authorization: `${token}`}},

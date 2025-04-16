@@ -50,7 +50,9 @@ import {generateISOTimeStamp} from '@utils/Time';
 
 import * as API from './APICalls';
 
-
+/**
+ * @deprecated - Use GroupClass instead
+ */
 class Group {
   private chatId: string | null;
   private groupData: GroupData | null;
@@ -285,6 +287,53 @@ class Group {
       const existingGroupData = await groupStorage.getGroupData(groupId);
       if (existingGroupData && existingGroupData.disconnected) {
         console.log('group is disconnected, attempting to re-join');
+        //re-join group if disconnected.
+        this.groupData = {
+          ...groupData,
+          groupId: groupId,
+        };
+        this.chatId = existingChatId;
+        await this.performMemberHandshakes(
+          response.groupMembersAuthData,
+          groupData.selfCryptoId,
+          groupData.joinedAt,
+        );
+        await this.rejoinGroup(folderId);
+        return;
+      } else {
+        //if group is connected, don't do anything.
+        return;
+      }
+    } else {
+      //no group exists, so let's add a new group
+      this.groupData = {
+        ...groupData,
+        groupId: groupId,
+      };
+      this.chatId = generateRandomHexId();
+      await this.performMemberHandshakes(
+        response.groupMembersAuthData,
+        groupData.selfCryptoId,
+        groupData.joinedAt,
+      );
+      await this.addGroup(folderId);
+    }
+  }
+
+  public async joinGroupFromSuperport(
+    linkId: string,
+    groupData: GroupDataWithoutGroupId,
+    folderId: string = defaultFolderId,
+  ) {
+    const cryptoDriver = new CryptoDriver(groupData.selfCryptoId);
+    const pubKey = await cryptoDriver.getPublicKey();
+    const response = await API.joinGroupFromSuperport(linkId, pubKey);
+    const groupId = response.groupId;
+    //check if group already exists for the group Id
+    const existingChatId = await getChatIdFromRoutingId(groupId);
+    if (existingChatId) {
+      const existingGroupData = await groupStorage.getGroupData(groupId);
+      if (existingGroupData && existingGroupData.disconnected) {
         //re-join group if disconnected.
         this.groupData = {
           ...groupData,

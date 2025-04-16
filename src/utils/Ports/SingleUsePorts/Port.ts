@@ -1,12 +1,17 @@
-import {defaultFolderId} from '@configs/constants';
-
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import { PortData } from '@utils/Storage/DBCalls/ports/myPorts';
+import { ReadPortData } from '@utils/Storage/DBCalls/ports/readPorts';
 import * as storage from '@utils/Storage/myPorts';
+
+import { PortBundle } from '../interfaces';
 
 import PortGenerator from './PortGenerator/PortGenerator';
 import PortGenerator_1_0_0 from './PortGenerator/Versions/PortGenerator_1_0_0';
 import PortReader from './PortReader/PortReader';
 import PortReader_1_0_0 from './PortReader/Versions/PortReader_1_0_0';
+
+
+
 
 
 /**
@@ -51,7 +56,7 @@ export namespace Port {
      * @param portData - The port data to load the generator for.
      * @returns The loaded port generator instance.
      */
-    export function load(portData: any): PortGenerator {
+    export function load(portData: PortData): PortGenerator {
       return new (select(portData.version))(portData);
     }
 
@@ -69,6 +74,13 @@ export namespace Port {
         throw new Error('NoUsedPortFound');
       }
       return load(portData);
+    }
+
+    /**
+     * Fetches new ports from the server and saves them to storage.
+     */
+    export async function fetchNewPorts(version: string = LATEST_VERSION): Promise<void> {
+      await select(version).fetchNewPorts();
     }
 
     /**
@@ -99,8 +111,17 @@ export namespace Port {
   }
 
   export namespace reader {
+    /**
+     * The latest version of the port reader.
+     */
     export const LATEST_VERSION = '1.0.0';
 
+    /**
+     * Selects the appropriate port reader version based on the provided version string.
+     * @param version - The version string to select the reader for.
+     * @returns The selected port reader version.
+     * @throws {Error} If the version is not specified or unsupported.
+     */
     export function select(version?: string) {
       if (!version) {
         throw new Error('Version for port reader class not specified');
@@ -115,15 +136,46 @@ export namespace Port {
       }
     }
 
-    export function load(portData: any): PortReader {
+    /**
+     * Loads a port reader instance based on the provided port data.
+     * @param portData - The port data to load the reader for.
+     * @returns The loaded port reader instance.
+     */
+    export function load(portData: ReadPortData): PortReader {
       return new (select(portData.version))(portData);
     }
 
+    /**
+     * Validates the port bundle
+     * @param bundleData bundle data received
+     * @returns validated port bundle
+     * @throws Error if bundle is invalid
+     */
+    export function validateBundle(bundleData: any): PortBundle {
+      if (!bundleData || !bundleData.version) {
+        throw new Error('Invalid bundle data');
+      }
+      return select(bundleData.version).validateBundle(bundleData);
+    }
+
+    /**
+     * Accepts a port bundle and stores it to use later.
+     * @param bundleData - The port bundle data to accept.
+     * @param permissions - The permissions for the port.
+     * @param folderId - The folder ID to create the port in (defaults to defaultFolderId).
+     * @returns The accepted port reader instance.
+     * @throws {Error} If no port could be created.
+     */
     export async function accept(
-      bundleData: any,
-      folderId: string = defaultFolderId,
-    ) {
-      await select(bundleData.version).accept(bundleData, folderId);
+      bundleData: PortBundle,
+      permissions: PermissionsStrict,
+      folderId: string,
+    ): Promise<PortReader> {
+      const portData = await select(bundleData.version).accept(bundleData, permissions, folderId);
+      if (!portData) {
+        throw new Error('NoPortWasAccepted');
+      }
+      return load(portData);
     }
   }
 }

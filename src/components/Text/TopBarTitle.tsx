@@ -38,9 +38,9 @@ const TopBarTitle = ({
       style={{
         height: Height.title,
         backgroundColor: Colors.light.purple,
-        paddingHorizontal: Spacing.l,
       }}>
       <NumberlessText
+        style={{marginHorizontal: Spacing.l}}
         textColor={Colors.common.white}
         fontSizeType={FontSizeType.es}
         fontWeight={FontWeight.md}
@@ -52,8 +52,9 @@ const TopBarTitle = ({
   ) : (
     <LinearGradient
       colors={[Colors.dark.purpleGradient[1], Colors.dark.purpleGradient[2]]}
-      style={{height: Height.title, paddingHorizontal: Spacing.l}}>
+      style={{height: Height.title}}>
       <NumberlessText
+        style={{marginHorizontal: Spacing.l}}
         textColor={Colors.common.white}
         fontSizeType={FontSizeType.es}
         fontWeight={FontWeight.md}

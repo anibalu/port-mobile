@@ -35,7 +35,7 @@ const SimpleBackTopBar = ({
         ...styles.topbarContainer,
         backgroundColor: Colors.light.purple,
       }}>
-      <Pressable onPress={onBackPress} hitSlop={20}>
+      <Pressable onPress={onBackPress} hitSlop={20} style={{marginLeft: Spacing.m}}>
         <BackIcon />
       </Pressable>
     </View>
@@ -43,7 +43,7 @@ const SimpleBackTopBar = ({
     <LinearGradient
       colors={[Colors.dark.purpleGradient[0], Colors.dark.purpleGradient[1]]}
       style={styles.topbarContainer}>
-      <Pressable onPress={onBackPress} hitSlop={20}>
+      <Pressable onPress={onBackPress} hitSlop={20} style={{marginLeft: Spacing.m}}>
         <BackIcon />
       </Pressable>
     </LinearGradient>
@@ -53,7 +53,6 @@ const SimpleBackTopBar = ({
 const styles = StyleSheet.create({
   topbarContainer: {
     flexDirection: 'row',
-    paddingLeft: Spacing.m,
     alignItems: 'center',
     height: Height.topbar,
     width: Width.screen,

@@ -4,7 +4,6 @@ import DirectChat from '@utils/DirectChats/DirectChat';
 
 import {
   DirectPermissions,
-  Permissions,
 } from '../Storage/DBCalls/permissions/interfaces';
 
 /**
@@ -20,12 +19,4 @@ export async function getChatPermissions(
 ): Promise<DirectPermissions> {
   const chat = new DirectChat(chatId);
   return await chat.getPermissions();
-}
-
-export async function updatePermissions(
-  chatId: string,
-  update: Permissions,
-): Promise<void> {
-  const chat = new DirectChat(chatId);
-  await chat.updatePermissions(update);
 }

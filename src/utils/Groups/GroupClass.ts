@@ -143,12 +143,15 @@ class Group {
    */
   static async join(
     linkId: string,
+    fromGroupSuperPort: boolean,
     groupData: GroupDataWithoutGroupId,
     folderId: string = defaultFolderId,
   ): Promise<Group> {
     const cryptoDriver = new CryptoDriver(groupData.selfCryptoId);
     const pubKey = await cryptoDriver.getPublicKey();
-    const response = await API.joinGroup(linkId, pubKey);
+    const response = fromGroupSuperPort
+      ? await API.joinGroupFromSuperport(linkId, pubKey)
+      : await API.joinGroup(linkId, pubKey);
     const groupId = response.groupId;
     const groupMembers = await performHandshakes(
       response.groupMembersAuthData,
@@ -205,6 +208,7 @@ class Group {
     const groupCrypto = new CryptoDriver(groupData.selfCryptoId);
     await groupCrypto.deleteCryptoData();
     await groupStorage.deleteGroupData(groupData.groupId);
+    await permissionStorage.clearPermissions(groupData.permissionsId);
     //delete connection
     await deleteConnection(chatId);
   }
@@ -230,6 +234,7 @@ class Group {
       newMessageCount: 0,
       routingId: this.groupData.groupId,
       folderId: folderId,
+      pairHash: '',
     });
   }
 

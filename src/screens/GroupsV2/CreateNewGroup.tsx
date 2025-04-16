@@ -22,7 +22,7 @@ import {
 } from '@configs/constants';
 
 import Group from '@utils/Groups/Group';
-import {fetchNewPorts} from '@utils/Ports';
+import { GroupPort } from '@utils/Ports/GroupPorts/GroupPort';
 import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {wait} from '@utils/Time';
@@ -59,7 +59,7 @@ const CreateNewGroup = () => {
         imageAttr.fileUri,
       );
       //generate ports for group
-      await fetchNewPorts(groupHandler.getGroupIdNotNull());
+      await GroupPort.generator.fetchNewGroupPorts(groupHandler.getGroupIdNotNull());
       //uploads encrypted group picture
       await groupHandler.uploadGroupPicture();
       navigation.goBack();

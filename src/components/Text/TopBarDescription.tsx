@@ -38,12 +38,12 @@ const TopBarDescription = ({
     <View
       style={{
         backgroundColor: Colors.light.purple,
-        paddingHorizontal: Spacing.l,
         paddingBottom: Spacing.xxxl,
         borderBottomLeftRadius: 16,
         borderBottomRightRadius: 16,
       }}>
       <NumberlessText
+        style={{marginHorizontal: Spacing.l}}
         textColor={Colors.common.white}
         fontSizeType={FontSizeType.l}
         fontWeight={FontWeight.rg}>
@@ -53,8 +53,9 @@ const TopBarDescription = ({
   ) : (
     <LinearGradient
       colors={[Colors.dark.purpleGradient[2], Colors.dark.purpleGradient[3]]}
-      style={{paddingHorizontal: Spacing.l, paddingBottom: Spacing.xxxl}}>
+      style={{paddingBottom: Spacing.xxxl}}>
       <NumberlessText
+        style={{marginHorizontal: Spacing.l}}
         textColor={Colors.common.white}
         fontSizeType={FontSizeType.l}
         fontWeight={FontWeight.rg}>

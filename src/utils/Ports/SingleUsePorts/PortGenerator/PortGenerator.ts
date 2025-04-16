@@ -15,6 +15,11 @@ abstract class PortGenerator {
   }
 
   /**
+   * Fetches new ports from the server and saves them to storage.
+   */
+  static async fetchNewPorts(): Promise<void> {}
+
+  /**
    * Creates a new Port
    * @param contactName - The name of the contact to create the port for.
    * @param folderId - The folder ID to create the port in.
@@ -61,14 +66,14 @@ abstract class PortGenerator {
 
   /**
    * Gets a shareable bundle
-   * @param name of the contact
+   * @param name name to include in the bundle
    * @returns a bundle
    */
   abstract getShareableBundle(name: string): Promise<PortBundle>;
 
   /**
    * Gets a shareable link
-   * @param name of the contact
+   * @param name name to include in the link
    * @returns link
    */
   abstract getShareableLink(name: string): Promise<string>;
@@ -77,6 +82,14 @@ abstract class PortGenerator {
    * Deletes port data from storage
    */
   abstract clean(): Promise<void>;
+
+  /**
+   * Uses a port to form a new chat
+   * @param lineId - The line ID created by the server for the new chat.
+   * @param pairHash - The unique pair hash for the user pair.
+   * @param introMessage - The intro message sent by the Port reader.
+   */
+  abstract use(lineId: string, pairHash: string, introMessage: any): Promise<void>;
 }
 
 export default PortGenerator;

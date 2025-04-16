@@ -21,6 +21,8 @@ import {DEFAULT_AVATAR} from '@configs/constants';
 import {getToken} from '@utils/ServerAuth';
 import {getConnection} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
+import { getLineData } from '@utils/Storage/lines';
+import { updatePermissions } from '@utils/Storage/permissions';
 
 
 
@@ -258,4 +260,27 @@ export async function setRemoteNotificationPermissionsForChats(
     },
     {headers: {Authorization: `${token}`}},
   );
+}
+
+/**
+ * Set the notification permission for a direct chat.
+ * @param chatId - direct chat to set the permission for.
+ * @param notificationState - whether the permission is enabled.
+ */
+export async function setRemoteNotificationPermissionForDirectChat(lineId: string, notificationState: boolean, fallbackState?: boolean) {
+  const lineData = await getLineData(lineId);
+  try {
+    if (lineData) {
+      await setRemoteNotificationPermissionsForChats(notificationState, [
+        {id: lineId, type: 'line'},
+      ]);
+      await updatePermissions(lineData.permissionsId, { notifications: notificationState });
+    }
+  } catch (error) {
+    console.log('Error setting remote notification permission for direct chat: ', error);
+    console.log('updating permissions to fallback state for direct chat based on this failure');
+    if (lineData?.permissionsId && fallbackState !== undefined) {
+      await updatePermissions(lineData.permissionsId, { notifications: fallbackState });
+    }
+  }
 }

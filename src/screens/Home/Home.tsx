@@ -4,7 +4,7 @@
  * screen id: 5
  */
 
-import React, {useEffect, useMemo, useReducer, useState} from 'react';
+import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -15,14 +15,14 @@ import {
 } from 'react-native';
 
 import notifee from '@notifee/react-native';
-import {useFocusEffect} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {useSelector} from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSelector } from 'react-redux';
 
-import { isIOS, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
+import { isIOS } from '@components/ComponentUtils';
+import { CustomStatusBar } from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
+import { GestureSafeAreaView } from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
   FontWeight,
@@ -30,30 +30,28 @@ import {
 } from '@components/NumberlessText';
 import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactBottomSheet';
 import SearchBar from '@components/SearchBar';
-import { Spacing } from '@components/spacingGuide';
+import { Height, Spacing, Width } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 
-import {BOTTOMBAR_HEIGHT} from '@configs/constants';
+import { BottomNavStackParamList } from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
 
-import {BottomNavStackParamList} from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
-
-import {useCallContext} from '@screens/Calls/CallContext';
+import { useCallContext } from '@screens/Calls/CallContext';
 import NewConnectionsBottomsheet from '@screens/Home/components/CreateNewConnectionsBottomsheet';
 
-import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
-import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
-import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
-import {cleanDeleteReadPort} from '@utils/Ports';
-import {ChatType} from '@utils/Storage/DBCalls/connections';
+import { performDebouncedCommonAppOperations } from '@utils/AppOperations';
+import { loadHomeScreenConnections } from '@utils/Connections/onRefresh';
+import { performNotificationRouting, resetAppBadge } from '@utils/Notifications';
+import { cleanDeleteReadPort } from '@utils/Ports';
+import { ChatType } from '@utils/Storage/DBCalls/connections';
 
-import {useTheme} from 'src/context/ThemeContext';
+import { useTheme } from 'src/context/ThemeContext';
 
 import HomescreenPlaceholder from './components/HomescreenPlaceholder';
 import HomeTopbar from './components/HomeTopbar';
-import Tile, {TileProps} from './Tile';
+import Tile, { TileProps } from './Tile';
 
 
-const MINIMUM_CONNECTIONS =2
+const MINIMUM_CONNECTIONS = 2
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
 type DisplayConnections = {
@@ -66,13 +64,13 @@ type DisplayConnections = {
 
 type ConnectionAction =
   | {
-      event: 'updateAll';
-      payload: TileProps[];
-    }
+    event: 'updateAll';
+    payload: TileProps[];
+  }
   | {
-      event: 'updateFilter';
-      payload: string;
-    };
+    event: 'updateFilter';
+    payload: string;
+  };
 
 /**
  * Reducer to manage connections in UI state
@@ -84,7 +82,7 @@ function connectionReducer(
   state: DisplayConnections,
   action: ConnectionAction,
 ) {
-  const currentState = {...state};
+  const currentState = { ...state };
   switch (action.event) {
     case 'updateAll':
       currentState._all = action.payload;
@@ -106,12 +104,12 @@ function connectionReducer(
   return currentState;
 }
 
-const Home = ({navigation, route}: Props) => {
-  const {initialiseCallKeep} = useCallContext();
+const Home = ({ navigation, route }: Props) => {
+  const { initialiseCallKeep } = useCallContext();
   // If we got here with an initial chat request, honour it
   useMemo(() => {
     if (route.params) {
-      const {initialChatType, chatData} = route.params;
+      const { initialChatType, chatData } = route.params;
       if (ChatType.direct === initialChatType) {
         navigation.push('DirectChat', chatData);
       }
@@ -121,12 +119,12 @@ const Home = ({navigation, route}: Props) => {
 
   //Sets up handlers to route notifications
   useEffect(() => {
-    const foregroundHandler = notifee.onForegroundEvent(({type, detail}) => {
+    const foregroundHandler = notifee.onForegroundEvent(({ type, detail }) => {
       //If data exists for the notification
       performNotificationRouting(type, detail, navigation);
     });
 
-    notifee.onBackgroundEvent(async ({type, detail}) => {
+    notifee.onBackgroundEvent(async ({ type, detail }) => {
       //If data exists for the notification
       performNotificationRouting(type, detail, navigation);
     });
@@ -154,7 +152,7 @@ const Home = ({navigation, route}: Props) => {
   );
 
   const colors = DynamicColors();
-  const {themeValue} = useTheme();
+  const { themeValue } = useTheme();
   const styles = styling(colors, themeValue);
   const ping: any = useSelector(state => state.ping.ping);
 
@@ -172,10 +170,8 @@ const Home = ({navigation, route}: Props) => {
 
   // To track a selected port, helps with "Stop adding" and stuff
   const [selectedPortProps, setSelectedPortProps] = useState<
-    (TileProps & {isReadPort: true}) | null
+    (TileProps & { isReadPort: true }) | null
   >(null);
-  const [_isChatActionBarVisible, setIsChatActionBarVisible] =
-    useState<boolean>(false);
 
   // This is for the little loader when you pull down on the home screen
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -260,21 +256,16 @@ const Home = ({navigation, route}: Props) => {
             (acc, cur) => (acc += cur.newMessageCount),
             0,
           )}
-          setIsChatActionBarVisible={setIsChatActionBarVisible}
-          selectionMode={false} // TODO: remove this dependency on the topbar
-          setSelectionMode={() => {}}
-          selectedConnections={[]} // TODO remove dependency on this
-          setSelectedConnections={() => {}}
         />
         <KeyboardAvoidingView
           behavior={isIOS ? 'padding' : 'height'}
           keyboardVerticalOffset={isIOS ? 50 : 0}
           style={styles.scrollViewContainer}>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             {!connections.initialLoadComplete ? (
-              <Animated.View style={{opacity: opacityAnimation}}>
+              <Animated.View style={{ opacity: opacityAnimation }}>
                 <View style={styles.tilePlaceholderContainer}>
-                  {Array.from({length: 10}).map((_, index) => (
+                  {Array.from({ length: 10 }).map((_, index) => (
                     <View
                       key={index}
                       style={StyleSheet.compose(styles.tilePlaceholder, {
@@ -313,15 +304,16 @@ const Home = ({navigation, route}: Props) => {
                         />
                       </View>
                     }
-                    ListFooterComponent={connections.matching.length > MINIMUM_CONNECTIONS?
-                      <View style={{height: BOTTOMBAR_HEIGHT}} />
-                      : 
-                      <View style={styles.homecard}>
-                      <HomescreenPlaceholder 
-                  onPlusPress={() => setOpenConnectionsBottomsheet(true)}
-                  />
-                        </View>          
-                 
+                    ListFooterComponent={connections.matching.length > MINIMUM_CONNECTIONS ?
+                      <View style={{ height: Height.bottombar }} />
+                      :
+                      <View style={styles.placeholdercard}>
+                        <HomescreenPlaceholder
+                          onPlusPress={() => setOpenConnectionsBottomsheet(true)}
+                        />
+                        <View style={{ height: Height.bottombar }} />
+                      </View>
+
                     }
                     refreshing={refreshing}
                     onRefresh={async () => {
@@ -341,21 +333,22 @@ const Home = ({navigation, route}: Props) => {
                           textColor={colors.text.subtitle}
                           fontSizeType={FontSizeType.l}
                           fontWeight={FontWeight.rg}
-                       >
+                        >
                           No matching chats found
                         </NumberlessText>
                       </View>
                     )}
                   />
                 ) : (
-                  <View style={styles.placeholdercard}>
-          <HomePlaceholderIcon/>
-                  <View style={styles.placeholder}>           
-                  <HomescreenPlaceholder 
-                  onPlusPress={() => setOpenConnectionsBottomsheet(true)}
-                  />
-                         </View>
-                         </View>
+                  <View style={styles.placeholder}>
+                    <HomePlaceholderIcon width={Width.screen - 2*Spacing.xl}/>
+                    <View style={styles.placeholdercard}>
+                      <HomescreenPlaceholder
+
+                        onPlusPress={() => setOpenConnectionsBottomsheet(true)}
+                      />
+                    </View>
+                  </View>
                 )}
               </>
             )}
@@ -395,21 +388,13 @@ const styling = (colors: any, themeValue: any) =>
           ? colors.primary.background
           : colors.primary.surface,
     },
-    isolationButton: {
-      alignSelf: 'flex-end',
-      position: 'absolute',
-      bottom: Spacing.xml,
-      left: Spacing.l,
-      height: 56,
-      width: 56,
-    },
     barWrapper: {
       backgroundColor:
         themeValue === 'dark'
           ? colors.primary.background
           : colors.primary.surface,
       paddingHorizontal: Spacing.l,
-      paddingVertical:Spacing.s,
+      paddingVertical: Spacing.s,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -426,21 +411,13 @@ const styling = (colors: any, themeValue: any) =>
     tilePlaceholder: {
       height: 91,
       marginHorizontal: Spacing.s,
-      marginBottom:Spacing.s,
+      marginBottom: Spacing.s,
       borderRadius: 16,
     },
     tilePlaceholderContainer: {
       flex: 1,
       justifyContent: 'flex-start',
       paddingVertical: Spacing.m
-    },
-    addButtonWrapper: {
-      alignSelf: 'flex-end',
-      position: 'absolute',
-      bottom:Spacing.xml,
-      right: Spacing.l,
-      height: 56,
-      width: 56,
     },
     scrollViewContainer: {
       flex: 1,
@@ -453,15 +430,16 @@ const styling = (colors: any, themeValue: any) =>
       bottom: Spacing.l,
       right: Spacing.l,
     },
-    placeholder:{
-      position:'absolute', top: 400,
-    },placeholdercard:{
-      marginTop: Spacing.xl, 
-                  marginHorizontal: Spacing.s
+    placeholder: {
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: Spacing.l,
     },
-    homecard:{
-      position:'absolute', top: screen.height/5, marginHorizontal: Spacing.s, justifyContent:'center' 
-    }
+    placeholdercard: {
+      marginTop: Spacing.xl,
+      marginHorizontal: Spacing.s
+    },
   });
 
 export default Home;

@@ -1,43 +1,29 @@
 /**
  * Top Bar of the home screen containing sidebar menu, pending request count and search.
  */
-import React, {ReactNode, useMemo} from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import React, { ReactNode, useMemo } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
-import {PortSpacing, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import {GenericButton} from '@components/GenericButton';
+import { useColors } from '@components/colorGuide';
+import { screen } from '@components/ComponentUtils';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
+import { Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
-import {TOPBAR_HEIGHT} from '@configs/constants';
+import { TOPBAR_HEIGHT } from '@configs/constants';
 
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-
-import ContactBook from '@assets/icons/ContactBook.svg';
-import Scanner from '@assets/icons/ScannerDarkGreen.svg';
-
-import {useTheme} from 'src/context/ThemeContext';
+import { useTheme } from 'src/context/ThemeContext';
 
 function HomeTopbar({
   unread = 0,
-  setIsChatActionBarVisible,
-  selectionMode,
-  setSelectionMode,
-  selectedConnections,
-  setSelectedConnections,
 }: {
   unread?: number;
-  setIsChatActionBarVisible: (visible: boolean) => void;
-  selectionMode: boolean;
-  setSelectionMode: (mode: boolean) => void;
-  selectedConnections: any[];
-  setSelectedConnections: (connections: any[]) => void;
 }): ReactNode {
   const title = useMemo(() => {
     if (unread) {
@@ -48,13 +34,8 @@ function HomeTopbar({
   }, [unread]);
   const navigation = useNavigation<any>();
 
-  const handleCancel = () => {
-    setSelectedConnections([]);
-    setSelectionMode(false);
-    setIsChatActionBarVisible(false);
-  };
-  const Colors = DynamicColors();
-  const {themeValue} = useTheme();
+  const Colors = useColors();
+  const { themeValue } = useTheme();
   const styles = styling(Colors, themeValue);
 
   const svgArray = [
@@ -64,86 +45,74 @@ function HomeTopbar({
       dark: require('@assets/dark/icons/SidebarMenu.svg').default,
     },
     {
-      assetName: 'CloseIcon',
-      light: require('@assets/light/icons/Close.svg').default,
-      dark: require('@assets/dark/icons/Close.svg').default,
-    },
-    {
       assetName: 'FolderSettingsIcon',
       light: require('@assets/light/icons/FolderSettings.svg').default,
       dark: require('@assets/dark/icons/FolderSettings.svg').default,
     },
+    {
+      assetName: 'ContactBook',
+      light: require('@assets/light/icons/ContactBook.svg').default,
+      dark: require('@assets/dark/icons/ContactBook.svg').default,
+    },
+    {
+      assetName: 'ScanQR',
+      light: require('@assets/light/icons/ScanQR.svg').default,
+      dark: require('@assets/dark/icons/ScanQR.svg').default,
+    },
   ];
 
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
 
-  const CloseIcon = results.CloseIcon;
+  const ContactBook = results.ContactBook;
+  const ScanQR = results.ScanQR;
 
   return (
-    <>
-      {selectionMode ? (
-        <View style={styles.selectedBar}>
-          <View style={styles.profileBar}>
-            <View style={styles.titleBar}>
-              <NumberlessText
-                fontSizeType={FontSizeType.xl}
-                fontType={FontType.sb}
-                ellipsizeMode="tail"
-                style={styles.selectedCount}
-                numberOfLines={1}>
-                {'Selected (' + selectedConnections.length.toString() + ')'}
-              </NumberlessText>
-            </View>
-            <View>
-              <GenericButton
-                buttonStyle={styles.crossBox}
-                IconLeft={CloseIcon}
-                onPress={handleCancel}
-              />
-            </View>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.bar}>
-          <View style={styles.menuLeft}>
-            <NumberlessText
-              numberOfLines={1}
-              textColor={Colors.primary.mainelements}
-              ellipsizeMode="tail"
-              fontType={FontType.sb}
-              fontSizeType={FontSizeType.xl}>
-              {title}
-            </NumberlessText>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: PortSpacing.tertiary.uniform,
-            }}>
-            <Pressable
-              style={styles.scanIconWrapper}
-              onPress={() => navigation.push('Scan')}>
-              <Scanner width={20} height={20} />
-            </Pressable>
-            <Pressable
-              style={styles.iconWrapper}
-              onPress={() => navigation.push('ContactsScreen')}>
-              <ContactBook width={24} height={24} />
-              <NumberlessText
-                numberOfLines={1}
-                textColor={Colors.primary.white}
-                ellipsizeMode="tail"
-                fontType={FontType.sb}
-                fontSizeType={FontSizeType.s}>
-                Contacts
-              </NumberlessText>
-            </Pressable>
-          </View>
-        </View>
-      )}
-    </>
+    <View style={styles.bar}>
+      <View style={styles.menuLeft}>
+        <NumberlessText
+          numberOfLines={1}
+          textColor={Colors.text.title}
+          ellipsizeMode="tail"
+          fontWeight={FontWeight.sb}
+          fontSizeType={FontSizeType.xl}>
+          {title}
+        </NumberlessText>
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: Spacing.s,
+        }}>
+        <Pressable
+          style={styles.iconWrapper}
+          onPress={() => navigation.push('Scan')}>
+          <ScanQR width={20} height={20} />
+          <NumberlessText
+            numberOfLines={1}
+            textColor={Colors.text.subtitle}
+            ellipsizeMode="tail"
+            fontWeight={FontWeight.sb}
+            fontSizeType={FontSizeType.s}>
+            Scan
+          </NumberlessText>
+        </Pressable>
+        <Pressable
+          style={styles.iconWrapper}
+          onPress={() => navigation.push('ContactsScreen')}>
+          <ContactBook width={20} height={20} />
+          <NumberlessText
+            numberOfLines={1}
+            textColor={Colors.text.subtitle}
+            ellipsizeMode="tail"
+            fontWeight={FontWeight.sb}
+            fontSizeType={FontSizeType.s}>
+            Contacts
+          </NumberlessText>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
@@ -151,28 +120,27 @@ const styling = (colors: any, themeValue: any) =>
   StyleSheet.create({
     bar: {
       height: TOPBAR_HEIGHT,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.l,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor:
         themeValue === 'dark'
-          ? colors.primary.background
-          : colors.primary.surface,
-      borderBottomColor: colors.primary.stroke,
-      borderBottomWidth: 0.5,
+          ? colors.background
+          : colors.surface,
+
     },
     selectedBar: {
       height: TOPBAR_HEIGHT,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.l,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor:
         themeValue === 'dark'
-          ? colors.primary.background
-          : colors.primary.surface,
-      borderBottomColor: colors.primary.stroke,
+          ? colors.background
+          : colors.surface,
+      borderBottomColor: colors.stroke,
       borderBottomWidth: 0.5,
     },
     profileBar: {
@@ -187,7 +155,7 @@ const styling = (colors: any, themeValue: any) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      gap: PortSpacing.tertiary.uniform,
+      gap: Spacing.s,
     },
     text: {
       height: '100%',
@@ -213,35 +181,28 @@ const styling = (colors: any, themeValue: any) =>
       position: 'absolute',
       resizeMode: 'cover',
     },
-    scanIconWrapper: {
-      height: 36,
-      paddingHorizontal: PortSpacing.tertiary.uniform,
-      borderRadius: 100,
-      flexDirection: 'row',
-      backgroundColor: colors.primary.surface2,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
     iconWrapper: {
-      height: 36,
-      paddingHorizontal: 11,
-      borderRadius: PortSpacing.intermediate.uniform,
+      height: 40,
+      paddingHorizontal: Spacing.s,
+      borderRadius: Spacing.xml,
       flexDirection: 'row',
-      gap: 6,
-      backgroundColor: colors.primary.blue,
+      backgroundColor: colors.surface3,
       alignItems: 'center',
       justifyContent: 'center',
+      gap: 6,
+      borderWidth: 0.5,
+      borderColor: colors.stroke
     },
     selectedCount: {
-      color: colors.labels.text,
+      color: colors.text.title,
       overflow: 'hidden',
       width: screen.width / 2,
     },
     crossBox: {
       backgroundColor:
         themeValue === 'dark'
-          ? colors.primary.background
-          : colors.primary.surface,
+          ? colors.background
+          : colors.surface,
       alignItems: 'flex-end',
       height: 40,
       top: 7,

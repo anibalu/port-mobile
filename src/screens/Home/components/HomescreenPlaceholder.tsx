@@ -22,7 +22,7 @@ import {
 
 
 
-function HomescreenPlaceholder({onPlusPress}:{onPlusPress:()=>{}}): ReactNode {
+function HomescreenPlaceholder({onPlusPress}:{onPlusPress:()=>void}): ReactNode {
   //profile information
   const profile = useSelector(state => state.profile.profile);
   const {name} = useMemo(() => {

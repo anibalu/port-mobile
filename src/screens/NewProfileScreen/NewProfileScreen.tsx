@@ -135,7 +135,7 @@ const NewProfileScreen = ({ navigation }: Props) => {
 
   return (
     <>
-      <CustomStatusBar backgroundColor={colors.background2} />
+      <CustomStatusBar backgroundColor={colors.background2} theme={colors.theme}/>
       <SafeAreaView backgroundColor={colors.background2} >
         <GenericTitle title="Profile" />
         <ScrollView contentContainerStyle={styles.profile}>

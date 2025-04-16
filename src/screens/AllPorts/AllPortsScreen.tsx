@@ -1,21 +1,31 @@
-import React, {useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
+import { useFocusEffect } from '@react-navigation/native';
+
+import PortsCard from '@components/Cards/PortsCard';
+import { useColors } from '@components/colorGuide';
+import { CustomStatusBar } from '@components/CustomStatusBar';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {SafeAreaView} from '@components/SafeAreaView';
+import { SafeAreaView } from '@components/SafeAreaView';
+import { Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 import GenericTitle from '@components/Text/GenericTitle';
 
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import { GeneratedPortData, GeneratedPortsAndSuperports, GeneratedSuperportData , getGeneratedPortsAndSuperports } from '@utils/Ports';
+
+
+enum PortsScreenTabs {
+  AllPorts = 'All ports',
+  Reusable = 'Reusable',
+}
 
 const AllPortsScreen = () => {
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
   const svgArray = [
     {
@@ -23,65 +33,112 @@ const AllPortsScreen = () => {
       light: require('@assets/dark/icons/FilterIcon.svg').default,
       dark: require('@assets/dark/icons/FilterIcon.svg').default,
     },
-    {
-      assetName: 'Download',
-      light: require('@assets/light/icons/DownloadArrow.svg').default,
-      dark: require('@assets/dark/icons/DownloadArrow.svg').default,
-    },
   ];
-  const results = useDynamicSVG(svgArray);
-  const [selectedTab, _setSelectedTab] = useState<string>('All ports');
+  const results = useSVG(svgArray);
+  const [selectedTab, setSelectedTab] = useState<PortsScreenTabs>(PortsScreenTabs.AllPorts);
 
   const Filter = results.Filter;
 
+  const [generatedPortsAndSuperports, setGeneratedPortsAndSuperports] = useState<GeneratedPortsAndSuperports[]>([]);
+  const [generatedSuperports, setGeneratedSuperports] = useState<GeneratedPortsAndSuperports[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const data = await getGeneratedPortsAndSuperports();
+          setGeneratedPortsAndSuperports(data);
+        } catch (error) {
+          console.error('Error fetching generated ports and superports:', error);
+        }
+      };
+      fetchData();
+    }, []),
+  );
+
+  useEffect(() => {
+    // Filter only superports from the combined array
+    const superportsOnly = generatedPortsAndSuperports.filter(
+      port => port.isSuperport === true
+    );
+    setGeneratedSuperports(superportsOnly);
+  }, [generatedPortsAndSuperports]);
+
   return (
     <>
-      <CustomStatusBar backgroundColor={Colors.primary.surface} />
-      <SafeAreaView>
+      <CustomStatusBar backgroundColor={Colors.background2} theme={Colors.theme} />
+      <SafeAreaView backgroundColor={Colors.background2} >
         <GenericTitle title="Ports" />
         <View style={styles.row}>
           <NumberlessText
-            style={{marginRight: PortSpacing.tertiary.uniform}}
-            fontSizeType={FontSizeType.m}
-            fontType={FontType.md}
+            style={{ marginRight: Spacing.m }}
+            fontSizeType={FontSizeType.l}
+            fontWeight={FontWeight.rg}
             textColor={Colors.text.subtitle}>
             Filter by
           </NumberlessText>
-          <Filter />
-          <View
+          <View style={{ marginRight: Spacing.s }}>
+            <Filter />
+          </View>
+          <TouchableOpacity
+            onPress={() => setSelectedTab(PortsScreenTabs.AllPorts)}
+            activeOpacity={0.6}
             style={
-              selectedTab === 'All ports' ? styles.selectedTab : styles.tab
+              selectedTab === PortsScreenTabs.AllPorts ? styles.selectedTab : styles.tab
             }>
             <NumberlessText
               fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}
+              fontWeight={FontWeight.rg}
               textColor={
-                selectedTab === 'All ports'
-                  ? Colors.primary.white
+                selectedTab === PortsScreenTabs.AllPorts
+                  ? Colors.white
                   : Colors.text.subtitle
               }>
               All ports
             </NumberlessText>
-          </View>
-          <View
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setSelectedTab(PortsScreenTabs.Reusable)}
+            activeOpacity={0.6}
             style={
-              selectedTab === 'Reusable' ? styles.selectedTab : styles.tab
+              selectedTab === PortsScreenTabs.Reusable ? styles.selectedTab : styles.tab
             }>
             <NumberlessText
               fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}
+              fontWeight={FontWeight.rg}
               textColor={
-                selectedTab === 'Reusable'
-                  ? Colors.primary.white
+                selectedTab === PortsScreenTabs.Reusable
+                  ? Colors.white
                   : Colors.text.subtitle
               }>
               Reusable
             </NumberlessText>
-          </View>
+          </TouchableOpacity>
         </View>
-
-        {/* Ports cards will come here in a flatlist
-       need the db call to get the ports + superports data */}
+        <FlatList
+          data={selectedTab === PortsScreenTabs.AllPorts ? generatedPortsAndSuperports : generatedSuperports}
+          keyExtractor={(item) => item.portId}
+          contentContainerStyle={{ paddingHorizontal: Spacing.l, paddingBottom: Spacing.xl, gap: Spacing.s }}
+          renderItem={({ item }) => (<>
+            <PortsCard
+              portId={item.portId}
+              title={item.label || ''}
+              reusable={item.isSuperport}
+              connectionsLeft={item.isSuperport ? (item as GeneratedSuperportData).connectionsLimit - (item as GeneratedSuperportData).connectionsMade : null}
+              expiry={item.isSuperport ? null: (item as GeneratedPortData).expiryTimestamp} />
+          </>)}
+          ListEmptyComponent={() => (
+            <View style={{ alignItems: 'center', marginTop: Spacing.xxl }}>
+              <NumberlessText
+                fontSizeType={FontSizeType.l}
+                fontWeight={FontWeight.rg}
+                textColor={Colors.text.subtitle}
+              >
+                No ports found
+              </NumberlessText>
+            </View>
+          )}
+        />
       </SafeAreaView>
     </>
   );
@@ -91,25 +148,25 @@ const styling = (Colors: any) =>
   StyleSheet.create({
     row: {
       flexDirection: 'row',
-      paddingLeft: PortSpacing.secondary.uniform,
-      paddingBottom: PortSpacing.secondary.uniform,
-      backgroundColor: Colors.primary.surface,
+      paddingLeft: Spacing.l,
+      paddingBottom: Spacing.l,
+      backgroundColor: Colors.background2,
       alignItems: 'center',
     },
     tab: {
       borderRadius: 24,
-      borderWidth: 0.5,
-      borderColor: Colors.primary.stroke,
-      paddingVertical: PortSpacing.tertiary.uniform,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      marginHorizontal: 4,
+      borderWidth: 1,
+      borderColor: Colors.stroke,
+      paddingVertical: Spacing.m,
+      paddingHorizontal: Spacing.l,
+      marginLeft: Spacing.s,
     },
     selectedTab: {
       borderRadius: 24,
-      paddingVertical: PortSpacing.tertiary.uniform,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      marginHorizontal: 4,
-      backgroundColor: Colors.primary.accent,
+      paddingVertical: Spacing.m,
+      paddingHorizontal: Spacing.l,
+      backgroundColor: Colors.purple,
+      marginLeft: Spacing.s,
     },
   });
 

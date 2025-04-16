@@ -10,9 +10,13 @@ import store from '@store/appStore';
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import { getBasicConnectionInfo } from '@utils/Storage/connections';
 import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import { PortData } from '@utils/Storage/DBCalls/ports/myPorts';
 import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
+import { SuperportData } from '@utils/Storage/DBCalls/ports/superPorts';
 import * as storageMyPorts from '@utils/Storage/myPorts';
+import * as storagePermissions from '@utils/Storage/permissions';
 import * as storageReadPorts from '@utils/Storage/readPorts';
+import * as storageSuperPorts from '@utils/Storage/superPorts';
 import {hasExpired} from '@utils/Time';
 
 import { ContactPort } from './ContactPorts/ContactPort';
@@ -27,6 +31,8 @@ import {
 } from './interfaces';
 import {Port} from './SingleUsePorts/Port';
 import {SuperPort} from './SuperPorts/SuperPort';
+
+
 /**
  * Checks if a scanned/clicked raw string is a valid port QR or link
  * @param rawString
@@ -181,6 +187,9 @@ export async function cleanDeleteReadPort(portId: string) {
       const cryptoDriver = new CryptoDriver(readPort.cryptoId);
       await cryptoDriver.deleteCryptoData();
     }
+    if (readPort.permissionsId) {
+      await storagePermissions.clearPermissions(readPort.permissionsId);
+    }
   } catch (error) {
     console.log('Error deleting read port: ', error);
   }
@@ -252,4 +261,49 @@ export async function resumeContactPortForDirectChat(chatId: string) {
   const connection = await getBasicConnectionInfo(chatId);
   const contactPort = await ContactPort.generator.shared.fromPairHash(connection.pairHash);
   await contactPort.resume();
+}
+
+interface GeneratedPortsAndSuperportsBase {
+  sortTimestamp: string;
+  isSuperport: boolean;
+}
+
+export interface GeneratedPortData extends GeneratedPortsAndSuperportsBase, PortData {
+}
+
+export interface GeneratedSuperportData extends GeneratedPortsAndSuperportsBase, SuperportData {
+}
+
+export type GeneratedPortsAndSuperports = GeneratedPortData | GeneratedSuperportData;
+
+/**
+ * Get all generated ports and superports
+ * @returns - all ports generated and reusable
+ */
+export async function getGeneratedPortsAndSuperports(): Promise<GeneratedPortsAndSuperports[]> {
+  const generatedPorts = await storageMyPorts.getUsedPorts();
+  const superports = await storageSuperPorts.getAllSuperports();
+  
+  // Combine ports and superports into a single array
+  const combinedPorts = [
+    ...generatedPorts.map(port => ({ 
+      ...port, 
+      sortTimestamp: port.usedOnTimestamp,
+      isSuperport: false,
+    })),
+    ...superports.map(superport => ({ 
+      ...superport, 
+      sortTimestamp: superport.createdOnTimestamp,
+      isSuperport: true,
+    }))
+  ];
+  
+  // Sort the combined array by timestamp
+  combinedPorts.sort((a, b) => {
+    if (!a.sortTimestamp) return 1;
+    if (!b.sortTimestamp) return -1;
+    return a.sortTimestamp.localeCompare(b.sortTimestamp);
+  });
+
+  return combinedPorts;
 }

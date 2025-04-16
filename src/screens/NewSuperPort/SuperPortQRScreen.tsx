@@ -1,39 +1,39 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 
-import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Share from 'react-native-share';
 import ViewShot from 'react-native-view-shot';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
 import SecondaryButton from '@components/Buttons/SecondaryButton';
-import {useColors} from '@components/colorGuide';
-import {isIOS} from '@components/ComponentUtils';
-import {GradientScreenView} from '@components/GradientScreenView';
+import { useColors } from '@components/colorGuide';
+import { isIOS } from '@components/ComponentUtils';
+import { GradientScreenView } from '@components/GradientScreenView';
 import ExportableQRWithPicture from '@components/QR/ExportableQRWithPicture';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {Spacing, Width} from '@components/spacingGuide';
+import { AvatarBox } from '@components/Reusable/AvatarBox/AvatarBox';
+import { Spacing, Width } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 import TopBarEmptyTitleAndDescription from '@components/Text/TopBarEmptyTitleAndDescription';
 import PortLogoAndSettingsTopBar from '@components/TopBars/PortLogoAndSettingsTopBar';
 
-import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+import { DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO } from '@configs/constants';
 
-import {NewSuperPortStackParamList} from '@navigation/AppStack/NewSuperPortStack/NewSuperPortStackTypes';
+import { NewSuperPortStackParamList } from '@navigation/AppStack/NewSuperPortStack/NewSuperPortStackTypes';
 
-import {hasCameraRollSavePermission} from '@utils/AppPermissions';
-import {jsonToUrl} from '@utils/JsonToUrl';
-import {DirectSuperportBundle} from '@utils/Ports/interfaces';
-import {SuperPort} from '@utils/Ports/SuperPorts/SuperPort';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {getPermissions} from '@utils/Storage/permissions';
+import { hasCameraRollSavePermission } from '@utils/AppPermissions';
+import { jsonToUrl } from '@utils/JsonToUrl';
+import { DirectSuperportBundle } from '@utils/Ports/interfaces';
+import { SuperPort } from '@utils/Ports/SuperPorts/SuperPort';
+import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
+import { getPermissions } from '@utils/Storage/permissions';
 
 import ShareIcon from '@assets/dark/icons/Share.svg';
 
-import {ToastType, useToast} from 'src/context/ToastContext';
+import { ToastType, useToast } from 'src/context/ToastContext';
 
 import DisplayableSuperPortQRCard from './components/DisplayableSuperPortQRCard';
 import {
@@ -47,10 +47,10 @@ type Props = NativeStackScreenProps<
   'SuperPortQRScreen'
 >;
 
-function SuperPortQRScreen({route, navigation}: Props) {
+function SuperPortQRScreen({ route, navigation }: Props) {
   console.log('[Rendering SuperPortQRScreen]');
-  const {portId, label, limit, permissions, folderId} = route.params;
-  const {showToast} = useToast();
+  const { portId, label, limit, permissions, folderId } = route.params;
+  const { showToast } = useToast();
   // Set up superport context
   const superPortActions = useSuperPortActions();
   const {
@@ -63,7 +63,7 @@ function SuperPortQRScreen({route, navigation}: Props) {
 
   //profile information
   const profile = useSelector((state: any) => state.profile.profile);
-  const {name, avatar} = useMemo(() => {
+  const { name, avatar } = useMemo(() => {
     return {
       name: profile?.name || DEFAULT_NAME,
       avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
@@ -94,6 +94,10 @@ function SuperPortQRScreen({route, navigation}: Props) {
   const [portData, setPortData] = useState<DirectSuperportBundle | null>(null);
   //Link data
   const [linkData, setLinkData] = useState<string | null>(null);
+
+  const shouldGoBack = useMemo(() => {
+    return portId ? true : false;
+  }, [portId]);
 
   //share loading
   const [shareLoading, setShareLoading] = useState(false);
@@ -209,15 +213,19 @@ function SuperPortQRScreen({route, navigation}: Props) {
   };
 
   const onClosePress = () => {
-    // Reset the navigation state to go back to a common parent and then navigate to the desired screen
-    (navigation as any).reset({
-      index: 0,
-      routes: [
-        {
-          name: 'HomeTab', // The common parent/root screen
-        },
-      ],
-    });
+    if (shouldGoBack) {
+      navigation.goBack();
+    } else {
+      // Reset the navigation state to go back to a common parent and then navigate to the desired screen
+      (navigation as any).reset({
+        index: 0,
+        routes: [
+          {
+            name: 'HomeTab', // The common parent/root screen
+          },
+        ],
+      });
+    }
   };
 
   // Function to capture and share the QR code
@@ -323,9 +331,8 @@ function SuperPortQRScreen({route, navigation}: Props) {
               superPortName={contextLabel}
               labelText={
                 port
-                  ? `Used ${port.getPort().connectionsMade}/${
-                      contextLimit || 'Unlimited'
-                    }`
+                  ? `Used ${port.getPort().connectionsMade}/${contextLimit || 'Unlimited'
+                  }`
                   : ''
               }
             />
@@ -372,7 +379,7 @@ function SuperPortQRScreen({route, navigation}: Props) {
         />
       </View>
       <View style={styles.hiddenContainer}>
-        <ViewShot ref={viewShotRef} options={{quality: 1, format: 'png'}}>
+        <ViewShot ref={viewShotRef} options={{ quality: 1, format: 'png' }}>
           <ExportableQRWithPicture
             qrData={portData}
             theme={color.theme}

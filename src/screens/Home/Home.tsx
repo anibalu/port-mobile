@@ -19,9 +19,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
 
+import { useColors } from '@components/colorGuide';
 import { isIOS } from '@components/ComponentUtils';
 import { CustomStatusBar } from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
 import { GestureSafeAreaView } from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
@@ -151,9 +151,9 @@ const Home = ({ navigation, route }: Props) => {
     }, []),
   );
 
-  const colors = DynamicColors();
+  const colors = useColors();
   const { themeValue } = useTheme();
-  const styles = styling(colors, themeValue);
+  const styles = styling(colors);
   const ping: any = useSelector(state => state.ping.ping);
 
   // Initialise our connections state
@@ -236,21 +236,8 @@ const Home = ({ navigation, route }: Props) => {
 
   return (
     <>
-      <CustomStatusBar
-        backgroundColor={
-          themeValue === 'dark'
-            ? colors.primary.background
-            : colors.primary.surface
-        }
-      />
-      <GestureSafeAreaView
-        removeOffset={true}
-        style={{
-          backgroundColor:
-            themeValue === 'dark'
-              ? colors.primary.background
-              : colors.primary.surface,
-        }}>
+      <CustomStatusBar backgroundColor={colors.background2} theme={colors.theme}/>
+      <GestureSafeAreaView backgroundColor={colors.background2} >
         <HomeTopbar
           unread={connections.matching.reduce(
             (acc, cur) => (acc += cur.newMessageCount),
@@ -379,20 +366,14 @@ const Home = ({ navigation, route }: Props) => {
   );
 };
 
-const styling = (colors: any, themeValue: any) =>
+const styling = (colors: any) =>
   StyleSheet.create({
     chats: {
       flex: 1,
-      backgroundColor:
-        themeValue === 'dark'
-          ? colors.primary.background
-          : colors.primary.surface,
+      backgroundColor: colors.background2,
     },
     barWrapper: {
-      backgroundColor:
-        themeValue === 'dark'
-          ? colors.primary.background
-          : colors.primary.surface,
+      backgroundColor: colors.background2,
       paddingHorizontal: Spacing.l,
       paddingVertical: Spacing.s,
       flexDirection: 'row',
@@ -400,7 +381,7 @@ const styling = (colors: any, themeValue: any) =>
       alignItems: 'center',
     },
     search: {
-      backgroundColor: colors.primary.surface2,
+      backgroundColor: colors.surface3,
       width: '100%',
       flexDirection: 'row',
       height: 44,

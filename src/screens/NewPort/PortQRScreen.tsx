@@ -1,47 +1,47 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {BackHandler, ScrollView, StyleSheet, View} from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 
 import Clipboard from '@react-native-clipboard/clipboard';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Share from 'react-native-share';
 import ViewShot from 'react-native-view-shot';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
-import {useColors} from '@components/colorGuide';
-import {GradientScreenView} from '@components/GradientScreenView';
+import { useColors } from '@components/colorGuide';
+import { GradientScreenView } from '@components/GradientScreenView';
 import ExportableQRWithPicture from '@components/QR/ExportableQRWithPicture';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import {Spacing} from '@components/spacingGuide';
+import { AvatarBox } from '@components/Reusable/AvatarBox/AvatarBox';
+import { Spacing } from '@components/spacingGuide';
 import TopBarEmptyTitleAndDescription from '@components/Text/TopBarEmptyTitleAndDescription';
 import PortLogoAndSettingsTopBar from '@components/TopBars/PortLogoAndSettingsTopBar';
 
-import {DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
+import { DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO } from '@configs/constants';
 
-import {NewPortStackParamList} from '@navigation/AppStack/NewPortStack/NewPortStackTypes';
+import { NewPortStackParamList } from '@navigation/AppStack/NewPortStack/NewPortStackTypes';
 
-import {jsonToUrl} from '@utils/JsonToUrl';
-import {PortBundle} from '@utils/Ports/interfaces';
-import {Port} from '@utils/Ports/SingleUsePorts/Port';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {getPermissions} from '@utils/Storage/permissions';
-import {getExpiryTag} from '@utils/Time';
+import { jsonToUrl } from '@utils/JsonToUrl';
+import { PortBundle } from '@utils/Ports/interfaces';
+import { Port } from '@utils/Ports/SingleUsePorts/Port';
+import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
+import { getPermissions } from '@utils/Storage/permissions';
+import { getExpiryTag } from '@utils/Time';
 
 import ShareIcon from '@assets/dark/icons/Share.svg';
 
-import {ToastType, useToast} from 'src/context/ToastContext';
+import { ToastType, useToast } from 'src/context/ToastContext';
 
 import DisplayablePortQRCard from './components/DisplayablePortQRCard';
-import {usePortActions, usePortData} from './context/PortContext';
+import { usePortActions, usePortData } from './context/PortContext';
 
 
 
 type Props = NativeStackScreenProps<NewPortStackParamList, 'PortQRScreen'>;
 
-function PortQRScreen({route, navigation}: Props) {
+function PortQRScreen({ route, navigation }: Props) {
   console.log('[Rendering PortQRScreen]');
-  const {contactName, permissions, folderId, portId} = route.params;
-  const {showToast} = useToast();
+  const { contactName, permissions, folderId, portId } = route.params;
+  const { showToast } = useToast();
   // Set up port context
   const portActions = usePortActions();
   const {
@@ -53,7 +53,7 @@ function PortQRScreen({route, navigation}: Props) {
 
   //profile information
   const profile = useSelector((state: any) => state.profile.profile);
-  const {name, avatar} = useMemo(() => {
+  const { name, avatar } = useMemo(() => {
     return {
       name: profile?.name || DEFAULT_NAME,
       avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
@@ -73,6 +73,11 @@ function PortQRScreen({route, navigation}: Props) {
   const [portData, setPortData] = useState<PortBundle | null>(null);
   //Link data
   const [linkData, setLinkData] = useState<string | null>(null);
+
+  // Whether to go back to the previous screen or reset to home tab
+  const shouldGoBack = useMemo(() => {
+    return portId ? true : false;
+  }, [portId]);
 
   //share loading
   const [shareLoading, setShareLoading] = useState(false);
@@ -96,6 +101,7 @@ function PortQRScreen({route, navigation}: Props) {
   // Initialize port context with route params
   useEffect(() => {
     (async () => {
+      console.log('PortQRScreen useEffect', portId, permissions, contactName, folderId);
       try {
         if (portId) {
           // retrieve port data from portId
@@ -109,6 +115,7 @@ function PortQRScreen({route, navigation}: Props) {
           portActions.setFolderId(portClassData.folderId);
           portActions.setContactName(portClassData.label || DEFAULT_NAME);
           portActions.setPort(portClass);
+          console.log('Port data retrieved', portClassData);
         } else if (permissions && contactName && folderId) {
           console.log('Creating new port from params');
           portActions.setPermissions(permissions);
@@ -130,12 +137,13 @@ function PortQRScreen({route, navigation}: Props) {
 
   useMemo(async () => {
     if (port) {
+      console.log('Port class retrieved', port);
       try {
         const bundle = await port.getShareableBundle(name);
+        console.log('Bundle retrieved', bundle);
         setPortData(bundle);
         setLinkData(jsonToUrl(bundle as any));
         setIsLoading(false);
-        setErrorMessage('ddd');
         try {
           setLinkData(await port.getShareableLink(name));
         } catch (error) {
@@ -183,15 +191,19 @@ function PortQRScreen({route, navigation}: Props) {
   };
 
   const onClosePress = () => {
-    // Reset the navigation state to go back to a common parent and then navigate to the desired screen
-    (navigation as any).reset({
-      index: 0,
-      routes: [
-        {
-          name: 'HomeTab', // The common parent/root screen
-        },
-      ],
-    });
+    if (shouldGoBack) {
+      navigation.goBack();
+    } else {
+      // Reset the navigation state to go back to a common parent and then navigate to the desired screen
+      (navigation as any).reset({
+        index: 0,
+        routes: [
+          {
+            name: 'HomeTab', // The common parent/root screen
+          },
+        ],
+      });
+    }
   };
 
   // Function to capture and share the QR code
@@ -285,7 +297,7 @@ function PortQRScreen({route, navigation}: Props) {
         />
       </View>
       <View style={styles.hiddenContainer}>
-        <ViewShot ref={viewShotRef} options={{quality: 1, format: 'png'}}>
+        <ViewShot ref={viewShotRef} options={{ quality: 1, format: 'png' }}>
           <ExportableQRWithPicture
             qrData={portData}
             theme={color.theme}

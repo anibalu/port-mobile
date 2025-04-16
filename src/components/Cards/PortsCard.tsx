@@ -1,35 +1,39 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import { useNavigation } from '@react-navigation/native';
+
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import LineSeparator from '@components/Reusable/Separators/LineSeparator';
+import LineSeparator from '@components/Separators/LineSeparator';
+import { Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import { getExpiryTag } from '@utils/Time';
 
 import ReusableIcon from '@assets/icons/Reusable.svg';
 
-
 const PortsCard = ({
+  portId,
   title,
-  folder: folderName,
-  reusable = false,
+  folderId,
+  reusable,
   connectionsLeft,
   expiry,
 }: {
+  portId: string;
   title: string;
-  folder?: string;
-  reusable?: boolean;
-  connectionsLeft: number;
-  expiry: string;
+  folderId?: string | null;
+  reusable: boolean;
+  connectionsLeft?: number | null;
+  expiry?: string | null;
 }) => {
-  const Colors = DynamicColors();
+  const navigation = useNavigation();
+  const Colors = useColors();
   const styles = styling(Colors);
   const svgArray = [
     {
@@ -44,100 +48,143 @@ const PortsCard = ({
     },
   ];
 
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
   const ClockIcon = results.ClockIcon;
   const AngleRight = results.AngleRight;
 
-  // changes description text based on reusable or not
-  const descriptionText = reusable
-    ? `${connectionsLeft} uses left`
-    : `Expires in ${expiry}`;
+  const onPress = () => {
+    if (reusable) {
+      (navigation as any).push('NewSuperPortStack', {
+        screen: 'SuperPortQRScreen',
+        params: {
+          portId: portId,
+        },
+      });
+    } else {
+      (navigation as any).push('NewPortStack', {
+        screen: 'PortQRScreen',
+        params: {
+          portId: portId,
+        },
+      });
+    }
+  };
 
   return (
-    <SimpleCard style={styles.cardContainer}>
-      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-        <NumberlessText
-          style={{marginVertical: PortSpacing.tertiary.uniform}}
-          textColor={Colors.text.primary}
-          fontSizeType={FontSizeType.l}
-          fontType={FontType.sb}>
-          {title}
-        </NumberlessText>
+    <Pressable style={styles.cardContainer} onPress={onPress}>
+      <View style={styles.topContainer}>
+        <View style={styles.titleContainer}>
+          <NumberlessText
+            textColor={Colors.text.title}
+            fontSizeType={FontSizeType.l}
+            fontWeight={FontWeight.sb}>
+            {title}
+          </NumberlessText>
+          {folderId && (
+            <View style={styles.folderContainer}>
+              <NumberlessText
+                textColor={Colors.boldAccentColors.blue}
+                fontSizeType={FontSizeType.s}
+                fontWeight={FontWeight.rg}>
+                {'folder'}
+              </NumberlessText>
+            </View>
+          )}
+        </View>
 
         {reusable ? (
           <View style={styles.reusableContainer}>
             <ReusableIcon />
             <NumberlessText
-              textColor={Colors.boldAccentColors.violet}
+              textColor={Colors.purple}
               fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}>
-              reusable
+              fontWeight={FontWeight.rg}>
+              Reusable
             </NumberlessText>
           </View>
         ) : (
           <></>
         )}
       </View>
-
-      {folderName && (
-        <View style={styles.folderContainer}>
-          <NumberlessText
-            textColor={Colors.boldAccentColors.blue}
-            fontSizeType={FontSizeType.s}
-            fontType={FontType.rg}>
-            {folderName}
-          </NumberlessText>
-        </View>
-      )}
-
-      <LineSeparator />
+      <LineSeparator gradient1borderColor={Colors.stroke} gradient2borderColor={Colors.stroke}/>
       <View style={styles.bottomContainer}>
         <View style={styles.clockContainer}>
-          <ClockIcon />
-          <NumberlessText
-            textColor={Colors.text.subtitle}
-            fontSizeType={FontSizeType.s}
-            fontType={FontType.md}>
-            {descriptionText}
-          </NumberlessText>
+          <ClockIcon height={16} width={16} />
+          <ExpiryText expiry={expiry} connectionsLeft={connectionsLeft} Colors={Colors} />
         </View>
         <AngleRight />
       </View>
-    </SimpleCard>
+    </Pressable>
+  );
+};
+
+const ExpiryText = ({ expiry, connectionsLeft, Colors }: { expiry?: string | null, connectionsLeft?: number | null, Colors: any }) => {
+  return (
+    <View>
+      {expiry && <NumberlessText
+        textColor={Colors.text.subtitle}
+        fontSizeType={FontSizeType.s}
+        fontWeight={FontWeight.md}>
+        {getExpiryTag(expiry)}
+      </NumberlessText>}
+      {connectionsLeft && <NumberlessText
+        textColor={Colors.text.subtitle}
+        fontSizeType={FontSizeType.s}
+        fontWeight={FontWeight.md}>
+        {connectionsLeft} use(s) left
+      </NumberlessText>}
+    </View>
   );
 };
 
 const styling = (colors: any) =>
   StyleSheet.create({
     cardContainer: {
-      paddingVertical: PortSpacing.secondary.uniform,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      backgroundColor: colors.primary.surface,
+      flexDirection: 'column',
+      paddingVertical: Spacing.m,
+      paddingHorizontal: Spacing.m,
       borderRadius: 16,
+      backgroundColor: colors.surface1,
+      borderWidth: 1,
+      borderColor: colors.stroke,
+      width: '100%',
+      gap: Spacing.s,
+    },
+    topContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+    },
+    titleContainer: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      justifyContent: 'flex-start',
+      gap: Spacing.xs,
     },
     folderContainer: {
       backgroundColor: colors.lowAccentColors.blue,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingVertical: PortSpacing.tertiary.uniform,
-      borderRadius: 8,
+      paddingHorizontal: Spacing.s,
+      paddingVertical: Spacing.xs,
+      borderRadius: 16,
     },
     clockContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: PortSpacing.tertiary.uniform,
+      gap: Spacing.s,
     },
     reusableContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: 8,
-      borderRadius: 26,
-      gap: 4,
-      backgroundColor: colors.lowAccentColors.violet,
+      paddingHorizontal: Spacing.s,
+      paddingVertical: Spacing.xs,
+      borderRadius: 16,
+      gap: Spacing.xs,
+      backgroundColor: colors.lowAccentColors.purple,
     },
     bottomContainer: {
       flexDirection: 'row',
-      marginTop: PortSpacing.tertiary.uniform,
       justifyContent: 'space-between',
+      alignItems: 'center',
     },
   });
 

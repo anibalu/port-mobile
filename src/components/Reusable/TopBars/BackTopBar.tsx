@@ -12,7 +12,7 @@ import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 
@@ -45,7 +45,7 @@ const BackTopbar = ({
             flex: 1,
           }}
           textColor={Colors.text.primary}
-          fontType={FontType.md}
+          fontWeight={FontWeight.sb}
           fontSizeType={FontSizeType.xl}>
           {title}
         </NumberlessText>
@@ -64,8 +64,6 @@ const styling = (Color: any) =>
       alignItems: 'center',
       backgroundColor: Color.primary.surface,
       height: TOPBAR_HEIGHT,
-      borderBottomWidth: 0.5,
-      borderBottomColor: Color.primary.stroke,
     },
     backButton: {
       width: 24,

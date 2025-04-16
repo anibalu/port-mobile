@@ -3,25 +3,23 @@ import {Linking, Pressable, StyleSheet, View} from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
 
-import {PortSpacing, screen} from '@components/ComponentUtils';
+import { useColors } from '@components/colorGuide';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+import { Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 // TODO: Why is the legal screen labeled HelpScreen
 const HelpScreen = () => {
   const navigation = useNavigation();
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
 
   const svgArray = [
@@ -31,12 +29,12 @@ const HelpScreen = () => {
       dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
     },
   ];
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
   const BlackAngleRight = results.AngleRight;
 
   return (
     <>
-      <CustomStatusBar backgroundColor={Colors.primary.surface} />
+      <CustomStatusBar backgroundColor={Colors.surface} />
       <SafeAreaView style={styles.screen}>
         <BackTopbar
           onBackPress={() => navigation.goBack()}
@@ -44,21 +42,20 @@ const HelpScreen = () => {
           bgColor="w"
         />
         <View style={styles.mainComponent}>
-          <SimpleCard style={styles.card}>
             <Pressable
               style={styles.button}
               onPress={() =>
                 Linking.openURL(
-                  'https://port.numberless.tech/TermsAndConditions',
+                  'https://portmessenger.com/TermsAndConditions',
                 )
               }>
               <View style={{flexDirection: 'row'}}>
                 <NumberlessText
-                  style={{marginLeft: PortSpacing.tertiary.left}}
-                  textColor={Colors.text.primary}
-                  fontType={FontType.sb}
+                  style={{marginLeft: Spacing.s,}}
+                  textColor={Colors.text.title}
+                  fontWeight={FontWeight.rg}
                   fontSizeType={FontSizeType.l}>
-                  Terms
+                  Terms & Conditions
                 </NumberlessText>
               </View>
               <View
@@ -66,20 +63,18 @@ const HelpScreen = () => {
                 <BlackAngleRight />
               </View>
             </Pressable>
-          </SimpleCard>
-          <SimpleCard style={styles.card}>
             <Pressable
               style={styles.button}
               onPress={() =>
-                Linking.openURL('https://port.numberless.tech/PrivacyPolicy')
+                Linking.openURL('https://portmessenger.com/PrivacyPolicy')
               }>
               <View style={{flexDirection: 'row'}}>
                 <NumberlessText
                   style={{
-                    marginLeft: PortSpacing.tertiary.left,
+                    marginLeft: Spacing.s
                   }}
-                  textColor={Colors.text.primary}
-                  fontType={FontType.sb}
+                  textColor={Colors.text.title}
+                  fontWeight={FontWeight.rg}
                   fontSizeType={FontSizeType.l}>
                   Privacy Policy
                 </NumberlessText>
@@ -89,7 +84,6 @@ const HelpScreen = () => {
                 <BlackAngleRight />
               </View>
             </Pressable>
-          </SimpleCard>
         </View>
       </SafeAreaView>
     </>
@@ -100,30 +94,30 @@ const styling = (colors: any) =>
   StyleSheet.create({
     screen: {
       alignItems: 'center',
-      backgroundColor: colors.primary.background,
+      backgroundColor: colors.background,
     },
     mainComponent: {
       flex: 1,
-      width: screen.width,
-      backgroundColor: colors.primary.background,
+      backgroundColor: colors.background,
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      paddingBottom: PortSpacing.secondary.bottom,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      marginTop: PortSpacing.secondary.top,
-    },
-    card: {
-      width: '100%',
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      marginTop: PortSpacing.secondary.top,
-      paddingVertical: 0,
+      paddingBottom: Spacing.l,
+      paddingHorizontal: Spacing.m,
+      marginTop:Spacing.l,
+      gap: Spacing.s
     },
     button: {
-      paddingVertical: PortSpacing.secondary.uniform,
-      flexDirection: 'row',
+      width: '100%',
+      backgroundColor: colors.surface,
+      height: 58,
       justifyContent: 'space-between',
+      flexDirection: 'row',
+      borderRadius: 16,
+      paddingHorizontal: Spacing.l,
       alignItems: 'center',
+      borderWidth: 0.5, 
+      borderColor: colors.stroke
     },
   });
 export default HelpScreen;

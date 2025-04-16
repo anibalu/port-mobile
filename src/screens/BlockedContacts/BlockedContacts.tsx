@@ -9,7 +9,7 @@ import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
@@ -18,8 +18,6 @@ import {SafeAreaView} from '@components/SafeAreaView';
 
 import {getAllBlockedUsers} from '@utils/Storage/blockUsers';
 import {BlockedUser} from '@utils/Storage/DBCalls/blockUser';
-
-import Icon from '@assets/icons/NoFilesFound.svg';
 
 const BlockedContacts = () => {
   const navigation = useNavigation();
@@ -68,11 +66,10 @@ const BlockedContacts = () => {
                 alignItems: 'center',
                 transform: [{translateX: 0}, {translateY: -50}],
               }}>
-              <Icon />
               <NumberlessText
                 style={{textAlign: 'center'}}
-                fontSizeType={FontSizeType.xl}
-                fontType={FontType.md}
+                fontSizeType={FontSizeType.l}
+                fontWeight={FontWeight.rg}
                 textColor={Colors.text.primary}>
                 No blocked contacts found
               </NumberlessText>

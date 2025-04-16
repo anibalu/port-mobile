@@ -66,9 +66,9 @@ const AccountSettings = ({navigation}: Props) => {
             fontWeight={FontWeight.rg}
             textColor={Colors.text.title}>
             Port prides itself on not collecting any personally identifying
-            information. It's the reason we exist. All sensitive information
+            information. All sensitive information
             like your nickname and profile pictuire are stored locally and
-            shared with your connections in with end-to-end encryption.
+            shared with your connections in an end-to-end encrypted manner.
           </NumberlessText>
         </View>
       </SafeAreaView>

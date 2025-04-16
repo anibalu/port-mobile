@@ -1,9 +1,8 @@
 import React, {useRef, useState} from 'react';
-import {StyleSheet, TextInput, View} from 'react-native';
+import {ActivityIndicator, Pressable, StyleSheet, TextInput, View} from 'react-native';
 
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
-import PrimaryButton from '@components/Buttons/PrimaryButton';
 import { useColors } from '@components/colorGuide';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
@@ -77,6 +76,9 @@ const DeleteAccount = ({navigation}: Props) => {
       setDeletionState(DeletionState.uninitiated);
     }
   };
+
+  const buttonDisabled =          DELETION_TEXT.toLowerCase() !==
+  deletionConfirmationText.toLocaleLowerCase()
   return (
     <>
       <CustomStatusBar
@@ -125,18 +127,21 @@ const DeleteAccount = ({navigation}: Props) => {
           </SimpleCard>
         </View>
         <View style={styles.button}>
-          <PrimaryButton
-          theme={Colors.theme}
-            text="Delete Account"
-            onClick={deleteAccount}
-            // We disable the button if the confirmation text isn't a case-insensitive
-            // match
-            disabled={
-              DELETION_TEXT.toLowerCase() !==
-              deletionConfirmationText.toLocaleLowerCase()
+         
+          <Pressable disabled={
+     buttonDisabled
             }
-            isLoading={DeletionState.ongoing === deletionState}
-          />
+           onPress={deleteAccount} style={buttonDisabled? styles.disabledButton: styles.delete}>
+
+            {DeletionState.ongoing === deletionState? <ActivityIndicator/> :
+            <NumberlessText          
+               fontSizeType={FontSizeType.m}
+              fontWeight={FontWeight.rg}
+              textColor={Colors.text.title}>
+              Delete Account
+            </NumberlessText>
+}
+          </Pressable>
         </View>
       
       </GestureSafeAreaView>
@@ -174,10 +179,30 @@ const styling = (Colors: any) =>
       alignItems: 'center',
     },
     button: {
-      padding:Spacing.s,
+      paddingHorizontal:Spacing.m,
       backgroundColor: Colors.background,
       paddingVertical: Spacing.l,
     },
+    disabledButton: {
+      width: '100%',
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      borderRadius: 12,
+      height: 50,
+      opacity: 0.5,
+      backgroundColor: Colors.red
+    },
+    delete: {
+      width: '100%',
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      borderRadius: 12,
+      height: 50,
+      backgroundColor: Colors.red
+    },
+
   });
 
 export default DeleteAccount;

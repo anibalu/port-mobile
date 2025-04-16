@@ -2,11 +2,9 @@ import React from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 
 import { useColors } from '@components/colorGuide';
-import {isIOS} from '@components/ComponentUtils';
 import { FontSizeType, FontWeight, NumberlessText } from '@components/NumberlessText';
+import OptionWithRadio from '@components/Options/OptionWithRadio';
 import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
 import LineSeparator from '@components/Separators/LineSeparator';
 import { Spacing, Width } from '@components/spacingGuide';
 
@@ -36,10 +34,9 @@ const ThemeBottomsheet = ({
 const Colors = useColors()
   return (
     <PrimaryBottomSheet
-    shouldAutoClose={false}
-      bgColor="g"
       onClose={() => setShowThemeBottomsheet(false)}
       showClose={false}
+      showNotch={false}
       visible={showThemeBottomsheet}
     >
        <View style={styles.connectionOptionsRegion}>
@@ -53,15 +50,12 @@ const Colors = useColors()
           <LineSeparator style={{width: Width.screen}} />
         </View>
       </View>
-      <SimpleCard
+      <View
         style={{
-          paddingVertical: Spacing.l,
-          width: '100%',
-          marginTop: Spacing.m,
-          ...(isIOS ? {marginBottom:  Spacing.l} : 0),
+          width: Width.screen,
         }}>
         <FlatList
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(_item, index) => index.toString()}
           data={themeOptions}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
@@ -71,17 +65,17 @@ const Colors = useColors()
             return (
               <View>
                 <OptionWithRadio
+                  separator={item.index !== themeOptions.length - 1}
                   selectedOptionComparision={selected}
                   selectedOption={item.item.value}
                   title={item.item.key}
                   onClick={() => onThemeSelect(item.item.value)}
                 />
-                {item.index !== themeOptions.length - 1 && <LineSeparator />}
               </View>
             );
           }}
         />
-      </SimpleCard>
+      </View>
     </PrimaryBottomSheet>
   );
 };

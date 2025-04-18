@@ -12,22 +12,18 @@ import GradientCard from '@components/Cards/GradientCard';
 import {useThemeColors} from '@components/colorGuide';
 import {isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import {
-  FontSizeType,
-  FontWeight,
-  NumberlessText,
-} from '@components/NumberlessText';
-import OptionWithLogoAndChevron from '@components/Options/OptionWithLogoAndChevron';
+import {FontSizeType, FontWeight} from '@components/NumberlessText';
+// import OptionWithLogoAndChevron from '@components/Options/OptionWithLogoAndChevron';
+import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
 import {SafeAreaView} from '@components/SafeAreaView';
-import LineSeparator from '@components/Separators/LineSeparator';
+// import LineSeparator from '@components/Separators/LineSeparator';
 import {Spacing, Width} from '@components/spacingGuide';
 
 import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
 
-import LinkSafron from '@assets/icons/LinkDeepSafron.svg';
-import ScannerGreen from '@assets/icons/ScannerDarkGreen.svg';
+// import LinkSafron from '@assets/icons/LinkDeepSafron.svg';
+// import ScannerGreen from '@assets/icons/ScannerDarkGreen.svg';
 import PortLogoWelcomeScreen from '@assets/miscellaneous/PortLogoWelcomeScreen.svg';
-
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Welcome'>;
 
@@ -40,12 +36,12 @@ function Welcome({navigation}: Props) {
   };
 
   //what happens when the user presses "Received a Port Link".
-  const onPressCustomOnboardingWithLink = async () => {
+  const _onPressCustomOnboardingWithLink = async () => {
     navigation.push('OnboardingLinkInput');
   };
 
   //what happens when the user presses "Received a Port QR".
-  const onPressCustomOnboardingWithQR = async () => {
+  const _onPressCustomOnboardingWithQR = async () => {
     navigation.push('OnboardingQRScanner');
   };
 
@@ -75,13 +71,6 @@ function Welcome({navigation}: Props) {
             )}
           </View>
           <GradientCard style={styles.buttonContainer} forceTheme={'dark'}>
-            <NumberlessText
-              style={{textAlign: 'center'}}
-              textColor={colors.white}
-              fontWeight={FontWeight.sb}
-              fontSizeType={FontSizeType.xl}>
-              Welcome to Port
-            </NumberlessText>
             <View style={{gap: Spacing.s}}>
               <PrimaryButton
                 theme={'dark'}
@@ -95,49 +84,43 @@ function Welcome({navigation}: Props) {
                   fontWeight: FontWeight.md,
                 }}
               />
-              <PrimaryButton
-                theme={'dark'}
-                isLoading={false}
-                color={colors.white}
-                text={'Restore from backup'}
+              <TertiaryButton
+                tertiaryButtonColor={'w'}
+                buttonText={'Restore from backup'}
                 disabled={false}
                 onClick={onBackupPress}
-                textStyle={{
-                  fontSize: FontSizeType.l,
-                  fontWeight: FontWeight.md,
-                }}
               />
             </View>
           </GradientCard>
-          <View
-            style={{
-              width: '100%',
-              marginVertical: Spacing.xl,
-              gap: Spacing.xs,
-              flexDirection: 'column',
-            }}>
-            <OptionWithLogoAndChevron
-              IconLeftParentStyle={{
-                backgroundColor: colors.lowAccentColors.darkGreen,
-              }}
-              forceTheme={'dark'}
-              IconLeft={ScannerGreen}
-              title={'Received a Port QR code?'}
-              subtitle={'Scan it to form a chat'}
-              onClick={onPressCustomOnboardingWithQR}
-            />
-            <LineSeparator forceTheme={'dark'} />
-            <OptionWithLogoAndChevron
-              IconLeftParentStyle={{
-                backgroundColor: colors.lowAccentColors.orange,
-              }}
-              forceTheme={'dark'}
-              IconLeft={LinkSafron}
-              title={'Received a Port link?'}
-              subtitle={'Click it again or paste it here to form a chat'}
-              onClick={onPressCustomOnboardingWithLink}
-            />
-          </View>
+          {/* <View */}
+          {/*   style={{ */}
+          {/*     width: '100%', */}
+          {/*     marginVertical: Spacing.xl, */}
+          {/*     gap: Spacing.xs, */}
+          {/*     flexDirection: 'column', */}
+          {/*   }}> */}
+          {/*   <OptionWithLogoAndChevron */}
+          {/*     IconLeftParentStyle={{ */}
+          {/*       backgroundColor: colors.lowAccentColors.darkGreen, */}
+          {/*     }} */}
+          {/*     forceTheme={'dark'} */}
+          {/*     IconLeft={ScannerGreen} */}
+          {/*     title={'Received a Port QR code?'} */}
+          {/*     subtitle={'Scan it to form a chat'} */}
+          {/*     onClick={onPressCustomOnboardingWithQR} */}
+          {/*   /> */}
+          {/*   <LineSeparator forceTheme={'dark'} /> */}
+          {/*   <OptionWithLogoAndChevron */}
+          {/*     IconLeftParentStyle={{ */}
+          {/*       backgroundColor: colors.lowAccentColors.orange, */}
+          {/*     }} */}
+          {/*     forceTheme={'dark'} */}
+          {/*     IconLeft={LinkSafron} */}
+          {/*     title={'Received a Port link?'} */}
+          {/*     subtitle={'Click it again or paste it here to form a chat'} */}
+          {/*     onClick={onPressCustomOnboardingWithLink} */}
+          {/*   /> */}
+          {/* </View> */}
         </View>
       </SafeAreaView>
     </>

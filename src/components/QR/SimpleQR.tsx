@@ -14,7 +14,7 @@ import {Spacing, Width} from '@components/spacingGuide';
 
 import {jsonToUrl} from '@utils/JsonToUrl';
 
-import RetryIcon from '@assets/icons/RetryRed.svg';
+import RetryIcon from '@assets/icons/RedRetry.svg';
 
 /**
  * A component that displays a QR code and a retry button.

@@ -15,7 +15,7 @@ import {useChatContext} from '@screens/DirectChat/ChatContext';
 
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
-import RetryRed from '@assets/icons/RetryRed.svg';
+import RetryRed from '@assets/icons/RedRetry.svg';
 
 import {ToastType, useToast} from 'src/context/ToastContext';
 

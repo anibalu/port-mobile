@@ -64,7 +64,6 @@ std::string aes256::encrypt(std::string &plaintext, std::string &key_hex)
   if (1 != EVP_EncryptUpdate(ctx, reinterpret_cast<unsigned char *>(&ciphertext[0]), &len, reinterpret_cast<const unsigned char *>(plaintext.data()), plaintext.size()))
   {
     EVP_CIPHER_CTX_free(ctx);
-    throw std::runtime_error("Failed to encrypt");
   }
   int ciphertext_len = len;
 
@@ -139,15 +138,8 @@ std::string aes256::decrypt(std::string &ciphertext, std::string &key_hex)
   }
 }
 
-void aes256::encrypt_file(std::string &path_to_input, std::string &path_to_output, unsigned char *key, unsigned char *iv)
+void aes256::encrypt_file(std::ifstream &in_stream, std::ofstream &out_stream, unsigned char *key, unsigned char *iv)
 {
-  std::ifstream in_file(path_to_input, std::ios::binary);
-  std::ofstream out_file(path_to_output, std::ios::binary);
-  if (!in_file.is_open() || !out_file.is_open())
-  {
-    throw std::runtime_error("Could not open files to encrypt. Ensure both input and output locations exist and are files");
-  }
-
   // Set up encryption context
   EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
   if (!ctx)
@@ -167,14 +159,14 @@ void aes256::encrypt_file(std::string &path_to_input, std::string &path_to_outpu
 
   // Reading in 1024 bytes at a time, encrypt each block and write it to the out buffer
   // From the out buffer,  write it to the output file
-  while ((bytes_read = in_file.read(reinterpret_cast<char *>(in_buf), sizeof(in_buf)).gcount()) > 0)
+  while ((bytes_read = in_stream.read(reinterpret_cast<char *>(in_buf), sizeof(in_buf)).gcount()) > 0)
   {
     if (EVP_EncryptUpdate(ctx, out_buf, &encrypted_bytes, in_buf, bytes_read) != 1)
     {
       EVP_CIPHER_CTX_free(ctx);
       throw std::runtime_error("Could not encrypt a block");
     }
-    out_file.write(reinterpret_cast<char *>(out_buf), encrypted_bytes);
+    out_stream.write(reinterpret_cast<char *>(out_buf), encrypted_bytes);
   }
 
   // Finalize the encryption, add any padding, terminators and whatnot
@@ -183,14 +175,12 @@ void aes256::encrypt_file(std::string &path_to_input, std::string &path_to_outpu
     EVP_CIPHER_CTX_free(ctx);
     throw std::runtime_error("Could not finalize encryption");
   }
-  out_file.write(reinterpret_cast<char *>(out_buf), encrypted_bytes);
+  out_stream.write(reinterpret_cast<char *>(out_buf), encrypted_bytes);
 
   EVP_CIPHER_CTX_free(ctx);
-  in_file.close();
-  out_file.close();
 }
 
-void aes256::decrypt_file(std::string path_to_input, std::string path_to_output, const std::string key, const std::string iv)
+void aes256::decrypt_file(std::ifstream &in_stream, std::ofstream &out_stream, const std::string key, const std::string iv)
 {
   const unsigned char *key_buf = reinterpret_cast<const unsigned char *>(key.data());
   const unsigned char *iv_buf = reinterpret_cast<const unsigned char *>(iv.data());
@@ -205,22 +195,6 @@ void aes256::decrypt_file(std::string path_to_input, std::string path_to_output,
   {
     EVP_CIPHER_CTX_free(ctx);
     throw std::runtime_error("Can't create context for aes256 decryption");
-  }
-
-  // Read the input file
-  std::ifstream in_stream(path_to_input, std::ios::binary);
-  if (!in_stream.is_open())
-  {
-    EVP_CIPHER_CTX_free(ctx);
-    throw std::runtime_error("Can't open input file");
-  }
-  // Open the output file for writing
-  std::ofstream out_stream(path_to_output, std::ios::binary);
-  if (!out_stream.is_open())
-  {
-    EVP_CIPHER_CTX_free(ctx);
-    in_stream.close();
-    throw std::runtime_error("Can't open output file");
   }
 
   unsigned char inBuf[1024 + EVP_MAX_BLOCK_LENGTH], outBuf[1024];
@@ -246,6 +220,4 @@ void aes256::decrypt_file(std::string path_to_input, std::string path_to_output,
   out_stream.write(reinterpret_cast<char *>(outBuf), decryptedBytes);
 
   EVP_CIPHER_CTX_free(ctx);
-  out_stream.close();
-  in_stream.close();
 }

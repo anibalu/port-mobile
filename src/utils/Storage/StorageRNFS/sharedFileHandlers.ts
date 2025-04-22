@@ -9,7 +9,7 @@ import {conversationsDir, filesDir, mediaDir} from '@configs/paths';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType} from '@utils/Messaging/interfaces';
 
-import NativeCryptoModule from 'src/specs/NativeCryptoModule';
+import NativeCryptoModule from '@specs/NativeCryptoModule';
 
 /**
  * Creates a conversations directory if it doesn't exist and returns the path to it.

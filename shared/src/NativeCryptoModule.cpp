@@ -5,9 +5,11 @@
 #include "ed25519.h"
 #include "x25519.h"
 #include "aes256.h"
+#include "pbencrypt.h"
 #include <future>
 #include <openssl/evp.h>
 #include <memory>
+#include <fstream>
 namespace facebook::react
 {
 
@@ -60,9 +62,19 @@ namespace facebook::react
       unsigned char iv[EVP_MAX_IV_LENGTH];
       aes256::generate_random_key(key);
       aes256::generate_random_iv(iv);
-      auto i_copy = std::string(path_to_input);
-      auto o_copy = std::string(path_to_output);
-      aes256::encrypt_file(i_copy, o_copy, key, iv);
+      std::ifstream in_file(path_to_input, std::ios::binary);
+      if (!in_file.is_open())
+        throw std::runtime_error("Input file for encryption could not be opened.");
+
+      std::ofstream out_file(path_to_output, std::ios::binary);
+      if (!out_file.is_open())
+      {
+        in_file.close();
+        throw std::runtime_error("Outputfile for encryption could not be opened.");
+      }
+      aes256::encrypt_file(in_file, out_file, key, iv);
+      in_file.close();
+      out_file.close();
       return jsi::String::createFromUtf8(rt, aes256::combine_key_and_iv(key, iv));
     };
     return NativeCryptoModule::make_promise(rt, encryptor);
@@ -76,21 +88,59 @@ namespace facebook::react
     {
       std::string key_bin;
       std::string iv_bin;
+      std::ifstream in_stream(path_to_input, std::ios::binary);
+      if (!in_stream.is_open())
+        throw std::runtime_error("Could not open input file for decryption");
+
+      std::ofstream out_stream(path_to_output, std::ios::binary);
+      if (!out_stream.is_open())
+      {
+        in_stream.close();
+        throw std::runtime_error("Could not open output file for decryption");
+      }
       aes256::split_key_and_iv(key_and_iv, key_bin, iv_bin);
-      aes256::decrypt_file(path_to_input, path_to_output, key_bin, iv_bin);
+      aes256::decrypt_file(in_stream, out_stream, key_bin, iv_bin);
+      out_stream.close();
+      in_stream.close();
       return jsi::Value::undefined();
     };
     return NativeCryptoModule::make_promise(rt, encryptor);
   }
 
+  jsi::Object NativeCryptoModule::pbEncrypt(jsi::Runtime &rt, std::string password, std::string metadata, std::string path_to_db, std::string path_to_destination)
+  {
+    auto encryptor = [password, metadata, path_to_db, path_to_destination]() -> jsi::Value
+    {
+      pbencrypt::encrypt(password, metadata, path_to_db, path_to_destination);
+      return jsi::Value::undefined();
+    };
+    return NativeCryptoModule::make_promise(rt, encryptor);
+  }
+
+  jsi::Object NativeCryptoModule::pbDecrypt(jsi::Runtime &rt, std::string password, std::string path_to_backup, std::string path_to_db_destination)
+  {
+    auto decryptor = [password,
+                      path_to_backup,
+                      path_to_db_destination,
+                      &rt]() -> jsi::Value
+    {
+      std::string plaintext_metadata = pbencrypt::decrypt(password, path_to_backup, path_to_db_destination);
+      return jsi::String::createFromUtf8(rt, std::string(plaintext_metadata));
+    };
+    return NativeCryptoModule::make_promise(rt, decryptor);
+  }
+
   jsi::Object NativeCryptoModule::make_promise(jsi::Runtime &rt, std::function<jsi::Value()> func)
   {
+    auto jsThreadInvoker = this->jsInvoker_;
+    // Get the constructor for a JS promise.
     auto promiseConstructor = rt.global().getPropertyAsFunction(rt, "Promise");
+    // This executor is what is passed into the cunstructor in a promise.
     auto executor = jsi::Function::createFromHostFunction(
         rt,
         jsi::PropNameID::forAscii(rt, "executor"),
         2, // resolve and reject
-        [func](
+        [func, jsThreadInvoker](
             jsi::Runtime &rt,
             const jsi::Value &thisVal,
             const jsi::Value *args,
@@ -100,26 +150,43 @@ namespace facebook::react
           // into the async launch
           std::shared_ptr<jsi::Function> resolve = std::make_shared<jsi::Function>(args[0].getObject(rt).getFunction(rt));
           std::shared_ptr<jsi::Function> reject = std::make_shared<jsi::Function>(args[1].getObject(rt).getFunction(rt));
-          auto worker = [resolve,
-                         reject,
-                         func,
-                         &rt]()
+          // This worker is meant to run asynchronously, not on the JS thread. Note that this doesn't have safe access to the runtime.
+          auto worker = [=]()
           {
             try
             {
               // Resolve the promise with the result
-              resolve->call(rt, func());
+              auto result = std::make_shared<jsi::Value>(func());
+              // Resolve back on the JS thread that can access the runtime safely
+              jsThreadInvoker->invokeAsync([=](jsi::Runtime &rt)
+                                           { resolve->call(rt, std::move(*result.get())); });
             }
-            catch (const std::exception &e)
+            catch (const std::runtime_error &e)
             {
-              // Reject the promise with the error
-              reject->call(rt, jsi::String::createFromUtf8(rt, "Error during in-place decryption"));
+              // Reject back on the JS thread that can access the runtime safely
+              jsThreadInvoker->invokeAsync([=](jsi::Runtime &rt)
+                                           {
+
+              // Repare an error to reject with
+              jsi::Object errorObj(rt);
+              errorObj.setProperty(rt, "message", jsi::String::createFromUtf8(rt, e.what()));
+              errorObj.setProperty(rt, "code", jsi::String::createFromUtf8(rt, "ERR_NATIVE_ERROR"));
+
+              jsi::Function errorConstructor = rt.global().getPropertyAsFunction(rt, "Error");
+              jsi::Value errorValue = errorConstructor.callAsConstructor(
+                  rt,
+                  jsi::String::createFromUtf8(rt, e.what()));
+
+              reject->call(rt, errorValue); });
             }
           };
 
+          // Asynchronously dispatch the call to do the work. Don't worry, we'll be back on this thread soon enough to resolve or reject.
           [[maybe_unused]] std::future fut = std::async(std::launch::async, worker);
+          // The executor returns nothing in JS, but don't worry, promise chaining should still work with resolve or reject.
           return jsi::Value::undefined();
         });
+    // Construct the promise with the executor and return it.
     return promiseConstructor.callAsConstructor(rt, executor).getObject(rt);
   }
 

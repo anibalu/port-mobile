@@ -19,6 +19,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
   ../../../../../shared/src/ed25519.cpp
   ../../../../../shared/src/x25519.cpp
   ../../../../../shared/src/aes256.cpp
+  ../../../../../shared/src/pbencrypt.cpp
 )
 
 # Define where CMake can find the additional header files. We need to crawl back the jni, main, src, app, android folders

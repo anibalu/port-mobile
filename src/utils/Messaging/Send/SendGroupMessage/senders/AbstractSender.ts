@@ -12,7 +12,7 @@ import {
 import {GroupMessageData} from '@utils/Storage/DBCalls/groupMessage';
 import {generateISOTimeStamp} from '@utils/Time';
 
-import NativeCryptoModule from 'src/specs/NativeCryptoModule';
+import NativeCryptoModule from '@specs/NativeCryptoModule';
 
 /**
  * Content types that should trigger push notifications.

@@ -1,4 +1,4 @@
-import NativeCryptoModule from 'src/specs/NativeCryptoModule';
+import NativeCryptoModule from '@specs/NativeCryptoModule';
 
 export function generateKeys() {
   return JSON.parse(NativeCryptoModule.generateEd25519Keypair());

@@ -59,7 +59,7 @@ const NewProfileScreen = ({ navigation }: Props) => {
   const [openThemeBottomSheet, setOpenThemeBottomSheet] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState<string>(processedName);
-  const colors = useColors()
+  const colors = useColors();
   const styles = styling(colors);
 
   const { themeValue } = useTheme();

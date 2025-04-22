@@ -1,4 +1,4 @@
-import NativeCryptoModule from 'src/specs/NativeCryptoModule';
+import NativeCryptoModule from '@specs/NativeCryptoModule';
 
 /**
  * generates random string of desired byte size

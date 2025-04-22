@@ -20,8 +20,19 @@ export interface Spec extends TurboModule {
   readonly aes256FileDecrypt: (
     pathToInput: string,
     pathToOutput: string,
-    keyAndIV: string
+    keyAndIV: string,
   ) => Promise<void>;
+  readonly pbEncrypt: (
+    password: string,
+    metadata: string,
+    pathToDatabase: string,
+    pathToDestination: string,
+  ) => Promise<void>;
+  readonly pbDecrypt: (
+    password: string,
+    pathToEncryptedFile: string,
+    pathToDestination: string,
+  ) => Promise<string>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('NativeCryptoModule');

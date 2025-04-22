@@ -1,4 +1,4 @@
-import NativeCryptoModule from 'src/specs/NativeCryptoModule';
+import NativeCryptoModule from '@specs/NativeCryptoModule';
 
 /**
  * hashes a given string using sha 256

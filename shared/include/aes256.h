@@ -11,6 +11,6 @@ namespace aes256
   void split_key_and_iv(std::string key_and_iv, std::string &key_buf, std::string &iv_buf);
   std::string encrypt(std::string &plaintext, std::string &key);
   std::string decrypt(std::string &ciphertext, std::string &key);
-  void encrypt_file(std::string &path_to_input, std::string &path_to_output, unsigned char *key, unsigned char *iv);
-  void decrypt_file(std::string path_to_input, std::string path_to_output, const std::string key, const std::string iv);
+  void encrypt_file(std::ifstream &in_stream, std::ofstream &out_stream, unsigned char *key, unsigned char *iv);
+  void decrypt_file(std::ifstream &in_file, std::ofstream &out_file, const std::string key, const std::string iv);
 }

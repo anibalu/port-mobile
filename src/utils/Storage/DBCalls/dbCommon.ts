@@ -4,6 +4,8 @@ import {isIOS} from '@components/ComponentUtils';
 
 import {APP_GROUP_IDENTIFIER} from '@configs/constants';
 
+import {generateRandomHexId} from '@utils/IdGenerator';
+
 const SQLite = require('react-native-sqlite-storage');
 
 SQLite.enablePromise(true);
@@ -108,6 +110,21 @@ export async function runSimpleQuery(
       console.log('Error in running query: ', error);
     }
   }
+}
+
+export async function snapshotDatabase(): Promise<string> {
+  const destination =
+    RNFS.CachesDirectoryPath + `/${generateRandomHexId()}-snapshot.db`;
+  const db = await getDB();
+  const promise = new Promise<string>((resolve, reject) => {
+    db.executeSql(
+      `VACUUM main INTO ?`,
+      [destination],
+      () => resolve(destination),
+      (err: any) => reject(err.message),
+    );
+  });
+  return promise;
 }
 
 /**

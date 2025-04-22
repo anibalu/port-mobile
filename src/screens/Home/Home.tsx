@@ -4,7 +4,7 @@
  * screen id: 5
  */
 
-import React, { useEffect, useMemo, useReducer, useState } from 'react';
+import React, {useEffect, useMemo, useReducer, useState} from 'react';
 import {
   Animated,
   Easing,
@@ -15,14 +15,14 @@ import {
 } from 'react-native';
 
 import notifee from '@notifee/react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useSelector } from 'react-redux';
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {useSelector} from 'react-redux';
 
-import { useColors } from '@components/colorGuide';
-import { isIOS } from '@components/ComponentUtils';
-import { CustomStatusBar } from '@components/CustomStatusBar';
-import { GestureSafeAreaView } from '@components/GestureSafeAreaView';
+import {useColors} from '@components/colorGuide';
+import {isIOS} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
   FontWeight,
@@ -30,28 +30,27 @@ import {
 } from '@components/NumberlessText';
 import LoadingBottomSheet from '@components/Reusable/BottomSheets/AddingContactBottomSheet';
 import SearchBar from '@components/SearchBar';
-import { Height, Spacing, Width } from '@components/spacingGuide';
+import {Height, Spacing, Width} from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 
-import { BottomNavStackParamList } from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
+import {BottomNavStackParamList} from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
 
-import { useCallContext } from '@screens/Calls/CallContext';
+import {useCallContext} from '@screens/Calls/CallContext';
 import NewConnectionsBottomsheet from '@screens/Home/components/CreateNewConnectionsBottomsheet';
 
-import { performDebouncedCommonAppOperations } from '@utils/AppOperations';
-import { loadHomeScreenConnections } from '@utils/Connections/onRefresh';
-import { performNotificationRouting, resetAppBadge } from '@utils/Notifications';
-import { cleanDeleteReadPort } from '@utils/Ports';
-import { ChatType } from '@utils/Storage/DBCalls/connections';
+import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
+import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
+import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
+import {cleanDeleteReadPort} from '@utils/Ports';
+import {ChatType} from '@utils/Storage/DBCalls/connections';
 
-import { useTheme } from 'src/context/ThemeContext';
+import {useTheme} from 'src/context/ThemeContext';
 
 import HomescreenPlaceholder from './components/HomescreenPlaceholder';
 import HomeTopbar from './components/HomeTopbar';
-import Tile, { TileProps } from './Tile';
+import Tile, {TileProps} from './Tile';
 
-
-const MINIMUM_CONNECTIONS = 2
+const MINIMUM_CONNECTIONS = 2;
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Home'>;
 
 type DisplayConnections = {
@@ -64,13 +63,13 @@ type DisplayConnections = {
 
 type ConnectionAction =
   | {
-    event: 'updateAll';
-    payload: TileProps[];
-  }
+      event: 'updateAll';
+      payload: TileProps[];
+    }
   | {
-    event: 'updateFilter';
-    payload: string;
-  };
+      event: 'updateFilter';
+      payload: string;
+    };
 
 /**
  * Reducer to manage connections in UI state
@@ -82,7 +81,7 @@ function connectionReducer(
   state: DisplayConnections,
   action: ConnectionAction,
 ) {
-  const currentState = { ...state };
+  const currentState = {...state};
   switch (action.event) {
     case 'updateAll':
       currentState._all = action.payload;
@@ -101,15 +100,16 @@ function connectionReducer(
   currentState.matching = currentState._all.filter(connection =>
     connection.name.toLowerCase().includes(currentState.filter.toLowerCase()),
   );
+  console.log('currentState', currentState);
   return currentState;
 }
 
-const Home = ({ navigation, route }: Props) => {
-  const { initialiseCallKeep } = useCallContext();
+const Home = ({navigation, route}: Props) => {
+  const {initialiseCallKeep} = useCallContext();
   // If we got here with an initial chat request, honour it
   useMemo(() => {
     if (route.params) {
-      const { initialChatType, chatData } = route.params;
+      const {initialChatType, chatData} = route.params;
       if (ChatType.direct === initialChatType) {
         navigation.push('DirectChat', chatData);
       }
@@ -119,12 +119,12 @@ const Home = ({ navigation, route }: Props) => {
 
   //Sets up handlers to route notifications
   useEffect(() => {
-    const foregroundHandler = notifee.onForegroundEvent(({ type, detail }) => {
+    const foregroundHandler = notifee.onForegroundEvent(({type, detail}) => {
       //If data exists for the notification
       performNotificationRouting(type, detail, navigation);
     });
 
-    notifee.onBackgroundEvent(async ({ type, detail }) => {
+    notifee.onBackgroundEvent(async ({type, detail}) => {
       //If data exists for the notification
       performNotificationRouting(type, detail, navigation);
     });
@@ -140,11 +140,19 @@ const Home = ({ navigation, route }: Props) => {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        // Call permissions to set up callkeep
-        await initialiseCallKeep();
-
+        // Trigger common operations if needed
         performDebouncedCommonAppOperations();
-        resetAppBadge();
+        // Parallely update all the significant things
+        Promise.allSettled([
+          dispatchConnectionAction({
+            event: 'updateAll',
+            payload: await loadHomeScreenConnections(),
+          }),
+          // Call permissions to set up callkeep
+          await initialiseCallKeep(),
+
+          resetAppBadge(),
+        ]);
       })();
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -152,7 +160,7 @@ const Home = ({ navigation, route }: Props) => {
   );
 
   const colors = useColors();
-  const { themeValue } = useTheme();
+  const {themeValue} = useTheme();
   const styles = styling(colors);
   const ping: any = useSelector(state => state.ping.ping);
 
@@ -170,7 +178,7 @@ const Home = ({ navigation, route }: Props) => {
 
   // To track a selected port, helps with "Stop adding" and stuff
   const [selectedPortProps, setSelectedPortProps] = useState<
-    (TileProps & { isReadPort: true }) | null
+    (TileProps & {isReadPort: true}) | null
   >(null);
 
   // This is for the little loader when you pull down on the home screen
@@ -236,8 +244,11 @@ const Home = ({ navigation, route }: Props) => {
 
   return (
     <>
-      <CustomStatusBar backgroundColor={colors.background2} theme={colors.theme}/>
-      <GestureSafeAreaView backgroundColor={colors.background2} >
+      <CustomStatusBar
+        backgroundColor={colors.background2}
+        theme={colors.theme}
+      />
+      <GestureSafeAreaView backgroundColor={colors.background2}>
         <HomeTopbar
           unread={connections.matching.reduce(
             (acc, cur) => (acc += cur.newMessageCount),
@@ -248,11 +259,11 @@ const Home = ({ navigation, route }: Props) => {
           behavior={isIOS ? 'padding' : 'height'}
           keyboardVerticalOffset={isIOS ? 50 : 0}
           style={styles.scrollViewContainer}>
-          <View style={{ flex: 1 }}>
+          <View style={{flex: 1}}>
             {!connections.initialLoadComplete ? (
-              <Animated.View style={{ opacity: opacityAnimation }}>
+              <Animated.View style={{opacity: opacityAnimation}}>
                 <View style={styles.tilePlaceholderContainer}>
-                  {Array.from({ length: 10 }).map((_, index) => (
+                  {Array.from({length: 10}).map((_, index) => (
                     <View
                       key={index}
                       style={StyleSheet.compose(styles.tilePlaceholder, {
@@ -291,16 +302,19 @@ const Home = ({ navigation, route }: Props) => {
                         />
                       </View>
                     }
-                    ListFooterComponent={connections.matching.length > MINIMUM_CONNECTIONS ?
-                      <View style={{ height: Height.bottombar }} />
-                      :
-                      <View style={styles.placeholdercard}>
-                        <HomescreenPlaceholder
-                          onPlusPress={() => setOpenConnectionsBottomsheet(true)}
-                        />
-                        <View style={{ height: Height.bottombar }} />
-                      </View>
-
+                    ListFooterComponent={
+                      connections.matching.length > MINIMUM_CONNECTIONS ? (
+                        <View style={{height: Height.bottombar}} />
+                      ) : (
+                        <View style={styles.placeholdercard}>
+                          <HomescreenPlaceholder
+                            onPlusPress={() =>
+                              setOpenConnectionsBottomsheet(true)
+                            }
+                          />
+                          <View style={{height: Height.bottombar}} />
+                        </View>
+                      )
                     }
                     refreshing={refreshing}
                     onRefresh={async () => {
@@ -319,8 +333,7 @@ const Home = ({ navigation, route }: Props) => {
                         <NumberlessText
                           textColor={colors.text.subtitle}
                           fontSizeType={FontSizeType.l}
-                          fontWeight={FontWeight.rg}
-                        >
+                          fontWeight={FontWeight.rg}>
                           No matching chats found
                         </NumberlessText>
                       </View>
@@ -328,10 +341,11 @@ const Home = ({ navigation, route }: Props) => {
                   />
                 ) : (
                   <View style={styles.placeholder}>
-                    <HomePlaceholderIcon width={Width.screen - 2*Spacing.xl}/>
+                    <HomePlaceholderIcon
+                      width={Width.screen - 2 * Spacing.xl}
+                    />
                     <View style={styles.placeholdercard}>
                       <HomescreenPlaceholder
-
                         onPlusPress={() => setOpenConnectionsBottomsheet(true)}
                       />
                     </View>
@@ -387,7 +401,7 @@ const styling = (colors: any) =>
       height: 44,
       alignItems: 'center',
       borderRadius: 12,
-      paddingHorizontal: Spacing.s
+      paddingHorizontal: Spacing.s,
     },
     tilePlaceholder: {
       height: 91,
@@ -398,7 +412,7 @@ const styling = (colors: any) =>
     tilePlaceholderContainer: {
       flex: 1,
       justifyContent: 'flex-start',
-      paddingVertical: Spacing.m
+      paddingVertical: Spacing.m,
     },
     scrollViewContainer: {
       flex: 1,
@@ -419,7 +433,7 @@ const styling = (colors: any) =>
     },
     placeholdercard: {
       marginTop: Spacing.xl,
-      marginHorizontal: Spacing.s
+      marginHorizontal: Spacing.s,
     },
   });
 

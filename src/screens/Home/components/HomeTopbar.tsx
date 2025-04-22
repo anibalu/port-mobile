@@ -100,7 +100,7 @@ function HomeTopbar({
         </Pressable>
         <Pressable
           style={styles.iconWrapper}
-          onPress={() => navigation.push('AcceptDirectChat')}>
+          onPress={() => navigation.push('ContactsScreen')}>
           <ContactBook width={20} height={20} />
           <NumberlessText
             numberOfLines={1}

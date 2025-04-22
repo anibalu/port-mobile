@@ -100,7 +100,7 @@ class SharedContactPortGenerator_1_0_0 extends SharedContactPortGenerator {
                 cryptoId: cryptoId,
                 connectionsMade: 0,
                 folderId: folderId,
-                paused: chatPermissions.contactSharing,
+                paused: !chatPermissions.contactSharing,
                 permissionsId: permissionsId,
             }
             //add the contact port data to storage
@@ -136,9 +136,11 @@ class SharedContactPortGenerator_1_0_0 extends SharedContactPortGenerator {
      */
     async acceptTicket(ticketId: string, chatId: string): Promise<void> {
         try {
+            console.log('Accepting ticket for shared contact port');
             //if the port is paused, do not accept the ticket.
             //Also, inform the server that the contact port is paused.
             if (this.portData.paused) {
+                console.log('Contact port is paused. Not accepting ticket.');
                 this.pause();
                 return;
             }

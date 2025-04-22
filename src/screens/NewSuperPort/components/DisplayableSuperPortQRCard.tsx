@@ -110,7 +110,7 @@ const DisplayableSuperPortQRCard = ({
             fontWeight={FontWeight.rg}
             textColor={colors.text.subtitle}
             fontSizeType={FontSizeType.m}>
-            {'Publish this QR code or the link below to add new contacts'}
+            {'Publish this QR code or the link below to add new contacts to Port.'}
           </NumberlessText>
         </View>
       )}

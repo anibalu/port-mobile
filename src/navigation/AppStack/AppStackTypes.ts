@@ -1,4 +1,6 @@
 import {LineDataCombined} from '@utils/DirectChats/DirectChat';
+import AcceptedContactPortGenerator from '@utils/Ports/ContactPorts/AcceptedContactPortGenerator/AcceptedContactPortGenerator';
+import { DirectContactPortBundle } from '@utils/Ports/interfaces';
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {ContactEntry} from '@utils/Storage/DBCalls/contacts';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
@@ -138,4 +140,5 @@ export type AppStackParamList = {
   NewSuperPortStack: any;
   NewGroupSuperPort: {portData: any; chatId: string; chatData: GroupData};
   AddNewGroupMembers: {link: string; chatData: GroupData; chatId: string};
+  ContactPortQRScreen: {contactName: string; profileUri?: string | null; contactPortClass: AcceptedContactPortGenerator; bundle: DirectContactPortBundle; link: string};
 };

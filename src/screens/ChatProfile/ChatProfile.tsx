@@ -24,7 +24,6 @@ import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePictureBlurView';
 import AddFolderBottomsheet from '@components/Reusable/BottomSheets/AddFolderBottomsheet';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
-import ContactSharingBottomsheet from '@components/Reusable/BottomSheets/ContactSharingBottomsheet';
 import EditName from '@components/Reusable/BottomSheets/EditName';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
@@ -36,23 +35,22 @@ import {
   DEFAULT_AVATAR,
   DEFAULT_NAME,
   defaultFolderInfo,
-  defaultPermissions,
   safeModalCloseDuration,
 } from '@configs/constants';
 
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 
 import DirectChat from '@utils/DirectChats/DirectChat';
+import { jsonToUrl } from '@utils/JsonToUrl';
+import { ContactPort } from '@utils/Ports/ContactPorts/ContactPort';
 import * as storage from '@utils/Storage/blockUsers';
 import {getConnection} from '@utils/Storage/connections';
 import {getContact} from '@utils/Storage/contacts';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {MediaEntry} from '@utils/Storage/DBCalls/media';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {getAllFolders} from '@utils/Storage/folders';
 import {getImagesAndVideos} from '@utils/Storage/media';
 import {deleteAllMessagesInChat} from '@utils/Storage/messages';
-import {getPermissions} from '@utils/Storage/permissions';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {getChatTileTimestamp, wait} from '@utils/Time';
 
@@ -87,7 +85,6 @@ const ChatProfile = ({route, navigation}: Props) => {
   const [confirmBlockUserSheet, setConfirmBlockUserSheet] = useState(false);
   const pairHash = chatData.pairHash;
   const [isBlocked, setIsBlocked] = useState(false);
-  const [isSharingContact, setIsSharingContact] = useState(false);
 
   const [note, setNote] = useState<string>(chatData.notes || '');
 
@@ -97,10 +94,8 @@ const ChatProfile = ({route, navigation}: Props) => {
   const [selectedFolder, setSelectedFolder] = useState<FolderInfo>({
     ...defaultFolderInfo,
   });
-  //set permissions
-  const [permissions, setPermissions] = useState<PermissionsStrict>({
-    ...defaultPermissions,
-  });
+
+  const [loading, setLoading] = useState(false);
 
   const Colors = DynamicColors();
   const styles = styling(Colors);
@@ -137,7 +132,6 @@ const ChatProfile = ({route, navigation}: Props) => {
       (async () => {
         try {
           const connection = await getConnection(chatId);
-          setPermissions(await getPermissions(chatData.permissionsId));
           const folders = await getAllFolders();
           const folder = folders.find(f => f.folderId === connection.folderId);
           if (folder) {
@@ -159,8 +153,27 @@ const ChatProfile = ({route, navigation}: Props) => {
     }, [connected]),
   );
 
-  const onShareContactPressed = () => {
-    setIsSharingContact(true);
+  const onShareContactPressed = async () => {
+    setLoading(true);
+    try {
+      const contactPortClass = await ContactPort.generator.accepted.fromPairHash(pairHash);
+      const bundle = await contactPortClass.getShareableBundle();
+      const link = jsonToUrl(bundle as any);
+      navigation.push('ContactPortQRScreen', {
+        contactName: displayName,
+        profileUri: displayPic,
+        contactPortClass: contactPortClass,
+        bundle: bundle,
+        link: link || '',
+      })
+    } catch (error) {
+      console.error('Error in sharing contact', error);
+      showToast(
+        'Error in sharing contact. You may not have permissions to share this contact.',
+        ToastType.error,
+      );
+    }
+    setLoading(false);
   };
 
   const onSaveName = async () => {
@@ -242,6 +255,7 @@ const ChatProfile = ({route, navigation}: Props) => {
           showUserInfo={showUserInfoInTopbar}
           IconRight={ContactShareIcon}
           onIconRightPress={onShareContactPressed}
+          iconRightLoading={loading}
         />
         <View style={styles.mainContainer}>
           <ScrollView
@@ -253,7 +267,6 @@ const ChatProfile = ({route, navigation}: Props) => {
             showsVerticalScrollIndicator={false}>
             <View style={styles.avatarContainer} ref={userAvatarViewRef}>
               <AvatarBox
-                isHomeContact={permissions.focus}
                 onPress={() => onProfilePictureClick()}
                 profileUri={displayPic}
                 avatarSize="m"
@@ -494,13 +507,6 @@ const ChatProfile = ({route, navigation}: Props) => {
           buttonText={isBlocked ? 'Unblock contact' : 'Block contact'}
           buttonColor="r"
         />
-        {isSharingContact && (
-          <ContactSharingBottomsheet
-            visible={isSharingContact}
-            onClose={() => setIsSharingContact(false)}
-            contactShareParams={{name: displayName, pairHash: pairHash}}
-          />
-        )}
         {focusProfilePicture && (
           <ProfilePictureBlurViewModal
             avatarUrl={displayPic}

@@ -170,7 +170,7 @@ class AcceptedContactPortGenerator_1_0_0 extends AcceptedContactPortGenerator {
         } else {
             const bundle = await this.getShareableBundle();
             try {
-                this.bundleId = await getBundleId(JSON.stringify(bundle), true);
+                this.bundleId = await getBundleId(JSON.stringify(bundle), false);
                 return BUNDLE_ID_PREPEND_LINK + this.bundleId;
             } catch (error) {
                 console.log('Error getting shareable link: ', error);

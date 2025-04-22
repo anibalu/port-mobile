@@ -361,7 +361,7 @@ class PortGenerator_1_0_0 extends PortGenerator {
         //add contact since pairHash is new
         await addContact({
           pairHash: pairHash,
-          name: plaintextSecret.name || DEFAULT_NAME,
+          name: this.portData.label || plaintextSecret.name || DEFAULT_NAME,
           connectedOn: generateISOTimeStamp(),
         });
       }

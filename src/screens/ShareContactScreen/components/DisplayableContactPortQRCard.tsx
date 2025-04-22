@@ -1,36 +1,30 @@
 import React from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import GradientCard from '@components/Cards/GradientCard';
-import {useThemeColors} from '@components/colorGuide';
+import { useThemeColors } from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import SimpleQR from '@components/QR/SimpleQR';
-import {Height, Spacing, Width} from '@components/spacingGuide';
+import { Height, Spacing, Width } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 
-const DisplayablePortQRCard = ({
-  isLoading,
+const DisplayableContactPortQRCard = ({
   hasFailed,
   errorMessage,
   name,
-  contactName,
-  labelText,
   qrData,
   link,
   onCopyClicked,
   onTryAgainClicked,
   theme,
 }: {
-  isLoading: boolean;
   hasFailed: boolean;
   errorMessage?: string | null;
   name?: string | null;
-  contactName?: string | null;
-  labelText?: string;
   qrData: any;
   link?: string | null;
   onCopyClicked: () => void;
@@ -60,7 +54,7 @@ const DisplayablePortQRCard = ({
           textColor={colors.boldAccentColors.darkGreen}
           fontWeight={FontWeight.sb}
           fontSizeType={FontSizeType.s}>
-          {'One-time use | ' + labelText}
+          {'One-time use'}
         </NumberlessText>
       </View>
       <SimpleQR
@@ -85,7 +79,7 @@ const DisplayablePortQRCard = ({
           {name}
         </NumberlessText>
       )}
-      {!hasFailed && !isLoading && (
+      {!hasFailed && (
         <View style={styles.textBox}>
           <NumberlessText
             style={{
@@ -95,7 +89,7 @@ const DisplayablePortQRCard = ({
             fontWeight={FontWeight.rg}
             textColor={colors.text.subtitle}
             fontSizeType={FontSizeType.m}>
-            {`Show this QR code or share the link below with ${contactName} to add them as a contact on Port.`}
+            {`Anyone can scan this QR code or click the link below to add ${name} as a contact on Port.`}
           </NumberlessText>
         </View>
       )}
@@ -108,10 +102,10 @@ const DisplayablePortQRCard = ({
               fontSizeType={FontSizeType.m}
               numberOfLines={1}
               ellipsizeMode={'tail'}
-              style={{flex: 1}}>
+              style={{ flex: 1 }}>
               {link}
             </NumberlessText>
-            <Copy style={{marginLeft: Spacing.s}} />
+            <Copy style={{ marginLeft: Spacing.s }} />
           </GradientCard>
         </TouchableOpacity>
       )}
@@ -150,4 +144,4 @@ const styling = (color: any) =>
     },
   });
 
-export default DisplayablePortQRCard;
+export default DisplayableContactPortQRCard;

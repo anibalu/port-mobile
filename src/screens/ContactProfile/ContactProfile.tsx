@@ -33,6 +33,8 @@ import {DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT} from '@configs/constants';
 
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 
+import { jsonToUrl } from '@utils/JsonToUrl';
+import { ContactPort } from '@utils/Ports/ContactPorts/ContactPort';
 import * as storage from '@utils/Storage/blockUsers';
 import {updateContact} from '@utils/Storage/contacts';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
@@ -137,8 +139,29 @@ const ContactProfile = ({route, navigation}: Props) => {
     setFocusProfilePicture(true);
   };
 
-  const onShareContactPressed = () => {
-    setIsSharingContact(true);
+  const [loading, setLoading] = useState(false);
+
+  const onShareContactPressed = async () => {
+    setLoading(true);
+    try {
+      const contactPortClass = await ContactPort.generator.accepted.fromPairHash(pairHash);
+      const bundle = await contactPortClass.getShareableBundle();
+      const link = jsonToUrl(bundle as any);
+      navigation.push('ContactPortQRScreen', {
+        contactName: displayName,
+        profileUri: displayPic,
+        contactPortClass: contactPortClass,
+        bundle: bundle,
+        link: link || '',
+      })
+    } catch (error) {
+      console.error('Error in sharing contact', error);
+      showToast(
+        'Error in sharing contact. You may not have permissions to share this contact.',
+        ToastType.error,
+      );
+    }
+    setLoading(false);
   };
 
   return (
@@ -159,12 +182,12 @@ const ContactProfile = ({route, navigation}: Props) => {
           showUserInfo={showUserInfoInTopbar}
           IconRight={ContactShareIcon}
           onIconRightPress={onShareContactPressed}
+          iconRightLoading={loading}
         />
         <ScrollView style={styles.mainContainer}>
           <KeyboardAvoidingView style={{height: connected ? 'auto' : '100%'}}>
             <View style={styles.avatarContainer} ref={userAvatarViewRef}>
               <AvatarBox
-                isHomeContact={false}
                 onPress={() => onProfilePictureClick()}
                 profileUri={displayPic}
                 avatarSize="m"

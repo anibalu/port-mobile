@@ -33,6 +33,7 @@ import AccountSettings from '@screens/MyAccount';
 import NewPortScreen from '@screens/NewPortScreen/NewPortScreen';
 import QRScanner from '@screens/Scanner/QRScanner';
 import ShareContact from '@screens/ShareContact/ShareContact';
+import ContactPortQRScreen from '@screens/ShareContactScreen/ContactPortQRScreen';
 import SharedMedia from '@screens/SharedMedia/SharedMedia';
 import GalleryConfirmation from '@screens/ShareImage/GalleryConfirmation';
 import SelectShareContacts from '@screens/ShareImage/SelectShareContacts';
@@ -128,6 +129,7 @@ function AppStack() {
               }}
             />
             <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
+            <Stack.Screen name="ContactPortQRScreen" component={ContactPortQRScreen} />
           </Stack.Navigator>
         </CallContextProvider>
       </ConnectionModalProvider>

@@ -9,15 +9,15 @@
  * 6. boolean to show user unfo (used in contact profile)
  */
 
-import React, {FC} from 'react';
-import {Pressable, StyleSheet,View} from 'react-native';
+import React, { FC } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
-import {useNavigation} from '@react-navigation/native';
-import {SvgProps} from 'react-native-svg';
+import { useNavigation } from '@react-navigation/native';
+import { SvgProps } from 'react-native-svg';
 
 
-import {BackButton} from '@components/BackButton';
-import {PortSpacing} from '@components/ComponentUtils';
+import { BackButton } from '@components/BackButton';
+import { PortSpacing } from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
@@ -26,9 +26,9 @@ import {
   getWeight,
 } from '@components/NumberlessText';
 
-import {TOPBAR_HEIGHT} from '@configs/constants';
+import { TOPBAR_HEIGHT } from '@configs/constants';
 
-import {AvatarBox} from '../AvatarBox/AvatarBox';
+import { AvatarBox } from '../AvatarBox/AvatarBox';
 
 const UserInfoTopbar = ({
   IconRight,
@@ -36,8 +36,9 @@ const UserInfoTopbar = ({
   avatarUri,
   backgroundColor,
   heading,
-  onIconRightPress = async () => {},
+  onIconRightPress = async () => { },
   showUserInfo = false,
+  iconRightLoading = false,
 }: {
   isConnected?: boolean | null | '';
   backgroundColor: 'g' | 'w';
@@ -45,7 +46,8 @@ const UserInfoTopbar = ({
   IconRight: FC<SvgProps>;
   heading?: string;
   showUserInfo?: boolean;
-  onIconRightPress?: () => void;
+  onIconRightPress?: () => Promise<void>;
+  iconRightLoading?: boolean;
 }) => {
   const navigation = useNavigation();
   const Colors = DynamicColors();
@@ -88,24 +90,31 @@ const UserInfoTopbar = ({
             fontSizeType={FontSizeType.l}>
             {heading}
           </NumberlessText>
-          {isConnected && (
+          {isConnected &&
             <Pressable
               style={styles.button}
               onPress={async () => {
                 onIconRightPress();
-              }}>
-              <IconRight width={20} height={20} />
-              <View style={{flex: 1}}>
-                <NumberlessText
-                  numberOfLines={1}
-                  fontType={FontType.rg}
-                  textColor={Colors.primary.white}
-                  fontSizeType={FontSizeType.s}>
-                  Share Contact
-                </NumberlessText>
-              </View>
+              }}
+              disabled={iconRightLoading}>
+              {iconRightLoading ? (
+                <ActivityIndicator color={Colors.primary.white} />
+              ) : (
+                <>
+                  <IconRight width={20} height={20} />
+                  <View style={{ flex: 1 }}>
+                    <NumberlessText
+                      numberOfLines={1}
+                      fontType={FontType.rg}
+                      textColor={Colors.primary.white}
+                      fontSizeType={FontSizeType.s}>
+                      Share Contact
+                    </NumberlessText>
+                  </View>
+                </>
+              )}
             </Pressable>
-          )}
+          }
         </View>
       ) : (
         isConnected && (
@@ -113,15 +122,24 @@ const UserInfoTopbar = ({
             style={styles.button}
             onPress={async () => {
               onIconRightPress();
-            }}>
-            <IconRight width={20} height={20} />
-            <NumberlessText
-              numberOfLines={1}
-              fontType={FontType.rg}
-              textColor={Colors.primary.white}
-              fontSizeType={FontSizeType.s}>
-              Share Contact
-            </NumberlessText>
+            }}
+            disabled={iconRightLoading}>
+            {iconRightLoading ? (
+              <ActivityIndicator color={Colors.primary.white} />
+            ) : (
+              <>
+                <IconRight width={20} height={20} />
+                <View style={{ flex: 1 }}>
+                  <NumberlessText
+                    numberOfLines={1}
+                    fontType={FontType.rg}
+                    textColor={Colors.primary.white}
+                    fontSizeType={FontSizeType.s}>
+                    Share Contact
+                  </NumberlessText>
+                </View>
+              </>
+            )}
           </Pressable>
         )
       )}

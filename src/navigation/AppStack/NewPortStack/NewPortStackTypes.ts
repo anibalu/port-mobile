@@ -1,11 +1,11 @@
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import { PortBundle } from '@utils/Ports/interfaces';
+import PortGenerator from '@utils/Ports/SingleUsePorts/PortGenerator/PortGenerator';
 
 export type NewPortStackParamList = {
   PortQRScreen: {
-    portId?: string;
-    contactName?: string;
-    permissions?: PermissionsStrict;
-    folderId?: string;
+    portClass: PortGenerator;
+    bundle: PortBundle;
+    link: string;
   };
   PortSettingsScreen: undefined;
 };

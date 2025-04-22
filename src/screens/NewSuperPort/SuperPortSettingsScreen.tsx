@@ -28,10 +28,7 @@ import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {ToastType, useToast} from 'src/context/ToastContext';
 
 import PortLabelAndLimitCard from './components/PortLabelAndLimitCard';
-import {
-  useSuperPortActions,
-  useSuperPortData,
-} from './context/SuperPortContext';
+import { useSuperPortDispatch, useSuperPortState } from './context/SuperPortContext';
 
 
 type Props = NativeStackScreenProps<
@@ -44,22 +41,17 @@ const SuperPortSettingsScreen = ({navigation}: Props) => {
   const color = useColors();
   const styles = styling(color);
   const {showToast} = useToast();
-
-  const superPortActions = useSuperPortActions();
-  const {
-    label: contextLabel,
-    permissions: contextPermissions,
-    port,
-    limit: contextLimit,
-  } = useSuperPortData(state => state);
+  // Set up superport context
+  const superPortActions = useSuperPortDispatch();
+  const superPortState = useSuperPortState();
 
   // sets name/label of the port
-  const [portName, setPortName] = useState<string>(contextLabel || '');
-  const [limit, setLimit] = useState<number>(contextLimit || 0);
+  const [portName, setPortName] = useState<string>(superPortState.label || '');
+  const [limit, setLimit] = useState<number>(superPortState.limit || 0);
 
   //set permissions for the port
   const [permissions, setPermissions] = useState<PermissionsStrict>(
-    contextPermissions ? {...contextPermissions} : {...defaultPermissions},
+    superPortState.permissions ? {...superPortState.permissions} : {...defaultPermissions},
   );
   // sets the boolean need to view more permissions
   const [seeMoreClicked, setSeeMoreClicked] = useState<boolean>(false);
@@ -75,21 +67,30 @@ const SuperPortSettingsScreen = ({navigation}: Props) => {
   const onSavePress = async () => {
     setSaveLoading(true);
     try {
-      if (port) {
-        if (portName !== contextLabel) {
-          await port.updateSuperPortName(portName);
-          superPortActions.setLabel(portName);
+      if (superPortState.port) {
+        if (portName !== superPortState.label) {
+          await superPortState.port.updateSuperPortName(portName);
+          superPortActions({
+            payload: portName,
+            type: 'SET_LABEL',
+          })      
         }
-        if (limit !== contextLimit) {
-          await port.updateSuperPortLimit(limit);
-          superPortActions.setLimit(limit);
+        if (limit !== superPortState.limit) {
+          await superPortState.port.updateSuperPortLimit(limit);
+          superPortActions({
+            payload: limit,
+            type: 'SET_LIMIT',
+          })          
         }
         // Check if permissions have changed by comparing individual properties
         if (
-          JSON.stringify(permissions) !== JSON.stringify(contextPermissions)
+          JSON.stringify(permissions) !== JSON.stringify(superPortState.permissions)
         ) {
-          await port.updateSuperPortPermissions({...permissions});
-          superPortActions.setPermissions({...permissions});
+          await superPortState.port.updateSuperPortPermissions({...permissions});
+          superPortActions({
+            payload: {...permissions},
+            type: 'SET_PERMISSIONS',
+          })                
         }
         navigation.goBack();
       } else {
@@ -108,8 +109,8 @@ const SuperPortSettingsScreen = ({navigation}: Props) => {
   const onDeletePress = async () => {
     setDeleteLoading(true);
     try {
-      if (port) {
-        await port.clean();
+      if (superPortState.port) {
+        await superPortState.port.clean();
         // Reset the navigation state to go back to a common parent and then navigate to the desired screen
         (navigation as any).reset({
           index: 0,
@@ -177,7 +178,7 @@ const SuperPortSettingsScreen = ({navigation}: Props) => {
               setPortName={setPortName}
               limit={limit}
               setLimit={setLimit}
-              connectionsMade={port?.getPort().connectionsMade || 0}
+              connectionsMade={superPortState.connectionsMade || 0}
             />
             <ExpandableLocalPermissionsCard
               permissions={permissions}

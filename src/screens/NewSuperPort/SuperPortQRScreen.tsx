@@ -5,7 +5,7 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Share from 'react-native-share';
-import ViewShot from 'react-native-view-shot';
+import { captureRef } from 'react-native-view-shot';
 import { useSelector } from 'react-redux';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
@@ -25,10 +25,7 @@ import { DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO } from '@configs/constants';
 import { NewSuperPortStackParamList } from '@navigation/AppStack/NewSuperPortStack/NewSuperPortStackTypes';
 
 import { hasCameraRollSavePermission } from '@utils/AppPermissions';
-import { jsonToUrl } from '@utils/JsonToUrl';
 import { DirectSuperportBundle } from '@utils/Ports/interfaces';
-import { SuperPort } from '@utils/Ports/SuperPorts/SuperPort';
-import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
 import { getPermissions } from '@utils/Storage/permissions';
 
 import ShareIcon from '@assets/dark/icons/Share.svg';
@@ -36,10 +33,7 @@ import ShareIcon from '@assets/dark/icons/Share.svg';
 import { ToastType, useToast } from 'src/context/ToastContext';
 
 import DisplayableSuperPortQRCard from './components/DisplayableSuperPortQRCard';
-import {
-  useSuperPortActions,
-  useSuperPortData,
-} from './context/SuperPortContext';
+import { useSuperPortDispatch, useSuperPortState } from './context/SuperPortContext';
 
 
 type Props = NativeStackScreenProps<
@@ -49,17 +43,11 @@ type Props = NativeStackScreenProps<
 
 function SuperPortQRScreen({ route, navigation }: Props) {
   console.log('[Rendering SuperPortQRScreen]');
-  const { portId, label, limit, permissions, folderId } = route.params;
+  const { superPortClass, bundle, link } = route.params;
   const { showToast } = useToast();
   // Set up superport context
-  const superPortActions = useSuperPortActions();
-  const {
-    label: contextLabel,
-    permissions: contextPermissions,
-    folderId: contextFolderId,
-    port,
-    limit: contextLimit,
-  } = useSuperPortData(state => state);
+  const superPortActions = useSuperPortDispatch();
+  const superPortState = useSuperPortState();
 
   //profile information
   const profile = useSelector((state: any) => state.profile.profile);
@@ -69,6 +57,10 @@ function SuperPortQRScreen({ route, navigation }: Props) {
       avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
     };
   }, [profile]);
+
+  const latestNewConnection = useSelector(
+    (state: any) => state.latestNewConnection,
+  );
 
   const color = useColors();
   const styles = styling(color);
@@ -84,20 +76,10 @@ function SuperPortQRScreen({ route, navigation }: Props) {
 
   const DownloadIcon = results.Download;
 
-  //Port data is loading
-  const [isLoading, setIsLoading] = useState(true);
-  //Port data has failed to load
-  const [hasFailed, setHasFailed] = useState(false);
-  //Error message when port data is not loaded
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   //Port data
-  const [portData, setPortData] = useState<DirectSuperportBundle | null>(null);
+  const [portData] = useState<DirectSuperportBundle>(bundle);
   //Link data
-  const [linkData, setLinkData] = useState<string | null>(null);
-
-  const shouldGoBack = useMemo(() => {
-    return portId ? true : false;
-  }, [portId]);
+  const [linkData, setLinkData] = useState<string>(link);
 
   //share loading
   const [shareLoading, setShareLoading] = useState(false);
@@ -124,84 +106,36 @@ function SuperPortQRScreen({ route, navigation }: Props) {
   useEffect(() => {
     (async () => {
       try {
-        if (portId) {
-          // retrieve superport data from portId
-          console.log('Retrieving superport data from portId');
-          const superPortClass = await SuperPort.generator.fromPortId(portId);
-          const superPortClassData = superPortClass.getPort();
-          const superPortPermissions = await getPermissions(
-            superPortClassData.permissionsId,
-          );
-          superPortActions.setPermissions(superPortPermissions);
-          superPortActions.setFolderId(superPortClassData.folderId);
-          superPortActions.setLabel(superPortClassData.label || DEFAULT_NAME);
-          superPortActions.setLimit(superPortClassData.connectionsLimit || 0);
-          superPortActions.setPort(superPortClass);
-        } else if (permissions && label && limit && folderId) {
-          console.log('Creating new superport from params');
-          superPortActions.setPermissions(permissions);
-          superPortActions.setFolderId(folderId);
-          superPortActions.setLabel(label);
-          superPortActions.setLimit(limit || 0);
-          await onCreateSuperPort();
+        if (!superPortClass) {
+          throw new Error('Re-usable Port is not defined');
         }
-      } catch (error: any) {
-        console.log('Error initializing superport qr screen', error);
-        setIsLoading(false);
-        setHasFailed(true);
-        setErrorMessage(
-          'Error fetching Port: ' + error?.message || 'Unknown error',
+        // retrieve superport data from portId
+        const superPortClassData = superPortClass.getPort();
+        const superPortPermissions = await getPermissions(
+          superPortClassData.permissionsId,
         );
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useMemo(async () => {
-    if (port) {
-      try {
-        const bundle = await port.getShareableBundle(name);
-        setPortData(bundle);
-        setLinkData(jsonToUrl(bundle as any));
-        setIsLoading(false);
+        superPortActions({
+          type: 'SET_CONTEXT',
+          payload: {
+            label: superPortClassData.label,
+            limit: superPortClassData.connectionsLimit,
+            folderId: superPortClassData.folderId,
+            permissions: superPortPermissions,
+            connectionsMade: superPortClassData.connectionsMade,
+            port: superPortClass,
+          },
+        });
         try {
-          setLinkData(await port.getShareableLink(name));
+          setLinkData(await superPortClass.getShareableLink(name));
         } catch (error) {
           console.log('Error fetching superport link', error);
         }
       } catch (error: any) {
-        console.log('Error fetching superport data', error);
-        setIsLoading(false);
-        setHasFailed(true);
-        setErrorMessage(
-          'Error fetching Port: ' + error?.message || 'Unknown error',
-        );
+        console.log('Error initializing superport qr screen', error);
       }
-    }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [port]);
-
-  const onCreateSuperPort = async () => {
-    console.log('Creating new superport');
-    if (port) {
-      throw new Error('SuperPort already exists');
-    }
-    if (
-      !(contextLabel || label) ||
-      !(contextLimit || limit) ||
-      !(contextFolderId || folderId) ||
-      !(contextPermissions || permissions)
-    ) {
-      throw new Error('Missing required parameters to generate a SuperPort');
-    }
-    const superPortClass = await SuperPort.generator.create(
-      (contextLabel || label) as string,
-      (contextLimit || limit) as number,
-      (contextFolderId || folderId) as string,
-      (contextPermissions || permissions) as PermissionsStrict,
-    );
-    superPortActions.setPort(superPortClass);
-  };
+  }, []);
 
   const onCopyClicked = () => {
     Clipboard.setString(linkData || '');
@@ -213,19 +147,7 @@ function SuperPortQRScreen({ route, navigation }: Props) {
   };
 
   const onClosePress = () => {
-    if (shouldGoBack) {
-      navigation.goBack();
-    } else {
-      // Reset the navigation state to go back to a common parent and then navigate to the desired screen
-      (navigation as any).reset({
-        index: 0,
-        routes: [
-          {
-            name: 'HomeTab', // The common parent/root screen
-          },
-        ],
-      });
-    }
+    navigation.goBack();
   };
 
   // Function to capture and share the QR code
@@ -243,7 +165,7 @@ function SuperPortQRScreen({ route, navigation }: Props) {
     }
     try {
       // Capture the component as an image
-      const uri = await (viewShotRef.current as any).capture();
+      const uri = await captureRef(viewShotRef, { quality: 1, format: 'png' })
       const shareMessage = `Let's chat on Port - here's a link to connect with me: ${linkData}`;
       // Share the image
       await Share.open({
@@ -272,7 +194,7 @@ function SuperPortQRScreen({ route, navigation }: Props) {
     }
     try {
       // Capture the component as an image
-      const uri = await (viewShotRef.current as any).capture();
+      const uri = await captureRef(viewShotRef, { quality: 1, format: 'png' })
       if (isIOS) {
         //additional catch block is needed due to a bug in react-native-camera-roll
         try {
@@ -303,6 +225,27 @@ function SuperPortQRScreen({ route, navigation }: Props) {
     }
   };
 
+  //navigates to home screen if latest new connection Id matches port Id
+  useEffect(() => {
+    try {
+      if (latestNewConnection) {
+        const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
+        if (portData) {
+          if (portData.portId === latestUsedConnectionLinkId) {
+            //increment connections made
+            superPortActions({
+              type: 'INCREMENT_CONNECTIONS_MADE',
+              payload: undefined,
+            })
+          }
+        }
+      }
+    } catch (error) {
+      console.log('error autoclosing port screen: ', error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestNewConnection]);
+
   return (
     <GradientScreenView
       color={color}
@@ -319,27 +262,22 @@ function SuperPortQRScreen({ route, navigation }: Props) {
           <TopBarEmptyTitleAndDescription theme={color.theme} />
           <View style={styles.scrollableElementsParent}>
             <DisplayableSuperPortQRCard
-              isLoading={isLoading}
-              hasFailed={hasFailed}
+              isLoading={false}
+              hasFailed={false}
               name={name}
-              errorMessage={errorMessage}
+              errorMessage={''}
               qrData={portData}
               link={linkData}
               onCopyClicked={onCopyClicked}
-              onTryAgainClicked={onCreateSuperPort}
+              onTryAgainClicked={() => {}}
               theme={color.theme}
-              superPortName={contextLabel}
-              labelText={
-                port
-                  ? `Used ${port.getPort().connectionsMade}/${contextLimit || 'Unlimited'
-                  }`
-                  : ''
-              }
+              superPortName={superPortState.label || 're-usable port'}
+              labelText={`Used ${superPortState.connectionsMade || 0}/${superPortState.limit || 'Unlimited'}`}
             />
             <AvatarBox
               avatarSize="m"
               profileUri={
-                (contextPermissions || permissions)?.displayPicture
+                (superPortState.permissions)?.displayPicture
                   ? avatar.fileUri
                   : null
               }
@@ -379,18 +317,18 @@ function SuperPortQRScreen({ route, navigation }: Props) {
         />
       </View>
       <View style={styles.hiddenContainer}>
-        <ViewShot ref={viewShotRef} options={{ quality: 1, format: 'png' }}>
+        <View ref={viewShotRef} collapsable={false}>
           <ExportableQRWithPicture
             qrData={portData}
             theme={color.theme}
             profileUri={
-              (contextPermissions || permissions)?.displayPicture
+              (superPortState.permissions)?.displayPicture
                 ? avatar.fileUri
                 : null
             }
             name={name}
           />
-        </ViewShot>
+        </View>
       </View>
     </GradientScreenView>
   );

@@ -3,165 +3,95 @@ import React, {
   createContext,
   useContext,
   useMemo,
-  useState,
+  useReducer,
 } from 'react';
 
 import SuperPortGenerator from '@utils/Ports/SuperPorts/SuperPortGenerator/SuperPortGenerator';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
 
 interface SuperPortContextState {
   permissions?: PermissionsStrict;
   folderId?: string;
   label?: string;
   limit?: number | null;
+  connectionsMade?: number | null;
   port?: SuperPortGenerator;
 }
 
-interface SuperPortContextActions {
-  setPermissions: (permissions: PermissionsStrict) => void;
-  setFolderId: (folderId: string) => void;
-  setLabel: (label: string) => void;
-  setLimit: (limit?: number | null) => void;
-  setPort: (port: SuperPortGenerator) => void;
-}
+type SuperPortAction =
+  | { type: 'SET_PERMISSIONS'; payload: PermissionsStrict }
+  | { type: 'SET_FOLDER_ID'; payload: string }
+  | { type: 'SET_LABEL'; payload: string }
+  | { type: 'SET_LIMIT'; payload: number | null }
+  | { type: 'INCREMENT_CONNECTIONS_MADE'; payload: undefined }
+  | { type: 'SET_PORT'; payload: SuperPortGenerator }
+  | { type: 'SET_CONTEXT'; payload: SuperPortContextState };
 
 const SuperPortStateContext = createContext<SuperPortContextState | undefined>(
-  undefined,
+  undefined
 );
-const SuperPortActionsContext = createContext<
-  SuperPortContextActions | undefined
+const SuperPortDispatchContext = createContext<
+  React.Dispatch<SuperPortAction> | undefined
 >(undefined);
 
 type ModalProviderProps = {
   children: ReactNode;
 };
 
-export const SuperPortProvider: React.FC<ModalProviderProps> = ({children}) => {
-  // State variables
-  const [permissions, setPermissions] = useState<PermissionsStrict | undefined>(
-    undefined,
-  );
-  const [folderId, setFolderId] = useState<string | undefined>(undefined);
-  const [label, setLabel] = useState<string | undefined>(undefined);
-  const [limit, setLimit] = useState<number | null | undefined>(undefined);
-  const [port, setPort] = useState<SuperPortGenerator | undefined>(undefined);
+const superPortReducer = (
+  state: SuperPortContextState,
+  action: SuperPortAction
+): SuperPortContextState => {
+  switch (action.type) {
+    case 'SET_PERMISSIONS':
+      return { ...state, permissions: action.payload };
+    case 'SET_FOLDER_ID':
+      return { ...state, folderId: action.payload };
+    case 'SET_LABEL':
+      return { ...state, label: action.payload };
+    case 'SET_LIMIT':
+      return { ...state, limit: action.payload };
+    case 'INCREMENT_CONNECTIONS_MADE':
+      return { ...state, connectionsMade: state.connectionsMade ? state.connectionsMade + 1 : 1 };
+    case 'SET_PORT':
+      return { ...state, port: action.payload };
+    case 'SET_CONTEXT':
+      return {
+        ...state,
+        ...action.payload,
+      };
+    default:
+      return state;
+  }
+};
 
-  // Memoize the state object to prevent unnecessary re-renders
-  const stateValue = useMemo(
-    () => ({
-      permissions,
-      folderId,
-      label,
-      limit,
-      port,
-    }),
-    [permissions, folderId, label, limit, port],
-  );
+export const SuperPortProvider: React.FC<ModalProviderProps> = ({ children }) => {
+  const [state, dispatch] = useReducer(superPortReducer, {});
 
-  // Memoize the actions object
-  const actions = useMemo(
-    () => ({
-      setPermissions: (newPermissions: PermissionsStrict) =>
-        setPermissions(newPermissions),
-      setFolderId: (newFolderId: string) => setFolderId(newFolderId),
-      setLabel: (newLabel: string) => setLabel(newLabel),
-      setLimit: (newLimit?: number | null) => setLimit(newLimit),
-      setPort: (newPort: SuperPortGenerator) => setPort(newPort),
-    }),
-    [],
-  );
+  const stateValue = useMemo(() => state, [state]);
 
   return (
     <SuperPortStateContext.Provider value={stateValue}>
-      <SuperPortActionsContext.Provider value={actions}>
+      <SuperPortDispatchContext.Provider value={dispatch}>
         {children}
-      </SuperPortActionsContext.Provider>
+      </SuperPortDispatchContext.Provider>
     </SuperPortStateContext.Provider>
   );
 };
 
-// Create selective hooks for accessing specific parts of state
-export function useSuperPortPermissions() {
+// Hooks for accessing state and dispatch
+export function useSuperPortState() {
   const context = useContext(SuperPortStateContext);
   if (context === undefined) {
-    throw new Error(
-      'useSuperPortPermissions must be used within a SuperPortProvider',
-    );
+    throw new Error('useSuperPortState must be used within a SuperPortProvider');
   }
-  return {
-    permissions: context.permissions,
-    setPermissions: useContext(SuperPortActionsContext)!.setPermissions,
-  };
+  return context;
 }
 
-export function useSuperPortFolder() {
-  const context = useContext(SuperPortStateContext);
+export function useSuperPortDispatch() {
+  const context = useContext(SuperPortDispatchContext);
   if (context === undefined) {
-    throw new Error(
-      'useSuperPortFolder must be used within a SuperPortProvider',
-    );
-  }
-  return {
-    folderId: context.folderId,
-    setFolderId: useContext(SuperPortActionsContext)!.setFolderId,
-  };
-}
-
-export function useSuperPortLabel() {
-  const context = useContext(SuperPortStateContext);
-  if (context === undefined) {
-    throw new Error(
-      'useSuperPortLabel must be used within a SuperPortProvider',
-    );
-  }
-  return {
-    label: context.label,
-    setLabel: useContext(SuperPortActionsContext)!.setLabel,
-  };
-}
-
-export function useSuperPortLimit() {
-  const context = useContext(SuperPortStateContext);
-  if (context === undefined) {
-    throw new Error(
-      'useSuperPortLimit must be used within a SuperPortProvider',
-    );
-  }
-  return {
-    limit: context.limit,
-    setLimit: useContext(SuperPortActionsContext)!.setLimit,
-  };
-}
-
-export function useSuperPort() {
-  const context = useContext(SuperPortStateContext);
-  if (context === undefined) {
-    throw new Error('useSuperPort must be used within a SuperPortProvider');
-  }
-  return {
-    port: context.port,
-    setPort: useContext(SuperPortActionsContext)!.setPort,
-  };
-}
-
-// For components that need multiple values, create custom selector hooks
-export function useSuperPortData<T>(
-  selector: (state: SuperPortContextState) => T,
-) {
-  const context = useContext(SuperPortStateContext);
-  if (context === undefined) {
-    throw new Error('useSuperPortData must be used within a SuperPortProvider');
-  }
-  return selector(context);
-}
-
-// Access to all actions
-export function useSuperPortActions() {
-  const context = useContext(SuperPortActionsContext);
-  if (context === undefined) {
-    throw new Error(
-      'useSuperPortActions must be used within a SuperPortProvider',
-    );
+    throw new Error('useSuperPortDispatch must be used within a SuperPortProvider');
   }
   return context;
 }

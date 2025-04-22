@@ -12,7 +12,6 @@ import { getContacts } from '@utils/Storage/contacts';
 import { ContactEntry } from '@utils/Storage/DBCalls/contacts';
 
 import ConnectionsCard from './components/ConnectionsCard';
-import InviteContactsCard from './components/InviteContactsCard';
 import NewContactOptions from './components/NewContactOptions';
 
 const ContactsScreen = () => {
@@ -45,11 +44,7 @@ const ContactsScreen = () => {
         <View style={styles.scrollableElementsParent}>
           <View style={styles.card}>
             <NewContactOptions />
-            {allConnections.length > 0 ? (
-              <ConnectionsCard allConnections={allConnections} />
-            ) : (
-              <InviteContactsCard />
-            )}
+            <ConnectionsCard allConnections={allConnections} />
           </View>
         </View>
       </View>

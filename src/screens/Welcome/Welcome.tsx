@@ -3,23 +3,22 @@
  * UI is updated to latest spec for both android and ios
  */
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
 import GradientCard from '@components/Cards/GradientCard';
-import {useThemeColors} from '@components/colorGuide';
-import {isIOS, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {FontSizeType, FontWeight} from '@components/NumberlessText';
+import { useThemeColors } from '@components/colorGuide';
+import { isIOS, screen } from '@components/ComponentUtils';
+import { CustomStatusBar } from '@components/CustomStatusBar';
+import { FontSizeType, FontWeight, NumberlessText } from '@components/NumberlessText';
 // import OptionWithLogoAndChevron from '@components/Options/OptionWithLogoAndChevron';
-import TertiaryButton from '@components/Reusable/LongButtons/TertiaryButton';
-import {SafeAreaView} from '@components/SafeAreaView';
+import { SafeAreaView } from '@components/SafeAreaView';
 // import LineSeparator from '@components/Separators/LineSeparator';
-import {Spacing, Width} from '@components/spacingGuide';
+import { Spacing, Width } from '@components/spacingGuide';
 
-import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
+import { OnboardingStackParamList } from '@navigation/OnboardingStack/OnboardingStackTypes';
 
 // import LinkSafron from '@assets/icons/LinkDeepSafron.svg';
 // import ScannerGreen from '@assets/icons/ScannerDarkGreen.svg';
@@ -27,7 +26,7 @@ import PortLogoWelcomeScreen from '@assets/miscellaneous/PortLogoWelcomeScreen.s
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Welcome'>;
 
-function Welcome({navigation}: Props) {
+function Welcome({ navigation }: Props) {
   console.log('[Rendering Welcome Screen]');
 
   //what happens when the user presses "get started".
@@ -71,7 +70,14 @@ function Welcome({navigation}: Props) {
             )}
           </View>
           <GradientCard style={styles.buttonContainer} forceTheme={'dark'}>
-            <View style={{gap: Spacing.s}}>
+            <NumberlessText
+              style={{ textAlign: 'center' }}
+              textColor={colors.white}
+              fontWeight={FontWeight.sb}
+              fontSizeType={FontSizeType.xl}>
+              Welcome to Port
+            </NumberlessText>
+            <View style={{ gap: Spacing.s }}>
               <PrimaryButton
                 theme={'dark'}
                 isLoading={false}
@@ -84,11 +90,17 @@ function Welcome({navigation}: Props) {
                   fontWeight: FontWeight.md,
                 }}
               />
-              <TertiaryButton
-                tertiaryButtonColor={'w'}
-                buttonText={'Restore from backup'}
+              <PrimaryButton
+                theme={'dark'}
+                isLoading={false}
+                color={colors.white}
+                text={'Restore from backup'}
                 disabled={false}
                 onClick={onBackupPress}
+                textStyle={{
+                  fontSize: FontSizeType.l,
+                  fontWeight: FontWeight.md,
+                }}
               />
             </View>
           </GradientCard>
@@ -136,6 +148,7 @@ const styling = (color: any) =>
       alignItems: 'center',
       paddingHorizontal: Spacing.l,
       backgroundColor: color.background,
+      paddingBottom: Spacing.xl,
     },
     greeting: {
       flex: 1,

@@ -54,6 +54,7 @@ export async function getContact(
     [pairHash],
     (tx, results) => {
       if (results.rows.length > 0) {
+        console.log('results of contact', results.rows.item(0));
         contact = results.rows.item(0);
       }
     },
@@ -129,16 +130,14 @@ export async function deleteContact(pairHash: string) {
   //check if a direct chat exists with the pair Hash.
   await runSimpleQuery(
     `
-    SELECT EXISTS(
-      SELECT 1 
-      FROM connections 
-      WHERE pairHash = ?
-    );
+    SELECT * 
+    FROM connections 
+    WHERE pairHash = ?;
     `,
     [pairHash],
 
     (tx, results) => {
-      const exists = results.rows.item(0);
+      const exists = (results.rows.length > 0);
       if (exists) {
         shouldDeleteContact = false;
       }
@@ -148,16 +147,14 @@ export async function deleteContact(pairHash: string) {
   if (shouldDeleteContact) {
     await runSimpleQuery(
       `
-      SELECT EXISTS(
-        SELECT 1 
+        SELECT *
         FROM groupMembers 
         WHERE pairHash = ?
-      );
       `,
       [pairHash],
 
       (tx, results) => {
-        const exists = results.rows.item(0);
+        const exists = (results.rows.length > 0);
         if (exists) {
           shouldDeleteContact = false;
         }

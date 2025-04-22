@@ -28,8 +28,7 @@ import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {ToastType, useToast} from 'src/context/ToastContext';
 
 import PortContactNameCard from './components/PortContactNameCard';
-import {usePortActions, usePortData} from './context/PortContext';
-
+import { usePortDispatch, usePortState } from './context/PortContext';
 
 type Props = NativeStackScreenProps<
   NewPortStackParamList,
@@ -42,19 +41,15 @@ const PortSettingsScreen = ({navigation}: Props) => {
   const styles = styling(color);
   const {showToast} = useToast();
 
-  const portActions = usePortActions();
-  const {
-    contactName: contextContactName,
-    permissions: contextPermissions,
-    port,
-  } = usePortData(state => state);
+  const portActions = usePortDispatch();
+  const portState = usePortState();
 
   // sets name/label of the port
-  const [portName, setPortName] = useState<string>(contextContactName || '');
+  const [portName, setPortName] = useState<string>(portState.contactName || '');
 
   //set permissions for the port
   const [permissions, setPermissions] = useState<PermissionsStrict>(
-    contextPermissions ? {...contextPermissions} : {...defaultPermissions},
+    portState.permissions ? {...portState.permissions} : {...defaultPermissions},
   );
   // sets the boolean need to view more permissions
   const [seeMoreClicked, setSeeMoreClicked] = useState<boolean>(false);
@@ -70,17 +65,23 @@ const PortSettingsScreen = ({navigation}: Props) => {
   const onSavePress = async () => {
     setSaveLoading(true);
     try {
-      if (port) {
-        if (portName !== contextContactName) {
-          await port.updateContactName(portName);
-          portActions.setContactName(portName);
+      if (portState.port) {
+        if (portName !== portState.contactName) {
+          await portState.port.updateContactName(portName);
+          portActions({
+            payload: portName,
+            type: 'SET_CONTACT_NAME'
+          })
         }
         // Check if permissions have changed by comparing individual properties
         if (
-          JSON.stringify(permissions) !== JSON.stringify(contextPermissions)
+          JSON.stringify(permissions) !== JSON.stringify(portState.permissions)
         ) {
-          await port.updatePermissions({...permissions});
-          portActions.setPermissions({...permissions});
+          await portState.port.updatePermissions({...permissions});
+          portActions({
+            payload: {...permissions},
+            type: 'SET_PERMISSIONS',
+          })        
         }
         navigation.goBack();
       } else {
@@ -99,8 +100,8 @@ const PortSettingsScreen = ({navigation}: Props) => {
   const onDeletePress = async () => {
     setDeleteLoading(true);
     try {
-      if (port) {
-        await port.clean();
+      if (portState.port) {
+        await portState.port.clean();
         // Reset the navigation state to go back to a common parent and then navigate to the desired screen
         (navigation as any).reset({
           index: 0,

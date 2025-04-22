@@ -1,12 +1,11 @@
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import { DirectSuperportBundle } from '@utils/Ports/interfaces';
+import SuperPortGenerator from '@utils/Ports/SuperPorts/SuperPortGenerator/SuperPortGenerator';
 
 export type NewSuperPortStackParamList = {
   SuperPortQRScreen: {
-    portId?: string;
-    label?: string;
-    limit?: number;
-    permissions?: PermissionsStrict;
-    folderId?: string;
+    superPortClass: SuperPortGenerator;
+    bundle: DirectSuperportBundle;
+    link: string;
   };
   SuperPortSettingsScreen: undefined;
 };

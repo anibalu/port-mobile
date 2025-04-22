@@ -20,10 +20,7 @@ import { DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO } from '@configs/constants';
 
 import { NewPortStackParamList } from '@navigation/AppStack/NewPortStack/NewPortStackTypes';
 
-import { jsonToUrl } from '@utils/JsonToUrl';
 import { PortBundle } from '@utils/Ports/interfaces';
-import { Port } from '@utils/Ports/SingleUsePorts/Port';
-import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
 import { getPermissions } from '@utils/Storage/permissions';
 import { getExpiryTag } from '@utils/Time';
 
@@ -32,24 +29,18 @@ import ShareIcon from '@assets/dark/icons/Share.svg';
 import { ToastType, useToast } from 'src/context/ToastContext';
 
 import DisplayablePortQRCard from './components/DisplayablePortQRCard';
-import { usePortActions, usePortData } from './context/PortContext';
-
+import { usePortDispatch, usePortState } from './context/PortContext';
 
 
 type Props = NativeStackScreenProps<NewPortStackParamList, 'PortQRScreen'>;
 
 function PortQRScreen({ route, navigation }: Props) {
   console.log('[Rendering PortQRScreen]');
-  const { contactName, permissions, folderId, portId } = route.params;
+  const { portClass, bundle, link } = route.params;
   const { showToast } = useToast();
   // Set up port context
-  const portActions = usePortActions();
-  const {
-    contactName: contextContactName,
-    permissions: contextPermissions,
-    folderId: contextFolderId,
-    port,
-  } = usePortData(state => state);
+  const portActions = usePortDispatch();
+  const portState = usePortState();
 
   //profile information
   const profile = useSelector((state: any) => state.profile.profile);
@@ -60,24 +51,16 @@ function PortQRScreen({ route, navigation }: Props) {
     };
   }, [profile]);
 
+  //checks latest new connection
+  const latestNewConnection = useSelector(state => state.latestNewConnection);
+
   const color = useColors();
   const styles = styling(color);
 
-  //Port data is loading
-  const [isLoading, setIsLoading] = useState(true);
-  //Port data has failed to load
-  const [hasFailed, setHasFailed] = useState(false);
-  //Error message when port data is not loaded
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   //Port data
-  const [portData, setPortData] = useState<PortBundle | null>(null);
+  const [portData] = useState<PortBundle>(bundle);
   //Link data
-  const [linkData, setLinkData] = useState<string | null>(null);
-
-  // Whether to go back to the previous screen or reset to home tab
-  const shouldGoBack = useMemo(() => {
-    return portId ? true : false;
-  }, [portId]);
+  const [linkData, setLinkData] = useState<string>(link);
 
   //share loading
   const [shareLoading, setShareLoading] = useState(false);
@@ -101,85 +84,32 @@ function PortQRScreen({ route, navigation }: Props) {
   // Initialize port context with route params
   useEffect(() => {
     (async () => {
-      console.log('PortQRScreen useEffect', portId, permissions, contactName, folderId);
+      console.log('PortQRScreen useEffect');
       try {
-        if (portId) {
-          // retrieve port data from portId
-          console.log('Retrieving port data from portId');
-          const portClass = await Port.generator.fromPortId(portId);
-          const portClassData = portClass.getPort();
-          const portPermissions = await getPermissions(
-            portClassData.permissionsId,
-          );
-          portActions.setPermissions(portPermissions);
-          portActions.setFolderId(portClassData.folderId);
-          portActions.setContactName(portClassData.label || DEFAULT_NAME);
-          portActions.setPort(portClass);
-          console.log('Port data retrieved', portClassData);
-        } else if (permissions && contactName && folderId) {
-          console.log('Creating new port from params');
-          portActions.setPermissions(permissions);
-          portActions.setFolderId(folderId);
-          portActions.setContactName(contactName);
-          await onCreatePort();
+        if (!portClass) {
+          throw new Error("Port is not defined");
         }
-      } catch (error: any) {
-        console.log('Error initializing port qr screen', error);
-        setIsLoading(false);
-        setHasFailed(true);
-        setErrorMessage(
-          'Error fetching Port: ' + error?.message || 'Unknown error',
+        const portClassData = portClass.getPort();
+        const portPermissions = await getPermissions(
+          portClassData.permissionsId,
         );
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useMemo(async () => {
-    if (port) {
-      console.log('Port class retrieved', port);
-      try {
-        const bundle = await port.getShareableBundle(name);
-        console.log('Bundle retrieved', bundle);
-        setPortData(bundle);
-        setLinkData(jsonToUrl(bundle as any));
-        setIsLoading(false);
+        portActions({payload: {
+          permissions: portPermissions,
+          folderId: portClassData.folderId,
+          contactName: portClassData.label || DEFAULT_NAME,
+          port: portClass,
+        }, type: 'SET_CONTEXT'});
         try {
-          setLinkData(await port.getShareableLink(name));
+          setLinkData(await portClass.getShareableLink(name));
         } catch (error) {
           console.log('Error fetching port link', error);
         }
       } catch (error: any) {
-        console.log('Error fetching port data', error);
-        setIsLoading(false);
-        setHasFailed(true);
-        setErrorMessage(
-          'Error fetching Port: ' + error?.message || 'Unknown error',
-        );
+        console.log('Error initializing port qr screen', error);
       }
-    }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [port]);
-
-  const onCreatePort = async () => {
-    console.log('Creating new port');
-    if (port) {
-      throw new Error('Port already exists');
-    }
-    if (
-      !(contextContactName || contactName) ||
-      !(contextFolderId || folderId) ||
-      !(contextPermissions || permissions)
-    ) {
-      throw new Error('Missing required parameters to generate a Port');
-    }
-    const portClass = await Port.generator.create(
-      (contextContactName || contactName) as string,
-      (contextFolderId || folderId) as string,
-      (contextPermissions || permissions) as PermissionsStrict,
-    );
-    portActions.setPort(portClass);
-  };
+  }, []);
 
   const onCopyClicked = () => {
     Clipboard.setString(linkData || '');
@@ -191,19 +121,7 @@ function PortQRScreen({ route, navigation }: Props) {
   };
 
   const onClosePress = () => {
-    if (shouldGoBack) {
-      navigation.goBack();
-    } else {
-      // Reset the navigation state to go back to a common parent and then navigate to the desired screen
-      (navigation as any).reset({
-        index: 0,
-        routes: [
-          {
-            name: 'HomeTab', // The common parent/root screen
-          },
-        ],
-      });
-    }
+    navigation.goBack();
   };
 
   // Function to capture and share the QR code
@@ -238,6 +156,32 @@ function PortQRScreen({ route, navigation }: Props) {
     }
   };
 
+  //navigates to home screen if latest new connection Id matches port Id
+  useEffect(() => {
+    try {
+      if (latestNewConnection) {
+        const latestUsedConnectionLinkId = latestNewConnection.connectionLinkId;
+        if (portData) {
+          if (portData.portId === latestUsedConnectionLinkId) {
+            // Reset the navigation state to go back to a common parent and then navigate to the desired screen
+            (navigation as any).reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'HomeTab', // The common parent/root screen
+                },
+              ],
+            });
+            return;
+          }
+        }
+      }
+    } catch (error) {
+      console.log('error autoclosing port screen: ', error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestNewConnection]);
+
   return (
     <GradientScreenView
       color={color}
@@ -254,24 +198,24 @@ function PortQRScreen({ route, navigation }: Props) {
           <TopBarEmptyTitleAndDescription theme={color.theme} />
           <View style={styles.scrollableElementsParent}>
             <DisplayablePortQRCard
-              isLoading={isLoading}
+              isLoading={false}
               name={name}
-              hasFailed={hasFailed}
-              errorMessage={errorMessage}
+              hasFailed={false}
+              errorMessage={''}
               qrData={portData}
               link={linkData}
               onCopyClicked={onCopyClicked}
-              onTryAgainClicked={onCreatePort}
+              onTryAgainClicked={() => {}}
               theme={color.theme}
-              contactName={contextContactName}
+              contactName={portState.contactName}
               labelText={
-                port ? `${getExpiryTag(port.getPort().expiryTimestamp)}` : ''
+                portState.port ? `${getExpiryTag(portState.port.getPort().expiryTimestamp)}` : ''
               }
             />
             <AvatarBox
               avatarSize="m"
               profileUri={
-                (contextPermissions || permissions)?.displayPicture
+                (portState.permissions)?.displayPicture
                   ? avatar.fileUri
                   : null
               }
@@ -290,7 +234,7 @@ function PortQRScreen({ route, navigation }: Props) {
         <PrimaryButton
           Icon={ShareIcon}
           theme={color.theme}
-          text={`Share Port with ${contextContactName || contactName}`}
+          text={`Share Port with ${portState.contactName}`}
           disabled={false}
           isLoading={shareLoading}
           onClick={captureAndShareQR}
@@ -302,7 +246,7 @@ function PortQRScreen({ route, navigation }: Props) {
             qrData={portData}
             theme={color.theme}
             profileUri={
-              (contextPermissions || permissions)?.displayPicture
+              (portState.permissions)?.displayPicture
                 ? avatar.fileUri
                 : null
             }

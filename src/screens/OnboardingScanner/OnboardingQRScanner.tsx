@@ -31,9 +31,7 @@ import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingSt
 import {checkCameraPermission} from '@utils/AppPermissions';
 import {urlToJson} from '@utils/JsonToUrl';
 import {
-  checkBundleValidity,
-  processReadBundles,
-  readBundle,
+  checkBundleValidity
 } from '@utils/Ports';
 import {wait} from '@utils/Time';
 
@@ -170,12 +168,9 @@ function OnboardingQRScanner({navigation}: Props) {
           const updatedCode = qrData.startsWith('https://')
             ? urlToJson(qrData)
             : JSON.parse(qrData); //for really old qr codes
-          //check if Qr code is a legitimate Port Qr code
+          //TODO:check if Qr code is a legitimate Port Qr code
           const bundle = checkBundleValidity(JSON.stringify(updatedCode));
-          //if code is legitimate, read it
-          await readBundle(bundle);
-          //try to use read bundles
-          await processReadBundles();
+          console.log('bundle: ', bundle);
           setIsLoading(false);
           //navigate to home screen
           navigation.navigate('OnboardingSetupScreen', {

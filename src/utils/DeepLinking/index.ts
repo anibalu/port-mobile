@@ -20,13 +20,7 @@ interface urlObject {
  */
 export async function getBundleFromLink(
   urlObj: urlObject,
-): Promise<
-  | PortBundle
-  | GroupBundle
-  | DirectSuperportBundle
-  | GroupSuperportBundle
-  | DirectContactPortBundle
-> {
+): Promise<PortBundle | GroupBundle | DirectSuperportBundle | GroupSuperportBundle | DirectContactPortBundle>{
   const synced = async () => {
     const url = urlObj.url;
     const jsonUrlObj = urlToJson(url);

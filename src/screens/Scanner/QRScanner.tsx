@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 
-import {useIsFocused} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { useIsFocused } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { launchImageLibrary } from 'react-native-image-picker';
 import {
   Camera,
   useCameraDevice,
@@ -11,8 +11,8 @@ import {
 } from 'react-native-vision-camera';
 import RNQRGenerator from 'rn-qr-generator';
 
-import {useThemeColors} from '@components/colorGuide';
-import {CustomStatusBar} from '@components/CustomStatusBar';
+import { useThemeColors } from '@components/colorGuide';
+import { CustomStatusBar } from '@components/CustomStatusBar';
 import {
   FontSizeType,
   FontWeight,
@@ -20,21 +20,22 @@ import {
 } from '@components/NumberlessText';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 import DefaultLoader from '@components/Reusable/Loaders/DefaultLoader';
-import {SafeAreaView} from '@components/SafeAreaView';
-import {Spacing, Width} from '@components/spacingGuide';
+import { SafeAreaView } from '@components/SafeAreaView';
+import { Spacing, Width } from '@components/spacingGuide';
 
-import {safeModalCloseDuration} from '@configs/constants';
+import { safeModalCloseDuration } from '@configs/constants';
 
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
 
-import {checkCameraPermission} from '@utils/AppPermissions';
-import {urlToJson} from '@utils/JsonToUrl';
+import { checkCameraPermission } from '@utils/AppPermissions';
+import { urlToJson } from '@utils/JsonToUrl';
 import {
+  acceptBundle,
   checkBundleValidity,
   processReadBundles,
-  readBundle,
 } from '@utils/Ports';
-import {wait} from '@utils/Time';
+import { BundleTarget } from '@utils/Storage/DBCalls/ports/interfaces';
+import { wait } from '@utils/Time';
 
 import CloseWhite from '@assets/icons/closeWhite.svg';
 import ImageIcon from '@assets/icons/GalleryIconWhite.svg';
@@ -44,7 +45,7 @@ import Area from '@assets/miscellaneous/scanAreaBlue.svg';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Scan'>;
 
-function QRScanner({navigation}: Props) {
+function QRScanner({ navigation }: Props) {
   //camera device
   const device = useCameraDevice('back');
   //show error modal
@@ -170,13 +171,19 @@ function QRScanner({navigation}: Props) {
             : JSON.parse(qrData); //for really old qr codes
           //check if Qr code is a legitimate Port Qr code
           const bundle = checkBundleValidity(JSON.stringify(updatedCode));
-          //if code is legitimate, read it
-          await readBundle(bundle);
-          //try to use read bundles
-          await processReadBundles();
+          //if code is legitimate, navigate to acceptChat screens
+          if (bundle.target === BundleTarget.direct || bundle.target === BundleTarget.superportDirect || bundle.target === BundleTarget.contactPort) {
+            navigation.push('AcceptDirectChat', {
+              bundle: bundle,
+            });
+          } else {
+            await acceptBundle(bundle);
+            //try to use read bundles
+            await processReadBundles();
+            //navigate to home screen
+            navigation.push('HomeTab');
+          }
           setIsLoading(false);
-          //navigate to home screen
-          navigation.push('HomeTab');
         } catch (error) {
           console.log('error scanning qr', error);
           setIsLoading(false);
@@ -202,13 +209,13 @@ function QRScanner({navigation}: Props) {
         bottomNavigationBarColor={colors.background}
         modifyNavigationBarColor={true}>
         {(uploadedImageUri && isFocused) ||
-        (isCameraPermissionGranted && device && isFocused) ? (
+          (isCameraPermissionGranted && device && isFocused) ? (
           <View style={styles.cameraOptions}>
             {uploadedImageUri ? (
               <Image
                 style={styles.camera}
                 resizeMode={'contain'}
-                source={{uri: uploadedImageUri}}
+                source={{ uri: uploadedImageUri }}
               />
             ) : (
               isCameraPermissionGranted &&

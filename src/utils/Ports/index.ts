@@ -1,4 +1,4 @@
-import {Mutex} from 'async-mutex';
+import { Mutex } from 'async-mutex';
 
 import {
   defaultFolderId,
@@ -9,15 +9,16 @@ import store from '@store/appStore';
 
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import { getBasicConnectionInfo } from '@utils/Storage/connections';
-import {BundleTarget} from '@utils/Storage/DBCalls/ports/interfaces';
+import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
+import { BundleTarget } from '@utils/Storage/DBCalls/ports/interfaces';
 import { PortData } from '@utils/Storage/DBCalls/ports/myPorts';
-import {ReadPortData} from '@utils/Storage/DBCalls/ports/readPorts';
+import { ReadPortData } from '@utils/Storage/DBCalls/ports/readPorts';
 import { SuperportData } from '@utils/Storage/DBCalls/ports/superPorts';
 import * as storageMyPorts from '@utils/Storage/myPorts';
 import * as storagePermissions from '@utils/Storage/permissions';
 import * as storageReadPorts from '@utils/Storage/readPorts';
 import * as storageSuperPorts from '@utils/Storage/superPorts';
-import {hasExpired} from '@utils/Time';
+import { hasExpired } from '@utils/Time';
 
 import { ContactPort } from './ContactPorts/ContactPort';
 import { GroupPort } from './GroupPorts/GroupPort';
@@ -29,9 +30,8 @@ import {
   GroupSuperportBundle,
   PortBundle,
 } from './interfaces';
-import {Port} from './SingleUsePorts/Port';
-import {SuperPort} from './SuperPorts/SuperPort';
-
+import { Port } from './SingleUsePorts/Port';
+import { SuperPort } from './SuperPorts/SuperPort';
 
 /**
  * Checks if a scanned/clicked raw string is a valid port QR or link
@@ -39,31 +39,77 @@ import {SuperPort} from './SuperPorts/SuperPort';
  * @returns - valid bundle
  */
 export function checkBundleValidity(
-  rawString: string | Record<string, string | number>,
-):
-  | PortBundle
-  | GroupBundle
-  | DirectSuperportBundle
-  | GroupSuperportBundle
-  | DirectContactPortBundle {
-  const bundle =
-    typeof rawString === 'string' ? JSON.parse(rawString) : rawString;
+  rawString: string | any,
+): PortBundle | GroupBundle | DirectSuperportBundle | GroupSuperportBundle | DirectContactPortBundle {
+  try {
+    const bundle =
+      typeof rawString === 'string' ? JSON.parse(rawString) : rawString;
+    console.log('Bundle: ', bundle);
+    if (!bundle) {
+      throw new Error('Bundle not found');
+    }
+    if (typeof bundle.target !== 'number') {
+      throw new Error('Bundle target not of valid type');
+    }
+    switch (bundle.target) {
+      case BundleTarget.direct:
+        return Port.reader.validateBundle(bundle);
+      case BundleTarget.group:
+        return GroupPort.reader.validateBundle(bundle);
+      case BundleTarget.superportDirect:
+        return SuperPort.reader.validateBundle(bundle);
+      case BundleTarget.contactPort:
+        return ContactPort.reader.validateBundle(bundle);
+      case BundleTarget.superportGroup:
+        return GroupSuperPort.reader.validateBundle(bundle);
+      default:
+        throw new Error('Bundle target not supported');
+    }
+  } catch (error) {
+    console.error('Error validating bundle: ', error);
+    throw new Error('Invalid bundle');
+  }
+}
 
-  if (bundle.org !== 'numberless.tech') {
-    throw new Error('Organisation data incorrect');
+/**
+ * Accepts a port bundle and stores it.
+ * @param bundle
+ * @param permissions
+ * @param folderId
+ */
+export async function acceptBundle(
+  bundle:
+    | PortBundle
+    | GroupBundle
+    | DirectSuperportBundle
+    | GroupSuperportBundle
+    | DirectContactPortBundle,
+  permissions: PermissionsStrict = defaultPermissions,
+  folderId: string = defaultFolderId,
+) {
+  try {
+    switch (bundle.target) {
+      case BundleTarget.direct:
+        await Port.reader.accept(bundle as PortBundle, permissions, folderId);
+        break;
+      case BundleTarget.group:
+        await GroupPort.reader.accept(bundle as GroupBundle, permissions, folderId);
+        break;
+      case BundleTarget.superportDirect:
+        await SuperPort.reader.accept(bundle as DirectSuperportBundle, permissions, folderId);
+        break;
+      case BundleTarget.contactPort:
+        await ContactPort.reader.accept(bundle as DirectContactPortBundle, permissions, folderId);
+        break;
+      case BundleTarget.superportGroup:
+        await GroupSuperPort.reader.accept(bundle as GroupSuperportBundle, permissions, folderId);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {
+    console.log('Error accepting bundle: ', error);
   }
-  if (
-    !(
-      bundle.target === BundleTarget.direct ||
-      bundle.target === BundleTarget.group ||
-      bundle.target === BundleTarget.superportDirect ||
-      bundle.target === BundleTarget.superportGroup ||
-      bundle.target === BundleTarget.contactPort
-    )
-  ) {
-    throw new Error('Bundle target not supported');
-  }
-  return bundle;
 }
 
 /**
@@ -71,6 +117,7 @@ export function checkBundleValidity(
  * @param bundle
  * @param channel
  * @param folderId
+ * @deprecated
  */
 export async function readBundle(
   bundle:
@@ -98,7 +145,7 @@ export async function readBundle(
         break;
       case BundleTarget.superportGroup:
         await GroupSuperPort.reader.accept(bundle as GroupSuperportBundle, defaultPermissions, folderId);
-        break;  
+        break;
       default:
         break;
     }
@@ -283,21 +330,21 @@ export type GeneratedPortsAndSuperports = GeneratedPortData | GeneratedSuperport
 export async function getGeneratedPortsAndSuperports(): Promise<GeneratedPortsAndSuperports[]> {
   const generatedPorts = await storageMyPorts.getUsedPorts();
   const superports = await storageSuperPorts.getAllSuperports();
-  
+
   // Combine ports and superports into a single array
   const combinedPorts = [
-    ...generatedPorts.map(port => ({ 
-      ...port, 
+    ...generatedPorts.map(port => ({
+      ...port,
       sortTimestamp: port.usedOnTimestamp,
       isSuperport: false,
     })),
-    ...superports.map(superport => ({ 
-      ...superport, 
+    ...superports.map(superport => ({
+      ...superport,
       sortTimestamp: superport.createdOnTimestamp,
       isSuperport: true,
     }))
   ];
-  
+
   // Sort the combined array by timestamp
   combinedPorts.sort((a, b) => {
     if (!a.sortTimestamp) return 1;

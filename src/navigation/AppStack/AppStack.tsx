@@ -6,6 +6,7 @@ import React from 'react';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import AcceptedDirectChat from '@screens/AcceptDirectChat/AcceptDirectChat';
 import BlockedContacts from '@screens/BlockedContacts/BlockedContacts';
 import { CallContextProvider } from '@screens/Calls/CallContext';
 import IncomingCall from '@screens/Calls/IncomingCall';
@@ -130,6 +131,7 @@ function AppStack() {
             />
             <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
             <Stack.Screen name="ContactPortQRScreen" component={ContactPortQRScreen} />
+            <Stack.Screen name="AcceptDirectChat" component={AcceptedDirectChat} />
           </Stack.Navigator>
         </CallContextProvider>
       </ConnectionModalProvider>

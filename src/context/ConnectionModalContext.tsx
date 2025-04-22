@@ -3,27 +3,25 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  useState,
 } from 'react';
-import {Linking} from 'react-native';
+import { Linking } from 'react-native';
 
-import {useNavigation} from '@react-navigation/native';
-import {Mutex} from 'async-mutex';
+import { useNavigation } from '@react-navigation/native';
+import { Mutex } from 'async-mutex';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 
 import store from '@store/appStore';
 
-import {getBundleFromLink} from '@utils/DeepLinking';
-import {ContentType} from '@utils/Messaging/interfaces';
-import {processReadBundles, readBundle} from '@utils/Ports';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import {addFilePrefix} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import { getBundleFromLink } from '@utils/DeepLinking';
+import { ContentType } from '@utils/Messaging/interfaces';
+import { acceptBundle, processReadBundles } from '@utils/Ports';
+import { BundleTarget } from '@utils/Storage/DBCalls/ports/interfaces';
+import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
+import { addFilePrefix } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 
 type ModalContextType = {
-  linkUseError: number;
-  setLinkUseError: (x: number) => void;
-  connectOverURL: ({url}: {url: string}) => Promise<void>;
+  connectOverURL: ({ url }: { url: string }) => Promise<void>;
 };
 
 const ConnectionModalContext = createContext<ModalContextType | undefined>(
@@ -48,10 +46,6 @@ type ModalProviderProps = {
 export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   children,
 }) => {
-  // 0 - no error
-  // 1 - no internet error
-  // 2 - no bundle found at link error
-  const [linkUseError, setLinkUseError] = useState(0);
 
   const navigation = useNavigation<any>();
 
@@ -82,7 +76,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
     }
 
     // If we are here, we must be sharing files
-    const filesToShare: {contentType: ContentType; data: FileAttributes}[] = []; // Output buffer for adapted file data
+    const filesToShare: { contentType: ContentType; data: FileAttributes }[] = []; // Output buffer for adapted file data
     // Adapt the files to a format that we can work conveniently with
     for (const file of files) {
       // Do file name, path and type wrangling shenanigans
@@ -98,9 +92,9 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
         contentType: imageRegex.test(file.mimeType)
           ? ContentType.image
           : videoRegex.test(file.mimeType)
-          ? ContentType.video
-          : ContentType.file,
-        data: {...payloadFile},
+            ? ContentType.video
+            : ContentType.file,
+        data: { ...payloadFile },
       };
       filesToShare.push(msg);
     }
@@ -152,7 +146,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       if (navigate) {
         navigation.navigate('AppStack', {
           screen: 'HomeTab',
-          params: {screen: 'Home'},
+          params: { screen: 'Home' },
         });
       }
 
@@ -174,34 +168,36 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       linkMutex.release();
 
       // Extract the bundle from a URL
-      const bundle = await getBundleFromLink({url: url});
-      console.log('read bundle: ', bundle);
-      // Add the bundle to the list of read bundles and use ALL bundles read so far
-      await readBundle(bundle);
-      store.dispatch({
-        type: 'PING',
-        payload: 'PONG',
-      });
-      await processReadBundles();
-      return;
-    } catch (error: any) {
-      if (typeof error === 'object' && error.response) {
-        if (error.response.status === 404) {
-          setLinkUseError(2);
-          return;
-        }
-        setLinkUseError(1);
-        return;
+      const bundle = await getBundleFromLink({ url: url });
+      if (bundle.target === BundleTarget.direct || bundle.target === BundleTarget.superportDirect || bundle.target === BundleTarget.contactPort) {
+        navigation.navigate('AppStack', {
+          screen: 'AcceptDirectChat',
+          params: { bundle: bundle},
+        });
+      } else {
+        await acceptBundle(bundle);
+        store.dispatch({
+          type: 'PING',
+          payload: 'PONG',
+        });
+        //try to use read bundles
+        await processReadBundles();
+        //navigate to home screen
+        navigation.navigate('AppStack', {
+          screen: 'HomeTab',
+          params: { screen: 'Home' },
+        });
       }
-      setLinkUseError(1);
+    } catch (error: any) {
+      console.error('Error connecting over URL:', error);
     }
   };
   /**
    * Connect over a URL with a ddebouncer to prevent multiple connections
    * @param param0
    */
-  const connectOverSecondaryURL = async ({url}: {url: string}) => {
-    await connectOverURL({url});
+  const connectOverSecondaryURL = async ({ url }: { url: string }) => {
+    await connectOverURL({ url });
   };
 
   /**
@@ -216,7 +212,7 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
       return;
     }
     if (initialURL) {
-      connectOverURL({url: initialURL, navigate: false});
+      connectOverURL({ url: initialURL, navigate: false });
     }
   };
   // Handle any potential deeplinks while foregrounded/backgrounded
@@ -233,8 +229,6 @@ export const ConnectionModalProvider: React.FC<ModalProviderProps> = ({
   return (
     <ConnectionModalContext.Provider
       value={{
-        linkUseError: linkUseError,
-        setLinkUseError: setLinkUseError,
         connectOverURL: connectOverURL,
       }}>
       {children}

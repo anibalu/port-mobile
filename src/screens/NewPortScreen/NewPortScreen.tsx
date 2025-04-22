@@ -1,5 +1,5 @@
 // import TagCard from '@components/Reusable/Cards/TagCard';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   AppState,
   AppStateStatus,
@@ -8,36 +8,37 @@ import {
   View,
 } from 'react-native';
 
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
-import {useColors} from '@components/colorGuide';
-import {GradientScreenView} from '@components/GradientScreenView';
+import { useColors } from '@components/colorGuide';
+import { GradientScreenView } from '@components/GradientScreenView';
 import ExpandableLocalPermissionsCard from '@components/PermissionsCards/ExpandableLocalPermissionsCard';
 import PortLabelAndLimitCard from '@components/Reusable/PortLabelAndLimit/PortLabelAndLimitCard';
-import {Spacing} from '@components/spacingGuide';
+import { Spacing } from '@components/spacingGuide';
 import TopBarDescription from '@components/Text/TopBarDescription';
 
-import {defaultFolderId, defaultPermissions} from '@configs/constants';
+import { defaultFolderId, defaultPermissions, defaultPermissionsId } from '@configs/constants';
 
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
 
-import {checkNotificationPermission} from '@utils/AppPermissions';
+import { checkNotificationPermission } from '@utils/AppPermissions';
 import { jsonToUrl } from '@utils/JsonToUrl';
 import { Port } from '@utils/Ports/SingleUsePorts/Port';
 import { SuperPort } from '@utils/Ports/SuperPorts/SuperPort';
 import { getProfileName } from '@utils/Profile';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
+import { getPermissions } from '@utils/Storage/permissions';
 
 import { ToastType, useToast } from 'src/context/ToastContext';
 
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewPortScreen'>;
 
-const NewPortScreen = ({navigation}: Props) => {
+const NewPortScreen = ({ navigation }: Props) => {
   console.log('[Rendering NewPortScreen]');
   const color = useColors();
-  const {showToast} = useToast();
+  const { showToast } = useToast();
   // sets port resuable status
   const [portReusable, setPortReusable] = useState<boolean>(false);
   // sets name/label of the port
@@ -64,6 +65,8 @@ const NewPortScreen = ({navigation}: Props) => {
 
   // Define the permission check function with useCallback
   const checkPermissions = useCallback(async () => {
+    const permissions = await getPermissions(defaultPermissionsId);
+    setPermissions(permissions);
     const notificationPermission = await checkNotificationPermission();
     setNotificationPermission(notificationPermission);
     console.log('Checked permissions, status:', notificationPermission);

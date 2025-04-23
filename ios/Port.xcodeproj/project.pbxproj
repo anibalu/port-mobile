@@ -44,6 +44,7 @@
 		AD941C7B2DA4579600163C84 /* commonrand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD941C642DA4579600163C84 /* commonrand.cpp */; };
 		AD941C7C2DA4579600163C84 /* x25519.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD941C682DA4579600163C84 /* x25519.cpp */; };
 		AD941C7D2DA4579600163C84 /* NativeCryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD941C672DA4579600163C84 /* NativeCryptoModule.cpp */; };
+		ADF3A7562DB8A005000570CB /* pbencrypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADF3A7552DB8A005000570CB /* pbencrypt.cpp */; };
 		ADF5513596814CF58BAB083D /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9BB0D4F5CB1E419FB64571BA /* Rubik-SemiBoldItalic.ttf */; };
 		C35227316CC141E3B4116802 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6CE2419BF3A84F09B2CF2A6E /* Rubik-Light.ttf */; };
 		CADD983D617E48E7BD04523D /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AD1CF344CFCB406EB5AE1240 /* Rubik-Bold.ttf */; };
@@ -449,6 +450,7 @@
 		AD941C662DA4579600163C84 /* encoders.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = encoders.cpp; sourceTree = "<group>"; };
 		AD941C672DA4579600163C84 /* NativeCryptoModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NativeCryptoModule.cpp; sourceTree = "<group>"; };
 		AD941C682DA4579600163C84 /* x25519.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x25519.cpp; sourceTree = "<group>"; };
+		ADF3A7552DB8A005000570CB /* pbencrypt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pbencrypt.cpp; sourceTree = "<group>"; };
 		AFA2CE3A865144AF96BAEAD0 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
 		BA2B26E72BA84A858CDCAD23 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
 		CAA49E3E2C4F21A906190003 /* Pods-Port.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Port.debug.xcconfig"; path = "Target Support Files/Pods-Port/Pods-Port.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1102,6 +1104,7 @@
 		AD941C692DA4579600163C84 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				ADF3A7552DB8A005000570CB /* pbencrypt.cpp */,
 				AD941C622DA4579600163C84 /* aes256.cpp */,
 				AD941C632DA4579600163C84 /* commonhash.cpp */,
 				AD941C642DA4579600163C84 /* commonrand.cpp */,
@@ -1450,6 +1453,7 @@
 				AD941BBB2DA4577A00163C84 /* commonhash.cpp in Sources */,
 				AD941C772DA4579600163C84 /* aes256.cpp in Sources */,
 				AD941C782DA4579600163C84 /* ed25519.cpp in Sources */,
+				ADF3A7562DB8A005000570CB /* pbencrypt.cpp in Sources */,
 				AD941C792DA4579600163C84 /* commonhash.cpp in Sources */,
 				AD941C7A2DA4579600163C84 /* encoders.cpp in Sources */,
 				AD941C7B2DA4579600163C84 /* commonrand.cpp in Sources */,

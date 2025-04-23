@@ -27,7 +27,7 @@ import {
 
 import {useChatContext} from '@screens/GroupChat/ChatContext';
 
-import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
+import { GroupMessageData } from '@utils/Storage/DBCalls/groupMessage';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 import {wait} from '@utils/Time';
 
@@ -57,7 +57,7 @@ const TextComponent = ({
   setEmojiSelected,
   setCounter,
 }: {
-  replyToMessage: LineMessageData | null; // message to be replied to
+  replyToMessage: GroupMessageData | null; // message to be replied to
   text: string;
   setText: (val: string) => void;
   inputRef: any;

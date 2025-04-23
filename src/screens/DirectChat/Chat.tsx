@@ -2,7 +2,6 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   AppState,
   BackHandler,
-  KeyboardAvoidingView,
   Pressable,
   StyleSheet,
   View,
@@ -17,7 +16,8 @@ import {
 } from 'react-native-reanimated';
 import {useSelector} from 'react-redux';
 
-import {isIOS, screen} from '@components/ComponentUtils';
+import {screen} from '@components/ComponentUtils';
+import CustomKeyboardAvoidingView from '@components/CustomKeyboardAvoidingView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
 import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
@@ -310,10 +310,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
               ? Colors.primary.background
               : Colors.primary.surface,
         })}>
-        <KeyboardAvoidingView
-          style={styles.main}
-          behavior={isIOS ? 'padding' : 'height'}
-          keyboardVerticalOffset={isIOS ? 50 : 0}>
+        <CustomKeyboardAvoidingView>
           <Pressable
             style={styles.main}
             onPress={onChatScreenPressed}
@@ -349,7 +346,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
               </View>
             )}
           </Pressable>
-        </KeyboardAvoidingView>
+        </CustomKeyboardAvoidingView>
         <ChatTopbar
           chatTopBarRef={chatTopBarRef}
           isScreenClickable={isScreenClickable}

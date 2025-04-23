@@ -19,9 +19,14 @@ import { SafeAreaView } from '@components/SafeAreaView';
 import { Spacing, Width } from '@components/spacingGuide';
 
 import { OnboardingStackParamList } from '@navigation/OnboardingStack/OnboardingStackTypes';
+import { rootNavigationRef } from '@navigation/rootNavigation';
 
 // import LinkSafron from '@assets/icons/LinkDeepSafron.svg';
 // import ScannerGreen from '@assets/icons/ScannerDarkGreen.svg';
+
+import { checkProfileCreated } from '@utils/Profile';
+import { ProfileStatus } from '@utils/Storage/RNSecure/secureProfileHandler';
+
 import PortLogoWelcomeScreen from '@assets/miscellaneous/PortLogoWelcomeScreen.svg';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Welcome'>;
@@ -29,23 +34,41 @@ type Props = NativeStackScreenProps<OnboardingStackParamList, 'Welcome'>;
 function Welcome({ navigation }: Props) {
   console.log('[Rendering Welcome Screen]');
 
-  //what happens when the user presses "get started".
+  const checkProfileAndNavigate = async (navigateAction: () => void) => {
+    try {
+      const profileStatus = await checkProfileCreated();
+      if (profileStatus === ProfileStatus.created) {
+        console.log('[Welcome Screen] Profile already created. Resetting to AppStack.');
+        rootNavigationRef.reset({ index: 0, routes: [{ name: 'AppStack' }] });
+      } else {
+        navigateAction();
+      }
+    } catch (error) {
+      console.error('[Welcome Screen] Error checking profile:', error);
+      navigateAction();
+    }
+  };
+
   const onPressStandardOnboarding = async () => {
-    navigation.navigate('OnboardingSetupScreen', {});
+    await checkProfileAndNavigate(() => {
+      navigation.push('OnboardingSetupScreen', {});
+    });
   };
 
-  //what happens when the user presses "Received a Port Link".
-  const _onPressCustomOnboardingWithLink = async () => {
-    navigation.push('OnboardingLinkInput');
-  };
+  // //what happens when the user presses "Received a Port Link".
+  // const _onPressCustomOnboardingWithLink = async () => {
+  //   navigation.push('OnboardingLinkInput');
+  // };
 
-  //what happens when the user presses "Received a Port QR".
-  const _onPressCustomOnboardingWithQR = async () => {
-    navigation.push('OnboardingQRScanner');
-  };
+  // //what happens when the user presses "Received a Port QR".
+  // const _onPressCustomOnboardingWithQR = async () => {
+  //   navigation.push('OnboardingQRScanner');
+  // };
 
-  const onBackupPress = () => {
-    navigation.push('RestoreAccount');
+  const onBackupPress = async () => {
+    await checkProfileAndNavigate(() => {
+      navigation.push('RestoreAccount');
+    });
   };
   const colors = useThemeColors('dark');
 

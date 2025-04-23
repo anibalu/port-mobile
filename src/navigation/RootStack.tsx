@@ -1,10 +1,8 @@
 import React, { ReactNode } from 'react';
-import { View } from 'react-native';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
 
-import { Colors } from '@components/colorGuide';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 
 import store from '@store/appStore';
@@ -36,7 +34,6 @@ export function RootStack(): ReactNode {
           headerShown: false,
           orientation: 'portrait',
         }}>
-        <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="OnboardingStack" component={OnboardingStack} />
         <Stack.Screen name="AppStack" component={AppStack} />
       </Stack.Navigator>
@@ -51,8 +48,4 @@ export function RootStack(): ReactNode {
       />
     </>
   );
-}
-
-function SplashScreen(): ReactNode {
-  return <View style={{ flex: 1, backgroundColor: Colors.dark.background }} />;
 }

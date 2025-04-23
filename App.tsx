@@ -43,10 +43,10 @@ import store from './src/store/appStore';
 
 function App(): JSX.Element {
   const appState = useRef(AppState.currentState);
-
   const [profileStatus, setProfileStatus] = useState<ProfileStatus>(
     ProfileStatus.unknown,
   );
+  const [isNavigationReady, setIsNavigationReady] = useState(false);
 
   //checks if profile setup is done
   const readinessChecks = async () => {
@@ -57,7 +57,18 @@ function App(): JSX.Element {
       //can be run asynchronously
       initialiseFCM();
       //checks if profile setup is done
-      setProfileStatus(await checkProfileCreated());
+      let status = await checkProfileCreated();
+      //if profile check failed, retry after a short delay. 
+      //This is to handle the case where the profile might be created but the check fails because of a race condition.
+      if (status === ProfileStatus.failed) {
+        console.warn(
+          'Initial profile check returned failed. Retrying after a short delay...',
+        );
+        await wait(500); // Wait 500ms before retrying
+        status = await checkProfileCreated();
+        console.log('Profile check status after retry:', status);
+      }
+      setProfileStatus(status);
     } catch (error) {
       console.error('Error in readinessChecks', error);
     }
@@ -70,23 +81,31 @@ function App(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (rootNavigationRef.isReady()) {
-      console.log('Navigation ref ready');
-      if (profileStatus !== ProfileStatus.unknown) {
-        if (profileStatus === ProfileStatus.created) {
-          rootNavigationRef.navigate('AppStack');
-        } else if (profileStatus === ProfileStatus.failed) {
-          rootNavigationRef.navigate('OnboardingStack');
-        }
-        wait(300).then(() => {
-          BootSplash.hide({fade: false});
+    // Only proceed if navigation is ready AND profile status is determined
+    if (isNavigationReady && profileStatus !== ProfileStatus.unknown) {
+      console.log('Navigation ready and profile status known, navigating...');
+      if (profileStatus === ProfileStatus.created) {
+        // Reset the stack to AppStack, removing OnboardingStack from history
+        rootNavigationRef.reset({
+          index: 0,
+          routes: [{ name: 'AppStack' }],
+        });
+      } else { // Assuming 'failed' is the only other non-unknown status leading to navigation
+        // Reset the stack to OnboardingStack
+        rootNavigationRef.reset({
+          index: 0,
+          routes: [{ name: 'OnboardingStack' }],
         });
       }
+      // Hide splash screen after navigation logic is decided
+      wait(300).then(() => {
+        BootSplash.hide({ fade: false });
+      });
     } else {
-      console.log('Navigation ref not ready');
+        console.log(`Navigation not ready or profile status unknown (isNavigationReady: ${isNavigationReady}, profileStatus: ${profileStatus})`);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileStatus, rootNavigationRef.isReady()]);
+    // This effect should re-run if either navigation readiness or profile status changes
+  }, [isNavigationReady, profileStatus]);
 
   /**
    * Setup background or foreground operations according to app state.
@@ -123,7 +142,13 @@ function App(): JSX.Element {
           <UpdateStatusProvider>
             <SafeAreaProvider>
               <ToastProvider>
-                <NavigationContainer ref={rootNavigationRef}>
+                <NavigationContainer
+                  ref={rootNavigationRef}
+                  onReady={() => {
+                    console.log('Navigation container reported ready');
+                    setIsNavigationReady(true);
+                  }}
+                  >
                   <RootStack />
                 </NavigationContainer>
                 <Toast />

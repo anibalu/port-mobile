@@ -1,3 +1,5 @@
+import PortMediaUploader from '@utils/Messaging/LargeData/NativeUploader';
+import {getToken} from '@utils/ServerAuth';
 import {
   addFilePrefix,
   deleteFile,
@@ -103,29 +105,13 @@ class LargeDataUpload {
 
   private async s3Upload() {
     this.encryptedTempFilePath = this.checkEncryptedTempFileNotNull();
-    const response = await API.getUploadPresignedUrl();
-    const uploadParams = response.uploadParams;
-    const mediaId = response.mediaId;
-    const url: string | null = uploadParams.url ? uploadParams.url : null;
-    const fields: object | null = uploadParams.fields
-      ? uploadParams.fields
-      : null;
-    if (!url || !fields) {
-      throw new Error('ImproperUploadParams');
-    }
-    const formData = new FormData();
-    Object.entries(fields).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-    await API.s3Upload(
-      this.encryptedTempFilePath,
-      formData,
-      url,
-      this.fileName,
+    console.log('Port Multipart module', PortMediaUploader);
+    this.mediaId = await PortMediaUploader.uploadFile(
+      // This is one of the few instances where we need to remove the 'file://' prefix
+      this.encryptedTempFilePath.replace('file://', ''),
+      await getToken(),
+      5 * 1024 * 1024,
     );
-    if (mediaId) {
-      this.mediaId = mediaId;
-    }
     await this.cleanUpEncryptedTempFile();
   }
 

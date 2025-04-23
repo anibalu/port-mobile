@@ -65,6 +65,10 @@ const MSG_BASE = `${BASE_URL}/messaging`;
 export const MESSAGING_RESOURCE = `${MSG_BASE}/message`;
 export const QUEUE_GET_URL = `${MSG_BASE}/queue`;
 export const LARGE_FILE_PRESIGNED_URL_RESOURCE = `${BASE_URL}/multimedia`;
+export const MULTIPART_BASE = `${LARGE_FILE_PRESIGNED_URL_RESOURCE}/v2`;
+export const MULTIPART_BEGIN = `${MULTIPART_BASE}/begin-multipart`;
+export const MULTIPART_COMPLETE = `${MULTIPART_BASE}/complete-multipart`;
+export const MULTIPART_ABORT = `${MULTIPART_BASE}/abort-multipart`;
 
 /**
  * Superport Endpoints

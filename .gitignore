@@ -83,5 +83,13 @@ yarn-error.log
 !.yarn/sdks
 !.yarn/versions
 
+# Kotlin language server
+**/*kls_database.db
+
+# To audit - autogen-ed android files
+.classpath
+.project
+.settings
+
 # Cursor
 .cursor/

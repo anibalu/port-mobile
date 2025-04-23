@@ -1,5 +1,6 @@
 apply plugin: "com.facebook.react"
 apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
 apply plugin: "org.jetbrains.kotlin.android"
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
@@ -182,6 +183,14 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.12.0'
+    implementation "io.ktor:ktor-client-core:3.0.2"
+    implementation "io.ktor:ktor-client-cio:3.0.2"
+    implementation "io.ktor:ktor-serialization-kotlinx-json:3.0.2"
+    implementation "io.ktor:ktor-client-content-negotiation:3.0.2"
+    implementation "io.ktor:ktor-client-serialization:3.0.2"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0"
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

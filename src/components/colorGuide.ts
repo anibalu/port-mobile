@@ -39,7 +39,7 @@ const CommonColors = {
  */
 const LightColors = {
   background: '#F3F2F7',
-  background2:'#FFFFFF',
+  background2: '#FFFFFF',
   surface: '#FFFFFF',
   surface1: '#FFFFFF',
   surface2: '#FFFFFF',
@@ -63,7 +63,7 @@ const LightColors = {
  */
 const DarkColors = {
   background: '#05070B',
-  background2:'#05070B',
+  background2: '#05070B',
   surface: '#17181C',
   surface1: '#17181C',
   surface2: '#27272B',

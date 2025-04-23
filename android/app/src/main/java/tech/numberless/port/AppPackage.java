@@ -1,4 +1,5 @@
 package tech.numberless.port;
+
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -20,7 +21,7 @@ public class AppPackage implements ReactPackage {
             ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
         modules.add(new CallHelperModule(reactContext));
+        modules.add(new PortMediaUploader(reactContext));
         return modules;
     }
-
 }

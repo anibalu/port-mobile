@@ -66,7 +66,7 @@ export const DEFAULT_GROUP_PROFILE_AVATAR_INFO: FileAttributes = {
   fileType: 'avatar',
 };
 export const MAX_PERMISSION_PRESETS = 5;
-export const SHARED_FILE_SIZE_LIMIT_IN_BYTES = 32 * 1024 * 1024; //32MB limit
+export const SHARED_FILE_SIZE_LIMIT_IN_BYTES = 256 * 1024 * 1024; //256MB limit
 export const FILE_ENCRYPTION_KEY_LENGTH = 160;
 
 export const RECENT_CREATED_SUPERPORT_TIME_LIMIT = 15 * 60 * 1000; //time limit in miliseconds (15 minutes)

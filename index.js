@@ -2,7 +2,7 @@
  * @format
  */
 
-import {AppRegistry,LogBox, Text,TextInput} from 'react-native';
+import {AppRegistry, AppState, LogBox, Text, TextInput} from 'react-native';
 
 import {DEMO_MODE} from '@env';
 
@@ -31,7 +31,9 @@ registerBackgroundMessaging();
 
 // Check if app was launched in the background and conditionally render null if so
 function HeadlessCheck({isHeadless}) {
-  if (isHeadless) {
+  // The following check is a little verbose since the app sometimes gets launched
+  // in the background state and then transitions to the foreground
+  if (isHeadless && AppState.currentState !== 'active') {
     // App has been launched in the background by iOS, ignore
     return null;
   }

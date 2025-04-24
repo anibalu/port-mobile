@@ -7,6 +7,7 @@
 import React, {useEffect, useMemo, useReducer, useState} from 'react';
 import {
   Animated,
+  AppState,
   Easing,
   FlatList,
   KeyboardAvoidingView,
@@ -14,7 +15,7 @@ import {
   View,
 } from 'react-native';
 
-import notifee from '@notifee/react-native';
+import notifee, {EventType} from '@notifee/react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useSelector} from 'react-redux';
@@ -117,20 +118,44 @@ const Home = ({navigation, route}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route.params]);
 
-  notifee.onBackgroundEvent(async ({type, detail}) => {
-    //If data exists for the notification
-    performNotificationRouting(type, detail, navigation);
-  });
-  //Sets up handlers to route notifications
+  /**
+   * Set up handlers for notification events
+   */
   useEffect(() => {
-    const foregroundHandler = notifee.onForegroundEvent(({type, detail}) => {
-      //If data exists for the notification
-      performNotificationRouting(type, detail, navigation);
-    });
+    // On iOS, this is a foreground event
+    if (isIOS) {
+      const unsubscribeNotifeeForegroundListener = notifee.onForegroundEvent(
+        ({type, detail}) => {
+          //If data exists for the notification
+          if (type !== EventType.PRESS || !detail.notification?.data) {
+            console.log('OOps');
+            return;
+          }
+          performNotificationRouting(detail.notification.data, navigation);
+        },
+      );
+      return unsubscribeNotifeeForegroundListener;
+    }
+    // On android, you get the initial notification
+    const appStateListener = AppState.addEventListener(
+      'change',
+      async newAppState => {
+        if (newAppState === 'active') {
+          console.log('Checking');
+          const notificationEvent = await notifee.getInitialNotification();
+          if (!notificationEvent?.notification?.data) {
+            return;
+          }
+          console.log('boo');
+          performNotificationRouting(
+            notificationEvent.notification.data,
+            navigation,
+          );
+        }
+      },
+    );
 
-    return () => {
-      foregroundHandler();
-    };
+    return appStateListener.remove;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -139,8 +164,10 @@ const Home = ({navigation, route}: Props) => {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
-        // Trigger common operations if needed
-        performDebouncedCommonAppOperations();
+        console.log(
+          'initial notification',
+          await notifee.getInitialNotification(),
+        );
         // Parallely update all the significant things
         Promise.allSettled([
           dispatchConnectionAction({
@@ -149,11 +176,9 @@ const Home = ({navigation, route}: Props) => {
           }),
           // Call permissions to set up callkeep
           await initialiseCallKeep(),
-
           resetAppBadge(),
         ]);
       })();
-
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );

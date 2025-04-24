@@ -7,8 +7,6 @@ import notifee, {
   AndroidPerson,
   AndroidStyle,
   AndroidVisibility,
-  EventDetail,
-  EventType,
   Notification,
 } from '@notifee/react-native';
 import axios from 'axios';
@@ -19,12 +17,13 @@ import {PERMISSION_MANAGEMENT_URL} from '@configs/api';
 import {DEFAULT_AVATAR} from '@configs/constants';
 
 import {getToken} from '@utils/ServerAuth';
-import {getConnection} from '@utils/Storage/connections';
+import {
+  getChatIdFromRoutingId,
+  getConnection,
+} from '@utils/Storage/connections';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
-import { getLineData } from '@utils/Storage/lines';
-import { updatePermissions } from '@utils/Storage/permissions';
-
-
+import {getLineData} from '@utils/Storage/lines';
+import {updatePermissions} from '@utils/Storage/permissions';
 
 /**
  * Routes the user to the appropriate chat screen when a notification is pressed
@@ -33,44 +32,58 @@ import { updatePermissions } from '@utils/Storage/permissions';
  * @param navigation - Navigation object to handle screen transitions
  */
 export const performNotificationRouting = async (
-  type: EventType,
-  detail: EventDetail,
+  notificationData: any,
   navigation: any,
 ) => {
   // Only handle notification press events that contain data
-  if (type === EventType.PRESS && detail.notification?.data) {
-    const {chatId, source} = detail.notification.data;
-    // Use chatId if available, otherwise fallback to source
-    const finalChatId = chatId || source;
+  if (!notificationData) {
+    return;
+  }
+  const {chatId, source} = notificationData;
+  console.log(chatId, source);
 
-    if (finalChatId) {
-      try {
-        const chatIdAsString = finalChatId as string;
-        const connection = await getConnection(chatIdAsString);
-
-        // Route to appropriate chat screen based on connection type
-        if (connection.connectionType === ChatType.group) {
-          // todo:navigation see whats going on
-          navigation.navigate('GroupChat', {
-            chatId: connection.chatId,
-            isConnected: !connection.disconnected,
-            profileUri: connection.pathToDisplayPic || DEFAULT_AVATAR,
-            name: connection.name,
-          });
-        } else {
-          // todo:navigation see whats going on
-          navigation.navigate('DirectChat', {
-            chatId: connection.chatId,
-            isConnected: !connection.disconnected,
-            profileUri: connection.pathToDisplayPic || DEFAULT_AVATAR,
-            name: connection.name,
-            isAuthenticated: connection.authenticated,
-          });
-        }
-      } catch (error) {
-        console.error('Error routing notification to chat: ', error);
-      }
+  // Use chatId if available, otherwise fallback to source
+  let finalChatId: string;
+  if (chatId) {
+    finalChatId = chatId as string;
+  } else if (source) {
+    const x = await getChatIdFromRoutingId(source as string);
+    if (x) {
+      finalChatId = x;
+    } else {
+      return;
     }
+  } else {
+    // Could not get the chatId
+    return;
+  }
+  let connection;
+  try {
+    connection = await getConnection(finalChatId);
+  } catch {
+    // Could not find the connection proposed
+    console.log('Could not get the right chatId');
+    return;
+  }
+  if (connection.connectionType === ChatType.group) {
+    navigation.navigate('GroupChat', {
+      chatId: connection.chatId,
+      isConnected: !connection.disconnected,
+      profileUri: connection.pathToDisplayPic || DEFAULT_AVATAR,
+      name: connection.name,
+    });
+    return;
+  }
+  if (connection.connectionType === ChatType.direct) {
+    navigation.navigate('DirectChat', {
+      chatId: connection.chatId,
+      isConnected: !connection.disconnected,
+      profileUri: connection.pathToDisplayPic || DEFAULT_AVATAR,
+      name: connection.name,
+      isAuthenticated: connection.authenticated,
+    });
+    return;
+    // Unkown chat type
   }
 };
 
@@ -267,20 +280,33 @@ export async function setRemoteNotificationPermissionsForChats(
  * @param chatId - direct chat to set the permission for.
  * @param notificationState - whether the permission is enabled.
  */
-export async function setRemoteNotificationPermissionForDirectChat(lineId: string, notificationState: boolean, fallbackState?: boolean) {
+export async function setRemoteNotificationPermissionForDirectChat(
+  lineId: string,
+  notificationState: boolean,
+  fallbackState?: boolean,
+) {
   const lineData = await getLineData(lineId);
   try {
     if (lineData) {
       await setRemoteNotificationPermissionsForChats(notificationState, [
         {id: lineId, type: 'line'},
       ]);
-      await updatePermissions(lineData.permissionsId, { notifications: notificationState });
+      await updatePermissions(lineData.permissionsId, {
+        notifications: notificationState,
+      });
     }
   } catch (error) {
-    console.log('Error setting remote notification permission for direct chat: ', error);
-    console.log('updating permissions to fallback state for direct chat based on this failure');
+    console.log(
+      'Error setting remote notification permission for direct chat: ',
+      error,
+    );
+    console.log(
+      'updating permissions to fallback state for direct chat based on this failure',
+    );
     if (lineData?.permissionsId && fallbackState !== undefined) {
-      await updatePermissions(lineData.permissionsId, { notifications: fallbackState });
+      await updatePermissions(lineData.permissionsId, {
+        notifications: fallbackState,
+      });
     }
   }
 }

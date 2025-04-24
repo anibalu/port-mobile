@@ -117,14 +117,13 @@ const Home = ({navigation, route}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route.params]);
 
+  notifee.onBackgroundEvent(async ({type, detail}) => {
+    //If data exists for the notification
+    performNotificationRouting(type, detail, navigation);
+  });
   //Sets up handlers to route notifications
   useEffect(() => {
     const foregroundHandler = notifee.onForegroundEvent(({type, detail}) => {
-      //If data exists for the notification
-      performNotificationRouting(type, detail, navigation);
-    });
-
-    notifee.onBackgroundEvent(async ({type, detail}) => {
       //If data exists for the notification
       performNotificationRouting(type, detail, navigation);
     });

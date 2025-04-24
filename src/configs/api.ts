@@ -101,3 +101,10 @@ export const GROUP_SUPERPORT_LIMIT_MODIFICATION = `${SUPERPORT_BASE}/group/limit
 export const GROUP_SUPERPORT_PAUSE = `${SUPERPORT_BASE}/group/pause`;
 export const GROUP_SUPERPORT_RESUME = `${SUPERPORT_BASE}/group/resume`;
 export const GROUP_SUPERPORT_JOIN = `${GROUP_BASE}/member/from-superport`;
+
+/**
+ * Manage sentry.
+ * The DSN is not a secret, hence it is commited here, but we only turn it on for production builds
+ */
+export const SENTRY_DSN: undefined | string = undefined;
+// 'https://b06689ca28703b50361e8b27e567de03@o4508929164509184.ingest.de.sentry.io/4508993909948496';

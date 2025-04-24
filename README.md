@@ -83,3 +83,28 @@ Notes:
 
 - As a limitation of `react-native-dotenv`, these environment variables are available only to the JavaScript layer, not native modules. Should we wish to bridge that gap, we need to migrate to `react-native-config`.
 - Modifying these environment variables _will not trigger a live reload_. You will have to restart Metro.
+
+## Building and releasing to production
+
+To build for production, you need access to the following:
+
+1. credentials to our `eas` account. This will grant access to profiles and keys we use to sign builds with. Reach out to Abhi for this.
+1. A `sentry.properties` file, to be placed both in `android/` and `ios/`. Reach out to Abhi for access to the Sentry account if you don't already have it, and follow instructions to generate the file.
+
+### Preparation
+
+In our api.ts file, replace staging/dev with `uat.numberless.tech`. Additionally you want to enable sentry logging, so replace undifned with the commented out URL right below it. Don't worry, this URL is not a secret, the `sentry.properties` file is.
+
+### Android
+
+The command to build for android is: `% eas build --local --platform=android`. This will run locally and may prompt you to log into the eas account. At the end of this, you will have a `.aab` file in the top level of the project.
+
+To publish the app, log into the Play Console for the developer account and proceed with the steps outlined there. For access, reach out to Abhi.
+
+### iOS
+
+The command to build for iOS is `% eas build --local --platform=ios`. This will run locally and may prompt you to enter credentials to both your eas account, and apple developer account. If you don't have a developer account, reach out to Abhi (this is a theme...). At the end of this, you will have a `.ipa` file at the top level of the project.
+
+To publish, first install transporter from the App Store. Ensure the publisher is verified to be apple themselves. Sign in, and then upload the generated `.ipa` file. Follow instructions, to submit to App Store Connect. When complete, log into App Store Connect and go to the testflight tab. You may need to complete some compliance. If the app hasn't appeared yet, wait. You will get an email as to whether the upload succeded or failed. It occasionally takes forever.
+
+_Note: `.ipa` and `.aab` files are ignored by git. We don't want to commit them._

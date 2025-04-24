@@ -2291,6 +2291,29 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNSentry (6.11.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Sentry/HybridSDK (= 8.49.0)
+    - Yoga
   - RNShare (12.0.9):
     - DoubleConversion
     - glog
@@ -2378,6 +2401,7 @@ PODS:
     - Yoga
   - RNVoipPushNotification (3.3.2):
     - React-Core
+  - Sentry/HybridSDK (8.49.0)
   - SocketRocket (0.7.1)
   - VisionCamera (4.6.4):
     - VisionCamera/Core (= 4.6.4)
@@ -2499,6 +2523,7 @@ DEPENDENCIES:
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
@@ -2521,6 +2546,7 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - React-Codegen
+    - Sentry
     - SocketRocket
     - ZXingObjC
 
@@ -2734,6 +2760,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   RNShare:
     :path: "../node_modules/react-native-share"
   RNSVG:
@@ -2865,10 +2893,12 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 5fdbbaedabc1698dc3bb2a72105fadf63136a451
   RNReanimated: 1132f0ffe1d28ac76a227405ed16f037a6692008
   RNScreens: 0f01bbed9bd8045a8d58e4b46993c28c7f498f3c
+  RNSentry: 3d547a21872d1da3a6b67f34a7b595168f3e021f
   RNShare: 6b1ee93f4fce1346c7c299c3107af20af05120b4
   RNSVG: 8588ee1ca9b2e6fd2c99466e35b3db0e9f81bb40
   RNVectorIcons: 35f87cb42a29fa5229a356c5fb0f3a77c1cb3b1f
   RNVoipPushNotification: 543e18f83089134a35e7f1d2eba4c8b1f7776b08
+  Sentry: 5eda2559a20fa0c377b695ed9d7c178a47122891
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   VisionCamera: b5c2b3c45e641102902a5194af11dc532805221e
   Yoga: 66a9a23a82dd4081b393babe509967097759b3d6

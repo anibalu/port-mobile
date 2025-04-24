@@ -10,17 +10,21 @@ import {AppState} from 'react-native';
 
 import {addEventListener} from '@react-native-community/netinfo';
 import {NavigationContainer} from '@react-navigation/native';
+import * as Sentry from '@sentry/react-native';
 import BootSplash from 'react-native-bootsplash';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Provider} from 'react-redux';
-
 
 import Toast from '@components/Modals/Toast';
 import HardUpdateInfoBlurView from '@components/Reusable/BlurView/HardUpdateInfoBlurView';
 import SoftUpdateInfoBlurView from '@components/Reusable/BlurView/SoftUpdateInfoBlurView';
 
+import {SENTRY_DSN} from '@configs/api';
+
 import {rootNavigationRef} from '@navigation/rootNavigation';
 import {RootStack} from '@navigation/RootStack';
+
+import CriticalError from '@screens/CriticalError';
 
 import {
   backgroundToForegroundOperations,
@@ -41,6 +45,17 @@ import {UpdateStatusProvider} from 'src/context/UpdateStatusContext';
 
 import store from './src/store/appStore';
 
+
+// We only want sentry enabled for production builds.
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+
+    // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+    // spotlight: __DEV__,
+  });
+}
+
 function App(): JSX.Element {
   const appState = useRef(AppState.currentState);
   const [profileStatus, setProfileStatus] = useState<ProfileStatus>(
@@ -58,7 +73,7 @@ function App(): JSX.Element {
       initialiseFCM();
       //checks if profile setup is done
       let status = await checkProfileCreated();
-      //if profile check failed, retry after a short delay. 
+      //if profile check failed, retry after a short delay.
       //This is to handle the case where the profile might be created but the check fails because of a race condition.
       if (status === ProfileStatus.failed) {
         console.warn(
@@ -88,21 +103,24 @@ function App(): JSX.Element {
         // Reset the stack to AppStack, removing OnboardingStack from history
         rootNavigationRef.reset({
           index: 0,
-          routes: [{ name: 'AppStack' }],
+          routes: [{name: 'AppStack'}],
         });
-      } else { // Assuming 'failed' is the only other non-unknown status leading to navigation
+      } else {
+        // Assuming 'failed' is the only other non-unknown status leading to navigation
         // Reset the stack to OnboardingStack
         rootNavigationRef.reset({
           index: 0,
-          routes: [{ name: 'OnboardingStack' }],
+          routes: [{name: 'OnboardingStack'}],
         });
       }
       // Hide splash screen after navigation logic is decided
       wait(300).then(() => {
-        BootSplash.hide({ fade: false });
+        BootSplash.hide({fade: false});
       });
     } else {
-        console.log(`Navigation not ready or profile status unknown (isNavigationReady: ${isNavigationReady}, profileStatus: ${profileStatus})`);
+      console.log(
+        `Navigation not ready or profile status unknown (isNavigationReady: ${isNavigationReady}, profileStatus: ${profileStatus})`,
+      );
     }
     // This effect should re-run if either navigation readiness or profile status changes
   }, [isNavigationReady, profileStatus]);
@@ -136,7 +154,7 @@ function App(): JSX.Element {
   }, []);
 
   return (
-    <>
+    <Sentry.ErrorBoundary fallback={<CriticalError />}>
       <Provider store={store}>
         <ThemeProvider>
           <UpdateStatusProvider>
@@ -147,8 +165,7 @@ function App(): JSX.Element {
                   onReady={() => {
                     console.log('Navigation container reported ready');
                     setIsNavigationReady(true);
-                  }}
-                  >
+                  }}>
                   <RootStack />
                 </NavigationContainer>
                 <Toast />
@@ -159,8 +176,8 @@ function App(): JSX.Element {
           </UpdateStatusProvider>
         </ThemeProvider>
       </Provider>
-    </>
+    </Sentry.ErrorBoundary>
   );
 }
 
-export default App;
+export default Sentry.wrap(App);

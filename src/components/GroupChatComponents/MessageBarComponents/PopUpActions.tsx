@@ -28,7 +28,6 @@ const PopUpActions = ({
   chatId,
 }: {
   togglePopUp: () => void;
-  isGroupChat: boolean;
   chatId: string;
 }) => {
   const navigation = useNavigation();

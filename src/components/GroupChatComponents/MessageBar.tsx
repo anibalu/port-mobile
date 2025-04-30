@@ -17,10 +17,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
+import {isIOS, screen} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {extractLink} from '@components/GroupMessageBubbles/BubbleUtils';
 import {ReplyBubbleMessageBar} from '@components/GroupMessageBubbles/ReplyBubble';
+import { Spacing, Width } from '@components/spacingGuide';
 
 import {useChatContext} from '@screens/GroupChat/ChatContext';
 import {
@@ -48,7 +49,6 @@ const MessageBar = ({
 }): ReactNode => {
   const {
     chatId,
-    isGroupChat,
     replyToMessage,
     setReplyToMessage,
     clearEverything,
@@ -294,17 +294,7 @@ const MessageBar = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [microphoneClicked]);
-  const [emojiSelected, setEmojiSelected] = useState('');
-  // to render emojis in text input correctly
-  const [counter, setCounter] = useState(0);
-  useMemo(() => {
-    // if emoji is selected,
-    // add it to text
-    if (emojiSelected) {
-      setText(text + emojiSelected);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [counter]);
+
 
   useMemo(() => {
     // close microphone tab is reply bubble is visible
@@ -356,7 +346,6 @@ const MessageBar = ({
         {!microphoneClicked && (
           <TextComponent
             chatId={chatId}
-            isGroupChat={isGroupChat}
             replyToMessage={replyToMessage}
             setText={setText}
             text={text}
@@ -364,8 +353,6 @@ const MessageBar = ({
             onPressSend={onPressSend}
             setMicrophoneClicked={setMicrophoneClicked}
             showPreview={showPreview}
-            setCounter={setCounter}
-            setEmojiSelected={setEmojiSelected}
           />
         )}
       </View>
@@ -378,24 +365,21 @@ const styling = (colors: any) =>
     textInputContainer: {
       flexDirection: 'row',
       backgroundColor: colors.primary.surface,
-      width: '100%',
-      paddingTop: PortSpacing.tertiary.top,
-      paddingBottom: isIOS
-        ? PortSpacing.intermediate.bottom
-        : PortSpacing.medium.bottom,
+      width: Width.screen,
+      paddingTop: Spacing.s,
+      paddingBottom: isIOS ? Spacing.xl : Spacing.l,
       alignItems: 'center',
       borderTopColor: colors.primary.stroke,
       borderTopWidth: 1,
-      marginBottom: isIOS ? -16 : 0,
     },
     topElementWrapper: {
-      marginLeft: PortSpacing.secondary.left,
       backgroundColor: colors.primary.surface2,
-      paddingHorizontal: 8,
-      borderTopLeftRadius: 24,
-      borderTopRightRadius: 24,
-      width: screen.width - 80,
-      paddingTop: 8,
+      paddingHorizontal: Spacing.xs,
+      marginLeft: Spacing.s,
+      marginRight: Spacing.s + 40 + Spacing.xs,
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      paddingTop: Spacing.xs,
     },
     linkPreviewWrapper: {
       backgroundColor: colors.primary.background,

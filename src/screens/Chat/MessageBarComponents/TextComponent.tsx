@@ -278,12 +278,10 @@ const TextComponent = ({
               />
             )}
           </>
-          {replyToMessage || showPreview ? (
+          {(replyToMessage || showPreview) && (
             <Pressable onPress={onPlusPressed} hitSlop={24}>
               <Plus />
             </Pressable>
-          ) : (
-            <></>
           )}
         </View>
 

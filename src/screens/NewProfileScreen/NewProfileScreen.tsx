@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import DeviceInfo from 'react-native-device-info';
 import { useSelector } from 'react-redux';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
@@ -308,6 +309,7 @@ const NewProfileScreen = ({ navigation }: Props) => {
               theme={colors.theme}
             />
           </View>
+          <NumberlessText textColor={colors.text.subtitle}>Version: {DeviceInfo.getReadableVersion()}</NumberlessText>
         </ScrollView>
         <EditAvatar
           localImageAttr={profilePicAttr}
@@ -351,6 +353,7 @@ const styling = (colors: any) =>
     },
     bottomContainer: {
       width: '100%',
+      paddingVertical: Spacing.m
     },
     row: {
       flexDirection: 'row',

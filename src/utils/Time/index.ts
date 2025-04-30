@@ -280,7 +280,7 @@ export function getDateStamp(isoString: string | undefined): string {
         .toLocaleString(undefined, {weekday: 'long'})
         .split(' ')
         .at(0) as string
-    ).slice(0, -1);
+    );
   }
   // Check this year
   cmpDate = new Date();

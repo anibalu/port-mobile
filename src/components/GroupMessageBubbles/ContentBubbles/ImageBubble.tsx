@@ -239,7 +239,5 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
     borderRadius: 12,
-    paddingBottom: PortSpacing.tertiary.bottom,
-    paddingRight: PortSpacing.tertiary.right,
   },
 });

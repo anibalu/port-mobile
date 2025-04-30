@@ -9,13 +9,15 @@ export const NAME_LENGTH_LIMIT = 30;
 export const MIN_NAME_LENGTH = 1;
 export const PAGINATION_LIMIT = 60;
 export const ARTIFICIAL_LOADER_INTERVAL = 300;
-export const TOKEN_VALIDITY_INTERVAL = 4 * 60 * 1000;
+export const TOKEN_EXPIRY_TIME_BUFFER = 10 * 60 * 1000;
 export const IDEAL_UNUSED_PORTS_NUMBER = 5;
 export const DEFAULT_NAME = 'New contact';
 export const DEFAULT_GROUP_NAME = 'New group';
 export const DEFAULT_GROUP_MEMBER_NAME = 'Unknown member';
 export const GROUP_MEMBER_LIMIT = 64;
 export const APP_VERSION = '1.0';
+export const SLK_EXPIRY_TIME_BUFFER = 1 * 60 * 60 * 1000; // 1 hour
+//                            hours * minutes * seconds * 1000
 
 //versions
 export const CURRENT_PORT_VERSION = '1.0.0';

@@ -31,7 +31,6 @@ export const BUG_REPORTING_ENDPOINT = `${BASE_URL}/bugs`;
 const MGMT_BASE = `${BASE_URL}/management`;
 export const POLICY_ACCEPTANCE = `${MGMT_BASE}/policy-acceptance`;
 export const INITIAL_POST_MANAGEMENT_RESOURCE = `${MGMT_BASE}/user`;
-export const AUTH_SERVER_CHALLENGE_RESOURCE = `${BASE_URL}/auth/user`;
 export const PERMISSION_MANAGEMENT_URL = `${MGMT_BASE}/permissions`;
 
 /**
@@ -94,6 +93,13 @@ export const CONTACT_SHARING_RESUME = `${CONTACT_BASE}/resume`;
 export const CALL_PERMISSIONS_MANAGEMENT = `${MGMT_BASE}/call-permissions`;
 
 /**
+ * Auth Endpoints
+ */
+// export const AUTH_SERVER_CHALLENGE_RESOURCE = `${BASE_URL}/auth/user`;
+export const AUTH_SERVER_CHALLENGE_V2_RESOURCE = `${BASE_URL}/auth/v2/user`;
+export const AUTH_SERVER_SUBMIT_KEY_RESOURCE = `${BASE_URL}/auth/user/submit_key`;
+
+/*
  * Group Superport Endpoints
  */
 export const GROUP_SUPERPORT_CREATION_DELETION = `${SUPERPORT_BASE}/group`;

@@ -84,3 +84,6 @@ export const cryptoDir = '/crypto';
  */
 export const sessionKey = 'PORT_USER_SESSION_KEY';
 export const tokenKey = 'PORT_TOKEN_KEY';
+
+// Key to store Short Lived Key
+export const SLKey = 'SLK_PRI';

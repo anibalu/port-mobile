@@ -1,66 +1,115 @@
-import {signMessage} from '@utils/Crypto/ed25519';
+import {
+  SLK_EXPIRY_TIME_BUFFER,
+  TOKEN_EXPIRY_TIME_BUFFER,
+} from '@configs/constants';
+
+import {generateKeys,signMessage} from '@utils/Crypto/ed25519';
 import {
   SavedServerAuthToken,
   ServerAuthToken,
 } from '@utils/Storage/RNSecure/secureTokenHandler';
+import {
+  ShortLivedKey,
+  ShortLivedKeyExpiryWithTokenExpiry,
+} from '@utils/Storage/RNSecure/ShortLivedKeyHandler';
 
-import {TOKEN_VALIDITY_INTERVAL} from '../../configs/constants';
 import {getProfileInfo} from '../Profile';
 import {readAuthToken, saveAuthToken} from '../Storage/authToken';
+import {readShortLivedKey, saveShortLivedKey} from '../Storage/shortLivedKey';
 import {connectionFsSync} from '../Synchronization';
-import {checkTimeout, generateISOTimeStamp} from '../Time';
 
 import * as API from './APICalls';
+
 
 // global object to cache auth token so that it doesn't have to be repeatedly read from storage.
 let cachedToken: SavedServerAuthToken | undefined;
 
 /**
- * Steps to authenticate oneself to the server:
- * 1. make sure client's public key is posted to server
- * 2. Request authentication challenge string
- * 3. sign authentication challenge string using private key
- * 4. Server verifies the signed challenge.
- * 5. If verification succeeds, server issues an authentication token valid for a small interval. After this, another token needs to be requested using the above steps.
- */
-
-/**
  * Checks if a server auth token is still valid.
- * @param {string} timestamp - timestamp of when the token was created
- * @param {number} acceptedDuration - how long the server auth token is valid
- * @returns {boolean} - true if token is still valid
+ * @param timestamp - timestamp of when the token was created
+ * @param expiryTimeBuffer - how long the server auth token is valid
+ * @returns true if token is still valid
  */
 function checkAuthTokenTimeout(
   timestamp: string | null | undefined,
-  acceptedDuration: number = TOKEN_VALIDITY_INTERVAL,
+  expiryTimeBuffer: number = TOKEN_EXPIRY_TIME_BUFFER,
 ): boolean {
-  return checkTimeout(timestamp, acceptedDuration);
+  if (!timestamp) {
+    console.log('NoTimestampToCheckTimeout: return expired');
+    return false;
+  }
+  const now = Date.now() + expiryTimeBuffer;
+  if (now > Date.parse(timestamp)) {
+    return false;
+  }
+  return true;
 }
 
 /**
  * Generates new auth token by posting solved authentication challenge.
  * @throws {Error} - If there is an issue fetching new token
- * @returns {ServerAuthToken} - valid token
+ * @returns {ServerAuthToken} - valid token issued by server
  */
-async function generateAndSaveNewAuthToken(): Promise<ServerAuthToken> {
+async function generateAndSaveNewAuthToken(): Promise<ServerAuthToken | undefined> {
+  // read from in memory obj
   const profile = await getProfileInfo();
   if (!profile) {
     throw new Error('NoProfileWhileGetToken');
   }
   const challenge = await API.getNewAuthChallenge(profile.clientId);
-  const encChallenge: string = await signMessage(challenge, profile.privateKey);
-  const token: ServerAuthToken = await API.postSolvedAuthChallenge(
-    profile.clientId,
-    {signedChallenge: encChallenge},
-  );
-  const timestamp = generateISOTimeStamp();
-  const newSavedToken: SavedServerAuthToken = {timestamp, token};
-  //save token to cache
-  cachedToken = newSavedToken;
-  //save token to storage
-  await saveAuthToken(cachedToken);
-  return token;
+  const savedSLK = await readShortLivedKey();
+  if (
+    savedSLK &&
+    checkAuthTokenTimeout(savedSLK.timestamp, SLK_EXPIRY_TIME_BUFFER)
+  ) {
+    //return fresh JWT
+    try {
+      const encChallenge: string = signMessage(challenge, savedSLK.privateKey);
+      cachedToken = await API.postSolvedAuthChallenge(profile.clientId, {
+        signedChallenge: encChallenge,
+      });
+      await saveAuthToken(cachedToken);
+      return cachedToken.token;
+    } catch (error) {
+      console.log('Error while trying to retrieve JWT', error);
+    }
+  } else {
+    //try generating a new ShortLivedKey
+    try {
+      const shortLivedKeys = await generateKeys();
+      const encChallenge: string = signMessage(
+        challenge,
+        profile.privateKey,
+      );
+
+      const response: ShortLivedKeyExpiryWithTokenExpiry =
+        await API.postSolvedAuthChallengeWithShortLivedKey(profile.clientId, {
+          signedChallenge: encChallenge,
+          shortLivedKey: shortLivedKeys.publicKey,
+        });
+
+      const newSLK: ShortLivedKey = {
+        timestamp: response.slk_timestamp,
+        privateKey: shortLivedKeys.privateKey,
+      };
+
+      cachedToken = {
+        timestamp: response.token_timestamp,
+        token: response.token,
+      };
+
+      await saveShortLivedKey(newSLK);
+      await saveAuthToken(cachedToken);
+      return cachedToken.token;
+    } catch (error) {
+      console.log(
+        'Error while trying to perform short lived key mechanism ',
+        error,
+      );
+    }
+  }
 }
+
 
 /**
  * Returns a valid token
@@ -69,7 +118,7 @@ async function generateAndSaveNewAuthToken(): Promise<ServerAuthToken> {
  */
 export async function getToken(): Promise<ServerAuthToken> {
   const synced = async () => {
-    //case1 : no token is cached
+    //case1 : no token in cache
     if (!cachedToken || !cachedToken.timestamp || !cachedToken.token) {
       try {
         //try loading token from file
@@ -77,10 +126,12 @@ export async function getToken(): Promise<ServerAuthToken> {
         if (!savedToken) {
           throw new Error('NoTokenInFile');
         }
-        if (checkAuthTokenTimeout(savedToken.timestamp)) {
+        if (
+          checkAuthTokenTimeout(savedToken.timestamp, TOKEN_EXPIRY_TIME_BUFFER)
+        ) {
           //returns token and updates cache if token is found in file and is still valid.
           cachedToken = savedToken;
-          return cachedToken.token;
+          return savedToken.token;
         } else {
           //throw an error is token is not valid
           throw new Error('TokenExpired');
@@ -93,7 +144,9 @@ export async function getToken(): Promise<ServerAuthToken> {
     } else {
       //case2 : token found in store
       //check validity
-      if (checkAuthTokenTimeout(cachedToken.timestamp)) {
+      if (
+        checkAuthTokenTimeout(cachedToken.timestamp, TOKEN_EXPIRY_TIME_BUFFER)
+      ) {
         //return the token
         return cachedToken.token;
       } else {

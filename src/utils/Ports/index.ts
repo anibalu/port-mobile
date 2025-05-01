@@ -349,8 +349,7 @@ export async function getGeneratedPortsAndSuperports(): Promise<GeneratedPortsAn
   combinedPorts.sort((a, b) => {
     if (!a.sortTimestamp) return 1;
     if (!b.sortTimestamp) return -1;
-    return a.sortTimestamp.localeCompare(b.sortTimestamp);
+    return b.sortTimestamp.localeCompare(a.sortTimestamp);
   });
-
   return combinedPorts;
 }

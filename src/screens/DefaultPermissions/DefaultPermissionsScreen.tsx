@@ -86,6 +86,9 @@ const DefaultPermissionsScreen = ({navigation, route}: Props) => {
     setPermissions(editedPermissions);
     await updatePermissions(defaultPermissionsId, editedPermissions);
     setIsLoading(false);
+    if(!isFromOnboarding) {
+      navigation.goBack();
+    }
   };
 
   //proceeds with the save and checks for notification permission

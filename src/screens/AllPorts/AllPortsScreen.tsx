@@ -67,7 +67,7 @@ const AllPortsScreen = () => {
   return (
     <>
       <CustomStatusBar backgroundColor={Colors.background2} theme={Colors.theme} />
-      <SafeAreaView backgroundColor={Colors.background2} >
+      <SafeAreaView backgroundColor={Colors.background} >
         <GenericTitle title="Ports" />
         <View style={styles.row}>
           <NumberlessText
@@ -152,6 +152,7 @@ const styling = (Colors: any) =>
       paddingBottom: Spacing.l,
       backgroundColor: Colors.background2,
       alignItems: 'center',
+      marginBottom: Spacing.l
     },
     tab: {
       borderRadius: 24,

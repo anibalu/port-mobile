@@ -9,7 +9,6 @@ import {
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import LineSeparator from '@components/Separators/LineSeparator';
 import { Spacing } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 
@@ -140,7 +139,6 @@ const PortsCard = ({
           <></>
         )}
       </View>
-      <LineSeparator gradient1borderColor={Colors.stroke} gradient2borderColor={Colors.stroke} />
       <View style={styles.bottomContainer}>
         <View style={styles.clockContainer}>
           <ClockIcon height={16} width={16} />
@@ -188,6 +186,9 @@ const styling = (colors: any) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
+      borderBottomColor: colors.stroke,
+      borderBottomWidth: 0.5,
+      paddingBottom: Spacing.l
     },
     titleContainer: {
       flexDirection: 'column',
@@ -219,6 +220,7 @@ const styling = (colors: any) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+      paddingTop: Spacing.s
     },
   });
 

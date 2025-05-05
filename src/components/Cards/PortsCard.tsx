@@ -130,7 +130,7 @@ const PortsCard = ({
           <View style={styles.reusableContainer}>
             <ReusableIcon />
             <NumberlessText
-              textColor={Colors.purple}
+              textColor={Colors.text.subtitle}
               fontSizeType={FontSizeType.s}
               fontWeight={FontWeight.rg}>
               Reusable
@@ -213,7 +213,7 @@ const styling = (colors: any) =>
       paddingVertical: Spacing.xs,
       borderRadius: 16,
       gap: Spacing.xs,
-      backgroundColor: colors.lowAccentColors.purple,
+      backgroundColor: colors.surface2,
     },
     bottomContainer: {
       flexDirection: 'row',

@@ -7,6 +7,7 @@ import {
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import { Spacing } from '@components/spacingGuide';
 
 import {LoadedMessage} from '@utils/Storage/DBCalls/lineMessage';
 
@@ -24,7 +25,9 @@ export const DeletedBubble = ({
     <View style={styles.textContainerRow}>
       <View style={styles.textBubbleRowContainer}>
         <NumberlessText
-          style={{color: PortColors.primary.body}}
+          style={{color: PortColors.primary.body,
+            marginRight: Spacing.xl
+          }}
           fontSizeType={FontSizeType.m}
           fontType={FontType.rg}>
           {text}

@@ -327,7 +327,7 @@ const Home = ({navigation, route}: Props) => {
                       </View>
                     }
                     ListFooterComponent={
-                      connections.matching.length > MINIMUM_CONNECTIONS ? (
+                      (connections.matching.length > MINIMUM_CONNECTIONS || connections.filter.length>0) ? (
                         <View style={{height: Height.bottombar}} />
                       ) : (
                         <View style={styles.placeholdercard}>

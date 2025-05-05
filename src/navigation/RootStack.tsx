@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 
+import ReOpenApp from '@screens/ReOpenApp/ReOpenApp';
+
 import store from '@store/appStore';
 import { ConnectionError, ConnectionErrorType } from '@store/connectionErrors';
 
@@ -36,6 +38,7 @@ export function RootStack(): ReactNode {
         }}>
         <Stack.Screen name="OnboardingStack" component={OnboardingStack} />
         <Stack.Screen name="AppStack" component={AppStack} />
+        <Stack.Screen name="ReOpenApp" component={ReOpenApp} />
       </Stack.Navigator>
       <ErrorBottomSheet
         visible={connectionError.errorCode !== ConnectionErrorType.NO_ERROR}

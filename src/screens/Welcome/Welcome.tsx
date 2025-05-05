@@ -2,7 +2,7 @@
  * This welcome screen shows Port branding and greets the user the first time they open the app.
  * UI is updated to latest spec for both android and ios
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -24,16 +24,19 @@ import { rootNavigationRef } from '@navigation/rootNavigation';
 // import LinkSafron from '@assets/icons/LinkDeepSafron.svg';
 // import ScannerGreen from '@assets/icons/ScannerDarkGreen.svg';
 
+import { initialiseFCM } from '@utils/Messaging/PushNotifications/fcm';
 import { checkProfileCreated } from '@utils/Profile';
+import runMigrations from '@utils/Storage/Migrations';
 import { ProfileStatus } from '@utils/Storage/RNSecure/secureProfileHandler';
 
 import PortLogoWelcomeScreen from '@assets/miscellaneous/PortLogoWelcomeScreen.svg';
-
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Welcome'>;
 
 function Welcome({ navigation }: Props) {
   console.log('[Rendering Welcome Screen]');
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingBackup, setIsLoadingBackup] = useState(false);
   const checkProfileAndNavigate = async (navigateAction: () => void) => {
     try {
       const profileStatus = await checkProfileCreated();
@@ -49,10 +52,22 @@ function Welcome({ navigation }: Props) {
     }
   };
 
+  const readinessChecks = async () => {
+    try {
+      await runMigrations();
+      await initialiseFCM();
+    } catch (error) {
+      console.error('[Welcome Screen] Error running readiness checks:', error);
+    }
+  }
+
   const onPressStandardOnboarding = async () => {
+    setIsLoading(true);
+    await readinessChecks();
     await checkProfileAndNavigate(() => {
       navigation.push('OnboardingSetupScreen', {});
     });
+    setIsLoading(false);
   };
 
   // //what happens when the user presses "Received a Port Link".
@@ -66,9 +81,12 @@ function Welcome({ navigation }: Props) {
   // };
 
   const onBackupPress = async () => {
+    setIsLoadingBackup(true);
+    await readinessChecks();
     await checkProfileAndNavigate(() => {
       navigation.push('RestoreAccount');
     });
+    setIsLoadingBackup(false);
   };
   const colors = useThemeColors('dark');
 
@@ -103,7 +121,7 @@ function Welcome({ navigation }: Props) {
             <View style={{ gap: Spacing.s }}>
               <PrimaryButton
                 theme={'dark'}
-                isLoading={false}
+                isLoading={isLoading}
                 color={colors.purple}
                 text={'Get Started'}
                 disabled={false}
@@ -115,7 +133,7 @@ function Welcome({ navigation }: Props) {
               />
               <PrimaryButton
                 theme={'dark'}
-                isLoading={false}
+                isLoading={isLoadingBackup}
                 color={colors.white}
                 text={'Restore from backup'}
                 disabled={false}

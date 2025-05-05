@@ -1,14 +1,16 @@
-import {DEFAULT_NAME,DEFAULT_PROFILE_AVATAR_INFO, NAME_LENGTH_LIMIT} from '@configs/constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {generateKeys} from '@utils/Crypto/ed25519';
-import {pickRandomAvatarId} from '@utils/IdGenerator';
+import { DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO, NAME_LENGTH_LIMIT } from '@configs/constants';
+
+import { generateKeys } from '@utils/Crypto/ed25519';
+import { pickRandomAvatarId } from '@utils/IdGenerator';
 import {
   ProfileInfo,
   ProfileInfoUpdate,
   ProfileStatus,
 } from '@utils/Storage/RNSecure/secureProfileHandler';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
+import { getSafeAbsoluteURI } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
 
 import store from '../../store/appStore';
 import * as storage from '../Storage/profile';
@@ -38,7 +40,7 @@ export async function setupProfile(
     const privateKey = keys.privateKey;
     const publicKey = keys.publicKey;
     //get client Id and server key
-    const {clientId} = await API.submitUserPublicKey(publicKey);
+    const { clientId } = await API.submitUserPublicKey(publicKey);
     //save to cache and storage
     const profile: ProfileInfo = {
       name: name,
@@ -113,7 +115,7 @@ export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
       if (shouldUpdateProfileStore) {
         updateProfileStore();
       }
-      return {...cachedProfile};
+      return { ...cachedProfile };
     }
     //read profile from storage
     const savedProfile: ProfileInfo | undefined =
@@ -126,7 +128,7 @@ export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
       if (shouldUpdateProfileStore) {
         updateProfileStore();
       }
-      return {...cachedProfile};
+      return { ...cachedProfile };
     }
   } catch (error) {
     console.log('error getting profile: ', error);
@@ -136,19 +138,53 @@ export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
 }
 
 /**
- * Checks if profile info exists
+ * Saves the fact that profile exists to async storage.
+ */
+async function markThatProfileExists() {
+  try {
+    await AsyncStorage.setItem('ProfileExists', 'true');
+  } catch (error) {
+    console.log('markThatProfileExists error', error);
+  }
+}
+
+/**
+ * Gets the fact that profile exists from async storage.
+ */
+async function getWhetherProfileExists() {
+  try {
+    const itemString = await AsyncStorage.getItem('ProfileExists');
+    if (itemString) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Checks if profile info exists. 
+ * If it does, it marks that profile exists in async storage.
  * @returns {Promise<ProfileStatus>} - if profile info exists or not
  */
 export async function checkProfileCreated(): Promise<ProfileStatus> {
-  const response = await getProfileInfo();
-  if (response) {
-    if (response.clientId) {
-      return ProfileStatus.created;
-    } else {
-      return ProfileStatus.unknown;
-    }
+  const profileExists = await getWhetherProfileExists();
+  if (profileExists) {
+    return ProfileStatus.created;
   } else {
-    return ProfileStatus.failed;
+    const response = await getProfileInfo();
+    if (response) {
+      if (response.clientId) {
+        await markThatProfileExists();
+        return ProfileStatus.created;
+      } else {
+        return ProfileStatus.unknown;
+      }
+    } else {
+      return ProfileStatus.failed;
+    }
   }
 }
 
@@ -165,7 +201,7 @@ export async function updateProfileInfo(profileUpdate: ProfileInfoUpdate) {
   if (profileUpdate.name) {
     profileUpdate.name = processName(profileUpdate.name);
   }
-  const updatedProfile = {...currentProfile, ...profileUpdate};
+  const updatedProfile = { ...currentProfile, ...profileUpdate };
   console.log('updatedProfile', updatedProfile);
   //update cache and storage
   await storage.saveProfileInfo(updatedProfile);
@@ -178,7 +214,7 @@ export async function updateProfileInfo(profileUpdate: ProfileInfoUpdate) {
  * @param {string} name - new name
  */
 export async function updateProfileName(name: string) {
-  await updateProfileInfo({name: name});
+  await updateProfileInfo({ name: name });
 }
 
 /**
@@ -186,7 +222,7 @@ export async function updateProfileName(name: string) {
  * @param {string} timestamp - new backup time
  */
 export async function updateBackupTime(timestamp: string) {
-  await updateProfileInfo({lastBackupTime: timestamp});
+  await updateProfileInfo({ lastBackupTime: timestamp });
 }
 
 /**
@@ -194,7 +230,7 @@ export async function updateBackupTime(timestamp: string) {
  * @param {FileAttributes} avatar - new avatar
  */
 export async function updateProfileAvatar(avatar: FileAttributes) {
-  await updateProfileInfo({profilePicInfo: avatar});
+  await updateProfileInfo({ profilePicInfo: avatar });
 }
 
 /**
@@ -230,7 +266,7 @@ export async function getProfilePictureUri(): Promise<string> {
  * @returns default avatar file attributes
  */
 export function getDefaultAvatarInfo(): FileAttributes {
-  return {...DEFAULT_PROFILE_AVATAR_INFO};
+  return { ...DEFAULT_PROFILE_AVATAR_INFO };
 }
 
 /**

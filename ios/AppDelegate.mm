@@ -107,18 +107,9 @@ static void ClearKeychainIfNecessary() {
                      restorationHandler:restorationHandler];
 }
 
-
-
-- (UIView *)createRootViewWithBridge:(RCTBridge *)bridge
-                          moduleName:(NSString *)moduleName
-                           initProps:(NSDictionary *)initProps {
-  UIView *rootView = [super createRootViewWithBridge:bridge
-                                          moduleName:moduleName
-                                           initProps:initProps];
-  
-  [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView];
-  
-  return rootView;
+- (void)customizeRootView:(RCTRootView *)rootView {
+  [super customizeRootView:rootView];
+  [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView]; // ⬅️ initialize the splash screen
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *) application {

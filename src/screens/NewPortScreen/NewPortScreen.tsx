@@ -131,8 +131,8 @@ const NewPortScreen = ({ navigation }: Props) => {
           text="Create Port"
           disabled={
             portReusable
-              ? portName.length === 0 || limit <= 0
-              : portName.length === 0
+              ? portName.trim().length === 0 || limit <= 0
+              : portName.trim().length === 0
           }
           isLoading={loading}
           onClick={async () => {
@@ -154,6 +154,7 @@ const NewPortScreen = ({ navigation }: Props) => {
               } catch (error) {
                 console.error('Error fetching port data:', error);
                 showToast('Error creating re-usable port. Check network connection and try again', ToastType.error);
+                setLoading(false);
                 return;
               }
             }
@@ -174,6 +175,7 @@ const NewPortScreen = ({ navigation }: Props) => {
               } catch (error) {
                 console.error('Error fetching port data:', error);
                 showToast('Error creating port. Check network connection and try again', ToastType.error);
+                setLoading(false);
                 return;
               }
             }

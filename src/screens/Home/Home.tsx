@@ -43,6 +43,7 @@ import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
 import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
 import {cleanDeleteReadPort} from '@utils/Ports';
+import { getProfileInfo } from '@utils/Profile';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 import {useTheme} from 'src/context/ThemeContext';
@@ -157,6 +158,13 @@ const Home = ({navigation, route}: Props) => {
 
     return appStateListener.remove;
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      // This is to ensure that the profile is loaded to store the first time the user opens the app
+      await getProfileInfo();
+    })();
   }, []);
 
   // This useFocusEffect asks for permissions that are absolutely necessary in

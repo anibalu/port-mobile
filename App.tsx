@@ -72,17 +72,7 @@ function App(): JSX.Element {
       //can be run asynchronously
       initialiseFCM();
       //checks if profile setup is done
-      let status = await checkProfileCreated();
-      //if profile check failed, retry after a short delay.
-      //This is to handle the case where the profile might be created but the check fails because of a race condition.
-      if (status === ProfileStatus.failed) {
-        console.warn(
-          'Initial profile check returned failed. Retrying after a short delay...',
-        );
-        await wait(500); // Wait 500ms before retrying
-        status = await checkProfileCreated();
-        console.log('Profile check status after retry:', status);
-      }
+      const status = await checkProfileCreated();
       setProfileStatus(status);
     } catch (error) {
       console.error('Error in readinessChecks', error);
@@ -114,7 +104,7 @@ function App(): JSX.Element {
         });
       }
       // Hide splash screen after navigation logic is decided
-      wait(300).then(() => {
+      wait(500).then(() => {
         BootSplash.hide({fade: false});
       });
     } else {

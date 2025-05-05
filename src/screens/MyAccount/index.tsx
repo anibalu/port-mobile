@@ -1,25 +1,25 @@
 import React from 'react';
-import {Pressable, StyleSheet, View} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { useColors } from '@components/colorGuide';
-import {CustomStatusBar} from '@components/CustomStatusBar';
+import { CustomStatusBar } from '@components/CustomStatusBar';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
-import {SafeAreaView} from '@components/SafeAreaView';
+import { SafeAreaView } from '@components/SafeAreaView';
 import { Spacing } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
+import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
 
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AccountSettings'>;
 
-const AccountSettings = ({navigation}: Props) => {
+const AccountSettings = ({ navigation }: Props) => {
   const Colors = useColors();
   const styles = styling(Colors);
 
@@ -37,18 +37,37 @@ const AccountSettings = ({navigation}: Props) => {
 
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.surface}
-      />
-
-      <SafeAreaView style={styles.screen}>
-        <BackTopbar
-          bgColor="w"
+      <CustomStatusBar theme={Colors.theme} backgroundColor={Colors.background} />
+      <SafeAreaView backgroundColor={Colors.background}>
+        <GenericBackTopBar
           onBackPress={() => navigation.goBack()}
-          title="Account Settings"
+          theme={Colors.theme}
+          backgroundColor={Colors.background}
         />
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.mainContainer}>
+          <View style={{ gap: Spacing.m, marginBottom: Spacing.xl }}>
+            <NumberlessText
+              textColor={Colors.text.title}
+              fontWeight={FontWeight.sb}
+              fontSizeType={FontSizeType.es}>
+              {'Account Settings'}
+            </NumberlessText>
+            <NumberlessText
+              textColor={Colors.text.subtitle}
+              fontWeight={FontWeight.rg}
+              fontSizeType={FontSizeType.l}>
+              Port prides itself on not collecting any personally identifying
+              information.
+            </NumberlessText>
+            <NumberlessText
+              textColor={Colors.text.subtitle}
+              fontWeight={FontWeight.rg}
+              fontSizeType={FontSizeType.l}>
+              All sensitive information
+              like your nickname and profile pictuire are stored locally and
+              shared with your connections in an end-to-end encrypted manner.
+            </NumberlessText>
+          </View>
           <Pressable
             onPress={() => navigation.push('DeleteAccount')}
             style={styles.button}>
@@ -60,17 +79,7 @@ const AccountSettings = ({navigation}: Props) => {
             </NumberlessText>
             <GreyAngleRightIcon />
           </Pressable>
-          <NumberlessText
-            style={{marginLeft: Spacing.l}}
-            fontSizeType={FontSizeType.m}
-            fontWeight={FontWeight.rg}
-            textColor={Colors.text.title}>
-            Port prides itself on not collecting any personally identifying
-            information. All sensitive information
-            like your nickname and profile pictuire are stored locally and
-            shared with your connections in an end-to-end encrypted manner.
-          </NumberlessText>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
@@ -78,18 +87,11 @@ const AccountSettings = ({navigation}: Props) => {
 
 const styling = (Colors: any) =>
   StyleSheet.create({
-    screen: {
+    mainContainer: {
       flex: 1,
-      justifyContent: 'space-between',
-      backgroundColor: Colors.black,
-    },
-    content: {
-      flex: 1,
-      flexDirection: 'column',
-      alignContent: 'flex-start',
-      padding: Spacing.m,
-      gap: Spacing.s,
-      backgroundColor: Colors.background,
+      justifyContent: 'flex-start',
+      paddingHorizontal: Spacing.l,
+      paddingBottom: Spacing.l,
     },
     button: {
       backgroundColor: Colors.surface,
@@ -99,7 +101,7 @@ const styling = (Colors: any) =>
       borderRadius: 16,
       paddingHorizontal: Spacing.l,
       alignItems: 'center',
-      borderWidth: 0.5, 
+      borderWidth: 0.5,
       borderColor: Colors.stroke
     },
   });

@@ -1,26 +1,28 @@
-import React, {useRef, useState} from 'react';
-import {ActivityIndicator, Pressable, StyleSheet, TextInput, View} from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import PrimaryButton from '@components/Buttons/PrimaryButton';
 import { useColors } from '@components/colorGuide';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
+import { CustomStatusBar } from '@components/CustomStatusBar';
+import SimpleInput from '@components/Inputs/SimpleInput';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import BackTopbar from '@components/Reusable/TopBars/BackTopBar';
-import { Height, Spacing } from '@components/spacingGuide';
+import { SafeAreaView } from '@components/SafeAreaView';
+import { Spacing } from '@components/spacingGuide';
+import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
 
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
-import {rootNavigationRef} from '@navigation/rootNavigation';
-
-import store from '@store/appStore';
+import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
+import { rootNavigationRef } from '@navigation/rootNavigation';
 
 import permanentlyDeleteAccount from '@utils/AccountDeletion';
+import { deleteProfile } from '@utils/Profile';
+import { clearTokenCache } from '@utils/ServerAuth';
 
 import AlertIcon from '@assets/icons/ErrorAlert.svg';
 
@@ -35,7 +37,7 @@ enum DeletionState {
   completed,
 }
 
-const DeleteAccount = ({navigation}: Props) => {
+const DeleteAccount = ({ navigation }: Props) => {
   const [deletionConfirmationText, setDeletionConfirmationText] =
     useState<string>('');
   const [deletionState, setDeletionState] = useState<DeletionState>(
@@ -43,30 +45,22 @@ const DeleteAccount = ({navigation}: Props) => {
   );
   const Colors = useColors();
   const styles = styling(Colors);
-  const inputRef = useRef(null);
 
   const deleteAccount = async () => {
-    if(inputRef.current){
-      inputRef.current.blur();
-    }
     setDeletionState(DeletionState.ongoing);
     try {
       await permanentlyDeleteAccount();
       setDeletionState(DeletionState.completed);
-      store.dispatch({
-        type: 'DELETE_PROFILE',
-        payload: {},
-      });
+      //clear the profile from store, cache and storage
+      await deleteProfile();
+      //clear cached token
+      await clearTokenCache();
       if (rootNavigationRef.isReady()) {
-
         rootNavigationRef.reset({
           index: 0,
           routes: [
             {
-              name: 'OnboardingStack',
-              params: {
-                screen: 'Welcome',
-              },
+              name: 'ReOpenApp',
             },
           ],
         });
@@ -77,93 +71,71 @@ const DeleteAccount = ({navigation}: Props) => {
     }
   };
 
-  const buttonDisabled =          DELETION_TEXT.toLowerCase() !==
-  deletionConfirmationText.toLocaleLowerCase()
+  const buttonDisabled = DELETION_TEXT.toLowerCase() !==
+    deletionConfirmationText.toLocaleLowerCase()
   return (
     <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.surface}
-      />
-      <GestureSafeAreaView style={styles.screen}>
-        <BackTopbar
-          bgColor="w"
+      <CustomStatusBar theme={Colors.theme} backgroundColor={Colors.background} />
+      <SafeAreaView backgroundColor={Colors.background}>
+        <GenericBackTopBar
           onBackPress={() => navigation.goBack()}
-          title="Delete Account"
+          theme={Colors.theme}
+          backgroundColor={Colors.background}
         />
-
-        <View style={styles.content}>
-          <SimpleCard style={styles.card}>
-            <AlertIcon style={{alignSelf: 'center'}} />
+        <ScrollView contentContainerStyle={styles.mainContainer}>
+          <View style={{ gap: Spacing.m, marginBottom: Spacing.xl }}>
             <NumberlessText
-              style={{alignSelf: 'center'}}
-              fontSizeType={FontSizeType.m}
+              textColor={Colors.text.title}
+              fontWeight={FontWeight.sb}
+              fontSizeType={FontSizeType.es}>
+              {'Delete Account'}
+            </NumberlessText>
+          </View>
+          <SimpleCard style={styles.card}>
+            <AlertIcon style={{ alignSelf: 'center' }} />
+            <NumberlessText
+              style={{ alignSelf: 'center' }}
+              fontSizeType={FontSizeType.l}
               fontWeight={FontWeight.rg}
               textColor={Colors.text.title}>
               This will invalidate any back-ups you have created and delete account info, profile and all of your messages.
             </NumberlessText>
             <NumberlessText
-              fontSizeType={FontSizeType.m}
+              fontSizeType={FontSizeType.l}
               fontWeight={FontWeight.rg}
               textColor={Colors.text.subtitle}>
               To confirm deletion, please type '{DELETION_TEXT}' below
             </NumberlessText>
-            <TextInput
-              style={{
-                color: Colors.text.title,
-                borderWidth: 0.5,
-                borderColor: Colors.stroke,
-                borderRadius: 16,
-                padding:Spacing.s,
-                height: Height.inputBar
-              }}
-              ref={inputRef}
-              placeholderTextColor={Colors.text.subtitle}
-              placeholder={"Type 'DELETE' here"}
-              onChangeText={setDeletionConfirmationText}
-              defaultValue=""
+            <SimpleInput
+              placeholderText={"Type 'DELETE' here"}
+              setText={setDeletionConfirmationText}
+              text={deletionConfirmationText}
               maxLength={32}
             />
           </SimpleCard>
+        </ScrollView>
+        <View style={styles.footer}>
+          <PrimaryButton
+            isLoading={DeletionState.ongoing === deletionState}
+            theme={Colors.theme}
+            text={'Delete Account'}
+            disabled={buttonDisabled}
+            onClick={deleteAccount}
+            color={Colors.red}
+          />
         </View>
-        <View style={styles.button}>
-         
-          <Pressable disabled={
-     buttonDisabled
-            }
-           onPress={deleteAccount} style={buttonDisabled? styles.disabledButton: styles.delete}>
-
-            {DeletionState.ongoing === deletionState? <ActivityIndicator/> :
-            <NumberlessText          
-               fontSizeType={FontSizeType.m}
-              fontWeight={FontWeight.rg}
-              textColor={Colors.text.title}>
-              Delete Account
-            </NumberlessText>
-}
-          </Pressable>
-        </View>
-      
-      </GestureSafeAreaView>
+      </SafeAreaView>
     </>
   );
 };
 
 const styling = (Colors: any) =>
   StyleSheet.create({
-    screen: {
+    mainContainer: {
       flex: 1,
-      justifyContent: 'space-between',
-      backgroundColor: Colors.black,
-    },
-    content: {
-      flex: 1,
-      flexDirection: 'column',
-      alignContent: 'flex-start',
-      padding: Spacing.s,
-      paddingTop:Spacing.xl,
-      gap: Spacing.s,
-      backgroundColor: Colors.background,
+      justifyContent: 'flex-start',
+      paddingHorizontal: Spacing.l,
+      paddingBottom: Spacing.l,
     },
     card: {
       padding: Spacing.l,
@@ -173,13 +145,13 @@ const styling = (Colors: any) =>
       borderColor: Colors.red,
     },
     successcard: {
-      padding:Spacing.s,
+      padding: Spacing.s,
       gap: Spacing.m,
-      paddingVertical:Spacing.m,
+      paddingVertical: Spacing.m,
       alignItems: 'center',
     },
     button: {
-      paddingHorizontal:Spacing.m,
+      paddingHorizontal: Spacing.m,
       backgroundColor: Colors.background,
       paddingVertical: Spacing.l,
     },
@@ -193,14 +165,10 @@ const styling = (Colors: any) =>
       opacity: 0.5,
       backgroundColor: Colors.red
     },
-    delete: {
-      width: '100%',
-      alignItems: 'center',
+    footer: {
+      backgroundColor: Colors.surface,
+      padding: Spacing.l,
       flexDirection: 'row',
-      justifyContent: 'center',
-      borderRadius: 12,
-      height: 50,
-      backgroundColor: Colors.red
     },
 
   });

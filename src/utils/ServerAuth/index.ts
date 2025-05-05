@@ -157,3 +157,7 @@ export async function getToken(): Promise<ServerAuthToken> {
   };
   return await connectionFsSync(synced);
 }
+
+export async function clearTokenCache() {
+  cachedToken = undefined;
+}

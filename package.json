@@ -16,7 +16,7 @@
     "type": "modules",
     "jsSrcsDir": "src/specs",
     "android": {
-      "javaPackageName": "tech.numberless.crypto.specs"
+      "javaPackageName": "tech.numberless.port.specs"
     }
   },
   "dependencies": {
@@ -52,7 +52,6 @@
     "react-native-background-fetch": "^4.2.1",
     "react-native-blob-util": "^0.19.6",
     "react-native-bootsplash": "^6.3.4",
-    "react-native-callkeep": "^4.3.16",
     "react-native-camera-kit": "^14.2.0",
     "react-native-compressor": "^1.11.0",
     "react-native-contacts": "^8.0.4",

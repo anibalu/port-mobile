@@ -1995,8 +1995,6 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNCallKeep (4.3.16):
-    - React
   - RNCAsyncStorage (1.23.1):
     - DoubleConversion
     - glog
@@ -2507,7 +2505,6 @@ DEPENDENCIES:
   - RNAudioRecorderPlayer (from `../node_modules/react-native-audio-recorder-player`)
   - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - RNBootSplash (from `../node_modules/react-native-bootsplash`)
-  - RNCallKeep (from `../node_modules/react-native-callkeep`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
@@ -2728,8 +2725,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-background-fetch"
   RNBootSplash:
     :path: "../node_modules/react-native-bootsplash"
-  RNCallKeep:
-    :path: "../node_modules/react-native-callkeep"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCCheckbox:
@@ -2871,13 +2866,12 @@ SPEC CHECKSUMS:
   React-timing: 1ee3572c398f5579c9df5bf76aacddf5683ff74e
   React-utils: 0cfb7c7fb37d4e5f31cc18ffc7426be0ae6bf907
   ReactAppDependencyProvider: b48473fe434569ff8f6cb6ed4421217ebcbda878
-  ReactCodegen: 3c9ae54c6f011309a989b9309cbbe4b002da8efb
+  ReactCodegen: d0ca6085d405b436559d8424bb51bbf6b1e6a71a
   ReactCommon: 547db015202a80a5b3e7e041586ea54c4a087180
   ReactNativeCameraKit: 8ef8b536516a5d891e14882b3ded35c584d61dbe
   RNAudioRecorderPlayer: 9b34adc281800e5b19258f1b91d889b1ef3abdd6
   RNBackgroundFetch: b6cb89fa8ff0e1d8a245b19caca2944304b95fbf
   RNBootSplash: 1d0409dd59f1417c9427ba5aacdc019194b54d29
-  RNCallKeep: 94bbe46b807ccf58e9f6ec11bc4d6087323a1954
   RNCAsyncStorage: cb52fe44ef589ac407cfe26da409b539354caa9a
   RNCCheckbox: a3ca9978cb0846b981d28da4e9914bd437403d77
   RNCClipboard: f6ac46da875021dd0601899ebbe988445f9e3978

@@ -2,7 +2,7 @@ import {MAX_CALL_ANSWER_WINDOW_SECONDS} from '@configs/constants';
 
 import store from '@store/appStore';
 
-import {displayIncomingCallOSUI} from '@utils/Calls/CallOSBridge';
+import {displayIncomingCall} from '@utils/Calls/CallOSBridge';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {ContentType, MessageStatus} from '@utils/Messaging/interfaces';
 import {LineMessageData} from '@utils/Storage/DBCalls/lineMessage';
@@ -55,7 +55,7 @@ class ReceiveCall extends DirectReceiveAction {
       return;
     }
     // Display the incoming call OS UI
-    displayIncomingCallOSUI(this.chatId, this.message.call_id, remainingTime); // Asynchronously display calling UI
+    displayIncomingCall(this.chatId, this.message.call_id, remainingTime); // Asynchronously display calling UI
     store.dispatch({
       type: 'NEW_CALL',
       payload: {

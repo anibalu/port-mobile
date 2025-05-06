@@ -389,7 +389,6 @@ const Home = ({navigation, route}: Props) => {
         </KeyboardAvoidingView>
         <RoundPlus
           onPress={() => {
-            console.log('pressed');
             setOpenConnectionsBottomsheet(true);
           }}
           style={styles.plusButton}

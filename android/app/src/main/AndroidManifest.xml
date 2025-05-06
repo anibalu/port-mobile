@@ -154,19 +154,13 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity> <!-- CallKeep shenanigans here -->
+        </activity> 
+        <!-- Service for managing audio during calls -->
         <service
-            android:name="io.wazo.callkeep.VoiceConnectionService"
-            android:exported="false"
-            android:foregroundServiceType="camera|microphone"
-            android:label="Wazo"
-            android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
-            <intent-filter>
-                <action android:name="android.telecom.ConnectionService" />
+            android:name=".CallAudioService"
+            android:foregroundServiceType="microphone"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>

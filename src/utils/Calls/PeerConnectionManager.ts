@@ -136,7 +136,7 @@ function createIceConnectionStateChangeListener(
         break;
       case 'disconnected':
       case 'closed':
-        console.log('The peer connection is ended');
+        console.log('PeerConnectionManager: Peer connection closed');
         dispatchWorkItem({
           target: 'coordinator',
           item: 'peer_connection_ended',
@@ -429,6 +429,18 @@ export class PeerConnectionManager {
    */
   getMediaStream(): MediaStream {
     return this.mediaStream;
+  }
+
+  /**
+   * Check if the peer connection is currently active.
+   * @returns True if the connection state is 'connected' or 'completed', false otherwise.
+   */
+  isConnected(): boolean {
+    return (
+      !!this.peerConnection &&
+      (this.peerConnection.iceConnectionState === 'connected' ||
+        this.peerConnection.iceConnectionState === 'completed')
+    );
   }
 
   /**

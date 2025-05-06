@@ -49,6 +49,7 @@
 		AD941C7B2DA4579600163C84 /* commonrand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD941C642DA4579600163C84 /* commonrand.cpp */; };
 		AD941C7C2DA4579600163C84 /* x25519.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD941C682DA4579600163C84 /* x25519.cpp */; };
 		AD941C7D2DA4579600163C84 /* NativeCryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD941C672DA4579600163C84 /* NativeCryptoModule.cpp */; };
+		ADDAE50E2DBAF6CB00DF75EF /* PortCallHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADDAE50C2DBAF6CB00DF75EF /* PortCallHelper.mm */; };
 		ADF3A7562DB8A005000570CB /* pbencrypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADF3A7552DB8A005000570CB /* pbencrypt.cpp */; };
 		ADF5513596814CF58BAB083D /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9BB0D4F5CB1E419FB64571BA /* Rubik-SemiBoldItalic.ttf */; };
 		C35227316CC141E3B4116802 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6CE2419BF3A84F09B2CF2A6E /* Rubik-Light.ttf */; };
@@ -462,6 +463,8 @@
 		AD941C662DA4579600163C84 /* encoders.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = encoders.cpp; sourceTree = "<group>"; };
 		AD941C672DA4579600163C84 /* NativeCryptoModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NativeCryptoModule.cpp; sourceTree = "<group>"; };
 		AD941C682DA4579600163C84 /* x25519.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x25519.cpp; sourceTree = "<group>"; };
+		ADDAE50B2DBAF6CB00DF75EF /* PortCallHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PortCallHelper.h; sourceTree = "<group>"; };
+		ADDAE50C2DBAF6CB00DF75EF /* PortCallHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PortCallHelper.mm; sourceTree = "<group>"; };
 		ADF3A7552DB8A005000570CB /* pbencrypt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pbencrypt.cpp; sourceTree = "<group>"; };
 		AFA2CE3A865144AF96BAEAD0 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
 		BA2B26E72BA84A858CDCAD23 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
@@ -565,6 +568,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				3829492AB80DCA6450648613 /* PrivacyInfo.xcprivacy */,
+				ADDAE50D2DBAF6CB00DF75EF /* PortCallHelper */,
 				0F1818302DB7CC3E0053B66E /* PortMediaUploader */,
 			);
 			name = Port;
@@ -1161,6 +1165,16 @@
 			path = ../shared;
 			sourceTree = SOURCE_ROOT;
 		};
+		ADDAE50D2DBAF6CB00DF75EF /* PortCallHelper */ = {
+			isa = PBXGroup;
+			children = (
+				ADDAE50B2DBAF6CB00DF75EF /* PortCallHelper.h */,
+				ADDAE50C2DBAF6CB00DF75EF /* PortCallHelper.mm */,
+			);
+			name = PortCallHelper;
+			path = Port/PortCallHelper;
+			sourceTree = "<group>";
+		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -1494,6 +1508,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD941AFC2DA4552400163C84 /* AppDelegate.mm in Sources */,
+				ADDAE50E2DBAF6CB00DF75EF /* PortCallHelper.mm in Sources */,
 				AD941AFD2DA4552400163C84 /* main.m in Sources */,
 				AD941BB72DA4577A00163C84 /* x25519.cpp in Sources */,
 				AD941BB82DA4577A00163C84 /* encoders.cpp in Sources */,

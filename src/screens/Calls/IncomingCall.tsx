@@ -8,7 +8,7 @@ import {AppState, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import {isIOS, screen} from '@components/ComponentUtils';
+import {screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import {useInsetChecks} from '@components/DeviceUtils';
 import DynamicColors from '@components/DynamicColors';
@@ -24,16 +24,12 @@ import {DEFAULT_AVATAR, DEFAULT_NAME, TOPBAR_HEIGHT} from '@configs/constants';
 
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 
-import {
-  getAndroidCallAnswerInfo,
-  getPreLaunchEvents,
-  isCallCurrentlyActive,
-} from '@utils/Calls/CallOSBridge';
 import DirectChat from '@utils/DirectChats/DirectChat';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
-import {useCallContext} from './CallContext';
+import NativeCallHelperModule from '@specs/NativeCallHelperModule';
 
+import {useCallContext} from './CallContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'IncomingCall'>;
 
@@ -81,49 +77,26 @@ function IncomingCall({route, navigation}: Props) {
   const AcceptCall = results.AcceptCall;
 
   /**
-   * Get pre launch events and process things based on them
-   * @returns Whether an action was taken
+   * Check if native events have resulted in the call being answered or declined
+   * before the screen was rendered. Perform the appropriate action.
    */
-  const processIOSPreLaunchEvents = async (): Promise<boolean> => {
-    const preLaunchEvents = await getPreLaunchEvents();
-    for (let i = 0; i < preLaunchEvents.length; i++) {
-      const {data, name} = preLaunchEvents[i];
-      switch (name) {
-        case 'RNCallKeepPerformAnswerCallAction':
-          if (data.callUUID === callId) {
-            dispatchCallAction({
-              type: 'answer_call',
-              initiatedVideoCall: isVideoCall,
-            });
-            return true;
-          }
-          break;
-        case 'RNCallKeepPerformEndCallAction':
-          if (data.callUUID === callId) {
-            dispatchCallAction({type: 'decline_call'});
-            return true;
-          }
-      }
-    }
-    return false;
-  };
-
-  const processAndroidPreLaunchEvents = async (): Promise<boolean> => {
-    const callAnswerInfo = await getAndroidCallAnswerInfo();
-    console.log('[ANDROID PRE LAUNCH EVENTS]', callAnswerInfo, callId);
-    if (callAnswerInfo?.callId === callId) {
-      if (callAnswerInfo?.intentResult === 'Answer') {
+  const checkNativeCallState = () => {
+    const callState = NativeCallHelperModule.didAnswerCall(callId);
+    console.log('initial callState: ', callState);
+    switch (callState) {
+      case 'answered':
         dispatchCallAction({
           type: 'answer_call',
-          initiatedVideoCall: isVideoCall,
+          initiatedVideoCall: false,
         });
-        return true;
-      } else if (callAnswerInfo?.intentResult === 'Decline') {
+        break;
+      case 'declined':
         dispatchCallAction({type: 'decline_call'});
-        return true;
-      }
+        break;
+      case 'pending':
+      default: // includes pending which drops here
+        break;
     }
-    return false;
   };
 
   const appState = useRef(AppState.currentState);
@@ -139,7 +112,7 @@ function IncomingCall({route, navigation}: Props) {
         nextAppState === 'active'
       ) {
         //run android pre launch events
-        processAndroidPreLaunchEvents();
+        checkNativeCallState();
       }
 
       appState.current = nextAppState;
@@ -158,31 +131,7 @@ function IncomingCall({route, navigation}: Props) {
       const chatData = await chatHandler.getChatData();
       setProfileName(chatData.name || DEFAULT_NAME);
       setProfilePicture(chatData.displayPic || DEFAULT_AVATAR);
-      if (!isIOS) {
-        // Process pre-launch events, important on android
-        if (await processAndroidPreLaunchEvents()) {
-          // An action was taken, so quit the rest of the processing
-          return;
-        }
-      } else {
-        // Check if the call has already been answered. Important on the iOS
-        // Backgrounded state
-        if (await isCallCurrentlyActive(callId)) {
-          console.log(
-            'Call was answered from the host UI before this screen was even rendered',
-          );
-          dispatchCallAction({
-            type: 'answer_call',
-            initiatedVideoCall: isVideoCall,
-          });
-          return;
-        }
-        // Process pre-launch events, important on iOS killed state
-        if (await processIOSPreLaunchEvents()) {
-          // An action was taken, so quit the rest of the processing
-          return;
-        }
-      }
+      checkNativeCallState();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

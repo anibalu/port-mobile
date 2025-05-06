@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import RNCallKeep, {AudioRoute} from 'react-native-callkeep';
 import {PERMISSIONS, check} from 'react-native-permissions';
 import {SvgProps} from 'react-native-svg';
 import {MediaStream} from 'react-native-webrtc';
@@ -32,7 +31,6 @@ import {DEFAULT_AVATAR, DEFAULT_PROFILE_AVATAR_INFO} from '@configs/constants';
 
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 
-import {CallEndReason} from '@utils/Calls/CallOSBridge';
 import {CallWorkItem, CoordinatorWorkItem} from '@utils/Calls/CallWorkQueue';
 import {MediaStreamManager} from '@utils/Calls/MediaStreamManager';
 import {
@@ -55,14 +53,14 @@ import VideoOn from '@assets/dark/icons/VideoOn.svg';
 import ViewSwitch from '@assets/dark/icons/ViewSwitch.svg';
 import CloseWhite from '@assets/icons/closeWhite.svg';
 
+import NativeCallHelperModule, {
+  MuteEventPayload,
+} from '@specs/NativeCallHelperModule';
+
 import {useCallContext} from './CallContext';
 import CallingTopBar from './Components/CallingTopBar';
 import {MyStream, MyVideoSize} from './Components/MyStream';
-import OutputOptionsModal from './Components/OutputOptionsModal';
 import {PeerStream, PeerVideoSize} from './Components/PeerStream';
-
-
-
 
 type Props = NativeStackScreenProps<AppStackParamList, 'OngoingCall'>;
 
@@ -150,7 +148,7 @@ function callUIStateReducer(state: CallUIState, action: {type: CallUIEvents}) {
 
 function OngoingCall({route, navigation}: Props) {
   // Get the chatId and callId from the route params
-  const {chatId, callId, isVideoCall} = route.params;
+  const {chatId, isVideoCall, callId} = route.params;
   const {callState, dispatchCallAction} = useCallContext();
   const [allPermissionsGranted, setAllPermissionsGranted] = useState(true);
 
@@ -216,34 +214,8 @@ function OngoingCall({route, navigation}: Props) {
   // The profile avatar of the peer.
   const [peerAvatar, setPeerAvatar] = useState<string>(DEFAULT_AVATAR);
 
-  // Controls modal used to select the output audiochannel.
-  const [selectOutputAudioChannel, setSelectOutputAudioChannel] =
-    useState(false);
-
-  // The audio channel to use.
-  const [audioChannels, setAudioChannels] = useState<AudioRoute[]>([]);
-
-  // The selected audio channel.
-  const [selectedAudioChannelType, setSelectedAudioChannelType] = useState<
-    string | null
-  >(null);
-
   // Whether the peer video is primary or secondary
   const [isPeerVideoPrimary, setIsPeerVideoPrimary] = useState<boolean>(true);
-
-  // Prevent default back behavior on android
-  useEffect(() => {
-    const backAction = () => {
-      return true; // Prevent default back behavior
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
-
-    return () => backHandler.remove(); // Cleanup on unmount
-  }, []);
 
   const getMyMediaStream = async () => {
     // Initialise media stream manager for my media stream
@@ -288,7 +260,6 @@ function OngoingCall({route, navigation}: Props) {
       setMyStream(myMediaStream);
       if (isVideoCall) {
         dispatchCallUIState({type: CallUIEvents.my_video_on});
-        changeAudioChannel('Speaker');
       } else {
         dispatchCallUIState({type: CallUIEvents.my_video_off});
       }
@@ -300,7 +271,7 @@ function OngoingCall({route, navigation}: Props) {
       pc.init(myMediaStream);
     } catch (error) {
       console.error('Ending call due to error initializing call: ', error);
-      endCall(CallEndReason.SELF_ENDED);
+      endCall();
     }
   };
 
@@ -318,49 +289,35 @@ function OngoingCall({route, navigation}: Props) {
         setAllPermissionsGranted(false);
       }
     });
-    //add the listener for the muted call action
-    RNCallKeep.addEventListener(
-      'didPerformSetMutedCallAction',
-      ({muted, callUUID}) => {
-        console.log('Muted action: ', muted);
-        if (callId !== callUUID) {
-          // WE're muting a call that isn't on this screen...
+
+    // Prevent navigation to the previous screen
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => true,
+    );
+    // Add a listener for the mute event
+    const muteListener = NativeCallHelperModule.onMute(
+      ({callUUID, muted}: MuteEventPayload) => {
+        // CallUUID and callId may be different cases
+        if (callUUID.toLowerCase() !== callId.toLowerCase()) {
           return;
         }
         if (muted) {
+          console.log('Muting microphone');
           micOff();
         } else {
+          console.log('Unmuting microphone');
           micOn();
         }
       },
     );
 
-    //add the listener for audio route change
-    RNCallKeep.addEventListener('didChangeAudioRoute', ({output}) => {
-      console.log('Audio route changed: ', output);
-      RNCallKeep.getAudioRoutes().then(routes => {
-        setAudioChannels(routes as unknown as AudioRoute[]);
-      });
-    });
-
-    //remove the listener when the component unmounts
     return () => {
-      RNCallKeep.removeEventListener('didPerformSetMutedCallAction');
-      RNCallKeep.removeEventListener('didChangeAudioRoute');
+      backHandler.remove();
+      muteListener.remove();
     };
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  //set the selected audio channel to the selected channel in the list
-  useEffect(() => {
-    const selectedChannel = audioChannels.find(
-      channel => channel.selected === true,
-    );
-    if (selectedChannel) {
-      setSelectedAudioChannelType(selectedChannel.type);
-    }
-  }, [audioChannels]);
 
   /**
    * Process a coordinator message
@@ -388,12 +345,12 @@ function OngoingCall({route, navigation}: Props) {
       }
       case 'closed_signaller':
         // If the peer stream is not available, end the call.
-        if (peerStream) {
+        if (peerConnectionManager?.isConnected()) {
           break;
         }
       // It is meant to fall through to the next case
       case 'peer_connection_ended':
-        endCall(CallEndReason.PEER_ENDED);
+        endCall();
         break;
       case 'peer_mic_turned_on':
         dispatchCallUIState({type: CallUIEvents.peer_mic_on});
@@ -408,7 +365,7 @@ function OngoingCall({route, navigation}: Props) {
         dispatchCallUIState({type: CallUIEvents.peer_video_off});
         break;
       case 'turn_speaker_on':
-        changeAudioChannel('Speaker');
+        NativeCallHelperModule.setAudioRoute('Speakerphone');
         break;
     }
   }
@@ -417,12 +374,12 @@ function OngoingCall({route, navigation}: Props) {
    * End the call
    * @param reason The reason for ending the call
    */
-  function endCall(reason: CallEndReason) {
+  function endCall() {
     // Go back to the hometab
     signaller?.cleanup(); // Cleanup the signaller
     mediaStreamManager?.stopStreaming(); // Turn off my camera and microphone
     peerConnectionManager?.cleanup(); // Terminate the peer connection
-    dispatchCallAction({type: 'end_call', reason});
+    dispatchCallAction({type: 'end_call'});
   }
 
   /**
@@ -430,10 +387,14 @@ function OngoingCall({route, navigation}: Props) {
    */
   const micOn = () => {
     if (mediaStreamManager) {
+      console.log('setting mic on');
       mediaStreamManager.setAudioStream(true);
+      console.log('about to dispatch micOn event');
       dispatchCallUIState({type: CallUIEvents.my_mic_on});
       //emit call event over data channel
+      console.log('sending micOn event to peer');
       peerConnectionManager?.sendEvent(CallEvents.micOn);
+      console.log('Completed micOn');
     }
   };
 
@@ -442,11 +403,17 @@ function OngoingCall({route, navigation}: Props) {
    */
   const micOff = () => {
     if (mediaStreamManager) {
+      console.log('setting mic off');
       mediaStreamManager.setAudioStream(false);
+      console.log('about to dispatch micOff event');
       dispatchCallUIState({type: CallUIEvents.my_mic_off});
       //emit call event over data channel
+      console.log('sending micOff event to peer');
       peerConnectionManager?.sendEvent(CallEvents.micOff);
+      console.log('completed micOff');
+      return;
     }
+    console.log('mediaStreamManager is undefined');
   };
 
   /**
@@ -458,8 +425,6 @@ function OngoingCall({route, navigation}: Props) {
       dispatchCallUIState({type: CallUIEvents.my_video_on});
       //emit call event over data channel
       peerConnectionManager?.sendEvent(CallEvents.videoOn);
-      //turn on speaker
-      changeAudioChannel('Speaker');
     }
   };
 
@@ -476,33 +441,10 @@ function OngoingCall({route, navigation}: Props) {
   };
 
   /**
-   * Open the audio options modal
-   */
-  const openAudioOptions = async () => {
-    const routes = await RNCallKeep.getAudioRoutes();
-    setAudioChannels(routes as unknown as AudioRoute[]);
-    setSelectOutputAudioChannel(true);
-  };
-
-  /**
-   * Change the audio channel
-   * @param newChannel The new audio channel
-   */
-  const changeAudioChannel = async (newChannel: string) => {
-    try {
-      await RNCallKeep.setAudioRoute(callId, newChannel);
-      const routes = await RNCallKeep.getAudioRoutes();
-      setAudioChannels(routes as unknown as AudioRoute[]);
-    } catch (error) {
-      console.error('Error getting audio routes: ', error);
-    }
-  };
-
-  /**
    * Disconnect the call
    */
   const disconnectCall = () => {
-    endCall(CallEndReason.SELF_ENDED);
+    endCall();
   };
 
   /**
@@ -531,42 +473,6 @@ function OngoingCall({route, navigation}: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [callState]);
-
-  /**
-   * Add CallKeep listeners
-   */
-  useEffect(() => {
-    // Add CallKeep listeners
-    const onEndCall = (data: any) => {
-      console.log('Call ended', data);
-      // Handle call end logic
-      endCall(CallEndReason.PEER_ENDED);
-    };
-
-    RNCallKeep.addEventListener('endCall', onEndCall);
-    RNCallKeep.addEventListener(
-      'didPerformSetMutedCallAction',
-      ({muted, callUUID}) => {
-        console.log('Muted action: ', muted);
-        if (callId !== callUUID) {
-          // WE're muting a call that isn't on this screen...
-          return;
-        }
-        if (muted) {
-          micOff();
-        } else {
-          micOn();
-        }
-      },
-    );
-
-    // Cleanup function to remove listeners
-    return () => {
-      RNCallKeep.removeEventListener('endCall');
-      RNCallKeep.removeEventListener('didPerformSetMutedCallAction');
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array to run only on mount and unmount
 
   /**
    * This block runs every time a new work item has been dispatched
@@ -713,10 +619,7 @@ function OngoingCall({route, navigation}: Props) {
                 OnIcon={MicrophoneOn}
                 OffIcon={MicrophoneOff}
               />
-              <AudioChannelButton
-                selectedChannelType={selectedAudioChannelType}
-                onPress={async () => await openAudioOptions()}
-              />
+              <AudioChannelButton />
               <BooleanControlButton
                 isOn={true}
                 onSwitchOn={disconnectCall}
@@ -727,12 +630,6 @@ function OngoingCall({route, navigation}: Props) {
                 OffIcon={EndCall}
               />
             </View>
-            <OutputOptionsModal
-              visible={selectOutputAudioChannel}
-              onClose={() => setSelectOutputAudioChannel(false)}
-              channels={audioChannels}
-              onSelectChannel={changeAudioChannel}
-            />
           </View>
         ) : (
           <View
@@ -788,33 +685,43 @@ const BooleanControlButton = ({
   );
 };
 
-const AudioChannelButton = ({
-  onPress = () => {
-    console.log('Audio output button pressed');
-  },
-  selectedChannelType,
-}: {
-  onPress?: () => void | Promise<void>;
-  selectedChannelType: string | null;
-}) => {
+const AudioChannelButton = () => {
   const Colors = DynamicColors();
   const styles = styling(Colors);
+  const [channel, setChannel] = useState<string>('Earpiece');
+  const onPress = async () => {
+    // Determine the number of outputs available
+    const routes = await NativeCallHelperModule.getAudioRoutes();
+    console.log('Audio routes: ', routes);
+    if (routes.length < 2) {
+      console.warn('Multiple audio outputs not supported on this device');
+      return;
+    } else if (routes.length === 2) {
+      // Choose the other output. If not possible, use the current output.
+      const newOutput = routes.find(route => route !== channel) || channel;
+      setChannel(newOutput);
+      NativeCallHelperModule.setAudioRoute(newOutput);
+      return;
+    }
+    console.warn('More than 2 output devices are not currently supported');
+  };
+  // TODO: Add a listener for the route change event
 
   return (
     <TouchableOpacity
       style={{
         ...styles.button,
         backgroundColor:
-          selectedChannelType === 'Speaker'
+          channel === 'Speakerphone'
             ? Colors.primary.white
             : Colors.primary.genericGrey,
       }}
       onPress={onPress}>
-      {!selectedChannelType ? (
+      {!channel ? (
         <SpeakerOff />
-      ) : selectedChannelType === 'Phone' ? (
+      ) : channel === 'Earpiece' ? (
         <SpeakerOff />
-      ) : selectedChannelType === 'Speaker' ? (
+      ) : channel === 'Speakerphone' ? (
         <SpeakerOn />
       ) : (
         <Bluetooth />

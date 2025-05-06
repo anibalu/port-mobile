@@ -42,6 +42,7 @@ export class MediaStreamManager {
    */
   setAudioStream(on: boolean): void {
     const audioTrack = this.stream?.getAudioTracks()[0];
+    console.log('Setting audio stream to: ', on);
     if (audioTrack) {
       audioTrack.enabled = on;
     }

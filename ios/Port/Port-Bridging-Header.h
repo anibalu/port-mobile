@@ -7,7 +7,6 @@
 
 #ifndef Port_Bridging_Header_h
 #define Port_Bridging_Header_h
-#import "RNCallKeep.h"
 #import "RNVoipPushNotificationManager.h"
 #import "RNFBMessagingModule.h"
 #import "sqlite3.h"

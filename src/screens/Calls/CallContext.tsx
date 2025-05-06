@@ -9,15 +9,10 @@ import {useSelector} from 'react-redux';
 
 import store from '@store/appStore';
 
-import {
-  CallEndReason,
-  endCallOSUI,
-  notifyOSOfCallAcceptance,
-  placeOutgoingCallOSUI,
-  rejectCallOSUI,
-  setUpCallKeep,
-} from '@utils/Calls/CallOSBridge';
+import {setUpCallStateListeners} from '@utils/Calls/CallOSBridge';
 import {registerForVoIPPushNotifications} from '@utils/Messaging/PushNotifications/VoIPAPNS';
+
+import NativeCallHelperModule from '@specs/NativeCallHelperModule';
 
 // bodgy fix since we need to be able to map callIds to chatIds
 type Call = {
@@ -52,9 +47,9 @@ type CallAction =
       callId: string;
       initiatedVideoCall?: boolean;
     }
-  | {type: 'answer_call'; initiatedVideoCall?: boolean}
-  | {type: 'decline_call'}
-  | {type: 'end_call'; reason: CallEndReason};
+  | {type: 'answer_call'; initiatedVideoCall?: boolean; fromCallKit?: boolean}
+  | {type: 'decline_call'; fromCallKit?: boolean}
+  | {type: 'end_call'};
 
 /**
  * Function to manage the state of ongoing calls
@@ -74,7 +69,8 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
         // We're already processing a call. WTF.
         return state;
       }
-      placeOutgoingCallOSUI(action.chatId, action.callId);
+      // TODO: replace 'test' with the caller name
+      NativeCallHelperModule.startOutgoingCall(action.callId, 'test');
       return {
         callId: action.callId,
         chatId: action.chatId,
@@ -97,7 +93,7 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
           // No need to do the body of this function since we've been aborted
           return;
         }
-        endCallOSUI(action.callId, CallEndReason.UNANSWERED);
+        NativeCallHelperModule.endOngoingCall(action.callId);
         action.onUnanswer();
       }, action.callRingTimeSeconds * 1000);
       return {
@@ -114,7 +110,10 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
       }
       // Abort the timeout to navigate to exit the incoming call screen if unanswered
       state.abortController?.abort(); // Abort the signal to cancel the incoming call
-      notifyOSOfCallAcceptance(state.callId);
+      if (!action.fromCallKit) {
+        NativeCallHelperModule.acceptIncomingCall(state.callId);
+        NativeCallHelperModule.cancelRingtone();
+      }
       console.log('answer call', {
         ...state,
         callState: 'answered',
@@ -128,19 +127,23 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
     case 'decline_call':
       if (state && state.callState === 'unanswered') {
         // TODO: CallKeep decline the call here and go home
-        rejectCallOSUI(state.callId);
+        if (!action.fromCallKit) {
+          NativeCallHelperModule.rejectIncomingCall(state.callId);
+          NativeCallHelperModule.cancelRingtone();
+        }
         // Abort the timeout to navigate to exit the incoming call screen if unanswered
         state.abortController?.abort();
         return undefined;
       }
-      return state;
-    case 'end_call':
+    // We're declining a call that isn't in the unanswered state, pretend it's ongoing and drop into the end_call case
+    case 'end_call':  // eslint-disable-line no-fallthrough
       if (!state || !state.callId) {
         return state;
       }
-      endCallOSUI(state.callId, action.reason);
+      NativeCallHelperModule.endOngoingCall(state.callId);
       return undefined;
   }
+  // We want to make sure that this case is never reachable. Test y our linters here!
   return undefined;
 };
 
@@ -206,16 +209,17 @@ export const CallContextProvider = ({children}: {children: any}) => {
       );
     }
 
-    await setUpCallKeep(
+    await setUpCallStateListeners(
       (_callId: string) =>
         dispatchCallAction({
           type: 'answer_call',
           initiatedVideoCall: callState?.initiatedVideoCall || false,
+          fromCallKit: true,
         }),
       (_callId: string) =>
         dispatchCallAction({
-          type: 'end_call',
-          reason: CallEndReason.SELF_ENDED,
+          type: 'decline_call',
+          fromCallKit: true,
         }),
     );
   }

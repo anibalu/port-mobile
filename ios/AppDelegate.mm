@@ -9,13 +9,13 @@
 #import "RNFBMessagingModule.h"
 #import <TSBackgroundFetch/TSBackgroundFetch.h>
 #import <UIKit/UIKit.h>
-#import "RNCallKeep.h"
 #import "React/RCTRootView.h"
 #import "PushKit/PKPushRegistry.h"
 #import "RNVoipPushNotificationManager.h"
 #import "sqlite3.h"
 #import "NativeCryptoModule.h"
 #import "RCTAppDependencyProvider.h"
+#import "PortCallHelper.h"
 
 #define GROUP_IDENTIFIER "group.tech.numberless.port"
 #define DATABASE_NAME "numberless.db"
@@ -64,15 +64,6 @@ static void ClearKeychainIfNecessary() {
   
   // Set up CallKeep stuff to be able to handle VoIP PushKit notifications
   // self.bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
-  
-  [RNCallKeep setup:@{
-    @"appName": @"Port",
-    @"maximumCallGroups": @1,
-    @"maximumCallsPerCallGroup": @1,
-    @"supportsVideo": @YES,
-    @"includesCallsInRecents": @NO,
-    @"imageName": @"app_icon",
-  }];
   
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
@@ -167,7 +158,7 @@ static void ClearKeychainIfNecessary() {
     
     // Finalize statement
     if (sqlite3_finalize(statement) != SQLITE_OK)
-      NSLog(@"Error caching locallu");
+      NSLog(@"Error caching locally");
     
   } else {
     NSLog(@"This database is not right is busted");
@@ -254,20 +245,17 @@ static void ClearKeychainIfNecessary() {
   NSLog(@"You can update the chat name to: %@", chatName);
   if (Nil == chatName) chatName = @"Incoming call";
   NSLog(@"Using name: %@", chatName);
+
+  // Instantiate the helper
+  PortCallHelper *callHelper = [[PortCallHelper alloc] init];
+  // Get call UUID
+  NSString *callUUID = payload.dictionaryPayload[@"aps"][@"call_id"];
+  // Call the displayIncomingCall method
+  [callHelper displayIncomingCall:chatName callUUID:callUUID];
   
-  [RNCallKeep reportNewIncomingCall: payload.dictionaryPayload[@"aps"][@"call_id"]  // Setting the call Id here, let's the JS thread update the call UI when readyÏ
-                             handle: chatName
-                         handleType: @"generic"
-                           hasVideo: YES
-                localizedCallerName: chatName
-                    supportsHolding: NO
-                       supportsDTMF: NO
-                   supportsGrouping: NO
-                 supportsUngrouping: NO
-                        fromPushKit: YES
-                            payload: Nil
-              withCompletionHandler: completion];
-  
+  // Call the completion handler immediately after reporting the call
+  completion();
+
   // Converting the hashable to a json string to cache the message to be processed on JS as soon as possible
   NSString *triggerMessage = [self jsonStringFromAnyHashable:payload.dictionaryPayload[@"aps"]];
   [self cacheTriggerMessage:triggerMessage];

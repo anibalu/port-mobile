@@ -256,6 +256,27 @@ RCT_EXPORT_METHOD(displayIncomingCall:(NSString *)callerName callUUID:(NSString 
 - (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action {
   NSLog(@"[PortCallHelper] Provider received request to answer call: %@", action.callUUID);
 
+  // Configure audio session
+  AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+  NSError *error = nil;
+  if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord
+                            mode:AVAudioSessionModeVoiceChat
+                         options:AVAudioSessionCategoryOptionAllowBluetooth
+                           error:&error]) {
+    NSLog(@"[PortCallHelper] Error setting audio session category and mode: %@", error);
+    [action fail]; // Fail the action if session can't be configured
+    return;
+  }
+
+  // Activate the audio session. CallKit might also attempt to activate it,
+  // but explicitly activating here ensures it's ready.
+  if (![audioSession setActive:YES error:&error]) {
+      NSLog(@"[PortCallHelper] Error activating audio session: %@", error);
+      // Depending on the error, you might want to fail the action
+      // For now, we'll log and proceed, as CallKit might still recover or manage activation.
+  }
+
+
   NSString *callUUIDString = [action.callUUID UUIDString];
 
   // Emit event to JavaScript
@@ -275,6 +296,15 @@ RCT_EXPORT_METHOD(displayIncomingCall:(NSString *)callerName callUUID:(NSString 
 
   [action fulfill];
   NSLog(@"[PortCallHelper] End call action fulfilled for: %@", action.callUUID);
+
+  // Deactivate audio session
+  AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+  NSError *error = nil;
+  if (![audioSession setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error]) {
+    NSLog(@"[PortCallHelper] Error deactivating audio session: %@", error.localizedDescription);
+  } else {
+    NSLog(@"[PortCallHelper] Audio session deactivated successfully after call end.");
+  }
 }
 
 - (void)provider:(CXProvider *)provider performSetHeldCallAction:(CXSetHeldCallAction *)action {
@@ -301,6 +331,24 @@ RCT_EXPORT_METHOD(displayIncomingCall:(NSString *)callerName callUUID:(NSString 
 
 - (void)provider:(CXProvider *)provider performStartCallAction:(CXStartCallAction *)action {
     NSLog(@"[PortCallHelper] Provider received request to start call: %@", action.callUUID);
+
+    // Configure audio session
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    NSError *error = nil;
+    if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord
+                              mode:AVAudioSessionModeVoiceChat
+                           options:AVAudioSessionCategoryOptionAllowBluetooth
+                             error:&error]) {
+        NSLog(@"[PortCallHelper] Error setting audio session category and mode for start call: %@", error);
+        [action fail];
+        return;
+    }
+
+    // Activate the audio session.
+    if (![audioSession setActive:YES error:&error]) {
+        NSLog(@"[PortCallHelper] Error activating audio session for start call: %@", error);
+        // Proceeding, but this might indicate an issue.
+    }
 
     [provider reportOutgoingCallWithUUID:action.callUUID startedConnectingAtDate:[NSDate date]];
     // Simulate connection after a short delay for now.

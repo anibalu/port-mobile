@@ -5,11 +5,22 @@ import {POLICY_ACCEPTANCE} from '@configs/api';
 import {getToken} from '@utils/ServerAuth';
 
 export interface TermsAndConditionParams {
-  needsToAccept: boolean;
-  shouldNotify: boolean;
+  /**
+   * If true, the user needs to accept the terms and conditions. 
+   * This is stronger than shouldNotify as it requires the user to accept the terms and conditions.
+   */
+  needsToAccept: boolean; 
+  /**
+   * If true, the user should be notified of the terms and conditions
+   */
+  shouldNotify: boolean; 
 }
 
-export async function getTermsAndConditions(): Promise<any> {
+/**
+ * Fetches the terms and conditions from the server
+ * @returns TermsAndConditionParams | null
+ */
+export async function getTermsAndConditions(): Promise<TermsAndConditionParams | null> {
   try {
     const token = await getToken();
     const response = await axios.get(POLICY_ACCEPTANCE, {
@@ -22,13 +33,16 @@ export async function getTermsAndConditions(): Promise<any> {
   }
 }
 
-export async function sendUpdatedAcceptance(): Promise<boolean> {
+/**
+ * Sends the updated acceptance of the terms and conditions to the server
+ * @returns boolean
+ */
+export async function sendUpdatedAcceptance() {
   try {
     const token = await getToken();
     await axios.patch(POLICY_ACCEPTANCE, '', {
       headers: {Authorization: `${token}`},
     });
-    return true;
   } catch (error) {
     console.error('error', error);
     throw new Error('PolicyUpdatedAcceptanceError');

@@ -17,7 +17,7 @@ import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingSt
 
 type Props = NativeStackScreenProps<
   OnboardingStackParamList,
-  'OnboardingQRScanner'
+  'OnboardingLinkInput'
 >;
 
 function OnboardingLinkInput({navigation}: Props) {

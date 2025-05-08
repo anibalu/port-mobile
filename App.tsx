@@ -16,8 +16,6 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Provider} from 'react-redux';
 
 import Toast from '@components/Modals/Toast';
-import HardUpdateInfoBlurView from '@components/Reusable/BlurView/HardUpdateInfoBlurView';
-import SoftUpdateInfoBlurView from '@components/Reusable/BlurView/SoftUpdateInfoBlurView';
 
 import {SENTRY_DSN} from '@configs/api';
 
@@ -41,7 +39,6 @@ import {wait} from '@utils/Time';
 
 import {ThemeProvider} from 'src/context/ThemeContext';
 import {ToastProvider} from 'src/context/ToastContext';
-import {UpdateStatusProvider} from 'src/context/UpdateStatusContext';
 
 import store from './src/store/appStore';
 
@@ -147,7 +144,6 @@ function App(): JSX.Element {
     <Sentry.ErrorBoundary fallback={<CriticalError />}>
       <Provider store={store}>
         <ThemeProvider>
-          <UpdateStatusProvider>
             <SafeAreaProvider>
               <ToastProvider>
                 <NavigationContainer
@@ -159,11 +155,8 @@ function App(): JSX.Element {
                   <RootStack />
                 </NavigationContainer>
                 <Toast />
-                <SoftUpdateInfoBlurView />
-                <HardUpdateInfoBlurView />
               </ToastProvider>
             </SafeAreaProvider>
-          </UpdateStatusProvider>
         </ThemeProvider>
       </Provider>
     </Sentry.ErrorBoundary>

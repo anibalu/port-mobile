@@ -2,9 +2,12 @@
  * Primary navigation stack of the app.
  * User is navigated here if onboarding is done or if profile is already setup.
  */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSelector } from 'react-redux';
+
+import { rootNavigationRef } from '@navigation/rootNavigation';
 
 import AcceptedDirectChat from '@screens/AcceptDirectChat/AcceptDirectChat';
 import BlockedContacts from '@screens/BlockedContacts/BlockedContacts';
@@ -41,6 +44,8 @@ import SelectShareContacts from '@screens/ShareImage/SelectShareContacts';
 import GroupTemplates from '@screens/Templates/GroupTemplates';
 import Templates from '@screens/Templates/Templates';
 
+import { checkForUpdates, getUpdateStatusKeyFromLocal } from '@utils/TermsAndConditions';
+
 import { ConnectionModalProvider } from 'src/context/ConnectionModalContext';
 
 import { AppStackParamList } from './AppStackTypes';
@@ -49,9 +54,49 @@ import NewPortStack from './NewPortStack/NewPortStack';
 import NewSuperPortStack from './NewSuperPortStack/NewSuperPortStack';
 
 
+
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 function AppStack() {
+
+  const termsStackTrigger = useSelector(
+    state => (state as any).triggerUpdateStatusRefetch.change,
+  );
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      console.log('Checking if terms and conditions need accepting from initial render');
+      isInitialMount.current = false;
+      (async () => {
+        await checkForUpdates();
+      })();
+    } else {
+      // gets the object from localstorage and sets the state of modal to be shown
+      (async () => {
+        const localResponse = await getUpdateStatusKeyFromLocal();
+        console.log('Checking if terms and conditions need accepting from useEffect trigger', localResponse);
+        //if the key exist in localstorage with any value, wether both are same or indifferent, we will simply store that in state
+        if (localResponse && (localResponse.needsToAccept || localResponse.shouldNotify)) {
+          rootNavigationRef.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'TermsStack',
+                params: {
+                  screen: 'AcceptTerms',
+                  params: {
+                    needsToAccept: localResponse.needsToAccept,
+                  },
+                },
+              },
+            ],
+          });
+        }
+      })();
+    }
+  }, [termsStackTrigger]);
+
   return (
     <>
       <ConnectionModalProvider>

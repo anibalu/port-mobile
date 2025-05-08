@@ -5,38 +5,46 @@ import store from '@store/appStore';
 import {getProfileInfo} from '@utils/Profile';
 import {ProfileInfo} from '@utils/Storage/RNSecure/secureProfileHandler';
 
-import {TermsAndConditionParams, getTermsAndConditions} from './APICalls';
+import {TermsAndConditionParams, getTermsAndConditions, sendUpdatedAcceptance} from './APICalls';
 
 /**
- * Triggers a reload of refetching UpdateStatus from localstorage
+ * Checks for updates to the terms and conditions
  */
-export function triggerUpdateStatusRefetch() {
-  store.dispatch({
-    type: 'TRIGGER_REFETCH',
-  });
-}
-
 export async function checkForUpdates() {
+  console.log('Checking for terms and conditions updates');
   const profile: ProfileInfo | undefined = await getProfileInfo();
+  // If a profile is not found, we can't check for updates
   if (!profile) {
     return;
   }
-  //make api call if needsToAccept value is false/not present in local storage
-  const localResponse = await getUpdateStatusKeyFromLocal();
-  if (localResponse && localResponse.needsToAccept) {
-    await saveUpdateStatusToLocal({needsToAccept: true, shouldNotify: false});
-  } else {
+  //check local storage for terms and conditions status.
+  //If needsToAccept is true, then we don't need to make an api call.
+  //If needsToAccept is false, then we need to make an api call 
+  //to check if the user needs to accept the terms and conditions.
+  let localResponse = await getUpdateStatusKeyFromLocal();
+  if (!(localResponse && localResponse.needsToAccept)) {
     const response = await getTermsAndConditions();
     if (response !== null) {
       // if hardNotif and softNotif both are true then we will only show hardNotif modal
       await saveUpdateStatusToLocal(response);
+      localResponse = response;
     } else {
       console.error('Failed to fetch Terms and Conditions');
     }
   }
-  triggerUpdateStatusRefetch();
+  // If the user needs to accept the terms and conditions, or the user should be notified, 
+  // then we need to trigger that event.
+  if (localResponse && (localResponse.needsToAccept || localResponse.shouldNotify)) {
+    store.dispatch({
+      type: 'TRIGGER_TERMS_REFETCH',
+    });
+  }
 }
 
+/**
+ * Saves the terms and conditions status to local storage
+ * @param value - The terms and conditions status to save
+ */
 export async function saveUpdateStatusToLocal(value: TermsAndConditionParams) {
   try {
     await AsyncStorage.setItem('TnCUpdateStatus', JSON.stringify(value));
@@ -45,6 +53,10 @@ export async function saveUpdateStatusToLocal(value: TermsAndConditionParams) {
   }
 }
 
+/**
+ * Gets the terms and conditions status from local storage
+ * @returns The terms and conditions status from local storage
+ */
 export async function getUpdateStatusKeyFromLocal() {
   try {
     const itemString = await AsyncStorage.getItem('TnCUpdateStatus');
@@ -56,4 +68,12 @@ export async function getUpdateStatusKeyFromLocal() {
   } catch {
     return null;
   }
+}
+
+/**
+ * Accepts the terms and conditions
+ */
+export async function acceptTerms() {
+    await sendUpdatedAcceptance();
+    await saveUpdateStatusToLocal({ needsToAccept: false, shouldNotify: false });
 }

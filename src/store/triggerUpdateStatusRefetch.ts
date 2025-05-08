@@ -1,5 +1,5 @@
 /**
- * A reducer to trigger a reload of refetching UpdateStatus from localstorage in UpdateStatusContext
+ * A reducer to trigger a reload of refetching the terms and conditions status.
  */
 
 import {generateISOTimeStamp} from '@utils/Time';
@@ -13,7 +13,7 @@ export default function triggerUpdateStatusRefetch(
   action: any,
 ) {
   switch (action.type) {
-    case 'TRIGGER_REFETCH':
+    case 'TRIGGER_TERMS_REFETCH':
       return {
         ...state,
         change: generateISOTimeStamp(),

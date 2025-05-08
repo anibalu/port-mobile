@@ -13,6 +13,7 @@ import { ConnectionError, ConnectionErrorType } from '@store/connectionErrors';
 import AppStack from './AppStack/AppStack';
 import OnboardingStack from './OnboardingStack/OnboardingStack';
 import { RootStackTypes } from './RootStackTypes';
+import TermsStack from './TermsStack/TermsStack';
 
 const Stack = createNativeStackNavigator<RootStackTypes>();
 
@@ -38,6 +39,7 @@ export function RootStack(): ReactNode {
         }}>
         <Stack.Screen name="OnboardingStack" component={OnboardingStack} />
         <Stack.Screen name="AppStack" component={AppStack} />
+        <Stack.Screen name="TermsStack" component={TermsStack} />
         <Stack.Screen name="ReOpenApp" component={ReOpenApp} />
       </Stack.Navigator>
       <ErrorBottomSheet

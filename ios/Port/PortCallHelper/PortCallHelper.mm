@@ -430,5 +430,30 @@ RCT_EXPORT_METHOD(cancelRingtone)
   NSLog(@"[PortCallHelper] skipping since on iOS: cancelRingtone");
 }
 
+RCT_EXPORT_METHOD(startKeepPhoneAwake)
+{
+  NSLog(@"[PortCallHelper] Starting to keep phone awake.");
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (![[UIApplication sharedApplication] isIdleTimerDisabled]) {
+        [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
+        NSLog(@"[PortCallHelper] Idle timer disabled.");
+    } else {
+        NSLog(@"[PortCallHelper] Idle timer already disabled.");
+    }
+  });
+}
+
+RCT_EXPORT_METHOD(endKeepPhoneAwake)
+{
+  NSLog(@"[PortCallHelper] Ending keeping phone awake.");
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if ([[UIApplication sharedApplication] isIdleTimerDisabled]) {
+        [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
+        NSLog(@"[PortCallHelper] Idle timer enabled.");
+    } else {
+        NSLog(@"[PortCallHelper] Idle timer already enabled (was not disabled by us or was already re-enabled).");
+    }
+  });
+}
 
 @end

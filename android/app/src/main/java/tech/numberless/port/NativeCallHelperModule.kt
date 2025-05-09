@@ -13,6 +13,7 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
@@ -25,6 +26,7 @@ import com.facebook.react.bridge.Promise
 import java.util.Random
 import android.Manifest
 import android.content.pm.PackageManager
+import android.view.WindowManager
 
 class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCallHelperModuleSpec(reactContext) {
 
@@ -349,5 +351,33 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
              }
             activeMediaPlayer = null
         } ?: Log.d(NAME, "No active MediaPlayer to cancel.")
+    }
+
+    @ReactMethod
+    override fun startKeepPhoneAwake() {
+        Log.d(NAME, "Attempting to keep screen on.")
+        val activity = currentActivity
+        if (activity != null) {
+            activity.runOnUiThread {
+                activity.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                Log.d(NAME, "FLAG_KEEP_SCREEN_ON added.")
+            }
+        } else {
+            Log.w(NAME, "Current activity is null, cannot set FLAG_KEEP_SCREEN_ON.")
+        }
+    }
+
+    @ReactMethod
+    override fun endKeepPhoneAwake() {
+        Log.d(NAME, "Attempting to allow screen to turn off.")
+        val activity = currentActivity
+        if (activity != null) {
+            activity.runOnUiThread {
+                activity.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                Log.d(NAME, "FLAG_KEEP_SCREEN_ON cleared.")
+            }
+        } else {
+            Log.w(NAME, "Current activity is null, cannot clear FLAG_KEEP_SCREEN_ON.")
+        }
     }
 } 

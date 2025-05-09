@@ -311,10 +311,12 @@ function OngoingCall({route, navigation}: Props) {
         }
       },
     );
+    NativeCallHelperModule.startKeepPhoneAwake();
 
     return () => {
       backHandler.remove();
       muteListener.remove();
+      NativeCallHelperModule.endKeepPhoneAwake();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

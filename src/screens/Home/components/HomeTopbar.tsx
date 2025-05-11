@@ -13,7 +13,7 @@ import {
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import { Spacing } from '@components/spacingGuide';
+import { Height, Spacing } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 
 import { TOPBAR_HEIGHT } from '@configs/constants';
@@ -94,7 +94,7 @@ function HomeTopbar({
 const styling = (colors: any, themeValue: any) =>
   StyleSheet.create({
     bar: {
-      height: TOPBAR_HEIGHT,
+      height: Height.topbar,
       paddingHorizontal: Spacing.l,
       flexDirection: 'row',
       justifyContent: 'space-between',

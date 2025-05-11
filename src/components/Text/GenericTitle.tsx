@@ -7,7 +7,7 @@ import {
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import { Spacing } from '@components/spacingGuide';
+import { Height, Spacing } from '@components/spacingGuide';
 
 
 /**
@@ -34,7 +34,7 @@ const styling = (colors: any) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: Spacing.l,
-      height: 64,
+      height: Height.topbar,
       justifyContent: 'center',
       backgroundColor:colors.background2
     },

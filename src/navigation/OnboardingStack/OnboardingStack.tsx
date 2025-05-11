@@ -2,10 +2,9 @@ import React from 'react';
 
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
-import RestoreAccount from '@screens/Onboarding/RestoreAccount';
-import OnboardingLinkInput from '@screens/OnboardingLinkInput/OnboardingLinkInput';
-import OnboardingQRScanner from '@screens/OnboardingScanner/OnboardingQRScanner';
 import OnboardingSetupScreen from '@screens/OnboardingSetupScreen/OnboardingSetupScreen';
+import RestoreBackupScreen from '@screens/RestoreBackup/RestoreBackupScreen';
+import RestoreFromCloud from '@screens/RestoreBackup/RestoreFromCloud';
 import Welcome from '@screens/Welcome/Welcome';
 
 import {OnboardingStackParamList} from './OnboardingStackTypes';
@@ -23,18 +22,11 @@ function OnboardingStack() {
         }}>
         <Stack.Screen name="Welcome" component={Welcome} />
         <Stack.Screen
-          name="OnboardingQRScanner"
-          component={OnboardingQRScanner}
-        />
-        <Stack.Screen
-          name="OnboardingLinkInput"
-          component={OnboardingLinkInput}
-        />
-        <Stack.Screen
           name="OnboardingSetupScreen"
           component={OnboardingSetupScreen}
         />
-        <Stack.Screen name="RestoreAccount" component={RestoreAccount} />
+        <Stack.Screen name="RestoreBackup" component={RestoreBackupScreen} />
+        <Stack.Screen name="RestoreFromCloud" component={RestoreFromCloud} />
       </Stack.Navigator>
     </>
   );

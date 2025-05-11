@@ -133,6 +133,7 @@ export type AppStackParamList = {
   // change soon ^
   DefaultPermissionsScreen: {isFromOnboarding?: boolean};
   ContactsScreen: undefined;
+  CreateBackupScreen: undefined;
   // Isolation: undefined;
 
   //child stacks

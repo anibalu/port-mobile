@@ -26,7 +26,6 @@ import { DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO } from '@configs/constants';
 
 import { BottomNavStackParamList } from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
 
-import { createSecureDataBackup } from '@utils/Backup/backupUtils';
 import { getProfileInfo, updateProfileName } from '@utils/Profile';
 import { setNewProfilePicture } from '@utils/ProfilePicture';
 import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
@@ -130,9 +129,6 @@ const NewProfileScreen = ({ navigation }: Props) => {
   const onSaveName = async (newName: string) => {
     await updateProfileName(newName);
   };
-  const onBackupPress = async () => {
-    await createSecureDataBackup();
-  };
 
   return (
     <>
@@ -163,7 +159,7 @@ const NewProfileScreen = ({ navigation }: Props) => {
             textColor={colors.text.subtitle}
             style={styles.bottomCard}>
             Your name and profile picture are private — only visible to you
-            and your chosen contacts. We don’t see or store them.
+            and your chosen contacts. We don't see or store them.
           </NumberlessText>
 
           <Pressable
@@ -224,7 +220,7 @@ const NewProfileScreen = ({ navigation }: Props) => {
               <AngleRight />
             </View>
           </Pressable>
-          <Pressable onPress={onBackupPress} style={
+          <Pressable onPress={() => navigation.push('CreateBackupScreen')} style={
             StyleSheet.compose({
               borderBottomColor: colors.stroke,
               borderBottomWidth: 0.5,

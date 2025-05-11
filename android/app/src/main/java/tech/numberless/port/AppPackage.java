@@ -22,6 +22,7 @@ public class AppPackage implements ReactPackage {
         List<NativeModule> modules = new ArrayList<>();
         modules.add(new PortMediaUploader(reactContext));
         modules.add(new NativeCallHelperModule(reactContext));
+        modules.add(new GoogleSignInModule(reactContext));
         return modules;
     }
 }

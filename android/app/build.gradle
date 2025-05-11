@@ -115,12 +115,15 @@ android {
         versionName "1.15.0"
     }
    packagingOptions {
-      pickFirst 'lib/x86/libc++_shared.so'
-       pickFirst 'lib/x86_64/libjsc.so'
-       pickFirst 'lib/arm64-v8a/libjsc.so'
-      pickFirst 'lib/arm64-v8a/libc++_shared.so'
-      pickFirst 'lib/x86_64/libc++_shared.so'
-      pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86_64/libjsc.so'
+        pickFirst 'lib/arm64-v8a/libjsc.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        pickFirst 'lib/x86_64/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'META-INF/DEPENDENCIES' // This is because of a conflict between http clients being poorly packaged
+
+
     }
 
     splits {
@@ -202,6 +205,11 @@ dependencies {
     // Dependencies for firebase cloud messaging, FCM
     implementation("com.google.firebase:firebase-bom:32.0.0")
     implementation("com.google.firebase:firebase-messaging-ktx")
+    // Dependencies for google auth apis
+    implementation "com.google.android.gms:play-services-auth:20.5.0"
+    implementation("com.google.apis:google-api-services-drive:v3-rev20230822-2.0.0")
+    implementation("com.google.api-client:google-api-client-android:2.2.0")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 apply plugin: "com.google.gms.google-services"

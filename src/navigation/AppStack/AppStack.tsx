@@ -18,6 +18,7 @@ import ChatProfile from '@screens/ChatProfile/ChatProfile';
 import PhoneContactList from '@screens/ContactList/PhoneContactList';
 import ContactProfile from '@screens/ContactProfile/ContactProfile';
 import ContactsScreen from '@screens/ContactsScreen/ContactsScreen';
+import CreateBackupScreen from '@screens/CreateBackup/CreateBackupScreen';
 import DefaultPermissionsScreen from '@screens/DefaultPermissions/DefaultPermissionsScreen';
 import DeleteAccount from '@screens/DeleteAccount';
 import DirectChat from '@screens/DirectChat/Chat';
@@ -175,6 +176,7 @@ function AppStack() {
               }}
             />
             <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
+            <Stack.Screen name="CreateBackupScreen" component={CreateBackupScreen} />
             <Stack.Screen name="ContactPortQRScreen" component={ContactPortQRScreen} />
             <Stack.Screen name="AcceptDirectChat" component={AcceptedDirectChat} />
           </Stack.Navigator>

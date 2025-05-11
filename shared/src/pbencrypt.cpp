@@ -67,7 +67,7 @@ namespace pbencrypt
     // Generate an IV for the database's encryption and add it to the metadata
     auto db_iv = std::vector<unsigned char>(EVP_MAX_IV_LENGTH);
     aes256::generate_random_iv(db_iv.data());
-    memcpy(db_iv.data(), &head_data.iv_database, EVP_MAX_IV_LENGTH);
+    memcpy(&head_data.iv_database, db_iv.data(), EVP_MAX_IV_LENGTH);
     // Write the head data
     dest_stream.write((const char *)(&head_data), sizeof(EncryptionMetadata));
     // Write the encrypted metadata
@@ -84,7 +84,7 @@ namespace pbencrypt
     EncryptionMetadata meta;
     std::ifstream backup_stream(path_to_backup, std::ios::binary);
     if (!backup_stream.is_open())
-      std::ofstream backup_destination_stream(database_snapshot_destination, std::ios::binary);
+      throw std::runtime_error("Could not open backup file for pb decryption");
     std::ofstream backup_destination_stream(database_snapshot_destination, std::ios::binary);
     if (!backup_destination_stream.is_open())
     {

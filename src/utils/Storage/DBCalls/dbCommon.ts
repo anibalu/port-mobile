@@ -131,16 +131,17 @@ export async function snapshotDatabase(): Promise<string> {
  * Delete the database and run the migrations again
  * @param runMigrations - the migrations to run
  */
-export function deleteDatabase(runMigrations: () => Promise<void>) {
-  dbSingletonHelper.pop();
-  SQLite.deleteDatabase(
-    {
-      name: 'numberless.db',
-      location: 'Shared',
-    },
-    runMigrations,
-    (err: any) => console.log('Failed to delete database:', err),
-  );
+export async function deleteDatabase(): Promise<string> {
+  const dbPath = await getTargetDatabasePath();
+  await closeDBConnection();
+  Promise.allSettled([
+    RNFS.unlink(dbPath),
+    RNFS.unlink(dbPath + '-journal'),
+    RNFS.unlink(dbPath + '-shm'),
+    RNFS.unlink(dbPath + '-wal'),
+  ]);
+  console.log('Deleted database files');
+  return dbPath;
 }
 
 /**
@@ -166,4 +167,55 @@ export function toNumber(a: number | null): number {
     return 0;
   }
   return a;
+}
+
+export async function closeDBConnection(): Promise<void> {
+  console.warn(`Closing database ${dbSingletonHelper.length} connection(s)`);
+  const db = dbSingletonHelper.pop(); // Remove connection from singleton
+  if (db) {
+    try {
+      await db.close();
+      console.log('Database connection closed successfully.');
+    } catch (error) {
+      console.error('Failed to close database connection:', error);
+      // Throwing might be better if closing is critical before file replacement.
+      throw new Error(`Failed to close database: ${error}`);
+    }
+  } else {
+    console.log('No active database connection to close.');
+  }
+}
+
+export async function getTargetDatabasePath(): Promise<string> {
+  const db = await getDB();
+  if (!db) {
+    console.error('getTargetDatabasePath: Failed to get database connection.');
+    throw new Error('Failed to open database, cannot determine its path.');
+  }
+
+  try {
+    const [resultSet] = await db.executeSql('PRAGMA database_list;');
+
+    if (resultSet.rows && resultSet.rows.length > 0) {
+      for (let i = 0; i < resultSet.rows.length; i++) {
+        const row = resultSet.rows.item(i);
+        if (row.name === 'main' && row.file) {
+          console.log(
+            'getTargetDatabasePath: Found database file path:',
+            row.file,
+          );
+          return row.file;
+        }
+      }
+      throw new Error("Could not find 'main' database file path from PRAGMA.");
+    } else {
+      throw new Error(
+        'PRAGMA database_list returned no results for the current connection.',
+      );
+    }
+  } catch (error: any) {
+    throw new Error(
+      `Failed to determine database path via PRAGMA: ${error.message || error}`,
+    );
+  }
 }

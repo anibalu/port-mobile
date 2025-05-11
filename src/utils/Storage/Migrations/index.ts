@@ -1,4 +1,4 @@
-import {deleteDatabase, runSimpleQuery} from '../DBCalls/dbCommon';
+import {runSimpleQuery} from '../DBCalls/dbCommon';
 
 import migration002 from './migration002';
 import migration004 from './migration004';
@@ -88,11 +88,4 @@ async function runMigration(id: number, callback: () => Promise<void>) {
   } else {
     console.log("[DB MIGRATION] Didn't need to run migration: ", id);
   }
-}
-
-/**
- * Reset the database to the initial state on account deletion
- */
-export function resetDatabase() {
-  deleteDatabase(runMigrations);
 }

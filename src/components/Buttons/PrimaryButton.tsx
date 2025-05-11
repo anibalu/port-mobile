@@ -80,7 +80,7 @@ const PrimaryButton = ({
       activeOpacity={0.6}
       onPress={onClick}>
       {isLoading ? (
-        <ActivityIndicator color={activityIndicatorColor} />
+        <ActivityIndicator color={buttonColor === Colors.common.white ? Colors.common.black : activityIndicatorColor} />
       ) : (
         <>
           {Icon && (

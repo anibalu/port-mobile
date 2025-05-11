@@ -2,37 +2,41 @@
  * This welcome screen shows Port branding and greets the user the first time they open the app.
  * UI is updated to latest spec for both android and ios
  */
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
 import GradientCard from '@components/Cards/GradientCard';
-import { useThemeColors } from '@components/colorGuide';
-import { isIOS, screen } from '@components/ComponentUtils';
-import { CustomStatusBar } from '@components/CustomStatusBar';
-import { FontSizeType, FontWeight, NumberlessText } from '@components/NumberlessText';
+import {useThemeColors} from '@components/colorGuide';
+import {isIOS, screen} from '@components/ComponentUtils';
+import {CustomStatusBar} from '@components/CustomStatusBar';
+import {
+  FontSizeType,
+  FontWeight,
+  NumberlessText,
+} from '@components/NumberlessText';
 // import OptionWithLogoAndChevron from '@components/Options/OptionWithLogoAndChevron';
-import { SafeAreaView } from '@components/SafeAreaView';
+import {SafeAreaView} from '@components/SafeAreaView';
 // import LineSeparator from '@components/Separators/LineSeparator';
-import { Spacing, Width } from '@components/spacingGuide';
+import {Spacing, Width} from '@components/spacingGuide';
 
-import { OnboardingStackParamList } from '@navigation/OnboardingStack/OnboardingStackTypes';
-import { rootNavigationRef } from '@navigation/rootNavigation';
+import {OnboardingStackParamList} from '@navigation/OnboardingStack/OnboardingStackTypes';
+import {rootNavigationRef} from '@navigation/rootNavigation';
 
 // import LinkSafron from '@assets/icons/LinkDeepSafron.svg';
 // import ScannerGreen from '@assets/icons/ScannerDarkGreen.svg';
 
-import { initialiseFCM } from '@utils/Messaging/PushNotifications/fcm';
-import { checkProfileCreated } from '@utils/Profile';
+import {initialiseFCM} from '@utils/Messaging/PushNotifications/fcm';
+import {checkProfileCreated} from '@utils/Profile';
 import runMigrations from '@utils/Storage/Migrations';
-import { ProfileStatus } from '@utils/Storage/RNSecure/secureProfileHandler';
+import {ProfileStatus} from '@utils/Storage/RNSecure/secureProfileHandler';
 
 import PortLogoWelcomeScreen from '@assets/miscellaneous/PortLogoWelcomeScreen.svg';
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'Welcome'>;
 
-function Welcome({ navigation }: Props) {
+function Welcome({navigation}: Props) {
   console.log('[Rendering Welcome Screen]');
 
   const [isLoading, setIsLoading] = useState(false);
@@ -41,8 +45,10 @@ function Welcome({ navigation }: Props) {
     try {
       const profileStatus = await checkProfileCreated();
       if (profileStatus === ProfileStatus.created) {
-        console.log('[Welcome Screen] Profile already created. Resetting to AppStack.');
-        rootNavigationRef.reset({ index: 0, routes: [{ name: 'AppStack' }] });
+        console.log(
+          '[Welcome Screen] Profile already created. Resetting to AppStack.',
+        );
+        rootNavigationRef.reset({index: 0, routes: [{name: 'AppStack'}]});
       } else {
         navigateAction();
       }
@@ -59,7 +65,7 @@ function Welcome({ navigation }: Props) {
     } catch (error) {
       console.error('[Welcome Screen] Error running readiness checks:', error);
     }
-  }
+  };
 
   const onPressStandardOnboarding = async () => {
     setIsLoading(true);
@@ -84,7 +90,7 @@ function Welcome({ navigation }: Props) {
     setIsLoadingBackup(true);
     await readinessChecks();
     await checkProfileAndNavigate(() => {
-      navigation.push('RestoreAccount');
+      navigation.push('RestoreBackup');
     });
     setIsLoadingBackup(false);
   };
@@ -112,13 +118,13 @@ function Welcome({ navigation }: Props) {
           </View>
           <GradientCard style={styles.buttonContainer} forceTheme={'dark'}>
             <NumberlessText
-              style={{ textAlign: 'center' }}
+              style={{textAlign: 'center'}}
               textColor={colors.white}
               fontWeight={FontWeight.sb}
               fontSizeType={FontSizeType.xl}>
               Welcome to Port
             </NumberlessText>
-            <View style={{ gap: Spacing.s }}>
+            <View style={{gap: Spacing.s}}>
               <PrimaryButton
                 theme={'dark'}
                 isLoading={isLoading}

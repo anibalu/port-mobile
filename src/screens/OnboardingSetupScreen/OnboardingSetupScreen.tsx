@@ -231,12 +231,11 @@ const OnboardingSetupScreen = ({navigation}: Props) => {
             </View>
             <View style={{gap: Spacing.l}}>
               <NumberlessText
-                style={{textAlign: 'center'}}
+                style={{textAlign: 'center', marginBottom: Spacing.l}}
                 fontWeight={FontWeight.rg}
                 fontSizeType={FontSizeType.s}
                 textColor={color.text.title}>
-                By clicking on 'Continue' or by restoring your account, you
-                agree to our{' '}
+                By clicking on 'Continue', you acknowledge that you have read and agree to our{' '}
                 <NumberlessText
                   onPress={() =>
                     Linking.openURL(

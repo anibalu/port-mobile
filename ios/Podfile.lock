@@ -1361,6 +1361,27 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-cloud-storage (2.2.2):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-compressor (1.11.0):
     - DoubleConversion
     - glog
@@ -2457,6 +2478,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
   - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
+  - react-native-cloud-storage (from `../node_modules/react-native-cloud-storage`)
   - react-native-compressor (from `../node_modules/react-native-compressor`)
   - react-native-contacts (from `../node_modules/react-native-contacts`)
   - react-native-create-thumbnail (from `../node_modules/react-native-create-thumbnail`)
@@ -2629,6 +2651,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-blob-util"
   react-native-cameraroll:
     :path: "../node_modules/@react-native-camera-roll/camera-roll"
+  react-native-cloud-storage:
+    :path: "../node_modules/react-native-cloud-storage"
   react-native-compressor:
     :path: "../node_modules/react-native-compressor"
   react-native-contacts:
@@ -2824,6 +2848,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 11831d070aa47755bb5739069eb04ec621fec548
   react-native-blob-util: f5ef31b1be2d8d19b064796663fcf09b18fe9f56
   react-native-cameraroll: cf8479c8b1d3a968e570c55d3d4e340ddbe17904
+  react-native-cloud-storage: 27da03064b43c1b05759488adaa34540abae880a
   react-native-compressor: 74088b4b5583102df41d22ce79279e681c72f901
   react-native-contacts: 1c54e491a439e5aaf8bd92c6f2e22d06c6b3b641
   react-native-create-thumbnail: daaa5d465360c5015b02026bd0978abf16b36ea9

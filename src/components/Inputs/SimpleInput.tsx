@@ -35,6 +35,7 @@ const SimpleInput = ({
   keyboardType = 'ascii-capable',
   isEditable = true,
   autoFocus = false,
+  secureTextEntry = false,
 }: {
   isEditable?: boolean;
   text: string;
@@ -44,6 +45,7 @@ const SimpleInput = ({
   bgColor?: 'w' | 'g';
   keyboardType?: KeyboardTypeOptions;
   autoFocus?: boolean;
+  secureTextEntry?: boolean;
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const onTextChange = (newText: string) => {
@@ -81,6 +83,7 @@ const SimpleInput = ({
         numberOfLines={1} // Explicitly set to 1 line
         textAlignVertical="center" // Center text vertically
         autoFocus={autoFocus}
+        secureTextEntry={secureTextEntry}
       />
     </>
   );

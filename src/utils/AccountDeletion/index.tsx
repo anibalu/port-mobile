@@ -8,7 +8,7 @@ import axios from 'axios';
 import {INITIAL_POST_MANAGEMENT_RESOURCE} from '@configs/api';
 
 import {getToken} from '@utils/ServerAuth';
-import {resetDatabase} from '@utils/Storage/Migrations';
+import { deleteDatabase } from '@utils/Storage/DBCalls/dbCommon';
 import {clearRNSS} from '@utils/Storage/RNSecure/clearRNSS';
 import clearAllFiles from '@utils/Storage/StorageRNFS/clearStorage';
 
@@ -58,7 +58,7 @@ export default async function permanentlyDeleteAccount() {
   // Re-instate the database in an empty state
   try {
     console.warn('Final step');
-    resetDatabase();
+    await deleteDatabase();
   } catch (e) {
     console.error('[ACCOUNT DELETION] Could not reset the database', e);
   }

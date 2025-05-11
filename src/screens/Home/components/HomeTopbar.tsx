@@ -54,17 +54,11 @@ function HomeTopbar({
       light: require('@assets/light/icons/ContactBook.svg').default,
       dark: require('@assets/dark/icons/ContactBook.svg').default,
     },
-    {
-      assetName: 'ScanQR',
-      light: require('@assets/light/icons/ScanQR.svg').default,
-      dark: require('@assets/dark/icons/ScanQR.svg').default,
-    },
   ];
 
   const results = useSVG(svgArray);
 
   const ContactBook = results.ContactBook;
-  const ScanQR = results.ScanQR;
 
   return (
     <View style={styles.bar}>
@@ -78,26 +72,8 @@ function HomeTopbar({
           {title}
         </NumberlessText>
       </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: Spacing.s,
-        }}>
-        <Pressable
-          style={styles.iconWrapper}
-          onPress={() => navigation.push('Scan')}>
-          <ScanQR width={20} height={20} />
-          <NumberlessText
-            numberOfLines={1}
-            textColor={Colors.text.subtitle}
-            ellipsizeMode="tail"
-            fontWeight={FontWeight.sb}
-            fontSizeType={FontSizeType.s}>
-            Scan
-          </NumberlessText>
-        </Pressable>
+   
+     
         <Pressable
           style={styles.iconWrapper}
           onPress={() => navigation.push('ContactsScreen')}>
@@ -111,7 +87,6 @@ function HomeTopbar({
             Contacts
           </NumberlessText>
         </Pressable>
-      </View>
     </View>
   );
 }

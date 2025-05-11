@@ -230,9 +230,15 @@ const Home = ({navigation, route}: Props) => {
       light: require('@assets/light/icons/HomePlaceholderIcon.svg').default,
       dark: require('@assets/dark/icons/HomePlaceholderIcon.svg').default,
     },
+    {
+      assetName: 'RoundScan',
+      light: require('@assets/light/icons/RoundScan.svg').default,
+      dark: require('@assets/dark/icons/RoundScan.svg').default,
+    },
   ];
   const svgResults = useSVG(svgArray);
   const RoundPlus = svgResults.RoundPlus;
+  const RoundScan = svgResults.RoundScan;
   const HomePlaceholderIcon = svgResults.HomePlaceholderIcon;
   // loads up connections on every ping
   useEffect(() => {
@@ -387,6 +393,9 @@ const Home = ({navigation, route}: Props) => {
             )}
           </View>
         </KeyboardAvoidingView>
+        <RoundScan
+              onPress={() => navigation.push('Scan')}
+          style={styles.scanButton} />
         <RoundPlus
           onPress={() => {
             setOpenConnectionsBottomsheet(true);
@@ -454,6 +463,11 @@ const styling = (colors: any) =>
     plusButton: {
       position: 'absolute',
       bottom: Spacing.l,
+      right: Spacing.l,
+    },
+    scanButton:{
+      position: 'absolute',
+      bottom: Spacing.xxxxl,
       right: Spacing.l,
     },
     placeholder: {

@@ -428,20 +428,19 @@ const styling = (colors: any) =>
     },
     barWrapper: {
       backgroundColor: colors.background2,
-      paddingHorizontal: Spacing.l,
+      paddingHorizontal: Spacing.s,
       paddingVertical: Spacing.s,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
     },
     search: {
-      backgroundColor: colors.surface3,
+      backgroundColor: colors.search,
       width: '100%',
       flexDirection: 'row',
       height: 44,
       alignItems: 'center',
-      borderRadius: 12,
-      paddingHorizontal: Spacing.s,
+      borderRadius: Spacing.xml,
     },
     tilePlaceholder: {
       height: 91,

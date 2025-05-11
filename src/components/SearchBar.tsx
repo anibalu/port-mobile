@@ -70,7 +70,7 @@ const SearchBar = ({
         onBlur={() => setIsFocused(false)}
       />
       {searchText.length > 0 && (
-        <Pressable onPress={() => onChangeText('')}>
+        <Pressable hitSlop={40} onPress={() => onChangeText('')}>
           <CloseIcon height={18} width={18} />
         </Pressable>
       )}

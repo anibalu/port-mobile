@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { useFocusEffect } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import PortsCard from '@components/Cards/PortsCard';
 import { useColors } from '@components/colorGuide';
@@ -16,15 +17,21 @@ import { Spacing } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 import GenericTitle from '@components/Text/GenericTitle';
 
+import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
+
+import NewConnectionsBottomsheet from '@screens/Home/components/CreateNewConnectionsBottomsheet';
+
 import { GeneratedPortData, GeneratedPortsAndSuperports, GeneratedSuperportData , getGeneratedPortsAndSuperports } from '@utils/Ports';
 
+import AllPortsPlaceholder from './components/AllPortsPlaceholder';
 
+type Props = NativeStackScreenProps<AppStackParamList, 'AllPortsScreen'>;
 enum PortsScreenTabs {
   AllPorts = 'All ports',
   Reusable = 'Reusable',
 }
 
-const AllPortsScreen = () => {
+const AllPortsScreen = ({navigation}: Props) => {
   const Colors = useColors();
   const styles = styling(Colors);
   const svgArray = [
@@ -36,6 +43,8 @@ const AllPortsScreen = () => {
   ];
   const results = useSVG(svgArray);
   const [selectedTab, setSelectedTab] = useState<PortsScreenTabs>(PortsScreenTabs.AllPorts);
+  const [openConnectionsBottomsheet, setOpenConnectionsBottomsheet] =
+  useState<boolean>(false);
 
   const Filter = results.Filter;
 
@@ -128,16 +137,18 @@ const AllPortsScreen = () => {
               expiry={item.isSuperport ? null: (item as GeneratedPortData).expiryTimestamp} />
           </>)}
           ListEmptyComponent={() => (
-            <View style={{ alignItems: 'center', marginTop: Spacing.xxl }}>
-              <NumberlessText
-                fontSizeType={FontSizeType.l}
-                fontWeight={FontWeight.rg}
-                textColor={Colors.text.subtitle}
-              >
-                No ports found
-              </NumberlessText>
+            <View style={{  marginTop: Spacing.xxl }}>
+             <AllPortsPlaceholder
+              onPlusPress={() =>
+                setOpenConnectionsBottomsheet(true)
+              } />
             </View>
           )}
+        />
+         <NewConnectionsBottomsheet
+          visible={openConnectionsBottomsheet}
+          onClose={() => setOpenConnectionsBottomsheet(false)}
+          navigation={navigation}
         />
       </SafeAreaView>
     </>

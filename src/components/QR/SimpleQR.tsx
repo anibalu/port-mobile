@@ -65,8 +65,8 @@ const SimpleQR = ({
         </>
       ) : qrData ? (
         <QRCode
-          backgroundColor={Colors.surface}
-          color={Colors.accent}
+        backgroundColor={Colors.white}
+        color={Colors.mildBlack}
           value={jsonToUrl(qrData as any) || 'https://porting.me'}
           size={styles.qrBox.width - 10}
         />

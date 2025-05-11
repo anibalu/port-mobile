@@ -8,6 +8,7 @@ import {useTheme} from 'src/context/ThemeContext';
 const CommonColors = {
   white: '#FFFFFF',
   black: '#000000',
+  mildBlack: '#05070B',
   red: '#EF4D41',
   redBackground: '#FFE6E6',
   boldAccentColors: {

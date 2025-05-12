@@ -111,7 +111,7 @@ android {
         applicationId "tech.numberless.port"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 64
+        versionCode 70
         versionName "1.15.0"
     }
    packagingOptions {

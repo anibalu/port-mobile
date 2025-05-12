@@ -130,11 +130,16 @@ export default class Signaller {
   }
 
   cleanup() {
-    console.log('Cleaning up signaller');
-    this.socket.onopen = null;
-    this.socket.onmessage = null;
-    this.socket.onclose = null;
-    this.socket.onerror = null;
-    this.socket.close();
+    try {
+
+      console.log('Cleaning up signaller');
+      this.socket.onopen = null;
+      this.socket.onmessage = null;
+      this.socket.onclose = null;
+      this.socket.onerror = null;
+      this.socket.close();
+    } catch (error) {
+      console.error('Error cleaning up signaller: ', error);
+    }
   }
 }

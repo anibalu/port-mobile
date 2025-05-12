@@ -10,6 +10,7 @@ import {useSelector} from 'react-redux';
 import store from '@store/appStore';
 
 import {setUpCallStateListeners} from '@utils/Calls/CallOSBridge';
+import DirectChat from '@utils/DirectChats/DirectChat';
 import {registerForVoIPPushNotifications} from '@utils/Messaging/PushNotifications/VoIPAPNS';
 
 import NativeCallHelperModule from '@specs/NativeCallHelperModule';
@@ -69,8 +70,18 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
         // We're already processing a call. WTF.
         return state;
       }
-      // TODO: replace 'test' with the caller name
-      NativeCallHelperModule.startOutgoingCall(action.callId, 'test');
+      // The following line doesn't adhere to our linting standards, but this is the only case where we
+      // need to get the chat data
+      const chat = new DirectChat(action.chatId); // eslint-disable-line no-case-declarations
+      chat
+        .getChatData()
+        .then(chatData => {
+          NativeCallHelperModule.startOutgoingCall(
+            action.callId,
+            chatData.name || ' New connection',
+          );
+        })
+        .catch(e => console.error('Could not start outgoing CallKit UI: ', e));
       return {
         callId: action.callId,
         chatId: action.chatId,
@@ -136,7 +147,7 @@ const manageCall = (state: CurrentCall, action: CallAction): CurrentCall => {
         return undefined;
       }
     // We're declining a call that isn't in the unanswered state, pretend it's ongoing and drop into the end_call case
-    case 'end_call':  // eslint-disable-line no-fallthrough
+    case 'end_call': // eslint-disable-line no-fallthrough
       if (!state || !state.callId) {
         return state;
       }

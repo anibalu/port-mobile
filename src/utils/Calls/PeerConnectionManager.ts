@@ -384,7 +384,9 @@ export class PeerConnectionManager {
           this.addMyMediaStreamsToPeer();
         } catch (e) {
           // Don't have a clean way to handle this
-          console.error('[PEER CONNECTION] could not add my stream to peer connection')
+          console.error(
+            '[PEER CONNECTION] could not add my stream to peer connection',
+          );
         }
 
         // Accept the offer, if possible
@@ -553,8 +555,16 @@ export class PeerConnectionManager {
    */
   cleanup() {
     // Remove listeners to prevent leaks
-    this.removeSDPListeners();
-    this.closeDataChannel();
-    this.peerConnection?.close();
+    try {
+      this.removeSDPListeners();
+      this.closeDataChannel();
+    } catch (error) {
+      console.error('Error cleaning up peer connection manager: ', error);
+    }
+    try {
+      this.peerConnection?.close();
+    } catch (error) {
+      console.error('Error closing peer connection: ', error);
+    }
   }
 }

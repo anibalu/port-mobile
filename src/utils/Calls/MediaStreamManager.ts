@@ -86,6 +86,12 @@ export class MediaStreamManager {
    * Stop the capture of audio and video
    */
   stopStreaming() {
-    this.stream?.getTracks().forEach(track => track.stop());
+    this.stream?.getTracks().forEach(track => {
+      try {
+        track.stop();
+      } catch (error) {
+        console.error('Error stopping track: ', error);
+      }
+    });
   }
 }

@@ -31,8 +31,8 @@ const ExportBackup = ({
     const svgArray = [
         {
           assetName: 'GoogleLogo',
-          light: require('assets/icons/GoogleSmall.svg').default,
-          dark: require('assets/icons/GoogleSmall.svg').default,
+          light: require('@assets/icons/GoogleSmall.svg').default,
+          dark: require('@assets/icons/GoogleSmall.svg').default,
         },
       ];
       const svgResults = useSVG(svgArray, color.theme);

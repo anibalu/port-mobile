@@ -1,28 +1,25 @@
-import React, {useState} from 'react';
-import {View} from 'react-native';
+import React, { useState } from 'react';
+import { View } from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import getPermissionIcon from '@components/getPermissionIcon';
+import { useColors } from '@components/colorGuide';
+import { permissionConfigMap } from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import BooleanPermissionOption from '@components/PermissionsCards/Options/BooleanPermissionOption';
+import NumberPermissionOption from '@components/PermissionsCards/Options/NumberPermissionOption';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
-import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
+import { Spacing } from '@components/spacingGuide';
 
-import {ContentType} from '@utils/Messaging/interfaces';
+import { ContentType } from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {
-  BooleanPermissions,
   PermissionsStrict,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
-import {updatePermissions} from '@utils/Storage/permissions';
-import {getLabelByTimeDiff} from '@utils/Time';
-
-import {useTheme} from 'src/context/ThemeContext';
+import { updatePermissions } from '@utils/Storage/permissions';
+import { getLabelByTimeDiff } from '@utils/Time';
 
 import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
 
@@ -32,16 +29,14 @@ const NewChatSettingsCard = ({
   permissionsId,
   permissions,
   setPermissions,
-  showDissapearingMessagesOption = true,
   heading = 'Other chat settings',
-  setOpenDisabledPermissionBottomsheet = () => {},
-  isDefaultFolder = false,
+  // setOpenDisabledPermissionBottomsheet = () => { },
+  // isDefaultFolder = false,
 }: {
   chatId?: string;
   permissionsId?: string;
   permissions: PermissionsStrict;
   setPermissions: (permissions: PermissionsStrict) => void;
-  showDissapearingMessagesOption?: boolean;
   heading?: string;
   isDefaultFolder?: boolean;
   setOpenDisabledPermissionBottomsheet?: (x: boolean) => void;
@@ -50,23 +45,7 @@ const NewChatSettingsCard = ({
   const [showDesappearingMessageModal, setShowDissappearingMessageModal] =
     useState<boolean>(false);
 
-  const Colors = DynamicColors();
-
-  const onUpdateBooleanPermission = async (
-    permissionKey: keyof BooleanPermissions,
-  ) => {
-    if (permissionKey === 'focus' && permissions.focus && isDefaultFolder) {
-      setOpenDisabledPermissionBottomsheet(true);
-    }
-    const updatedPermissions: PermissionsStrict = {
-      ...permissions,
-      [permissionKey]: !permissions[permissionKey],
-    };
-    if (permissionsId) {
-      await updatePermissions(permissionsId, updatedPermissions);
-    }
-    setPermissions(updatedPermissions);
-  };
+  const Colors = useColors();
 
   const onUpdateDisappearingMessagedPermission = async (newValue: number) => {
     if (permissions.disappearingMessages !== newValue) {
@@ -95,71 +74,56 @@ const NewChatSettingsCard = ({
     }
   };
 
-  const {themeValue} = useTheme();
-
   return (
-    <SimpleCard style={{backgroundColor: 'transparent', paddingVertical: 0}}>
+    <SimpleCard style={{ backgroundColor: 'transparent', paddingVertical: 0 }}>
       <View
         style={{
           width: '100%',
           height: 48,
-          paddingHorizontal: PortSpacing.intermediate.uniform,
+          paddingHorizontal: Spacing.xl,
           justifyContent: 'center',
         }}>
         <NumberlessText
-          textColor={Colors.labels.text}
+          textColor={Colors.text.title}
           fontType={FontType.md}
           fontSizeType={FontSizeType.l}>
           {heading}
         </NumberlessText>
       </View>
-      <View style={{width: '100%'}}>
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'focus',
-            permissions.focus,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.focus}
-          heading="Show chat in Home Tab"
-          onToggle={async () => await onUpdateBooleanPermission('focus')}
+      <View style={{ marginHorizontal: Spacing.l }}>
+        <BooleanPermissionOption
+          onToggle={async () => {
+            const editedPermissions = {
+              ...permissions,
+              autoDownload: !permissions.autoDownload,
+            };
+            if (permissionsId) {
+              updatePermissions(permissionsId, editedPermissions);
+            }
+            setPermissions(editedPermissions);
+          }}
+          permissionState={permissions.autoDownload}
+          title="Media auto-download"
+          PermissionConfigMap={permissionConfigMap.autoDownload}
+          theme={Colors.theme}
         />
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'autoDownload',
-            permissions.autoDownload,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.autoDownload}
-          heading="Media auto-download"
-          onToggle={async () => await onUpdateBooleanPermission('autoDownload')}
+        <NumberPermissionOption
+          onClick={() => setShowDissappearingMessageModal(true)}
+          permissionState={permissions.disappearingMessages}
+          title="Disappearing messages"
+          PermissionConfigMap={permissionConfigMap.disappearingMessages}
+          labelText={getLabelByTimeDiff(permissions.disappearingMessages)}
+          theme={Colors.theme}
         />
       </View>
-      {showDissapearingMessagesOption && (
-        <>
-          <OptionWithChevron
-            IconLeftView={getPermissionIcon([
-              'disappearingMessages',
-              !!permissions.disappearingMessages,
-              themeValue,
-            ])}
-            labelActiveState={
-              getLabelByTimeDiff(permissions.disappearingMessages) !== 'Off'
-            }
-            labelText={getLabelByTimeDiff(permissions.disappearingMessages)}
-            heading="Disappearing messages"
-            onClick={() => setShowDissappearingMessageModal(true)}
-          />
-          <DissapearingMessagesBottomsheet
-            showDesappearingMessageModal={showDesappearingMessageModal}
-            setShowDissappearingMessageModal={setShowDissappearingMessageModal}
-            permission={permissions.disappearingMessages}
-            onUpdateDisappearingMessagesPermission={
-              onUpdateDisappearingMessagedPermission
-            }
-          />
-        </>
-      )}
+      <DissapearingMessagesBottomsheet
+        showDesappearingMessageModal={showDesappearingMessageModal}
+        setShowDissappearingMessageModal={setShowDissappearingMessageModal}
+        permission={permissions.disappearingMessages}
+        onUpdateDisappearingMessagesPermission={
+          onUpdateDisappearingMessagedPermission
+        }
+      />
     </SimpleCard>
   );
 };

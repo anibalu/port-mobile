@@ -297,7 +297,6 @@ export const ChatTopBarWithAccessControls = forwardRef(
                   permissions={permissions}
                   permissionsId={permissionsId}
                   setPermissions={setPermissions}
-                  showDissapearingMessagesOption={true}
                 />
               </Animated.View>
             </View>

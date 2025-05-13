@@ -1,48 +1,44 @@
-import React from 'react';
-import {View} from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AppState, AppStateStatus, View } from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import getPermissionIcon from '@components/getPermissionIcon';
+import { useColors } from '@components/colorGuide';
+import { permissionConfigMap } from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import BooleanPermissionOption from '@components/PermissionsCards/Options/BooleanPermissionOption';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
+import { Spacing } from '@components/spacingGuide';
 
-import {modifyCallPermission} from '@utils/Calls/APICalls';
+import { checkNotificationPermission } from '@utils/AppPermissions';
+import { modifyCallPermission } from '@utils/Calls/APICalls';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
+import { setRemoteNotificationPermissionsForChats } from '@utils/Notifications';
+import { pauseContactPortForDirectChat, resumeContactPortForDirectChat } from '@utils/Ports';
 import {
-  pauseContactPortForDirectChat,
-  resumeContactPortForDirectChat,
-} from '@utils/Ports';
-import {
-  BooleanPermissions,
   PermissionsStrict,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
-import {updatePermissions} from '@utils/Storage/permissions';
-
-import {useTheme} from 'src/context/ThemeContext';
+import { updatePermissions } from '@utils/Storage/permissions';
 
 const ContactSettingsCard = ({
-  permissionsId,
-  permissions,
-  setPermissions,
   chatId,
+  permissions,
+  permissionsId,
+  setPermissions,
   chatName,
-  heading,
-}: {
-  permissionsId?: string;
+  heading}: {
+  permissionsId: string;
   permissions: PermissionsStrict;
   setPermissions: (permissions: PermissionsStrict) => void;
   chatId?: string;
   chatName?: string;
   heading?: string;
 }) => {
-  const Colors = DynamicColors();
+  const Colors = useColors();
+
+  const [notificationPermission, setNotificationPermission] = useState(true);
 
   const onUpdateNotificationPermission = async () => {
     const newNotificationPermissionState = !permissions.notifications;
@@ -114,18 +110,6 @@ const ContactSettingsCard = ({
       });
     }
   };
-  const onUpdateBooleanPermission = async (
-    permissionKey: keyof BooleanPermissions,
-  ) => {
-    const updatedPermissions: PermissionsStrict = {
-      ...permissions,
-      [permissionKey]: !permissions[permissionKey],
-    };
-    if (permissionsId) {
-      await updatePermissions(permissionsId, updatedPermissions);
-    }
-    setPermissions(updatedPermissions);
-  };
 
   async function toggleContactSharing() {
     const oldPermissions = permissions;
@@ -166,75 +150,99 @@ const ContactSettingsCard = ({
     }
   }
 
-  const {themeValue} = useTheme();
+  // Define the permission check function with useCallback
+  const checkPermissions = useCallback(async () => {
+    const notificationPermission = await checkNotificationPermission();
+    setNotificationPermission(notificationPermission);
+    console.log('Checked permissions, status:', notificationPermission);
+  }, []);
+
+  // Run when app comes to foreground
+  useEffect(() => {
+    checkPermissions();
+    const subscription = AppState.addEventListener(
+      'change',
+      (nextAppState: AppStateStatus) => {
+        if (nextAppState === 'active') {
+          checkPermissions();
+        }
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [checkPermissions]);
+
+  const onUpdateBooleanPermission = async (
+    permissionsId: string,
+    editedPermissions: PermissionsStrict,
+  ) => {
+    await updatePermissions(permissionsId, editedPermissions);
+    setPermissions(editedPermissions);
+  };
+
   return (
-    <SimpleCard style={{backgroundColor: 'transparent', paddingVertical: 0}}>
+    <SimpleCard style={{ backgroundColor: 'transparent', paddingVertical: 0 }}>
       <View
         style={{
           width: '100%',
           height: 48,
-          paddingHorizontal: PortSpacing.intermediate.uniform,
+          paddingHorizontal: Spacing.l,
           justifyContent: 'center',
         }}>
         <NumberlessText
-          textColor={Colors.labels.text}
+          textColor={Colors.text.title}
           fontType={FontType.md}
           fontSizeType={FontSizeType.l}>
           {heading ? heading : `Enable ${chatName} to`}
         </NumberlessText>
       </View>
-      <View style={{width: '100%'}}>
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'notifications',
-            permissions.notifications,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.notifications}
-          heading="Notify me"
+      <View style={{ marginHorizontal: Spacing.l }}>
+        <BooleanPermissionOption
           onToggle={onUpdateNotificationPermission}
+          permissionState={permissions.notifications}
+          title="Notify me"
+          PermissionConfigMap={permissionConfigMap.notifications}
+          theme={Colors.theme}
+          appPermissionNotGranted={!notificationPermission}
+          appPermissionNotGrantedText="Please enable notifications in your device settings to receive alerts from contacts."
         />
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'calling',
-            permissions.calling,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.calling}
-          heading="Call me"
+        <BooleanPermissionOption
           onToggle={onUpdateCallPermission}
+          permissionState={permissions.calling}
+          title="Call me"
+          PermissionConfigMap={permissionConfigMap.calling}
+          theme={Colors.theme}
         />
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'contactSharing',
-            permissions.contactSharing,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.contactSharing}
-          heading="Share my contact"
+        <BooleanPermissionOption
           onToggle={toggleContactSharing}
+          permissionState={permissions.contactSharing}
+          title="Share my contact"
+          PermissionConfigMap={permissionConfigMap.contactSharing}
+          theme={Colors.theme}
         />
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'displayPicture',
-            permissions.displayPicture,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.displayPicture}
-          heading="See my display picture"
-          onToggle={async () =>
-            await onUpdateBooleanPermission('displayPicture')
+        <BooleanPermissionOption
+          onToggle={async () => 
+            await onUpdateBooleanPermission(permissionsId, {
+              ...permissions,
+              displayPicture: !permissions.displayPicture,
+            })
           }
+          permissionState={permissions.displayPicture}
+          title="See my profile picture"
+          PermissionConfigMap={permissionConfigMap.displayPicture}
+          theme={Colors.theme}
         />
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'readReceipts',
-            permissions.readReceipts,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.readReceipts}
-          heading="See my read receipts"
-          onToggle={async () => await onUpdateBooleanPermission('readReceipts')}
+        <BooleanPermissionOption
+          onToggle={async () => await onUpdateBooleanPermission(permissionsId, {
+            ...permissions,
+            readReceipts: !permissions.readReceipts,
+          })}
+          permissionState={permissions.readReceipts}
+          title="See my read receipts"
+          PermissionConfigMap={permissionConfigMap.readReceipts}
+          theme={Colors.theme}
         />
       </View>
     </SimpleCard>

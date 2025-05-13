@@ -35,13 +35,13 @@ const RestoreBackupScreen = ({ navigation }: Props) => {
   const svgArray = [
     {
       assetName: 'GoogleLogo',
-      light: require('assets/icons/GoogleSmall.svg').default,
-      dark: require('assets/icons/GoogleSmall.svg').default,
+      light: require('@assets/icons/GoogleSmall.svg').default,
+      dark: require('@assets/icons/GoogleSmall.svg').default,
     },
     {
       assetName: 'BackupIllustration',
-      light: require('assets/miscellaneous/backupBackground.svg').default,
-      dark: require('assets/miscellaneous/backupBackground.svg').default,
+      light: require('@assets/miscellaneous/backupBackground.svg').default,
+      dark: require('@assets/miscellaneous/backupBackground.svg').default,
     },
   ];
   const svgResults = useSVG(svgArray, colors.theme);

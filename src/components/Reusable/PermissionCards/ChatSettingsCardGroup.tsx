@@ -1,30 +1,29 @@
-import React, {useState} from 'react';
-import {View} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {AppState, AppStateStatus, View} from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import getPermissionIcon from '@components/getPermissionIcon';
+import { useColors } from '@components/colorGuide';
+import { permissionConfigMap } from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import BooleanPermissionOption from '@components/PermissionsCards/Options/BooleanPermissionOption';
+import NumberPermissionOption from '@components/PermissionsCards/Options/NumberPermissionOption';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import OptionWithChevron from '@components/Reusable/OptionButtons/OptionWithChevron';
-import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
+import { Spacing } from '@components/spacingGuide';
 
+import { checkNotificationPermission } from '@utils/AppPermissions';
 import Group from '@utils/Groups/Group';
 import {ContentType} from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {setRemoteNotificationPermissionsForChats} from '@utils/Notifications';
+import { setRemoteNotificationPermissionsForChats } from '@utils/Notifications';
 import {
-  BooleanPermissions,
   GroupPermissions,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
 import {updatePermissions} from '@utils/Storage/permissions';
 import {getLabelByTimeDiff} from '@utils/Time';
 
-import {useTheme} from 'src/context/ThemeContext';
 
 import DissapearingMessagesBottomsheet from '../BottomSheets/DissapearingMessagesBottomSheet';
 
@@ -34,7 +33,6 @@ const ChatSettingsCardGroup = ({
   permissionsId,
   permissions,
   setPermissions,
-  showDissapearingMessagesOption = true,
   heading = 'Other chat settings',
 }: {
   chatId?: string;
@@ -48,10 +46,36 @@ const ChatSettingsCardGroup = ({
   const [showDesappearingMessageModal, setShowDissappearingMessageModal] =
     useState<boolean>(false);
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
+
+  const [notificationPermission, setNotificationPermission] = useState(true);
+
+  // Define the permission check function with useCallback
+  const checkPermissions = useCallback(async () => {
+    const notificationPermission = await checkNotificationPermission();
+    setNotificationPermission(notificationPermission);
+    console.log('Checked permissions, status:', notificationPermission);
+  }, []);
+
+  // Run when app comes to foreground
+  useEffect(() => {
+    checkPermissions();
+    const subscription = AppState.addEventListener(
+      'change',
+      (nextAppState: AppStateStatus) => {
+        if (nextAppState === 'active') {
+          checkPermissions();
+        }
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [checkPermissions]);
 
   const onUpdateBooleanPermission = async (
-    permissionKey: keyof BooleanPermissions,
+    permissionKey: keyof GroupPermissions,
   ) => {
     const updatedPermissions: GroupPermissions = {
       ...permissions,
@@ -132,7 +156,6 @@ const ChatSettingsCardGroup = ({
     }
   };
 
-  const {themeValue} = useTheme();
 
   return (
     <SimpleCard style={{backgroundColor: 'transparent', paddingVertical: 0}}>
@@ -140,73 +163,53 @@ const ChatSettingsCardGroup = ({
         style={{
           width: '100%',
           height: 56,
-          paddingHorizontal: PortSpacing.intermediate.uniform,
+          paddingHorizontal: Spacing.xl,
           justifyContent: 'center',
         }}>
         <NumberlessText
-          textColor={Colors.labels.text}
+          textColor={Colors.text.title}
           fontType={FontType.md}
           fontSizeType={FontSizeType.l}>
           {heading}
         </NumberlessText>
       </View>
-      <View style={{width: '100%'}}>
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'notifications',
-            permissions.notifications,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.notifications}
-          heading="Notifications"
+      <View style={{
+        width: '100%',
+        paddingHorizontal: Spacing.xl,
+      }}>
+      <BooleanPermissionOption
           onToggle={onUpdateNotificationPermission}
+          permissionState={permissions.notifications}
+          title="Notify me"
+          PermissionConfigMap={permissionConfigMap.notifications}
+          theme={Colors.theme}
+          appPermissionNotGranted={!notificationPermission}
+          appPermissionNotGrantedText="Please enable notifications in your device settings to receive alerts from contacts."
         />
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'autoDownload',
-            permissions.autoDownload,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.autoDownload}
-          heading="Media auto-download"
+        <BooleanPermissionOption
           onToggle={async () => await onUpdateBooleanPermission('autoDownload')}
+          permissionState={permissions.autoDownload}
+          title="Media auto-download"
+          PermissionConfigMap={permissionConfigMap.autoDownload}
+          theme={Colors.theme}
         />
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'focus',
-            permissions.focus,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.focus}
-          heading="Show chat in Home Tab"
-          onToggle={async () => await onUpdateBooleanPermission('focus')}
+        <NumberPermissionOption
+          onClick={() => setShowDissappearingMessageModal(true)}
+          permissionState={permissions.disappearingMessages}
+          title="Disappearing messages"
+          PermissionConfigMap={permissionConfigMap.disappearingMessages}
+          labelText={getLabelByTimeDiff(permissions.disappearingMessages)}
+          theme={Colors.theme}
         />
       </View>
-      {showDissapearingMessagesOption && (
-        <>
-          <OptionWithChevron
-            IconLeftView={getPermissionIcon([
-              'disappearingMessages',
-              !!permissions.disappearingMessages,
-              themeValue,
-            ])}
-            labelActiveState={
-              getLabelByTimeDiff(permissions.disappearingMessages) !== 'Off'
-            }
-            labelText={getLabelByTimeDiff(permissions.disappearingMessages)}
-            heading="Disappearing messages"
-            onClick={() => setShowDissappearingMessageModal(true)}
-          />
-          <DissapearingMessagesBottomsheet
-            showDesappearingMessageModal={showDesappearingMessageModal}
-            setShowDissappearingMessageModal={setShowDissappearingMessageModal}
-            permission={permissions.disappearingMessages}
-            onUpdateDisappearingMessagesPermission={
-              onUpdateDisappearingMessagedPermission
-            }
-          />
-        </>
-      )}
+      <DissapearingMessagesBottomsheet
+        showDesappearingMessageModal={showDesappearingMessageModal}
+        setShowDissappearingMessageModal={setShowDissappearingMessageModal}
+        permission={permissions.disappearingMessages}
+        onUpdateDisappearingMessagesPermission={
+          onUpdateDisappearingMessagedPermission
+        }
+      />
     </SimpleCard>
   );
 };

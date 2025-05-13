@@ -1,24 +1,23 @@
 import React from 'react';
-import {View} from 'react-native';
+import { View } from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
-import getPermissionIcon from '@components/getPermissionIcon';
+import { useColors } from '@components/colorGuide';
+import { permissionConfigMap } from '@components/getPermissionIcon';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
+import BooleanPermissionOption from '@components/PermissionsCards/Options/BooleanPermissionOption';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
-import OptionWithToggle from '@components/Reusable/OptionButtons/OptionWithToggle';
+import { Spacing } from '@components/spacingGuide';
 
 import {
   BooleanPermissions,
   GroupPermissions,
 } from '@utils/Storage/DBCalls/permissions/interfaces';
-import {updatePermissions} from '@utils/Storage/permissions';
+import { updatePermissions } from '@utils/Storage/permissions';
 
-import {useTheme} from 'src/context/ThemeContext';
 
 const AdvanceSettingsCardGroup = ({
   permissionsId,
@@ -33,7 +32,7 @@ const AdvanceSettingsCardGroup = ({
   chatId?: string;
   heading?: string;
 }) => {
-  const Colors = DynamicColors();
+  const Colors = useColors();
 
   const onUpdateBooleanPermission = async (
     permissionKey: keyof BooleanPermissions,
@@ -49,35 +48,34 @@ const AdvanceSettingsCardGroup = ({
     setPermissions(updatedPermissions);
   };
 
-  const {themeValue} = useTheme();
   return (
-    <SimpleCard style={{backgroundColor: 'transparent', paddingVertical: 0}}>
+    <SimpleCard style={{ backgroundColor: 'transparent', paddingVertical: 0 }}>
       <View
         style={{
           width: '100%',
           height: 56,
-          paddingHorizontal: PortSpacing.intermediate.uniform,
+          paddingHorizontal: Spacing.xl,
           justifyContent: 'center',
         }}>
         <NumberlessText
-          textColor={Colors.labels.text}
+          textColor={Colors.text.subtitle}
           fontType={FontType.md}
           fontSizeType={FontSizeType.l}>
           {heading}
         </NumberlessText>
       </View>
-      <View style={{width: '100%'}}>
-        <OptionWithToggle
-          IconLeftView={getPermissionIcon([
-            'displayPicture',
-            permissions.displayPicture,
-            themeValue,
-          ])}
-          toggleActiveState={permissions.displayPicture}
-          heading="See your display picture"
-          onToggle={async () =>
-            await onUpdateBooleanPermission('displayPicture')
+      <View style={{
+        width: '100%',
+        paddingHorizontal: Spacing.xl,
+      }}>
+        <BooleanPermissionOption
+          onToggle={async () => await
+            onUpdateBooleanPermission('displayPicture')
           }
+          permissionState={permissions.displayPicture}
+          title="See your display picture"
+          PermissionConfigMap={permissionConfigMap.displayPicture}
+          theme={Colors.theme}
         />
       </View>
     </SimpleCard>

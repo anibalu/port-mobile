@@ -111,7 +111,6 @@ export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
     }
     //read profile from cache
     if (cachedProfile) {
-      console.log('returning cached profile: ', cachedProfile);
       if (shouldUpdateProfileStore) {
         updateProfileStore();
       }
@@ -122,7 +121,6 @@ export async function getProfileInfo(): Promise<ProfileInfo | undefined> {
       await storage.getProfileInfo();
     //If undefined, no profile exists.
     if (savedProfile && savedProfile.clientId) {
-      console.log('returning saved profile: ', savedProfile);
       //update cache with profile info
       cachedProfile = savedProfile;
       if (shouldUpdateProfileStore) {

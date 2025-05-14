@@ -82,7 +82,6 @@ const PopUpActions = ({
   const FileIcon = results.FileIcon;
   const ImageIcon = results.ImageIcon;
   const ContactIcon = results.ContactIcon;
-  const Templates = results.Templates;
 
   // to go to gallery confirmation screen
   const goToConfirmation = (lst: any[]) => {
@@ -178,11 +177,7 @@ const PopUpActions = ({
     }
   };
 
-  const onTemplatePressed = async (): Promise<void> => {
-    // TODO: nuke
-    navigation.navigate('Templates', {chatId: chatId});
-  };
-
+ 
   const Colors = DynamicColors();
   const styles = styling(Colors);
 
@@ -222,17 +217,7 @@ const PopUpActions = ({
             Files
           </NumberlessText>
         </View>
-        <View style={styles.optionContainer}>
-          <Pressable style={styles.optionBox} onPress={onTemplatePressed}>
-            <Templates height={30} width={30} />
-          </Pressable>
-          <NumberlessText
-            fontSizeType={FontSizeType.s}
-            textColor={Colors.text.primary}
-            fontType={FontType.rg}>
-            Templates
-          </NumberlessText>
-        </View>
+       
         <View style={styles.optionContainer}>
           <Pressable
             style={styles.optionBox}

@@ -58,6 +58,8 @@ export const checkCameraPermission = async (
   return;
 };
 
+
+
 /**
  * Function to check camera roll save permissions. On Android, it additionally asks for permissions if not granted.
  */

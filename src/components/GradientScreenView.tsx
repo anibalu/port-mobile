@@ -9,12 +9,13 @@ import {SafeAreaView, SafeAreaViewProps} from './SafeAreaView';
 import {Height, Width} from './spacingGuide';
 import TopBarTitle from './Text/TopBarTitle';
 import SimpleBackTopBar from './TopBars/SimpleBackTopBar';
-
+import SimpleSkipTopBar from './TopBars/SimpleSkipTopBar';
 export interface GradientScreenViewProps extends SafeAreaViewProps {
   color: any;
   title?: string;
   containsEmptyTitleAndDescription?: boolean;
   onBackPress?: () => void;
+  onSkipPress?: () => void;
 }
 
 /**
@@ -43,6 +44,7 @@ export function GradientScreenView({
   title,
   containsEmptyTitleAndDescription = false,
   onBackPress,
+  onSkipPress,
   backgroundColor,
   ...rest
 }: GradientScreenViewProps) {
@@ -89,6 +91,9 @@ export function GradientScreenView({
         </View>
         {onBackPress && (
           <SimpleBackTopBar onBackPress={onBackPress} theme={color.theme} />
+        )}
+        {onSkipPress && (
+          <SimpleSkipTopBar onSkipPress={onSkipPress} theme={color.theme} />
         )}
         {title && <TopBarTitle title={title} theme={color.theme} />}
         {children}

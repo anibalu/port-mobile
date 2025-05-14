@@ -80,6 +80,7 @@ const SimpleQR = ({
 const styling = (colors: any) =>
   StyleSheet.create({
     qrBox: {
+      backgroundColor: colors.white,
       width: Width.screen - 10 * Spacing.l,
       height: Width.screen - 10 * Spacing.l,
       justifyContent: 'center',

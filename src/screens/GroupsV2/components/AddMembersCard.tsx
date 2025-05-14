@@ -11,18 +11,17 @@ import {
 } from '@configs/constants';
 
 import Group from '@utils/Groups/GroupClass';
-import { GroupSuperPort } from '@utils/Ports/GroupSuperPorts/GroupSuperPort';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
 import {GroupData} from '@utils/Storage/DBCalls/group';
 import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
 import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
-import {PortSpacing} from './ComponentUtils';
-import DynamicColors from './DynamicColors';
-import {FontSizeType, FontType, NumberlessText} from './NumberlessText';
-import {AvatarBox} from './Reusable/AvatarBox/AvatarBox';
-import GroupMemberInfoBottomsheet from './Reusable/BottomSheets/GroupMemberInfoBottomsheet';
-import SimpleCard from './Reusable/Cards/SimpleCard';
+import GradientCard from '../../../components/Cards/GradientCard';
+import { useColors } from '../../../components/colorGuide';
+import {FontSizeType,  FontWeight, NumberlessText} from '../../../components/NumberlessText';
+import {AvatarBox} from '../../../components/Reusable/AvatarBox/AvatarBox';
+import GroupMemberInfoBottomsheet from '../../../components/Reusable/BottomSheets/GroupMemberInfoBottomsheet';
+import { Spacing } from '../../../components/spacingGuide';
 
 
 interface GroupMemberUseableData extends GroupMemberLoadedData {
@@ -48,13 +47,13 @@ const AddMembersCard = ({
     useState<GroupMemberUseableData | null>(null);
   const [allMembers, setAllMembers] =
     useState<GroupMemberLoadedData[]>(members);
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
   const svgArray = [
     {
       assetName: 'Plus',
-      light: require('@assets/icons/AccentPlus.svg').default,
-      dark: require('@assets/icons/AccentPlus.svg').default,
+      light: require('@assets/light/icons/Plus.svg').default,
+      dark: require('@assets/dark/icons/Plus.svg').default,
     },
     {
       assetName: 'Link',
@@ -69,8 +68,7 @@ const AddMembersCard = ({
   ];
   const results = useDynamicSVG(svgArray);
   const navigation = useNavigation();
-  // const Plus = results.Plus;
-  const Link = results.Link;
+  const Plus = results.Plus;
   const AngleRight = results.AngleRight;
 
   const [modifiedMembers, setModifedMembers] = useState<
@@ -89,22 +87,7 @@ const AddMembersCard = ({
     ...allMembers,
   ]);
 
-  // generates qr code from group superport class
-  const onQRGeneration = async () => {
-    try {
-      const groupSuperPortHandler = await GroupSuperPort.generator.create(
-        chatData.groupId,
-      );
-      const portData = groupSuperPortHandler.getPort();
-      navigation.navigate('NewGroupSuperPort', {
-        chatData: chatData,
-        portData: portData,
-        chatId: chatId,
-      });
-    } catch (error) {
-      console.log('Error fetching group superport', error);
-    }
-  };
+
 
   const onPressMember = async (member: GroupMemberLoadedData) => {
     try {
@@ -116,10 +99,10 @@ const AddMembersCard = ({
          * Upon clicking on either the home tab or folder tab, they start from scratch, making
          * sure that the stack doesn't end up having any cycles or weird behaviour
          */
-        navigation.replace('AppStack', {
-          screen: 'HomeTab',
-          params: {screen: 'MyProfile'},
-        });
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'HomeTab', params: { screen: 'Settings' } }],
+        })
       } else {
         const directChatId = await getChatIdFromPairHash(member.pairHash);
         setSelectedMember({...member, directChatId});
@@ -166,39 +149,41 @@ const AddMembersCard = ({
   );
 
   return (
-    <SimpleCard
+    <GradientCard
       style={{
-        paddingVertical: PortSpacing.secondary.uniform,
-        paddingHorizontal: PortSpacing.secondary.uniform,
+        paddingVertical: Spacing.l,
+        paddingHorizontal: Spacing.l,
       }}>
       <View style={styles.headerWrapper}>
         <NumberlessText
-          textColor={Colors.labels.text}
-          fontType={FontType.md}
+          textColor={Colors.text.title}
+          fontWeight={FontWeight.md}
           fontSizeType={FontSizeType.l}>
           Group members
         </NumberlessText>
         <NumberlessText
           style={{
-            color: Colors.labels.text,
+            color: Colors.text.title,
             paddingRight: 4,
           }}
-          fontType={FontType.rg}
+          fontWeight={FontWeight.rg}
           fontSizeType={FontSizeType.m}>
           {`${allMembers.length + 1}/${GROUP_MEMBER_LIMIT}`}
         </NumberlessText>
       </View>
       {chatData.amAdmin && (
         <>
-          <Pressable onPress={onQRGeneration} style={styles.heading}>
-            <Link height={24} width={24} />
+          <Pressable onPress={()=>(navigation as any).navigate('InviteGroupMembers', {
+            chatId: chatId, groupData: chatData
+          })} style={styles.heading}>
+            <Plus height={24} width={24} />
             <NumberlessText
               style={styles.text}
-              fontType={FontType.rg}
+              fontWeight={FontWeight.rg}
               fontSizeType={FontSizeType.m}
               numberOfLines={1}
               ellipsizeMode="tail">
-              Create an invitation
+              Invite new members
             </NumberlessText>
           </Pressable>
         </>
@@ -213,30 +198,31 @@ const AddMembersCard = ({
                 borderBottomColor:
                   modifiedMembers.length - 1 === index
                     ? 'transparent'
-                    : Colors.primary.stroke,
+                    : Colors.stroke,
               })}
               onPress={() => onPressMember(member)}>
               <AvatarBox avatarSize="s" profileUri={member.displayPic} />
               <View style={styles.item}>
                 <NumberlessText
                   style={{
-                    color: Colors.labels.text,
-                    paddingLeft: PortSpacing.secondary.left,
+                    color: Colors.text.title,
+                    paddingLeft: Spacing.l,
                   }}
-                  fontType={FontType.rg}
+                  fontWeight={FontWeight.rg}
                   fontSizeType={FontSizeType.m}>
                   {member.name || DEFAULT_GROUP_MEMBER_NAME}
                 </NumberlessText>
                 {member.isAdmin && (
                   <View
                     style={{
-                      backgroundColor: Colors.primary.lightgrey,
+                      backgroundColor: Colors.surface2,
                       padding: 4,
-                      borderRadius: 6,
+                      paddingHorizontal: Spacing.s,
+                      borderRadius: Spacing.l,
                     }}>
                     <NumberlessText
                       textColor={Colors.text.subtitle}
-                      fontType={FontType.rg}
+                      fontWeight={FontWeight.rg}
                       fontSizeType={FontSizeType.m}>
                       Admin
                     </NumberlessText>
@@ -261,12 +247,12 @@ const AddMembersCard = ({
           style={styles.button}>
           <NumberlessText
             style={{
-              color: Colors.labels.text,
-              paddingLeft: PortSpacing.secondary.left,
+              color: Colors.text.title,
+              paddingLeft:Spacing.l
             }}
-            fontType={FontType.sb}
+            fontWeight={FontWeight.sb}
             fontSizeType={FontSizeType.l}>
-            See all participants
+            See all members
           </NumberlessText>
           <AngleRight />
         </Pressable>
@@ -281,7 +267,7 @@ const AddMembersCard = ({
           visible={selectedMember ? true : false}
         />
       )}
-    </SimpleCard>
+    </GradientCard>
   );
 };
 
@@ -289,7 +275,7 @@ const styling = (Colors: any) =>
   StyleSheet.create({
     row: {
       flex: 1,
-      paddingVertical: PortSpacing.tertiary.bottom,
+      paddingVertical: Spacing.s,
       flexDirection: 'row',
       alignItems: 'center',
     },
@@ -297,23 +283,23 @@ const styling = (Colors: any) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: PortSpacing.secondary.bottom,
+      marginBottom:Spacing.l,
     },
     button: {
       flex: 1,
-      marginTop: PortSpacing.secondary.top,
+      marginTop: Spacing.l,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-end',
     },
     heading: {
       flex: 1,
-      paddingVertical: PortSpacing.secondary.bottom,
-      marginBottom: PortSpacing.secondary.bottom,
+      paddingVertical: Spacing.l,
+      marginBottom: Spacing.l,
       flexDirection: 'row',
-      borderColor: Colors.primary.stroke,
+      borderColor: Colors.stroke,
       borderWidth: 0.5,
-      paddingHorizontal: PortSpacing.secondary.top,
+      paddingHorizontal: Spacing.l,
       borderRadius: 12,
     },
     item: {
@@ -323,9 +309,9 @@ const styling = (Colors: any) =>
     },
     text: {
       flex: 1,
-      color: Colors.primary.tealBlue,
-      paddingLeft: PortSpacing.tertiary.left,
-      marginTop: 2,
+      color: Colors.text.title,
+      paddingLeft:Spacing.s,
+      marginTop: 4,
     },
   });
 

@@ -1,34 +1,36 @@
-import React, {useRef, useState} from 'react';
-import {KeyboardAvoidingView, ScrollView, StyleSheet, View} from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import {useNavigation} from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
-import {GenericButton} from '@components/GenericButton';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import PrimaryButton from '@components/Buttons/PrimaryButton';
+import GradientCard from '@components/Cards/GradientCard';
+import { useColors } from '@components/colorGuide';
+import { screen } from '@components/ComponentUtils';
+import { GradientScreenView } from '@components/GradientScreenView';
+import SimpleInput from '@components/Inputs/SimpleInput';
+import { AvatarBox } from '@components/Reusable/AvatarBox/AvatarBox';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import ErrorBottomSheet from '@components/Reusable/BottomSheets/ErrorBottomSheet';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
-import SimpleInput from '@components/Reusable/Inputs/SimpleInput';
-import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
-import TopBarWithRightIcon from '@components/Reusable/TopBars/TopBarWithRightIcon';
-import {SafeAreaView} from '@components/SafeAreaView';
+import { Size, Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
+import TopBarDescription from '@components/Text/TopBarDescription';
 
 import {
   DEFAULT_GROUP_PROFILE_AVATAR_INFO,
   safeModalCloseDuration,
 } from '@configs/constants';
 
-import Group from '@utils/Groups/Group';
-import { GroupPort } from '@utils/Ports/GroupPorts/GroupPort';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {wait} from '@utils/Time';
+import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
 
-const CreateNewGroup = () => {
-  const navigation = useNavigation();
+import Group from '@utils/Groups/GroupClass';
+import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
+import { wait } from '@utils/Time';
+
+type Props = NativeStackScreenProps<AppStackParamList, 'CreateNewGroup'>;
+
+const CreateNewGroup = ({ navigation }: Props) => {
   const scrollViewRef = useRef();
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
@@ -39,6 +41,7 @@ const CreateNewGroup = () => {
   const [errorVisible, setErrorVisible] = useState(false);
   //controls opening of bottom sheet to edit profile picture
   const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
+
   async function onSavePicture(profilePicAttr: FileAttributes) {
     console.log(profilePicAttr);
   }
@@ -51,126 +54,110 @@ const CreateNewGroup = () => {
     }
     setSetupLoading(true);
     try {
-      // throw new Error('Groups unsupported at the moment');
-      const groupHandler = new Group();
-      await groupHandler.createGroup(
+      const groupHandler = await Group.create(
         groupName.trim(),
         groupDescription.trim(),
         imageAttr.fileUri,
       );
-      //generate ports for group
-      await GroupPort.generator.fetchNewGroupPorts(groupHandler.getGroupIdNotNull());
-      //uploads encrypted group picture
-      await groupHandler.uploadGroupPicture();
-      navigation.goBack();
+      try {
+        //These are non-essential steps in group creation.
+        //uploads encrypted group picture
+        await groupHandler.uploadGroupPicture();
+      } catch (error) {
+        console.log('error in group picture upload: ', error);
+      }
+      navigation.replace('InviteGroupMembers', { chatId: groupHandler.getChatId(), groupData: groupHandler.getGroupData(), fromNewGroup: true});
     } catch (error) {
       setErrorVisible(true);
       console.log('error in group creation: ', error);
     }
     setSetupLoading(false);
   };
+
   const scrollToBottom = async () => {
     if (scrollViewRef.current) {
       await wait(200);
-      scrollViewRef.current.scrollToEnd({animated: true});
+      scrollViewRef.current.scrollToEnd({ animated: true });
     }
   };
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
 
   const svgArray = [
-    {
-      assetName: 'Cross',
-      light: require('@assets/light/icons/Cross.svg').default,
-      dark: require('@assets/dark/icons/Cross.svg').default,
-    },
     {
       assetName: 'EditCameraIcon',
       light: require('@assets/light/icons/EditCamera.svg').default,
       dark: require('@assets/dark/icons/EditCamera.svg').default,
     },
   ];
-  const results = useDynamicSVG(svgArray);
-  const Cross = results.Cross;
+  const results = useSVG(svgArray);
   const EditCameraIcon = results.EditCameraIcon;
   return (
-    <>
-      <CustomStatusBar
-        barStyle="dark-content"
-        backgroundColor={Colors.primary.surface}
-      />
-      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
-        <TopBarWithRightIcon
-          onIconRightPress={() => navigation.goBack()}
-          IconRight={Cross}
-          heading="Create new group"
-        />
-        <KeyboardAvoidingView
-          style={styles.screen}
-          behavior={isIOS ? 'padding' : 'height'}
-          keyboardVerticalOffset={isIOS ? 50 : 0}>
-          <ScrollView
-            ref={scrollViewRef}
-            horizontal={false}
-            showsHorizontalScrollIndicator={false}
-            showsVerticalScrollIndicator={false}>
-            <View style={styles.profilePictureHitbox}>
-              <AvatarBox
-                profileUri={imageAttr.fileUri}
-                avatarSize="m"
-                onPress={() => {
+    <GradientScreenView
+      color={Colors}
+      title="Create a new group"
+      onBackPress={() => navigation.goBack()}
+      modifyNavigationBarColor={true}
+      bottomNavigationBarColor={Colors.black}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.scrollContainer}>
+          <TopBarDescription
+            theme={Colors.theme}
+            description="Create a new group to chat with your friends and family."
+          />
+          <View style={styles.scrollableElementsParent}>
+            <GradientCard style={{ paddingHorizontal: Spacing.m }}>
+              <View style={styles.profilePictureHitbox}>
+                <AvatarBox
+                  profileUri={imageAttr.fileUri}
+                  avatarSize="m"
+                  onPress={() => {
+                    setOpenEditAvatarModal(p => !p);
+                  }}
+                />
+                <Pressable style={styles.updatePicture} onPress={() => {
                   setOpenEditAvatarModal(p => !p);
-                }}
+                }}>
+                  <EditCameraIcon width={20} height={20} />
+                </Pressable>
+              </View>
+              <SimpleInput
+                setText={setGroupName}
+                text={groupName}
+                placeholderText="Group name"
               />
-              <GenericButton
-                IconLeft={EditCameraIcon}
-                iconSize={20}
-                buttonStyle={styles.updatePicture}
-                onPress={() => {
-                  setOpenEditAvatarModal(p => !p);
-                }}
+              <View style={{ height: Spacing.s }} />
+              <LargeTextInput
+                showLimit={true}
+                setText={setGroupDescription}
+                text={groupDescription}
+                placeholderText="Add a description"
+                maxLength={250}
+                scrollToFocus={scrollToBottom}
               />
-            </View>
-            <SimpleInput
-              setText={setGroupName}
-              text={groupName}
-              placeholderText="Group name"
-            />
-            <View style={{height: PortSpacing.tertiary.uniform}} />
-            <LargeTextInput
-              showLimit={true}
-              setText={setGroupDescription}
-              text={groupDescription}
-              placeholderText="Add a description"
-              maxLength={250}
-              scrollToFocus={scrollToBottom}
-            />
-          </ScrollView>
-          <View
-            style={{
-              paddingVertical: PortSpacing.secondary.uniform,
-            }}>
-            <PrimaryButton
-              primaryButtonColor="b"
-              onClick={onCreatePressed}
-              buttonText="Create group"
-              disabled={groupName.length <= 0}
-              isLoading={setupLoading}
-            />
+            </GradientCard>
           </View>
-        </KeyboardAvoidingView>
-
-        <EditAvatar
-          visible={openEditAvatarModal}
-          onSave={onSavePicture}
-          localImageAttr={imageAttr}
-          setLocalImageAttr={setImageAttr}
-          onClose={() => {
-            setOpenEditAvatarModal(false);
-          }}
+        </View>
+      </ScrollView>
+      <View style={styles.footer}>
+        <PrimaryButton
+          theme={Colors.theme}
+          onClick={onCreatePressed}
+          text="Create group"
+          disabled={groupName.trim().length <= 0}
+          isLoading={setupLoading}
         />
-      </SafeAreaView>
+      </View>
+      <EditAvatar
+        visible={openEditAvatarModal}
+        onSave={onSavePicture}
+        localImageAttr={imageAttr}
+        setLocalImageAttr={setImageAttr}
+        onClose={() => {
+          setOpenEditAvatarModal(false);
+        }}
+      />
       <ErrorBottomSheet
         visible={errorVisible}
         onTryAgain={onCreatePressed}
@@ -178,7 +165,7 @@ const CreateNewGroup = () => {
         onClose={() => setErrorVisible(false)}
         description="Please ensure you're connected to the internet to create a new group."
       />
-    </>
+    </GradientScreenView>
   );
 };
 
@@ -187,28 +174,40 @@ const styling = (colors: any) =>
     screen: {
       flex: 1,
       width: screen.width,
-      backgroundColor: colors.primary.background,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      backgroundColor: colors.background,
+      paddingHorizontal: Spacing.l,
     },
     profilePictureHitbox: {
-      marginTop: PortSpacing.primary.top,
-      marginBottom: PortSpacing.primary.bottom,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      marginVertical: Spacing.l,
+      paddingHorizontal: Spacing.xl,
       flexDirection: 'column',
       alignItems: 'flex-end',
       justifyContent: 'flex-end',
       alignSelf: 'center',
     },
     updatePicture: {
-      width: 32,
-      height: 32,
-      backgroundColor: colors.primary.accent,
+      width: Size.xl,
+      height: Size.xl,
+      backgroundColor: colors.purple,
       position: 'absolute',
-      bottom: -4,
-      right: 8,
+      bottom: -Spacing.s,
+      right: Spacing.l,
       justifyContent: 'center',
       alignItems: 'center',
-      borderRadius: 9,
+      borderRadius: Spacing.l,
+    },
+    scrollContainer: {
+      backgroundColor: colors.background,
+    },
+    scrollableElementsParent: {
+      marginTop: -Spacing.xxl,
+      paddingHorizontal: Spacing.l,
+      paddingBottom: 200,
+      gap: Spacing.l,
+    },
+    footer: {
+      backgroundColor: colors.surface,
+      padding: Spacing.l,
     },
   });
 

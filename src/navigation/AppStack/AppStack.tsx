@@ -25,16 +25,14 @@ import DirectChat from '@screens/DirectChat/Chat';
 import GiveUsFeedbackScreen from '@screens/Feedback/GiveUsFeedbackScreen';
 import ForwardToContact from '@screens/ForwardToContact/ForwardToContact';
 import GroupChat from '@screens/GroupChat/Chat';
-import AddNewContacts from '@screens/GroupsV2/AddNewContacts';
-import AddNewGroupMembers from '@screens/GroupsV2/AddNewGroupMembers';
 import AllMembers from '@screens/GroupsV2/AllMembers';
 import CreateNewGroup from '@screens/GroupsV2/CreateNewGroup';
 import GroupProfile from '@screens/GroupsV2/GroupProfile';
-import NewGroupPort from '@screens/GroupsV2/NewGroupPort';
-import NewGroupSuperPort from '@screens/GroupsV2/NewGroupSuperPort';
+import InviteGroupMembers from '@screens/GroupsV2/InviteGroupMembers';
 import HelpScreen from '@screens/Help/HelpScreen';
 import MediaViewer from '@screens/MediaViewer/MediaViewer';
 import AccountSettings from '@screens/MyAccount';
+import GroupSuperPortQRScreen from '@screens/NewGroupSuperPort/GroupSuperPortQRScreen';
 import NewPortScreen from '@screens/NewPortScreen/NewPortScreen';
 import QRScanner from '@screens/Scanner/QRScanner';
 import ShareContact from '@screens/ShareContact/ShareContact';
@@ -53,7 +51,6 @@ import { AppStackParamList } from './AppStackTypes';
 import BottomNavStack from './BottomNavStack/BottomNavStack';
 import NewPortStack from './NewPortStack/NewPortStack';
 import NewSuperPortStack from './NewSuperPortStack/NewSuperPortStack';
-
 
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -139,7 +136,6 @@ function AppStack() {
             <Stack.Screen name="SharedMedia" component={SharedMedia} />
             {/* <Stack.Screen name="Isolation" component={Isolation} /> */}
             <Stack.Screen name="CreateNewGroup" component={CreateNewGroup} />
-            <Stack.Screen name="NewGroupPort" component={NewGroupPort} />
             <Stack.Screen
               name="GiveUsFeedbackScreen"
               component={GiveUsFeedbackScreen}
@@ -149,17 +145,9 @@ function AppStack() {
             <Stack.Screen name="BlockedContacts" component={BlockedContacts} />
             <Stack.Screen name="HelpScreen" component={HelpScreen} />
             <Stack.Screen name="Templates" component={Templates} />
-            <Stack.Screen name="AddNewContacts" component={AddNewContacts} />
+            <Stack.Screen name="InviteGroupMembers" component={InviteGroupMembers} />
             <Stack.Screen name="AllMembers" component={AllMembers} />
             <Stack.Screen name="GroupTemplates" component={GroupTemplates} />
-            <Stack.Screen
-              name="NewGroupSuperPort"
-              component={NewGroupSuperPort}
-            />
-            <Stack.Screen
-              name="AddNewGroupMembers"
-              component={AddNewGroupMembers}
-            />
             <Stack.Screen name="NewPortScreen" component={NewPortScreen} />
             <Stack.Screen name="NewPortStack" component={NewPortStack} />
             <Stack.Screen
@@ -179,6 +167,7 @@ function AppStack() {
             <Stack.Screen name="CreateBackupScreen" component={CreateBackupScreen} />
             <Stack.Screen name="ContactPortQRScreen" component={ContactPortQRScreen} />
             <Stack.Screen name="AcceptDirectChat" component={AcceptedDirectChat} />
+            <Stack.Screen name="GroupSuperPortQRScreen" component={GroupSuperPortQRScreen} />
           </Stack.Navigator>
         </CallContextProvider>
       </ConnectionModalProvider>

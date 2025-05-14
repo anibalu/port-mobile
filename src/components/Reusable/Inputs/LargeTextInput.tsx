@@ -11,14 +11,13 @@
 import React, {useState} from 'react';
 import {StyleSheet, TextInput, View} from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
-  getWeight,
 } from '@components/NumberlessText';
+import { Spacing } from '@components/spacingGuide';
 
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 
@@ -46,34 +45,28 @@ const LargeTextInput = ({
   };
   const [isFocused, setIsFocused] = useState(false);
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
 
   return (
-    <View
-      style={{
-        borderWidth: isEditable ? 1 : 0,
-        borderRadius: 12,
-        overflow: 'hidden',
-        paddingTop: isEditable ? PortSpacing.tertiary.top : 0,
-        paddingBottom: PortSpacing.intermediate.bottom,
-        ...{
-          borderColor: isEditable
-            ? isFocused
-              ? Colors.primary.accent
-              : Colors.primary.stroke
-            : null,
+    <View style={{
+      borderRadius: 12,
+      overflow: 'hidden',
+      paddingTop: Spacing.s,
+      paddingBottom: Spacing.xl,
+      borderWidth: 0.5,
+      ...{
+        borderColor: isEditable
+          ? isFocused
+            ? Colors.boldAccentColors.purple
+            : Colors.stroke
+          : undefined,
           backgroundColor:
-            bgColor && bgColor === 'g'
-              ? Colors.primary.mediumgrey
-              : Colors.primary.surface,
-        },
-      }}>
+          bgColor && bgColor === 'g' ? Colors.background : Colors.surface,
+      },
+    }}>
       <TextInput
-        style={StyleSheet.compose(styles.inputText, {
-          paddingHorizontal: isEditable ? PortSpacing.secondary.uniform : 2,
-          paddingTop: isEditable ? 0 : -PortSpacing.secondary.uniform,
-        })}
+        style={styles.inputText}
         onFocus={async () => {
           setIsFocused(true);
           await scrollToFocus();
@@ -82,7 +75,7 @@ const LargeTextInput = ({
         multiline
         placeholder={placeholderText}
         maxLength={maxLength === 'inf' ? undefined : maxLength}
-        placeholderTextColor={Colors.text.placeholder}
+        placeholderTextColor={Colors.text.subtitle}
         onChangeText={onTextChange}
         textAlignVertical="top"
         editable={isEditable}
@@ -90,9 +83,9 @@ const LargeTextInput = ({
       />
       {showLimit && (
         <NumberlessText
-          fontType={FontType.rg}
+          fontWeight={FontWeight.rg}
           fontSizeType={FontSizeType.s}
-          textColor={Colors.primary.mediumgrey}
+          textColor={Colors.text.subtitle}
           style={styles.inputCounterStyle}>
           {text.length}/{maxLength}
         </NumberlessText>
@@ -104,18 +97,17 @@ const LargeTextInput = ({
 const styling = (colors: any) =>
   StyleSheet.create({
     inputText: {
+      paddingVertical: 0,
+      paddingHorizontal: Spacing.l,
       alignSelf: 'stretch',
-      fontFamily: FontType.rg,
-      fontSize: FontSizeType.m,
-      fontWeight: getWeight(FontType.rg),
-      color: colors.text.subtitle,
-      maxHeight: 100,
-      height: undefined,
-      minHeight: 100,
+      fontSize: FontSizeType.l,
+      fontWeight: FontWeight.rg,
+      color: colors.text.title,
+      height: 150,
     },
     inputCounterStyle: {
       position: 'absolute',
-      bottom: PortSpacing.tertiary.bottom,
+      bottom: Spacing.s,
       right: 16,
     },
   });

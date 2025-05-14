@@ -28,6 +28,7 @@ export const Height = {
   lineSeparator: 9,
   inputBar: 48,
   optionBar: 48,
+  memberOptionBar: 56,
   button: 48,
   label: 28,
   searchBar: 44,

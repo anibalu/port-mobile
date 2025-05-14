@@ -1,6 +1,6 @@
 import {LineDataCombined} from '@utils/DirectChats/DirectChat';
 import AcceptedContactPortGenerator from '@utils/Ports/ContactPorts/AcceptedContactPortGenerator/AcceptedContactPortGenerator';
-import { DirectContactPortBundle, DirectSuperportBundle, PortBundle } from '@utils/Ports/interfaces';
+import { DirectContactPortBundle, DirectSuperportBundle, GroupSuperportBundle, PortBundle } from '@utils/Ports/interfaces';
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {ContactEntry} from '@utils/Storage/DBCalls/contacts';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
@@ -83,7 +83,7 @@ export type AppStackParamList = {
     chatId: string;
   };
   ShareContact: {chatId: string};
-  AddNewContacts: {chatId: string};
+  InviteGroupMembers: {chatId: string, groupData: GroupData, fromNewGroup?: boolean};
   AllMembers: {
     chatId: string;
     members: GroupMemberLoadedData[];
@@ -116,7 +116,6 @@ export type AppStackParamList = {
     profilePicAttr: FileAttributes;
   };
   CreateNewGroup: undefined;
-  NewGroupPort: {chatId: string; chatData: GroupData};
   GiveUsFeedbackScreen: undefined;
   MediaViewer: {isGroup?: boolean; message: GroupMessageData | LineMessageData};
   BlockedContacts: undefined;
@@ -139,8 +138,7 @@ export type AppStackParamList = {
   //child stacks
   NewPortStack: any;
   NewSuperPortStack: any;
-  NewGroupSuperPort: {portData: any; chatId: string; chatData: GroupData};
-  AddNewGroupMembers: {link: string; chatData: GroupData; chatId: string};
   ContactPortQRScreen: {contactName: string; profileUri?: string | null; contactPortClass: AcceptedContactPortGenerator; bundle: DirectContactPortBundle; link: string};
+  GroupSuperPortQRScreen: {chatId: string; groupData: GroupData; memberCount: number; bundle: GroupSuperportBundle; link: string};
   AcceptDirectChat: {bundle: PortBundle | DirectContactPortBundle | DirectSuperportBundle};
 };

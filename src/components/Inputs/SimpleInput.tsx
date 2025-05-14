@@ -3,7 +3,7 @@ import {KeyboardTypeOptions, StyleSheet, TextInput} from 'react-native';
 
 import {useColors} from '@components/colorGuide';
 import {FontSizeType, FontWeight} from '@components/NumberlessText';
-import {Height} from '@components/spacingGuide';
+import {Height, Spacing} from '@components/spacingGuide';
 
 import {NAME_LENGTH_LIMIT} from '@configs/constants';
 
@@ -91,7 +91,7 @@ const SimpleInput = ({
 
 const styles = StyleSheet.create({
   textInput: {
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.l,
     paddingVertical: 0,
     alignSelf: 'stretch',
     fontSize: FontSizeType.l,

@@ -7,11 +7,11 @@
  * 2. selectedMembers - all selected members
  * 3. setSelectedMembers - handles selection and unselection of members
  */
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {Pressable, ScrollView, View} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {ScrollView, View} from 'react-native';
 
 import {useFocusEffect} from '@react-navigation/native';
-import {SvgXml} from 'react-native-svg';
+// import {SvgXml} from 'react-native-svg';
 
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
@@ -22,11 +22,11 @@ import {
 } from '@components/NumberlessText';
 import FilterByFolderBottomSheet from '@components/Reusable/BottomSheets/FilterByFolderBottomSheet';
 
-import {folderIdToHex} from '@utils/Folders/folderIdToHex';
+// import {folderIdToHex} from '@utils/Folders/folderIdToHex';
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
 import {getAllFolders} from '@utils/Storage/folders';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
+// import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 import MultiSelectMemberRadio from '../MultiSelectMembers/MultiSelectMemberRadio';
 import LineSeparator from '../Separators/LineSeparator';
@@ -129,33 +129,33 @@ const MultiSelectMembersCard = ({
     })();
   }, [selectedFolder, members]);
 
-  const svgArray = [
-    {
-      assetName: 'FilterFunnelIcon',
-      light: require('@assets/light/icons/FilterFunnel.svg').default,
-      dark: require('@assets/dark/icons/FilterFunnel.svg').default,
-    },
-  ];
+  // const svgArray = [
+  //   {
+  //     assetName: 'FilterFunnelIcon',
+  //     light: require('@assets/light/icons/FilterFunnel.svg').default,
+  //     dark: require('@assets/dark/icons/FilterFunnel.svg').default,
+  //   },
+  // ];
 
-  const results = useDynamicSVG(svgArray);
-  const FilterFunnelIcon = results.FilterFunnelIcon;
+  // const results = useDynamicSVG(svgArray);
+  // const FilterFunnelIcon = results.FilterFunnelIcon;
 
-  const getSvgXml = (color: string) => {
-    return `
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M4.50065 1.75H15.5007C16.4173 1.75 17.1673 2.5 17.1673 3.41667V5.25C17.1673 5.91667 16.7507 6.75 16.334 7.16667L12.7507 10.3333C12.2507 10.75 11.9173 11.5833 11.9173 12.25V15.8333C11.9173 16.3333 11.584 17 11.1673 17.25L10.0007 18C8.91732 18.6667 7.41732 17.9167 7.41732 16.5833V12.1667C7.41732 11.5833 7.08398 10.8333 6.75065 10.4167L3.58398 7.08333C3.16732 6.66667 2.83398 5.91667 2.83398 5.41667V3.5C2.83398 2.5 3.58398 1.75 4.50065 1.75Z" stroke=${color} stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M9.10833 1.75L5 8.33333" stroke=${color} stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-`;
-  };
+//   const getSvgXml = (color: string) => {
+//     return `
+//     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+// <path d="M4.50065 1.75H15.5007C16.4173 1.75 17.1673 2.5 17.1673 3.41667V5.25C17.1673 5.91667 16.7507 6.75 16.334 7.16667L12.7507 10.3333C12.2507 10.75 11.9173 11.5833 11.9173 12.25V15.8333C11.9173 16.3333 11.584 17 11.1673 17.25L10.0007 18C8.91732 18.6667 7.41732 17.9167 7.41732 16.5833V12.1667C7.41732 11.5833 7.08398 10.8333 6.75065 10.4167L3.58398 7.08333C3.16732 6.66667 2.83398 5.91667 2.83398 5.41667V3.5C2.83398 2.5 3.58398 1.75 4.50065 1.75Z" stroke=${color} stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+// <path d="M9.10833 1.75L5 8.33333" stroke=${color} stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+// </svg>
+// `;
+//   };
 
-  const folderColor = useMemo(
-    () =>
-      selectedFolder &&
-      folderIdToHex(selectedFolder.folderId, Colors.boldAccentColors),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedFolder],
-  );
+//   const folderColor = useMemo(
+//     () =>
+//       selectedFolder &&
+//       folderIdToHex(selectedFolder.folderId, Colors.boldAccentColors),
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//     [selectedFolder],
+//   );
 
   const memberList = filteredMembers;
 
@@ -168,7 +168,7 @@ const MultiSelectMembersCard = ({
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-        <Pressable
+        {/* <Pressable
           onPress={() => setOpenFilterByFolder(true)}
           style={{
             backgroundColor: Colors.primary.surface,
@@ -196,7 +196,7 @@ const MultiSelectMembersCard = ({
               ? selectedFolder.name
               : 'Filter by folder'}
           </NumberlessText>
-        </Pressable>
+        </Pressable> */}
 
         {/* commenting out below select all logic untill we put optimised approach */}
         {/* {filteredMembers.length > 0 && (

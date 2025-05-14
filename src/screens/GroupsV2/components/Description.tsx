@@ -1,24 +1,25 @@
 import React, {useMemo, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import LargeTextInput from '@components/Reusable/Inputs/LargeTextInput';
 
 import Group from '@utils/Groups/Group';
 import {ContentType} from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {GroupData} from '@utils/Storage/DBCalls/group';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 import Greentick from '@assets/icons/notes/Greentick.svg';
 import Tick from '@assets/icons/notes/Tick.svg';
+
+import GradientCard from '../../../components/Cards/GradientCard';
+import { useColors } from '../../../components/colorGuide';
+import { Spacing } from '../../../components/spacingGuide';
+import useSVG from '../../../components/svgGuide';
 
 const Description = ({
   description,
@@ -29,7 +30,7 @@ const Description = ({
   chatId: string;
   chatData: GroupData;
 }) => {
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const [changesSaved, setChangesSaved] = useState(false);
   const [newNote, setNewNote] = useState(description);
 
@@ -45,7 +46,7 @@ const Description = ({
       dark: require('@assets/dark/icons/RedCross.svg').default,
     },
   ];
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
   const Cross = results.Cross;
   useMemo(() => {
     if (description) {
@@ -54,13 +55,13 @@ const Description = ({
   }, [description]);
 
   return (
-    <SimpleCard style={styles.main}>
+    <GradientCard style={styles.main}>
       <View style={styles.container}>
         <NumberlessText
-          textColor={Colors.text.primary}
-          fontType={FontType.md}
+          textColor={Colors.text.title}
+          fontWeight={FontWeight.sb}
           fontSizeType={FontSizeType.l}>
-          Description
+          Group Description
         </NumberlessText>
 
         {newNote !== description && (
@@ -70,7 +71,7 @@ const Description = ({
                 <Greentick />
                 <NumberlessText
                   textColor={Colors.text.subtitle}
-                  fontType={FontType.rg}
+                  fontWeight={FontWeight.rg}
                   fontSizeType={FontSizeType.s}>
                   Changes Saved
                 </NumberlessText>
@@ -119,25 +120,26 @@ const Description = ({
         placeholderText="Add a description"
         isEditable={chatData.amAdmin}
       />
-    </SimpleCard>
+    </GradientCard>
   );
 };
 
 const styles = StyleSheet.create({
   main: {
-    paddingVertical: PortSpacing.secondary.uniform,
-    paddingHorizontal: PortSpacing.secondary.uniform,
+    paddingVertical: Spacing.l,
+    paddingHorizontal: Spacing.l,
+    
   },
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: PortSpacing.secondary.uniform,
+    marginBottom: Spacing.l,
     alignItems: 'center',
     height: 30,
   },
   row: {
     flexDirection: 'row',
-    gap: PortSpacing.tertiary.uniform,
+    gap: Spacing.s
   },
 });
 export default Description;

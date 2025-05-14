@@ -417,6 +417,14 @@ class Group {
   }
 
   /**
+   * Get the number of active members in the group.
+   * @returns - number of active members in the group.
+   */
+  public getGroupMemberCount(): number {
+    return this.groupMembers.length + 1;
+  }
+
+  /**
    * Get the groupId associated with the group.
    * @returns - groupId
    */

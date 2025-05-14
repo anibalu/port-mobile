@@ -81,8 +81,7 @@ const styling = (color: any) =>
       alignItems: 'center',
       backgroundColor: color.primary.surface,
       height: TOPBAR_HEIGHT,
-      borderBottomColor: color.primary.stroke,
-      borderBottomWidth: 0.5,
+   
     },
   });
 

@@ -3,15 +3,13 @@ import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
 
-import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 
 import {ContentType} from '@utils/Messaging/interfaces';
 import {isGroupChat} from '@utils/Storage/connections';
@@ -19,9 +17,12 @@ import {MediaEntry} from '@utils/Storage/DBCalls/media';
 import {getGroupMessage} from '@utils/Storage/groupMessages';
 import {getMessage} from '@utils/Storage/messages';
 import {getSafeAbsoluteURI} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 import Play from '@assets/icons/videoPlay.svg';
+
+import GradientCard from './Cards/GradientCard';
+import { Spacing } from './spacingGuide';
+import useSVG from './svgGuide';
 
 const SharedMediaCard = ({
   chatId,
@@ -40,7 +41,7 @@ const SharedMediaCard = ({
       dark: require('@assets/dark/icons/navigation/AngleRight.svg').default,
     },
   ];
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
 
   const RightChevron = results.RightChevron;
   const renderSelectedPhoto = ({item}: {item: MediaEntry}) => {
@@ -60,7 +61,7 @@ const SharedMediaCard = ({
     return (
       <View
         key={item.mediaId}
-        style={{marginRight: PortSpacing.tertiary.right}}>
+        style={{marginRight: Spacing.s}}>
         <AvatarBox
           avatarSize="i"
           onPress={() => {
@@ -88,15 +89,15 @@ const SharedMediaCard = ({
   };
 
   return (
-    <SimpleCard
+    <GradientCard
       style={{
-        paddingVertical: PortSpacing.secondary.uniform,
-        paddingHorizontal: PortSpacing.secondary.uniform,
+        paddingVertical: Spacing.l,
+        paddingHorizontal: Spacing.l,
       }}>
       <View style={styles.headerWrapper}>
         <NumberlessText
           textColor={Colors.labels.text}
-          fontType={FontType.md}
+          fontWeight={FontWeight.sb}
           fontSizeType={FontSizeType.l}>
           Shared media
         </NumberlessText>
@@ -114,7 +115,7 @@ const SharedMediaCard = ({
               color: Colors.labels.text,
               paddingRight: 4,
             }}
-            fontType={FontType.rg}
+            fontWeight={FontWeight.rg}
             fontSizeType={FontSizeType.m}>
             See all
           </NumberlessText>
@@ -134,7 +135,7 @@ const SharedMediaCard = ({
           <View style={styles.noSharedmediaWrapper}>
             <NumberlessText
               fontSizeType={FontSizeType.s}
-              fontType={FontType.rg}
+              fontWeight={FontWeight.rg}
               textColor={Colors.labels.text}
               style={styles.noSharedMediaText}>
               No shared media
@@ -142,13 +143,13 @@ const SharedMediaCard = ({
           </View>
         )}
       </View>
-    </SimpleCard>
+    </GradientCard>
   );
 };
 const styles = StyleSheet.create({
   noSharedmediaWrapper: {
     alignSelf: 'center',
-    marginTop: PortSpacing.tertiary.top,
+    marginTop: Spacing.s
   },
   noSharedMediaText: {
     paddingHorizontal: 10,

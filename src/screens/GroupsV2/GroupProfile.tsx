@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   NativeSyntheticEvent,
   Pressable,
@@ -8,65 +8,70 @@ import {
   View,
 } from 'react-native';
 
-import {useFocusEffect} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import AddMembersCard from '@components/AddMembersCard';
-import {PortSpacing, screen} from '@components/ComponentUtils';
-import {CustomStatusBar} from '@components/CustomStatusBar';
-import Description from '@components/Description';
-import DynamicColors from '@components/DynamicColors';
+import GradientCard from '@components/Cards/GradientCard';
+import { useColors } from '@components/colorGuide';
+import { screen } from '@components/ComponentUtils';
+import { CustomStatusBar } from '@components/CustomStatusBar';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
+import { AvatarBox } from '@components/Reusable/AvatarBox/AvatarBox';
 import ProfilePictureBlurViewModal from '@components/Reusable/BlurView/ProfilePictureBlurView';
 import AddFolderBottomsheet from '@components/Reusable/BottomSheets/AddFolderBottomsheet';
 import ConfirmationBottomSheet from '@components/Reusable/BottomSheets/ConfirmationBottomSheet';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import EditName from '@components/Reusable/BottomSheets/EditName';
-import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import GroupInfoTopbar from '@components/Reusable/TopBars/GroupInfoTopbar';
-import {SafeAreaView} from '@components/SafeAreaView';
+import { SafeAreaView } from '@components/SafeAreaView';
 import SharedMediaCard from '@components/SharedMediaCard';
+import { Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 import {
   DEFAULT_GROUP_NAME,
   DEFAULT_PROFILE_AVATAR_INFO,
+  GROUP_MEMBER_LIMIT,
   defaultFolderInfo,
   safeModalCloseDuration,
 } from '@configs/constants';
 
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
+
+import AddMembersCard from '@screens/GroupsV2/components/AddMembersCard';
+import Description from '@screens/GroupsV2/components/Description';
+import GroupPortInviteCard from '@screens/GroupsV2/components/GroupPortInviteCard';
 
 import Group from '@utils/Groups/GroupClass';
-import {ContentType} from '@utils/Messaging/interfaces';
+import { ContentType } from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
-import {getConnection} from '@utils/Storage/connections';
-import {FolderInfo} from '@utils/Storage/DBCalls/folders';
-import {MediaEntry} from '@utils/Storage/DBCalls/media';
-import {getAllFolders} from '@utils/Storage/folders';
-import {deleteAllMessagesInChat} from '@utils/Storage/groupMessages';
-import {getImagesAndVideos} from '@utils/Storage/media';
-import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
-import {isAvatarUri} from '@utils/Storage/StorageRNFS/sharedFileHandlers';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
-import {getChatTileTimestamp, wait} from '@utils/Time';
+import { GroupSuperPort } from '@utils/Ports/GroupSuperPorts/GroupSuperPort';
+import { getConnection } from '@utils/Storage/connections';
+import { FolderInfo } from '@utils/Storage/DBCalls/folders';
+import { MediaEntry } from '@utils/Storage/DBCalls/media';
+import { getAllFolders } from '@utils/Storage/folders';
+import { deleteAllMessagesInChat } from '@utils/Storage/groupMessages';
+import { getImagesAndVideos } from '@utils/Storage/media';
+import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
+import { isAvatarUri } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import { getChatTileTimestamp, wait } from '@utils/Time';
 
 import Alert from '@assets/icons/Alert.svg';
-import EditIcon from '@assets/icons/PencilCircleAccent.svg';
 
-import {useTheme} from 'src/context/ThemeContext';
-import {ToastType, useToast} from 'src/context/ToastContext';
+import { useTheme } from 'src/context/ThemeContext';
+import { ToastType, useToast } from 'src/context/ToastContext';
+
 
 type Props = NativeStackScreenProps<AppStackParamList, 'GroupProfile'>;
 
-const GroupProfile = ({route, navigation}: Props) => {
-  const {chatId, chatData, members} = route.params;
+const GroupProfile = ({ route, navigation }: Props) => {
+  const { chatId, chatData, members } = route.params;
   const [media, setMedia] = useState<MediaEntry[]>([]);
   const [showUserInfoInTopbar, setShowUserInfoInTopbar] = useState(false);
   const userAvatarViewRef = useRef<View>(null);
@@ -76,15 +81,15 @@ const GroupProfile = ({route, navigation}: Props) => {
   const [displayPic, setDisplayPic] = useState<FileAttributes>(
     chatData.groupPicture
       ? {
-          fileUri: chatData.groupPicture,
-          fileName: 'redundant',
-          fileType: 'redundant',
-        }
+        fileUri: chatData.groupPicture,
+        fileName: 'redundant',
+        fileType: 'redundant',
+      }
       : DEFAULT_PROFILE_AVATAR_INFO,
   );
   const [showAddFolderModal, setShowAddFolderModal] = useState<boolean>(false);
 
-  const {showToast} = useToast();
+  const { showToast } = useToast();
   const [editingName, setEditingName] = useState(false);
   const [confirmSheet, setConfirmSheet] = useState(false);
   const [confirmSheetDelete, setConfirmSheetDelete] = useState(false);
@@ -100,8 +105,8 @@ const GroupProfile = ({route, navigation}: Props) => {
   //to edit group picture
   const [openEditAvatarModal, setOpenEditAvatarModal] = useState(false);
   const [groupClass, setGroupClass] = useState<Group | null>(null);
-
-  const Colors = DynamicColors();
+  const [labelText, setLabelText] = useState<string>('');
+  const Colors = useColors();
   const styles = styling(Colors);
 
   const svgArray = [
@@ -116,16 +121,24 @@ const GroupProfile = ({route, navigation}: Props) => {
       light: require('@assets/light/icons/EditCamera.svg').default,
       dark: require('@assets/dark/icons/EditCamera.svg').default,
     },
+    {
+      assetName: 'EditIcon',
+      light: require('@assets/light/icons/Pencil.svg').default,
+      dark: require('@assets/dark/icons/Pencil.svg').default,
+    },
   ];
-  const results = useDynamicSVG(svgArray);
+
+  const results = useSVG(svgArray);
 
   const RightChevron = results.RightChevron;
   const EditCameraIcon = results.EditCameraIcon;
+  const EditIcon = results.EditIcon;
 
   useEffect(() => {
     (async () => {
       const groupHandler = await Group.load(chatId);
       setGroupClass(groupHandler);
+      setLabelText(GROUP_MEMBER_LIMIT - groupHandler.getGroupMemberCount() + ' left');
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -161,7 +174,7 @@ const GroupProfile = ({route, navigation}: Props) => {
   const onSaveName = async (name?: string) => {
     if (name) {
       //update name if group admin
-      await groupClass?.updateGroupData({name: name});
+      await groupClass?.updateGroupData({ name: name });
       const groupData = groupClass?.getGroupData();
       if (groupData && groupData.amAdmin) {
         const sender = new SendMessage(chatId, ContentType.groupName, {
@@ -185,13 +198,13 @@ const GroupProfile = ({route, navigation}: Props) => {
     if (groupData && groupData.amAdmin && groupData.groupPicture) {
       const sender = isAvatarUri(groupData.groupPicture)
         ? new SendMessage(chatId, ContentType.groupAvatar, {
-            fileUri: groupData.groupPicture,
-          })
+          fileUri: groupData.groupPicture,
+        })
         : groupData.groupPictureKey
-        ? new SendMessage(chatId, ContentType.groupPicture, {
+          ? new SendMessage(chatId, ContentType.groupPicture, {
             groupPictureKey: groupData.groupPictureKey,
           })
-        : null;
+          : null;
       if (sender) {
         await sender.send();
       }
@@ -199,9 +212,9 @@ const GroupProfile = ({route, navigation}: Props) => {
   }
 
   const handleScroll = (event: NativeSyntheticEvent<ScrollViewProps>) => {
-    const {contentOffset} = event.nativeEvent;
+    const { contentOffset } = event.nativeEvent;
     if (contentOffset) {
-      const {y} = contentOffset;
+      const { y } = contentOffset;
       if (y >= 120) {
         setShowUserInfoInTopbar(true);
       } else {
@@ -225,22 +238,41 @@ const GroupProfile = ({route, navigation}: Props) => {
     }
   };
 
-  const {themeValue} = useTheme();
+  const { themeValue } = useTheme();
 
   const onProfilePictureClick = () => {
     setFocusProfilePicture(true);
   };
 
+  // generates qr code from group superport class
+  const onQRGeneration = async () => {
+    try {
+      const group = await Group.load(chatId);
+      const groupSuperPortHandler = await GroupSuperPort.generator.create(
+        chatData.groupId,
+      );
+      navigation.navigate('GroupSuperPortQRScreen', {
+        chatId: chatId,
+        groupData: chatData,
+        memberCount: group.getGroupMemberCount(),
+        bundle: await groupSuperPortHandler.getShareableBundle(),
+        link: await groupSuperPortHandler.getShareableLink(),
+      });
+    } catch (error) {
+      console.log('Error fetching group superport', error);
+      showToast('Error fetching group Port. Please check your internet connection and try again.', ToastType.error);
+    }
+  };
   return (
     <>
       <CustomStatusBar
         backgroundColor={
           showUserInfoInTopbar
-            ? Colors.primary.surface
-            : Colors.primary.background
+            ? Colors.surface
+            : Colors.background
         }
       />
-      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
+      <SafeAreaView style={{ backgroundColor: Colors.background }}>
         <GroupInfoTopbar
           backgroundColor={showUserInfoInTopbar ? 'w' : 'g'}
           heading={displayName}
@@ -249,7 +281,7 @@ const GroupProfile = ({route, navigation}: Props) => {
         />
         <View style={styles.mainContainer}>
           <ScrollView
-            contentContainerStyle={{height: connected ? 'auto' : '100%'}}
+            contentContainerStyle={{ height: connected ? 'auto' : '100%' }}
             onScroll={handleScroll}
             scrollEventThrottle={16}
             horizontal={false}
@@ -277,13 +309,13 @@ const GroupProfile = ({route, navigation}: Props) => {
                   <NumberlessText
                     style={{
                       maxWidth:
-                        screen.width - 2 * PortSpacing.secondary.uniform - 30,
+                        screen.width - 2 * Spacing.l - 30,
                       marginRight: 4,
                       paddingBottom: 2,
                     }}
-                    textColor={Colors.labels.text}
+                    textColor={Colors.text.title}
                     fontSizeType={FontSizeType.xl}
-                    fontType={FontType.sb}
+                    fontWeight={FontWeight.sb}
                     numberOfLines={1}
                     ellipsizeMode="tail">
                     {displayName}
@@ -295,13 +327,14 @@ const GroupProfile = ({route, navigation}: Props) => {
                   <NumberlessText
                     style={{
                       maxWidth:
-                        screen.width - 2 * PortSpacing.secondary.uniform - 30,
+                        screen.width - 2 * Spacing.l - 30,
                       marginRight: 4,
                       paddingBottom: 2,
                     }}
-                    textColor={Colors.labels.text}
+                    textColor={Colors.text.title}
                     fontSizeType={FontSizeType.xl}
-                    fontType={FontType.sb}
+                    fontWeight={FontWeight.sb}
+
                     numberOfLines={1}
                     ellipsizeMode="tail">
                     {displayName}
@@ -312,7 +345,8 @@ const GroupProfile = ({route, navigation}: Props) => {
               <NumberlessText
                 textColor={Colors.text.subtitle}
                 fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
+                fontWeight={FontWeight.rg}
+              >
                 {chatData.joinedAt
                   ? 'Member since : ' + getChatTileTimestamp(chatData.joinedAt)
                   : ''}
@@ -322,70 +356,79 @@ const GroupProfile = ({route, navigation}: Props) => {
             {connected ? (
               <>
                 <View style={styles.chatSettingsContainer}>
-                  <SimpleCard style={styles.folderCard}>
-                    <Pressable
-                      style={styles.clickableCard}
-                      onPress={() => setShowAddFolderModal(true)}>
-                      <View style={styles.cardTitle}>
+                  <Description
+                    description={chatData.description || ''}
+                    chatData={chatData}
+                    chatId={chatId}
+                  />
+
+
+                </View>
+                <GradientCard style={styles.folderCard}>
+                  <Pressable
+                    style={styles.clickableCard}
+                    onPress={() => setShowAddFolderModal(true)}>
+                    <View style={styles.cardTitle}>
+                      <NumberlessText
+                        textColor={Colors.text.title}
+                        fontSizeType={FontSizeType.l}
+                        fontWeight={FontWeight.sb}
+                      >
+                        Chat folder
+                      </NumberlessText>
+                    </View>
+                    <View style={styles.labelContainer}>
+                      <View style={styles.labelWrapper}>
                         <NumberlessText
-                          textColor={Colors.labels.text}
-                          fontSizeType={FontSizeType.l}
-                          fontType={FontType.md}>
-                          Chat folder
+                          textColor={
+                            selectedFolder.name === defaultFolderInfo.name
+                              ? Colors.text.title
+                              : themeValue === 'light'
+                                ? Colors.accent
+                                : Colors.text.title
+                          }
+                          fontSizeType={FontSizeType.m}
+                          fontWeight={FontWeight.rg}
+                          numberOfLines={1}
+                          ellipsizeMode="tail">
+                          {selectedFolder.name}
                         </NumberlessText>
                       </View>
-                      <View style={styles.labelContainer}>
-                        <View style={styles.labelWrapper}>
-                          <NumberlessText
-                            textColor={
-                              selectedFolder.name === defaultFolderInfo.name
-                                ? Colors.labels.text
-                                : themeValue === 'light'
-                                ? Colors.primary.accent
-                                : Colors.primary.white
-                            }
-                            fontSizeType={FontSizeType.m}
-                            fontType={FontType.rg}
-                            numberOfLines={1}
-                            ellipsizeMode="tail">
-                            {selectedFolder.name}
-                          </NumberlessText>
-                        </View>
-                        <RightChevron width={20} height={20} />
-                      </View>
-                    </Pressable>
-                  </SimpleCard>
-                </View>
-                <Description
-                  description={chatData.description || ''}
-                  chatData={chatData}
-                  chatId={chatId}
-                />
+                      <RightChevron width={20} height={20} />
+                    </View>
+                  </Pressable>
+                </GradientCard>
+
+
                 <View style={styles.sharedMediaContainer}>
                   <SharedMediaCard media={media} chatId={chatId} />
                 </View>
+                {chatData.amAdmin && <View style={{ marginBottom: Spacing.l }}>
+                  <GroupPortInviteCard onQRGeneration={onQRGeneration} labelText={labelText} />
+                </View>}
                 <AddMembersCard
                   chatData={chatData}
                   chatId={chatId}
                   members={members}
                 />
-                <View style={{paddingBottom: PortSpacing.secondary.bottom}}>
+                <View style={{ paddingBottom: Spacing.l }}>
                   <NumberlessText
                     style={{
-                      color: Colors.primary.red,
-                      marginTop: PortSpacing.secondary.top,
+                      color: Colors.red,
+                      marginTop: Spacing.l,
                     }}
                     fontSizeType={FontSizeType.l}
-                    fontType={FontType.md}>
+                    fontWeight={FontWeight.sb}>
                     Exit group?
                   </NumberlessText>
                   <NumberlessText
                     style={styles.footerDesc}
                     fontSizeType={FontSizeType.m}
-                    fontType={FontType.rg}>
+                    fontWeight={FontWeight.rg}
+                  >
                     You will need to be invited again to join this group.
                   </NumberlessText>
-                  <View style={{gap: PortSpacing.tertiary.uniform}}>
+                  <View style={{ gap: Spacing.s }}>
                     <PrimaryButton
                       isLoading={false}
                       disabled={false}
@@ -406,17 +449,18 @@ const GroupProfile = ({route, navigation}: Props) => {
             ) : (
               <View style={styles.disconnectedwrapper}>
                 <View style={styles.alertwrapper}>
-                  <Alert style={{alignSelf: 'center'}} />
+                  <Alert style={{ alignSelf: 'center' }} />
                   <NumberlessText
                     style={{
                       alignSelf: 'center',
                       textAlign: 'center',
                       width: '100%',
-                      marginTop: PortSpacing.secondary.top,
+                      marginTop: Spacing.l,
                     }}
                     textColor={Colors.text.subtitle}
                     fontSizeType={FontSizeType.m}
-                    fontType={FontType.rg}>
+                    fontWeight={FontWeight.rg}
+                  >
                     You have exited this group. Deleting the chat will erase all
                     data associated with it.
                   </NumberlessText>
@@ -424,7 +468,7 @@ const GroupProfile = ({route, navigation}: Props) => {
                 <View
                   style={{
                     gap: 10,
-                    marginBottom: PortSpacing.intermediate.bottom,
+                    marginBottom: Spacing.xl,
                   }}>
                   <PrimaryButton
                     isLoading={false}
@@ -530,7 +574,7 @@ const GroupProfile = ({route, navigation}: Props) => {
 const styling = (colors: any) =>
   StyleSheet.create({
     mainContainer: {
-      padding: PortSpacing.secondary.uniform,
+      padding: Spacing.l,
       paddingTop: 0,
       paddingBottom: 0,
       flex: 1,
@@ -557,28 +601,28 @@ const styling = (colors: any) =>
       borderRadius: 6,
       paddingHorizontal: 6,
       paddingVertical: 4,
-      backgroundColor: colors.primary.lightgrey,
+      backgroundColor: colors.surface2,
     },
     folderCard: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingVertical: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.l,
+      paddingVertical: Spacing.l,
     },
     nameEditHitbox: {
-      marginTop: PortSpacing.secondary.top,
+      marginTop: Spacing.l,
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
     },
     sharedMediaContainer: {
-      marginBottom: PortSpacing.secondary.bottom,
-      marginTop: PortSpacing.secondary.top,
+      marginBottom: Spacing.l,
+      marginTop: Spacing.l,
     },
-    alertwrapper: {flex: 1, justifyContent: 'center'},
+    alertwrapper: { flex: 1, justifyContent: 'center' },
     chatSettingsContainer: {
-      marginBottom: PortSpacing.secondary.bottom,
+      marginBottom: Spacing.l,
     },
     clickableCard: {
       flexDirection: 'row',
@@ -588,18 +632,18 @@ const styling = (colors: any) =>
       justifyContent: 'space-between',
     },
     footerDesc: {
-      color: colors.labels.text,
+      color: colors.text.title,
       lineHeight: 16,
-      marginTop: PortSpacing.tertiary.top,
-      marginBottom: PortSpacing.intermediate.bottom,
+      marginTop: Spacing.s,
+      marginBottom: Spacing.xl
     },
     advanceSettingsContainer: {
-      marginBottom: PortSpacing.secondary.bottom,
+      marginBottom: Spacing.l,
     },
     avatarContainer: {
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: PortSpacing.primary.bottom,
+      marginBottom: Spacing.s
     },
     profilePictureHitbox: {
       flexDirection: 'column',
@@ -611,7 +655,7 @@ const styling = (colors: any) =>
       bottom: -4,
       right: -4,
       height: 32,
-      backgroundColor: colors.primary.accent,
+      backgroundColor: colors.purple,
       position: 'absolute',
       justifyContent: 'center',
       alignItems: 'center',

@@ -5,19 +5,20 @@ import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useSelector} from 'react-redux';
 
-import {PortSpacing, screen} from '@components/ComponentUtils';
+import { screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import GroupMemberInfoBottomsheet from '@components/Reusable/BottomSheets/GroupMemberInfoBottomsheet';
 import SimpleTopbar from '@components/Reusable/TopBars/SimpleTopBar';
 import {SafeAreaView} from '@components/SafeAreaView';
-import SearchBar from '@components/SearchBar';
+import { Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 import {
   DEFAULT_GROUP_MEMBER_NAME,
@@ -29,7 +30,6 @@ import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 import Group from '@utils/Groups/Group';
 import {getChatIdFromPairHash} from '@utils/Storage/connections';
 import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AllMembers'>;
 
@@ -46,7 +46,7 @@ const AllMembers = ({route, navigation}: Props) => {
       avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
     };
   }, [profile]);
-  const [searchText, setSearchText] = useState('');
+
   const [allMembers, setAllMembers] =
     useState<GroupMemberLoadedData[]>(members);
   const [viewableMembers, setViewableMembers] = useState<
@@ -77,11 +77,10 @@ const AllMembers = ({route, navigation}: Props) => {
         .default,
     },
   ];
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
   const BackIcon = results.BackIcon;
 
   useMemo(() => {
-    if (searchText === '') {
       const filteredData = [
         {
           name: name,
@@ -96,14 +95,8 @@ const AllMembers = ({route, navigation}: Props) => {
         ...allMembers,
       ];
       setViewableMembers(filteredData);
-    } else {
-      const filteredData = allMembers.filter(item =>
-        item.name?.toLowerCase().includes(searchText.toLowerCase()),
-      );
-      setViewableMembers(filteredData);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchText, allMembers]);
+  }, [allMembers]);
 
   /**
    * Effect to refresh group members
@@ -139,13 +132,16 @@ const AllMembers = ({route, navigation}: Props) => {
               const directChatId = await getChatIdFromPairHash(item.pairHash);
               setSelectedMember({...item, directChatId});
             } else if (item.memberId && item.memberId === 'self') {
-              navigation.push('MyProfile');
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'HomeTab', params: { screen: 'Settings' } }],
+              })
             }
           }}
           style={StyleSheet.compose(styles.row, {
             borderBottomWidth: 0.5,
             borderBottomColor:
-              viewableMembers.length - 1 === index
+            viewableMembers.length - 1 === index
                 ? 'transparent'
                 : Colors.primary.stroke,
           })}>
@@ -154,9 +150,9 @@ const AllMembers = ({route, navigation}: Props) => {
             <NumberlessText
               style={{
                 color: Colors.labels.text,
-                paddingLeft: PortSpacing.secondary.left,
+                paddingLeft: Spacing.l,
               }}
-              fontType={FontType.rg}
+              fontWeight={FontWeight.rg}
               fontSizeType={FontSizeType.m}>
               {item.name || DEFAULT_GROUP_MEMBER_NAME}
             </NumberlessText>
@@ -169,7 +165,8 @@ const AllMembers = ({route, navigation}: Props) => {
                 }}>
                 <NumberlessText
                   textColor={Colors.text.subtitle}
-                  fontType={FontType.rg}
+                  fontWeight={FontWeight.rg}
+
                   fontSizeType={FontSizeType.m}>
                   Admin
                 </NumberlessText>
@@ -188,16 +185,9 @@ const AllMembers = ({route, navigation}: Props) => {
         <SimpleTopbar
           IconLeft={BackIcon}
           onIconLeftPress={() => navigation.goBack()}
-          heading={'All members'}
+          heading={'See all members'}
         />
-        <View style={styles.barWrapper}>
-          <SearchBar
-            style={styles.search}
-            searchText={searchText}
-            setSearchText={setSearchText}
-          />
-        </View>
-        <View style={{marginTop: PortSpacing.secondary.top}}>
+        <View style={{marginTop: Spacing.l}}>
           <FlatList
             data={viewableMembers}
             keyExtractor={item => item.memberId}
@@ -213,7 +203,8 @@ const AllMembers = ({route, navigation}: Props) => {
                 <NumberlessText
                   textColor={Colors.text.subtitle}
                   fontSizeType={FontSizeType.l}
-                  fontType={FontType.rg}>
+                  fontWeight={FontWeight.rg}
+             >
                   No matching members found
                 </NumberlessText>
               </View>
@@ -248,15 +239,15 @@ const styling = (color: any) =>
       borderWidth: 0.5,
       backgroundColor: color.primary.surface,
       borderColor: color.primary.stroke,
-      marginHorizontal: PortSpacing.secondary.uniform,
-      borderRadius: PortSpacing.secondary.uniform,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingVertical: PortSpacing.tertiary.uniform,
+      marginHorizontal: Spacing.s,
+      borderRadius: Spacing.l,
+      paddingHorizontal:Spacing.l,
+      paddingVertical:Spacing.l,
     },
     card: {
-      marginVertical: PortSpacing.secondary.uniform,
-      marginHorizontal: PortSpacing.secondary.uniform,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      marginVertical: Spacing.l,
+      marginHorizontal: Spacing.l,
+      paddingHorizontal: Spacing.l,
     },
     scrollViewContainer: {
       flex: 1,
@@ -265,12 +256,12 @@ const styling = (color: any) =>
       justifyContent: 'flex-start',
     },
     barWrapper: {
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.l,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor: color.primary.surface,
-      paddingVertical: PortSpacing.tertiary.uniform,
+      paddingVertical: Spacing.s,
     },
     search: {
       backgroundColor: color.primary.surface2,
@@ -279,10 +270,10 @@ const styling = (color: any) =>
       height: 44,
       alignItems: 'center',
       borderRadius: 12,
-      paddingHorizontal: PortSpacing.tertiary.uniform,
+      paddingHorizontal: Spacing.s,
     },
     row: {
-      paddingVertical: PortSpacing.tertiary.bottom,
+      paddingVertical: Spacing.s,
       flexDirection: 'row',
       alignItems: 'center',
     },

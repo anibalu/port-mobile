@@ -64,7 +64,7 @@ const AccountSettings = ({ navigation }: Props) => {
               fontWeight={FontWeight.rg}
               fontSizeType={FontSizeType.l}>
               All sensitive information
-              like your nickname and profile pictuire are stored locally and
+              like your nickname and profile picture are stored locally and
               shared with your connections in an end-to-end encrypted manner.
             </NumberlessText>
           </View>

@@ -195,11 +195,6 @@ const PermissionIconsGroup = ({
         onToggle={onUpdateNotificationPermission}
       />
       <PermissionIcon
-        permission={'focus'}
-        isEnabled={permissions.focus}
-        onToggle={async () => await onUpdateBooleanPermission('focus')}
-      />
-      <PermissionIcon
         permission={'displayPicture'}
         isEnabled={permissions.displayPicture}
         onToggle={async () => await onUpdateBooleanPermission('displayPicture')}

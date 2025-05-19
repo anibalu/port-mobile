@@ -301,11 +301,6 @@ const PermissionIcons = ({
         onToggle={onUpdateCallPermission}
       />
       <PermissionIcon
-        permission={'focus'}
-        isEnabled={permissions.focus}
-        onToggle={async () => await onUpdateBooleanPermission('focus')}
-      />
-      <PermissionIcon
         permission={'contactSharing'}
         isEnabled={permissions.contactSharing}
         onToggle={toggleContactSharing}

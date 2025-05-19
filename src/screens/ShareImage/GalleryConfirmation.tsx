@@ -345,7 +345,7 @@ const GalleryConfirmation = ({navigation, route}: Props) => {
           try {
             await sender.send();
           } catch (error) {
-            showToast('Your media was too large to share', ToastType.error);
+            showToast('Your media is too large. The maximum size is 256mb', ToastType.error);
           }
         }
       }

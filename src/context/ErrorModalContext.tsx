@@ -60,7 +60,7 @@ export const ErrorModalProvider: React.FC<ModalProviderProps> = ({
   // all error scenarios
   const FileTooLarge = () => {
     setErrorToShow({
-      text: 'Your media was too large to share',
+      text: 'Your media is too large. The maximum size is 256mb',
       type: 'error',
     });
   };

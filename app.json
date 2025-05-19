@@ -10,10 +10,10 @@
     },
     "version": "1.15.0",
     "ios": {
-      "buildNumber": "70"
+      "buildNumber": "71"
     },
     "android": {
-      "versionCode": 70
+      "versionCode": 71
     }
   }
 }

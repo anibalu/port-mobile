@@ -1,5 +1,4 @@
 PODS:
-  - BEMCheckBox (1.4.1)
   - boost (1.84.0)
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -1970,27 +1969,6 @@ PODS:
     - React-logger (= 0.78.2)
     - React-perflogger (= 0.78.2)
     - React-utils (= 0.78.2)
-  - ReactNativeCameraKit (14.2.0):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.11.18.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
   - RNAudioRecorderPlayer (3.6.7):
     - React-Core
   - RNBackgroundFetch (4.2.3):
@@ -2037,9 +2015,6 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNCCheckbox (0.5.17):
-    - BEMCheckBox (~> 1.4)
-    - React-Core
   - RNCClipboard (1.13.2):
     - DoubleConversion
     - glog
@@ -2397,7 +2372,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNVectorIcons (10.1.0):
+  - RNVectorIcons (10.2.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2523,12 +2498,10 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit`)
   - RNAudioRecorderPlayer (from `../node_modules/react-native-audio-recorder-player`)
   - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - RNBootSplash (from `../node_modules/react-native-bootsplash`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
-  - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
@@ -2552,7 +2525,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - BEMCheckBox
     - Firebase
     - FirebaseCore
     - FirebaseCoreExtension
@@ -2741,8 +2713,6 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  ReactNativeCameraKit:
-    :path: "../node_modules/react-native-camera-kit"
   RNAudioRecorderPlayer:
     :path: "../node_modules/react-native-audio-recorder-player"
   RNBackgroundFetch:
@@ -2751,8 +2721,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-bootsplash"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
-  RNCCheckbox:
-    :path: "../node_modules/@react-native-community/checkbox"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
   RNDeviceInfo:
@@ -2795,7 +2763,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
@@ -2893,12 +2860,10 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 4893bde33952f997a323eb1a1ee87a72764018ff
   ReactCodegen: f9e6a197297e3d5cc0ebdfc0caa1b7f2a818917b
   ReactCommon: 865ebe76504a95e115b6229dd00a31e56d2d4bfe
-  ReactNativeCameraKit: 652e6013cae55298c1f65afeb65895364eb5b1ed
   RNAudioRecorderPlayer: fa079748b34d15cd3b7b6a5d47b286bae6d5d49b
   RNBackgroundFetch: 3e7aa5d4c28294cbc8e72e4eb99b5a54af685166
   RNBootSplash: 540e4bfcfe3a9c0a2fe5b3d28d5efe0458f8e7cb
   RNCAsyncStorage: 6c619a6d28e188d33efbd39df77a2c3933d9ca72
-  RNCCheckbox: 450ce156f3e29e25efa0315c96cfbabe5a39ded1
   RNCClipboard: a531cf48c449a06113ab6e48153084f1d98e2ca8
   RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
   RNFBApp: a438a9444c965b4b1053330f8e54217de2075823
@@ -2915,7 +2880,7 @@ SPEC CHECKSUMS:
   RNSentry: e601f4f6d207cbef3b59206ee8c75d10a660f8f1
   RNShare: 56b5431c60e1e9ee167191f4f327471af1c2941a
   RNSVG: 8126581b369adf6a0004b6a6cab1a55e3002d5b0
-  RNVectorIcons: 6ff8d89996bae8280845514de22b660e97a2fc39
+  RNVectorIcons: bd818296a51dc2bb8c3bd97a3ca399df1afe216d
   RNVoipPushNotification: e5edde96849c0133ebc7e900dc30c8c221cfb690
   Sentry: 5eda2559a20fa0c377b695ed9d7c178a47122891
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748

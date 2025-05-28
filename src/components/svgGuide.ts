@@ -19,17 +19,11 @@ function useSVG(svgArray: SVGOptions[], forceTheme?: 'light' | 'dark'): any {
   const {themeValue} = useTheme();
 
   return useMemo(() => {
-    console.log('Changing SVGs based on theme: ', themeValue, forceTheme);
+    const selectedTheme = forceTheme || themeValue;
     const resultsObj: any = {};
     svgArray.forEach(item => {
       resultsObj[item.assetName] =
-        item[
-          forceTheme
-            ? forceTheme
-            : themeValue && themeValue === 'light'
-            ? 'light'
-            : 'dark'
-        ];
+        item[selectedTheme];
     });
     return resultsObj;
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -29,9 +29,7 @@ import { BottomNavStackParamList } from '@navigation/AppStack/BottomNavStack/Bot
 import { getProfileInfo, updateProfileName } from '@utils/Profile';
 import { setNewProfilePicture } from '@utils/ProfilePicture';
 import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
-import { ThemeType } from '@utils/Themes';
-
-import { useTheme } from 'src/context/ThemeContext';
+import { ThemeType, getTheme } from '@utils/Themes';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Settings'>;
 
@@ -62,11 +60,17 @@ const NewProfileScreen = ({ navigation }: Props) => {
   const colors = useColors();
   const styles = styling(colors);
 
-  const { themeValue } = useTheme();
-
   useEffect(() => {
-    setSelectedTheme(themeValue);
-  }, [themeValue]);
+    (async () => {
+      try {
+        const currentTheme = await getTheme();
+        setSelectedTheme(currentTheme); 
+      } catch (error) {
+        console.log('error getting theme: ', error);
+        setSelectedTheme(ThemeType.default);
+      }
+    })()
+  }, []);
 
   const svgArray = [
     {

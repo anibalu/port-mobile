@@ -116,15 +116,11 @@ export const useColors = (forceTheme?: 'light' | 'dark') => {
   const {themeValue} = useTheme();
 
   return useMemo(() => {
-    console.log('Theme changed: ', themeValue);
+    const selectedTheme = forceTheme || themeValue;
     return {
       ...Colors.common,
-      ...(forceTheme
-        ? Colors[forceTheme]
-        : themeValue && themeValue === 'light'
-        ? Colors.light
-        : Colors.dark),
-      theme: forceTheme ? forceTheme : themeValue,
+      ...Colors[selectedTheme],
+      theme: selectedTheme,
     };
   }, [themeValue, forceTheme]);
 };

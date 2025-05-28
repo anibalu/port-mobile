@@ -8,7 +8,6 @@ import android.app.Person
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.os.Build
 import android.os.Handler
@@ -27,6 +26,7 @@ import java.util.Random
 import android.Manifest
 import android.content.pm.PackageManager
 import android.view.WindowManager
+import android.media.Ringtone
 
 class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCallHelperModuleSpec(reactContext) {
 
@@ -269,7 +269,7 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
     companion object {
         const val NAME = "NativeCallHelperModule"
         private const val CHANNEL_ID = "call_channel_high_priority"
-        private var activeMediaPlayer: MediaPlayer? = null
+        private var activeRingtone: Ringtone? = null
     }
 
     /**
@@ -297,37 +297,33 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
      * Play the ringtone for the incoming call.
      */
     private fun playRingtone(callRingTimeSeconds: Int) {
-        var mediaPlayer: MediaPlayer?
-        if (activeMediaPlayer == null) {
+        if (activeRingtone == null) {
             val ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-            mediaPlayer = MediaPlayer.create(reactApplicationContext, ringtoneUri)?.apply {
-                 isLooping = true
+            activeRingtone = RingtoneManager.getRingtone(reactApplicationContext, ringtoneUri)?.apply {
+                // Set the ringtone to use the ringtone volume instead of media volume
+                audioAttributes = android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
             }
-            activeMediaPlayer = mediaPlayer
-             Log.d(NAME, "Created and cached new MediaPlayer instance.")
-        } else {
-            mediaPlayer = activeMediaPlayer
-             Log.d(NAME, "Reusing cached MediaPlayer instance.")
+            Log.d(NAME, "Created and cached new Ringtone instance.")
         }
 
-        if (mediaPlayer == null) {
-            Log.e(NAME, "Failed to create MediaPlayer, cannot play ringtone.")
-            return
-        }
-
-        try {
-            if (!mediaPlayer.isPlaying) {
-                 mediaPlayer.start()
-                 Log.d(NAME, "Ringtone started.")
-                val handler = Handler(Looper.getMainLooper())
-                handler.postDelayed({ this.cancelRingtone() }, callRingTimeSeconds * 1000L)
-            } else {
-                 Log.d(NAME, "Ringtone already playing.")
+        activeRingtone?.let { ringtone ->
+            try {
+                if (!ringtone.isPlaying) {
+                    ringtone.play()
+                    Log.d(NAME, "Ringtone started.")
+                    val handler = Handler(Looper.getMainLooper())
+                    handler.postDelayed({ this.cancelRingtone() }, callRingTimeSeconds * 1000L)
+                } else {
+                    Log.d(NAME, "Ringtone already playing.")
+                }
+            } catch (e: Exception) {
+                Log.e(NAME, "Ringtone error on start: ${e.message}", e)
+                cancelRingtone()
             }
-        } catch (e: IllegalStateException) {
-             Log.e(NAME, "MediaPlayer error on start: ${e.message}", e)
-             cancelRingtone()
-        }
+        } ?: Log.e(NAME, "Failed to create Ringtone, cannot play ringtone.")
     }
 
     /**
@@ -336,25 +332,18 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
     @ReactMethod
     override fun cancelRingtone() {
         Log.d(NAME, "Attempting to cancel ringtone...")
-        activeMediaPlayer?.let {
+        activeRingtone?.let {
             if (it.isPlaying) {
-                 try {
+                try {
                     it.stop()
                     Log.d(NAME, "Ringtone stopped.")
-                 } catch (e: IllegalStateException) {
-                     Log.e(NAME, "Error stopping media player: ${e.message}", e)
-                 }
+                } catch (e: Exception) {
+                    Log.e(NAME, "Error stopping ringtone: ${e.message}", e)
+                }
             }
-             try {
-                it.release()
-                 Log.d(NAME, "MediaPlayer released.")
-             } catch (e: Exception) {
-                 Log.e(NAME, "Error releasing media player: ${e.message}", e)
-             }
-            activeMediaPlayer = null
-        } ?: Log.d(NAME, "No active MediaPlayer to cancel.")
+            activeRingtone = null
+        } ?: Log.d(NAME, "No active Ringtone to cancel.")
 
-        // Clear the notification
         currentNotificationId?.let { id ->
             val notificationManager = NotificationManagerCompat.from(reactApplicationContext)
             try {

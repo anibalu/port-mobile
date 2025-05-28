@@ -31,6 +31,7 @@ import android.view.WindowManager
 class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCallHelperModuleSpec(reactContext) {
 
     private val audioManager = reactContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private var currentNotificationId: Int? = null
 
     override fun getName() = NAME
 
@@ -126,6 +127,7 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
         playRingtone(callRingTimeSeconds.toInt())
 
         val notificationId = Random().nextInt()
+        currentNotificationId = notificationId
         Log.d(NAME, "About to notify incoming call with ID: $notificationId")
 
         val nm = NotificationManagerCompat.from(reactApplicationContext)
@@ -351,6 +353,18 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
              }
             activeMediaPlayer = null
         } ?: Log.d(NAME, "No active MediaPlayer to cancel.")
+
+        // Clear the notification
+        currentNotificationId?.let { id ->
+            val notificationManager = NotificationManagerCompat.from(reactApplicationContext)
+            try {
+                notificationManager.cancel(id)
+                Log.d(NAME, "Cleared notification with ID: $id")
+            } catch (e: SecurityException) {
+                Log.e(NAME, "Failed to clear notification: ${e.message}", e)
+            }
+            currentNotificationId = null
+        }
     }
 
     @ReactMethod

@@ -86,15 +86,30 @@ RCT_EXPORT_METHOD(startOutgoingCall:(NSString *)callUUID callerName:(NSString *)
     NSLog(@"[PortCallHelper] Invalid UUID string for startOutgoingCall: %@", callUUID);
     return;
   }
+
+  // Check if there are any existing calls
+  CXCallController *callController = [PortCallHelper sharedCallController];
+  if (callController.callObserver.calls.count > 0) {
+    NSLog(@"[PortCallHelper] Cannot start new call while other calls are active");
+    return;
+  }
+
   CXHandle *handle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:callerName];
   CXStartCallAction *startAction = [[CXStartCallAction alloc] initWithCallUUID:uuid handle:handle];
   startAction.video = YES;
+  
   CXTransaction *transaction = [[CXTransaction alloc] initWithAction:startAction];
-  CXCallController *callController = [PortCallHelper sharedCallController];
+  
+  // First report the outgoing call
+  CXProvider *provider = [PortCallHelper sharedProvider];
+  [provider reportOutgoingCallWithUUID:uuid startedConnectingAtDate:[NSDate date]];
 
+  // Then request the transaction
   [callController requestTransaction:transaction completion:^(NSError * _Nullable error) {
     if (error) {
       NSLog(@"[PortCallHelper] Error requesting transaction to start call %@: %@", callUUID, error.localizedDescription);
+      // If the transaction fails, report the call as failed
+      [provider reportCallWithUUID:uuid endedAtDate:[NSDate date] reason:CXCallEndedReasonFailed];
     } else {
       NSLog(@"[PortCallHelper] Transaction requested successfully for starting call %@", callUUID);
     }

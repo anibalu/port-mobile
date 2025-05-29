@@ -49,6 +49,7 @@
 		AD941C7B2DA4579600163C84 /* commonrand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD941C642DA4579600163C84 /* commonrand.cpp */; };
 		AD941C7C2DA4579600163C84 /* x25519.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD941C682DA4579600163C84 /* x25519.cpp */; };
 		AD941C7D2DA4579600163C84 /* NativeCryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AD941C672DA4579600163C84 /* NativeCryptoModule.cpp */; };
+		AD9DEC6C2DE7A0140062838E /* outgoing_ringtone.wav in Resources */ = {isa = PBXBuildFile; fileRef = AD9DEC6B2DE7A0140062838E /* outgoing_ringtone.wav */; };
 		ADDAE50E2DBAF6CB00DF75EF /* PortCallHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADDAE50C2DBAF6CB00DF75EF /* PortCallHelper.mm */; };
 		ADF3A7562DB8A005000570CB /* pbencrypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADF3A7552DB8A005000570CB /* pbencrypt.cpp */; };
 		ADF5513596814CF58BAB083D /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9BB0D4F5CB1E419FB64571BA /* Rubik-SemiBoldItalic.ttf */; };
@@ -463,6 +464,7 @@
 		AD941C662DA4579600163C84 /* encoders.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = encoders.cpp; sourceTree = "<group>"; };
 		AD941C672DA4579600163C84 /* NativeCryptoModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NativeCryptoModule.cpp; sourceTree = "<group>"; };
 		AD941C682DA4579600163C84 /* x25519.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = x25519.cpp; sourceTree = "<group>"; };
+		AD9DEC6B2DE7A0140062838E /* outgoing_ringtone.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = outgoing_ringtone.wav; sourceTree = "<group>"; };
 		ADDAE50B2DBAF6CB00DF75EF /* PortCallHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PortCallHelper.h; sourceTree = "<group>"; };
 		ADDAE50C2DBAF6CB00DF75EF /* PortCallHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PortCallHelper.mm; sourceTree = "<group>"; };
 		ADF3A7552DB8A005000570CB /* pbencrypt.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = pbencrypt.cpp; sourceTree = "<group>"; };
@@ -1170,6 +1172,7 @@
 			children = (
 				ADDAE50B2DBAF6CB00DF75EF /* PortCallHelper.h */,
 				ADDAE50C2DBAF6CB00DF75EF /* PortCallHelper.mm */,
+				AD9DEC6B2DE7A0140062838E /* outgoing_ringtone.wav */,
 			);
 			name = PortCallHelper;
 			path = Port/PortCallHelper;
@@ -1348,6 +1351,7 @@
 				E5F96150FC2C4CAF9BB44DB3 /* Rubik-LightItalic.ttf in Resources */,
 				6A4E4B436B2B4B5C9D90B42A /* Rubik-Medium.ttf in Resources */,
 				81F174392B0FC9F2006E6BEE /* GoogleService-Info.plist in Resources */,
+				AD9DEC6C2DE7A0140062838E /* outgoing_ringtone.wav in Resources */,
 				17818EC3325348738B47A493 /* Rubik-MediumItalic.ttf in Resources */,
 				98031FF711FE485E9C2A6A14 /* Rubik-Regular.ttf in Resources */,
 				F0C543D902AE476DACE47756 /* Rubik-SemiBold.ttf in Resources */,

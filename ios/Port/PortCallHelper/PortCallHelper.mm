@@ -12,6 +12,8 @@ static CXCallController *sharedCallController = nil;
 static CXProvider *sharedProvider = nil;
 // Declare a static instance of the helper for delegate purposes
 static PortCallHelper *sharedHelper = nil;
+// Declare a static variable for the outgoing ringing player
+static AVAudioPlayer *outgoingRingingPlayer = nil;
 
 @interface PortCallHelper() <CXProviderDelegate>
 @end
@@ -114,6 +116,12 @@ RCT_EXPORT_METHOD(startOutgoingCall:(NSString *)callUUID callerName:(NSString *)
       NSLog(@"[PortCallHelper] Transaction requested successfully for starting call %@", callUUID);
     }
   }];
+  [self startAudioSession];
+  // Start ringing after a small delay. CallKit messes with audio settings
+  // we wait for it to do it's thing before starting the ringtone.
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    [self startOutgoingRinging];
+  });
 }
 
 RCT_EXPORT_METHOD(acceptIncomingCall:(NSString *)callUUID)
@@ -266,31 +274,42 @@ RCT_EXPORT_METHOD(displayIncomingCall:(NSString *)callerName callUUID:(NSString 
   NSLog(@"[PortCallHelper] skipping since on iOS: displayIncomingCall: Caller Name - %@, UUID - %@, Ring Time - %ld", callerName, callUUID, (long)callRingTimeSeconds);
 }
 
-// MARK: - CXProviderDelegate Methods
-
-- (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action {
-  NSLog(@"[PortCallHelper] Provider received request to answer call: %@", action.callUUID);
-
-  // Configure audio session
+- (BOOL)startAudioSession {
   AVAudioSession *audioSession = [AVAudioSession sharedInstance];
   NSError *error = nil;
   if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord
                             mode:AVAudioSessionModeVoiceChat
-                         options:AVAudioSessionCategoryOptionAllowBluetooth
+                         options:(AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionMixWithOthers)
                            error:&error]) {
     NSLog(@"[PortCallHelper] Error setting audio session category and mode: %@", error);
+    return NO;
+  }
+  if (![audioSession setActive:YES error:&error]) {
+      NSLog(@"[PortCallHelper] Error activating audio session for start call: %@", error);
+      // Proceeding, but this might indicate an issue.
+  }
+  return YES;
+}
+
+- (BOOL)endAudioSession {
+  AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+  NSError *error = nil;
+  if (![audioSession setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error]) {
+    NSLog(@"[PortCallHelper] Error deactivating audio session: %@", error);
+    return NO;
+  }
+  return YES;
+}
+
+// MARK: - CXProviderDelegate Methods
+- (void)provider:(CXProvider *)provider performAnswerCallAction:(CXAnswerCallAction *)action {
+  NSLog(@"[PortCallHelper] Provider received request to answer call: %@", action.callUUID);
+
+  // Configure audio session
+  if (![self startAudioSession]) {
     [action fail]; // Fail the action if session can't be configured
     return;
   }
-
-  // Activate the audio session. CallKit might also attempt to activate it,
-  // but explicitly activating here ensures it's ready.
-  if (![audioSession setActive:YES error:&error]) {
-      NSLog(@"[PortCallHelper] Error activating audio session: %@", error);
-      // Depending on the error, you might want to fail the action
-      // For now, we'll log and proceed, as CallKit might still recover or manage activation.
-  }
-
 
   NSString *callUUIDString = [action.callUUID UUIDString];
 
@@ -313,13 +332,7 @@ RCT_EXPORT_METHOD(displayIncomingCall:(NSString *)callerName callUUID:(NSString 
   NSLog(@"[PortCallHelper] End call action fulfilled for: %@", action.callUUID);
 
   // Deactivate audio session
-  AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-  NSError *error = nil;
-  if (![audioSession setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error]) {
-    NSLog(@"[PortCallHelper] Error deactivating audio session: %@", error.localizedDescription);
-  } else {
-    NSLog(@"[PortCallHelper] Audio session deactivated successfully after call end.");
-  }
+  [self endAudioSession];
 }
 
 - (void)provider:(CXProvider *)provider performSetHeldCallAction:(CXSetHeldCallAction *)action {
@@ -347,23 +360,12 @@ RCT_EXPORT_METHOD(displayIncomingCall:(NSString *)callerName callUUID:(NSString 
 - (void)provider:(CXProvider *)provider performStartCallAction:(CXStartCallAction *)action {
     NSLog(@"[PortCallHelper] Provider received request to start call: %@", action.callUUID);
 
-    // Configure audio session
-    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    NSError *error = nil;
-    if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord
-                              mode:AVAudioSessionModeVoiceChat
-                           options:AVAudioSessionCategoryOptionAllowBluetooth
-                             error:&error]) {
-        NSLog(@"[PortCallHelper] Error setting audio session category and mode for start call: %@", error);
-        [action fail];
-        return;
+    if (![self startAudioSession]) {
+      [action fail]; // Fail the action if session can't be configured
+      return;
     }
 
-    // Activate the audio session.
-    if (![audioSession setActive:YES error:&error]) {
-        NSLog(@"[PortCallHelper] Error activating audio session for start call: %@", error);
-        // Proceeding, but this might indicate an issue.
-    }
+
 
     [provider reportOutgoingCallWithUUID:action.callUUID startedConnectingAtDate:[NSDate date]];
     // Simulate connection after a short delay for now.
@@ -377,14 +379,7 @@ RCT_EXPORT_METHOD(displayIncomingCall:(NSString *)callerName callUUID:(NSString 
 
 - (void)providerDidReset:(CXProvider *)provider {
   NSLog(@"[PortCallHelper] Provider did reset. Cleaning up calls.");
-  
-  // Reset audio session
-  AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-  NSError *audioError = nil;
-  [audioSession setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&audioError];
-  if (audioError) {
-    NSLog(@"[PortCallHelper] Error deactivating audio session: %@", audioError.localizedDescription);
-  }
+  [self endAudioSession];
 }
 
 - (void)provider:(CXProvider *)provider didActivateAudioSession:(AVAudioSession *)audioSession {
@@ -471,4 +466,54 @@ RCT_EXPORT_METHOD(endKeepPhoneAwake)
   });
 }
 
+- (void)startOutgoingRinging {
+    NSLog(@"[PortCallHelper] Starting outgoing ringtone");
+    // Check if outgoingRingingPlayer already exists
+    if (outgoingRingingPlayer != nil) {
+        NSLog(@"[PortCallHelper] Outgoing ringtone already playing, skipping start");
+        return;
+    }
+    // Get the path to the ringtone file in the app bundle
+    NSString *ringtonePath = [[NSBundle mainBundle] pathForResource:@"outgoing_ringtone" ofType:@"wav"];
+    if (!ringtonePath) {
+        NSLog(@"[PortCallHelper] Could not find outgoing ringtone file");
+        return;
+    }
+    
+    NSURL *ringtoneURL = [NSURL fileURLWithPath:ringtonePath];
+    NSError *error = nil;
+    
+    // Create and configure the audio player
+    outgoingRingingPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:ringtoneURL error:&error];
+    if (error) {
+        NSLog(@"[PortCallHelper] Error creating audio player: %@", error.localizedDescription);
+         return;
+    }
+    
+    // Configure the player
+    outgoingRingingPlayer.numberOfLoops = 29; // Loop for at most 30 times, just incase something goes wrong
+    outgoingRingingPlayer.volume = 1.0;
+    
+    // Start playing
+    if ([outgoingRingingPlayer play]) {
+        NSLog(@"[PortCallHelper] Started playing outgoing ringtone");
+    } else {
+        NSLog(@"[PortCallHelper] Failed to start playing outgoing ringtone");
+    }
+}
+
+RCT_EXPORT_METHOD(endOutgoingRinging)
+{
+    NSLog(@"[PortCallHelper] Ending outgoing ringtone");
+    if (outgoingRingingPlayer != nil) {
+        NSLog(@"[PortCallHelper] Outgoing ringtone player: %@", outgoingRingingPlayer.isPlaying ? @"YES" : @"NO");
+        [outgoingRingingPlayer stop];
+        outgoingRingingPlayer = nil;
+        NSLog(@"[PortCallHelper] Stopped and cleaned up outgoing ringtone");
+    } else {
+        NSLog(@"[PortCallHelper] No outgoing ringtone was playing");
+    }
+}
+
 @end
+ 

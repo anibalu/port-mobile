@@ -27,6 +27,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.view.WindowManager
 import android.media.Ringtone
+import android.media.MediaPlayer
+import android.net.Uri
 
 class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCallHelperModuleSpec(reactContext) {
 
@@ -41,6 +43,7 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
     @ReactMethod
     override fun startOutgoingCall(callUUID: String, callerName: String) {
         startAudioServices()
+        playOutgoingRingtone()
     }
 
     /**
@@ -270,6 +273,7 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
         const val NAME = "NativeCallHelperModule"
         private const val CHANNEL_ID = "call_channel_high_priority"
         private var activeRingtone: Ringtone? = null
+        private var mediaPlayer: MediaPlayer? = null
     }
 
     /**
@@ -299,7 +303,7 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
     private fun playRingtone(callRingTimeSeconds: Int) {
         if (activeRingtone == null) {
             val ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-            activeRingtone = RingtoneManager.getRingtone(reactApplicationContext, ringtoneUri)?.apply {
+            activeRingtone = RingtoneManager.getRingtone(reactApplicationContext, ringtoneUri!!)?.apply {
                 // Set the ringtone to use the ringtone volume instead of media volume
                 audioAttributes = android.media.AudioAttributes.Builder()
                     .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
@@ -324,6 +328,43 @@ class NativeCallHelperModule(reactContext: ReactApplicationContext) : NativeCall
                 cancelRingtone()
             }
         } ?: Log.e(NAME, "Failed to create Ringtone, cannot play ringtone.")
+    }
+
+
+    private fun playOutgoingRingtone() {
+        if (mediaPlayer != null) {
+            return;
+        }
+        mediaPlayer = MediaPlayer()
+        mediaPlayer!!.setAudioAttributes(
+        android.media.AudioAttributes.Builder()
+            .setUsage(android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION)
+            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build()
+        )
+        mediaPlayer!!.setDataSource(reactApplicationContext,
+        Uri.parse("android.resource://${reactApplicationContext.packageName}/${R.raw.outgoing_ringtone}"))
+        mediaPlayer!!.isLooping = true
+        mediaPlayer!!.prepare()
+        mediaPlayer!!.start()
+
+        val handler = Handler(Looper.getMainLooper())
+        handler.postDelayed({
+            this.endOutgoingRinging();
+        }, 60 * 1000L)   // Loop for at most 60 seconds incase something goes wrong
+        Log.d(NAME, "Outgoing ringtone started.")
+    }
+
+    @ReactMethod
+    override fun endOutgoingRinging() {
+        if (mediaPlayer == null) {
+            Log.d(NAME, "Outgoing ringtone not playing.")
+            return;
+        }
+        mediaPlayer!!.stop()
+        mediaPlayer!!.release()
+        mediaPlayer = null
+        Log.d(NAME, "Outgoing ringtone stopped.")
     }
 
     /**

@@ -317,6 +317,7 @@ function OngoingCall({route, navigation}: Props) {
       backHandler.remove();
       muteListener.remove();
       NativeCallHelperModule.endKeepPhoneAwake();
+      NativeCallHelperModule.endOutgoingRinging();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -343,6 +344,8 @@ function OngoingCall({route, navigation}: Props) {
             dispatchCallUIState({type: CallUIEvents.peer_mic_on});
           }
         }
+        // Odds are we can stop the outgoing ringing here
+        NativeCallHelperModule.endOutgoingRinging();
         break;
       }
       case 'closed_signaller':

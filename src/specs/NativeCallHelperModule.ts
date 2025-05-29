@@ -22,6 +22,7 @@ export interface Spec extends TurboModule {
   readonly cancelRingtone: () => void;  // Remove this, tie directly into answer/decline
   readonly startKeepPhoneAwake: () => void;
   readonly endKeepPhoneAwake: () => void;
+  readonly endOutgoingRinging: () => void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('NativeCallHelperModule');

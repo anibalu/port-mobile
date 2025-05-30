@@ -32,7 +32,7 @@ const PERMISSION_BAR_HEIGHT =
   Math.floor((screen.width - 32) / (20 + 12)) > 7 ? 52 : 88; //height of perission icons bar
 const SLIDER_HEIGHT = 32; //height of slider drag sliver
 const SLIDER_EXCESS_HEIGHT = 20; //height of slider minus height of notch
-const PERMISSIONS_OPEN_HEIGHT = 390; //height of permission cards
+const PERMISSIONS_OPEN_HEIGHT = 300; //height of permission cards
 const THRESHOLD_OPEN = 10; //distance to move to initiate full open motion
 const THRESHOLD_CLOSE = 10; //distance to move to initiate full close motion
 const SLIDER_CLOSED_HEIGHT = SLIDER_HEIGHT + TOP_BAR_HEIGHT; //height of slider when it is fully closed.

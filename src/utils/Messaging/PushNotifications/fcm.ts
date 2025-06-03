@@ -6,6 +6,7 @@ import {isIOS} from '@components/ComponentUtils';
 import {showDefaultNotification} from '@utils/Notifications';
 
 import pullBacklog from '../pullBacklog';
+import ReceiveMessage from '../Receive/ReceiveMessage';
 
 import * as API from './APICalls';
 
@@ -31,12 +32,12 @@ export const getAPNSToken = async () => {
  * Payload is ignored, as pullBacklog is used to make an API call to fetch relevant messages
  */
 export const registerBackgroundMessaging = (): void => {
-  messaging().setBackgroundMessageHandler(async _message => {
+  messaging().setBackgroundMessageHandler(async message => {
     console.log('[NEW BACKGROUND MESSAGE]');
-    await pullBacklog().catch((e: any) => {
-      console.log('Error in background message handler: ', e);
-      showDefaultNotification();
-    });
+    // In the background, we don't have very much time, and a ramp up over
+    // websockets may not be possble. As such, just process the received message
+    const receiver = new ReceiveMessage(message);
+    await receiver.receive();
   });
 };
 
@@ -46,6 +47,8 @@ export const registerBackgroundMessaging = (): void => {
 export const foregroundMessageHandler = () => {
   messaging().onMessage(async _ => {
     console.log('[NEW FOREGROUND MESSAGE] ');
+    // In the foreground, we have a lor more resources to work with, and can
+    // use pullBacklog to use a websocket over the network to fetch messages
     await pullBacklog().catch((e: any) => {
       console.log('Error in background message handler: ', e);
       showDefaultNotification();

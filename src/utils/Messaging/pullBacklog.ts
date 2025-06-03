@@ -35,7 +35,7 @@ export default async function pullBacklog() {
     try {
       await backlogPullWithWS();
     } catch (e) {
-      console.error('[PULL BACKLOG]', e);
+      console.error('[PULL BACKLOG]', e.message);
     }
   }
   backlogLock.release();
@@ -116,6 +116,16 @@ async function backlogPullWithWS(): Promise<void> {
     let ctr = 0;
     let open = true;
 
+    // Add timeout to close websocket after 15 seconds. If it takes longer, something is likely wrong.
+    const timeoutId = setTimeout(() => {
+      if (open) {
+        console.log('[PULL BACKLOG] Timeout reached, closing websocket');
+        open = false;
+        ws.close();
+        resolve();
+      }
+    }, 15000);
+
     ws.onopen = async () => {
       // Authenticate yourself as soon as the connection is open
       ws.send(token);
@@ -137,9 +147,10 @@ async function backlogPullWithWS(): Promise<void> {
       }
     };
 
-    ws.onerror = async e => {
+    ws.onerror = e => {
       // an error occurred
       console.error(e.message);
+      clearTimeout(timeoutId); // Clear timeout on error
       reject(
         `An error occured while processing pulling the backlog ${e.message}`,
       );
@@ -148,6 +159,7 @@ async function backlogPullWithWS(): Promise<void> {
     ws.onclose = response => {
       // connection closed
       open = false;
+      clearTimeout(timeoutId); // Clear timeout on close
       if (response.code !== 1000) {
         console.log(response.code, response.reason);
       }

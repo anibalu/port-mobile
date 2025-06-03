@@ -102,15 +102,9 @@ export async function displaySimpleNotification(
   isGroup: boolean = false,
   memberName?: string,
 ) {
-  /*
-   * Guard to remove client-generated notifications on iOS until
-   * we receive NSE Entitlement
-   */
-  if (Platform.OS === 'ios') {
-    return;
-  }
-  // If the app is foregrounded, skip the notification
-  if (AppState.currentState === 'active') {
+  if (Platform.OS === 'ios' || AppState.currentState === 'active') {
+    // On iOS we let the NSE display the notification
+    // On Android, we don't want to display a notification while in the foreground
     return;
   }
   const channelId = await setupNotifee();

@@ -41,6 +41,7 @@ import NewConnectionsBottomsheet from '@screens/Home/components/CreateNewConnect
 
 import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
+import { MessageStatus } from '@utils/Messaging/interfaces';
 import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
 import {cleanDeleteReadPort} from '@utils/Ports';
 import { getProfileInfo } from '@utils/Profile';
@@ -289,7 +290,7 @@ const Home = ({navigation, route}: Props) => {
       <GestureSafeAreaView backgroundColor={colors.background2}>
         <HomeTopbar
           unread={connections.matching.reduce(
-            (acc, cur) => (acc += cur.newMessageCount),
+            (acc, cur) => (acc += cur.readStatus === MessageStatus.latest ? cur.newMessageCount : 0),
             0,
           )}
         />

@@ -152,8 +152,11 @@ const ViewPhotosVideos = ({route}: Props) => {
           <View style={styles.container}>
             <FlatList
               data={media}
+              keyExtractor={(item) => item.mediaId}
+              initialNumToRender={21}
+              maxToRenderPerBatch={25}
+              windowSize={60}
               renderItem={renderItem}
-              keyExtractor={item => item.mediaId}
               numColumns={3}
             />
           </View>

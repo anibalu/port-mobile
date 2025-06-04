@@ -32,11 +32,11 @@ export const getAPNSToken = async () => {
  * Payload is ignored, as pullBacklog is used to make an API call to fetch relevant messages
  */
 export const registerBackgroundMessaging = (): void => {
-  messaging().setBackgroundMessageHandler(async message => {
+  messaging().setBackgroundMessageHandler(async ({data}) => {
     console.log('[NEW BACKGROUND MESSAGE]');
     // In the background, we don't have very much time, and a ramp up over
     // websockets may not be possble. As such, just process the received message
-    const receiver = new ReceiveMessage(message);
+    const receiver = new ReceiveMessage(data!.trigger);
     await receiver.receive();
   });
 };

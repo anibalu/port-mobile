@@ -68,6 +68,7 @@ const SearchBar = ({
         onChangeText={onChangeText}
         value={searchText}
         onBlur={() => setIsFocused(false)}
+        autoCorrect={false}
       />
       {searchText.length > 0 && (
         <Pressable hitSlop={40} onPress={() => onChangeText('')}>

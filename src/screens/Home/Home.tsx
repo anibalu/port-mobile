@@ -41,10 +41,10 @@ import NewConnectionsBottomsheet from '@screens/Home/components/CreateNewConnect
 
 import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
 import {loadHomeScreenConnections} from '@utils/Connections/onRefresh';
-import { MessageStatus } from '@utils/Messaging/interfaces';
+import {MessageStatus} from '@utils/Messaging/interfaces';
 import {performNotificationRouting, resetAppBadge} from '@utils/Notifications';
 import {cleanDeleteReadPort} from '@utils/Ports';
-import { getProfileInfo } from '@utils/Profile';
+import {getProfileInfo} from '@utils/Profile';
 import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 import {useTheme} from 'src/context/ThemeContext';
@@ -189,6 +189,10 @@ const Home = ({navigation, route}: Props) => {
         ]);
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
+      return () => {
+        // This clears the filter when navigating away from this screen
+        dispatchConnectionAction({event: 'updateFilter', payload: ''});
+      };
     }, []),
   );
 
@@ -290,7 +294,11 @@ const Home = ({navigation, route}: Props) => {
       <GestureSafeAreaView backgroundColor={colors.background2}>
         <HomeTopbar
           unread={connections.matching.reduce(
-            (acc, cur) => (acc += cur.readStatus === MessageStatus.latest ? cur.newMessageCount : 0),
+            (acc, cur) =>
+              (acc +=
+                cur.readStatus === MessageStatus.latest
+                  ? cur.newMessageCount
+                  : 0),
             0,
           )}
         />
@@ -342,7 +350,8 @@ const Home = ({navigation, route}: Props) => {
                       </View>
                     }
                     ListFooterComponent={
-                      (connections.matching.length > MINIMUM_CONNECTIONS || connections.filter.length>0) ? (
+                      connections.matching.length > MINIMUM_CONNECTIONS ||
+                      connections.filter.length > 0 ? (
                         <View style={{height: Height.bottombar}} />
                       ) : (
                         <View style={styles.placeholdercard}>
@@ -395,8 +404,9 @@ const Home = ({navigation, route}: Props) => {
           </View>
         </KeyboardAvoidingView>
         <RoundScan
-              onPress={() => navigation.push('Scan')}
-          style={styles.scanButton} />
+          onPress={() => navigation.push('Scan')}
+          style={styles.scanButton}
+        />
         <RoundPlus
           onPress={() => {
             setOpenConnectionsBottomsheet(true);
@@ -465,7 +475,7 @@ const styling = (colors: any) =>
       bottom: Spacing.l,
       right: Spacing.l,
     },
-    scanButton:{
+    scanButton: {
       position: 'absolute',
       bottom: Spacing.xxxxl,
       right: Spacing.l,

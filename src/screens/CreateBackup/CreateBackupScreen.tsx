@@ -6,10 +6,11 @@ import {
 } from 'react-native';
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useSelector } from 'react-redux';
 
 import { useColors } from '@components/colorGuide';
 import { CustomStatusBar } from '@components/CustomStatusBar';
-import { FontSizeType , FontWeight , NumberlessText } from '@components/NumberlessText';
+import { FontSizeType, FontWeight, NumberlessText } from '@components/NumberlessText';
 import { SafeAreaView } from '@components/SafeAreaView';
 import { Spacing } from '@components/spacingGuide';
 import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
@@ -17,12 +18,14 @@ import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
 import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
 
 import { createAndSaveBackup, createAndUploadBackup } from '@utils/Backup';
-
+import { setBackupTime } from '@utils/Profile';
+import { getChatTileTimestamp } from '@utils/Time';
 
 import { ToastType, useToast } from 'src/context/ToastContext';
 
 import AddPasswordCard from './components/AddPasswordCard';
 import ExportBackup from './components/ExportBackup';
+
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CreateBackupScreen'>;
 
@@ -56,6 +59,7 @@ const CreateBackupScreen = ({ navigation }: Props) => {
     setIsCloudExporting(true);
     try {
       await createAndUploadBackup(password);
+      await setBackupTime();
       showToast('Cloud backup created successfully', ToastType.success);
       setPassword('');
     } catch (error: any) {
@@ -73,6 +77,7 @@ const CreateBackupScreen = ({ navigation }: Props) => {
     setIsLocalExporting(true);
     try {
       await createAndSaveBackup(password);
+      await setBackupTime();
       showToast('Local backup created successfully', ToastType.success);
       setPassword('');
     } catch (error: any) {
@@ -81,6 +86,13 @@ const CreateBackupScreen = ({ navigation }: Props) => {
       setIsLocalExporting(false);
     }
   };
+
+  const profile = useSelector(state => state.profile.profile);
+  const { lastBackupTime } = useMemo(() => {
+    return {
+      lastBackupTime: profile?.lastBackupTime || null,
+    };
+  }, [profile]);
 
   return (
     <>
@@ -100,10 +112,16 @@ const CreateBackupScreen = ({ navigation }: Props) => {
               {'Create a backup'}
             </NumberlessText>
             <NumberlessText
+              textColor={color.text.title}
+              fontWeight={FontWeight.rg}
+              fontSizeType={FontSizeType.l}>
+              (Last backup: {lastBackupTime ? getChatTileTimestamp(lastBackupTime) : <NumberlessText textColor={color.red} fontWeight={FontWeight.rg} fontSizeType={FontSizeType.l}>Never</NumberlessText>})
+            </NumberlessText>
+            <NumberlessText
               textColor={color.text.subtitle}
               fontWeight={FontWeight.rg}
               fontSizeType={FontSizeType.l}>
-              Create secure encrypted backups of your conversations and data that you can restore if you change devices or reinstall the app.
+              Create a secure encrypted backup of your conversations and data so you can restore them if you change devices or reinstall the app.
             </NumberlessText>
           </View>
           <AddPasswordCard

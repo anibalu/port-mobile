@@ -11,6 +11,7 @@ import {
 } from '@utils/Storage/RNSecure/secureProfileHandler';
 import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
 import { getSafeAbsoluteURI } from '@utils/Storage/StorageRNFS/sharedFileHandlers';
+import { generateISOTimeStamp } from '@utils/Time';
 
 import store from '../../store/appStore';
 import * as storage from '../Storage/profile';
@@ -216,12 +217,13 @@ export async function updateProfileName(name: string) {
 }
 
 /**
- * Updates profile backup time
- * @param {string} timestamp - new backup time
+ * Sets profile backup time once backup is successfully created.
  */
-export async function updateBackupTime(timestamp: string) {
-  await updateProfileInfo({ lastBackupTime: timestamp });
+export async function setBackupTime() {
+  await updateProfileInfo({ lastBackupTime: generateISOTimeStamp() });
 }
+
+
 
 /**
  * Updates profile avatar

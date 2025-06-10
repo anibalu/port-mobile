@@ -4,7 +4,7 @@
  * screen id: 5
  */
 
-import React, {useEffect, useMemo, useReducer, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useReducer, useState} from 'react';
 import {
   Animated,
   AppState,
@@ -49,6 +49,7 @@ import {ChatType} from '@utils/Storage/DBCalls/connections';
 
 import {useTheme} from 'src/context/ThemeContext';
 
+import BackupReminder from './components/BackupReminder';
 import HomescreenPlaceholder from './components/HomescreenPlaceholder';
 import HomeTopbar from './components/HomeTopbar';
 import Tile, {TileProps} from './Tile';
@@ -161,10 +162,22 @@ const Home = ({navigation, route}: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [lastBackupTime, setLastBackupTime] = useState<string | undefined>(undefined);
+  const [hideReminder, setHideReminder] = useState<boolean>(false);
+
+  const onBackupPress = useCallback(() => {
+    navigation.push('CreateBackupScreen');
+  }, [navigation]);
+
+  const onClosePress = useCallback(() => {
+    setHideReminder(true);
+  }, [setHideReminder]);
+
   useEffect(() => {
     (async () => {
       // This is to ensure that the profile is loaded to store the first time the user opens the app
-      await getProfileInfo();
+      const profile = await getProfileInfo();
+      setLastBackupTime(profile?.lastBackupTime || '');
     })();
   }, []);
 
@@ -347,6 +360,12 @@ const Home = ({navigation, route}: Props) => {
                           }
                           placeholder={'Search for chats'}
                         />
+                        <BackupReminder
+                          lastBackupTime={lastBackupTime}
+                          hideReminder={hideReminder}
+                          onBackupPress={onBackupPress}
+                          onClosePress={onClosePress}
+                        />
                       </View>
                     }
                     ListFooterComponent={
@@ -441,7 +460,7 @@ const styling = (colors: any) =>
       backgroundColor: colors.background2,
       paddingHorizontal: Spacing.s,
       paddingVertical: Spacing.s,
-      flexDirection: 'row',
+      flexDirection: 'column',
       justifyContent: 'space-between',
       alignItems: 'center',
     },

@@ -30,15 +30,17 @@ import { updateProfileName } from '@utils/Profile';
 import { setNewProfilePicture } from '@utils/ProfilePicture';
 import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
 import { ThemeType, getTheme } from '@utils/Themes';
+import { getChatTileTimestamp } from '@utils/Time';
 
 type Props = NativeStackScreenProps<BottomNavStackParamList, 'Settings'>;
 
 const NewProfileScreen = ({ navigation }: Props) => {
   const profile = useSelector(state => state.profile.profile);
-  const { name, avatar } = useMemo(() => {
+  const { name, avatar, lastBackupTime } = useMemo(() => {
     return {
       name: profile?.name || DEFAULT_NAME,
       avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
+      lastBackupTime: profile?.lastBackupTime || null,
     };
   }, [profile]);
   const processedName: string = name || DEFAULT_NAME;
@@ -212,8 +214,8 @@ const NewProfileScreen = ({ navigation }: Props) => {
                   paddingVertical: 4,
                   borderRadius: 20,
                 }}
-                fontSizeType={FontSizeType.m}
-                fontWeight={FontWeight.md}
+                fontSizeType={FontSizeType.s}
+                fontWeight={FontWeight.rg}
                 textColor={colors.boldAccentColors.tealBlue}>
                 {selectedTheme}
               </NumberlessText>
@@ -238,7 +240,21 @@ const NewProfileScreen = ({ navigation }: Props) => {
                 Backup
               </NumberlessText>
             </View>
-            <AngleRight />
+            <View style={styles.card}>
+              <NumberlessText
+                style={{
+                  backgroundColor: colors.lowAccentColors.darkGreen,
+                  paddingHorizontal: Spacing.s,
+                  paddingVertical: 4,
+                  borderRadius: 20,
+                }}
+                fontSizeType={FontSizeType.s}
+                fontWeight={FontWeight.rg}
+                textColor={colors.boldAccentColors.darkGreen}>
+                Last Backup: {lastBackupTime ? getChatTileTimestamp(lastBackupTime) : 'Never'}
+              </NumberlessText>
+              <AngleRight />
+            </View>
           </Pressable>
           <Pressable
             onPress={() => navigation.push('BlockedContacts')}

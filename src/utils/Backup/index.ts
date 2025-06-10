@@ -13,7 +13,6 @@ import {isIOS} from '@components/ComponentUtils';
 import {generateRandomHexId} from '@utils/IdGenerator';
 import {getProfileInfo} from '@utils/Profile';
 import {
-  closeDBConnection,
   deleteDatabase,
   snapshotDatabase,
 } from '@utils/Storage/DBCalls/dbCommon';
@@ -159,7 +158,7 @@ async function uploadBackupToCloud(backupFilePath: string): Promise<void> {
   // Delete any file that isn't the one we just uploaded
   const files = await CloudStorage.readdir('/', CloudStorageScope.AppData);
   for (const file of files) {
-    if (file !== filename) {
+    if (file !== filename && file.endsWith('bak')) {
       await CloudStorage.unlink(file, CloudStorageScope.AppData);
     }
   }
@@ -210,17 +209,18 @@ export async function createAndSaveBackup(password: string): Promise<void> {
 }
 
 /**
- * Downloads the latest backup file from the configured cloud storage provider (AppData scope).
- * Initializes cloud storage before downloading. Finds the first file matching the backup pattern.
- *
- * @returns The local path to the downloaded backup file.
- * @throws An error if initialization fails, no backup file is found, or download fails.
+ * Helper to attempt downloading the backup file from a specific directory in the cloud backup data
+ * @param directory the directory to search in the AppData sector
+ * @returns path to the downloaded file, if found
  */
-export async function downloadBackupFromCloud(): Promise<string> {
-  await initializeCloudStorage();
-
+async function downloadBackupFromCloudDir(
+  directory: string,
+): Promise<string | null> {
   // List files in the AppData scope
-  let filenames = await CloudStorage.readdir('/', CloudStorageScope.AppData);
+  let filenames = await CloudStorage.readdir(
+    `/${directory}`,
+    CloudStorageScope.AppData,
+  );
 
   // Find the first file that matches the backup naming convention
   // TODO: Implement a strategy for multiple backups (e.g., latest) if needed.
@@ -251,7 +251,7 @@ export async function downloadBackupFromCloud(): Promise<string> {
   );
 
   if (!backupFilename) {
-    throw new Error('No backup file found in cloud storage.');
+    return null;
   }
 
   // Use the found filename, ensuring it includes the leading '/' for readFile if needed
@@ -272,6 +272,32 @@ export async function downloadBackupFromCloud(): Promise<string> {
 
   console.log(`Backup file downloaded successfully to: ${localBackupPath}`);
   return localBackupPath;
+}
+
+// On iOS there appears to be some inconsistency in where the backup might be saved
+const backupDirsToCheck = isIOS ? ['', 'Documents'] : [''];
+
+/**
+ * Downloads the latest backup file from the configured cloud storage provider (AppData scope).
+ * Initializes cloud storage before downloading. Finds the first file matching the backup pattern.
+ *
+ * @returns The local path to the downloaded backup file.
+ * @throws An error if initialization fails, no backup file is found, or download fails.
+ */
+export async function downloadBackupFromCloud(): Promise<string> {
+  await initializeCloudStorage();
+  let path: string | null;
+  for (const dir of backupDirsToCheck) {
+    try {
+      path = await downloadBackupFromCloudDir(dir);
+      if (path) {
+        return path;
+      }
+    } catch (e) {
+      console.error(`Downlaod for cloud dir ${dir} failed: `, e);
+    }
+  }
+  throw new Error('No backup file found in cloud storage.');
 }
 
 /**
@@ -298,12 +324,6 @@ async function replaceDatabaseFile(decryptedDbPath: string): Promise<void> {
       ),
     );
     throw new Error(`Failed to move decrypted database: ${error}`);
-  }
-  // Attempt to close the database connection
-  try {
-    await closeDBConnection();
-  } catch (error) {
-    console.error('Failed to close database connection:', error);
   }
 }
 

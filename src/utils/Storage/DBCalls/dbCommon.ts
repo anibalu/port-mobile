@@ -66,6 +66,7 @@ export const dbSingletonHelper: any[] = [];
  * @returns a simple db connection. returns null if there's an error opening a db.
  */
 async function getDB() {
+  // TODO: turn this into something that locks if needed and remove the array. It's woefully inelegant...
   if (dbSingletonHelper[0]) {
     return dbSingletonHelper[0];
   }
@@ -171,19 +172,16 @@ export function toNumber(a: number | null): number {
 
 export async function closeDBConnection(): Promise<void> {
   console.warn(`Closing database ${dbSingletonHelper.length} connection(s)`);
-  const db = dbSingletonHelper.pop(); // Remove connection from singleton
-  if (db) {
+  while (dbSingletonHelper.length > 0) {
+    const db = dbSingletonHelper.pop(); // Remove connection from singleton
     try {
       await db.close();
       console.log('Database connection closed successfully.');
     } catch (error) {
       console.error('Failed to close database connection:', error);
-      // Throwing might be better if closing is critical before file replacement.
-      throw new Error(`Failed to close database: ${error}`);
     }
-  } else {
-    console.log('No active database connection to close.');
   }
+  console.log('[DBCOMMON] closed any open database connections');
 }
 
 export async function getTargetDatabasePath(): Promise<string> {

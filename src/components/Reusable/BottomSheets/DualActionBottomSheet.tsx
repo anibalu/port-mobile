@@ -1,15 +1,15 @@
 import React, {useState} from 'react';
 import {ActivityIndicator, Pressable, StyleSheet, View} from 'react-native';
 
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import BaseBottomSheet from '@components/BaseBottomsheet';
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-
-import PrimaryBottomSheet from './PrimaryBottomSheet';
+import LineSeparator from '@components/Separators/LineSeparator';
+import { Spacing , Width } from '@components/spacingGuide';
 
 function DualActionBottomSheet({
   showMore,
@@ -46,16 +46,22 @@ function DualActionBottomSheet({
     setMiddleButtonLoading(false);
   };
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
-
   return (
-    <PrimaryBottomSheet
+    <BaseBottomSheet
       visible={openModal}
-      showClose
-      title={title}
       onClose={onClose}>
       <View style={styles.mainContainer}>
+        <View style={styles.titleContainer}>
+          <NumberlessText
+            textColor={Colors.text.title}
+            fontSizeType={FontSizeType.xl}
+            fontWeight={FontWeight.sb}>
+            {title}
+          </NumberlessText>
+          <LineSeparator style={{ width: Width.screen }} />
+        </View>
         <Pressable style={styles.topButtonContainer} onPress={onTopButtonClick}>
           {topButtonLoading ? (
             <View style={styles.loader}>
@@ -65,7 +71,7 @@ function DualActionBottomSheet({
             <NumberlessText
               style={styles.topButtonText}
               fontSizeType={FontSizeType.m}
-              fontType={FontType.md}>
+              fontWeight={FontWeight.sb}>
               {topButton}
             </NumberlessText>
           )}
@@ -82,48 +88,38 @@ function DualActionBottomSheet({
               <NumberlessText
                 style={styles.bottomButtonText}
                 fontSizeType={FontSizeType.m}
-                fontType={FontType.md}>
+                fontWeight={FontWeight.sb}>
                 {middleButton}
               </NumberlessText>
             )}
           </Pressable>
         )}
       </View>
-    </PrimaryBottomSheet>
+    </BaseBottomSheet>
   );
 }
 const styling = (colors: any) =>
   StyleSheet.create({
     mainContainer: {
-      backgroundColor: colors.primary.surface,
-      width: screen.width,
-      paddingTop: PortSpacing.secondary.uniform,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      borderRadius: 30,
-      ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+      width: Width.screen,
+      paddingHorizontal: Spacing.l,
+    },
+    titleContainer: {
+      width: '100%',
+      paddingTop: Spacing.s,
+      paddingBottom: Spacing.l,
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: Spacing.m,
     },
     loader: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    titleStyles: {
-      textAlign: 'left',
-      marginBottom: 20,
-      width: '100%',
-    },
-    questionStyles: {
-      textAlign: 'left',
-      marginBottom: 10,
-    },
-    descriptionStyles: {
-      color: '#606060',
-      textAlign: 'left',
-      marginBottom: 30,
-    },
     topButtonContainer: {
       width: '100%',
-      backgroundColor: colors.primary.red,
+      backgroundColor: colors.red,
       borderRadius: 12,
       marginBottom: 10,
       height: 50,
@@ -131,15 +127,15 @@ const styling = (colors: any) =>
     },
     bottomButtonContainer: {
       width: '100%',
-      borderWidth: 0.5,
-      borderColor: colors.primary.red,
+      borderWidth: 1,
+      borderColor: colors.stroke,
       borderRadius: 12,
       marginBottom: 10,
       height: 50,
       justifyContent: 'center',
     },
     bottomButtonText: {
-      color: colors.primary.red,
+      color: colors.text.title,
       textAlign: 'center',
     },
     topButtonText: {

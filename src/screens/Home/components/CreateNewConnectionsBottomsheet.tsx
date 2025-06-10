@@ -3,6 +3,7 @@ import {Pressable, StyleSheet, View} from 'react-native';
 
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
+import BaseBottomSheet from '@components/BaseBottomsheet';
 import GradientCard from '@components/Cards/GradientCard';
 import {useColors} from '@components/colorGuide';
 import {
@@ -10,10 +11,10 @@ import {
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import LineSeparator from '@components/Separators/LineSeparator';
 import {Spacing, Width} from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
+
 /**
  * A bottom sheet component for creating new connections.
  *
@@ -68,11 +69,8 @@ export default function NewConnectionsBottomsheet({
   const AngleRight = results.AngleRight;
 
   return (
-    <PrimaryBottomSheet
-      showClose={false}
-      bgColor={'w'}
+    <BaseBottomSheet
       visible={visible}
-      showNotch={false}
       onClose={onClose}>
       <View style={styles.connectionOptionsRegion}>
         <View style={styles.mainContainer}>
@@ -139,7 +137,7 @@ export default function NewConnectionsBottomsheet({
           </GradientCard>
         </View>
       </View>
-    </PrimaryBottomSheet>
+    </BaseBottomSheet>
   );
 }
 

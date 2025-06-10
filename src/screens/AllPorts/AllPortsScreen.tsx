@@ -7,12 +7,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import PortsCard from '@components/Cards/PortsCard';
 import { useColors } from '@components/colorGuide';
 import { CustomStatusBar } from '@components/CustomStatusBar';
+import { GestureSafeAreaView } from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import { SafeAreaView } from '@components/SafeAreaView';
 import { Spacing } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 import GenericTitle from '@components/Text/GenericTitle';
@@ -76,7 +76,7 @@ const AllPortsScreen = ({navigation}: Props) => {
   return (
     <>
       <CustomStatusBar backgroundColor={Colors.background2} theme={Colors.theme} />
-      <SafeAreaView backgroundColor={Colors.background} >
+      <GestureSafeAreaView backgroundColor={Colors.background} >
         <GenericTitle title="Ports" />
         <View style={styles.row}>
           <NumberlessText
@@ -150,7 +150,7 @@ const AllPortsScreen = ({navigation}: Props) => {
           onClose={() => setOpenConnectionsBottomsheet(false)}
           navigation={navigation}
         />
-      </SafeAreaView>
+      </GestureSafeAreaView>
     </>
   );
 };

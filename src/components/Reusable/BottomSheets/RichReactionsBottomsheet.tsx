@@ -10,6 +10,7 @@
 import React, {useEffect, useState} from 'react';
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
+import BaseBottomSheet from '@components/BaseBottomsheet';
 import {PortSpacing} from '@components/ComponentUtils';
 import DynamicColors from '@components/DynamicColors';
 import {
@@ -25,14 +26,11 @@ import {ContentType} from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {getProfilePictureUri} from '@utils/Profile';
 import {RichReaction, getRichReactions} from '@utils/Storage/reactions';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import SimpleCard from '../Cards/SimpleCard';
 import LineSeparator from '../Separators/LineSeparator';
 
-
-import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 const RichReactionsBottomsheet = ({
   visible,
@@ -91,17 +89,6 @@ const RichReactionsBottomsheet = ({
     onClose();
   };
   const Colors = DynamicColors();
-
-  const svgArray = [
-    // 1.CrossButton
-    {
-      assetName: 'CrossButton',
-      light: require('@assets/light/icons/Cross.svg').default,
-      dark: require('@assets/dark/icons/Cross.svg').default,
-    },
-  ];
-  const results = useDynamicSVG(svgArray);
-  const CrossButton = results.CrossButton;
 
   const renderBarItem = (item: RichReaction, index: number, Colors: any) => {
     const selfReactedMessage = item.senderId === 'SELF' ? item : null;
@@ -204,10 +191,8 @@ const RichReactionsBottomsheet = ({
   const styles = styling(Colors);
 
   return (
-    <PrimaryBottomSheet
+    <BaseBottomSheet
       bgColor="g"
-      showNotch={true}
-      showClose={false}
       visible={visible}
       onClose={onClose}>
       <View style={styles.container}>
@@ -220,9 +205,6 @@ const RichReactionsBottomsheet = ({
           horizontal={true}
           renderItem={({item, index}) => renderPillItem(item, index, Colors)}
         />
-        <Pressable onPress={onClose}>
-          <CrossButton width={24} height={24} />
-        </Pressable>
       </View>
 
       <SimpleCard style={styles.simpleCardContainer}>
@@ -236,7 +218,7 @@ const RichReactionsBottomsheet = ({
           renderItem={({item, index}) => renderBarItem(item, index, Colors)}
         />
       </SimpleCard>
-    </PrimaryBottomSheet>
+    </BaseBottomSheet>
   );
 };
 

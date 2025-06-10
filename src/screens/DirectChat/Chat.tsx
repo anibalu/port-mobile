@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AppState,
   BackHandler,
@@ -7,53 +7,53 @@ import {
   View,
 } from 'react-native';
 
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   runOnJS,
   useAnimatedReaction,
   useSharedValue,
 } from 'react-native-reanimated';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 
-import {screen} from '@components/ComponentUtils';
+import { screen } from '@components/ComponentUtils';
 import CustomKeyboardAvoidingView from '@components/CustomKeyboardAvoidingView';
-import {CustomStatusBar} from '@components/CustomStatusBar';
+import { CustomStatusBar } from '@components/CustomStatusBar';
 import DynamicColors from '@components/DynamicColors';
-import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
+import { GestureSafeAreaView } from '@components/GestureSafeAreaView';
 import BlurViewModal from '@components/Reusable/BlurView/BlurView';
 import DualActionBottomSheet from '@components/Reusable/BottomSheets/DualActionBottomSheet';
 import ReportMessageBottomSheet from '@components/Reusable/BottomSheets/ReportMessageBottomSheet';
 import RichReactionsBottomsheet from '@components/Reusable/BottomSheets/RichReactionsBottomsheet';
 
-import {DEFAULT_AVATAR} from '@configs/constants';
-import {messageReportCategories} from '@configs/reportingCategories';
+import { DEFAULT_AVATAR } from '@configs/constants';
+import { messageReportCategories } from '@configs/reportingCategories';
 
-import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
+import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
 
 //import store from '@store/appStore';
 import ChatTopbar from '@screens/Chat/ChatTopbar';
 import Disconnected from '@screens/Chat/Disconnected';
-import {MessageActionsBar} from '@screens/Chat/MessageActionsBar';
+import { MessageActionsBar } from '@screens/Chat/MessageActionsBar';
 import MessageBar from '@screens/Chat/MessageBar';
 
 import store from '@store/appStore';
-import {TRIGGER_TYPES} from '@store/triggerRedraw';
+import { TRIGGER_TYPES } from '@store/triggerRedraw';
 
-import {performDebouncedCommonAppOperations} from '@utils/AppOperations';
+import { performDebouncedCommonAppOperations } from '@utils/AppOperations';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
-import {toggleRead} from '@utils/Storage/connections';
-import {DirectPermissions} from '@utils/Storage/DBCalls/permissions/interfaces';
-import {TemplateParams} from '@utils/Storage/DBCalls/templates';
-import {getLatestMessages} from '@utils/Storage/messages';
-import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
+import { DisplayableContentTypes } from '@utils/Messaging/interfaces';
+import { toggleRead } from '@utils/Storage/connections';
+import { DirectPermissions } from '@utils/Storage/DBCalls/permissions/interfaces';
+import { TemplateParams } from '@utils/Storage/DBCalls/templates';
+import { getLatestMessages } from '@utils/Storage/messages';
+import { useListenForTrigger } from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
 
-import {AudioPlayerProvider} from 'src/context/AudioPlayerContext';
-import {useTheme} from 'src/context/ThemeContext';
+import { AudioPlayerProvider } from 'src/context/AudioPlayerContext';
+import { useTheme } from 'src/context/ThemeContext';
 
-import {ChatContextProvider, useChatContext} from './ChatContext';
-import {MessageBarActionsContextProvider} from './ChatContexts/MessageBarActions';
+import { ChatContextProvider, useChatContext } from './ChatContext';
+import { MessageBarActionsContextProvider } from './ChatContexts/MessageBarActions';
 import {
   MessageSelectionMode,
   SelectionContextProvider,
@@ -72,7 +72,7 @@ interface ReportingTypes {
  * Renders a chat screen. The chatlist that is rendered is INVERTED, which means that any `top` function is a `bottom` function and vice versa.
  * @returns Component for rendered chat window
  */
-function Chat({route}: Props) {
+function Chat({ route }: Props) {
   const {
     chatId,
     isConnected,
@@ -98,7 +98,7 @@ function Chat({route}: Props) {
   );
 }
 
-function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
+function ChatScreen({ ifTemplateExists }: { ifTemplateExists?: TemplateParams }) {
   //chat screen context
   const {
     chatId,
@@ -143,7 +143,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
   const [sliderOpen, setSliderOpen] = useState<boolean>(true);
 
   //ref for chat top bar
-  const chatTopBarRef = useRef<{moveSliderIntermediateOpen: () => void}>(null);
+  const chatTopBarRef = useRef<{ moveSliderIntermediateOpen: () => void }>(null);
   //function to move slider intermediate open
   const moveSliderIntermediateOpen = () => {
     if (chatTopBarRef.current) {
@@ -274,7 +274,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
 
   const Colors = DynamicColors();
 
-  const {themeValue} = useTheme();
+  const { themeValue } = useTheme();
   const styles = styling(themeValue, Colors);
 
   const onChatScreenPressed = () => {
@@ -341,7 +341,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
             ) : selectionMode ? (
               <MessageActionsBar />
             ) : (
-              <View style={{paddingTop: 60}}>
+              <View style={{ paddingTop: 60 }}>
                 <Disconnected name={name} />
               </View>
             )}
@@ -355,6 +355,8 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
           permissions={permissions}
           setPermissions={setPermissions}
         />
+        {selectionMode === MessageSelectionMode.Single &&
+          selectedMessages.length === 1 && <BlurViewModal />}
         <ReportMessageBottomSheet
           description="Your report is anonymous. The reported user will not be notified of the report."
           openModal={showReportModal}
@@ -373,22 +375,22 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
         <DualActionBottomSheet
           showMore={showDeleteForEveryone}
           openModal={openDeleteMessageModal}
-          title={'Delete message'}
+          title={'Delete message?'}
           topButton={
             showDeleteForEveryone ? 'Delete for everyone' : 'Delete for me'
           }
           topButtonFunction={
             showDeleteForEveryone
               ? () => {
-                  performGlobalDelete(selectedMessages.map(m => m.messageId));
-                  setSelectedMessages([]);
-                  setSelectionMode(MessageSelectionMode.Single);
-                }
+                performGlobalDelete(selectedMessages.map(m => m.messageId));
+                setSelectedMessages([]);
+                setSelectionMode(MessageSelectionMode.Single);
+              }
               : () => {
-                  performDelete(selectedMessages.map(m => m.messageId));
-                  setSelectedMessages([]);
-                  setSelectionMode(MessageSelectionMode.Single);
-                }
+                performDelete(selectedMessages.map(m => m.messageId));
+                setSelectedMessages([]);
+                setSelectionMode(MessageSelectionMode.Single);
+              }
           }
           middleButton="Delete for me"
           middleButtonFunction={() => {
@@ -407,8 +409,6 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
           visible={richReactionMessage !== null}
         />
       </GestureSafeAreaView>
-      {selectionMode === MessageSelectionMode.Single &&
-        selectedMessages.length === 1 && <BlurViewModal />}
     </AudioPlayerProvider>
   );
 }

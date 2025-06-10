@@ -3,13 +3,15 @@ import {Keyboard, StyleSheet, View} from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
 
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import BaseBottomSheet from '@components/BaseBottomsheet';
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
+import LineSeparator from '@components/Separators/LineSeparator';
+import { Spacing , Width } from '@components/spacingGuide';
 
 import {safeModalCloseDuration} from '@configs/constants';
 import {messageReportCategories} from '@configs/reportingCategories';
@@ -32,9 +34,7 @@ import SimpleInput from '../Inputs/SimpleInput';
 import PrimaryButton from '../LongButtons/PrimaryButton';
 import SecondaryButton from '../LongButtons/SecondaryButton';
 import OptionWithRadio from '../OptionButtons/OptionWithRadio';
-import LineSeparator from '../Separators/LineSeparator';
 
-import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 function ReportMessageBottomSheet({
   openModal,
@@ -67,7 +67,7 @@ function ReportMessageBottomSheet({
   const [bottomButtonLoading, setBottomButtonLoading] =
     useState<boolean>(false);
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
 
   const {showToast} = useToast();
@@ -184,27 +184,32 @@ function ReportMessageBottomSheet({
     }
   };
 
-  return (
-    <PrimaryBottomSheet
-      bgColor="g"
+return (
+    <BaseBottomSheet
       visible={openModal}
-      title={`Why are you reporting ${name}?`}
-      showClose={true}
       onClose={onCloseClick}>
       <View style={styles.mainContainer}>
+      <View style={styles.titleContainer}>
+          <NumberlessText
+            textColor={Colors.text.title}
+            fontSizeType={FontSizeType.xl}
+            fontWeight={FontWeight.sb}>
+            Why are you reporting {name}?
+          </NumberlessText>
+          <LineSeparator style={{ width: Width.screen }} />
+        </View>
         {onReportSubmitted ? (
           <>
             <NumberlessText
-              style={{marginTop: PortSpacing.tertiary.top}}
               textColor={Colors.text.subtitle}
-              fontType={FontType.rg}
+              fontWeight={FontWeight.rg}
               fontSizeType={FontSizeType.m}>
               Type of issue
             </NumberlessText>
             <SimpleCard style={styles.card}>
               <NumberlessText
-                textColor={Colors.text.primary}
-                fontType={FontType.sb}
+                textColor={Colors.text.title}
+                fontWeight={FontWeight.sb}
                 fontSizeType={FontSizeType.l}>
                 {selectedReportOption.title}
               </NumberlessText>
@@ -222,8 +227,8 @@ function ReportMessageBottomSheet({
               )}
             </SimpleCard>
             <NumberlessText
-              textColor={Colors.text.primary}
-              fontType={FontType.rg}
+              textColor={Colors.text.subtitle}
+              fontWeight={FontWeight.rg}
               fontSizeType={FontSizeType.m}>
               Port will take a careful look at this contact/content and take
               appropriate action.
@@ -252,13 +257,12 @@ function ReportMessageBottomSheet({
         ) : (
           <>
             <NumberlessText
-              style={{marginTop: PortSpacing.secondary.top}}
               textColor={Colors.text.subtitle}
               fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}>
+              fontWeight={FontWeight.rg}>
               {description}
             </NumberlessText>
-            <SimpleCard style={{paddingBottom: 4}}>
+            <SimpleCard >
               {messageReportCategories.map((item, index) => {
                 const isLast = messageReportCategories.length === item.index;
                 return (
@@ -277,8 +281,8 @@ function ReportMessageBottomSheet({
               {selectedReportOption.index === 3 && (
                 <View
                   style={{
-                    paddingHorizontal: PortSpacing.secondary.bottom,
-                    marginVertical: PortSpacing.tertiary.top,
+                    paddingHorizontal: Spacing.m,
+                    marginVertical: Spacing.m,
                   }}>
                   <SimpleInput
                     placeholderText={'Type your reason'}
@@ -309,41 +313,47 @@ function ReportMessageBottomSheet({
           </>
         )}
       </View>
-    </PrimaryBottomSheet>
+    </BaseBottomSheet>
   );
 }
+
 const styling = (Colors: any) =>
   StyleSheet.create({
     mainContainer: {
-      gap: PortSpacing.intermediate.uniform,
-      width: screen.width,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      borderRadius: 30,
-      ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+      width: Width.screen,
+      paddingHorizontal: Spacing.l,
+    },
+    titleContainer: {
+      width: '100%',
+      paddingTop: Spacing.s,
+      paddingBottom: Spacing.l,
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: Spacing.m,
     },
     buttonWrapper: {
-      gap: PortSpacing.tertiary.uniform,
+      gap: Spacing.m,
     },
     buttonContainer: {
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingVertical: PortSpacing.tertiary.uniform,
+      paddingHorizontal: Spacing.m,
+      paddingVertical: Spacing.m,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
     },
     card: {
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.m,
       borderWidth: 0.5,
-      borderColor: Colors.primary.stroke,
-      paddingVertical: PortSpacing.secondary.uniform,
+      borderColor: Colors.stroke,
+      paddingVertical: Spacing.m,
     },
     block: {
       borderRadius: 8,
-      borderColor: Colors.primary.stroke,
+      borderColor: Colors.stroke,
       borderWidth: 0.5,
-      marginTop: PortSpacing.tertiary.top,
-      paddingTop: PortSpacing.tertiary.top,
-      paddingLeft: PortSpacing.tertiary.left,
+      marginTop: Spacing.m,
+      paddingTop: Spacing.m,
+      paddingLeft: Spacing.m,
     },
   });
 

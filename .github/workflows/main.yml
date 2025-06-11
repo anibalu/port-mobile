@@ -30,3 +30,32 @@ jobs:
 
       - name: Lint with eslint
         run: yarn lint
+        
+      - name: Check for forbidden files
+        run: |
+          FORBIDDEN_FILES=(
+            ".env"
+            "sentry.properties"
+          )
+          EXCLUDE_DIRS=(
+            ".git"
+          )
+          EXCLUDE_FIND_ARGS=()
+          for d in "${EXCLUDE_DIRS[@]}"; do
+            EXCLUDE_FIND_ARGS+=( -path "./$d" -prune -o )
+          done
+          NAME_FIND_ARGS=()
+          for f in "${FORBIDDEN_FILES[@]}"; do
+            NAME_FIND_ARGS+=( -name "$f" -o )
+          done
+          # remove trailing -o
+          unset 'NAME_FIND_ARGS[${#NAME_FIND_ARGS[@]}-1]'
+          if find . \
+              "${EXCLUDE_FIND_ARGS[@]}" \
+              -type f \
+              \( "${NAME_FIND_ARGS[@]}" \) \
+              -print -quit \
+            | grep -q .; then
+            echo "❌ Forbidden file detected (.env or sentry.properties). Please remove it before committing." >&2
+            exit 1
+          fi

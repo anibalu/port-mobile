@@ -1,17 +1,17 @@
 import React from 'react';
-import {View} from 'react-native';
+import { View } from 'react-native';
 
 import ToggleSwitch from 'toggle-switch-react-native';
 
 import GradientCard from '@components/Cards/GradientCard';
-import {useColors} from '@components/colorGuide';
+import { useColors } from '@components/colorGuide';
 import SimpleInput from '@components/Inputs/SimpleInput';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import {Spacing} from '@components/spacingGuide';
+import { Spacing } from '@components/spacingGuide';
 
 /**
  * Reusable Port Card used to decide what kind of Port is being created.
@@ -30,6 +30,9 @@ const PortLabelAndLimitCard = ({
   setPortName,
   limit,
   setLimit,
+  showPortError,
+  showLimitError,
+  showReusablePortError
 }: {
   portReusable: boolean;
   setPortReusable: (value: boolean) => void;
@@ -37,6 +40,9 @@ const PortLabelAndLimitCard = ({
   setPortName: (value: string) => void;
   limit: number;
   setLimit: (value: number) => void;
+  showPortError: boolean;
+  showLimitError: boolean;
+  showReusablePortError: boolean
 }) => {
   const color = useColors();
 
@@ -46,7 +52,7 @@ const PortLabelAndLimitCard = ({
   };
 
   return (
-    <GradientCard style={{padding: Spacing.l, paddingVertical: Spacing.l}}>
+    <GradientCard style={{ padding: Spacing.l, paddingVertical: Spacing.l }}>
       <View
         style={{
           flexDirection: 'row',
@@ -77,20 +83,44 @@ const PortLabelAndLimitCard = ({
         {portReusable ? (
           <>
             <SimpleInput
+              showError={showReusablePortError}
               setText={setPortName}
               text={portName}
               bgColor="w"
               placeholderText="Label this Port. Ex: “LinkedIn Inbounds”"
             />
+            {showReusablePortError && (
+              <NumberlessText
+                fontSizeType={FontSizeType.xs}
+                fontWeight={FontWeight.rg}
+                textColor={color.red}
+                style={{ marginLeft: Spacing.s, marginTop: -Spacing.s }}
+
+              >
+                *Port label is required.
+              </NumberlessText>
+            )}
+
             <SimpleInput
+              showError={showLimitError}
               setText={handleLimitChange}
               text={limit ? limit.toString() : ''}
               bgColor="w"
               keyboardType="numeric"
               placeholderText="How many times can this Port be used?"
             />
+            {showLimitError && (
+              <NumberlessText
+                fontSizeType={FontSizeType.xs}
+                fontWeight={FontWeight.rg}
+                textColor={color.red}
+                style={{ marginLeft: Spacing.s, marginTop: -Spacing.s }}
+              >
+                *Limit must be greater than 0.
+              </NumberlessText>
+            )}
             <NumberlessText
-              style={{marginTop: Spacing.s}}
+              style={{ marginTop: Spacing.s }}
               textColor={color.text.subtitle}
               fontSizeType={FontSizeType.s}
               fontWeight={FontWeight.rg}>
@@ -101,13 +131,25 @@ const PortLabelAndLimitCard = ({
         ) : (
           <>
             <SimpleInput
+              showError={showPortError}
               setText={setPortName}
               text={portName}
               bgColor="w"
               placeholderText="Who are you sending this Port to?"
             />
+            {showPortError && (
+              <NumberlessText
+                fontSizeType={FontSizeType.xs}
+                fontWeight={FontWeight.rg}
+                textColor={color.red}
+                style={{ marginLeft: Spacing.s, marginTop: -Spacing.s }}
+
+              >
+                *Contact name is required.
+              </NumberlessText>
+            )}
             <NumberlessText
-              style={{marginTop: Spacing.s}}
+              style={{ marginTop: Spacing.s }}
               textColor={color.text.subtitle}
               fontSizeType={FontSizeType.s}
               fontWeight={FontWeight.rg}>

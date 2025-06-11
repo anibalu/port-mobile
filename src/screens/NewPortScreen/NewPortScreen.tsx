@@ -1,5 +1,5 @@
 // import TagCard from '@components/Reusable/Cards/TagCard';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AppState,
   AppStateStatus,
@@ -62,6 +62,14 @@ const NewPortScreen = ({ navigation }: Props) => {
   };
 
   const [notificationPermission, setNotificationPermission] = useState(true);
+  const [portNameError, setPortNameError] = useState(false);
+  const [portLimitError, setPortLimitError] = useState(false);
+  const [reusablePortNameError, setReusablePortNameError] = useState(false);
+
+  const [portCardY, setPortCardY] = useState(0);
+
+
+  const scrollViewRef = useRef<ScrollView>(null);
 
   // Define the permission check function with useCallback
   const checkPermissions = useCallback(async () => {
@@ -98,21 +106,33 @@ const NewPortScreen = ({ navigation }: Props) => {
       onBackPress={onBackPress}
       modifyNavigationBarColor={true}
       bottomNavigationBarColor={color.black}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.scrollContainer}>
           <TopBarDescription
             theme={color.theme}
             description="A Port is a highly customizable QR code or link used to invite new contacts. All chats formed over Ports are end-to-end encrypted."
           />
           <View style={styles.scrollableElementsParent}>
-            <PortLabelAndLimitCard
-              setPortName={setPortName}
-              portName={portName}
-              setPortReusable={setPortReusable}
-              portReusable={portReusable}
-              setLimit={setLimit}
-              limit={limit}
-            />
+            <View
+              onLayout={(event) => {
+                const layout = event.nativeEvent.layout;
+                setPortCardY(layout.y);
+              }}
+            >
+              <PortLabelAndLimitCard
+                setPortName={setPortName}
+                portName={portName}
+                setPortReusable={setPortReusable}
+                portReusable={portReusable}
+                setLimit={setLimit}
+                limit={limit}
+                showPortError={portNameError}
+                showReusablePortError={reusablePortNameError} 
+                showLimitError={portLimitError}
+              />
+            </View>
             <ExpandableLocalPermissionsCard
               heading={portReusable ? 'New Contacts can' : 'New Contact can'}
               permissions={permissions}
@@ -122,6 +142,7 @@ const NewPortScreen = ({ navigation }: Props) => {
               bottomText={'You can always change these permissions later.'}
               appNotificationPermissionNotGranted={!notificationPermission}
             />
+
           </View>
         </View>
       </ScrollView>
@@ -129,13 +150,37 @@ const NewPortScreen = ({ navigation }: Props) => {
         <PrimaryButton
           theme={color.theme}
           text="Create Port"
-          disabled={
-            portReusable
-              ? portName.trim().length === 0 || limit <= 0
-              : portName.trim().length === 0
-          }
           isLoading={loading}
+          disabled={false}
           onClick={async () => {
+            // check if resuable port label is entered
+            const reusablePortNameError = portReusable && portName.trim().length === 0;
+
+            // check if resuable port limit is entered
+            const portLimitError = portReusable && limit <= 0;
+
+            // check if port name is entered
+            const portNameErrorOnly = !portReusable && portName.trim().length === 0;
+
+            const isInvalid = reusablePortNameError || portLimitError || portNameErrorOnly;
+
+            if (isInvalid) {
+
+              setPortNameError(portNameErrorOnly);
+              if (portReusable) {
+                setReusablePortNameError(reusablePortNameError)
+                setPortLimitError(portLimitError)
+              }
+              // Scroll to stored Y-position
+              setTimeout(() => {
+                scrollViewRef.current?.scrollTo({
+                  y: portCardY - 20,
+                  animated: true,
+                });
+              }, 100);
+
+              return;
+            }
             setLoading(true);
             if (portReusable && limit > 0) {
               try {

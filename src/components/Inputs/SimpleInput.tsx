@@ -36,8 +36,9 @@ const SimpleInput = ({
   isEditable = true,
   autoFocus = false,
   secureTextEntry = false,
+  showError=false
 }: {
-  isEditable?: boolean;
+  isEditable?: boolean; 
   text: string;
   placeholderText?: string;
   setText: (text: string) => void;
@@ -46,6 +47,7 @@ const SimpleInput = ({
   keyboardType?: KeyboardTypeOptions;
   autoFocus?: boolean;
   secureTextEntry?: boolean;
+  showError?: boolean
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const onTextChange = (newText: string) => {
@@ -59,13 +61,16 @@ const SimpleInput = ({
 
   const Colors = useColors();
 
+
   return (
     <>
       <TextInput
         editable={isEditable}
         style={StyleSheet.compose(styles.textInput, {
           color: Colors.text.title,
-          borderColor: isFocused
+          borderColor: 
+          showError? Colors.red: 
+           isFocused
             ? Colors.boldAccentColors.purple
             : Colors.stroke,
           backgroundColor:

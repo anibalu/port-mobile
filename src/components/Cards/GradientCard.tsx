@@ -1,8 +1,6 @@
 import React from 'react';
 import {StyleSheet,View} from 'react-native';
 
-import LinearGradient from 'react-native-linear-gradient';
-
 import {useColors} from '@components/colorGuide';
 import {Spacing} from '@components/spacingGuide';
 
@@ -20,7 +18,9 @@ const GradientCard = ({
   children,
   style,
   pointerEvents,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   edge1Color = 'rgba(255, 255, 255, 0.25)',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   edge2Color = 'rgba(255, 255, 255, 0)',
   forceTheme,
 }: {
@@ -32,29 +32,7 @@ const GradientCard = ({
   forceTheme?: 'light' | 'dark';
 }) => {
   const Colors = useColors(forceTheme);
-  return Colors.theme === 'dark' ? (
-    <LinearGradient
-      colors={[edge1Color, edge2Color, edge1Color]}
-      start={{x: 0, y: 0}}
-      end={{x: 1, y: 1}}
-      useAngle={true}
-      angle={135}
-      angleCenter={{x: 0.5, y: 0.5}}
-      style={{
-        borderRadius: style && style.borderRadius ? style.borderRadius : 16,
-      }}>
-      <View
-        style={StyleSheet.compose(styles.cardContainer, {
-          backgroundColor: Colors.surface,
-          ...style,
-          borderRadius: style && style.borderRadius ? style.borderRadius : 16,
-          margin: 1,
-        })}
-        pointerEvents={pointerEvents}>
-        {children}
-      </View>
-    </LinearGradient>
-  ) : (
+  return (
     <View
       style={StyleSheet.compose(styles.cardContainer, {
         backgroundColor: Colors.surface,

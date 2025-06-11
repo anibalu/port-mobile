@@ -139,7 +139,7 @@ const NewProfileScreen = ({ navigation }: Props) => {
         theme={colors.theme}
       />
       <SafeAreaView backgroundColor={colors.background2}>
-        <GenericTitle title="Profile" />
+        <GenericTitle title="Settings" />
         <ScrollView contentContainerStyle={styles.profile}>
           <AvatarBox
             profileUri={profilePicAttr.fileUri}

@@ -1,8 +1,8 @@
 # Numberless
 .env
+**/sentry.properties
 *.apk
 *.aab
-**/sentry.properties
 
 # Editors
 .vscode

@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import PrimaryButton from '@components/Buttons/PrimaryButton';
 import { useColors } from '@components/colorGuide';
 import { CustomStatusBar } from '@components/CustomStatusBar';
+import DeveloperBox from '@components/DeveloperBox';
 import {
   FontSizeType,
   FontWeight,
@@ -26,7 +27,9 @@ import { DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO } from '@configs/constants';
 
 import { BottomNavStackParamList } from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
 
-import { updateProfileName } from '@utils/Profile';
+import { createSecureDataBackup } from '@utils/Backup/backupUtils';
+import { turnOffDeveloperMode , turnOnDeveloperMode } from '@utils/DeveloperMode';
+import { getProfileInfo, updateProfileName } from '@utils/Profile';
 import { setNewProfilePicture } from '@utils/ProfilePicture';
 import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
 import { ThemeType, getTheme } from '@utils/Themes';
@@ -36,7 +39,13 @@ type Props = NativeStackScreenProps<BottomNavStackParamList, 'Settings'>;
 
 const NewProfileScreen = ({ navigation }: Props) => {
   const profile = useSelector(state => state.profile.profile);
-  const { name, avatar, lastBackupTime } = useMemo(() => {
+  const isDeveloperMode = useSelector(state => state.developerMode.developerMode);
+  const [versionTapCount, setVersionTapCount] = useState(0);
+
+  const { name, avatar } = useMemo(() => {
+    getProfileInfo().then((profile) => {
+      console.log('profile', profile);
+    });
     return {
       name: profile?.name || DEFAULT_NAME,
       avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,
@@ -132,6 +141,20 @@ const NewProfileScreen = ({ navigation }: Props) => {
     await updateProfileName(newName);
   };
 
+  const handleVersionTap = () => {
+    const newTapCount = versionTapCount + 1;
+    if (newTapCount >= 5) {
+      if (isDeveloperMode) {
+        turnOffDeveloperMode();
+      } else {
+        turnOnDeveloperMode();
+      }
+      setVersionTapCount(0); // Reset count
+    } else {
+      setVersionTapCount(newTapCount);
+    }
+  };
+
   return (
     <>
       <CustomStatusBar
@@ -162,8 +185,8 @@ const NewProfileScreen = ({ navigation }: Props) => {
             fontWeight={FontWeight.rg}
             textColor={colors.text.subtitle}
             style={styles.bottomCard}>
-            Your name and profile picture are private — only visible to you and
-            your chosen contacts. We don't see or store them.
+            Your name and profile picture are private — only visible to you
+            and your chosen contacts. We don't see or store them.
           </NumberlessText>
 
           <Pressable
@@ -319,9 +342,12 @@ const NewProfileScreen = ({ navigation }: Props) => {
               theme={colors.theme}
             />
           </View>
-          <NumberlessText textColor={colors.text.subtitle}>
-            Version: {DeviceInfo.getReadableVersion()}
-          </NumberlessText>
+          <Pressable onPress={handleVersionTap} style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <NumberlessText textColor={colors.text.subtitle}>Version: {DeviceInfo.getReadableVersion()}</NumberlessText>
+            <DeveloperBox>
+              <NumberlessText textColor={colors.text.subtitle}>Developer mode turned ON. tap 5 times to turn off.</NumberlessText>
+            </DeveloperBox>
+          </Pressable>
         </ScrollView>
         <EditAvatar
           localImageAttr={profilePicAttr}

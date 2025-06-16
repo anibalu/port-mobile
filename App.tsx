@@ -28,6 +28,7 @@ import {
   backgroundToForegroundOperations,
   performDebouncedCommonAppOperations,
 } from '@utils/AppOperations';
+import {getDeveloperModeFromStorage, turnOnDeveloperMode} from '@utils/DeveloperMode';
 import {
   foregroundMessageHandler,
   initialiseFCM,
@@ -41,7 +42,6 @@ import {ThemeProvider} from 'src/context/ThemeContext';
 import {ToastProvider} from 'src/context/ToastContext';
 
 import store from './src/store/appStore';
-
 
 // We only want sentry enabled for production builds.
 if (SENTRY_DSN) {
@@ -68,6 +68,11 @@ function App(): JSX.Element {
       await runMigrations();
       //can be run asynchronously
       initialiseFCM();
+      //checks if developer mode is turned on
+      const developerMode = await getDeveloperModeFromStorage();
+      if (developerMode) {
+        turnOnDeveloperMode();
+      }
       //checks if profile setup is done
       const status = await checkProfileCreated();
       setProfileStatus(status);

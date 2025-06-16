@@ -3,6 +3,7 @@ import {combineReducers, configureStore} from '@reduxjs/toolkit';
 import latestCallReducer from './call';
 import connectionErrors from './connectionErrors';
 import connectionFsSyncMutex from './connectionFsSyncMutex';
+import developerMode from './developerMode';
 import latestNewConnection from './latestNewConnection';
 import ping from './ping';
 import profile from './profile';
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   forceCloseModal,
   latestCallReducer,
   connectionErrors,
+  developerMode,
 });
 
 const store = configureStore({

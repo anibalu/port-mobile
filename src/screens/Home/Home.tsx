@@ -338,6 +338,7 @@ const Home = ({navigation, route}: Props) => {
               <>
                 {connections.hasConnection ? (
                   <FlatList
+                    keyboardShouldPersistTaps={'handled'}
                     data={connections.matching}
                     renderItem={element => (
                       <Tile

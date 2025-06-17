@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
 import { useColors } from '@components/colorGuide';
 import { GradientScreenView } from '@components/GradientScreenView';
-import { Spacing } from '@components/spacingGuide';
+import SearchBar from '@components/SearchBar';
+import { Height, Spacing } from '@components/spacingGuide';
 import TopBarDescription from '@components/Text/TopBarDescription';
 
 import { getContacts } from '@utils/Storage/contacts';
@@ -20,6 +21,8 @@ const ContactsScreen = () => {
   const styles = styling(Colors);
   const navigation = useNavigation();
   const [allConnections, setAllConnections] = useState<ContactEntry[]>([]);
+  const [filteredConnections, setFilteredConnections]= useState<ContactEntry[]>([]);
+  const [searchText, setSearchtext] = useState<string>('');
 
   // handles back navigation on backpress
   const onBackPress = () => {
@@ -34,6 +37,21 @@ const ContactsScreen = () => {
     })();
   }, []);
 
+  useMemo(() => {
+    if (allConnections) {
+      // Filter the contacts based on the search text
+      if (searchText.trim() === '') {
+        setFilteredConnections(allConnections);
+      } else {
+        const filteredData = allConnections.filter(item => {
+          return item.name?.toLowerCase()
+            .includes(searchText.toLowerCase());
+        });
+        setFilteredConnections(filteredData);
+      }
+    }
+  }, [searchText, allConnections]);
+
   const renderContent = () => {
     return (
       <View style={styles.scrollContainer}>
@@ -43,8 +61,22 @@ const ContactsScreen = () => {
         />
         <View style={styles.scrollableElementsParent}>
           <View style={styles.card}>
-            <NewContactOptions />
-            <ConnectionsCard allConnections={allConnections} />
+            <NewContactOptions /> 
+            {allConnections.length>0 &&
+             <SearchBar
+             style={{
+               backgroundColor: Colors.surface,
+               height: Height.searchBar,
+               width: '100%',
+               flexDirection: 'row',
+               alignItems: 'center',
+               borderRadius: Spacing.xml,
+             }}
+             searchText={searchText}
+             setSearchText={setSearchtext}
+           />
+            }
+            <ConnectionsCard allConnections={filteredConnections} searchText={searchText} />
           </View>
         </View>
       </View>
@@ -62,6 +94,7 @@ const ContactsScreen = () => {
         data={[1]}
         renderItem={renderContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps={'handled'}
       />
     </GradientScreenView>
   );

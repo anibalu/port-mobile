@@ -24,8 +24,10 @@ import { ToastType, useToast } from 'src/context/ToastContext';
 
 const ConnectionsCard = ({
   allConnections,
+  searchText
 }: {
   allConnections: ContactEntry[];
+  searchText: string;
 }) => {
   const Colors = useColors();
   const styles = styling(Colors);
@@ -71,7 +73,7 @@ const ConnectionsCard = ({
                   textColor={Colors.text.subtitle}
                   fontWeight={FontWeight.rg}
                   fontSizeType={FontSizeType.s}>
-                  You have no Port contacts yet. Try forming a new chat using the options above.
+                  {searchText ? 'No results found' : 'You have no Port contacts yet. Try forming a new chat using the options above.'}
                 </NumberlessText>
               </View>
             ) : (

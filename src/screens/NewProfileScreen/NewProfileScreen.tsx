@@ -27,9 +27,8 @@ import { DEFAULT_NAME, DEFAULT_PROFILE_AVATAR_INFO } from '@configs/constants';
 
 import { BottomNavStackParamList } from '@navigation/AppStack/BottomNavStack/BottomNavStackTypes';
 
-import { createSecureDataBackup } from '@utils/Backup/backupUtils';
 import { turnOffDeveloperMode , turnOnDeveloperMode } from '@utils/DeveloperMode';
-import { getProfileInfo, updateProfileName } from '@utils/Profile';
+import { updateProfileName } from '@utils/Profile';
 import { setNewProfilePicture } from '@utils/ProfilePicture';
 import { FileAttributes } from '@utils/Storage/StorageRNFS/interfaces';
 import { ThemeType, getTheme } from '@utils/Themes';
@@ -42,10 +41,7 @@ const NewProfileScreen = ({ navigation }: Props) => {
   const isDeveloperMode = useSelector(state => state.developerMode.developerMode);
   const [versionTapCount, setVersionTapCount] = useState(0);
 
-  const { name, avatar } = useMemo(() => {
-    getProfileInfo().then((profile) => {
-      console.log('profile', profile);
-    });
+  const { name, avatar, lastBackupTime } = useMemo(() => {
     return {
       name: profile?.name || DEFAULT_NAME,
       avatar: profile?.profilePicInfo || DEFAULT_PROFILE_AVATAR_INFO,

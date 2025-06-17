@@ -28,6 +28,7 @@ import { safeModalCloseDuration } from '@configs/constants';
 import { AppStackParamList } from '@navigation/AppStack/AppStackTypes';
 
 import { checkCameraPermission } from '@utils/AppPermissions';
+import { getBundleFromLink } from '@utils/DeepLinking';
 import { urlToJson } from '@utils/JsonToUrl';
 import {
   acceptBundle,
@@ -166,13 +167,28 @@ function QRScanner({ navigation }: Props) {
       if (qrData && qrData !== '') {
         try {
           setIsLoading(true);
-          const updatedCode = qrData.startsWith('https://')
-            ? urlToJson(qrData)
-            : JSON.parse(qrData); //for really old qr codes
-          //check if Qr code is a legitimate Port Qr code
-          const bundle = checkBundleValidity(JSON.stringify(updatedCode));
+          let initialBundle = null;
+          if (qrData.startsWith("https://")) {
+            const json = urlToJson(qrData);
+            if (json.bundleId && typeof json.bundleId === 'string') {
+              try {
+                initialBundle = await getBundleFromLink({ url: qrData })
+              } catch (error) {
+                throw new Error(`Error while trying to use this Port. You may not have an active internet connection or this Port may have expired.`);
+              }
+            }
+            else {
+              initialBundle = checkBundleValidity(JSON.stringify(json));
+            }
+          } else {
+            initialBundle = JSON.parse(qrData);
+          }
+          const bundle = initialBundle;
+          if (!bundle) {
+            throw new Error("Error while trying to use this Port. This may be an invalid Port.");
+          }
           //if code is legitimate, navigate to acceptChat screens
-          if (bundle.target === BundleTarget.direct || bundle.target === BundleTarget.superportDirect || bundle.target === BundleTarget.contactPort) {
+          if ([BundleTarget.direct, BundleTarget.superportDirect, BundleTarget.contactPort].includes(bundle.target)) {
             navigation.push('AcceptDirectChat', {
               bundle: bundle,
             });
@@ -183,11 +199,12 @@ function QRScanner({ navigation }: Props) {
             //navigate to home screen
             navigation.push('HomeTab');
           }
-          setIsLoading(false);
         } catch (error) {
           console.log('error scanning qr', error);
+          onError(`${error}`);
+        }
+        finally {
           setIsLoading(false);
-          onError();
         }
       }
     })();

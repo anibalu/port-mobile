@@ -41,8 +41,9 @@ export function AvatarBox({
         },
         style,
       )}>
-      <DisplaySVG uri={profileUri} avatarSize={avatarSize} />
-      {profileUri && (
+      {isAvatarUri(profileUri) ? (
+        <DisplaySVG uri={profileUri} avatarSize={avatarSize} />
+      ) : (
         <DisplayMedia
           mediaUri={profileUri}
           avatarSize={avatarSize}
@@ -176,14 +177,14 @@ function DisplayMedia({
   avatarSize,
   fromPreview,
 }: {
-  mediaUri: string;
+  mediaUri: string | null;
   avatarSize: 'es' | 's' | 'i' | 'm' | 'l' | 's+' | 'xl' | 's++';
   fromPreview: boolean;
 }) {
   const [imageUri, setImageUri] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAvatarUri(mediaUri)) {
+    if (mediaUri && !isAvatarUri(mediaUri)) {
       (async () => {
         if (isMediaUri(mediaUri)) {
           const mediaInfo = await getMedia(getMediaId(mediaUri));

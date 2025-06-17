@@ -14,6 +14,7 @@ import PrimaryButton from '@components/Buttons/PrimaryButton';
 import {useColors} from '@components/colorGuide';
 import CustomKeyboardAvoidingView from '@components/CustomKeyboardAvoidingView';
 import {CustomStatusBar} from '@components/CustomStatusBar';
+import { GestureSafeAreaView } from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
   FontWeight,
@@ -21,7 +22,6 @@ import {
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
-import {SafeAreaView} from '@components/SafeAreaView';
 import {Size, Spacing} from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 import GenericBackTopBar from '@components/TopBars/GenericBackTopBar';
@@ -169,7 +169,7 @@ const OnboardingSetupScreen = ({navigation}: Props) => {
   return (
     <>
       <CustomStatusBar theme={color.theme} backgroundColor={color.background} />
-      <SafeAreaView backgroundColor={color.background}>
+      <GestureSafeAreaView backgroundColor={color.background}>
         <GenericBackTopBar
           onBackPress={onBackPress}
           theme={color.theme}
@@ -278,7 +278,7 @@ const OnboardingSetupScreen = ({navigation}: Props) => {
             setOpenEditAvatarModal(false);
           }}
         />
-      </SafeAreaView>
+      </GestureSafeAreaView>
     </>
   );
 };

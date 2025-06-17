@@ -9,6 +9,7 @@ import PrimaryButton from '@components/Buttons/PrimaryButton';
 import { useColors } from '@components/colorGuide';
 import { CustomStatusBar } from '@components/CustomStatusBar';
 import DeveloperBox from '@components/DeveloperBox';
+import { GestureSafeAreaView } from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
   FontWeight,
@@ -18,7 +19,6 @@ import { AvatarBox } from '@components/Reusable/AvatarBox/AvatarBox';
 import EditAvatar from '@components/Reusable/BottomSheets/EditAvatar';
 import EditName from '@components/Reusable/BottomSheets/EditName';
 import ThemeBottomsheet from '@components/Reusable/BottomSheets/ThemeBottomsheet';
-import { SafeAreaView } from '@components/SafeAreaView';
 import { Spacing } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
 import GenericTitle from '@components/Text/GenericTitle';
@@ -157,7 +157,7 @@ const NewProfileScreen = ({ navigation }: Props) => {
         backgroundColor={colors.background2}
         theme={colors.theme}
       />
-      <SafeAreaView backgroundColor={colors.background2}>
+      <GestureSafeAreaView backgroundColor={colors.background2}>
         <GenericTitle title="Settings" />
         <ScrollView contentContainerStyle={styles.profile}>
           <AvatarBox
@@ -371,7 +371,7 @@ const NewProfileScreen = ({ navigation }: Props) => {
             setEditingName(false);
           }}
         />
-      </SafeAreaView>
+      </GestureSafeAreaView>
     </>
   );
 };

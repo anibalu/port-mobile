@@ -15,6 +15,7 @@ import GradientCard from '@components/Cards/GradientCard';
 import { useColors } from '@components/colorGuide';
 import { screen } from '@components/ComponentUtils';
 import { CustomStatusBar } from '@components/CustomStatusBar';
+import { GestureSafeAreaView } from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
   FontWeight,
@@ -29,7 +30,6 @@ import EditName from '@components/Reusable/BottomSheets/EditName';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import GroupInfoTopbar from '@components/Reusable/TopBars/GroupInfoTopbar';
-import { SafeAreaView } from '@components/SafeAreaView';
 import SharedMediaCard from '@components/SharedMediaCard';
 import { Spacing } from '@components/spacingGuide';
 import useSVG from '@components/svgGuide';
@@ -272,7 +272,7 @@ const GroupProfile = ({ route, navigation }: Props) => {
             : Colors.background
         }
       />
-      <SafeAreaView style={{ backgroundColor: Colors.background }}>
+      <GestureSafeAreaView style={{ backgroundColor: Colors.background }}>
         <GroupInfoTopbar
           backgroundColor={showUserInfoInTopbar ? 'w' : 'g'}
           heading={displayName}
@@ -566,7 +566,7 @@ const GroupProfile = ({ route, navigation }: Props) => {
             onClose={() => setFocusProfilePicture(false)}
           />
         )}
-      </SafeAreaView>
+      </GestureSafeAreaView>
     </>
   );
 };

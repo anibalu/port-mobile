@@ -2,14 +2,15 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {
   Animated,
   Easing,
-  FlatList,
   Pressable,
   StyleSheet,
   View,
 } from 'react-native';
 
+import { FlatList } from 'react-native-gesture-handler';
 import {launchImageLibrary} from 'react-native-image-picker';
 
+import BaseBottomSheet from '@components/BaseBottomsheet';
 import PrimaryButton from '@components/Buttons/PrimaryButton';
 import GradientCard from '@components/Cards/GradientCard';
 import {Colors, useColors} from '@components/colorGuide';
@@ -29,7 +30,6 @@ import {FileAttributes} from '@utils/Storage/StorageRNFS/interfaces';
 
 import Delete from '@assets/icons/TrashcanWhite.svg';
 
-import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 
 interface EditAvatarProps {
@@ -79,6 +79,7 @@ export default function EditAvatar({
 
   //updates imageAttr and selectedAvatar if localImageAttr changes
   useEffect(() => {
+
     setImageAttr(localImageAttr);
     setSelectedAvatar(
       localImageAttr.fileUri.substring(0, 9) === 'avatar://'
@@ -116,13 +117,16 @@ export default function EditAvatar({
 
   //selects an avatar
   const onSelectAvatar = (id: string) => {
-    setImageAttr({
+    const newAttr = {
       fileUri: 'avatar://' + id,
       fileName: id,
       fileType: 'avatar',
-    });
+    };
+    setImageAttr(newAttr);
     setSelectedAvatar(id);
   };
+
+
 
   //function that gets run on saving new profile picture
   async function onSaveProfileImage() {
@@ -160,13 +164,11 @@ export default function EditAvatar({
   const GalleryIcon = results.GalleryIcon;
 
   return (
-    <PrimaryBottomSheet
-      bgColor="g"
+    <BaseBottomSheet
+      bgColor="w"
       visible={visible}
-      showNotch={false}
-      showClose={false}
       onClose={onClose}
-      shouldAutoClose={false}>
+ >
       <View style={styles.connectionOptionsRegion}>
         <View style={styles.mainContainer}>
           <NumberlessText
@@ -220,6 +222,8 @@ export default function EditAvatar({
             paddingHorizontal: Spacing.l,
           }}
         />
+    
+
       </GradientCard>
       <View style={{width: Width.screen - 2 * Spacing.l, marginTop: Spacing.l}}>
         <PrimaryButton
@@ -230,7 +234,7 @@ export default function EditAvatar({
           theme={colors.theme}
         />
       </View>
-    </PrimaryBottomSheet>
+    </BaseBottomSheet>
   );
 }
 
@@ -363,6 +367,7 @@ const styling = (colors: any) =>
       justifyContent: 'center',
       paddingVertical: Spacing.l,
       gap: Spacing.l,
+      backgroundColor: colors.surface2,
     },
     updatePicture: {
       width: Size.xl,

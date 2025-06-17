@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   Keyboard,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { useColors } from '@components/colorGuide';
 import { Spacing, Width } from '@components/spacingGuide';
@@ -42,6 +43,18 @@ const BaseBottomSheet = ({
     }
     onClose();
   };
+
+  useFocusEffect(
+    useCallback(() => {
+    return () => {
+    if (Keyboard.isVisible()) {
+    Keyboard.dismiss();
+    }
+    onClose();
+    };
+    }, [])
+    );
+
 
   return (
     visible ? (<BottomSheet

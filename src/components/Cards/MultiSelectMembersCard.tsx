@@ -14,10 +14,10 @@ import { Spacing } from '@components/spacingGuide';
 import { ConnectionInfo } from '@utils/Storage/DBCalls/connections';
 
 
-const GroupMultiSelectMembersCard = ({
+const MultiSelectMembersCard = ({
   members,
   setSelectedMembers,
-  selectedMembers,
+  selectedMembers, 
 }: {
   members: ConnectionInfo[];
   setSelectedMembers: React.Dispatch<React.SetStateAction<Set<string>>>;
@@ -42,7 +42,7 @@ const GroupMultiSelectMembersCard = ({
     return (
       <View>
         <SelectMemberRadio
-        selected={selectedMembers.has(item.chatId)} 
+         selected={selectedMembers.has(item.chatId)} 
           onUnselect={onUnselect}
           onSelect={onSelect}
           member={item}
@@ -61,6 +61,7 @@ const GroupMultiSelectMembersCard = ({
           data={members}
           renderItem={renderMember}
           keyExtractor={item => item.chatId}
+          keyboardShouldPersistTaps={'handled'}
           ListEmptyComponent={() => (
             <View
               style={{
@@ -72,7 +73,7 @@ const GroupMultiSelectMembersCard = ({
                 textColor={Colors.text.subtitle}
                 fontSizeType={FontSizeType.l}
                 fontWeight={FontWeight.rg}>
-                No Phone Contacts found
+                No Port Contacts found
               </NumberlessText>
             </View>
           )}
@@ -83,4 +84,4 @@ const GroupMultiSelectMembersCard = ({
   );
 };
 
-export default GroupMultiSelectMembersCard;
+export default MultiSelectMembersCard;

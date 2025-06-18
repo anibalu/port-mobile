@@ -1,14 +1,14 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Pressable, StyleSheet, View} from 'react-native';
 
-import { useColors } from '@components/colorGuide';
+import {useColors} from '@components/colorGuide';
 import {
   FontSizeType,
   FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import CheckBox from '@components/Reusable/MultiSelectMembers/CheckBox';
-import { Height } from '@components/spacingGuide';
+import {Height} from '@components/spacingGuide';
 
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
 
@@ -19,34 +19,31 @@ const SelectMemberRadio = ({
   onUnselect,
   onSelect,
   addSeparator,
+  selected, 
 }: {
   member: ConnectionInfo;
   onUnselect: (chatId: string) => void;
   onSelect: (chatId: string) => void;
   addSeparator: boolean;
+  selected: boolean; 
 }) => {
-  const [toggleCheckBox, setToggleCheckBox] = useState(false);
   const Colors = useColors();
 
-  const onCheckboxToggle = (newValue: boolean) => {
-    setToggleCheckBox(newValue);
-    if (newValue) {
-      onSelect(member.chatId);
-    } else {
+  const onCheckboxToggle = () => {
+    if (selected) {
       onUnselect(member.chatId);
+    } else {
+      onSelect(member.chatId);
     }
   };
 
   return (
     <Pressable
-      onPress={() => {
-        onCheckboxToggle(!toggleCheckBox);
-      }}
+      onPress={onCheckboxToggle}
       style={StyleSheet.compose(styles.container, {
         borderBottomWidth: addSeparator ? 0.5 : 0,
         borderBottomColor: Colors.stroke,
       })}
-      //Prevents inner items from intercepting touches, all touches are handled by the parent.
       pointerEvents="box-only">
       <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
         <AvatarBox avatarSize="s" profileUri={member.pathToDisplayPic} />
@@ -60,7 +57,7 @@ const SelectMemberRadio = ({
           {member.name}
         </NumberlessText>
       </View>
-      <CheckBox value={toggleCheckBox} />
+      <CheckBox value={selected} />
     </Pressable>
   );
 };

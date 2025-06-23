@@ -1,9 +1,9 @@
 import CryptoDriver from '@utils/Crypto/CryptoDriver';
 import DirectChat from '@utils/DirectChats/DirectChat';
-import {PayloadMessageParams} from '@utils/Messaging/interfaces';
+import { PayloadMessageParams } from '@utils/Messaging/interfaces';
 
 import DirectReceiveAction from './DirectReceiveAction';
-import {pickDirectReceiveAction} from './possibleActions';
+import { pickDirectReceiveAction } from './possibleActions';
 
 class ReceiveDirectMessage {
   private message: any;
@@ -46,28 +46,19 @@ class ReceiveDirectMessage {
         this.message.messageContent.encryptedContent
       ) {
         const chat = new DirectChat(this.chatId);
-        try {
-          //check if chat data exists and is still connected
-          if ((await chat.getChatData()).disconnected) {
-            throw new Error('MessageReceivedForDisconnectedChat');
-          }
-          const cryptoDriver = new CryptoDriver(await chat.getCryptoId());
-          const decryptedAndProcessed = JSON.parse(
-            await cryptoDriver.decrypt(
-              this.message.messageContent.encryptedContent,
-            ),
-          );
-          this.decryptedMessageContent =
-            decryptedAndProcessed as PayloadMessageParams;
-        } catch (error) {
-          console.log(
-            'No line data found while decrypting encrypted content. Forcing disconnection: ',
-            error,
-          );
-          //If validation fails, attempt disconnection.
-          await DirectChat.cleanDisconnectLine(this.lineId);
-          this.decryptedMessageContent = null;
+        //check if chat data exists and is still connected
+        if ((await chat.getChatData()).disconnected) {
+          //If already disconnected, throw error.
+          throw new Error('Message Received For Disconnected Chat');
         }
+        const cryptoDriver = new CryptoDriver(await chat.getCryptoId());
+        const decryptedAndProcessed = JSON.parse(
+          await cryptoDriver.decrypt(
+            this.message.messageContent.encryptedContent,
+          ),
+        );
+        this.decryptedMessageContent =
+          decryptedAndProcessed as PayloadMessageParams;
       }
     } catch (error) {
       console.log('Error in extracting decrypted message content: ', error);

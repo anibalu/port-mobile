@@ -3,6 +3,7 @@ import axios from 'axios';
 import {BUG_REPORTING_ENDPOINT} from '@configs/api';
 
 import {uploadRawMedia} from '@utils/Messaging/LargeData';
+import { getToken } from '@utils/ServerAuth';
 
 async function submitBugReport(
   category: string,
@@ -10,31 +11,31 @@ async function submitBugReport(
   device: string,
   images: any,
   description: string,
-  setIsLoading: (x: boolean) => any,
+  port: string | null,
 ) {
   try {
-    setIsLoading(true);
+    const token = await getToken();
     const response = await axios.post(BUG_REPORTING_ENDPOINT, {
       category: category,
       subcategory: subcategory,
       device: device,
       description: description,
       attached_files: images,
-    });
+      port: port
+    },{headers: {Authorization: `${token}`}});
     const media_urls = response.data.media_urls;
 
-    media_urls.map((url: any, i: number) => {
-      return (async () => {
+    for (let i = 0; i < media_urls.length; i++) {
+      try {
         if (images) {
-          return await uploadRawMedia(images[i], url);
+          await uploadRawMedia(images[i], media_urls[i]);
         }
-      })();
-    });
-
-    setIsLoading(false);
+      } catch (err) {
+        console.error(`Upload failed at index ${i}:`, err);
+      }
+    }
     return true;
   } catch (error) {
-    setIsLoading(false);
     return false;
   }
 }

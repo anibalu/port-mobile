@@ -1,6 +1,7 @@
 import {PortBundle} from '@utils/Ports/interfaces';
 import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import {PortData} from '@utils/Storage/DBCalls/ports/myPorts';
+import { expiryOptions, expiryOptionsTypes } from '@utils/Time/interfaces';
 
 abstract class PortGenerator {
   abstract version: string;
@@ -24,18 +25,21 @@ abstract class PortGenerator {
    * @param contactName - The name of the contact to create the port for.
    * @param folderId - The folder ID to create the port in.
    * @param permissions - The permissions for the port.
+   * @param expiry - The expiry for the port. 
    * @returns The created port data.
    */
   static async create(
     contactName: string,
     folderId: string,
     permissions: PermissionsStrict,
+    expiry: expiryOptionsTypes = expiryOptions[4],
   ): Promise<PortData | null> {
     console.log(
       'Returns portData of an unused portId',
       contactName,
       folderId,
       permissions,
+      expiry
     );
     return null;
   }

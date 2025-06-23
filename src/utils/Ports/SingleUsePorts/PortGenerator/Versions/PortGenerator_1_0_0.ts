@@ -22,7 +22,7 @@ import { addLine, checkLineExists, readLineData } from '@utils/Storage/lines';
 import * as storage from '@utils/Storage/myPorts';
 import * as permissionStorage from '@utils/Storage/permissions';
 import { generateISOTimeStamp, getExpiryTimestamp, hasExpired } from '@utils/Time';
-import { expiryOptions } from '@utils/Time/interfaces';
+import { expiryOptions, expiryOptionsTypes } from '@utils/Time/interfaces';
 
 import * as API from '../APICalls';
 import PortGenerator from '../PortGenerator';
@@ -96,6 +96,7 @@ class PortGenerator_1_0_0 extends PortGenerator {
     contactName: string,
     folderId: string,
     permissions: PermissionsStrict,
+    expiry: expiryOptionsTypes = expiryOptions[4]
   ): Promise<PortData | null> {
     try {
       // gets unused port Id
@@ -107,7 +108,7 @@ class PortGenerator_1_0_0 extends PortGenerator {
       const currentTimestamp = generateISOTimeStamp();
       const expiryTimestamp = getExpiryTimestamp(
         currentTimestamp,
-        expiryOptions[4],
+        expiry,
       );
       const permissionsId = generateRandomHexId();
       await permissionStorage.addPermissionEntry({

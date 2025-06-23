@@ -2,6 +2,7 @@ import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
 import { PortData } from '@utils/Storage/DBCalls/ports/myPorts';
 import { ReadPortData } from '@utils/Storage/DBCalls/ports/readPorts';
 import * as storage from '@utils/Storage/myPorts';
+import { expiryOptions, expiryOptionsTypes } from '@utils/Time/interfaces';
 
 import { PortBundle } from '../interfaces';
 
@@ -88,6 +89,7 @@ export namespace Port {
      * @param contactName - The name of the contact to create the port for.
      * @param folderId - The folder ID to create the port in.
      * @param permissions - The permissions for the port.
+     * @param expiry - The expiry for the port.
      * @param version - The version of port generator to use (defaults to latest).
      * @returns A new port generator instance.
      * @throws {Error} If no port could be created.
@@ -96,12 +98,14 @@ export namespace Port {
       contactName: string,
       folderId: string,
       permissions: PermissionsStrict,
+      expiry: expiryOptionsTypes = expiryOptions[4],
       version: string = LATEST_VERSION,
     ): Promise<PortGenerator> {
       const portData = await select(version).create(
         contactName,
         folderId,
         permissions,
+        expiry
       );
       if (!portData) {
         throw new Error('NoPortWasCreated');

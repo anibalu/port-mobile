@@ -44,11 +44,15 @@ export async function shareContactPort(
   const chatToShare = new DirectChat(contactChatIdToShare);
   const pairHashToShare = (await chatToShare.getChatData()).pairHash;
   const contactPort = await ContactPort.generator.accepted.fromPairHash(pairHashToShare);
-  const contactPortBundle = await contactPort.getShareableBundle();
-  const sender = new SendMessage(contactRecipient, ContentType.contactBundle, {
-    bundle: contactPortBundle,
+  const contactPortBundle = await contactPort.getShareableLink();
+  const sender = new SendMessage(contactRecipient, ContentType.text, {
+    text: `Connect  with "${(await contactPort.getShareableBundle()).name}" by clicking the link below: ${contactPortBundle}`,
   });
   await sender.send();
+  // const sender = new SendMessage(contactRecipient, ContentType.contactBundle, {
+  //   bundle: contactPortBundle,
+  // });
+  // await sender.send();
 }
 
 /**

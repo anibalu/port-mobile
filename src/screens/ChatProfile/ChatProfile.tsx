@@ -11,13 +11,14 @@ import {
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
+import { useColors } from '@components/colorGuide';
 import {CommonGroups} from '@components/CommonGroups';
-import {PortSpacing, screen} from '@components/ComponentUtils';
+import { screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
+import { GestureSafeAreaView } from '@components/GestureSafeAreaView';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
 import {AvatarBox} from '@components/Reusable/AvatarBox/AvatarBox';
@@ -29,7 +30,7 @@ import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import PrimaryButton from '@components/Reusable/LongButtons/PrimaryButton';
 import SecondaryButton from '@components/Reusable/LongButtons/SecondaryButton';
 import UserInfoTopbar from '@components/Reusable/TopBars/UserInfoTopbar';
-import {SafeAreaView} from '@components/SafeAreaView';
+import { Spacing } from '@components/spacingGuide';
 
 import {
   DEFAULT_AVATAR,
@@ -97,7 +98,7 @@ const ChatProfile = ({route, navigation}: Props) => {
 
   const [loading, setLoading] = useState(false);
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling(Colors);
 
   const svgArray = [
@@ -243,11 +244,11 @@ const ChatProfile = ({route, navigation}: Props) => {
       <CustomStatusBar
         backgroundColor={
           showUserInfoInTopbar
-            ? Colors.primary.surface
-            : Colors.primary.background
+            ? Colors.surface
+            : Colors.background
         }
       />
-      <SafeAreaView style={{backgroundColor: Colors.primary.background}}>
+      <GestureSafeAreaView style={{backgroundColor: Colors.background}}>
         <UserInfoTopbar
           backgroundColor={showUserInfoInTopbar ? 'w' : 'g'}
           heading={displayName}
@@ -278,12 +279,12 @@ const ChatProfile = ({route, navigation}: Props) => {
                 <NumberlessText
                   style={{
                     maxWidth:
-                      screen.width - 2 * PortSpacing.secondary.uniform - 30,
+                      screen.width - 2 * Spacing.l - 30,
                     marginRight: 4,
                   }}
-                  textColor={Colors.labels.text}
+                  textColor={Colors.text.title}
                   fontSizeType={FontSizeType.xl}
-                  fontType={FontType.sb}
+                  fontWeight={FontWeight.sb}
                   numberOfLines={1}
                   ellipsizeMode="tail">
                   {displayName}
@@ -294,7 +295,8 @@ const ChatProfile = ({route, navigation}: Props) => {
               <NumberlessText
                 textColor={Colors.text.subtitle}
                 fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
+                fontWeight={FontWeight.rg}
+               >
                 {chatData.connectedOn
                   ? 'Connection since : ' +
                     getChatTileTimestamp(chatData.connectedOn)
@@ -311,9 +313,10 @@ const ChatProfile = ({route, navigation}: Props) => {
                       onPress={() => setShowAddFolderModal(true)}>
                       <View style={styles.cardTitle}>
                         <NumberlessText
-                          textColor={Colors.labels.text}
+                          textColor={Colors.text.title}
                           fontSizeType={FontSizeType.l}
-                          fontType={FontType.md}>
+                          fontWeight={FontWeight.md}
+                       >
                           Chat folder
                         </NumberlessText>
                       </View>
@@ -322,13 +325,13 @@ const ChatProfile = ({route, navigation}: Props) => {
                           <NumberlessText
                             textColor={
                               selectedFolder.name === defaultFolderInfo.name
-                                ? Colors.labels.text
-                                : themeValue === 'light'
-                                ? Colors.primary.accent
-                                : Colors.primary.white
+                              ? Colors.text.title
+                              : themeValue === 'light'
+                                ? Colors.accent
+                                : Colors.text.title
                             }
                             fontSizeType={FontSizeType.m}
-                            fontType={FontType.rg}
+                            fontWeight={FontWeight.rg}
                             numberOfLines={1}
                             ellipsizeMode="tail">
                             {selectedFolder.name}
@@ -345,24 +348,26 @@ const ChatProfile = ({route, navigation}: Props) => {
                   <SharedMediaCard media={media} chatId={chatId} />
                 </View>
                 <CommonGroups pairHash={pairHash} />
-                <View style={{paddingBottom: PortSpacing.secondary.bottom}}>
+                <View style={{paddingBottom: Spacing.l}}>
                   <NumberlessText
                     style={{
-                      color: Colors.primary.red,
-                      marginTop: PortSpacing.secondary.top,
+                      color: Colors.red,
+                      marginTop:  Spacing.l
                     }}
                     fontSizeType={FontSizeType.l}
-                    fontType={FontType.md}>
+                    fontWeight={FontWeight.md}
+                   >
                     Disconnect chat?
                   </NumberlessText>
                   <NumberlessText
                     style={styles.footerDesc}
                     fontSizeType={FontSizeType.m}
-                    fontType={FontType.rg}>
+                    fontWeight={FontWeight.rg}
+                   >
                     When a chat is disconnected, you can't contact the user
                     until you connect again using a new Port.
                   </NumberlessText>
-                  <View style={{gap: PortSpacing.tertiary.uniform}}>
+                  <View style={{gap: Spacing.s}}>
                     <PrimaryButton
                       isLoading={false}
                       disabled={false}
@@ -389,11 +394,12 @@ const ChatProfile = ({route, navigation}: Props) => {
                       alignSelf: 'center',
                       textAlign: 'center',
                       width: '100%',
-                      marginTop: PortSpacing.secondary.top,
+                      marginTop: Spacing.l,
                     }}
                     textColor={Colors.text.subtitle}
                     fontSizeType={FontSizeType.m}
-                    fontType={FontType.rg}>
+                    fontWeight={FontWeight.rg}
+                >
                     Your chat has been disconnected. Deleting the chat will
                     erase all data associated with it.
                   </NumberlessText>
@@ -401,7 +407,7 @@ const ChatProfile = ({route, navigation}: Props) => {
                 <View
                   style={{
                     gap: 10,
-                    marginBottom: PortSpacing.intermediate.bottom,
+                    marginBottom: Spacing.xl,
                   }}>
                   <PrimaryButton
                     isLoading={false}
@@ -513,7 +519,7 @@ const ChatProfile = ({route, navigation}: Props) => {
             onClose={() => setFocusProfilePicture(false)}
           />
         )}
-      </SafeAreaView>
+      </GestureSafeAreaView>
     </>
   );
 };
@@ -521,7 +527,7 @@ const ChatProfile = ({route, navigation}: Props) => {
 const styling = (colors: any) =>
   StyleSheet.create({
     mainContainer: {
-      padding: PortSpacing.secondary.uniform,
+      padding: Spacing.l,
       paddingTop: 0,
       paddingBottom: 0,
       flex: 1,
@@ -554,21 +560,21 @@ const styling = (colors: any) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingVertical: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.l,
+      paddingVertical: Spacing.l,
     },
     nameEditHitbox: {
-      marginTop: PortSpacing.secondary.top,
+      marginTop: Spacing.l,
       flexDirection: 'row',
       alignItems: 'center',
     },
     sharedMediaContainer: {
-      marginBottom: PortSpacing.secondary.bottom,
-      marginTop: PortSpacing.secondary.top,
+      marginBottom: Spacing.l,
+      marginTop: Spacing.l,
     },
     alertwrapper: {flex: 1, justifyContent: 'center'},
     chatSettingsContainer: {
-      marginBottom: PortSpacing.secondary.bottom,
+      marginBottom: Spacing.l,
     },
     clickableCard: {
       flexDirection: 'row',
@@ -580,16 +586,16 @@ const styling = (colors: any) =>
     footerDesc: {
       color: colors.labels.text,
       lineHeight: 16,
-      marginTop: PortSpacing.tertiary.top,
-      marginBottom: PortSpacing.intermediate.bottom,
+      marginTop:Spacing.s,
+      marginBottom: Spacing.xl,
     },
     advanceSettingsContainer: {
-      marginBottom: PortSpacing.secondary.bottom,
+      marginBottom: Spacing.l,
     },
     avatarContainer: {
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: PortSpacing.primary.bottom,
+      marginBottom:Spacing.xml,
     },
   });
 

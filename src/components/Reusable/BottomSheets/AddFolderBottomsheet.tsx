@@ -1,19 +1,20 @@
 import React, {useCallback, useState} from 'react';
-import {FlatList, StyleSheet} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
 
 import {useFocusEffect} from '@react-navigation/native';
 
-import {PortSpacing, isIOS} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import BaseBottomSheet from '@components/BaseBottomsheet';
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
   FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
-import PrimaryBottomSheet from '@components/Reusable/BottomSheets/PrimaryBottomSheet';
 import SimpleCard from '@components/Reusable/Cards/SimpleCard';
 import OptionWithRadio from '@components/Reusable/OptionButtons/OptionWithRadio';
-import LineSeparator from '@components/Reusable/Separators/LineSeparator';
+import LineSeparator from '@components/Separators/LineSeparator';
+import { Spacing, Width } from '@components/spacingGuide';
 
 import {moveConnectionToNewFolderWithoutPermissionChange} from '@utils/ChatFolders';
 import {FolderInfo} from '@utils/Storage/DBCalls/folders';
@@ -60,32 +61,41 @@ const AddFolderBottomsheet = ({
     }
     setVisible(false);
   };
-  const Colors = DynamicColors();
+  const Colors = useColors();
 
   return (
-    <PrimaryBottomSheet
-      showClose={true}
+    <BaseBottomSheet
       visible={visible}
-      bgColor="g"
+      bgColor="w"
       onClose={() => setVisible(false)}
-      title="Move to chat folder">
+>
+
+<View style={styles.titleContainer}>
+          <NumberlessText
+            textColor={Colors.text.title}
+            fontSizeType={FontSizeType.xl}
+            fontWeight={FontWeight.sb}>
+            Move to chat folder
+          </NumberlessText>
+          <LineSeparator style={{ width: Width.screen }} />
+        </View>
       <NumberlessText
         textColor={Colors.text.subtitle}
         style={{
           width: '100%',
-          marginVertical: PortSpacing.secondary.uniform,
+          marginVertical: Spacing.l,
         }}
         fontSizeType={FontSizeType.m}
-        fontType={FontType.rg}>
+        fontWeight={FontWeight.rg}>
         Moving this chat to a different folder will not change its settings.
       </NumberlessText>
       <SimpleCard style={styles.cardWrapper}>
         <NumberlessText
           style={{
-            marginVertical: PortSpacing.secondary.uniform,
-            paddingHorizontal: PortSpacing.secondary.uniform,
+            marginVertical: Spacing.l,
+            paddingHorizontal: Spacing.l,
           }}
-          textColor={Colors.text.primary}
+          textColor={Colors.text.title}
           fontSizeType={FontSizeType.m}
           fontType={FontType.md}>
           Choose folder
@@ -111,7 +121,7 @@ const AddFolderBottomsheet = ({
           }}
         />
       </SimpleCard>
-    </PrimaryBottomSheet>
+    </BaseBottomSheet>
   );
 };
 
@@ -119,16 +129,15 @@ const styles = StyleSheet.create({
   cardWrapper: {
     maxHeight: 250,
     width: '100%',
-    paddingVertical: PortSpacing.tertiary.uniform,
-    ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+    paddingVertical: Spacing.s,
   },
   optionContainer: {
-    paddingHorizontal: PortSpacing.secondary.uniform,
+    paddingHorizontal: Spacing.l,
     height: 40,
   },
   optionWrapper: {
     flexDirection: 'row',
-    paddingVertical: PortSpacing.tertiary.uniform,
+    paddingVertical: Spacing.s,
     alignItems: 'center',
     flex: 1,
   },
@@ -136,6 +145,14 @@ const styles = StyleSheet.create({
     paddingRight: 5,
     flexDirection: 'column',
     flex: 1,
+  },
+  titleContainer: {
+    width: '100%',
+    paddingTop: Spacing.s,
+    paddingBottom: Spacing.l,
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: Spacing.m,
   },
 });
 

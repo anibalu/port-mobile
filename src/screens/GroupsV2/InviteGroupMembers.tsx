@@ -4,6 +4,7 @@ import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
+import MultiSelectMembersCard from '@components/Cards/MultiSelectMembersCard';
 import { useColors } from '@components/colorGuide';
 import { GradientScreenView } from '@components/GradientScreenView';
 import SearchBar from '@components/SearchBar';
@@ -20,7 +21,6 @@ import SendMessage from '@utils/Messaging/Send/SendMessage';
 import { GroupSuperPort } from '@utils/Ports/GroupSuperPorts/GroupSuperPort';
 import { ConnectionInfo } from '@utils/Storage/DBCalls/connections';
 
-import GroupMultiSelectMembersCard from './components/GroupMultiSelectMembersCard';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'InviteGroupMembers'>;
 
@@ -124,7 +124,7 @@ const InviteGroupMembers = ({ route, navigation }: Props) => {
                 searchText={searchText}
                 setSearchText={setSearchText}
               />
-              <GroupMultiSelectMembersCard
+              <MultiSelectMembersCard
                 setSelectedMembers={setSelectedMembers}
                 members={viewableMembers}
                 selectedMembers={selectedMembers}

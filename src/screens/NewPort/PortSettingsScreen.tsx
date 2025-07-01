@@ -1,5 +1,5 @@
 // import TagCard from '@components/Reusable/Cards/TagCard';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   AppState,
   AppStateStatus,
@@ -8,24 +8,24 @@ import {
   View,
 } from 'react-native';
 
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
 import SecondaryButton from '@components/Buttons/SecondaryButton';
-import {useColors} from '@components/colorGuide';
-import {GradientScreenView} from '@components/GradientScreenView';
+import { useColors } from '@components/colorGuide';
+import { GradientScreenView } from '@components/GradientScreenView';
 import ExpandableLocalPermissionsCard from '@components/PermissionsCards/ExpandableLocalPermissionsCard';
-import {Spacing, Width} from '@components/spacingGuide';
+import { Spacing, Width } from '@components/spacingGuide';
 import TopBarDescription from '@components/Text/TopBarDescription';
 
-import {defaultPermissions} from '@configs/constants';
+import { defaultPermissions } from '@configs/constants';
 
-import {NewPortStackParamList} from '@navigation/AppStack/NewPortStack/NewPortStackTypes';
+import { NewPortStackParamList } from '@navigation/AppStack/NewPortStack/NewPortStackTypes';
 
-import {checkNotificationPermission} from '@utils/AppPermissions';
-import {PermissionsStrict} from '@utils/Storage/DBCalls/permissions/interfaces';
+import { checkNotificationPermission } from '@utils/AppPermissions';
+import { PermissionsStrict } from '@utils/Storage/DBCalls/permissions/interfaces';
 
-import {ToastType, useToast} from 'src/context/ToastContext';
+import { ToastType, useToast } from 'src/context/ToastContext';
 
 import PortContactNameCard from './components/PortContactNameCard';
 import { usePortDispatch, usePortState } from './context/PortContext';
@@ -35,11 +35,11 @@ type Props = NativeStackScreenProps<
   'PortSettingsScreen'
 >;
 
-const PortSettingsScreen = ({navigation}: Props) => {
+const PortSettingsScreen = ({ navigation }: Props) => {
   console.log('[Rendering NewPortScreenSettingsScreen]');
   const color = useColors();
   const styles = styling(color);
-  const {showToast} = useToast();
+  const { showToast } = useToast();
 
   const portActions = usePortDispatch();
   const portState = usePortState();
@@ -49,13 +49,14 @@ const PortSettingsScreen = ({navigation}: Props) => {
 
   //set permissions for the port
   const [permissions, setPermissions] = useState<PermissionsStrict>(
-    portState.permissions ? {...portState.permissions} : {...defaultPermissions},
+    portState.permissions ? { ...portState.permissions } : { ...defaultPermissions },
   );
   // sets the boolean need to view more permissions
   const [seeMoreClicked, setSeeMoreClicked] = useState<boolean>(false);
 
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+  // const [portNameError, setPortNameError] = useState(false);
 
   // handles back navigation on backpress
   const onBackPress = () => {
@@ -66,6 +67,9 @@ const PortSettingsScreen = ({navigation}: Props) => {
     setSaveLoading(true);
     try {
       if (portState.port) {
+        if (portName.trim().length === 0 || portName.trim() === '') {
+          throw new Error('Contact name cannot be empty');
+        }
         if (portName !== portState.contactName) {
           await portState.port.updateContactName(portName);
           portActions({
@@ -77,11 +81,11 @@ const PortSettingsScreen = ({navigation}: Props) => {
         if (
           JSON.stringify(permissions) !== JSON.stringify(portState.permissions)
         ) {
-          await portState.port.updatePermissions({...permissions});
+          await portState.port.updatePermissions({ ...permissions });
           portActions({
-            payload: {...permissions},
+            payload: { ...permissions },
             type: 'SET_PERMISSIONS',
-          })        
+          })
         }
         navigation.goBack();
       } else {
@@ -195,7 +199,7 @@ const PortSettingsScreen = ({navigation}: Props) => {
           theme={color.theme}
           text={'Save'}
           isLoading={saveLoading}
-          disabled={false}
+          disabled={(portName.trim().length === 0 || portName.trim() === '')}
           onClick={onSavePress}
           buttonStyle={{
             width: Width.screen / 2 - (Spacing.s * 2 + Spacing.xs),

@@ -45,7 +45,18 @@ const PortContactNameCard = ({
             text={portName}
             bgColor="w"
             placeholderText="Who are you sending this Port to?"
+            showError={portName.trim() === '' || portName.trim().length === 0}
           />
+          {(portName.trim() === '' || portName.trim().length === 0) && (
+            <NumberlessText
+              fontSizeType={FontSizeType.xs}
+              fontWeight={FontWeight.rg}
+              textColor={color.red}
+              style={{ marginLeft: Spacing.s, marginTop: -Spacing.s }}
+            >
+            *Contact name is required.
+            </NumberlessText>
+          )}
           <NumberlessText
             style={{marginTop: Spacing.s}}
             textColor={color.text.subtitle}

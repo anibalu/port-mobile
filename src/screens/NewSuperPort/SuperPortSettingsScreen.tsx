@@ -80,7 +80,7 @@ const SuperPortSettingsScreen = ({navigation}: Props) => {
           superPortActions({
             payload: limit,
             type: 'SET_LIMIT',
-          })          
+          })
         }
         // Check if permissions have changed by comparing individual properties
         if (
@@ -207,7 +207,10 @@ const SuperPortSettingsScreen = ({navigation}: Props) => {
           theme={color.theme}
           text={'Save'}
           isLoading={saveLoading}
-          disabled={false}
+          disabled={
+            (limit < (superPortState.connectionsMade || 1)) || 
+            (portName.trim().length === 0 || portName.trim() === '')
+          }
           onClick={onSavePress}
           buttonStyle={{
             width: Width.screen / 2 - (Spacing.s * 2 + Spacing.xs),

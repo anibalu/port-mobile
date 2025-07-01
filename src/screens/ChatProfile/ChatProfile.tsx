@@ -554,7 +554,7 @@ const styling = (colors: any) =>
       borderRadius: 6,
       paddingHorizontal: 6,
       paddingVertical: 4,
-      backgroundColor: colors.primary.background,
+      backgroundColor: colors.background,
     },
     folderCard: {
       flexDirection: 'row',

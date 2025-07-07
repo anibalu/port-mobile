@@ -41,6 +41,7 @@ import {TRIGGER_TYPES} from '@store/triggerRedraw';
 import Group from '@utils/Groups/GroupClass';
 import {DisplayableContentTypes} from '@utils/Messaging/interfaces';
 import {toggleRead} from '@utils/Storage/connections';
+import { DirectPermissions } from '@utils/Storage/DBCalls/permissions/interfaces';
 import {TemplateParams} from '@utils/Storage/DBCalls/templates';
 import {getLatestGroupMessages} from '@utils/Storage/groupMessages';
 import {useListenForTrigger} from '@utils/TriggerTools/RedrawTriggerListener/useListenForTrigger';
@@ -125,6 +126,9 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     richReactionMessage,
     setRichReactionMessage,
   } = useSelectionContext();
+
+
+
 
   const [permissionsId, setPermissionsId] = useState<string | null | undefined>(
     null,
@@ -354,6 +358,8 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
           permissions={permissions}
           setPermissions={setPermissions}
         />
+         {selectionMode === GroupMessageSelectionMode.Single &&
+        selectedMessages.length === 1 && <GroupBlurViewModal />}
         <GroupReportMessageBottomSheet
           description="Your report is anonymous. The reported user will not be notified of the report."
           openModal={showReportModal}
@@ -406,8 +412,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
           visible={richReactionMessage !== null}
         />
       </GestureSafeAreaView>
-      {selectionMode === GroupMessageSelectionMode.Single &&
-        selectedMessages.length === 1 && <GroupBlurViewModal />}
+     
     </AudioPlayerProvider>
   );
 }

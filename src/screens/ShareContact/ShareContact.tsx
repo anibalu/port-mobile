@@ -16,11 +16,12 @@ import TopBarDescription from '@components/Text/TopBarDescription';
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 
 import {
-  requestContactBundleToShare,
   shareContactPort,
 } from '@utils/ContactSharing';
 import {getDirectChats} from '@utils/DirectChats';
 import {ConnectionInfo} from '@utils/Storage/DBCalls/connections';
+
+import { ToastType, useToast } from 'src/context/ToastContext';
 
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ShareContact'>;
@@ -37,6 +38,7 @@ const ShareContact = ({route, navigation}: Props) => {
   
   //search text
   const [searchText, setSearchText] = useState(''); 
+  const {showToast} = useToast();
 
   useEffect(() => {
     (async () => {
@@ -67,11 +69,10 @@ const ShareContact = ({route, navigation}: Props) => {
       } catch (e) {
         console.error('Could not share contact Port: ', e);
         console.info('Falling back to legacy contact sharing');
-        requestContactBundleToShare({
-          approved: false,
-          destinationChatId: chatId,
-          source: mbr,
-        });
+        showToast(
+          'Error in sharing contact. You may not have permissions to share this contact.',
+          ToastType.error,
+        );
       }
     }
     setLoading(false);

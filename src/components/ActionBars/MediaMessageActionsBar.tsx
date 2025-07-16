@@ -48,7 +48,7 @@ export function MediaMessageActionsBar({
           ? {
               ...styles.parentContainer,
               paddingBottom: 20,
-              marginBottom: -20,
+              marginBottom: -5,
               paddingHorizontal: 45,
             }
           : {

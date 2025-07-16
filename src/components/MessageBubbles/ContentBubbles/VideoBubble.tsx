@@ -10,13 +10,14 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 
-import {PortColors, PortSpacing} from '@components/ComponentUtils';
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
   FontType,
   NumberlessText,
 } from '@components/NumberlessText';
 import SmallLoader from '@components/Reusable/Loaders/SmallLoader';
+import { Spacing } from '@components/spacingGuide';
 
 import {LargeDataParams, MessageStatus} from '@utils/Messaging/interfaces';
 import {
@@ -63,7 +64,7 @@ export const VideoBubble = ({
   );
   useMemo(() => {
     setFileUri(message.filePath || message.data.fileUri || null);
-    setPreviewUri(message.data.previewUri || null);
+    setPreviewUri(message.data.fileUri || null);
   }, [message]);
 
   const onRetryClick = async (messageObj: LineMessageData) => {
@@ -101,6 +102,8 @@ export const VideoBubble = ({
     handleLongPress(message.messageId);
   };
 
+  const Colors = useColors()
+  const styles= styling(Colors)
   return (
     <Pressable
       style={styles.imageBubbleContainer}
@@ -111,12 +114,12 @@ export const VideoBubble = ({
           {startedManualDownload ? (
             <View
               style={StyleSheet.compose(styles.image, {
-                backgroundColor: PortColors.primary.black,
+                backgroundColor: Colors.black,
               })}>
-              <SmallLoader />
+              <SmallLoader theme={Colors.theme} />
             </View>
           ) : (
-            renderDisplay(previewUri, message.data as LargeDataParams)
+            renderDisplay(previewUri, message.data as LargeDataParams, Colors)
           )}
         </View>
         {(message.data as LargeDataParams).text ? (
@@ -138,7 +141,7 @@ export const VideoBubble = ({
                 {loadingRetry ? (
                   <ActivityIndicator
                     size={'small'}
-                    color={PortColors.primary.blue.app}
+                    color={Colors.purple}
                   />
                 ) : (
                   <UploadSend width={16} height={16} />
@@ -166,7 +169,9 @@ export const VideoBubble = ({
 export const renderDisplay = (
   messageURI: string | undefined | null,
   data: LargeDataParams,
+  Colors: any
 ) => {
+  const styles = styling(Colors)
   if (messageURI) {
     return (
       <View style={styles.image2}>
@@ -188,9 +193,9 @@ export const renderDisplay = (
     return (
       <View
         style={StyleSheet.compose(styles.image, {
-          backgroundColor: PortColors.primary.black,
+          backgroundColor: Colors.black,
         })}>
-        <SmallLoader />
+        <SmallLoader theme={Colors.theme} />
       </View>
     );
   }
@@ -200,7 +205,7 @@ export const renderDisplay = (
       <>
         <View
           style={StyleSheet.compose(styles.image, {
-            backgroundColor: PortColors.primary.black,
+            backgroundColor: Colors.black,
           })}
         />
         <Download
@@ -213,7 +218,7 @@ export const renderDisplay = (
   }
 };
 
-const styles = StyleSheet.create({
+const styling =(Colors:any)=> StyleSheet.create({
   imageBubbleContainer: {
     flexDirection: 'column',
     width: IMAGE_DIMENSIONS,
@@ -223,14 +228,14 @@ const styles = StyleSheet.create({
   retryButton: {
     position: 'absolute',
     bottom: 4,
-    left: PortSpacing.tertiary.uniform,
+    left: Spacing.s,
     borderRadius: 20,
-    padding: PortSpacing.tertiary.uniform,
+    padding: Spacing.s,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(61, 61, 61, 0.60)',
     flexDirection: 'row',
-    gap: PortSpacing.tertiary.uniform,
+    gap: Spacing.s,
   },
   image: {
     height: IMAGE_DIMENSIONS, // Set the maximum height you desire
@@ -245,7 +250,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: PortColors.primary.black,
+    backgroundColor: Colors.black,
   },
   gradientContainer: {
     position: 'absolute',

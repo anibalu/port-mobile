@@ -52,13 +52,13 @@ const VideoView = ({
       height: 5,
     },
     wrapper: {
-      height: screen.height - 175,
+      height: isIOS? screen.height - 210: screen.height -150,
     },
     videoWrapper: {
-      height: screen.height - 175,
+      height: isIOS? screen.height - 210: screen.height -150,
     },
     video: {
-      height: screen.height - 175,
+      height: isIOS? screen.height - 210: screen.height -150,
     },
   };
 
@@ -73,6 +73,8 @@ const VideoView = ({
         source={{
           uri: fileUri,
         }}
+        autoplay
+        repeat
         muted={false}
         ignoreSilentSwitch="ignore"
         customStyles={customStyles}

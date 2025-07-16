@@ -10,29 +10,30 @@
 import React, {useEffect, useState} from 'react';
 import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 
-import {PortSpacing} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+
+import BaseBottomSheet from '@components/BaseBottomsheet';
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
+import { Spacing } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 import {DEFAULT_GROUP_MEMBER_NAME} from '@configs/constants';
 
-import Group from '@utils/Groups/Group';
+import Group from '@utils/Groups/GroupClass';
 import {ContentType} from '@utils/Messaging/interfaces';
 import SendMessage from '@utils/Messaging/Send/SendMessage';
 import {getProfilePictureUri} from '@utils/Profile';
 import {GroupMemberLoadedData} from '@utils/Storage/DBCalls/groupMembers';
 import {RichReaction, getRichReactions} from '@utils/Storage/reactions';
-import useDynamicSVG from '@utils/Themes/createDynamicSVG';
 
 import {AvatarBox} from '../AvatarBox/AvatarBox';
 import SimpleCard from '../Cards/SimpleCard';
 import LineSeparator from '../Separators/LineSeparator';
 
-import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 const RichGroupReactionsBottomsheet = ({
   visible,
@@ -55,7 +56,8 @@ const RichGroupReactionsBottomsheet = ({
 
   useEffect(() => {
     const fetchReactions = async () => {
-      const fetchedReactions = await getRichReactions(chatId, messageId);
+      const fetchedReactions = await getRichReactions(chatId, messageId, false);
+     
       setReactions(fetchedReactions);
       const calculatedReactionCounts: Record<string, number> = {};
       fetchedReactions.forEach(item => {
@@ -80,8 +82,8 @@ const RichGroupReactionsBottomsheet = ({
 
   useEffect(() => {
     (async () => {
-      const groupHandler = new Group(chatId);
-      setGroupMembers(await groupHandler.getMembers());
+      const groupHandler = await Group.load(chatId);
+      setGroupMembers(await groupHandler.getGroupMembers());
       const profileUri = await getProfilePictureUri();
       if (profileUri) {
         setProfileAvatarUri(profileUri);
@@ -105,7 +107,7 @@ const RichGroupReactionsBottomsheet = ({
     await sender.send();
     onClose();
   };
-  const Colors = DynamicColors();
+  const Colors = useColors();
 
   const svgArray = [
     // 1.CrossButton
@@ -115,7 +117,7 @@ const RichGroupReactionsBottomsheet = ({
       dark: require('@assets/dark/icons/Cross.svg').default,
     },
   ];
-  const results = useDynamicSVG(svgArray);
+  const results = useSVG(svgArray);
   const CrossButton = results.CrossButton;
 
   const renderBarItem = (item: RichReaction, index: number, Colors: any) => {
@@ -124,6 +126,8 @@ const RichGroupReactionsBottomsheet = ({
     const groupMember = groupMembers.filter(x => x.memberId === item.senderId);
     const senderAvatarUri =
       groupMember.length > 0 ? groupMember[0].displayPic : null;
+
+
 
     return (
       <Pressable onPress={() => handleRemoveReaction(selfReactedMessage)}>
@@ -137,9 +141,10 @@ const RichGroupReactionsBottomsheet = ({
           />
           <View style={styles.barItemTextContainer}>
             <NumberlessText
-              textColor={Colors.text.primary}
+              textColor={Colors.text.title}
               fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}>
+              fontWeight={FontWeight.rg}
+         >
               {item.senderId === 'SELF'
                 ? 'You'
                 : receiverReactedMessage?.senderName ||
@@ -149,14 +154,16 @@ const RichGroupReactionsBottomsheet = ({
               <NumberlessText
                 textColor={Colors.text.subtitle}
                 fontSizeType={FontSizeType.s}
-                fontType={FontType.rg}>
+                fontWeight={FontWeight.rg}
+                >
                 Tap to remove
               </NumberlessText>
             )}
           </View>
           <NumberlessText
             fontSizeType={FontSizeType.xl}
-            fontType={FontType.rg}>
+            fontWeight={FontWeight.rg}
+            >
             {item.reaction}
           </NumberlessText>
         </View>
@@ -166,10 +173,25 @@ const RichGroupReactionsBottomsheet = ({
   };
 
   const renderPillItem = (
-    item: {reaction: string; count: number},
+    item: RichReaction | {reaction: string},
     index: number,
     Colors: any,
   ) => {
+    let count = 1;
+
+    if (item.reaction === 'All') {
+      count = reactions.length;
+    } else {
+      const uniqueReaction = reactions.filter(
+        reactionItem => reactionItem.reaction === item.reaction,
+      );
+      count = uniqueReaction.length > 1 ? 2 : 1;
+    }
+
+    if (count > 1 && index === reactions.length) {
+      return null;
+    }
+
     return (
       <Pressable
         onPress={() => setSelectedPillIndex(index)}
@@ -178,8 +200,8 @@ const RichGroupReactionsBottomsheet = ({
           {
             borderColor:
               selectedPillIndex === index
-                ? Colors.primary.accent
-                : Colors.primary.stroke,
+                ? Colors.purple
+                : Colors.stroke,
           },
         ]}>
         <NumberlessText
@@ -187,19 +209,19 @@ const RichGroupReactionsBottomsheet = ({
           fontSizeType={
             item.reaction === 'All' ? FontSizeType.l : FontSizeType.xl
           }
-          fontType={FontType.rg}>
+          fontWeight={FontWeight.rg}
+      >
           {item.reaction}
         </NumberlessText>
         <NumberlessText
           textColor={Colors.text.primary}
           fontSizeType={FontSizeType.l}
-          fontType={FontType.rg}>
-          {item.count}
+          fontWeight={FontWeight.rg}>
+          {count}
         </NumberlessText>
       </Pressable>
     );
   };
-
   const barDataToPrint =
     selectedPillIndex === 0
       ? reactions
@@ -211,10 +233,8 @@ const RichGroupReactionsBottomsheet = ({
   const styles = styling(Colors);
 
   return (
-    <PrimaryBottomSheet
-      bgColor="g"
-      showNotch={true}
-      showClose={false}
+    <BaseBottomSheet
+    bgColor='g'
       visible={visible}
       onClose={onClose}>
       <View style={styles.container}>
@@ -243,14 +263,14 @@ const RichGroupReactionsBottomsheet = ({
           renderItem={({item, index}) => renderBarItem(item, index, Colors)}
         />
       </SimpleCard>
-    </PrimaryBottomSheet>
+    </BaseBottomSheet>
   );
 };
 
-const styling = Colors =>
+const styling = (Colors: any) =>
   StyleSheet.create({
     container: {
-      paddingTop: PortSpacing.secondary.top,
+      paddingTop: Spacing.l,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -260,30 +280,30 @@ const styling = Colors =>
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingVertical: 4,
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.l,
     },
     barItemTextContainer: {
       gap: 1,
       flex: 1,
-      marginHorizontal: PortSpacing.secondary.uniform,
+      marginHorizontal:  Spacing.l,
     },
     pillItemContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
-      marginRight: PortSpacing.tertiary.uniform,
+      marginRight:  Spacing.s,
       borderWidth: 1,
-      paddingHorizontal: PortSpacing.tertiary.uniform,
+      paddingHorizontal:  Spacing.s,
       paddingVertical: 4,
       borderRadius: 12,
-      backgroundColor: Colors.primary.surface,
+      backgroundColor: Colors.surface,
     },
     simpleCardContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      marginTop: PortSpacing.secondary.top,
-      marginBottom: PortSpacing.secondary.bottom,
+      marginTop:  Spacing.l,
+      marginBottom:  Spacing.l,
     },
   });
 

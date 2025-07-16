@@ -4,13 +4,16 @@ import {Keyboard, StyleSheet, View} from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
 
-import {PortSpacing, isIOS, screen} from '@components/ComponentUtils';
-import DynamicColors from '@components/DynamicColors';
+import BaseBottomSheet from '@components/BaseBottomsheet';
+import { useColors } from '@components/colorGuide';
 import {
   FontSizeType,
-  FontType,
+  FontWeight,
   NumberlessText,
 } from '@components/NumberlessText';
+import LineSeparator from '@components/Separators/LineSeparator';
+import { Spacing, Width } from '@components/spacingGuide';
+import useSVG from '@components/svgGuide';
 
 import {safeModalCloseDuration} from '@configs/constants';
 import {messageReportCategories} from '@configs/reportingCategories';
@@ -26,13 +29,10 @@ import {wait} from '@utils/Time';
 import {ToastType, useToast} from 'src/context/ToastContext';
 
 import SimpleCard from '../Cards/SimpleCard';
-import LargeTextInput from '../Inputs/LargeTextInput';
 import SimpleInput from '../Inputs/SimpleInput';
 import PrimaryButton from '../LongButtons/PrimaryButton';
 import OptionWithRadio from '../OptionButtons/OptionWithRadio';
-import LineSeparator from '../Separators/LineSeparator';
 
-import PrimaryBottomSheet from './PrimaryBottomSheet';
 
 function GroupReportMessageBottomSheet({
   openModal,
@@ -69,6 +69,16 @@ function GroupReportMessageBottomSheet({
 
   const [topButtonLoading, setTopButtonLoading] = useState<boolean>(false);
   const [text, setText] = useState<string>('');
+  const svgArray = [
+    {
+      assetName: 'SingleTick',
+      light: require('@assets/light/icons/SingleTick.svg').default,
+      dark: require('@assets/dark/icons/SingleTick.svg').default,
+    },
+  ];
+  const results = useSVG(svgArray);
+
+  const SingleTick = results.SingleTick;
 
   const reportMessage = async () => {
     if (
@@ -128,7 +138,7 @@ function GroupReportMessageBottomSheet({
     onClose();
   };
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
 
   const {showToast} = useToast();
 
@@ -160,7 +170,7 @@ function GroupReportMessageBottomSheet({
       await wait(safeModalCloseDuration);
       navigation.navigate('HomeTab');
     } catch (err) {
-      console.error('Error disconnecting', err);
+      console.error('Error disconnecting from group', err);
       setExitGroupButtonLoading(false);
       onCloseClick();
       await wait(safeModalCloseDuration);
@@ -168,33 +178,43 @@ function GroupReportMessageBottomSheet({
   };
 
   return (
-    <PrimaryBottomSheet
-      bgColor="g"
+    <BaseBottomSheet
       visible={openModal}
-      title={`Why are you reporting ${name}?`}
-      showClose={true}
       onClose={onCloseClick}>
       <View style={styles.mainContainer}>
+      <View style={styles.titleContainer}>
+      <View style={{flexDirection:'row', gap: Spacing.s}}>
+        {onReportSubmitted && <SingleTick /> } 
+          <NumberlessText
+            textColor={Colors.text.title}
+            fontSizeType={FontSizeType.xl}
+            fontWeight={FontWeight.sb}>
+              {onReportSubmitted? `Thanks for reporting`:`Why are you reporting ${name}?`}
+          </NumberlessText>
+      </View>
+          
+          <LineSeparator style={{ width: Width.screen }} />
+        </View>
         {onReportSubmitted ? (
           <>
             <NumberlessText
-              style={{marginTop: PortSpacing.tertiary.top}}
+              style={{marginBottom: Spacing.s}}
               textColor={Colors.text.subtitle}
-              fontType={FontType.rg}
+              fontWeight={FontWeight.rg}
               fontSizeType={FontSizeType.m}>
               Type of issue
             </NumberlessText>
             <SimpleCard style={styles.card}>
               <NumberlessText
-                textColor={Colors.text.primary}
-                fontType={FontType.sb}
+                textColor={Colors.text.title}
+                fontWeight={FontWeight.sb}
                 fontSizeType={FontSizeType.l}>
                 {selectedReportOption.title}
               </NumberlessText>
               {selectedReportOption.index === 3 && (
                 <View style={styles.block}>
-                  <LargeTextInput
-                    maxLength={2000}
+                  <SimpleInput
+                    maxLength={200}
                     setText={() => {}}
                     text={otherReport}
                     bgColor="w"
@@ -205,8 +225,9 @@ function GroupReportMessageBottomSheet({
               )}
             </SimpleCard>
             <NumberlessText
-              textColor={Colors.text.primary}
-              fontType={FontType.rg}
+            style={{marginTop: Spacing.s}}
+              textColor={Colors.text.subtitle}
+              fontWeight={FontWeight.rg}
               fontSizeType={FontSizeType.m}>
               Port will take a careful look at this contact/content and take
               appropriate action.
@@ -229,10 +250,10 @@ function GroupReportMessageBottomSheet({
         ) : (
           <>
             <NumberlessText
-              style={{marginTop: PortSpacing.secondary.top}}
               textColor={Colors.text.subtitle}
               fontSizeType={FontSizeType.m}
-              fontType={FontType.rg}>
+              fontWeight={FontWeight.rg}
+           >
               {description}
             </NumberlessText>
             <SimpleCard style={{paddingBottom: 4}}>
@@ -253,8 +274,8 @@ function GroupReportMessageBottomSheet({
               {selectedReportOption.index === 3 && (
                 <View
                   style={{
-                    paddingHorizontal: PortSpacing.secondary.bottom,
-                    marginVertical: PortSpacing.tertiary.top,
+                    paddingHorizontal: Spacing.l,
+                    marginVertical:Spacing.s
                   }}>
                   <SimpleInput
                     placeholderText={'Type your reason'}
@@ -285,41 +306,43 @@ function GroupReportMessageBottomSheet({
           </>
         )}
       </View>
-    </PrimaryBottomSheet>
+    </BaseBottomSheet>
   );
 }
 const styling = (Colors: any) =>
   StyleSheet.create({
     mainContainer: {
-      gap: PortSpacing.intermediate.uniform,
-      width: screen.width,
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      borderRadius: 30,
-      ...(isIOS ? {marginBottom: PortSpacing.secondary.bottom} : 0),
+      width: Width.screen,
+      paddingHorizontal: Spacing.l,
     },
     buttonWrapper: {
-      gap: PortSpacing.tertiary.uniform,
+      gap: Spacing.m,
+      marginTop: Spacing.s
     },
     buttonContainer: {
-      paddingHorizontal: PortSpacing.secondary.uniform,
-      paddingVertical: PortSpacing.tertiary.uniform,
+      paddingHorizontal: Spacing.m,
+      paddingVertical: Spacing.m,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
     },
     card: {
-      paddingHorizontal: PortSpacing.secondary.uniform,
+      paddingHorizontal: Spacing.m,
       borderWidth: 0.5,
-      borderColor: Colors.primary.stroke,
-      paddingVertical: PortSpacing.secondary.uniform,
+      borderColor: Colors.stroke,
+      paddingVertical: Spacing.m,
     },
     block: {
-      borderRadius: 8,
-      borderColor: Colors.primary.stroke,
-      borderWidth: 0.5,
-      marginTop: PortSpacing.tertiary.top,
-      paddingTop: PortSpacing.tertiary.top,
-      paddingLeft: PortSpacing.tertiary.left,
+      marginTop: Spacing.m,   
+    },
+    titleContainer: {
+      width: '100%',
+      paddingTop: Spacing.s,
+      paddingBottom: Spacing.s,
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: Spacing.m,
+    
     },
   });
 

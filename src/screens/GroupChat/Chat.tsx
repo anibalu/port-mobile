@@ -17,9 +17,9 @@ import {
 } from 'react-native-reanimated';
 import {useSelector} from 'react-redux';
 
+import { useColors } from '@components/colorGuide';
 import {isIOS, screen} from '@components/ComponentUtils';
 import {CustomStatusBar} from '@components/CustomStatusBar';
-import DynamicColors from '@components/DynamicColors';
 import {GestureSafeAreaView} from '@components/GestureSafeAreaView';
 import ChatTopbar from '@components/GroupChatComponents/ChatTopbar';
 import Disconnected from '@components/GroupChatComponents/Disconnected';
@@ -273,7 +273,7 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const Colors = DynamicColors();
+  const Colors = useColors();
   const styles = styling();
   const {themeValue} = useTheme();
 
@@ -299,16 +299,16 @@ function ChatScreen({ifTemplateExists}: {ifTemplateExists?: TemplateParams}) {
       <CustomStatusBar
         backgroundColor={
           themeValue === 'dark'
-            ? Colors.primary.surface
-            : Colors.primary.surface2
+            ? Colors.surface
+            : Colors.surface2
         }
       />
       <GestureSafeAreaView
         style={StyleSheet.compose(styles.screen, {
           backgroundColor:
             themeValue === 'dark'
-              ? Colors.primary.background
-              : Colors.primary.surface,
+              ? Colors.background
+              : Colors.surface,
         })}>
         <KeyboardAvoidingView
           style={styles.main}

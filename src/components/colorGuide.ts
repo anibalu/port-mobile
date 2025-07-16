@@ -11,6 +11,7 @@ const CommonColors = {
   mildBlack: '#05070B',
   red: '#EF4D41',
   redBackground: '#FFE6E6',
+  grey:'#667085',
   boldAccentColors: {
     violet: '#730BDC',
     darkGreen: '#469A5F',

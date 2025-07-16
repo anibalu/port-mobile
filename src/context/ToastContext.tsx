@@ -15,7 +15,8 @@ import React, {
   useState,
 } from 'react';
 
-import {ERROR_MODAL_VALIDITY_TIMEOUT} from '@configs/constants';
+import { ERROR_MODAL_VALIDITY_TIMEOUT } from '@configs/constants';
+
 
 /**
  * Enum for Toast types.
@@ -24,6 +25,7 @@ export enum ToastType {
   error = 0,
   success = 1,
   warning = 2,
+  hint = 4
 }
 
 /**
@@ -41,6 +43,7 @@ type ToastContextType = {
   showToast: (text: string, type: ToastType) => void;
   isToastVisible: boolean;
   toastToShow: ToastObject;
+  setIsToastVisible:(visible: boolean)=>void;
 };
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -85,7 +88,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({children}) => {
   }, [toastToShow]);
 
   return (
-    <ToastContext.Provider value={{isToastVisible, showToast, toastToShow}}>
+    <ToastContext.Provider value={{isToastVisible, showToast, toastToShow, setIsToastVisible}}>
       {children}
     </ToastContext.Provider>
   );

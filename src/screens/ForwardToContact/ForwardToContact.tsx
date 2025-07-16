@@ -10,7 +10,7 @@ import { GradientScreenView } from '@components/GradientScreenView';
 import SearchBar from '@components/SearchBar';
 import { Height, Spacing } from '@components/spacingGuide';
 import TopBarDescription from '@components/Text/TopBarDescription';
-
+ 
 import {AppStackParamList} from '@navigation/AppStack/AppStackTypes';
 
 import {LargeDataParams} from '@utils/Messaging/interfaces';
@@ -170,7 +170,7 @@ const ForwardToContact = ({route, navigation}: Props) => {
   return (
     <GradientScreenView 
       color={Colors}
-      title={ 'Forward to chats'}
+      title={ `Forward to chats${selectedMembers.size > 0 ? ` (${selectedMembers.size})` : ''}`}
       onBackPress={() => navigation.goBack()}
       modifyNavigationBarColor={true}
       bottomNavigationBarColor={Colors.black}>

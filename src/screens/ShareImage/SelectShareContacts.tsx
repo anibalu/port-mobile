@@ -149,7 +149,7 @@ const SelectShareContacts = ({route, navigation}: Props) => {
   return (
     <GradientScreenView 
       color={Colors}
-      title={ 'Select contacts to share media with'}
+      title={ `Select contacts to share media with${selectedMembers.size > 0 ? ` (${selectedMembers.size})` : ''}`}
       onBackPress={() => navigation.goBack()}
       modifyNavigationBarColor={true}
       bottomNavigationBarColor={Colors.black}>

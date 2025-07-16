@@ -5,6 +5,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import PrimaryButton from '@components/Buttons/PrimaryButton';
 import MultiSelectMembersCard from '@components/Cards/MultiSelectMembersCard';
+import SelectedMembersCard from '@components/Cards/SelectedMembersCard';
 import { useColors } from '@components/colorGuide';
 import { GradientScreenView } from '@components/GradientScreenView';
 import SearchBar from '@components/SearchBar';
@@ -112,6 +113,9 @@ const InviteGroupMembers = ({ route, navigation }: Props) => {
             </View>
           ) : (
             <View style={styles.card}>
+               <SelectedMembersCard
+              setSelectedMembers={setSelectedMembers}
+              members={selectedMembers}/>
               <SearchBar
                 style={{
                   backgroundColor: Colors.surface,
@@ -139,7 +143,7 @@ const InviteGroupMembers = ({ route, navigation }: Props) => {
   return (
     <GradientScreenView
       color={Colors}
-      title={`Invite members to ${groupData.name}`}
+      title={`Invite members to ${groupData.name}${selectedMembers.size > 0 ? ` (${selectedMembers.size})` : ''}`}
       onBackPress={fromNewGroup ? undefined : () => navigation.goBack()}
       onSkipPress={fromNewGroup ? () => navigation.replace('GroupChat', {
         chatId: chatId,

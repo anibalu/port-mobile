@@ -68,3 +68,18 @@ _Note: `.ipa` and `.aab` files are ignored by git. We don't want to commit them.
 - At Numberless, engineers are issued Apple silicon Macbooks. This makes life challenging in many ways, but is a requirement for developing for iOS. If issues are opened on for other hardware, we aren't certain about our ability to reproduce and resolve the issue.
 
 - We recommend, wherever possible, avoiding running the app on emulators/simulators. There are several issues with this. On iOS simulators don't support APNS or CallKit. You are likely to have to refresh the app after every message you send to the device. You are occasionally issued an APNS token on a simulator, but these are freak incidents. The experience on Android emulators are better, but not stellar either.
+
+## Contributing
+
+We welcome contributions from the community! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, report bugs, and suggest enhancements.
+
+## Code of Conduct
+
+This project adheres to the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+
+## License
+
+This project is licensed under the Apache License Version 2.0 - see the [LICENSE](LICENSE) file for details.
+---
+
+Made with ❤️ by [Numberless](https://numberless.tech)

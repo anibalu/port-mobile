@@ -1,0 +1,31 @@
+Port - A consent-based communication app that uses no persistent identifiers
+Copyright 2024 Numberless, Inc.
+
+This product includes software developed by:
+- OpenSSL (https://www.openssl.org/) - Copyright 1998-present The OpenSSL Project Authors
+- React Native (https://reactnative.dev/) - Copyright 2015-present Meta Platforms, Inc.
+- React (https://reactjs.org/) - Copyright 2013-present Meta Platforms, Inc.
+- TypeScript (https://www.typescriptlang.org/) - Copyright 2012-present Microsoft Corporation
+- Redux Toolkit (https://redux-toolkit.js.org/) - Copyright 2019-present Redux Toolkit Authors
+- React Navigation (https://reactnavigation.org/) - Copyright 2017-present React Navigation Contributors
+- Firebase (https://firebase.google.com/) - Copyright 2017-present Google LLC
+- Sentry (https://sentry.io/) - Copyright 2012-present Sentry (https://sentry.io/)
+- WebRTC (https://webrtc.org/) - Copyright 2011-present Google LLC and contributors
+- Lodash (https://lodash.com/) - Copyright 2012-present JS Foundation and other contributors
+- Axios (https://axios-http.com/) - Copyright 2014-present Matt Zabriskie
+
+Additional acknowledgments:
+- Icons provided by react-native-vector-icons (https://github.com/oblador/react-native-vector-icons)
+- Audio recording capabilities by react-native-audio-recorder-player
+- Video processing by react-native-video and react-native-vision-camera
+- File handling by react-native-fs and react-native-blob-util
+- UI components from various React Native community libraries
+- Push notifications via @react-native-firebase/messaging and @notifee/react-native
+- Background processing via react-native-background-fetch
+- Image processing via react-native-image-resizer and react-native-compressor
+- Encryption and security via OpenSSL
+
+This product may include other third-party components. Please see the package.json file for a complete list of dependencies and their respective licenses.
+
+For more information about this project, visit: https://github.com/Numberless-Inc/port-mobile
+For more information about the Port, visit: https://portmessenger.com 
